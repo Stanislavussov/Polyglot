@@ -1,0 +1,22 @@
+{
+  "name": "@polyglot/bot",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@polyglot/core": "workspace:*",
+    "@polyglot/adapter-db": "workspace:*",
+    "@polyglot/adapter-ai": "workspace:*",
+    "@polyglot/adapter-notifications": "workspace:*"
+  }
+}
