@@ -1,6 +1,6 @@
 # Task 02: Create DB schemas and push to DB
 
-**Status:** ✅ Done (except `db:push` — requires DATABASE_URL)
+**Status:** ✅ Done
 
 ## Description
 
@@ -17,8 +17,8 @@ Implement the Drizzle ORM schema in `packages/adapters/db/` as described in `tec
 - [x] Create `drizzle.config.ts` reading `DATABASE_URL` from env
 - [x] Create `packages/adapters/db/index.ts` with `getDb()` singleton (creates one connection pool)
 - [x] Generate initial migration: `pnpm drizzle-kit generate`
-- [ ] Push schema to database: `pnpm drizzle-kit push` (or `migrate`) — ⚠️ requires running PostgreSQL with DATABASE_URL set
-- [ ] Verify tables exist in PostgreSQL (connect and inspect) — ⚠️ requires running PostgreSQL
+- [x] Push schema to database: `pnpm drizzle-kit push` (Neon PostgreSQL)
+- [x] Verify tables exist in PostgreSQL (all 4 tables with correct columns, types, indexes confirmed)
 - [x] Create repository stubs per `tech-reqs/14-agents.md`:
   - `repositories/user.repository.ts` — `findByTelegramId()`, `create()`, `updateSettings()`
   - `repositories/word.repository.ts` — `create()`, `findByUser()`, `findById()`, `search()`, `delete()`
