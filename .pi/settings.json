@@ -1,3 +1,69 @@
 {
-  "packages": ["/Users/stanislav.ussov/Pryeojects/ai-sdk"]
+  "$schema": "/Users/stanislav.ussov/Projects/ai-sdk/schema.json",
+  "packages": ["/Users/stanislav.ussov/Projects/ai-sdk"],
+  "orchestrator": {
+    "agents": [
+      {
+        "name": "i18n",
+        "role": "Internationalization of all bot texts. Leaf agent — no dependencies on other modules. Works in packages/core/src.",
+        "rules": "Only `t(key, lang)` — no direct locale file imports from other modules.\nOn missing key — fallback to `en`, never throw an error.\nKeys are a strict enum — TypeScript won't allow passing a non-existent key.\nInterpolation parameters are typed: `t(\"welcome\", lang, { name: string })`.\nSkills: t(key, lang, params?), getSupportedLangs(), isSupported(lang).",
+        "type": "coding",
+        "skills": [".pi/skills/i18n"]
+      },
+      {
+        "name": "validation",
+        "role": "Checks AI response quality. Leaf agent — no dependencies on other modules. Works in packages/core/src.",
+        "rules": "Pure functions only — no side effects, no I/O.\nNever calls AI — only deterministic checks.\nEach rule is a separate function named `validate*`.\nAlways returns a failure reason — always explains what went wrong.\nSkills: validateSchema(raw, schema), validateSemantic(original, translation), validateLanguage(text, expectedLang), validateExamples(examples, word), validate(all above, orchestrated).",
+        "type": "coding",
+        "skills": [".pi/skills/validation"]
+      },
+      {
+        "name": "db",
+        "role": "The only module that knows about Drizzle and PostgreSQL. All other agents get data only through repositories. Works in packages/adapters/db/src.",
+        "rules": "No business logic — CRUD operations only.\nAll queries typed via Drizzle — no raw SQL.\nSingle connection instance — singleton `getDb()`.\nEach repository is a separate file with a single responsibility.\nSkills: UserRepository (findByTelegramId, create, updateSettings), WordRepository (create, findByUser, findById, search, delete), TopicRepository (getCached, setCached, markInvalid).",
+        "type": "coding",
+        "skills": [".pi/skills/db"]
+      },
+      {
+        "name": "ai",
+        "role": "The only module that knows about OpenRouter and Vercel AI SDK. All other agents receive AI responses through it exclusively. Works in packages/adapters/ai/src.",
+        "rules": "Has no knowledge of domain logic — only sends requests and returns responses.\nAll requests are logged: `model`, `tokens`, `cost_usd`, `duration_ms`.\nModel is always a parameter, never hardcoded internally.\n`maxRetries` is configurable from outside.\nSkills: generateObject<T>(prompt, schema, model), generateText(prompt, model), getAvailableModels(), estimateCost(tokens, model).",
+        "type": "coding",
+        "dependsOn": ["validation"],
+        "skills": [".pi/skills/ai"]
+      },
+      {
+        "name": "translation",
+        "role": "Translates words and phrases via AI. Knows about prompts and response structure. Works in packages/core/src.",
+        "rules": "One method `translate()` — the single entry point.\nDoes not save results — only returns them.\nKnows nothing about the user — works only with text and languages.\nAlways calls the `validation` agent before returning a result.\nSkills: translate(input), translateBatch(words, ...), buildPrompt(input), parseResponse(raw).",
+        "type": "coding",
+        "dependsOn": ["ai", "validation"],
+        "skills": [".pi/skills/translation"]
+      },
+      {
+        "name": "topics",
+        "role": "Manages topics and caching of dataset translations. Works in packages/core/src.",
+        "rules": "Always checks cache before calling the `translation` agent.\nCalls `translation` in batch only — never one word at a time.\nKnows nothing about the user — works with language pairs.\nBuilt-in datasets are loaded once at startup.\nSkills: getBuiltinTopics(), getTopicWords(topicId, sourceLang, targetLangs), generateCustomTopic(prompt, sourceLang, targetLangs), getCacheStatus(topicId, sourceLang, targetLangs).",
+        "type": "coding",
+        "dependsOn": ["translation", "db"],
+        "skills": [".pi/skills/topics"]
+      },
+      {
+        "name": "notifications",
+        "role": "Manages notification scheduling and delivery. Isolated from the bot via injection. Works in packages/adapters/notifications/src.",
+        "rules": "Does not import the `bot` agent — receives `sendFn` as a parameter at startup.\nOne cron job for the entire schedule — do not create a job per user.\nOn send error — log and continue, do not stop the entire scheduler.\nRespect user timezone when sending.\nSkills: startScheduler(sendFn), stopScheduler(), getUsersForNotification(time), buildNotificationPayload(user), pickSuggestedWord(userId).",
+        "type": "coding",
+        "dependsOn": ["db", "topics"],
+        "skills": [".pi/skills/notifications"]
+      },
+      {
+        "name": "bot",
+        "role": "Manages all user interaction via Telegram. The only module that knows about grammY. Works in apps/bot/src.",
+        "rules": "Never contains business logic — only calls to other agents.\nNever accesses the DB directly — only through the `db` agent.\nAll texts only through the `i18n` agent — no hardcoded strings.\nEach scene is a separate file, max 100 lines.\nSkills: renderTranslation(output), renderTopicWord(word), handleOnboarding(), handleTranslate(), handleDictionary(), handleSettings().",
+        "type": "coding",
+        "dependsOn": ["i18n", "db", "translation", "topics", "notifications"],
+        "skills": [".pi/skills/bot"]
+      }
+    ]
+  }
 }
