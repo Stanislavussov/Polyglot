@@ -23,7 +23,7 @@ Set up the monorepo structure using pnpm workspaces as described in `tech-reqs/0
 - [x] Install shared dev dependencies at root: `typescript`, `vitest`, `@vitest/coverage-v8`
 - [x] Create `shared/logger.ts` (Pino + Betterstack transport) per `tech-reqs/16-logging.md`
 - [x] Create `shared/config.ts` (ENV validation with Zod) per `tech-reqs/13-env.md`
-- [x] Create `.env.example` with all required variables (`BOT_TOKEN`, `DATABASE_URL`, `AI_PROVIDER`, API keys, `BETTERSTACK_TOKEN`, `NODE_ENV`)
+- [x] Create `.env.example` with all required variables (`BOT_TOKEN`, `DATABASE_URL`, `OPENROUTER_API_KEY`, `AI_MODEL`, `BETTERSTACK_TOKEN`, `NODE_ENV`)
 - [x] Add root scripts: `dev`, `build`, `test`, `test:watch`, `test:coverage`
 - [x] Add `.gitignore` (node_modules, dist, .env, coverage)
 - [x] Verify `pnpm install` succeeds and workspaces resolve correctly

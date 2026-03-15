@@ -28,8 +28,11 @@ description: AI adapter using Vercel AI SDK with OpenRouter/multi-provider suppo
 
 ## Provider Configuration
 
-Provider is selected via `AI_PROVIDER` env var (`"openai" | "claude" | "gemini"`).
-API keys: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`.
+Uses OpenRouter as the single AI provider — one API key for all models (OpenAI, Anthropic, Google, etc.).
+
+- `OPENROUTER_API_KEY` — single API key for all providers
+- `AI_MODEL` — OpenRouter model ID (e.g. `openai/gpt-4o`, `anthropic/claude-sonnet-4-20250514`, `google/gemini-2.5-pro`)
+
 Config is loaded via `loadConfig()` from `@polyglot/infra`.
 
 ## Skills (Public API)
@@ -94,10 +97,12 @@ packages/adapters/ai/src/
 
 ```typescript
 import { generateObject as aiGenerateObject } from "ai";
-import { openai } from "@ai-sdk/openai";  // or anthropic, google
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+
+const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
 const result = await aiGenerateObject({
-  model: openai("gpt-4o"),
+  model: openrouter(process.env.AI_MODEL ?? "openai/gpt-4o"),
   schema: zodSchema,
   prompt: prompt,
 });

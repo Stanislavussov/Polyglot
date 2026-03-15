@@ -6,10 +6,8 @@ import { z } from "zod";
 const envSchema = z.object({
   BOT_TOKEN: z.string().min(1, "BOT_TOKEN is required"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
-  AI_PROVIDER: z.enum(["openai", "claude", "gemini"]).default("openai"),
-  OPENAI_API_KEY: z.string().optional(),
-  ANTHROPIC_API_KEY: z.string().optional(),
-  GEMINI_API_KEY: z.string().optional(),
+  OPENROUTER_API_KEY: z.string().optional(),
+  AI_MODEL: z.string().default("openai/gpt-5-nano"),
   BETTERSTACK_TOKEN: z.string().optional(),
   NODE_ENV: z
     .enum(["development", "production", "test"])

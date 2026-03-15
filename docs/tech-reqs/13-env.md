@@ -4,10 +4,8 @@
 # .env.example
 BOT_TOKEN=                  # Telegram Bot Token
 DATABASE_URL=               # postgresql://... (Supabase connection string)
-AI_PROVIDER=openai          # openai | claude | gemini
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-GEMINI_API_KEY=
+OPENROUTER_API_KEY=         # OpenRouter API key (single key for all AI providers)
+AI_MODEL=openai/gpt-4o      # OpenRouter model ID (e.g. openai/gpt-4o, anthropic/claude-sonnet-4-20250514, google/gemini-2.5-pro)
 BETTERSTACK_TOKEN=          # Betterstack source token
 NODE_ENV=development
 ```

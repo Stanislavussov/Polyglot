@@ -34,8 +34,7 @@ Implement the end-to-end AI translation pipeline: fix types & schemas to match t
 
 ### Step 2: Install Dependencies
 
-- [ ] In `packages/adapters/ai/`: `pnpm add ai @ai-sdk/openai @ai-sdk/anthropic @ai-sdk/google`
-  - **Alternative (recommended by research):** `pnpm add ai @openrouter/ai-sdk-provider` for single-API-key provider switching
+- [ ] In `packages/adapters/ai/`: `pnpm add ai @openrouter/ai-sdk-provider` (single API key for all providers via OpenRouter)
 - [ ] In `packages/core/`: `pnpm add franc-min` for language detection validation
 - [ ] Verify all workspace packages still build after dependency changes (`pnpm -r run build`)
 
@@ -60,8 +59,9 @@ Implement the end-to-end AI translation pipeline: fix types & schemas to match t
 
 - [ ] Create `packages/adapters/ai/src/types.ts` — `AIModel`, `AIRequestLog` interfaces
 - [ ] Create `packages/adapters/ai/src/client.ts`:
-  - Provider factory based on `AI_PROVIDER` env var (via `loadConfig()` from `@polyglot/infra`)
-  - Returns Vercel AI SDK model instance (`openai("gpt-4o")`, `anthropic("claude-sonnet-4-20250514")`, etc.)
+  - Creates OpenRouter client via `createOpenRouter({ apiKey })` using `OPENROUTER_API_KEY` from `loadConfig()`
+  - Returns model instance via `openrouter(modelId)` where `modelId` comes from `AI_MODEL` env var (e.g. `openai/gpt-4o`)
+  - No provider factory needed — OpenRouter handles routing to all providers
 - [ ] Create `packages/adapters/ai/src/models.ts`:
   - Model registry with cost data per provider
   - `getAvailableModels(): AIModel[]`
@@ -105,7 +105,7 @@ Implement the end-to-end AI translation pipeline: fix types & schemas to match t
 |------|-----------|
 | `franc-min` low accuracy on short text (<15 chars) | Skip language validation for inputs shorter than 15 characters |
 | CEFR level non-determinism from AI | Accept AI's CEFR as-is in MVP; add user override in post-MVP |
-| Provider lock-in | Use adapter pattern; consider OpenRouter for single-API-key flexibility |
+| Provider lock-in | OpenRouter as single provider — switch models via `AI_MODEL` env var |
 | Schema mismatch between prompt output and Zod schema | `translationResultSchema` is the single source of truth — prompt and types are derived from it |
 
 ## Files Created / Modified
