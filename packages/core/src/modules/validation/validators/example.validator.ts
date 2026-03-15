@@ -53,26 +53,9 @@ export function validateExamples(
       });
     }
 
-    // Check target text contains the word (case-insensitive, stem-tolerant)
-    if (example.target && word) {
-      const targetLower = example.target.toLowerCase();
-      const wordLower = word.toLowerCase();
-
-      // Check if the word appears in the target sentence.
-      // Use the first 3 characters as a stem for very short words,
-      // or the word stem (at least 3 chars) for longer words,
-      // to account for inflected forms (e.g. "slovo" → "slova")
-      const stem =
-        wordLower.length > 3 ? wordLower.slice(0, -1) : wordLower;
-
-      if (!targetLower.includes(wordLower) && !targetLower.includes(stem)) {
-        errors.push({
-          rule: "examples",
-          message: `Example ${i} target text does not contain the word "${word}"`,
-          field: `examples.${i}.target`,
-        });
-      }
-    }
+    // Word containment check removed — inflected forms, synonyms,
+    // and multi-word translations make this check too noisy
+    // (e.g. "chlebíček" → "chlebíčky", or model uses a synonym).
   }
 
   return { valid: errors.length === 0, errors };

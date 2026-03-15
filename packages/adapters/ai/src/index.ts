@@ -45,6 +45,7 @@ export async function generateObject<T>(
       schema,
       prompt,
       maxRetries,
+      maxTokens: 4096,
     });
 
     const duration_ms = Date.now() - start;

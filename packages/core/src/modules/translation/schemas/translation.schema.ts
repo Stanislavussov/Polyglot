@@ -75,6 +75,30 @@ export const translationResultSchema = z.object({
   translations: z.object({}).catchall(languageTranslationSchema),
 });
 
+/**
+ * Build a translation result schema with required language keys.
+ *
+ * Unlike the generic translationResultSchema (which accepts any keys),
+ * this schema explicitly requires specific language keys. This helps
+ * AI models (via Vercel AI SDK's structured output) produce all
+ * expected translations instead of returning partial/empty objects.
+ *
+ * @param targetLangs - Language codes that must be present (e.g. ["cs", "en", "es"])
+ * @returns Zod schema with explicit required language keys
+ */
+export function buildTranslationResultSchema(targetLangs: string[]) {
+  const langEntries: Record<string, typeof languageTranslationSchema> = {};
+  for (const lang of targetLangs) {
+    langEntries[lang] = languageTranslationSchema;
+  }
+
+  return z.object({
+    emoji: z.string().min(1, "Emoji is required"),
+    register: registerEnum,
+    translations: z.object(langEntries),
+  });
+}
+
 /** Inferred types from schemas for runtime validation */
 export type TranslationRequestInput = z.infer<typeof translationRequestSchema>;
 export type TranslationResultInput = z.infer<typeof translationResultSchema>;

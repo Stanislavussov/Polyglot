@@ -140,7 +140,7 @@ describe("validate (orchestrator)", () => {
     expect(result.errors.every((e) => e.rule === "schema")).toBe(true);
   });
 
-  it("validates examples contain the translated word", () => {
+  it("passes examples even when target does not contain the translated word", () => {
     const raw = {
       emoji: "👋",
       register: "neutral",
@@ -161,8 +161,8 @@ describe("validate (orchestrator)", () => {
       },
     };
     const result = validate(raw, translationResultSchema, "hello", ["cs"]);
-    expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
+    expect(result.valid).toBe(true);
+    expect(result.errors.some((e) => e.rule === "examples")).toBe(false);
   });
 
   it("validates hallucination patterns", () => {

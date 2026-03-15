@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { validateExamples } from "../validators/example.validator.js";
 
 describe("validateExamples", () => {
-  it("returns valid for well-formed examples containing the word", () => {
+  it("returns valid for well-formed examples", () => {
     const result = validateExamples(
       [
         {
@@ -46,7 +46,7 @@ describe("validateExamples", () => {
     ).toBe(true);
   });
 
-  it("fails when target text does not contain the word", () => {
+  it("passes when target text does not contain the word (no word containment check)", () => {
     const result = validateExamples(
       [
         {
@@ -56,38 +56,6 @@ describe("validateExamples", () => {
         },
       ],
       "ahoj",
-    );
-    expect(result.valid).toBe(false);
-    expect(
-      result.errors.some((e) => e.message.includes("does not contain")),
-    ).toBe(true);
-  });
-
-  it("passes for case-insensitive word match", () => {
-    const result = validateExamples(
-      [
-        {
-          context: "formal",
-          target: "AHOJ, jak se máš?",
-          native: "Hello, how are you?",
-        },
-      ],
-      "ahoj",
-    );
-    expect(result.valid).toBe(true);
-  });
-
-  it("passes for stem match on inflected forms", () => {
-    // "slova" is inflected form of "slovo" — stem "slov" should match
-    const result = validateExamples(
-      [
-        {
-          context: "formal",
-          target: "Ta slova jsou důležitá.",
-          native: "Those words are important.",
-        },
-      ],
-      "slovo",
     );
     expect(result.valid).toBe(true);
   });
@@ -118,7 +86,7 @@ describe("validateExamples", () => {
       [
         {
           context: "formal",
-          target: "Unrelated sentence completely",
+          target: "",
           native: "Also unrelated",
         },
       ],

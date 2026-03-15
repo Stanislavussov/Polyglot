@@ -19,7 +19,10 @@ import type {
   TranslationResult,
 } from "./types.js";
 import { buildTranslationPrompt, buildStrictPrompt } from "./prompt.builder.js";
-import { translationResultSchema } from "./schemas/translation.schema.js";
+import {
+  translationResultSchema,
+  buildTranslationResultSchema,
+} from "./schemas/translation.schema.js";
 import { validate } from "../validation/index.js";
 
 /** Maximum number of validation retries before returning with needsReview */
@@ -56,19 +59,52 @@ export async function translate(
     topic: input.topic,
   };
 
+  console.log("[translation] starting translation request", {
+    original: input.word,
+    sourceLang: input.sourceLang,
+    targetLangs: input.targetLangs,
+    topic: input.topic,
+    model: input.model,
+  });
+
   // Step 1: Build prompt and call AI
+  // Use dynamic schema with required language keys so AI SDK enforces their presence
+  const schema = buildTranslationResultSchema(input.targetLangs);
   let prompt = buildTranslationPrompt(request);
   let result: TranslationResult;
   let lastErrors: string[] = [];
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    // Step 2: Call AI adapter
-    result = await generateObjectFn(
-      prompt,
-      translationResultSchema,
-      input.model,
-      ...(input.userId !== undefined ? [{ userId: input.userId }] : []),
-    );
+    // Step 2: Call AI adapter (catch generation/parse failures to allow retry)
+    try {
+      result = await generateObjectFn(
+        prompt,
+        schema,
+        input.model,
+        ...(input.userId !== undefined ? [{ userId: input.userId }] : []),
+      );
+    } catch (generationError) {
+      const errorMsg =
+        generationError instanceof Error
+          ? generationError.message
+          : String(generationError);
+
+      console.warn("[translation] AI generation failed", {
+        original: input.word,
+        retryCount: attempt,
+        failReason: errorMsg,
+      });
+
+      // On last attempt, rethrow
+      if (attempt === MAX_RETRIES) {
+        throw generationError;
+      }
+
+      // Build strict prompt for next retry
+      lastErrors = [`[generation] ${errorMsg}`];
+      prompt = buildStrictPrompt(request, lastErrors);
+      continue;
+    }
 
     // Step 3: Validate response
     const validation = validate(

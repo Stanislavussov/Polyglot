@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   translationRequestSchema,
   translationResultSchema,
+  buildTranslationResultSchema,
   languageTranslationSchema,
   synonymSchema,
   exampleSchema,
@@ -308,5 +309,57 @@ describe("translationResultSchema", () => {
     expect(result.translations.cs.synonyms).toHaveLength(1);
     expect(result.translations.cs.examples).toHaveLength(1);
     expect(result.translations.de.text).toBe("hallo");
+  });
+});
+
+describe("buildTranslationResultSchema", () => {
+  const langEntry = {
+    text: "ahoj",
+    cefr: "A1",
+    register: "colloquial",
+    synonyms: [{ text: "čau", register: "slang" }],
+    examples: [
+      { context: "formal", target: "Ahoj, jak se máš?", native: "Hello, how are you?" },
+    ],
+  };
+
+  it("requires specified language keys", () => {
+    const schema = buildTranslationResultSchema(["cs", "en"]);
+    const result = schema.safeParse({
+      emoji: "👋",
+      register: "neutral",
+      translations: {},
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects when some required languages are missing", () => {
+    const schema = buildTranslationResultSchema(["cs", "en"]);
+    const result = schema.safeParse({
+      emoji: "👋",
+      register: "neutral",
+      translations: { cs: langEntry },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts when all required languages are present", () => {
+    const schema = buildTranslationResultSchema(["cs", "en"]);
+    const result = schema.safeParse({
+      emoji: "👋",
+      register: "neutral",
+      translations: { cs: langEntry, en: { ...langEntry, text: "hello" } },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("validates language entry structure", () => {
+    const schema = buildTranslationResultSchema(["cs"]);
+    const result = schema.safeParse({
+      emoji: "👋",
+      register: "neutral",
+      translations: { cs: { text: "ahoj" } },
+    });
+    expect(result.success).toBe(false);
   });
 });

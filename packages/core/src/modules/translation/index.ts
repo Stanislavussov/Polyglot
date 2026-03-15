@@ -14,6 +14,7 @@ export { buildTranslationPrompt, buildStrictPrompt } from "./prompt.builder.js";
 export {
   translationRequestSchema,
   translationResultSchema,
+  buildTranslationResultSchema,
   languageTranslationSchema,
   synonymSchema,
   exampleSchema,

@@ -51,6 +51,7 @@ describe("generateObject", () => {
       schema,
       prompt: "test prompt",
       maxRetries: 5,
+      maxTokens: 4096,
     });
   });
 
