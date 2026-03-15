@@ -17,15 +17,12 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 
 ## Current State
 
-Already implemented:
-- `schema.ts` — tables: `users`, `userLanguageSettings`, `words`, `translationRequests`
-- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports
+Fully implemented. All tables, repositories, and singleton connection in place.
+- `schema.ts` — tables: `users`, `userLanguageSettings`, `words`, `translationRequests`, `topicTranslationCache`
+- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories and types
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded
 - `repositories/word.repository.ts` — create, findByUser, findById, search, delete (soft)
-
-Still needed:
-- `repositories/topic.repository.ts` — topic translation caching (getCached, setCached, markInvalid)
-- Topic cache table in schema (if needed)
+- `repositories/topic.repository.ts` — getCached, setCached, markInvalid (topic translation caching)
 
 ## Rules
 
@@ -57,7 +54,7 @@ search(userId: number, query: string): Promise<Word[]>;
 delete(wordId: number): Promise<void>;  // soft delete
 ```
 
-### TopicRepository (to be created)
+### TopicRepository
 
 ```typescript
 getCached(topicId: string, original: string, sourceLang: string, targetLang: string): Promise<TopicTranslation | null>;
@@ -69,9 +66,10 @@ markInvalid(id: number, reason: string): Promise<void>;
 
 See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key tables:
 - `users` — id, telegramId, username, onboardingStep, onboarded, isActive, createdAt
-- `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone
-- `words` — userId, original, sourceLang, content (JSONB with translations per target lang)
+- `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, isActive, updatedAt
+- `words` — userId, original, sourceLang, content (JSONB with translations per target lang), isActive, createdAt, updatedAt
 - `translationRequests` — userId, original, sourceLang, targetLangs[], createdAt (for rate limiting)
+- `topicTranslationCache` — topicId, original, sourceLang, targetLang, content (JSONB), isValid, invalidReason, createdAt, updatedAt; unique index on (topicId, original, sourceLang, targetLang)
 
 ## Content JSONB Structure (words.content)
 
@@ -95,13 +93,14 @@ See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key
 ```
 packages/adapters/db/src/
 ├── index.ts                          # getDb(), closeDb(), re-exports
-├── schema.ts                         # Drizzle table definitions
+├── schema.ts                         # Drizzle table definitions (users, userLanguageSettings, words, translationRequests, topicTranslationCache)
 ├── repositories/
 │   ├── user.repository.ts            # ✅ implemented
 │   ├── word.repository.ts            # ✅ implemented
-│   └── topic.repository.ts           # ❌ to be created
+│   └── topic.repository.ts           # ✅ implemented
 └── __tests__/
-    └── getDb.test.ts
+    ├── getDb.test.ts
+    └── topic.repository.test.ts
 ```
 
 ## Reference

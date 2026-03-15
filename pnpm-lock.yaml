@@ -95,6 +95,9 @@ importers:
       '@polyglot/core':
         specifier: workspace:*
         version: link:../../core
+      '@polyglot/infra':
+        specifier: workspace:*
+        version: link:../../infra
 
   packages/core:
     dependencies:
@@ -107,6 +110,9 @@ importers:
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
+      pino:
+        specifier: ^10.3.1
+        version: 10.3.1
 
 packages:
 

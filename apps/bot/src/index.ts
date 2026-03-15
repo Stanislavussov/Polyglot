@@ -60,7 +60,18 @@ function setupGracefulShutdown(): void {
 
 // ── Error handling ──
 bot.catch((err) => {
-  logger.error({ err: err.error, update: err.ctx.update }, "Bot error");
+  const ctx = err.ctx;
+  const userId = ctx.from?.id;
+  const command = ctx.message?.text?.split(" ")[0] ?? "unknown";
+  logger.error(
+    {
+      error:
+        err.error instanceof Error ? err.error.message : String(err.error),
+      userId,
+      command,
+    },
+    "Bot error",
+  );
 });
 
 // ── Start bot ──

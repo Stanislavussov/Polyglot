@@ -20,10 +20,12 @@ export interface AIRequestLog {
   cost_usd: number;
   duration_ms: number;
   success: boolean;
+  userId?: number;
   error?: string;
 }
 
 /** Options for AI generation calls */
 export interface GenerateOptions {
   maxRetries?: number;
+  userId?: number;
 }

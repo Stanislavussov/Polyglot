@@ -7,7 +7,7 @@ description: Internationalization of all bot texts. Provides typed t(key, lang, 
 
 ## Module Location
 
-`packages/core/src/` — specifically the `modules/i18n/` subdirectory (to be created following the architecture in `docs/tech-reqs/02-architecture.md`).
+`packages/core/src/modules/i18n/`
 
 ## Architecture Context
 
@@ -17,7 +17,7 @@ description: Internationalization of all bot texts. Provides typed t(key, lang, 
 
 ## Current State
 
-A temporary `t()` function exists in `apps/bot/src/constants.ts` with inline `TEXTS` object. This must be replaced by a proper i18n module in `packages/core/src/`.
+Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 20 tests passing.
 
 ## Rules
 
@@ -43,24 +43,55 @@ function isSupported(lang: string): lang is SupportedLang;
 ## Types
 
 ```typescript
-// Strict enum of all i18n keys — generated from en.json
-type I18nKey = "chooseInterfaceLang" | "chooseNativeLang" | "chooseLearningLangs" | /* ... */ ;
+// Strict enum of all i18n keys — derived from en.json (source of truth)
+type I18nKey =
+  | "welcome" | "choose_language" | "translate" | "dictionary" | "topics"
+  | "settings" | "back" | "cancel" | "done" | "yes" | "no"
+  | "chooseInterfaceLang" | "chooseNativeLang" | "chooseLearningLangs"
+  | "enterWord" | "demoResult" | "onboardingComplete" | "onboardingCompleteNoSave"
+  | "welcomeBack" | "maxLangsReached" | "selectAtLeastOne" | "langAdded"
+  | "langRemoved" | "enterWordToTranslate" | "translating" | "translationError"
+  | "translationUnavailable" | "translationNeedsReview" | "saveToDict"
+  | "savedToDict" | "alreadySaved" | "wordDeleted" | "emptyDictionary"
+  | "noResults" | "settingsUpdated" | "notificationTimeSet" | "flipCard"
+  | "nextTranslation" | "editTranslation" | "saveToDictionary"
+  | "cefr" | "register" | "synonyms" | "examples";
 
 // Supported languages
 type SupportedLang = "en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl";
+
+// Flat dictionary of i18n keys → localized strings
+type LocaleMessages = Record<I18nKey, string>;
+
+// Interpolation parameter map for keys that require parameters
+interface I18nParams {
+  demoResult: { word: string };
+  maxLangsReached: { max: string | number };
+  langAdded: { lang: string };
+  langRemoved: { lang: string };
+  notificationTimeSet: { time: string };
+  cefr: { level: string };
+  register: { register: string };
+}
+
+// Deprecated alias for SupportedLang
+type Locale = SupportedLang;
 ```
 
 ## File Structure
 
 ```
 packages/core/src/modules/i18n/
-├── index.ts          # Re-exports t, getSupportedLangs, isSupported
-├── types.ts          # I18nKey, SupportedLang
-├── i18n.ts           # Implementation of t() with fallback logic
-└── locales/
-    ├── en.json       # English (source of truth for keys)
-    ├── ru.json
-    └── cs.json
+├── index.ts          # Re-exports: t, getSupportedLangs, isSupported, I18nService
+├── types.ts          # I18nKey, SupportedLang, LocaleMessages, I18nParams, Locale
+├── i18n.ts           # Functional API: t() with fallback + interpolation, getSupportedLangs, isSupported
+├── i18n.service.ts   # Legacy class-based I18nService (deprecated, kept for backward compatibility)
+├── locales/
+│   ├── en.json       # English (source of truth for keys)
+│   ├── ru.json
+│   └── cs.json
+└── __tests__/
+    └── i18n.test.ts  # 20 tests
 ```
 
 ## Reference

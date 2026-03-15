@@ -17,7 +17,7 @@ description: Word and phrase translation via AI with prompt building, response p
 
 ## Current State
 
-Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline.
+Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints).
 
 ## Rules
 
@@ -108,8 +108,8 @@ function parseResponse(raw: unknown): TranslationResult;
 2. Call AI adapter (generateObjectFn with translationResultSchema)
 3. Validate response (validate from validation module)
 4. On PASS → return result
-5. On FAIL → retry with strict prompt (up to 2 retries)
-6. On final FAIL → return result with needsReview: true
+5. On FAIL → console.warn({ original, retryCount, failReason }), retry with strict prompt (up to 2 retries)
+6. On final FAIL → console.error({ original, retryCount, failReason }), return result with needsReview: true
 ```
 
 ## Zod Schemas
@@ -133,7 +133,7 @@ packages/core/src/modules/translation/
 └── __tests__/
     ├── translation.schema.test.ts   # 28 tests
     ├── prompt.builder.test.ts       # 19 tests
-    └── translation.service.test.ts  # 16 tests
+    └── translation.service.test.ts  # 21 tests (incl. 5 validation logging tests)
 ```
 
 ## Reference

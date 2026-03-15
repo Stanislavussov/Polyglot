@@ -96,4 +96,46 @@ describe("logger", () => {
 
     expect(mockInfo).not.toHaveBeenCalled();
   });
+
+  it("includes userId in log when provided", () => {
+    logRequest({
+      model: "openai/gpt-4o",
+      tokens: { input: 100, output: 50 },
+      cost_usd: 0.001,
+      duration_ms: 1000,
+      success: true,
+      userId: 42,
+    });
+
+    const [data] = mockInfo.mock.calls[0];
+    expect(data.userId).toBe(42);
+  });
+
+  it("omits userId from log when not provided", () => {
+    logRequest({
+      model: "openai/gpt-4o",
+      tokens: { input: 100, output: 50 },
+      cost_usd: 0.001,
+      duration_ms: 1000,
+      success: true,
+    });
+
+    const [data] = mockInfo.mock.calls[0];
+    expect(data).not.toHaveProperty("userId");
+  });
+
+  it("includes userId in error log when provided", () => {
+    logRequest({
+      model: "openai/gpt-4o",
+      tokens: { input: 0, output: 0 },
+      cost_usd: 0,
+      duration_ms: 500,
+      success: false,
+      userId: 99,
+      error: "Timeout",
+    });
+
+    const [data] = mockError.mock.calls[0];
+    expect(data.userId).toBe(99);
+  });
 });

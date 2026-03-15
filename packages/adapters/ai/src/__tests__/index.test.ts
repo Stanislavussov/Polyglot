@@ -119,6 +119,52 @@ describe("generateObject", () => {
       }),
     );
   });
+
+  it("threads userId through to logRequest on success", async () => {
+    mockAiGenerateObject.mockResolvedValueOnce({
+      object: { text: "hello" },
+      usage: { inputTokens: 50, outputTokens: 20 },
+    });
+
+    await generateObject("test", schema, "openai/gpt-4o", { userId: 42 });
+
+    expect(mockLogRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 42,
+        success: true,
+      }),
+    );
+  });
+
+  it("threads userId through to logRequest on failure", async () => {
+    mockAiGenerateObject.mockRejectedValueOnce(new Error("fail"));
+
+    await expect(
+      generateObject("test", schema, "openai/gpt-4o", { userId: 42 }),
+    ).rejects.toThrow("fail");
+
+    expect(mockLogRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 42,
+        success: false,
+      }),
+    );
+  });
+
+  it("passes undefined userId when not provided", async () => {
+    mockAiGenerateObject.mockResolvedValueOnce({
+      object: { text: "hello" },
+      usage: { inputTokens: 50, outputTokens: 20 },
+    });
+
+    await generateObject("test", schema, "openai/gpt-4o");
+
+    expect(mockLogRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: undefined,
+      }),
+    );
+  });
 });
 
 describe("generateText", () => {
@@ -212,5 +258,36 @@ describe("generateText", () => {
     );
     const logArg = mockLogRequest.mock.calls[0][0];
     expect(logArg.duration_ms).toBeGreaterThanOrEqual(0);
+  });
+
+  it("threads userId through to logRequest on success", async () => {
+    mockAiGenerateText.mockResolvedValueOnce({
+      text: "result",
+      usage: { inputTokens: 30, outputTokens: 10 },
+    });
+
+    await generateText("test", "openai/gpt-4o", { userId: 77 });
+
+    expect(mockLogRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 77,
+        success: true,
+      }),
+    );
+  });
+
+  it("threads userId through to logRequest on failure", async () => {
+    mockAiGenerateText.mockRejectedValueOnce(new Error("oops"));
+
+    await expect(
+      generateText("test", "openai/gpt-4o", { userId: 77 }),
+    ).rejects.toThrow("oops");
+
+    expect(mockLogRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 77,
+        success: false,
+      }),
+    );
   });
 });

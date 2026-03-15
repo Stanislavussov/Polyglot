@@ -17,12 +17,13 @@ description: AI adapter using Vercel AI SDK with OpenRouter/multi-provider suppo
 
 ## Current State
 
-Fully implemented. All 4 source files + 5 test files in place. 37 tests passing.
+Fully implemented. All 4 source files + 5 test files in place. 47 tests passing.
+`userId` support added to `AIRequestLog`, `GenerateOptions`, and threaded through `generateObject`/`generateText` → `logRequest` → pino output (Task 05 — structured logging).
 
 ## Rules
 
 1. Has no knowledge of domain logic — only sends requests and returns responses
-2. All requests are logged: `model`, `tokens`, `cost_usd`, `duration_ms`
+2. All requests are logged: `model`, `tokens`, `cost_usd`, `duration_ms`, `userId` (when provided)
 3. Model is always a parameter, never hardcoded internally
 4. `maxRetries` is configurable from outside (default: 2)
 
@@ -41,14 +42,14 @@ async function generateObject<T>(
   prompt: string,
   schema: ZodSchema<T>,
   model: string,
-  options?: { maxRetries?: number }
+  options?: { maxRetries?: number; userId?: number }
 ): Promise<T>;
 
 // Generate free-form text
 async function generateText(
   prompt: string,
   model: string,
-  options?: { maxRetries?: number }
+  options?: { maxRetries?: number; userId?: number }
 ): Promise<string>;
 
 // List available models for the configured provider
@@ -76,11 +77,13 @@ interface AIRequestLog {
   cost_usd: number;
   duration_ms: number;
   success: boolean;
+  userId?: number;
   error?: string;
 }
 
 interface GenerateOptions {
   maxRetries?: number;
+  userId?: number;
 }
 ```
 
@@ -94,11 +97,11 @@ packages/adapters/ai/src/
 ├── models.ts         # Model registry, getAvailableModels, findModel, estimateCost, calculateCost
 ├── logger.ts         # Request logging via pino child logger (module: "ai-adapter")
 └── __tests__/
-    ├── index.test.ts   # 12 tests: generateObject + generateText with mocked AI SDK
+    ├── index.test.ts   # 17 tests: generateObject + generateText with mocked AI SDK, userId threading
     ├── client.test.ts  # 5 tests: singleton, API key validation, reset
     ├── models.test.ts  # 12 tests: registry, findModel, estimateCost, calculateCost
-    ├── logger.test.ts  # 5 tests: info/error logging, cost rounding
-    └── types.test.ts   # 3 tests: type interface validation
+    ├── logger.test.ts  # 8 tests: info/error logging, cost rounding, userId inclusion/omission
+    └── types.test.ts   # 5 tests: type interface validation, userId support
 ```
 
 ## Internal Functions (not exported from index.ts)

@@ -113,9 +113,18 @@ packages/core/src/modules/validation/
     └── validate.test.ts                  # 8 tests (orchestrator integration)
 ```
 
+## Logging Integration
+
+When validation fails in the translation service (`packages/core/src/modules/translation/translation.service.ts`):
+- Each failed attempt → `console.warn('[translation] validation failed', { original, retryCount, failReason })`
+- All retries exhausted → `console.error('[translation] validation failed after all retries — returning needsReview', { original, retryCount, failReason })`
+
+Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean architecture.
+
 ## Reference
 
 - Validation pipeline: `docs/tech-reqs/07-ai-validation.md`
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (validation section)
 - Task: `docs/tasks/04-ai-translation-pipeline.md` (Step 3)
+- Task: `docs/tasks/05-logging.md` (Step 3 — validation error logging)

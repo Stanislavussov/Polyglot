@@ -33,6 +33,7 @@ export type GenerateObjectFn = <T>(
   prompt: string,
   schema: import("zod").ZodSchema<T>,
   model: string,
+  options?: { userId?: number },
 ) => Promise<T>;
 
 /**
@@ -66,6 +67,7 @@ export async function translate(
       prompt,
       translationResultSchema,
       input.model,
+      ...(input.userId !== undefined ? [{ userId: input.userId }] : []),
     );
 
     // Step 3: Validate response
@@ -86,11 +88,26 @@ export async function translate(
       (e) => `[${e.rule}] ${e.field ? `${e.field}: ` : ""}${e.message}`,
     );
 
+    // Log validation failure (console — core has no logger dep)
+    console.warn("[translation] validation failed", {
+      original: input.word,
+      retryCount: attempt,
+      failReason: lastErrors.join(" | "),
+    });
+
     // Build strict prompt for next retry
     prompt = buildStrictPrompt(request, lastErrors);
   }
 
   // Step 6: On final FAIL → return with needsReview: true
+  console.error(
+    "[translation] validation failed after all retries — returning needsReview",
+    {
+      original: input.word,
+      retryCount: MAX_RETRIES,
+      failReason: lastErrors.join(" | "),
+    },
+  );
   return toOutput(input, result!, true);
 }
 

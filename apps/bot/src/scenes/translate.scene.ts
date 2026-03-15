@@ -54,7 +54,13 @@ export async function handleTranslate(
   const word = wordCtx.message.text;
 
   // Show loading indicator
-  const loadingMsg = await wordCtx.reply(t("translating", lang));
+  let loadingMsg;
+  try {
+    loadingMsg = await wordCtx.reply(t("translating", lang));
+  } catch (err) {
+    logger.error({ err, telegramId }, "Failed to send loading message");
+    throw err;
+  }
 
   // Call translation pipeline
   let output: TranslateOutput;
@@ -67,6 +73,7 @@ export async function handleTranslate(
           sourceLang: nativeLang,
           targetLangs: learningLangs,
           model: config.AI_MODEL,
+          userId,
         },
         generateObject,
       );

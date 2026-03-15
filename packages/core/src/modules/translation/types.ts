@@ -67,6 +67,7 @@ export interface TranslateInput {
   targetLangs: string[];
   model: string;
   topic?: string;
+  userId?: number;
 }
 
 /** Output from translate() — enriched TranslationResult with metadata */

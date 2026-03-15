@@ -58,6 +58,7 @@ export async function generateObject<T>(
       cost_usd,
       duration_ms,
       success: true,
+      userId: options?.userId,
     });
 
     return result.object;
@@ -70,6 +71,7 @@ export async function generateObject<T>(
       cost_usd: 0,
       duration_ms,
       success: false,
+      userId: options?.userId,
       error: error instanceof Error ? error.message : String(error),
     });
 
@@ -82,7 +84,7 @@ export async function generateObject<T>(
  *
  * @param prompt  - The prompt to send to the AI
  * @param model   - OpenRouter model ID (e.g. "openai/gpt-4o")
- * @param options - Optional: { maxRetries }
+ * @param options - Optional: { maxRetries, userId }
  * @returns The generated text
  */
 export async function generateText(
@@ -111,6 +113,7 @@ export async function generateText(
       cost_usd,
       duration_ms,
       success: true,
+      userId: options?.userId,
     });
 
     return result.text;
@@ -123,6 +126,7 @@ export async function generateText(
       cost_usd: 0,
       duration_ms,
       success: false,
+      userId: options?.userId,
       error: error instanceof Error ? error.message : String(error),
     });
 
