@@ -72,7 +72,7 @@ export const translationRequestSchema = z.object({
 export const translationResultSchema = z.object({
   emoji: z.string().min(1, "Emoji is required"),
   register: registerEnum,
-  translations: z.record(z.string(), languageTranslationSchema),
+  translations: z.object({}).catchall(languageTranslationSchema),
 });
 
 /** Inferred types from schemas for runtime validation */
