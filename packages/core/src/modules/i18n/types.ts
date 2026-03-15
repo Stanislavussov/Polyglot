@@ -1,5 +1,90 @@
-/** Supported UI locale codes */
-export type Locale = "ru" | "en" | "cs";
+/**
+ * Strict union of all i18n keys — derived from en.json (source of truth).
+ * TypeScript won't allow passing a non-existent key to t().
+ */
+export type I18nKey =
+  | "welcome"
+  | "choose_language"
+  | "translate"
+  | "dictionary"
+  | "topics"
+  | "settings"
+  | "back"
+  | "cancel"
+  | "done"
+  | "yes"
+  | "no"
+  | "chooseInterfaceLang"
+  | "chooseNativeLang"
+  | "chooseLearningLangs"
+  | "enterWord"
+  | "demoResult"
+  | "onboardingComplete"
+  | "onboardingCompleteNoSave"
+  | "welcomeBack"
+  | "maxLangsReached"
+  | "selectAtLeastOne"
+  | "langAdded"
+  | "langRemoved"
+  | "enterWordToTranslate"
+  | "translating"
+  | "translationError"
+  | "translationUnavailable"
+  | "translationNeedsReview"
+  | "saveToDict"
+  | "savedToDict"
+  | "alreadySaved"
+  | "wordDeleted"
+  | "emptyDictionary"
+  | "noResults"
+  | "settingsUpdated"
+  | "notificationTimeSet"
+  | "flipCard"
+  | "nextTranslation"
+  | "editTranslation"
+  | "saveToDictionary"
+  | "cefr"
+  | "register"
+  | "synonyms"
+  | "examples";
 
-/** A flat dictionary of translation keys → localized strings */
-export type LocaleMessages = Record<string, string>;
+/**
+ * Supported interface languages.
+ * Matches the LANGUAGES array in apps/bot/src/constants.ts.
+ */
+export type SupportedLang =
+  | "en"
+  | "ru"
+  | "cs"
+  | "de"
+  | "fr"
+  | "es"
+  | "it"
+  | "pt"
+  | "uk"
+  | "pl";
+
+/**
+ * A flat dictionary of i18n keys → localized strings.
+ * Used internally by locale JSON files.
+ */
+export type LocaleMessages = Record<I18nKey, string>;
+
+/**
+ * Interpolation parameter map for keys that require parameters.
+ * Ensures type safety for t() calls with parameters.
+ */
+export interface I18nParams {
+  demoResult: { word: string };
+  maxLangsReached: { max: string | number };
+  langAdded: { lang: string };
+  langRemoved: { lang: string };
+  notificationTimeSet: { time: string };
+  cefr: { level: string };
+  register: { register: string };
+}
+
+/**
+ * @deprecated Use `SupportedLang` instead. Kept for backward compatibility.
+ */
+export type Locale = SupportedLang;

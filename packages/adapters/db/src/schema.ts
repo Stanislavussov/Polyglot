@@ -8,6 +8,7 @@ import {
   timestamp,
   jsonb,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ─────────────────────────────────────────────
@@ -78,5 +79,35 @@ export const translationRequests = pgTable(
   (t) => [
     index("translation_requests_user_idx").on(t.userId),
     index("translation_requests_user_date_idx").on(t.userId, t.createdAt),
+  ],
+);
+
+// ─────────────────────────────────────────────
+// Topic translation cache — shared across users
+// Caches AI translations for topic dataset words
+// per (topicId, original, sourceLang, targetLang)
+// ─────────────────────────────────────────────
+export const topicTranslationCache = pgTable(
+  "topic_translation_cache",
+  {
+    id: serial("id").primaryKey(),
+    topicId: text("topic_id").notNull(),
+    original: text("original").notNull(),
+    sourceLang: text("source_lang").notNull(),
+    targetLang: text("target_lang").notNull(),
+    content: jsonb("content").notNull(),
+    isValid: boolean("is_valid").default(true).notNull(),
+    invalidReason: text("invalid_reason"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("topic_cache_unique_idx").on(
+      t.topicId,
+      t.original,
+      t.sourceLang,
+      t.targetLang,
+    ),
+    index("topic_cache_lookup_idx").on(t.topicId, t.sourceLang, t.targetLang),
   ],
 );

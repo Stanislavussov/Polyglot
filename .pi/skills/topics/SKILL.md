@@ -7,17 +7,18 @@ description: Topic management with built-in datasets, cache-first translation, a
 
 ## Module Location
 
-`packages/core/src/` — specifically the `modules/topics/` subdirectory (to be created following `docs/tech-reqs/02-architecture.md`).
+`packages/core/src/modules/topics/` — platform-independent core module.
 
 ## Architecture Context
 
 - **Layer:** Core (platform-independent)
-- **Dependencies:** `translation` agent (for batch translation), `db` agent (for cache via TopicRepository)
+- **Dependencies:** `translation` agent (for batch translation via injected `translateBatch`), `db` agent (for cache via injected `getCached`/`setCached`)
 - **Dependents:** `notifications` agent (picks words from topics), `bot` agent (displays topics)
+- **Injection:** All adapter dependencies (db, ai) are injected via `TopicDeps` — core never imports adapters directly.
 
 ## Current State
 
-Not yet implemented. `packages/core/src/index.ts` is empty.
+Fully implemented. All public API functions working with 27 tests passing.
 
 ## Rules
 
@@ -29,9 +30,9 @@ Not yet implemented. `packages/core/src/index.ts` is empty.
 ## Built-in Datasets
 
 JSON files in `packages/core/src/modules/topics/datasets/`:
-- `food.json` — food & cooking vocabulary
-- `travel.json` — travel & transportation
-- `it-terms.json` — IT & programming terms
+- `food.json` — 25 food & cooking vocabulary words
+- `travel.json` — 25 travel & transportation words
+- `it-terms.json` — 25 IT & programming terms
 
 Each dataset:
 ```json
@@ -43,32 +44,42 @@ Each dataset:
 }
 ```
 
-## Skills (Public API)
+## Public API
+
+### Pure functions (no dependencies)
 
 ```typescript
 // List all built-in topics (metadata only, no translations)
 function getBuiltinTopics(): TopicMeta[];
 
-// Get words with translations for a topic (cache-first, then AI batch)
-async function getTopicWords(
-  topicId: string,
-  sourceLang: string,
-  targetLangs: string[]
-): Promise<TopicWord[]>;
+// Get raw dataset by topic ID (internal helper, also exported)
+function getDataset(topicId: string): TopicDataset | undefined;
+```
 
-// Generate a custom topic via AI
-async function generateCustomTopic(
-  prompt: string,
-  sourceLang: string,
-  targetLangs: string[]
-): Promise<Topic>;
+### Service factory (requires injected dependencies)
 
-// Check cache status for a topic
-function getCacheStatus(
-  topicId: string,
-  sourceLang: string,
-  targetLangs: string[]
-): Promise<CacheStatus>;
+```typescript
+// Create a topic service with injected dependencies
+function createTopicService(deps: TopicDeps): {
+  getTopicWords: (topicId: string, sourceLang: string, targetLangs: string[]) => Promise<TopicWord[]>;
+  generateCustomTopic: (prompt: string, sourceLang: string, targetLangs: string[]) => Promise<Topic>;
+  getCacheStatus: (topicId: string, sourceLang: string, targetLangs: string[]) => Promise<CacheStatus>;
+};
+```
+
+### Dependency Injection
+
+```typescript
+interface TopicDeps {
+  // Batch translate words (from translation module, pre-bound with model + generateObjectFn)
+  translateBatch: (words: string[], sourceLang: string, targetLangs: string[]) => Promise<TranslateOutput[]>;
+  // Cache read (from db topicRepository.getCached)
+  getCached: (topicId: string, original: string, sourceLang: string, targetLang: string) => Promise<CachedTranslation | null>;
+  // Cache write (from db topicRepository.setCached)
+  setCached: (data: NewCachedTranslation) => Promise<unknown>;
+  // Optional: generate word list via AI (for custom topics)
+  generateWords?: (prompt: string) => Promise<{ name: string; emoji: string; words: string[] }>;
+}
 ```
 
 ## Types
@@ -83,7 +94,7 @@ interface TopicMeta {
 
 interface TopicWord {
   original: string;
-  translations: Record<string, TranslationEntry>;  // from translation module
+  translations: Record<string, LanguageTranslationEntry>;
 }
 
 interface Topic {
@@ -97,22 +108,60 @@ interface CacheStatus {
   missing: number;
   status: "hit" | "miss" | "partial";
 }
+
+interface TopicDataset {
+  id: string;
+  name: string;
+  emoji: string;
+  words: string[];
+}
 ```
+
+## Cache Strategy
+
+- **Cache key:** `(topicId, original, sourceLang, targetLang)` — one row per word × language
+- **Cache check:** For each word, check ALL target languages. Word is "cached" only when ALL langs have entries.
+- **On miss:** Batch translate ALL uncached words in a single `translateBatch` call, then store results per-language in cache.
+- **Shared:** Cache is shared across users with the same language pair — not per user.
 
 ## File Structure
 
 ```
 packages/core/src/modules/topics/
-├── index.ts              # Re-exports: getBuiltinTopics, getTopicWords, generateCustomTopic, getCacheStatus
-├── types.ts              # TopicMeta, TopicWord, Topic, CacheStatus
-├── topic.service.ts      # Main service with cache-first logic
-└── datasets/
-    ├── food.json
-    ├── travel.json
-    └── it-terms.json
+├── index.ts              # Re-exports public API
+├── types.ts              # TopicMeta, TopicWord, Topic, CacheStatus, TopicDeps
+├── topic.service.ts      # getBuiltinTopics, createTopicService (factory)
+├── datasets/
+│   ├── food.json         # 25 food & cooking words
+│   ├── travel.json       # 25 travel & transport words
+│   └── it-terms.json     # 25 IT & tech words
+└── __tests__/
+    └── topic.service.test.ts  # 27 tests
+```
+
+## Usage Example
+
+```typescript
+import { getBuiltinTopics, createTopicService } from "@polyglot/core";
+import { topicRepository } from "@polyglot/db";
+import { translateBatch } from "@polyglot/core";
+
+// List topics (no deps needed)
+const topics = getBuiltinTopics();
+
+// Create service with injected deps
+const service = createTopicService({
+  translateBatch: (words, src, tgt) => translateBatch(words, src, tgt, model, generateObjectFn),
+  getCached: topicRepository.getCached,
+  setCached: topicRepository.setCached,
+});
+
+// Get translated words (cache-first)
+const words = await service.getTopicWords("food", "en", ["cs", "de"]);
 ```
 
 ## Reference
 
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (topics section)
+- BRD: `docs/BRD.md` § Post-MVP 2.2 (Ready-Made Topic Sets)

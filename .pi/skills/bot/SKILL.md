@@ -20,17 +20,16 @@ description: Telegram bot using grammY with conversations plugin. Manages scenes
 Already implemented:
 - `index.ts` — grammY bot setup, middleware registration, graceful shutdown
 - `types.ts` — BotContext, ConversationContext
-- `constants.ts` — temporary LANGUAGES, TEXTS, t() (to be replaced by i18n module)
+- `constants.ts` — LANGUAGES display data, langDisplay() (no business text — all i18n via core)
 - `middlewares/auth.ts` — resolves/creates user, attaches to ctx.user
 - `commands/start.ts` — /start handler (onboarding or main menu)
 - `scenes/onboarding.scene.ts` — 4-step onboarding conversation
+- `scenes/translate.scene.ts` — translation flow (enter word → AI translate → save to dict)
+- `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML)
 
 Still needed:
-- `scenes/translate.scene.ts` — translation flow
 - `scenes/dictionary.scene.ts` — dictionary browsing
 - `scenes/settings.scene.ts` — user settings
-- Rendering functions for AI translation output
-- Migration from `constants.ts` t() to proper i18n module
 
 ## Rules
 
@@ -51,23 +50,36 @@ Still needed:
 ## Skills (Public API / Key Functions)
 
 ```typescript
-// Render a full translation card for Telegram (Markdown)
-function renderTranslation(output: TranslateOutput): string;
+// Render a full translation card for Telegram (HTML)
+function renderTranslation(output: TranslateOutput, interfaceLang?: string): string;
 
-// Render a single topic word card
+// Render a single topic word card (HTML)
 function renderTopicWord(word: TopicWord): string;
 
 // Scene: 4-step onboarding (implemented)
 async function onboarding(conversation, ctx): Promise<void>;
 
-// Scene: translation flow
+// Scene: translation flow (implemented)
 async function handleTranslate(conversation, ctx): Promise<void>;
 
-// Scene: dictionary browsing with pagination
+// Scene: dictionary browsing (not yet implemented)
 async function handleDictionary(conversation, ctx): Promise<void>;
 
-// Scene: user settings (language, timezone, notifications)
+// Scene: user settings (not yet implemented)
 async function handleSettings(conversation, ctx): Promise<void>;
+```
+
+## Translation Flow
+
+```
+/translate
+  ├─ Get user settings (interfaceLang, nativeLang, learningLangs)
+  ├─ Prompt: "Enter a word or phrase to translate"
+  ├─ Show "Translating..." indicator
+  ├─ Call translate() with generateObject from AI adapter
+  ├─ Render translation card (HTML format)
+  ├─ Show "Save to dictionary?" inline keyboard
+  └─ Save to wordRepository or dismiss
 ```
 
 ## Onboarding Flow (4 Steps)
@@ -89,7 +101,7 @@ export async function myScene(
   conversation: Conversation<BotContext, ConversationContext>,
   ctx: ConversationContext,
 ): Promise<void> {
-  // Use conversation.external() for side effects (DB calls)
+  // Use conversation.external() for side effects (DB calls, AI calls)
   const data = await conversation.external(async () => {
     return someRepository.findSomething();
   });
@@ -99,22 +111,33 @@ export async function myScene(
 }
 ```
 
+## Rendering
+
+Translation results use **HTML parse mode** for safe rendering of dynamic content:
+- `<b>bold</b>` for words and translations
+- `<i>italic</i>` for example sentences
+- HTML entities (`&amp;`, `&lt;`, `&gt;`) for escaping user/AI content
+
 ## File Structure
 
 ```
 apps/bot/src/
 ├── index.ts                    # Bot setup, middleware, start
 ├── types.ts                    # BotContext, ConversationContext
-├── constants.ts                # LANGUAGES, temporary t() (to be replaced)
+├── constants.ts                # LANGUAGES display data, langDisplay()
 ├── middlewares/
 │   └── auth.ts                 # Auth middleware (user resolution)
 ├── commands/
 │   └── start.ts                # /start command
-└── scenes/
-    ├── onboarding.scene.ts     # ✅ implemented
-    ├── translate.scene.ts      # ❌ to be created
-    ├── dictionary.scene.ts     # ❌ to be created
-    └── settings.scene.ts       # ❌ to be created
+├── renderers/
+│   └── translation.renderer.ts # renderTranslation, renderTopicWord
+├── scenes/
+│   ├── onboarding.scene.ts     # ✅ implemented
+│   ├── translate.scene.ts      # ✅ implemented
+│   ├── dictionary.scene.ts     # ❌ to be created
+│   └── settings.scene.ts       # ❌ to be created
+└── __tests__/
+    └── translation.renderer.test.ts # 24 tests
 ```
 
 ## Reference

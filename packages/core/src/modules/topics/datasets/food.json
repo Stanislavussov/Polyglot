@@ -1,8 +1,32 @@
 {
-  "topic": {
-    "id": "food",
-    "name": "Food & Cooking",
-    "description": "Common food items and cooking-related vocabulary"
-  },
-  "entries": []
+  "id": "food",
+  "name": "Food & Cooking",
+  "emoji": "🍳",
+  "words": [
+    "apple",
+    "bread",
+    "butter",
+    "cheese",
+    "chicken",
+    "coffee",
+    "egg",
+    "fish",
+    "flour",
+    "garlic",
+    "honey",
+    "lemon",
+    "milk",
+    "mushroom",
+    "olive",
+    "onion",
+    "pasta",
+    "pepper",
+    "potato",
+    "rice",
+    "salt",
+    "sugar",
+    "tomato",
+    "water",
+    "wine"
+  ]
 }

@@ -1,8 +1,32 @@
 {
-  "topic": {
-    "id": "travel",
-    "name": "Travel & Transport",
-    "description": "Travel, transportation, and tourism vocabulary"
-  },
-  "entries": []
+  "id": "travel",
+  "name": "Travel & Transport",
+  "emoji": "✈️",
+  "words": [
+    "airport",
+    "baggage",
+    "boarding pass",
+    "bus",
+    "customs",
+    "departure",
+    "destination",
+    "flight",
+    "hotel",
+    "luggage",
+    "map",
+    "passport",
+    "platform",
+    "reservation",
+    "schedule",
+    "station",
+    "suitcase",
+    "taxi",
+    "ticket",
+    "tourist",
+    "train",
+    "travel",
+    "trip",
+    "vacation",
+    "visa"
+  ]
 }

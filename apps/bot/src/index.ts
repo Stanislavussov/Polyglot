@@ -5,6 +5,7 @@ import { logger } from "@polyglot/infra";
 import { closeDb } from "@polyglot/adapter-db";
 import { authMiddleware } from "./middlewares/auth.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
+import { handleTranslate } from "./scenes/translate.scene.js";
 import { startCommand } from "./commands/start.js";
 import type { BotContext } from "./types.js";
 
@@ -24,9 +25,13 @@ bot.use(authMiddleware);
 
 // Register conversation handlers
 bot.use(createConversation(onboarding));
+bot.use(createConversation(handleTranslate));
 
 // ── Register commands ──
 bot.command("start", startCommand);
+bot.command("translate", async (ctx) => {
+  await ctx.conversation.enter("handleTranslate");
+});
 
 // ── Set bot commands list ──
 async function setBotCommands(): Promise<void> {

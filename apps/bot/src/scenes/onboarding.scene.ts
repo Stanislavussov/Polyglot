@@ -1,13 +1,9 @@
 import { InlineKeyboard } from "grammy";
 import type { Conversation } from "@grammyjs/conversations";
 import { userRepository } from "@polyglot/adapter-db";
+import { t, isSupported, type I18nKey, type SupportedLang } from "@polyglot/core";
 import type { BotContext, ConversationContext } from "../types.js";
-import {
-  LANGUAGES,
-  MAX_LEARNING_LANGS,
-  langDisplay,
-  t,
-} from "../constants.js";
+import { LANGUAGES, MAX_LEARNING_LANGS, langDisplay } from "../constants.js";
 import { logger } from "@polyglot/infra";
 
 type OnboardingConversation = Conversation<BotContext, ConversationContext>;
@@ -102,9 +98,9 @@ export async function onboarding(
 async function stepChooseLanguage(
   conversation: OnboardingConversation,
   ctx: ConversationContext,
-  textKey: string,
-  lang: string,
-): Promise<string> {
+  textKey: I18nKey,
+  lang: SupportedLang,
+): Promise<SupportedLang> {
   const keyboard = new InlineKeyboard();
   for (const l of LANGUAGES) {
     keyboard.text(`${l.flag} ${l.label}`, `lang:${l.code}`).row();
@@ -126,7 +122,8 @@ async function stepChooseLanguage(
     `${t(textKey, lang)}\n\n✅ ${langDisplay(selectedCode)}`,
   );
 
-  return selectedCode;
+  // All LANGUAGES codes are valid SupportedLang — fallback to "en" for safety
+  return isSupported(selectedCode) ? selectedCode : "en";
 }
 
 /**
@@ -136,8 +133,8 @@ async function stepChooseLanguage(
 async function stepChooseLearningLangs(
   conversation: OnboardingConversation,
   ctx: ConversationContext,
-  interfaceLang: string,
-  nativeLang: string,
+  interfaceLang: SupportedLang,
+  nativeLang: SupportedLang,
 ): Promise<string[]> {
   const selected: string[] = [];
 
@@ -222,7 +219,7 @@ async function stepChooseLearningLangs(
 async function stepDemoTranslation(
   conversation: OnboardingConversation,
   ctx: ConversationContext,
-  interfaceLang: string,
+  interfaceLang: SupportedLang,
 ): Promise<void> {
   await ctx.reply(t("enterWord", interfaceLang));
 

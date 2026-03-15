@@ -1,44 +1,52 @@
-import type { Locale, LocaleMessages } from "./types.js";
+import type { SupportedLang, LocaleMessages } from "./types.js";
 
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 
-const ruMessages = require("./locales/ru.json") as LocaleMessages;
 const enMessages = require("./locales/en.json") as LocaleMessages;
+const ruMessages = require("./locales/ru.json") as LocaleMessages;
 const csMessages = require("./locales/cs.json") as LocaleMessages;
 
-const messages: Record<Locale, LocaleMessages> = {
-  ru: ruMessages,
+const messages: Partial<Record<SupportedLang, LocaleMessages>> = {
   en: enMessages,
+  ru: ruMessages,
   cs: csMessages,
 };
 
-/** Pure i18n service — returns localized UI strings */
+/**
+ * Class-based i18n service — kept for backward compatibility.
+ * Prefer the functional `t()` API from `./i18n.ts` for new code.
+ *
+ * @deprecated Use `t(key, lang, params?)` instead.
+ */
 export class I18nService {
-  private locale: Locale;
+  private locale: SupportedLang;
 
-  constructor(locale: Locale = "en") {
+  constructor(locale: SupportedLang = "en") {
     this.locale = locale;
   }
 
-  /** Set the active locale */
-  setLocale(locale: Locale): void {
+  setLocale(locale: SupportedLang): void {
     this.locale = locale;
   }
 
-  /** Get the active locale */
-  getLocale(): Locale {
+  getLocale(): SupportedLang {
     return this.locale;
   }
 
-  /** Translate a key to the current locale, with optional fallback to English */
+  /** Translate a key to the current locale, with fallback to English */
   t(key: string): string {
-    return messages[this.locale]?.[key] ?? messages.en[key] ?? key;
+    const localeDict = messages[this.locale];
+    return (
+      localeDict?.[key as keyof LocaleMessages] ??
+      enMessages[key as keyof LocaleMessages] ??
+      key
+    );
   }
 
   /** Get all available locales */
-  getAvailableLocales(): Locale[] {
-    return Object.keys(messages) as Locale[];
+  getAvailableLocales(): SupportedLang[] {
+    return Object.keys(messages) as SupportedLang[];
   }
 }

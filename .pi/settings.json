@@ -2,6 +2,7 @@
   "$schema": "/Users/stanislav.ussov/Projects/ai-sdk/schema.json",
   "packages": ["/Users/stanislav.ussov/Projects/ai-sdk"],
   "orchestrator": {
+    "model": "anthropic/claude-opus-4-6",
     "agents": [
       {
         "name": "research",

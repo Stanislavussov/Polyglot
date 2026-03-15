@@ -46,3 +46,9 @@ export type {
   NewUserLanguageSettings,
 } from "./repositories/user.repository.js";
 export { wordRepository } from "./repositories/word.repository.js";
+export type { Word, NewWord } from "./repositories/word.repository.js";
+export { topicRepository } from "./repositories/topic.repository.js";
+export type {
+  TopicTranslation,
+  NewTopicTranslation,
+} from "./repositories/topic.repository.js";

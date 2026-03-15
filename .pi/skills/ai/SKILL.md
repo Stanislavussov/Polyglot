@@ -12,19 +12,19 @@ description: AI adapter using Vercel AI SDK with OpenRouter/multi-provider suppo
 ## Architecture Context
 
 - **Layer:** Adapter (platform-dependent)
-- **Dependencies:** `validation` agent (validates responses before returning)
+- **Dependencies:** `@polyglot/infra` (logger, config), `ai` (Vercel AI SDK), `@openrouter/ai-sdk-provider`
 - **Dependents:** `translation` agent calls generateObject/generateText
 
 ## Current State
 
-`packages/adapters/ai/src/index.ts` is empty (`export {}`). Everything needs to be implemented.
+Fully implemented. All 4 source files + 5 test files in place. 37 tests passing.
 
 ## Rules
 
 1. Has no knowledge of domain logic — only sends requests and returns responses
 2. All requests are logged: `model`, `tokens`, `cost_usd`, `duration_ms`
 3. Model is always a parameter, never hardcoded internally
-4. `maxRetries` is configurable from outside
+4. `maxRetries` is configurable from outside (default: 2)
 
 ## Provider Configuration
 
@@ -32,8 +32,6 @@ Uses OpenRouter as the single AI provider — one API key for all models (OpenAI
 
 - `OPENROUTER_API_KEY` — single API key for all providers
 - `AI_MODEL` — OpenRouter model ID (e.g. `openai/gpt-4o`, `anthropic/claude-sonnet-4-20250514`, `google/gemini-2.5-pro`)
-
-Config is loaded via `loadConfig()` from `@polyglot/infra`.
 
 ## Skills (Public API)
 
@@ -80,6 +78,10 @@ interface AIRequestLog {
   success: boolean;
   error?: string;
 }
+
+interface GenerateOptions {
+  maxRetries?: number;
+}
 ```
 
 ## File Structure
@@ -87,10 +89,29 @@ interface AIRequestLog {
 ```
 packages/adapters/ai/src/
 ├── index.ts          # Re-exports: generateObject, generateText, getAvailableModels, estimateCost
-├── types.ts          # AIModel, AIRequestLog
-├── client.ts         # Vercel AI SDK client setup per provider
-├── models.ts         # Model registry and cost data
-└── logger.ts         # Request logging (model, tokens, cost, duration)
+├── types.ts          # AIModel, AIRequestLog, GenerateOptions
+├── client.ts         # OpenRouter client singleton (lazy init, resetClient for tests)
+├── models.ts         # Model registry, getAvailableModels, findModel, estimateCost, calculateCost
+├── logger.ts         # Request logging via pino child logger (module: "ai-adapter")
+└── __tests__/
+    ├── index.test.ts   # 12 tests: generateObject + generateText with mocked AI SDK
+    ├── client.test.ts  # 5 tests: singleton, API key validation, reset
+    ├── models.test.ts  # 12 tests: registry, findModel, estimateCost, calculateCost
+    ├── logger.test.ts  # 5 tests: info/error logging, cost rounding
+    └── types.test.ts   # 3 tests: type interface validation
+```
+
+## Internal Functions (not exported from index.ts)
+
+```typescript
+// client.ts
+function getClient(): OpenRouterClient;   // Singleton, lazy init
+function getModel(modelId: string): Model; // Returns AI SDK model instance
+function resetClient(): void;             // Reset singleton (for tests)
+
+// models.ts
+function findModel(modelId: string): AIModel | undefined;
+function calculateCost(inputTokens: number, outputTokens: number, model: string): number;
 ```
 
 ## Vercel AI SDK Usage Pattern
@@ -102,9 +123,10 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
 const result = await aiGenerateObject({
-  model: openrouter(process.env.AI_MODEL ?? "openai/gpt-4o"),
+  model: openrouter("openai/gpt-4o"),
   schema: zodSchema,
   prompt: prompt,
+  maxRetries: 2,
 });
 ```
 

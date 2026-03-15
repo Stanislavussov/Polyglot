@@ -1,5 +1,5 @@
 import type { BotContext } from "../types.js";
-import { t } from "../constants.js";
+import { t, isSupported, type SupportedLang } from "@polyglot/core";
 import { userRepository } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/infra";
 
@@ -20,7 +20,8 @@ export async function startCommand(ctx: BotContext): Promise<void> {
   if (user.onboarded) {
     // User already onboarded — show main menu
     const settings = await userRepository.getSettings(user.id);
-    const lang = settings?.interfaceLang ?? "en";
+    const rawLang = settings?.interfaceLang ?? "en";
+    const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
     await ctx.reply(t("welcomeBack", lang));
   } else {
     // Start onboarding conversation

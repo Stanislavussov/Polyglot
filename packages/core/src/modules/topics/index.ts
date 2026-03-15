@@ -1,2 +1,19 @@
-export { TopicService } from "./topic.service.js";
-export type { Topic, DatasetEntry, TopicDataset } from "./types.js";
+// Topic service — public API
+export {
+  getBuiltinTopics,
+  getDataset,
+  createTopicService,
+} from "./topic.service.js";
+
+// Types
+export type {
+  TopicMeta,
+  TopicWord,
+  Topic,
+  CacheStatus,
+  TopicDataset,
+  TopicDeps,
+  LanguageTranslationEntry,
+  CachedTranslation,
+  NewCachedTranslation,
+} from "./types.js";

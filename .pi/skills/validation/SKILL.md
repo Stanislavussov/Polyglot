@@ -7,13 +7,13 @@ description: AI response quality validation with pure deterministic checks. Vali
 
 ## Module Location
 
-`packages/core/src/` — specifically the `modules/validation/` subdirectory (to be created following `docs/tech-reqs/02-architecture.md`).
+`packages/core/src/modules/validation/` — pure functions, no I/O, no side effects.
 
 ## Architecture Context
 
 - **Layer:** Core (platform-independent, pure functions, no I/O)
-- **Dependencies:** None — leaf agent
-- **Dependents:** `ai` agent and `translation` agent call validators before returning results
+- **Dependencies:** `zod` (schema validation), `franc-min` (language detection)
+- **Dependents:** `translation` agent calls validators before returning results
 
 ## Rules
 
@@ -34,26 +34,36 @@ AI Response
     │
     ├─ PASS → return valid result
     ├─ FAIL → retry with strict prompt (up to 2 retries)
-    └─ FAIL after retries → AI validation (paid) → needsReview=true with ⚠️
+    └─ FAIL after retries → return with needsReview=true + ⚠️
 ```
 
-## Skills (Public API)
+## Public API
 
 ```typescript
 // Zod structural validation
 function validateSchema(raw: unknown, schema: ZodSchema): ValidationResult;
 
-// Semantic checks: translation ≠ original, no hallucination patterns ("N/A", "I cannot", "—")
+// Semantic checks: translation ≠ original, no hallucination patterns
+// Patterns: "N/A", "I cannot", "I can't", "I'm unable", "—", "...", "undefined", "null", "[translation]", "<translation>"
 function validateSemantic(original: string, translation: string): ValidationResult;
 
-// Language detection via franc
+// Language detection via franc-min
+// Skips validation for text <15 chars (franc accuracy too low)
+// Accepts ISO 639-1 ("en"), ISO 639-3 ("eng"), or full names ("english")
 function validateLanguage(text: string, expectedLang: string): ValidationResult;
 
-// Examples must contain the translated word
-function validateExamples(examples: string[], word: string): ValidationResult;
+// Helper to resolve language identifiers to ISO 639-3 codes
+function resolveToIso3(lang: string): string | undefined;
 
-// Orchestrated: runs all validators above in sequence
-function validate(input: ValidateInput): ValidationResult;
+// Example quality: examples must have target + native text, target must contain translated word
+// Supports case-insensitive and stem-tolerant matching for inflected forms
+function validateExamples(examples: ExampleInput[], word: string): ValidationResult;
+
+// Orchestrated: runs all validators in sequence against full translation result
+// Steps: 1) schema → 2) per-language: semantic, language, examples
+// On schema failure: stops early (cannot inspect content)
+// Reports missing translations for expected languages
+function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[]): ValidationResult;
 ```
 
 ## Types
@@ -65,19 +75,22 @@ interface ValidationResult {
 }
 
 interface ValidationError {
-  rule: string;       // e.g. "schema", "semantic", "language", "examples"
+  rule: string;       // "schema" | "semantic" | "language" | "examples"
   message: string;    // Human-readable failure reason
-  field?: string;     // Optional: which field failed
+  field?: string;     // Dot-path to failing field (e.g. "translations.cs.text")
 }
 
 interface ValidateInput {
   raw: unknown;
   schema: ZodSchema;
   original: string;
-  translation: string;
-  expectedLang: string;
-  examples: string[];
-  word: string;
+  expectedLangs: string[];
+}
+
+interface ExampleInput {
+  context: string;
+  target: string;
+  native: string;
 }
 ```
 
@@ -85,12 +98,19 @@ interface ValidateInput {
 
 ```
 packages/core/src/modules/validation/
-├── index.ts                  # Re-exports all validators + validate()
-├── types.ts                  # ValidationResult, ValidationError, ValidateInput
-├── schema.validator.ts       # validateSchema()
-├── semantic.validator.ts     # validateSemantic()
-├── language.validator.ts     # validateLanguage() using franc
-└── examples.validator.ts     # validateExamples()
+├── index.ts                              # Re-exports + validate() orchestrator
+├── types.ts                              # ValidationResult, ValidationError, ValidateInput
+├── validators/
+│   ├── schema.validator.ts               # validateSchema()
+│   ├── semantic.validator.ts             # validateSemantic()
+│   ├── language.validator.ts             # validateLanguage(), resolveToIso3()
+│   └── example.validator.ts              # validateExamples()
+└── __tests__/
+    ├── schema.validator.test.ts          # 8 tests
+    ├── semantic.validator.test.ts        # 14 tests
+    ├── language.validator.test.ts        # 11 tests
+    ├── example.validator.test.ts         # 9 tests
+    └── validate.test.ts                  # 8 tests (orchestrator integration)
 ```
 
 ## Reference
@@ -98,3 +118,4 @@ packages/core/src/modules/validation/
 - Validation pipeline: `docs/tech-reqs/07-ai-validation.md`
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (validation section)
+- Task: `docs/tasks/04-ai-translation-pipeline.md` (Step 3)

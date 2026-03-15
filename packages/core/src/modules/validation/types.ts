@@ -1,3 +1,5 @@
+import type { ZodSchema } from "zod";
+
 /** Result of a validation check */
 export interface ValidationResult {
   valid: boolean;
@@ -6,7 +8,15 @@ export interface ValidationResult {
 
 /** A single validation error */
 export interface ValidationError {
-  code: string;
+  rule: string;
   message: string;
   field?: string;
+}
+
+/** Input for the orchestrated validate() function */
+export interface ValidateInput {
+  raw: unknown;
+  schema: ZodSchema;
+  original: string;
+  expectedLangs: string[];
 }

@@ -1,8 +1,32 @@
 {
-  "topic": {
-    "id": "it-terms",
-    "name": "IT & Technology",
-    "description": "Information technology and programming terms"
-  },
-  "entries": []
+  "id": "it-terms",
+  "name": "IT & Technology",
+  "emoji": "💻",
+  "words": [
+    "algorithm",
+    "application",
+    "backup",
+    "browser",
+    "cloud",
+    "compiler",
+    "database",
+    "debugging",
+    "encryption",
+    "firewall",
+    "framework",
+    "function",
+    "interface",
+    "keyboard",
+    "network",
+    "password",
+    "processor",
+    "programmer",
+    "repository",
+    "server",
+    "software",
+    "terminal",
+    "update",
+    "variable",
+    "website"
+  ]
 }
