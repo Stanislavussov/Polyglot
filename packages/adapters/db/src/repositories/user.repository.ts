@@ -59,4 +59,29 @@ export const userRepository = {
       .limit(1);
     return rows[0] ?? null;
   },
+
+  /** Update user's onboarding step. */
+  async updateOnboardingStep(
+    userId: number,
+    step: number,
+  ): Promise<User> {
+    const db = getDb();
+    const rows = await db
+      .update(users)
+      .set({ onboardingStep: step })
+      .where(eq(users.id, userId))
+      .returning();
+    return rows[0]!;
+  },
+
+  /** Mark user as onboarded. */
+  async markOnboarded(userId: number): Promise<User> {
+    const db = getDb();
+    const rows = await db
+      .update(users)
+      .set({ onboarded: true, onboardingStep: 4 })
+      .where(eq(users.id, userId))
+      .returning();
+    return rows[0]!;
+  },
 };

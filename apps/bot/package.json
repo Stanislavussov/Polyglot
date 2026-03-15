@@ -11,12 +11,20 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
   },
   "dependencies": {
-    "@polyglot/core": "workspace:*",
-    "@polyglot/adapter-db": "workspace:*",
+    "@grammyjs/conversations": "^2.1.1",
     "@polyglot/adapter-ai": "workspace:*",
-    "@polyglot/adapter-notifications": "workspace:*"
+    "@polyglot/adapter-db": "workspace:*",
+    "@polyglot/adapter-notifications": "workspace:*",
+    "@polyglot/core": "workspace:*",
+    "@polyglot/infra": "workspace:*",
+    "dotenv": "^17.3.1",
+    "grammy": "^1.41.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
   }
 }
