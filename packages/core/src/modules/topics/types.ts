@@ -103,6 +103,13 @@ export interface TopicDeps {
     targetLangs: string[],
   ) => Promise<TranslateOutput[]>;
 
+  /** Translate a single word for one target language (for partial regeneration) */
+  translateOne?: (
+    word: string,
+    sourceLang: string,
+    targetLang: string,
+  ) => Promise<LanguageTranslationEntry>;
+
   /** Get a cached translation for a specific word+lang combo */
   getCached: (
     topicId: string,

@@ -12,12 +12,14 @@ description: Notification scheduling and delivery with cron, timezone-aware send
 ## Architecture Context
 
 - **Layer:** Adapter (platform-dependent — uses node-cron)
-- **Dependencies:** `db` agent (for user queries), `topics` agent (for word suggestions)
+- **Dependencies:** `db` agent (for user queries), `topics` agent (for word suggestions, including partial regeneration)
 - **Dependents:** `bot` agent injects `sendFn` at startup
 
 ## Current State
 
-`packages/adapters/notifications/src/index.ts` exports `logNotificationSent()` — a structured logging stub that uses `logger` from `@polyglot/infra` to log notification-sent events. Full scheduler (cron, sendFn injection) is not yet implemented.
+- `logNotificationSent()` — structured logging stub using `logger` from `@polyglot/infra`.
+- `createNotificationService(deps)` — factory that returns `{ pickSuggestedWord }`. Uses topic service (via injected deps) to pick a random word from a random built-in topic, with **partial regeneration** support: if a cached topic word is missing a translation for one of the user's learning languages, calls `regenerateTopicWord` to fill the gap (one language at a time, not re-translating the entire word).
+- Full scheduler (cron, sendFn injection) is not yet implemented.
 
 ## Rules
 
@@ -25,6 +27,7 @@ description: Notification scheduling and delivery with cron, timezone-aware send
 2. One cron job for the entire schedule — do not create a job per user
 3. On send error — log and continue, do not stop the entire scheduler
 4. Respect user timezone when sending
+5. Dependencies injected via `NotificationServiceDeps` — no direct imports of db/topic adapters
 
 ## Cron Schedule
 
@@ -40,6 +43,11 @@ cron.schedule("0 * * * *", () => checkAndSend());  // Run every hour, check whic
 // Log a successfully dispatched notification (implemented)
 function logNotificationSent(params: { userId: number; type: 'suggested'; wordId: number }): void;
 
+// Create notification service with injected deps (implemented)
+function createNotificationService(deps: NotificationServiceDeps): {
+  pickSuggestedWord: (userId: number) => Promise<SuggestedWord | null>;
+};
+
 // Start the scheduler with injected send function (not yet implemented)
 function startScheduler(sendFn: SendFn): void;
 
@@ -51,9 +59,6 @@ async function getUsersForNotification(time: "morning" | "evening"): Promise<Use
 
 // Build notification payload for a specific user (not yet implemented)
 async function buildNotificationPayload(user: UserForNotification): Promise<NotificationPayload>;
-
-// Pick a suggested word based on user's topics/learning langs (not yet implemented)
-async function pickSuggestedWord(userId: number): Promise<SuggestedWord | null>;
 ```
 
 ## Types
@@ -80,17 +85,25 @@ interface SuggestedWord {
   emoji: string;
   translations: Record<string, string>;  // lang -> translation text
 }
+
+interface NotificationServiceDeps {
+  getTopicWords: (topicId: string, sourceLang: string, targetLangs: string[]) => Promise<TopicWord[]>;
+  regenerateTopicWord?: (topicId: string, original: string, sourceLang: string, targetLang: string) => Promise<LanguageTranslationEntry>;
+  getBuiltinTopics: () => TopicMeta[];
+  getUserSettings: (userId: number) => Promise<UserForNotification | null>;
+}
 ```
 
 ## File Structure
 
 ```
 packages/adapters/notifications/src/
-├── index.ts                    # Exports: logNotificationSent (stub); future: startScheduler, stopScheduler
-├── index.test.ts               # Vitest tests for logNotificationSent
-├── types.ts                    # (planned) SendFn, NotificationPayload, etc.
-├── scheduler.ts                # (planned) node-cron setup, checkAndSend logic
-└── notification.service.ts     # (planned) getUsersForNotification, buildPayload, pickWord
+├── index.ts                           # Exports: logNotificationSent, createNotificationService, types
+├── index.test.ts                      # Vitest tests for logNotificationSent
+├── types.ts                           # SendFn, NotificationPayload, SuggestedWord, NotificationServiceDeps
+├── notification.service.ts            # createNotificationService factory → pickSuggestedWord (with partial regen)
+├── notification.service.test.ts       # 18 Vitest tests for pickSuggestedWord
+├── scheduler.ts                       # (planned) node-cron setup, checkAndSend logic
 ```
 
 ## Reference
@@ -98,3 +111,4 @@ packages/adapters/notifications/src/
 - Notification spec: `docs/tech-reqs/11-notifications.md`
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (notifications section)
+- Partial regeneration task: `docs/tasks/07-partial-regeneration.md`

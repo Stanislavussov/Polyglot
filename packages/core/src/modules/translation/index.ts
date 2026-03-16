@@ -1,6 +1,7 @@
 // Translation service — public API
 export {
   translate,
+  translateOne,
   translateBatch,
   parseResponse,
   buildPrompt,

@@ -11,3 +11,15 @@ export function logNotificationSent(params: {
 }): void {
   logger.info(params, "Notification sent");
 }
+
+// Service factory
+export { createNotificationService } from "./notification.service.js";
+
+// Types
+export type {
+  SendFn,
+  UserForNotification,
+  NotificationPayload,
+  SuggestedWord,
+  NotificationServiceDeps,
+} from "./types.js";

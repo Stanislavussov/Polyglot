@@ -42,5 +42,8 @@
   "cefr": "CEFR: {level}",
   "register": "Registr: {register}",
   "synonyms": "Synonyma",
-  "examples": "Příklady"
+  "examples": "Příklady",
+  "regenerateLang": "🔄 {lang}",
+  "regenerating": "⏳ Aktualizuji {lang}...",
+  "regenerated": "✅ Překlad pro {lang} aktualizován"
 }

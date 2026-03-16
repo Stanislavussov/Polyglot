@@ -17,7 +17,7 @@ description: Word and phrase translation via AI with prompt building, response p
 
 ## Current State
 
-Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints).
+Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints). Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow.
 
 ## Rules
 
@@ -85,6 +85,12 @@ type GenerateObjectFn = <T>(prompt: string, schema: ZodSchema<T>, model: string)
 // Main translation entry point
 async function translate(input: TranslateInput, generateObjectFn: GenerateObjectFn): Promise<TranslateOutput>;
 
+// Single-language translation for partial regeneration
+async function translateOne(
+  input: TranslateInput & { targetLang: string },
+  generateObjectFn: GenerateObjectFn
+): Promise<LanguageTranslation>;
+
 // Batch translation for topics (sequential, not parallel)
 async function translateBatch(
   words: string[], sourceLang: string, targetLangs: string[],
@@ -116,6 +122,7 @@ function parseResponse(raw: unknown): TranslationResult;
 
 - `translationRequestSchema` — validates TranslationRequest (targetLangs 1–4)
 - `translationResultSchema` — validates full AI response (emoji, register, translations map)
+- `buildTranslationResultSchema(targetLangs)` — builds dynamic schema with required language keys so AI SDK enforces their presence
 - `languageTranslationSchema` — validates per-language translation entry
 - `synonymSchema` — validates synonym { text, register }
 - `exampleSchema` — validates example { context, target, native }
@@ -124,16 +131,16 @@ function parseResponse(raw: unknown): TranslationResult;
 
 ```
 packages/core/src/modules/translation/
-├── index.ts                    # Re-exports: translate, translateBatch, schemas, types
+├── index.ts                    # Re-exports: translate, translateOne, translateBatch, schemas, types
 ├── types.ts                    # TranslateInput, TranslateOutput, etc.
-├── translation.service.ts      # translate(), translateBatch(), parseResponse()
+├── translation.service.ts      # translate(), translateOne(), translateBatch(), parseResponse()
 ├── prompt.builder.ts           # buildTranslationPrompt(), buildStrictPrompt()
 ├── schemas/
 │   └── translation.schema.ts   # Zod schemas for AI response
 └── __tests__/
-    ├── translation.schema.test.ts   # 28 tests
+    ├── translation.schema.test.ts   # 32 tests
     ├── prompt.builder.test.ts       # 19 tests
-    └── translation.service.test.ts  # 21 tests (incl. 5 validation logging tests)
+    └── translation.service.test.ts  # 27 tests (incl. 6 translateOne + 5 validation logging tests)
 ```
 
 ## Reference

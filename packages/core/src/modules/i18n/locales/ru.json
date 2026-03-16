@@ -42,5 +42,8 @@
   "cefr": "CEFR: {level}",
   "register": "Регистр: {register}",
   "synonyms": "Синонимы",
-  "examples": "Примеры"
+  "examples": "Примеры",
+  "regenerateLang": "🔄 {lang}",
+  "regenerating": "⏳ Обновляю {lang}...",
+  "regenerated": "✅ Перевод на {lang} обновлён"
 }

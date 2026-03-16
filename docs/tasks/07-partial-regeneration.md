@@ -1,6 +1,6 @@
 # Task 07: Partial Translation Regeneration (Per-Language)
 
-**Status:** 🔲 To Do
+**Status:** ✅ Done
 
 ## Description
 
@@ -39,7 +39,7 @@ After receiving a translation result, the user may feel that one specific langua
 
 The existing `translate()` always translates to all target languages at once. We need a lightweight variant that translates to **one** language, reusing the same prompt structure but with a single target.
 
-- [ ] In `packages/core/src/modules/translation/translation.service.ts`, add:
+- [x] In `packages/core/src/modules/translation/translation.service.ts`, add:
   ```typescript
   /**
    * Re-translate a word for a single target language.
@@ -57,27 +57,27 @@ The existing `translate()` always translates to all target languages at once. We
   - This is a thin wrapper: calls `translate()` with `targetLangs: [targetLang]`
   - Extracts and returns just the single `LanguageTranslation` object
   - Validation pipeline runs normally (single-language is simpler → fewer false positives)
-- [ ] Export `translateOne` from `packages/core/src/modules/translation/index.ts`
-- [ ] Add tests in `packages/core/src/modules/translation/__tests__/translation.service.test.ts`:
+- [x] Export `translateOne` from `packages/core/src/modules/translation/index.ts`
+- [x] Add tests in `packages/core/src/modules/translation/__tests__/translation.service.test.ts`:
   - Calls `translate()` with single-element `targetLangs`
   - Returns the `LanguageTranslation` for the requested language
   - Propagates errors from `translate()`
 
 ### Step 2: Add i18n keys for regeneration UI
 
-- [ ] Add new keys to `packages/core/src/modules/i18n/types.ts` (`I18nKey` type):
+- [x] Add new keys to `packages/core/src/modules/i18n/types.ts` (`I18nKey` type):
   ```typescript
   | "regenerateLang"       // "🔄 {lang}" — button label
   | "regenerating"         // "⏳ Regenerating {lang}..." — loading message
   | "regenerated"          // "✅ {lang} translation updated" — success toast
   ```
-- [ ] Add `I18nParams` entries:
+- [x] Add `I18nParams` entries:
   ```typescript
   regenerateLang: { lang: string };
   regenerating: { lang: string };
   regenerated: { lang: string };
   ```
-- [ ] Add translations to all 3 locale files:
+- [x] Add translations to all 3 locale files:
 
   **en.json:**
   ```json
@@ -97,44 +97,14 @@ The existing `translate()` always translates to all target languages at once. We
   "regenerating": "⏳ Aktualizuji {lang}...",
   "regenerated": "✅ Překlad pro {lang} aktualizován"
   ```
-- [ ] Update i18n tests to cover new keys
+- [x] Update i18n tests to cover new keys
 
 ### Step 3: Update translation renderer to support per-language rendering
 
 The renderer currently renders the full card. We need it to also produce an inline keyboard with regeneration buttons.
 
-- [ ] In `apps/bot/src/renderers/translation.renderer.ts`, add:
-  ```typescript
-  import { InlineKeyboard } from "grammy";
-
-  /**
-   * Build inline keyboard with per-language regenerate buttons + save/skip.
-   * Each regenerate button has callback data "tr:regen:<langCode>".
-   */
-  export function buildTranslationKeyboard(
-    langCodes: string[],
-    interfaceLang?: string,
-  ): InlineKeyboard {
-    const lang = toLang(interfaceLang);
-    const kb = new InlineKeyboard();
-
-    // Row 1: regenerate buttons (one per language)
-    for (const code of langCodes) {
-      kb.text(
-        t("regenerateLang", lang, { lang: code.toUpperCase() }),
-        `tr:regen:${code}`,
-      );
-    }
-    kb.row();
-
-    // Row 2: save / skip
-    kb.text(t("saveToDictionary", lang), "tr:save");
-    kb.text(t("no", lang), "tr:skip");
-
-    return kb;
-  }
-  ```
-- [ ] Add tests for `buildTranslationKeyboard` in `apps/bot/src/__tests__/translation.renderer.test.ts`:
+- [x] In `apps/bot/src/renderers/translation.renderer.ts`, add `buildTranslationKeyboard()`
+- [x] Add tests for `buildTranslationKeyboard` in `apps/bot/src/__tests__/translation.renderer.test.ts`:
   - Generates correct callback data format `tr:regen:<code>`
   - Includes all language codes
   - Has save/skip row
@@ -143,7 +113,7 @@ The renderer currently renders the full card. We need it to also produce an inli
 
 This is the main change — the translate scene must handle `tr:regen:<langCode>` callbacks in a loop, allowing multiple regenerations before the final save/skip.
 
-- [ ] In `apps/bot/src/scenes/translate.scene.ts`, refactor the post-translation flow:
+- [x] In `apps/bot/src/scenes/translate.scene.ts`, refactor the post-translation flow:
 
   **Key changes:**
   1. Replace the hardcoded `InlineKeyboard` with `buildTranslationKeyboard()`
@@ -254,7 +224,7 @@ This is the main change — the translate scene must handle `tr:regen:<langCode>
   }
   ```
 
-- [ ] Ensure the scene stays under the 100-line rule. If it exceeds, extract the regeneration loop into a helper:
+- [x] Ensure the scene stays under the 100-line rule. If it exceeds, extract the regeneration loop into a helper:
   ```typescript
   // In a separate file: apps/bot/src/scenes/helpers/regen.helper.ts
   export async function handleRegenLoop(
@@ -264,18 +234,18 @@ This is the main change — the translate scene must handle `tr:regen:<langCode>
 
 ### Step 5: Tests
 
-- [ ] **Translation service tests** (`packages/core/src/modules/translation/__tests__/translation.service.test.ts`):
+- [x] **Translation service tests** (`packages/core/src/modules/translation/__tests__/translation.service.test.ts`):
   - `translateOne()` calls `translate()` with single target language
   - `translateOne()` returns `LanguageTranslation` for the requested language
   - `translateOne()` propagates errors
 
-- [ ] **Renderer tests** (`apps/bot/src/__tests__/translation.renderer.test.ts`):
+- [x] **Renderer tests** (`apps/bot/src/__tests__/translation.renderer.test.ts`):
   - `buildTranslationKeyboard()` creates buttons for each language code
   - Callback data format is `tr:regen:<code>`
   - Save and skip buttons are present
   - Uses correct i18n keys based on interface language
 
-- [ ] **i18n tests** (`packages/core/src/modules/i18n/__tests__/i18n.test.ts`):
+- [x] **i18n tests** (`packages/core/src/modules/i18n/__tests__/i18n.test.ts`):
   - New keys resolve correctly in all 3 locales
   - Interpolation works for `{lang}` parameter
 
@@ -289,6 +259,7 @@ This is the main change — the translate scene must handle `tr:regen:<langCode>
 | `packages/core/src/modules/i18n/` | New keys + params | No new dependencies |
 | `apps/bot/src/scenes/translate.scene.ts` | Regeneration loop | May need helper extraction for 100-line rule |
 | `apps/bot/src/renderers/translation.renderer.ts` | New `buildTranslationKeyboard()` | Depends on `grammy` (already in bot deps) |
+| `packages/adapters/db/` | New `updateContent()` on WordRepository | Pure CRUD — persist merged content after partial regen |
 | `packages/adapters/ai/` | No changes | Same `generateObject` used |
 
 ---
@@ -301,12 +272,23 @@ This is the main change — the translate scene must handle `tr:regen:<langCode>
 - `packages/core/src/modules/i18n/locales/en.json` — add 3 new keys
 - `packages/core/src/modules/i18n/locales/ru.json` — add 3 new keys
 - `packages/core/src/modules/i18n/locales/cs.json` — add 3 new keys
+- `packages/core/src/modules/validation/__tests__/validate.test.ts` — add 6 single-language partial regen tests
+- `packages/core/src/modules/topics/types.ts` — add `translateOne` optional dep to `TopicDeps`
+- `packages/core/src/modules/topics/topic.service.ts` — add `regenerateTopicWord` to service factory
+- `packages/core/src/modules/topics/__tests__/topic.service.test.ts` — add 10 tests for `regenerateTopicWord`
+- `packages/adapters/db/src/repositories/word.repository.ts` — add `updateContent()` for persisting merged translations
+- `packages/adapters/notifications/src/index.ts` — export createNotificationService, types
 - `apps/bot/src/renderers/translation.renderer.ts` — add `buildTranslationKeyboard()`
 - `apps/bot/src/scenes/translate.scene.ts` — regeneration loop with `tr:regen:<lang>` handling
 
 ## Files Created
 
-- `apps/bot/src/scenes/helpers/regen.helper.ts` — (if needed for 100-line scene rule) regeneration loop helper
+- `packages/adapters/db/src/__tests__/word.repository.test.ts` — 12 tests for word repository (create, findByUser, findById, search, updateContent, delete)
+- `packages/adapters/notifications/src/types.ts` — SendFn, UserForNotification, NotificationPayload, SuggestedWord, NotificationServiceDeps
+- `packages/adapters/notifications/src/notification.service.ts` — createNotificationService factory with pickSuggestedWord (partial regeneration support)
+- `packages/adapters/notifications/src/notification.service.test.ts` — 18 tests for pickSuggestedWord (happy path, partial regen, error handling, randomization)
+- `apps/bot/src/scenes/helpers/regen.helper.ts` — regeneration loop helper (extracted for 100-line scene rule)
+- `apps/bot/src/scenes/helpers/regen.helper.test.ts` — 9 tests for regeneration loop (save, skip, regen, merge, error handling, multiple regens)
 
 ---
 
@@ -324,14 +306,14 @@ This is the main change — the translate scene must handle `tr:regen:<langCode>
 
 ## Acceptance Criteria
 
-- [ ] `translateOne()` is exported from `@polyglot/core` and returns a single `LanguageTranslation`
-- [ ] Translation card shows regeneration buttons for each target language (e.g. `🔄 CS`, `🔄 DE`)
-- [ ] Tapping a regeneration button re-translates only that language via AI
-- [ ] The new translation is merged into the existing result (other languages unchanged)
-- [ ] The card is re-rendered with updated content and keyboard after regeneration
-- [ ] User can regenerate multiple times before saving/skipping
-- [ ] "Save to dictionary" saves the final merged result (with any regenerated parts)
-- [ ] i18n keys `regenerateLang`, `regenerating`, `regenerated` exist in all 3 locales
-- [ ] All existing tests pass: `pnpm test`
-- [ ] All packages build: `pnpm -r run build`
-- [ ] Scene file stays ≤100 lines (extract helper if needed)
+- [x] `translateOne()` is exported from `@polyglot/core` and returns a single `LanguageTranslation`
+- [x] Translation card shows regeneration buttons for each target language (e.g. `🔄 CS`, `🔄 DE`)
+- [x] Tapping a regeneration button re-translates only that language via AI
+- [x] The new translation is merged into the existing result (other languages unchanged)
+- [x] The card is re-rendered with updated content and keyboard after regeneration
+- [x] User can regenerate multiple times before saving/skipping
+- [x] "Save to dictionary" saves the final merged result (with any regenerated parts)
+- [x] i18n keys `regenerateLang`, `regenerating`, `regenerated` exist in all 3 locales
+- [x] All existing tests pass: `pnpm test`
+- [x] All packages build: `pnpm -r run build`
+- [x] Scene file stays ≤100 lines (extract helper if needed)

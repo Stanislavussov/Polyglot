@@ -53,6 +53,24 @@ export const wordRepository = {
       .orderBy(desc(words.createdAt));
   },
 
+  /**
+   * Update the content (translations JSONB) of a word.
+   * Used after partial regeneration — caller merges the single-language
+   * result into the existing content object before calling this method.
+   */
+  async updateContent(
+    wordId: number,
+    content: Record<string, unknown>,
+  ): Promise<Word> {
+    const db = getDb();
+    const rows = await db
+      .update(words)
+      .set({ content, updatedAt: new Date() })
+      .where(eq(words.id, wordId))
+      .returning();
+    return rows[0]!;
+  },
+
   /** Soft-delete a word by setting isActive to false. */
   async delete(wordId: number): Promise<void> {
     const db = getDb();

@@ -66,6 +66,49 @@ describe("i18n — t()", () => {
       "Register: neutral",
     );
   });
+
+  // Regeneration keys (task 07)
+  it("returns regenerateLang with {lang} interpolation in English", () => {
+    expect(t("regenerateLang", "en", { lang: "CS" })).toBe("🔄 CS");
+  });
+
+  it("returns regenerating with {lang} interpolation in English", () => {
+    expect(t("regenerating", "en", { lang: "DE" })).toBe(
+      "⏳ Regenerating DE...",
+    );
+  });
+
+  it("returns regenerated with {lang} interpolation in English", () => {
+    expect(t("regenerated", "en", { lang: "FR" })).toBe(
+      "✅ FR translation updated",
+    );
+  });
+
+  it("returns regeneration keys in Russian with interpolation", () => {
+    expect(t("regenerateLang", "ru", { lang: "CS" })).toBe("🔄 CS");
+    expect(t("regenerating", "ru", { lang: "CS" })).toBe(
+      "⏳ Обновляю CS...",
+    );
+    expect(t("regenerated", "ru", { lang: "CS" })).toBe(
+      "✅ Перевод на CS обновлён",
+    );
+  });
+
+  it("returns regeneration keys in Czech with interpolation", () => {
+    expect(t("regenerateLang", "cs", { lang: "DE" })).toBe("🔄 DE");
+    expect(t("regenerating", "cs", { lang: "DE" })).toBe(
+      "⏳ Aktualizuji DE...",
+    );
+    expect(t("regenerated", "cs", { lang: "DE" })).toBe(
+      "✅ Překlad pro DE aktualizován",
+    );
+  });
+
+  it("falls back to English for regeneration keys when locale has no file", () => {
+    expect(t("regenerating", "de", { lang: "FR" })).toBe(
+      "⏳ Regenerating FR...",
+    );
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -166,6 +209,9 @@ describe("i18n — locale consistency", () => {
       "register",
       "synonyms",
       "examples",
+      "regenerateLang",
+      "regenerating",
+      "regenerated",
     ];
 
     for (const key of enKeys) {

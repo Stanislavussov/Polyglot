@@ -21,7 +21,7 @@ Fully implemented. All tables, repositories, and singleton connection in place.
 - `schema.ts` — tables: `users`, `userLanguageSettings`, `words`, `translationRequests`, `topicTranslationCache`
 - `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories and types
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded
-- `repositories/word.repository.ts` — create, findByUser, findById, search, delete (soft)
+- `repositories/word.repository.ts` — create, findByUser, findById, search, delete (soft), updateContent (partial regeneration)
 - `repositories/topic.repository.ts` — getCached, setCached, markInvalid (topic translation caching)
 
 ## Rules
@@ -51,6 +51,7 @@ create(userId: number, word: Omit<NewWord, "userId">): Promise<Word>;
 findByUser(userId: number): Promise<Word[]>;
 findById(wordId: number): Promise<Word | null>;
 search(userId: number, query: string): Promise<Word[]>;
+updateContent(wordId: number, content: Record<string, unknown>): Promise<Word>;
 delete(wordId: number): Promise<void>;  // soft delete
 ```
 
@@ -96,11 +97,12 @@ packages/adapters/db/src/
 ├── schema.ts                         # Drizzle table definitions (users, userLanguageSettings, words, translationRequests, topicTranslationCache)
 ├── repositories/
 │   ├── user.repository.ts            # ✅ implemented
-│   ├── word.repository.ts            # ✅ implemented
+│   ├── word.repository.ts            # ✅ implemented (+ updateContent for partial regen)
 │   └── topic.repository.ts           # ✅ implemented
 └── __tests__/
-    ├── getDb.test.ts
-    └── topic.repository.test.ts
+    ├── getDb.test.ts                 # 1 test
+    ├── topic.repository.test.ts      # 4 tests
+    └── word.repository.test.ts       # 12 tests (create, findByUser, findById, search, updateContent, delete)
 ```
 
 ## Reference

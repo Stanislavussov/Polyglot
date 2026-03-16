@@ -8,6 +8,6 @@
 | 04  | [AI Translation Pipeline](./04-ai-translation-pipeline.md) | ✅ Done   |
 | 05  | [Structured Logging](./05-logging.md)             | ✅ Done    |
 | 06  | [AI Token Optimization](./06-token-optimization.md) | 🔲 To Do  |
-| 07  | [Partial Translation Regeneration](./07-partial-regeneration.md) | 🔲 To Do  |
+| 07  | [Partial Translation Regeneration](./07-partial-regeneration.md) | ✅ Done |
 | 08  | [AI Model Fallback](./08-model-fallback.md)       | 🔲 To Do  |
 | 09  | [Translation Session Loop](./09-translate-session-loop.md) | 🔲 To Do  |

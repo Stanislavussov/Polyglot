@@ -18,7 +18,7 @@ description: Topic management with built-in datasets, cache-first translation, a
 
 ## Current State
 
-Fully implemented. All public API functions working with 27 tests passing.
+Fully implemented with partial regeneration support. All public API functions working with 37 tests passing (27 original + 10 for regenerateTopicWord).
 
 ## Rules
 
@@ -64,6 +64,7 @@ function createTopicService(deps: TopicDeps): {
   getTopicWords: (topicId: string, sourceLang: string, targetLangs: string[]) => Promise<TopicWord[]>;
   generateCustomTopic: (prompt: string, sourceLang: string, targetLangs: string[]) => Promise<Topic>;
   getCacheStatus: (topicId: string, sourceLang: string, targetLangs: string[]) => Promise<CacheStatus>;
+  regenerateTopicWord: (topicId: string, original: string, sourceLang: string, targetLang: string) => Promise<LanguageTranslationEntry>;
 };
 ```
 
@@ -73,6 +74,8 @@ function createTopicService(deps: TopicDeps): {
 interface TopicDeps {
   // Batch translate words (from translation module, pre-bound with model + generateObjectFn)
   translateBatch: (words: string[], sourceLang: string, targetLangs: string[]) => Promise<TranslateOutput[]>;
+  // Single-language translation for partial regeneration (optional, pre-bound with model + generateObjectFn)
+  translateOne?: (word: string, sourceLang: string, targetLang: string) => Promise<LanguageTranslationEntry>;
   // Cache read (from db topicRepository.getCached)
   getCached: (topicId: string, original: string, sourceLang: string, targetLang: string) => Promise<CachedTranslation | null>;
   // Cache write (from db topicRepository.setCached)
@@ -122,6 +125,7 @@ interface TopicDataset {
 - **Cache key:** `(topicId, original, sourceLang, targetLang)` — one row per word × language
 - **Cache check:** For each word, check ALL target languages. Word is "cached" only when ALL langs have entries.
 - **On miss:** Batch translate ALL uncached words in a single `translateBatch` call, then store results per-language in cache.
+- **On partial regeneration:** `regenerateTopicWord` re-translates a single language for a topic word via `translateOne`, then overwrites the cache entry for that word+lang.
 - **Shared:** Cache is shared across users with the same language pair — not per user.
 
 ## File Structure
@@ -136,7 +140,7 @@ packages/core/src/modules/topics/
 │   ├── travel.json       # 25 travel & transport words
 │   └── it-terms.json     # 25 IT & tech words
 └── __tests__/
-    └── topic.service.test.ts  # 27 tests
+    └── topic.service.test.ts  # 37 tests (27 original + 10 regenerateTopicWord)
 ```
 
 ## Usage Example
@@ -158,6 +162,9 @@ const service = createTopicService({
 
 // Get translated words (cache-first)
 const words = await service.getTopicWords("food", "en", ["cs", "de"]);
+
+// Regenerate a single language for a topic word (partial regeneration)
+const newCsTranslation = await service.regenerateTopicWord("food", "apple", "en", "cs");
 ```
 
 ## Reference

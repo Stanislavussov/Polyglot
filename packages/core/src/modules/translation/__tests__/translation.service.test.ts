@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import {
   translate,
+  translateOne,
   translateBatch,
   parseResponse,
 } from "../translation.service.js";
@@ -210,6 +211,116 @@ describe("translate", () => {
     await expect(translate(defaultInput, mockGenerate)).rejects.toThrow(
       "API rate limit exceeded",
     );
+  });
+});
+
+describe("translateOne", () => {
+  it("calls translate() with single-element targetLangs", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    await translateOne(
+      { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o" },
+      mockGenerate,
+    );
+
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    // The prompt should be built with a single target language
+    const prompt = mockGenerate.mock.calls[0][0] as string;
+    expect(prompt).toContain("cs");
+  });
+
+  it("returns the LanguageTranslation for the requested language", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    const result = await translateOne(
+      { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o" },
+      mockGenerate,
+    );
+
+    expect(result.text).toBe("ahoj");
+    expect(result.cefr).toBe("A1");
+    expect(result.register).toBe("colloquial");
+    expect(result.synonyms).toHaveLength(1);
+    expect(result.examples).toHaveLength(3);
+  });
+
+  it("propagates errors from translate()", async () => {
+    const mockGenerate = vi
+      .fn()
+      .mockRejectedValue(new Error("API rate limit exceeded"));
+
+    await expect(
+      translateOne(
+        { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o" },
+        mockGenerate,
+      ),
+    ).rejects.toThrow("API rate limit exceeded");
+  });
+
+  it("passes topic through to translate()", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    await translateOne(
+      { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o", topic: "travel" },
+      mockGenerate,
+    );
+
+    const prompt = mockGenerate.mock.calls[0][0] as string;
+    expect(prompt).toContain("travel");
+  });
+
+  it("passes userId through to translate()", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    await translateOne(
+      { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o", userId: 42 },
+      mockGenerate,
+    );
+
+    // userId is passed as 4th arg options
+    expect(mockGenerate).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.anything(),
+      "openai/gpt-4o",
+      { userId: 42 },
+    );
+  });
+
+  it("works with needsReview results (validation exhausted)", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const badResult = makeValidResult({
+      translations: {
+        cs: {
+          text: "hello",
+          cefr: "A1",
+          register: "neutral",
+          synonyms: [{ text: "čau", register: "slang" }],
+          examples: [
+            {
+              context: "formal",
+              target: "Hello world in Czech.",
+              native: "Hello world in English.",
+            },
+          ],
+        },
+      },
+    });
+
+    const mockGenerate = vi.fn().mockResolvedValue(badResult);
+
+    // translateOne still returns the LanguageTranslation even if needsReview
+    const result = await translateOne(
+      { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o" },
+      mockGenerate,
+    );
+
+    expect(result.text).toBe("hello");
+    expect(mockGenerate).toHaveBeenCalledTimes(3); // 1 + 2 retries
+
+    warnSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 });
 

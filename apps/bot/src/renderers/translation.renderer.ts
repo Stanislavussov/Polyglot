@@ -2,6 +2,7 @@
  * Renders AI translation output and topic words for Telegram.
  * Uses HTML parse mode for safe rendering of dynamic content.
  */
+import { InlineKeyboard } from "grammy";
 import type {
   TranslateOutput,
   LanguageTranslation,
@@ -113,4 +114,31 @@ export function renderTopicWord(word: TopicWord): string {
   }
 
   return lines.join("\n").trim();
+}
+
+/**
+ * Build inline keyboard with per-language regenerate buttons + save/skip.
+ * Each regenerate button has callback data "tr:regen:<langCode>".
+ */
+export function buildTranslationKeyboard(
+  langCodes: string[],
+  interfaceLang?: string,
+): InlineKeyboard {
+  const lang = toLang(interfaceLang);
+  const kb = new InlineKeyboard();
+
+  // Row 1: regenerate buttons (one per language)
+  for (const code of langCodes) {
+    kb.text(
+      t("regenerateLang", lang, { lang: code.toUpperCase() }),
+      `tr:regen:${code}`,
+    );
+  }
+  kb.row();
+
+  // Row 2: save / skip
+  kb.text(t("saveToDictionary", lang), "tr:save");
+  kb.text(t("no", lang), "tr:skip");
+
+  return kb;
 }

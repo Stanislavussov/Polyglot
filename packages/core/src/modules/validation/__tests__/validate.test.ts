@@ -217,3 +217,167 @@ describe("validate (orchestrator)", () => {
     ).toBe(true);
   });
 });
+
+/**
+ * Single-language validation tests — partial regeneration scenario (Task 07).
+ *
+ * When translateOne() regenerates a single language, translate() internally calls
+ * validate() with expectedLangs: [singleLang]. These tests verify that the
+ * orchestrator works correctly with a single expected language.
+ */
+describe("validate — single-language (partial regeneration)", () => {
+  it("passes for a valid single-language response", () => {
+    const raw = makeValidResponse("hello");
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("passes when response contains extra languages beyond the expected one", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "ahoj",
+          cefr: "A1" as const,
+          register: "colloquial" as const,
+          synonyms: [{ text: "nazdar", register: "colloquial" as const }],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
+              native: "He said hello to his colleague at the office meeting.",
+            },
+          ],
+        },
+        de: {
+          text: "hallo",
+          cefr: "A1" as const,
+          register: "neutral" as const,
+          synonyms: [{ text: "guten Tag", register: "neutral" as const }],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Er sagte hallo zu seinem Kollegen bei dem Treffen.",
+              native: "He said hello to his colleague at the meeting.",
+            },
+          ],
+        },
+      },
+    };
+    // Only validate "cs" — "de" is extra and should not cause errors
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("detects semantic error in a single-language response", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        de: {
+          text: "hello", // same as original — semantic error
+          cefr: "A1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Er sagte hello zu seinem Kollegen im Büro heute.",
+              native: "He said hello to his colleague at the office today.",
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "hello", ["de"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0].rule).toBe("semantic");
+    expect(result.errors[0].field).toBe("translations.de.text");
+  });
+
+  it("detects hallucination in a single-language response", () => {
+    const raw = {
+      emoji: "📦",
+      register: "neutral" as const,
+      translations: {
+        fr: {
+          text: "I cannot translate this word",
+          cefr: "B1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Une phrase en français pour tester la validation.",
+              native: "A sentence in French to test the validation.",
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "package", ["fr"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
+    expect(result.errors.some((e) => e.field?.startsWith("translations.fr."))).toBe(true);
+  });
+
+  it("reports missing language when single expected language is absent", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "ahoj",
+          cefr: "A1" as const,
+          register: "colloquial" as const,
+          synonyms: [],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
+              native: "He said hello to his colleague at the office meeting.",
+            },
+          ],
+        },
+      },
+    };
+    // Expect "de" but only "cs" is present
+    const result = validate(raw, translationResultSchema, "hello", ["de"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0].rule).toBe("schema");
+    expect(result.errors[0].message).toContain("Missing translation");
+    expect(result.errors[0].message).toContain("de");
+    expect(result.errors[0].field).toBe("translations.de");
+  });
+
+  it("validates examples in a single-language response with empty examples", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "ahoj",
+          cefr: "A1" as const,
+          register: "colloquial" as const,
+          synonyms: [],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "", // empty target — examples validation error
+              native: "He said hello to his colleague.",
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
+    expect(result.errors.some((e) => e.field?.startsWith("translations.cs."))).toBe(true);
+  });
+});

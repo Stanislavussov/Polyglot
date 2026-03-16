@@ -17,7 +17,7 @@ description: Internationalization of all bot texts. Provides typed t(key, lang, 
 
 ## Current State
 
-Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 20 tests passing.
+Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 26 tests passing. Task 07 regeneration keys (`regenerateLang`, `regenerating`, `regenerated`) added with `{lang}` interpolation in all 3 locales.
 
 ## Rules
 
@@ -55,7 +55,8 @@ type I18nKey =
   | "savedToDict" | "alreadySaved" | "wordDeleted" | "emptyDictionary"
   | "noResults" | "settingsUpdated" | "notificationTimeSet" | "flipCard"
   | "nextTranslation" | "editTranslation" | "saveToDictionary"
-  | "cefr" | "register" | "synonyms" | "examples";
+  | "cefr" | "register" | "synonyms" | "examples"
+  | "regenerateLang" | "regenerating" | "regenerated";
 
 // Supported languages
 type SupportedLang = "en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl";
@@ -72,6 +73,9 @@ interface I18nParams {
   notificationTimeSet: { time: string };
   cefr: { level: string };
   register: { register: string };
+  regenerateLang: { lang: string };
+  regenerating: { lang: string };
+  regenerated: { lang: string };
 }
 
 // Deprecated alias for SupportedLang
@@ -91,7 +95,7 @@ packages/core/src/modules/i18n/
 │   ├── ru.json
 │   └── cs.json
 └── __tests__/
-    └── i18n.test.ts  # 20 tests
+    └── i18n.test.ts  # 26 tests
 ```
 
 ## Reference

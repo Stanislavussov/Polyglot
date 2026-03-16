@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   renderTranslation,
   renderTopicWord,
+  buildTranslationKeyboard,
 } from "../renderers/translation.renderer.js";
 import type { TranslateOutput, TopicWord } from "@polyglot/core";
 
@@ -244,5 +245,85 @@ describe("renderTopicWord", () => {
     const result = renderTopicWord(xssWord);
     expect(result).toContain("&lt;b&gt;bad&lt;/b&gt;");
     expect(result).toContain("špatný &amp; zlý");
+  });
+});
+
+describe("buildTranslationKeyboard", () => {
+  /** Extract callback_data from an inline keyboard button (union type). */
+  const cbData = (btn: unknown): string | undefined =>
+    (btn as { callback_data?: string }).callback_data;
+
+  it("creates regenerate buttons for each language code", () => {
+    const kb = buildTranslationKeyboard(["cs", "de", "fr"], "en");
+    const rows = kb.inline_keyboard;
+    // First row: regen buttons
+    expect(rows[0]).toHaveLength(3);
+  });
+
+  it("uses correct callback data format tr:regen:<code>", () => {
+    const kb = buildTranslationKeyboard(["cs", "de"], "en");
+    const regenRow = kb.inline_keyboard[0]!;
+    expect(cbData(regenRow[0])).toBe("tr:regen:cs");
+    expect(cbData(regenRow[1])).toBe("tr:regen:de");
+  });
+
+  it("includes all language codes as buttons", () => {
+    const codes = ["cs", "de", "fr", "es"];
+    const kb = buildTranslationKeyboard(codes, "en");
+    const regenRow = kb.inline_keyboard[0]!;
+    const callbackDatas = regenRow.map(cbData);
+    expect(callbackDatas).toEqual(codes.map((c) => `tr:regen:${c}`));
+  });
+
+  it("has save and skip buttons in second row", () => {
+    const kb = buildTranslationKeyboard(["cs"], "en");
+    const saveRow = kb.inline_keyboard[1]!;
+    expect(saveRow).toHaveLength(2);
+    expect(cbData(saveRow[0])).toBe("tr:save");
+    expect(cbData(saveRow[1])).toBe("tr:skip");
+  });
+
+  it("uses i18n regenerateLang key for button text", () => {
+    const kb = buildTranslationKeyboard(["cs"], "en");
+    const regenBtn = kb.inline_keyboard[0]![0]!;
+    expect(regenBtn.text).toBe("🔄 CS");
+  });
+
+  it("uses i18n saveToDictionary key for save button", () => {
+    const kb = buildTranslationKeyboard(["cs"], "en");
+    const saveBtn = kb.inline_keyboard[1]![0]!;
+    expect(saveBtn.text).toContain("Save to dictionary");
+  });
+
+  it("uses i18n no key for skip button", () => {
+    const kb = buildTranslationKeyboard(["cs"], "en");
+    const skipBtn = kb.inline_keyboard[1]![1]!;
+    expect(skipBtn.text).toContain("No");
+  });
+
+  it("renders button text using Russian locale", () => {
+    const kb = buildTranslationKeyboard(["de"], "ru");
+    const regenBtn = kb.inline_keyboard[0]![0]!;
+    expect(regenBtn.text).toBe("🔄 DE");
+    const skipBtn = kb.inline_keyboard[1]![1]!;
+    expect(skipBtn.text).toContain("Нет");
+  });
+
+  it("falls back to en for unknown interface language", () => {
+    const kb = buildTranslationKeyboard(["cs"], "xx");
+    const saveBtn = kb.inline_keyboard[1]![0]!;
+    expect(saveBtn.text).toContain("Save to dictionary");
+  });
+
+  it("works with single language code", () => {
+    const kb = buildTranslationKeyboard(["fr"], "en");
+    expect(kb.inline_keyboard[0]).toHaveLength(1);
+    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr");
+  });
+
+  it("uppercases language codes in button labels", () => {
+    const kb = buildTranslationKeyboard(["cs", "de"], "en");
+    const labels = kb.inline_keyboard[0]!.map((b) => b.text);
+    expect(labels).toEqual(["🔄 CS", "🔄 DE"]);
   });
 });

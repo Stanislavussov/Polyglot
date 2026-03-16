@@ -275,9 +275,71 @@ export function createTopicService(deps: TopicDeps) {
     return { total, cached, missing, status };
   }
 
+  /**
+   * Regenerate a single language translation for a topic word.
+   *
+   * Used for partial regeneration — re-translates only the specified
+   * target language while keeping other languages intact in cache.
+   *
+   * Flow:
+   * 1. Validate topic and word exist in dataset
+   * 2. Call translateOne for the single target language
+   * 3. Overwrite the cache entry for that word+lang
+   * 4. Return the new LanguageTranslationEntry
+   *
+   * @param topicId - Built-in topic ID (e.g., "food", "travel")
+   * @param original - The word to regenerate (must exist in dataset)
+   * @param sourceLang - Source language code (e.g., "en")
+   * @param targetLang - Single target language to regenerate (e.g., "cs")
+   * @returns The newly translated LanguageTranslationEntry
+   * @throws Error if topicId not found, word not in dataset, or translateOne not provided
+   */
+  async function regenerateTopicWord(
+    topicId: string,
+    original: string,
+    sourceLang: string,
+    targetLang: string,
+  ): Promise<LanguageTranslationEntry> {
+    const dataset = getDataset(topicId);
+    if (!dataset) {
+      throw new Error(`Topic not found: "${topicId}"`);
+    }
+
+    if (!dataset.words.includes(original)) {
+      throw new Error(
+        `Word "${original}" not found in topic "${topicId}"`,
+      );
+    }
+
+    if (!deps.translateOne) {
+      throw new Error(
+        "translateOne dependency is required for partial regeneration",
+      );
+    }
+
+    // Re-translate for the single target language
+    const newTranslation = await deps.translateOne(
+      original,
+      sourceLang,
+      targetLang,
+    );
+
+    // Overwrite the cache entry
+    await deps.setCached({
+      topicId,
+      original,
+      sourceLang,
+      targetLang,
+      content: newTranslation,
+    });
+
+    return newTranslation;
+  }
+
   return {
     getTopicWords,
     generateCustomTopic,
     getCacheStatus,
+    regenerateTopicWord,
   };
 }

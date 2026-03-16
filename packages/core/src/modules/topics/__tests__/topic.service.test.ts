@@ -7,6 +7,7 @@ import {
 import type {
   TopicDeps,
   CachedTranslation,
+  LanguageTranslationEntry,
 } from "../types.js";
 import type { TranslateOutput } from "../../translation/types.js";
 
@@ -588,6 +589,176 @@ describe("createTopicService", () => {
       expect(status.cached).toBe(5);
       expect(status.missing).toBe(20);
       expect(status.status).toBe("partial");
+    });
+  });
+
+  // ─────────────────────────────────────────
+  // regenerateTopicWord
+  // ─────────────────────────────────────────
+
+  describe("regenerateTopicWord", () => {
+    const mockTranslationEntry: LanguageTranslationEntry = {
+      text: "jablko",
+      cefr: "A1",
+      register: "neutral",
+      synonyms: [{ text: "jablíčko", register: "colloquial" }],
+      examples: [
+        {
+          context: "formal",
+          target: "Podej mi jablko.",
+          native: "Give me an apple.",
+        },
+      ],
+    };
+
+    it("throws for unknown topic ID", async () => {
+      const deps = createMockDeps();
+      const service = createTopicService(deps);
+
+      await expect(
+        service.regenerateTopicWord("nonexistent", "apple", "en", "cs"),
+      ).rejects.toThrow('Topic not found: "nonexistent"');
+    });
+
+    it("throws when word is not in the dataset", async () => {
+      const deps = createMockDeps();
+      const service = createTopicService(deps);
+
+      await expect(
+        service.regenerateTopicWord("food", "quantum", "en", "cs"),
+      ).rejects.toThrow('Word "quantum" not found in topic "food"');
+    });
+
+    it("throws when translateOne dependency is not provided", async () => {
+      const deps = createMockDeps();
+      // translateOne is undefined by default
+      const service = createTopicService(deps);
+
+      const dataset = getDataset("food")!;
+      const word = dataset.words[0];
+
+      await expect(
+        service.regenerateTopicWord("food", word, "en", "cs"),
+      ).rejects.toThrow(
+        "translateOne dependency is required for partial regeneration",
+      );
+    });
+
+    it("calls translateOne with correct arguments", async () => {
+      const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
+      const deps = createMockDeps({ translateOne });
+      const service = createTopicService(deps);
+
+      const dataset = getDataset("food")!;
+      const word = dataset.words[0];
+
+      await service.regenerateTopicWord("food", word, "en", "cs");
+
+      expect(translateOne).toHaveBeenCalledTimes(1);
+      expect(translateOne).toHaveBeenCalledWith(word, "en", "cs");
+    });
+
+    it("updates cache with new translation", async () => {
+      const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
+      const setCached = vi.fn().mockResolvedValue(undefined);
+      const deps = createMockDeps({ translateOne, setCached });
+      const service = createTopicService(deps);
+
+      const dataset = getDataset("food")!;
+      const word = dataset.words[0];
+
+      await service.regenerateTopicWord("food", word, "en", "cs");
+
+      expect(setCached).toHaveBeenCalledTimes(1);
+      expect(setCached).toHaveBeenCalledWith({
+        topicId: "food",
+        original: word,
+        sourceLang: "en",
+        targetLang: "cs",
+        content: mockTranslationEntry,
+      });
+    });
+
+    it("returns the new LanguageTranslationEntry", async () => {
+      const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
+      const deps = createMockDeps({ translateOne });
+      const service = createTopicService(deps);
+
+      const dataset = getDataset("food")!;
+      const word = dataset.words[0];
+
+      const result = await service.regenerateTopicWord("food", word, "en", "cs");
+
+      expect(result).toEqual(mockTranslationEntry);
+      expect(result.text).toBe("jablko");
+      expect(result.cefr).toBe("A1");
+    });
+
+    it("propagates errors from translateOne", async () => {
+      const translateOne = vi
+        .fn()
+        .mockRejectedValue(new Error("AI provider timeout"));
+      const deps = createMockDeps({ translateOne });
+      const service = createTopicService(deps);
+
+      const dataset = getDataset("food")!;
+      const word = dataset.words[0];
+
+      await expect(
+        service.regenerateTopicWord("food", word, "en", "cs"),
+      ).rejects.toThrow("AI provider timeout");
+    });
+
+    it("does not call setCached when translateOne fails", async () => {
+      const translateOne = vi
+        .fn()
+        .mockRejectedValue(new Error("AI error"));
+      const setCached = vi.fn().mockResolvedValue(undefined);
+      const deps = createMockDeps({ translateOne, setCached });
+      const service = createTopicService(deps);
+
+      const dataset = getDataset("food")!;
+      const word = dataset.words[0];
+
+      await expect(
+        service.regenerateTopicWord("food", word, "en", "cs"),
+      ).rejects.toThrow();
+
+      expect(setCached).not.toHaveBeenCalled();
+    });
+
+    it("works with different topics", async () => {
+      const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
+      const setCached = vi.fn().mockResolvedValue(undefined);
+      const deps = createMockDeps({ translateOne, setCached });
+      const service = createTopicService(deps);
+
+      const dataset = getDataset("travel")!;
+      const word = dataset.words[0];
+
+      const result = await service.regenerateTopicWord("travel", word, "en", "de");
+
+      expect(result).toEqual(mockTranslationEntry);
+      expect(setCached).toHaveBeenCalledWith(
+        expect.objectContaining({
+          topicId: "travel",
+          original: word,
+          targetLang: "de",
+        }),
+      );
+    });
+
+    it("works with it-terms topic", async () => {
+      const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
+      const deps = createMockDeps({ translateOne });
+      const service = createTopicService(deps);
+
+      const dataset = getDataset("it-terms")!;
+      const word = dataset.words[0];
+
+      const result = await service.regenerateTopicWord("it-terms", word, "en", "cs");
+
+      expect(result).toEqual(mockTranslationEntry);
     });
   });
 });

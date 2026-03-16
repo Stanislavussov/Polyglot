@@ -46,7 +46,10 @@ export type I18nKey =
   | "cefr"
   | "register"
   | "synonyms"
-  | "examples";
+  | "examples"
+  | "regenerateLang"
+  | "regenerating"
+  | "regenerated";
 
 /**
  * Supported interface languages.
@@ -82,6 +85,9 @@ export interface I18nParams {
   notificationTimeSet: { time: string };
   cefr: { level: string };
   register: { register: string };
+  regenerateLang: { lang: string };
+  regenerating: { lang: string };
+  regenerated: { lang: string };
 }
 
 /**

@@ -109,8 +109,8 @@ packages/core/src/modules/validation/
     ├── schema.validator.test.ts          # 8 tests
     ├── semantic.validator.test.ts        # 14 tests
     ├── language.validator.test.ts        # 11 tests
-    ├── example.validator.test.ts         # 9 tests
-    └── validate.test.ts                  # 8 tests (orchestrator integration)
+    ├── example.validator.test.ts         # 7 tests
+    └── validate.test.ts                  # 14 tests (8 orchestrator + 6 single-language partial regen)
 ```
 
 ## Logging Integration
@@ -121,6 +121,13 @@ When validation fails in the translation service (`packages/core/src/modules/tra
 
 Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean architecture.
 
+## Current State
+
+- All 5 validators implemented and tested (54 tests total)
+- `validate()` orchestrator supports single-language validation for partial regeneration (Task 07)
+- No code changes needed for Task 07 — existing `validate(raw, schema, original, [singleLang])` works correctly
+- Added 6 tests confirming single-language validation for partial regeneration scenarios
+
 ## Reference
 
 - Validation pipeline: `docs/tech-reqs/07-ai-validation.md`
@@ -128,3 +135,4 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 - Agent contracts: `docs/tech-reqs/14-agents.md` (validation section)
 - Task: `docs/tasks/04-ai-translation-pipeline.md` (Step 3)
 - Task: `docs/tasks/05-logging.md` (Step 3 — validation error logging)
+- Task: `docs/tasks/07-partial-regeneration.md` (single-language validation coverage)

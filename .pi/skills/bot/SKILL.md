@@ -24,8 +24,9 @@ Already implemented:
 - `middlewares/auth.ts` — resolves/creates user, attaches to ctx.user
 - `commands/start.ts` — /start handler (onboarding or main menu)
 - `scenes/onboarding.scene.ts` — 4-step onboarding conversation
-- `scenes/translate.scene.ts` — translation flow (enter word → AI translate → save to dict)
-- `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML)
+- `scenes/translate.scene.ts` — translation flow (enter word → AI translate → per-language regen → save to dict)
+- `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, save, skip)
+- `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with regen buttons)
 
 Still needed:
 - `scenes/dictionary.scene.ts` — dictionary browsing
@@ -56,11 +57,17 @@ function renderTranslation(output: TranslateOutput, interfaceLang?: string): str
 // Render a single topic word card (HTML)
 function renderTopicWord(word: TopicWord): string;
 
+// Build inline keyboard with per-language regenerate buttons + save/skip
+function buildTranslationKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard;
+
 // Scene: 4-step onboarding (implemented)
 async function onboarding(conversation, ctx): Promise<void>;
 
-// Scene: translation flow (implemented)
+// Scene: translation flow with per-language regeneration (implemented)
 async function handleTranslate(conversation, ctx): Promise<void>;
+
+// Helper: regeneration loop (regen/save/skip callback handling)
+async function handleRegenLoop(conversation, ctx, output, lang, userId, cardMsgId): Promise<void>;
 
 // Scene: dictionary browsing (not yet implemented)
 async function handleDictionary(conversation, ctx): Promise<void>;
@@ -78,8 +85,14 @@ async function handleSettings(conversation, ctx): Promise<void>;
   ├─ Show "Translating..." indicator
   ├─ Call translate() with generateObject from AI adapter
   ├─ Render translation card (HTML format)
-  ├─ Show "Save to dictionary?" inline keyboard
-  └─ Save to wordRepository or dismiss
+  ├─ Show inline keyboard: per-language 🔄 regen buttons + Save/Skip
+  ├─ Regeneration loop (handleRegenLoop):
+  │   ├─ "🔄 CS" → translateOne(cs) → merge → re-render card
+  │   ├─ "🔄 DE" → translateOne(de) → merge → re-render card
+  │   ├─ (repeat as many times as needed)
+  │   ├─ "Save" → wordRepository.create() → done
+  │   └─ "Skip" → remove keyboard → done
+  └─ User can regenerate multiple languages before final save/skip
 ```
 
 ## Onboarding Flow (4 Steps)
@@ -130,14 +143,18 @@ apps/bot/src/
 ├── commands/
 │   └── start.ts                # /start command
 ├── renderers/
-│   └── translation.renderer.ts # renderTranslation, renderTopicWord
+│   └── translation.renderer.ts # renderTranslation, renderTopicWord, buildTranslationKeyboard
 ├── scenes/
 │   ├── onboarding.scene.ts     # ✅ implemented
-│   ├── translate.scene.ts      # ✅ implemented
+│   ├── translate.scene.ts      # ✅ implemented (with per-language regeneration)
+│   ├── helpers/
+│   │   ├── regen.helper.ts     # ✅ regeneration loop helper
+│   │   └── regen.helper.test.ts # 9 tests
 │   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
-    └── translation.renderer.test.ts # 24 tests
+    ├── translation.renderer.test.ts # 35 tests (24 original + 11 keyboard)
+    └── onboarding.scene.test.ts     # 16 tests
 ```
 
 ## Reference

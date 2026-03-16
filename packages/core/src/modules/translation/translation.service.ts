@@ -148,6 +148,37 @@ export async function translate(
 }
 
 /**
+ * Re-translate a word for a single target language.
+ *
+ * Thin wrapper around translate() — calls it with targetLangs: [targetLang]
+ * and extracts just the LanguageTranslation for that language.
+ *
+ * Used by partial regeneration — cheaper than full translate().
+ *
+ * @param input - Same as TranslateInput, plus a `targetLang` for the single language
+ * @param generateObjectFn - AI generation function (injected)
+ * @returns LanguageTranslation for the requested language
+ */
+export async function translateOne(
+  input: TranslateInput & { targetLang: string },
+  generateObjectFn: GenerateObjectFn,
+): Promise<import("./types.js").LanguageTranslation> {
+  const output = await translate(
+    {
+      word: input.word,
+      sourceLang: input.sourceLang,
+      targetLangs: [input.targetLang],
+      model: input.model,
+      topic: input.topic,
+      userId: input.userId,
+    },
+    generateObjectFn,
+  );
+
+  return output.translations[input.targetLang];
+}
+
+/**
  * Translate a batch of words into multiple target languages.
  *
  * Calls translate() for each word sequentially (not in parallel,
