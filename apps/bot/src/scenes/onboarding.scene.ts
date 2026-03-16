@@ -8,21 +8,22 @@ import { logger } from "@polyglot/infra";
 
 type OnboardingConversation = Conversation<BotContext, ConversationContext>;
 
+/** Sentinel value returned by step functions when the user presses Back. */
+const BACK = "__back__" as const;
+type BackAction = typeof BACK;
+
 /**
- * 4-step onboarding conversation.
+ * 4-step onboarding conversation with back-navigation support.
  *
  * Step 1: Choose interface language
- * Step 2: Choose native language
- * Step 3: Choose learning languages (multi-select, 1–4)
- * Step 4: Demo translation — user enters a word, sees placeholder result
+ * Step 2: Choose native language        (back → step 1)
+ * Step 3: Choose learning languages     (back → step 2)
+ * Step 4: Demo translation              (back → step 3)
  */
 export async function onboarding(
   conversation: OnboardingConversation,
   ctx: ConversationContext,
 ): Promise<void> {
-  // ctx.user is not available inside conversations — middleware-injected
-  // properties don't survive the conversation replay mechanism.
-  // Resolve the user from the database using the Telegram ID instead.
   const telegramId = ctx.from!.id;
   const user = await conversation.external(async () => {
     return userRepository.findByTelegramId(telegramId);
@@ -35,113 +36,131 @@ export async function onboarding(
   }
 
   const userId = user.id;
+  let step = 1;
+  let interfaceLang: SupportedLang = "en";
+  let nativeLang: SupportedLang = "en";
+  let learningLangs: string[] = [];
 
-  // ── Step 1: Interface language ──
-  const interfaceLang = await stepChooseLanguage(
-    conversation,
-    ctx,
-    "chooseInterfaceLang",
-    "en", // default language for first prompt
-  );
+  while (step <= 4) {
+    switch (step) {
+      case 1: {
+        const result = await stepChooseLanguage(
+          conversation, ctx, "chooseInterfaceLang", "en", false,
+        );
+        // Step 1 has no back button — always moves forward
+        interfaceLang = result as SupportedLang;
+        await conversation.external(() =>
+          userRepository.updateOnboardingStep(userId, 1),
+        );
+        step = 2;
+        break;
+      }
+      case 2: {
+        const result = await stepChooseLanguage(
+          conversation, ctx, "chooseNativeLang", interfaceLang, true,
+        );
+        if (result === BACK) { step = 1; break; }
+        nativeLang = result;
+        await conversation.external(() =>
+          userRepository.updateOnboardingStep(userId, 2),
+        );
+        step = 3;
+        break;
+      }
+      case 3: {
+        const result = await stepChooseLearningLangs(
+          conversation, ctx, interfaceLang, nativeLang,
+        );
+        if (result === BACK) { step = 2; break; }
+        learningLangs = result;
+        await conversation.external(() =>
+          userRepository.updateOnboardingStep(userId, 3),
+        );
+        await conversation.external(() =>
+          userRepository.updateSettings(userId, {
+            interfaceLang,
+            nativeLang,
+            learningLangs,
+          }),
+        );
+        step = 4;
+        break;
+      }
+      case 4: {
+        const result = await stepDemoTranslation(
+          conversation, ctx, interfaceLang,
+        );
+        if (result === BACK) { step = 3; break; }
+        step = 5; // exit loop
+        break;
+      }
+    }
+  }
 
-  await conversation.external(async () => {
-    await userRepository.updateOnboardingStep(userId, 1);
-  });
-
-  // ── Step 2: Native language ──
-  const nativeLang = await stepChooseLanguage(
-    conversation,
-    ctx,
-    "chooseNativeLang",
-    interfaceLang,
-  );
-
-  await conversation.external(async () => {
-    await userRepository.updateOnboardingStep(userId, 2);
-  });
-
-  // ── Step 3: Learning languages (multi-select) ──
-  const learningLangs = await stepChooseLearningLangs(
-    conversation,
-    ctx,
-    interfaceLang,
-    nativeLang,
-  );
-
-  await conversation.external(async () => {
-    await userRepository.updateOnboardingStep(userId, 3);
-  });
-
-  // Save language settings
-  await conversation.external(async () => {
-    await userRepository.updateSettings(userId, {
-      interfaceLang,
-      nativeLang,
-      learningLangs,
-    });
-  });
-
-  // ── Step 4: Demo translation ──
-  await stepDemoTranslation(conversation, ctx, interfaceLang);
-
-  // Mark user as onboarded
-  await conversation.external(async () => {
-    await userRepository.markOnboarded(userId);
-  });
-
+  await conversation.external(() => userRepository.markOnboarded(userId));
   logger.info({ userId }, "User completed onboarding");
 }
 
 /**
  * Step: choose a single language from an inline keyboard.
+ * When showBack is true, a ⬅️ Back button is appended.
  */
 async function stepChooseLanguage(
   conversation: OnboardingConversation,
   ctx: ConversationContext,
   textKey: I18nKey,
   lang: SupportedLang,
-): Promise<SupportedLang> {
+  showBack: boolean,
+): Promise<SupportedLang | BackAction> {
   const keyboard = new InlineKeyboard();
   for (const l of LANGUAGES) {
     keyboard.text(`${l.flag} ${l.label}`, `lang:${l.code}`).row();
   }
+  if (showBack) {
+    keyboard.text(`⬅️ ${t("back", lang)}`, "onb:back").row();
+  }
 
   await ctx.reply(t(textKey, lang), { reply_markup: keyboard });
 
-  const response = await conversation.waitForCallbackQuery(/^lang:/, {
-    otherwise: async (ctx) => {
-      await ctx.reply(t(textKey, lang));
+  const response = await conversation.waitForCallbackQuery(
+    /^(lang:|onb:back)/,
+    {
+      otherwise: async (ctx) => {
+        await ctx.reply(t(textKey, lang));
+      },
     },
-  });
+  );
+
+  if (response.callbackQuery.data === "onb:back") {
+    await response.answerCallbackQuery();
+    return BACK;
+  }
 
   const selectedCode = response.callbackQuery.data.replace("lang:", "");
   await response.answerCallbackQuery();
 
-  // Edit the message to show the selection
   await response.editMessageText(
     `${t(textKey, lang)}\n\n✅ ${langDisplay(selectedCode)}`,
   );
 
-  // All LANGUAGES codes are valid SupportedLang — fallback to "en" for safety
   return isSupported(selectedCode) ? selectedCode : "en";
 }
 
 /**
  * Step 3: multi-select learning languages with inline keyboard.
- * Users can select 1–4 languages, then press Done.
+ * Users can select 1–4 languages, then press Done. Back returns to step 2.
  */
 async function stepChooseLearningLangs(
   conversation: OnboardingConversation,
   ctx: ConversationContext,
   interfaceLang: SupportedLang,
   nativeLang: SupportedLang,
-): Promise<string[]> {
+): Promise<string[] | BackAction> {
   const selected: string[] = [];
 
   function buildKeyboard(): InlineKeyboard {
     const keyboard = new InlineKeyboard();
     for (const l of LANGUAGES) {
-      // Don't show native language as an option to learn
       if (l.code === nativeLang) continue;
       const isSelected = selected.includes(l.code);
       const prefix = isSelected ? "✅ " : "";
@@ -152,13 +171,15 @@ async function stepChooseLearningLangs(
     if (selected.length > 0) {
       keyboard.text(t("done", interfaceLang), "learn:done").row();
     }
+    keyboard
+      .text(`⬅️ ${t("back", interfaceLang)}`, "learn:back")
+      .row();
     return keyboard;
   }
 
   const promptText = t("chooseLearningLangs", interfaceLang);
   await ctx.reply(promptText, { reply_markup: buildKeyboard() });
 
-  // Loop until user presses Done
   while (true) {
     const response = await conversation.waitForCallbackQuery(/^learn:/, {
       otherwise: async (ctx) => {
@@ -167,6 +188,11 @@ async function stepChooseLearningLangs(
     });
 
     const data = response.callbackQuery.data.replace("learn:", "");
+
+    if (data === "back") {
+      await response.answerCallbackQuery();
+      return BACK;
+    }
 
     if (data === "done") {
       if (selected.length === 0) {
@@ -177,7 +203,6 @@ async function stepChooseLearningLangs(
         continue;
       }
       await response.answerCallbackQuery();
-      // Edit message to show final selection
       const selectedDisplay = selected.map((c) => langDisplay(c)).join(", ");
       await response.editMessageText(`${promptText}\n\n✅ ${selectedDisplay}`);
       return selected;
@@ -204,7 +229,6 @@ async function stepChooseLearningLangs(
       });
     }
 
-    // Update the keyboard to reflect current selection
     await response.editMessageReplyMarkup({
       reply_markup: buildKeyboard(),
     });
@@ -215,30 +239,53 @@ async function stepChooseLearningLangs(
  * Step 4: Demo translation.
  * User enters any word, bot shows a placeholder result,
  * asks "Save to dictionary?" → Yes / No.
+ * Back button returns to step 3 (learning languages).
  */
 async function stepDemoTranslation(
   conversation: OnboardingConversation,
   ctx: ConversationContext,
   interfaceLang: SupportedLang,
-): Promise<void> {
-  await ctx.reply(t("enterWord", interfaceLang));
+): Promise<void | BackAction> {
+  const backKeyboard = new InlineKeyboard()
+    .text(`⬅️ ${t("back", interfaceLang)}`, "onb:back")
+    .row();
 
-  // Wait for user to send a text message
-  const wordCtx = await conversation.waitFor("message:text", {
-    otherwise: async (ctx) => {
-      await ctx.reply(t("enterWord", interfaceLang));
-    },
+  await ctx.reply(t("enterWord", interfaceLang), {
+    reply_markup: backKeyboard,
   });
 
-  const word = wordCtx.message.text;
+  // Wait for either a text message (word) or the back button
+  let word: string;
+  while (true) {
+    const response = await conversation.waitUntil(
+      (ctx) => !!ctx.message?.text || ctx.callbackQuery?.data === "onb:back",
+      {
+        otherwise: async (ctx) => {
+          await ctx.reply(t("enterWord", interfaceLang), {
+            reply_markup: backKeyboard,
+          });
+        },
+      },
+    );
 
-  // Show placeholder translation result (AI not wired yet)
+    if (response.callbackQuery?.data === "onb:back") {
+      await response.answerCallbackQuery();
+      return BACK;
+    }
+
+    if (response.message?.text) {
+      word = response.message.text;
+      break;
+    }
+  }
+
+  // Show placeholder translation result
   const resultText = t("demoResult", interfaceLang, { word });
   const saveKeyboard = new InlineKeyboard()
     .text(t("yes", interfaceLang), "demo:save")
     .text(t("no", interfaceLang), "demo:skip");
 
-  await wordCtx.reply(resultText, {
+  await ctx.reply(resultText, {
     reply_markup: saveKeyboard,
     parse_mode: "Markdown",
   });
@@ -257,7 +304,6 @@ async function stepDemoTranslation(
   await saveCtx.answerCallbackQuery();
 
   if (action === "save") {
-    // TODO: Save word to dictionary once word.repository is wired
     await saveCtx.editMessageText(t("onboardingComplete", interfaceLang));
   } else {
     await saveCtx.editMessageText(
