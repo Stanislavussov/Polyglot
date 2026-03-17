@@ -13,3 +13,4 @@
 | 09  | [Translation Session Loop](./09-translate-session-loop.md) | ✅ Done   |
 | 10  | [Idiomatic & Proverb Equivalent Matching](./10-idiomatic-equivalents.md) | ✅ Done   |
 | 11  | [Input Message Limits & Validation Config](./11-input-limits-config.md) | 🔲 To Do  |
+| 12  | [Detect Literal vs Idiomatic Translation Nuances](./12-idiom-analysis.md) | 🔲 To Do  |
