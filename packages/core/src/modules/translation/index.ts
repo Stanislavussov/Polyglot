@@ -40,4 +40,5 @@ export type {
   Register,
   CefrLevel,
   ExampleContext,
+  ExpressionType,
 } from "./types.js";

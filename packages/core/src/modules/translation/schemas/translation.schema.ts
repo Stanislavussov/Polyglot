@@ -21,6 +21,9 @@ const cefrEnum = z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]);
 /** Valid example context types */
 const exampleContextEnum = z.enum(["formal", "colloquial", "professional"]);
 
+/** Valid expression type values */
+const expressionTypeEnum = z.enum(["literal", "idiomatic_equivalent"]);
+
 /** Zod schema for a synonym */
 export const synonymSchema = z.object({
   text: z.string().min(1, "Synonym text is required"),
@@ -42,6 +45,8 @@ export const languageTranslationSchema = z.object({
   register: registerEnum,
   synonyms: z.array(synonymSchema),
   examples: z.array(exampleSchema).min(1, "At least one example is required"),
+  expressionType: expressionTypeEnum.optional().default("literal"),
+  equivalentNote: z.string().optional(),
 });
 
 /** Zod schema for validating a translation request */

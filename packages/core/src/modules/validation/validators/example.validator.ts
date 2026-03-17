@@ -1,5 +1,8 @@
 import type { ValidationResult, ValidationError } from "../types.js";
 
+/** Expression type — literal or idiomatic equivalent */
+export type ExpressionType = "literal" | "idiomatic_equivalent";
+
 /** A structured example with target and native sentences */
 export interface ExampleInput {
   context: string;
@@ -14,12 +17,15 @@ export interface ExampleInput {
  * - Each example must have both target and native text
  * - Each example's target text should contain the translated word
  *   (case-insensitive, allows partial match for inflected forms)
+ * - When expressionType is "idiomatic_equivalent", word-matching is relaxed:
+ *   only verifies examples are non-empty with both target and native text
  *
  * Pure function — no side effects.
  */
 export function validateExamples(
   examples: ExampleInput[],
   word: string,
+  expressionType?: ExpressionType,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 

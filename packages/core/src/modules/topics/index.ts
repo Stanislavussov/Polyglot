@@ -13,6 +13,7 @@ export type {
   CacheStatus,
   TopicDataset,
   TopicDeps,
+  TopicExpressionType,
   LanguageTranslationEntry,
   CachedTranslation,
   NewCachedTranslation,

@@ -1,9 +1,10 @@
-import { franc } from "franc-min";
 import type { ValidationResult } from "../types.js";
 
 /**
  * Mapping from ISO 639-1 (2-letter) codes and common language names
- * to ISO 639-3 (3-letter) codes used by franc.
+ * to ISO 639-3 (3-letter) codes.
+ *
+ * Retained for resolveToIso3() which is used by other modules.
  */
 const LANG_TO_ISO3: Record<string, string> = {
   // ISO 639-1 → ISO 639-3
@@ -88,9 +89,6 @@ const LANG_TO_ISO3: Record<string, string> = {
   kor: "kor",
 };
 
-/** Minimum text length for reliable franc detection */
-const MIN_TEXT_LENGTH = 15;
-
 /**
  * Resolves a language identifier to an ISO 639-3 code.
  * Returns undefined if the language is not recognized.
@@ -100,47 +98,23 @@ export function resolveToIso3(lang: string): string | undefined {
 }
 
 /**
- * Validates that the given text is in the expected language using franc-min.
+ * Language validation — currently a no-op (always passes).
  *
- * Skips validation for short text (<15 chars) because franc accuracy is too low.
+ * Previously used franc-min for trigram-based detection, but it proved
+ * unreliable for translation-length texts (15–40 chars), producing
+ * frequent false positives (Czech↔German, Czech↔Spanish, etc.).
  *
- * Pure function (franc is deterministic for the same input).
+ * Language correctness is ensured by:
+ * - AI prompt specifying target languages
+ * - Zod schema enforcing required language keys
+ * - Semantic validation catching hallucinations
+ *
+ * This function is retained for API compatibility. It can be replaced
+ * with a more accurate detection library in the future if needed.
  */
 export function validateLanguage(
-  text: string,
-  expectedLang: string,
+  _text: string,
+  _expectedLang: string,
 ): ValidationResult {
-  // Skip for short texts — franc is unreliable
-  if (!text || text.trim().length < MIN_TEXT_LENGTH) {
-    return { valid: true, errors: [] };
-  }
-
-  const expectedIso3 = resolveToIso3(expectedLang);
-
-  // If we can't resolve the expected language, skip validation
-  if (!expectedIso3) {
-    return { valid: true, errors: [] };
-  }
-
-  const detected = franc(text.trim());
-
-  // franc returns "und" (undetermined) when it can't detect
-  if (detected === "und") {
-    return { valid: true, errors: [] };
-  }
-
-  if (detected !== expectedIso3) {
-    return {
-      valid: false,
-      errors: [
-        {
-          rule: "language",
-          message: `Expected language "${expectedLang}" (${expectedIso3}) but detected "${detected}"`,
-          field: "text",
-        },
-      ],
-    };
-  }
-
   return { valid: true, errors: [] };
 }

@@ -24,6 +24,9 @@ export interface TopicWord {
   translations: Record<string, LanguageTranslationEntry>;
 }
 
+/** Whether a translation is literal or an idiomatic equivalent (mirrors translation module) */
+export type TopicExpressionType = "literal" | "idiomatic_equivalent";
+
 /**
  * A single language translation entry stored in topics.
  * Mirrors the LanguageTranslation from the translation module
@@ -36,6 +39,10 @@ export interface LanguageTranslationEntry {
   register: string;
   synonyms: Array<{ text: string; register: string }>;
   examples: Array<{ context: string; target: string; native: string }>;
+  /** Signals whether the translation is literal or an idiomatic equivalent */
+  expressionType?: TopicExpressionType;
+  /** Short note in the source language explaining why an equivalent was chosen */
+  equivalentNote?: string;
 }
 
 /** A full topic with metadata and translated words */

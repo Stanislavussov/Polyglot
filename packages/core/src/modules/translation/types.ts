@@ -5,6 +5,9 @@
  * with emoji, CEFR level, register, synonyms, and contextual examples.
  */
 
+/** Whether a translation is literal or an idiomatic equivalent */
+export type ExpressionType = "literal" | "idiomatic_equivalent";
+
 /** Word register — formality level of a word or phrase */
 export type Register =
   | "slang"
@@ -40,6 +43,10 @@ export interface LanguageTranslation {
   register: Register;
   synonyms: Synonym[];
   examples: Example[];
+  /** Signals whether the translation is literal or an idiomatic equivalent */
+  expressionType?: ExpressionType;
+  /** Short note in the source language explaining why an equivalent was chosen */
+  equivalentNote?: string;
 }
 
 /** Input for a translation request */

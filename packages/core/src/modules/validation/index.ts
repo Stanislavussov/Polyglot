@@ -2,7 +2,7 @@ export { validateSchema } from "./validators/schema.validator.js";
 export { validateSemantic } from "./validators/semantic.validator.js";
 export { validateLanguage, resolveToIso3 } from "./validators/language.validator.js";
 export { validateExamples } from "./validators/example.validator.js";
-export type { ExampleInput } from "./validators/example.validator.js";
+export type { ExampleInput, ExpressionType } from "./validators/example.validator.js";
 export type { ValidationResult, ValidationError, ValidateInput } from "./types.js";
 
 import type { ZodSchema } from "zod";
@@ -11,6 +11,7 @@ import { validateSchema } from "./validators/schema.validator.js";
 import { validateSemantic } from "./validators/semantic.validator.js";
 import { validateLanguage } from "./validators/language.validator.js";
 import { validateExamples } from "./validators/example.validator.js";
+import type { ExpressionType } from "./validators/example.validator.js";
 
 /**
  * Orchestrated validation: runs all validators in sequence.
@@ -91,9 +92,12 @@ export function validate(
     const examples = langData["examples"] as
       | Array<{ context: string; target: string; native: string }>
       | undefined;
+    const expressionType = langData["expressionType"] as
+      | ExpressionType
+      | undefined;
 
     if (examples && Array.isArray(examples) && translationText) {
-      const exampleResult = validateExamples(examples, translationText);
+      const exampleResult = validateExamples(examples, translationText, expressionType);
       for (const err of exampleResult.errors) {
         allErrors.push({
           ...err,

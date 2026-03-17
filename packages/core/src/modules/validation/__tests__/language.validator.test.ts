@@ -27,58 +27,21 @@ describe("resolveToIso3", () => {
 });
 
 describe("validateLanguage", () => {
-  it("skips validation for short text (<15 chars)", () => {
-    const result = validateLanguage("ahoj", "cs");
+  it("always returns valid (no-op — franc-min removed due to unreliability)", () => {
+    // Previously franc-min produced false positives for short texts:
+    // Czech detected as German, Spanish, Somali, etc.
+    // Language correctness is ensured by AI prompt + Zod schema.
+    const result = validateLanguage(
+      "nechat si narůst vousy",
+      "cs",
+    );
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
 
-  it("skips validation for empty text", () => {
-    const result = validateLanguage("", "en");
-    expect(result.valid).toBe(true);
-  });
-
-  it("skips validation for unknown expected language", () => {
-    const result = validateLanguage(
-      "This is a long enough English sentence for testing purposes",
-      "xyzlang",
-    );
-    expect(result.valid).toBe(true);
-  });
-
-  it("passes for correct English text", () => {
-    const result = validateLanguage(
-      "The quick brown fox jumps over the lazy dog and runs away into the forest",
-      "en",
-    );
-    expect(result.valid).toBe(true);
-  });
-
-  it("passes for correct English text with full name", () => {
-    const result = validateLanguage(
-      "The quick brown fox jumps over the lazy dog and runs away into the forest",
-      "english",
-    );
-    expect(result.valid).toBe(true);
-  });
-
-  it("detects language mismatch", () => {
-    // Spanish text being validated as English
-    const result = validateLanguage(
-      "El rápido zorro marrón salta sobre el perro perezoso y corre hacia el bosque",
-      "en",
-    );
-    expect(result.valid).toBe(false);
-    expect(result.errors[0].rule).toBe("language");
-    expect(result.errors[0].field).toBe("text");
-  });
-
-  it("sets proper error fields", () => {
-    const result = validateLanguage(
-      "Das ist ein langer deutscher Satz für die Überprüfung der Spracherkennungsfunktion",
-      "en",
-    );
-    expect(result.valid).toBe(false);
-    expect(result.errors[0].rule).toBe("language");
+  it("returns valid for any language input", () => {
+    expect(validateLanguage("any text", "en").valid).toBe(true);
+    expect(validateLanguage("", "cs").valid).toBe(true);
+    expect(validateLanguage("long enough text for testing", "xyz").valid).toBe(true);
   });
 });

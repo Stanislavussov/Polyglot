@@ -17,7 +17,7 @@ description: Word and phrase translation via AI with prompt building, response p
 
 ## Current State
 
-Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints). Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow.
+Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints). Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow. Task 10 idiomatic equivalents: added `ExpressionType` type (`'literal' | 'idiomatic_equivalent'`), `expressionType` and `equivalentNote` optional fields to `LanguageTranslation` and the Zod schema, added Idiomatic & Proverb Rule block to prompt builder, and `ExpressionType` is re-exported from the module index.
 
 ## Rules
 
@@ -30,6 +30,7 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 ## Types
 
 ```typescript
+type ExpressionType = "literal" | "idiomatic_equivalent";
 type Register = "slang" | "colloquial" | "neutral" | "literary" | "professional";
 type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 type ExampleContext = "formal" | "colloquial" | "professional";
@@ -44,6 +45,8 @@ interface LanguageTranslation {
   register: Register;
   synonyms: Synonym[];
   examples: Example[];
+  expressionType?: ExpressionType;   // defaults to 'literal'
+  equivalentNote?: string;            // explanation for idiomatic equivalents
 }
 
 interface TranslationRequest {
@@ -123,7 +126,7 @@ function parseResponse(raw: unknown): TranslationResult;
 - `translationRequestSchema` — validates TranslationRequest (targetLangs 1–4)
 - `translationResultSchema` — validates full AI response (emoji, register, translations map)
 - `buildTranslationResultSchema(targetLangs)` — builds dynamic schema with required language keys so AI SDK enforces their presence
-- `languageTranslationSchema` — validates per-language translation entry
+- `languageTranslationSchema` — validates per-language translation entry (includes optional `expressionType` defaulting to `'literal'` and optional `equivalentNote`)
 - `synonymSchema` — validates synonym { text, register }
 - `exampleSchema` — validates example { context, target, native }
 
@@ -131,8 +134,8 @@ function parseResponse(raw: unknown): TranslationResult;
 
 ```
 packages/core/src/modules/translation/
-├── index.ts                    # Re-exports: translate, translateOne, translateBatch, schemas, types
-├── types.ts                    # TranslateInput, TranslateOutput, etc.
+├── index.ts                    # Re-exports: translate, translateOne, translateBatch, schemas, types, ExpressionType
+├── types.ts                    # TranslateInput, TranslateOutput, ExpressionType, etc.
 ├── translation.service.ts      # translate(), translateOne(), translateBatch(), parseResponse()
 ├── prompt.builder.ts           # buildTranslationPrompt(), buildStrictPrompt()
 ├── schemas/
@@ -140,7 +143,8 @@ packages/core/src/modules/translation/
 └── __tests__/
     ├── translation.schema.test.ts   # 32 tests
     ├── prompt.builder.test.ts       # 19 tests
-    └── translation.service.test.ts  # 27 tests (incl. 6 translateOne + 5 validation logging tests)
+    ├── translation.service.test.ts  # 27 tests (incl. 6 translateOne + 5 validation logging tests)
+    └── idiomatic-equivalents.test.ts # 18 tests (schema + prompt idiomatic features)
 ```
 
 ## Reference

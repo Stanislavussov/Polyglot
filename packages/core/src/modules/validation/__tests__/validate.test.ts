@@ -25,6 +25,11 @@ const translationResultSchema = z.object({
         "literary",
         "professional",
       ]),
+      expressionType: z
+        .enum(["literal", "idiomatic_equivalent"])
+        .optional()
+        .default("literal"),
+      equivalentNote: z.string().optional(),
       synonyms: z.array(
         z.object({
           text: z.string(),
@@ -379,5 +384,147 @@ describe("validate — single-language (partial regeneration)", () => {
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
     expect(result.errors.some((e) => e.field?.startsWith("translations.cs."))).toBe(true);
+  });
+});
+
+/**
+ * Idiomatic equivalent validation tests (Task 10).
+ *
+ * Verifies that the validate() orchestrator correctly passes expressionType
+ * to validateExamples() and handles idiomatic equivalents.
+ */
+describe("validate — idiomatic equivalents (Task 10)", () => {
+  it("passes for a response with expressionType 'idiomatic_equivalent'", () => {
+    const raw = {
+      emoji: "🍰",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          // Longer Czech text so franc-min can reliably detect it as Czech
+          text: "Vlk se nažral a koza zůstala celá, to je české přísloví o dosažení obojího",
+          cefr: "B2" as const,
+          register: "colloquial" as const,
+          expressionType: "idiomatic_equivalent" as const,
+          equivalentNote:
+            "Closest Czech equivalent of the English idiom about having both options.",
+          synonyms: [],
+          examples: [
+            {
+              context: "colloquial" as const,
+              target:
+                "Podařilo se mu dosáhnout obou cílů současně, vlk se nažral a koza zůstala celá.",
+              native:
+                "He managed to achieve both goals at once, having his cake and eating it too.",
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(
+      raw,
+      translationResultSchema,
+      "Having your cake and eating it too",
+      ["cs"],
+    );
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("passes for idiomatic equivalent where examples don't repeat the phrase verbatim", () => {
+    const raw = {
+      emoji: "🐦",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "Ranní ptáče dál doskáče",
+          cefr: "B1" as const,
+          register: "neutral" as const,
+          expressionType: "idiomatic_equivalent" as const,
+          equivalentNote: "Czech equivalent proverb about the value of waking early.",
+          synonyms: [],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Vstával brzy, a tak měl vždy náskok před ostatními.",
+              native: "He woke up early and always had a head start over others.",
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(
+      raw,
+      translationResultSchema,
+      "The early bird catches the worm",
+      ["cs"],
+    );
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("passes for literal expressionType with normal examples", () => {
+    const raw = makeValidResponse("hello");
+    // makeValidResponse doesn't set expressionType, defaults to "literal" via schema
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("still fails for idiomatic equivalent with empty examples", () => {
+    const raw = {
+      emoji: "🍰",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "Vlk se nažral a koza zůstala celá",
+          cefr: "B2" as const,
+          register: "colloquial" as const,
+          expressionType: "idiomatic_equivalent" as const,
+          equivalentNote: "Czech equivalent proverb.",
+          synonyms: [],
+          examples: [
+            {
+              context: "colloquial" as const,
+              target: "", // empty target — should still fail
+              native: "He had his cake and ate it too.",
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(
+      raw,
+      translationResultSchema,
+      "Having your cake and eating it too",
+      ["cs"],
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
+  });
+
+  it("accepts response without expressionType (backward compatible)", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "ahoj",
+          cefr: "A1" as const,
+          register: "colloquial" as const,
+          // no expressionType — should default to "literal" or undefined
+          synonyms: [{ text: "nazdar", register: "colloquial" as const }],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
+              native: "He said hello to his colleague at the office meeting.",
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
   });
 });

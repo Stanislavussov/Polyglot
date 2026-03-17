@@ -131,6 +131,10 @@ Translation results use **HTML parse mode** for safe rendering of dynamic conten
 - `<i>italic</i>` for example sentences
 - HTML entities (`&amp;`, `&lt;`, `&gt;`) for escaping user/AI content
 
+### Idiomatic Equivalent Support (Task 10)
+
+The renderer is **transparent** to idiomatic equivalent metadata. When upstream translation types include `expressionType` and `equivalentNote` fields (added in Task 10), the renderer continues to display the `text` field as before. These metadata fields are not rendered in the Telegram output — they flow through the data model without any bot-layer changes. Compatibility is verified by dedicated transparency tests.
+
 ## File Structure
 
 ```
@@ -153,7 +157,7 @@ apps/bot/src/
 │   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
-    ├── translation.renderer.test.ts # 35 tests (24 original + 11 keyboard)
+    ├── translation.renderer.test.ts # 41 tests (24 original + 11 keyboard + 6 idiomatic transparency)
     └── onboarding.scene.test.ts     # 16 tests
 ```
 

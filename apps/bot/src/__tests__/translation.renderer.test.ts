@@ -327,3 +327,123 @@ describe("buildTranslationKeyboard", () => {
     expect(labels).toEqual(["🔄 CS", "🔄 DE"]);
   });
 });
+
+// ── Task 10: Idiomatic Equivalent Transparency Tests ────────────────
+
+describe("renderTranslation — idiomatic equivalents", () => {
+  const idiomaticOutput: TranslateOutput = {
+    original: "Bez práce nejsou koláče",
+    sourceLang: "cs",
+    emoji: "🍰",
+    register: "colloquial",
+    translations: {
+      en: {
+        text: "No pain, no gain",
+        cefr: "B1",
+        register: "colloquial",
+        expressionType: "idiomatic_equivalent",
+        equivalentNote:
+          "Closest English proverb conveying the same meaning",
+        synonyms: [],
+        examples: [
+          {
+            context: "colloquial",
+            target: "No pain, no gain — you have to work for it.",
+            native: "Bez práce nejsou koláče — musíš pro to pracovat.",
+          },
+        ],
+      },
+      de: {
+        text: "Ohne Fleiß kein Preis",
+        cefr: "B1",
+        register: "neutral",
+        expressionType: "idiomatic_equivalent",
+        equivalentNote: "Deutsches Äquivalent mit gleicher Bedeutung",
+        synonyms: [],
+        examples: [],
+      },
+    },
+  };
+
+  it("renders idiomatic translations using the text field as before", () => {
+    const result = renderTranslation(idiomaticOutput, "en");
+    expect(result).toContain("<b>No pain, no gain</b>");
+    expect(result).toContain("<b>Ohne Fleiß kein Preis</b>");
+  });
+
+  it("renders the original proverb in the header", () => {
+    const result = renderTranslation(idiomaticOutput, "en");
+    expect(result).toContain("🍰 <b>Bez práce nejsou koláče</b>");
+  });
+
+  it("does not leak expressionType or equivalentNote into output", () => {
+    const result = renderTranslation(idiomaticOutput, "en");
+    expect(result).not.toContain("idiomatic_equivalent");
+    expect(result).not.toContain("equivalentNote");
+    expect(result).not.toContain("expressionType");
+  });
+
+  it("renders examples from idiomatic translations normally", () => {
+    const result = renderTranslation(idiomaticOutput, "en");
+    expect(result).toContain(
+      "<i>No pain, no gain — you have to work for it.</i>",
+    );
+    expect(result).toContain(
+      "→ Bez práce nejsou koláče — musíš pro to pracovat.",
+    );
+  });
+
+  it("handles mix of literal and idiomatic translations", () => {
+    const mixedOutput: TranslateOutput = {
+      ...idiomaticOutput,
+      translations: {
+        en: {
+          text: "No pain, no gain",
+          cefr: "B1",
+          register: "colloquial",
+          expressionType: "idiomatic_equivalent",
+          equivalentNote: "English proverb equivalent",
+          synonyms: [],
+          examples: [],
+        },
+        fr: {
+          text: "sans travail pas de gâteau",
+          cefr: "B1",
+          register: "neutral",
+          expressionType: "literal",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = renderTranslation(mixedOutput, "en");
+    expect(result).toContain("<b>No pain, no gain</b>");
+    expect(result).toContain("<b>sans travail pas de gâteau</b>");
+  });
+});
+
+describe("renderTopicWord — idiomatic equivalents", () => {
+  it("renders topic word with idiomatic fields transparently", () => {
+    const idiomaticWord: TopicWord = {
+      original: "The early bird catches the worm",
+      translations: {
+        cs: {
+          text: "Ranní ptáče dál doskáče",
+          cefr: "B1",
+          register: "colloquial",
+          expressionType: "idiomatic_equivalent",
+          equivalentNote: "Czech proverb with same meaning",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = renderTopicWord(idiomaticWord);
+    expect(result).toContain(
+      "<b>The early bird catches the worm</b>",
+    );
+    expect(result).toContain("<b>Ranní ptáče dál doskáče</b>");
+    expect(result).not.toContain("idiomatic_equivalent");
+    expect(result).not.toContain("equivalentNote");
+  });
+});

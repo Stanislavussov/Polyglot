@@ -35,6 +35,8 @@ ${targetLangs.map((lang) => `    "${lang}": {
       "cefr": "<CEFR level: A1 | A2 | B1 | B2 | C1 | C2>",
       "transcription": "<IPA transcription if applicable, otherwise omit>",
       "register": "<register: slang | colloquial | neutral | literary | professional>",
+      "expressionType": "<literal | idiomatic_equivalent — omit or set to literal for direct translations>",
+      "equivalentNote": "<brief note explaining why an idiomatic equivalent was chosen — omit for literal>",
       "synonyms": [
         { "text": "<synonym>", "register": "<register>" }
       ],
@@ -53,7 +55,19 @@ Rules:
 - Provide exactly 3 example sentences per language (formal, colloquial, professional).
 - CEFR level should reflect the difficulty of the translated word in that language.
 - Transcription is required for non-Latin scripts; optional otherwise.
-- Return ONLY the JSON object. No additional text before or after.`;
+- Return ONLY the JSON object. No additional text before or after.
+
+Idiomatic & Proverb Rule:
+- If the input is a proverb, idiom, fixed expression, or culturally-bound phrase
+  that has no natural direct equivalent in a target language, provide the CLOSEST
+  FUNCTIONAL EQUIVALENT in that language (a proverb, idiom, slang term, or common
+  speech expression that conveys the same meaning).
+- In this case, set expressionType to "idiomatic_equivalent" and provide a brief
+  equivalentNote explaining the choice.
+- If a direct translation exists and is natural, set expressionType to "literal"
+  (or omit it).
+- NEVER return a meaningless word-for-word rendering of an idiomatic expression
+  when a functional equivalent exists.`;
 }
 
 /**
@@ -80,5 +94,6 @@ Double-check that:
 - Translations are actual translations, not the original word repeated
 - All required fields are present
 - Register values are exactly one of: slang, colloquial, neutral, literary, professional
-- CEFR values are exactly one of: A1, A2, B1, B2, C1, C2`;
+- CEFR values are exactly one of: A1, A2, B1, B2, C1, C2
+- For idiomatic expressions, set expressionType to "idiomatic_equivalent" with an equivalentNote`;
 }

@@ -12,7 +12,7 @@ description: AI response quality validation with pure deterministic checks. Vali
 ## Architecture Context
 
 - **Layer:** Core (platform-independent, pure functions, no I/O)
-- **Dependencies:** `zod` (schema validation), `franc-min` (language detection)
+- **Dependencies:** `zod` (schema validation)
 - **Dependents:** `translation` agent calls validators before returning results
 
 ## Rules
@@ -29,8 +29,9 @@ AI Response
     │
     ├─ 1. validateSchema (Zod)           — structural JSON validation
     ├─ 2. validateSemantic               — translation ≠ original, no hallucinations
-    ├─ 3. validateLanguage (franc)        — detected language matches expected
-    ├─ 4. validateExamples               — examples contain the translated word
+    ├─ 3. validateLanguage                 — no-op (franc-min removed, see below)
+    ├─ 4. validateExamples               — examples well-formed + word matching
+    │                                       (relaxed for idiomatic equivalents)
     │
     ├─ PASS → return valid result
     ├─ FAIL → retry with strict prompt (up to 2 retries)
@@ -47,28 +48,36 @@ function validateSchema(raw: unknown, schema: ZodSchema): ValidationResult;
 // Patterns: "N/A", "I cannot", "I can't", "I'm unable", "—", "...", "undefined", "null", "[translation]", "<translation>"
 function validateSemantic(original: string, translation: string): ValidationResult;
 
-// Language detection via franc-min
-// Skips validation for text <15 chars (franc accuracy too low)
-// Accepts ISO 639-1 ("en"), ISO 639-3 ("eng"), or full names ("english")
+// Language validation — no-op (always returns valid).
+// franc-min was removed: trigram-based detection is unreliable for
+// translation-length texts (15–40 chars), producing false positives
+// (Czech↔German, Czech↔Spanish, etc.). Language correctness is ensured
+// by AI prompt + Zod schema + semantic validation.
+// Function retained for API compatibility.
 function validateLanguage(text: string, expectedLang: string): ValidationResult;
 
 // Helper to resolve language identifiers to ISO 639-3 codes
 function resolveToIso3(lang: string): string | undefined;
 
-// Example quality: examples must have target + native text, target must contain translated word
-// Supports case-insensitive and stem-tolerant matching for inflected forms
-function validateExamples(examples: ExampleInput[], word: string): ValidationResult;
+// Example quality: examples must have target + native text
+// Accepts optional expressionType parameter — when "idiomatic_equivalent",
+// word-matching is relaxed (examples may not repeat the idiom verbatim)
+function validateExamples(examples: ExampleInput[], word: string, expressionType?: ExpressionType): ValidationResult;
 
 // Orchestrated: runs all validators in sequence against full translation result
 // Steps: 1) schema → 2) per-language: semantic, language, examples
 // On schema failure: stops early (cannot inspect content)
 // Reports missing translations for expected languages
+// Passes expressionType from language data to validateExamples()
 function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[]): ValidationResult;
 ```
 
 ## Types
 
 ```typescript
+/** Whether a translation is literal or an idiomatic equivalent */
+type ExpressionType = "literal" | "idiomatic_equivalent";
+
 interface ValidationResult {
   valid: boolean;
   errors: ValidationError[];
@@ -104,13 +113,14 @@ packages/core/src/modules/validation/
 │   ├── schema.validator.ts               # validateSchema()
 │   ├── semantic.validator.ts             # validateSemantic()
 │   ├── language.validator.ts             # validateLanguage(), resolveToIso3()
-│   └── example.validator.ts              # validateExamples()
+│   └── example.validator.ts              # validateExamples() + ExpressionType
 └── __tests__/
     ├── schema.validator.test.ts          # 8 tests
     ├── semantic.validator.test.ts        # 14 tests
     ├── language.validator.test.ts        # 11 tests
     ├── example.validator.test.ts         # 7 tests
-    └── validate.test.ts                  # 14 tests (8 orchestrator + 6 single-language partial regen)
+    ├── example.validator.idiomatic.test.ts  # 8 tests (Task 10 — expressionType)
+    └── validate.test.ts                  # 19 tests (8 orchestrator + 6 partial regen + 5 idiomatic)
 ```
 
 ## Logging Integration
@@ -123,10 +133,13 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 
 ## Current State
 
-- All 5 validators implemented and tested (54 tests total)
+- 4 active validators + 1 no-op (62 tests total across 6 test files)
+- `validateLanguage()` is a no-op — `franc-min` removed due to unreliable trigram detection on short texts. Language correctness ensured by AI prompt + Zod schema + semantic validation.
 - `validate()` orchestrator supports single-language validation for partial regeneration (Task 07)
-- No code changes needed for Task 07 — existing `validate(raw, schema, original, [singleLang])` works correctly
-- Added 6 tests confirming single-language validation for partial regeneration scenarios
+- `validateExamples()` accepts optional `expressionType` parameter (Task 10)
+- `validate()` orchestrator passes `expressionType` from language data to `validateExamples()` (Task 10)
+- `ExpressionType` type exported from module index
+- 8 idiomatic tests in `example.validator.idiomatic.test.ts` + 5 orchestrator idiomatic tests in `validate.test.ts`
 
 ## Reference
 
@@ -136,3 +149,4 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 - Task: `docs/tasks/04-ai-translation-pipeline.md` (Step 3)
 - Task: `docs/tasks/05-logging.md` (Step 3 — validation error logging)
 - Task: `docs/tasks/07-partial-regeneration.md` (single-language validation coverage)
+- Task: `docs/tasks/10-idiomatic-equivalents.md` (idiomatic equivalent validation relaxation)

@@ -11,3 +11,4 @@
 | 07  | [Partial Translation Regeneration](./07-partial-regeneration.md) | ✅ Done |
 | 08  | [AI Model Fallback](./08-model-fallback.md)       | 🔲 To Do  |
 | 09  | [Translation Session Loop](./09-translate-session-loop.md) | 🔲 To Do  |
+| 10  | [Idiomatic & Proverb Equivalent Matching](./10-idiomatic-equivalents.md) | ✅ Done   |

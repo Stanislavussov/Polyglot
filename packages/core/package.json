@@ -12,8 +12,5 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
-  },
-  "dependencies": {
-    "franc-min": "^6.2.0"
   }
 }

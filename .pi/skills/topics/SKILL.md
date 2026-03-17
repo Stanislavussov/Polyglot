@@ -18,7 +18,7 @@ description: Topic management with built-in datasets, cache-first translation, a
 
 ## Current State
 
-Fully implemented with partial regeneration support. All public API functions working with 37 tests passing (27 original + 10 for regenerateTopicWord).
+Fully implemented with partial regeneration support and idiomatic equivalent passthrough. The `LanguageTranslationEntry` type includes optional `expressionType` and `equivalentNote` fields that flow transparently through cache reads, batch translations, and partial regeneration. All public API functions working with 47 tests passing (27 original + 10 for regenerateTopicWord + 10 for idiomatic equivalents).
 
 ## Rules
 
@@ -88,11 +88,27 @@ interface TopicDeps {
 ## Types
 
 ```typescript
+/** Whether a translation is literal or an idiomatic equivalent (mirrors translation module) */
+type TopicExpressionType = "literal" | "idiomatic_equivalent";
+
 interface TopicMeta {
   id: string;
   name: string;
   emoji: string;
   wordCount: number;
+}
+
+interface LanguageTranslationEntry {
+  text: string;
+  cefr: string;
+  transcription?: string;
+  register: string;
+  synonyms: Array<{ text: string; register: string }>;
+  examples: Array<{ context: string; target: string; native: string }>;
+  /** Signals whether the translation is literal or an idiomatic equivalent */
+  expressionType?: TopicExpressionType;
+  /** Short note in the source language explaining why an equivalent was chosen */
+  equivalentNote?: string;
 }
 
 interface TopicWord {
@@ -132,15 +148,16 @@ interface TopicDataset {
 
 ```
 packages/core/src/modules/topics/
-├── index.ts              # Re-exports public API
-├── types.ts              # TopicMeta, TopicWord, Topic, CacheStatus, TopicDeps
+├── index.ts              # Re-exports public API (incl. TopicExpressionType)
+├── types.ts              # TopicMeta, TopicWord, Topic, CacheStatus, TopicDeps, TopicExpressionType
 ├── topic.service.ts      # getBuiltinTopics, createTopicService (factory)
 ├── datasets/
 │   ├── food.json         # 25 food & cooking words
 │   ├── travel.json       # 25 travel & transport words
 │   └── it-terms.json     # 25 IT & tech words
 └── __tests__/
-    └── topic.service.test.ts  # 37 tests (27 original + 10 regenerateTopicWord)
+    ├── topic.service.test.ts       # 37 tests (27 original + 10 regenerateTopicWord)
+    └── idiomatic-equivalents.test.ts  # 10 tests for idiomatic field passthrough
 ```
 
 ## Usage Example
