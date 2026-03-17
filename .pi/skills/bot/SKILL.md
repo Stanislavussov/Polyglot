@@ -18,13 +18,15 @@ description: Telegram bot using grammY with conversations plugin. Manages scenes
 ## Current State
 
 Already implemented:
-- `index.ts` — grammY bot setup, middleware registration, graceful shutdown
-- `types.ts` — BotContext, ConversationContext
+- `index.ts` — grammY bot setup, session middleware, mode router, callback handlers, graceful shutdown
+- `types.ts` — BotContext, ConversationContext, UserMode, SessionData (with activeMode field)
 - `constants.ts` — LANGUAGES display data, langDisplay() (no business text — all i18n via core)
 - `middlewares/auth.ts` — resolves/creates user, attaches to ctx.user
+- `middlewares/mode-router.ts` — routes plain text to active mode handler (translate/idle)
 - `commands/start.ts` — /start handler (onboarding or main menu)
 - `scenes/onboarding.scene.ts` — 4-step onboarding conversation
-- `scenes/translate.scene.ts` — translation flow (enter word → AI translate → per-language regen → save to dict)
+- `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation
+- `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks
 - `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, save, skip)
 - `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with regen buttons)
 
@@ -63,8 +65,17 @@ function buildTranslationKeyboard(langCodes: string[], interfaceLang?: string): 
 // Scene: 4-step onboarding (implemented)
 async function onboarding(conversation, ctx): Promise<void>;
 
-// Scene: translation flow with per-language regeneration (implemented)
-async function handleTranslate(conversation, ctx): Promise<void>;
+// Command: /translate — sets mode and shows confirmation
+async function handleTranslateCommand(ctx: BotContext): Promise<void>;
+
+// Mode handler: translate text (plain text in translate mode)
+async function handleTranslateText(ctx: BotContext, word: string): Promise<void>;
+
+// Callback: Save translation to dictionary
+async function handleSaveCallback(ctx: BotContext): Promise<void>;
+
+// Callback: Skip translation (discard)
+async function handleSkipCallback(ctx: BotContext): Promise<void>;
 
 // Helper: regeneration loop (regen/save/skip callback handling)
 async function handleRegenLoop(conversation, ctx, output, lang, userId, cardMsgId): Promise<void>;
@@ -76,24 +87,40 @@ async function handleDictionary(conversation, ctx): Promise<void>;
 async function handleSettings(conversation, ctx): Promise<void>;
 ```
 
-## Translation Flow
+## Translation Flow (Persistent Mode System)
+
+The bot uses a **persistent mode system** for translate. Once the user enters translate mode, every plain text message is automatically treated as a word to translate.
 
 ```
 /translate
+  ├─ Set activeMode = "translate" in session
+  └─ Show confirmation: "🔤 Translate mode — send me a word or phrase to translate."
+
+[Plain text message while in translate mode]
   ├─ Get user settings (interfaceLang, nativeLang, learningLangs)
-  ├─ Prompt: "Enter a word or phrase to translate"
   ├─ Show "Translating..." indicator
   ├─ Call translate() with generateObject from AI adapter
   ├─ Render translation card (HTML format)
-  ├─ Show inline keyboard: per-language 🔄 regen buttons + Save/Skip
-  ├─ Regeneration loop (handleRegenLoop):
-  │   ├─ "🔄 CS" → translateOne(cs) → merge → re-render card
-  │   ├─ "🔄 DE" → translateOne(de) → merge → re-render card
-  │   ├─ (repeat as many times as needed)
-  │   ├─ "Save" → wordRepository.create() → done
-  │   └─ "Skip" → remove keyboard → done
-  └─ User can regenerate multiple languages before final save/skip
+  ├─ Show inline keyboard: Save/Skip buttons
+  └─ Store pendingTranslation in session for callback handling
+
+[Save callback]
+  ├─ Save to dictionary via wordRepository.create()
+  ├─ Show "✅ Saved to dictionary!"
+  ├─ Clear pending state
+  └─ Show hint: "Send the next word or phrase."
+
+[Skip callback]
+  ├─ Remove keyboard from card
+  ├─ Clear pending state
+  └─ Show hint: "Send the next word or phrase."
 ```
+
+**Mode Persistence:**
+- User stays in translate mode after Save/Skip
+- Next plain text message triggers another translation
+- Mode switches only when user sends another mode command (e.g., future `/mentor`)
+- Non-mode commands (`/help`, `/settings`, `/start`) don't change the mode
 
 ## Onboarding Flow (4 Steps)
 
@@ -139,25 +166,28 @@ The renderer is **transparent** to idiomatic equivalent metadata. When upstream 
 
 ```
 apps/bot/src/
-├── index.ts                    # Bot setup, middleware, start
-├── types.ts                    # BotContext, ConversationContext
+├── index.ts                    # Bot setup, session, middleware, callbacks, start
+├── types.ts                    # BotContext, ConversationContext, UserMode, SessionData
 ├── constants.ts                # LANGUAGES display data, langDisplay()
 ├── middlewares/
-│   └── auth.ts                 # Auth middleware (user resolution)
+│   ├── auth.ts                 # Auth middleware (user resolution)
+│   └── mode-router.ts          # ✅ Routes plain text to active mode handler
 ├── commands/
 │   └── start.ts                # /start command
 ├── renderers/
 │   └── translation.renderer.ts # renderTranslation, renderTopicWord, buildTranslationKeyboard
 ├── scenes/
-│   ├── onboarding.scene.ts     # ✅ implemented
-│   ├── translate.scene.ts      # ✅ implemented (with per-language regeneration)
+│   ├── onboarding.scene.ts     # ✅ implemented (conversation-based)
+│   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation)
 │   ├── helpers/
-│   │   ├── regen.helper.ts     # ✅ regeneration loop helper
-│   │   └── regen.helper.test.ts # 9 tests
+│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText, handleSaveCallback, handleSkipCallback
+│   │   ├── regen.helper.ts           # ✅ regeneration loop helper (for onboarding)
+│   │   └── regen.helper.test.ts      # 9 tests
 │   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
-    ├── translation.renderer.test.ts # 41 tests (24 original + 11 keyboard + 6 idiomatic transparency)
+    ├── translate-mode.test.ts       # ✅ 8 tests (mode system tests)
+    ├── translation.renderer.test.ts # 41 tests
     └── onboarding.scene.test.ts     # 16 tests
 ```
 

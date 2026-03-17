@@ -45,5 +45,7 @@
   "examples": "Příklady",
   "regenerateLang": "🔄 {lang}",
   "regenerating": "⏳ Aktualizuji {lang}...",
-  "regenerated": "✅ Překlad pro {lang} aktualizován"
+  "regenerated": "✅ Překlad pro {lang} aktualizován",
+  "translateModeOn": "🔤 {fromLang} → {toLangs}",
+  "translateModeHint": "Pošli další slovo nebo frázi."
 }

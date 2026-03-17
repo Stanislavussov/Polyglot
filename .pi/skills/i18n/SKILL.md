@@ -17,7 +17,7 @@ description: Internationalization of all bot texts. Provides typed t(key, lang, 
 
 ## Current State
 
-Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 26 tests passing. Task 07 regeneration keys (`regenerateLang`, `regenerating`, `regenerated`) added with `{lang}` interpolation in all 3 locales.
+Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 31 tests passing. Task 07 regeneration keys (`regenerateLang`, `regenerating`, `regenerated`) added with `{lang}` interpolation in all 3 locales. Task 09 translate mode keys (`translateModeOn`, `translateModeHint`) added in all 3 locales.
 
 ## Rules
 
@@ -56,7 +56,8 @@ type I18nKey =
   | "noResults" | "settingsUpdated" | "notificationTimeSet" | "flipCard"
   | "nextTranslation" | "editTranslation" | "saveToDictionary"
   | "cefr" | "register" | "synonyms" | "examples"
-  | "regenerateLang" | "regenerating" | "regenerated";
+  | "regenerateLang" | "regenerating" | "regenerated"
+  | "translateModeOn" | "translateModeHint";
 
 // Supported languages
 type SupportedLang = "en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl";

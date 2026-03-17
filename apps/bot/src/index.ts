@@ -1,13 +1,15 @@
-import { Bot } from "grammy";
+import { Bot, session } from "grammy";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { loadConfig } from "@polyglot/infra";
 import { logger } from "@polyglot/infra";
 import { closeDb } from "@polyglot/adapter-db";
 import { authMiddleware } from "./middlewares/auth.js";
+import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
-import { handleTranslate } from "./scenes/translate.scene.js";
+import { handleTranslateCommand } from "./scenes/translate.scene.js";
+import { handleSaveCallback, handleSkipCallback } from "./scenes/helpers/translate-mode.helper.js";
 import { startCommand } from "./commands/start.js";
-import type { BotContext } from "./types.js";
+import type { BotContext, SessionData } from "./types.js";
 
 // ── Load & validate environment ──
 const config = loadConfig();
@@ -16,6 +18,18 @@ const config = loadConfig();
 const bot = new Bot<BotContext>(config.BOT_TOKEN);
 
 // ── Register middleware ──
+
+// Session middleware — stores active mode and pending translations
+bot.use(
+  session({
+    initial: (): SessionData => ({
+      activeMode: "idle",
+      pendingTranslation: undefined,
+      pendingCardMsgId: undefined,
+    }),
+  }),
+);
+
 // Conversations plugin (must be before createConversation)
 bot.use(conversations());
 
@@ -23,15 +37,20 @@ bot.use(conversations());
 // Must be before createConversation so ctx.user is available inside conversations
 bot.use(authMiddleware);
 
-// Register conversation handlers
+// Register conversation handlers (onboarding still uses conversations)
 bot.use(createConversation(onboarding));
-bot.use(createConversation(handleTranslate));
 
 // ── Register commands ──
 bot.command("start", startCommand);
-bot.command("translate", async (ctx) => {
-  await ctx.conversation.enter("handleTranslate");
-});
+bot.command("translate", handleTranslateCommand);
+
+// ── Register callback handlers for translate mode ──
+bot.callbackQuery("tr:save", handleSaveCallback);
+bot.callbackQuery("tr:skip", handleSkipCallback);
+
+// ── Mode router — processes plain text based on active mode ──
+// Must be after commands so commands take priority
+bot.use(modeRouterMiddleware);
 
 // ── Set bot commands list ──
 async function setBotCommands(): Promise<void> {

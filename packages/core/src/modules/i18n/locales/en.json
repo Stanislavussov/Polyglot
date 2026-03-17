@@ -45,5 +45,7 @@
   "examples": "Examples",
   "regenerateLang": "🔄 {lang}",
   "regenerating": "⏳ Regenerating {lang}...",
-  "regenerated": "✅ {lang} translation updated"
+  "regenerated": "✅ {lang} translation updated",
+  "translateModeOn": "🔤 {fromLang} → {toLangs}",
+  "translateModeHint": "Send the next word or phrase."
 }

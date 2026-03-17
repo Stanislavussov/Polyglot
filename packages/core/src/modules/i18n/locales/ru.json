@@ -45,5 +45,7 @@
   "examples": "Примеры",
   "regenerateLang": "🔄 {lang}",
   "regenerating": "⏳ Обновляю {lang}...",
-  "regenerated": "✅ Перевод на {lang} обновлён"
+  "regenerated": "✅ Перевод на {lang} обновлён",
+  "translateModeOn": "🔤 {fromLang} → {toLangs}",
+  "translateModeHint": "Отправьте следующее слово или фразу."
 }

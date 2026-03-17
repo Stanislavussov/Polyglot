@@ -109,6 +109,46 @@ describe("i18n — t()", () => {
       "⏳ Regenerating FR...",
     );
   });
+
+  // Translate mode keys (task 09)
+  it("returns translateModeOn with parameters in English", () => {
+    expect(t("translateModeOn", "en", { fromLang: "English", toLangs: "Czech" })).toBe(
+      "🔤 English → Czech",
+    );
+  });
+
+  it("returns translateModeHint in English", () => {
+    expect(t("translateModeHint", "en")).toBe(
+      "Send the next word or phrase.",
+    );
+  });
+
+  it("returns translate mode keys in Russian", () => {
+    expect(t("translateModeOn", "ru", { fromLang: "Русский", toLangs: "Čeština" })).toBe(
+      "🔤 Русский → Čeština",
+    );
+    expect(t("translateModeHint", "ru")).toBe(
+      "Отправьте следующее слово или фразу.",
+    );
+  });
+
+  it("returns translate mode keys in Czech", () => {
+    expect(t("translateModeOn", "cs", { fromLang: "English", toLangs: "Čeština" })).toBe(
+      "🔤 English → Čeština",
+    );
+    expect(t("translateModeHint", "cs")).toBe(
+      "Pošli další slovo nebo frázi.",
+    );
+  });
+
+  it("falls back to English for translate mode keys when locale has no file", () => {
+    expect(t("translateModeOn", "de", { fromLang: "Deutsch", toLangs: "English" })).toBe(
+      "🔤 Deutsch → English",
+    );
+    expect(t("translateModeHint", "de")).toBe(
+      "Send the next word or phrase.",
+    );
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -212,6 +252,8 @@ describe("i18n — locale consistency", () => {
       "regenerateLang",
       "regenerating",
       "regenerated",
+      "translateModeOn",
+      "translateModeHint",
     ];
 
     for (const key of enKeys) {

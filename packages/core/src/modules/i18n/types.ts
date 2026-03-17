@@ -49,7 +49,9 @@ export type I18nKey =
   | "examples"
   | "regenerateLang"
   | "regenerating"
-  | "regenerated";
+  | "regenerated"
+  | "translateModeOn"
+  | "translateModeHint";
 
 /**
  * Supported interface languages.
@@ -88,6 +90,7 @@ export interface I18nParams {
   regenerateLang: { lang: string };
   regenerating: { lang: string };
   regenerated: { lang: string };
+  translateModeOn: { fromLang: string; toLangs: string };
 }
 
 /**
