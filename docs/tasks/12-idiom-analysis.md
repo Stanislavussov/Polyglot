@@ -1,6 +1,6 @@
 # Task 12: Detect Literal vs Idiomatic Translation Nuances
 
-**Status:** 🔲 To Do
+**Status:** 🟡 In Progress (only manual smoke test remaining)
 
 ## Description
 
@@ -39,7 +39,7 @@ There is no mechanism to **assess translation naturalness** or detect when a lit
 
 ### Step 1: Create types
 
-- [ ] Create `packages/core/src/modules/idiom-analysis/types.ts`:
+- [x] Create `packages/core/src/modules/idiom-analysis/types.ts`:
   ```typescript
   /** Classification result for translation quality */
   type IdiomClassification = 
@@ -95,7 +95,7 @@ There is no mechanism to **assess translation naturalness** or detect when a lit
 
 ### Step 2: Create Zod schemas
 
-- [ ] Create `packages/core/src/modules/idiom-analysis/schemas/idiom-analysis.schema.ts`:
+- [x] Create `packages/core/src/modules/idiom-analysis/schemas/idiom-analysis.schema.ts`:
   ```typescript
   import { z } from 'zod';
 
@@ -130,7 +130,7 @@ There is no mechanism to **assess translation naturalness** or detect when a lit
 
 ### Step 3: Create prompt builder
 
-- [ ] Create `packages/core/src/modules/idiom-analysis/prompt.builder.ts`:
+- [x] Create `packages/core/src/modules/idiom-analysis/prompt.builder.ts`:
   ```typescript
   import { IdiomAnalysisInput } from './types';
 
@@ -179,7 +179,7 @@ Return a JSON object with all analysis fields. Be thorough but concise in explan
 
 ### Step 4: Create analysis service
 
-- [ ] Create `packages/core/src/modules/idiom-analysis/idiom-analysis.service.ts`:
+- [x] Create `packages/core/src/modules/idiom-analysis/idiom-analysis.service.ts`:
   ```typescript
   import { IdiomAnalysisInput, IdiomAnalysisResult, GenerateObjectFn } from './types';
   import { idiomAnalysisResultSchema } from './schemas/idiom-analysis.schema';
@@ -234,7 +234,7 @@ Return a JSON object with all analysis fields. Be thorough but concise in explan
 
 ### Step 5: Create module index
 
-- [ ] Create `packages/core/src/modules/idiom-analysis/index.ts`:
+- [x] Create `packages/core/src/modules/idiom-analysis/index.ts`:
   ```typescript
   // Service
   export { analyzeIdiom, analyzeIdiomBatch, needsIdiomReview } from './idiom-analysis.service';
@@ -261,26 +261,26 @@ Return a JSON object with all analysis fields. Be thorough but concise in explan
 
 ### Step 6: Add to core module exports
 
-- [ ] Update `packages/core/src/modules/index.ts` to export the new module:
+- [x] Update `packages/core/src/index.ts` to export the new module (selective exports to avoid GenerateObjectFn collision):
   ```typescript
   export * from './idiom-analysis';
   ```
 
 ### Step 7: Write tests
 
-- [ ] Create `packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.schema.test.ts`:
+- [x] Create `packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.schema.test.ts`:
   - Schema accepts valid classification values
   - Schema rejects invalid classification values
   - Optional fields work correctly
   - Confidence must be 0-1
 
-- [ ] Create `packages/core/src/modules/idiom-analysis/__tests__/prompt.builder.test.ts`:
+- [x] Create `packages/core/src/modules/idiom-analysis/__tests__/prompt.builder.test.ts`:
   - Prompt includes source phrase and language
   - Prompt includes translated phrase and target language
   - Prompt contains all analysis instructions
   - Prompt escapes special characters in input
 
-- [ ] Create `packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts`:
+- [x] Create `packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts`:
   - `analyzeIdiom` calls generateObjectFn with correct prompt and schema
   - `analyzeIdiom` returns AI response
   - `analyzeIdiomBatch` processes multiple inputs sequentially
@@ -289,7 +289,7 @@ Return a JSON object with all analysis fields. Be thorough but concise in explan
 
 ### Step 8: Create skill documentation
 
-- [ ] Create `.pi/skills/idiom-analysis/SKILL.md`:
+- [x] Create `.pi/skills/idiom-analysis/SKILL.md`:
   ```markdown
   ---
   name: idiom-analysis
@@ -396,12 +396,12 @@ packages/core/src/modules/idiom-analysis/
 
 ## Acceptance Criteria
 
-- [ ] New `idiom-analysis` module exists in `packages/core/src/modules/`
-- [ ] Types define `IdiomClassification`, `IdiomAnalysisInput`, `IdiomAnalysisResult`
-- [ ] Zod schemas validate AI responses correctly
-- [ ] `analyzeIdiom()` returns structured analysis with classification
-- [ ] `needsIdiomReview()` returns boolean for quick checks
-- [ ] All tests pass
-- [ ] Skill documentation created
+- [x] New `idiom-analysis` module exists in `packages/core/src/modules/`
+- [x] Types define `IdiomClassification`, `IdiomAnalysisInput`, `IdiomAnalysisResult`
+- [x] Zod schemas validate AI responses correctly
+- [x] `analyzeIdiom()` returns structured analysis with classification
+- [x] `needsIdiomReview()` returns boolean for quick checks
+- [x] All tests pass
+- [x] Skill documentation created
 - [ ] Manual smoke test confirms correct classification of known idioms
-- [ ] All packages build: `pnpm -r run build`
+- [x] All packages build: `pnpm -r run build`
