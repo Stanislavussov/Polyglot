@@ -18,49 +18,53 @@ Each line is a standalone JSON object representing a single dictionary entry.
 {"pos": "phrase", "word": "сорока на хвосте принесла", "lang": "Russian", "lang_code": "ru", "forms": [{"form": "соро́ка на хвосте́ принесла́", "tags": ["canonical"]}, {"form": "soróka na xvosté prineslá", "tags": ["romanization"]}], "senses": [{"glosses": ["a little bird told me"], "synonyms": [{"word": "слу́хом земля́ по́лнится"}]}], "etymology_text": "Literally, "a magpie brought it on its tail"."}
 ```
 
+## Files location:
+
+/Users/stanislav.ussov/Downloads/phrases
+
 ### Fields to Extract
 
-| Field | Path | Description |
-|-------|------|-------------|
-| `word` | `.word` | Dictionary headword (without stress marks) |
-| `lang_code` | `.lang_code` | ISO 639-1 language code (`ru`, `en`, `de`, etc.) |
-| `pos` | `.pos` | Part of speech: `noun`, `verb`, `adj`, `phrase`, `idiom`, etc. |
-| `formTags` | `.forms[0].tags[]` | Tags for canonical form: `canonical`, `romanization`, `alternative` |
-| `glosses` | `.senses[].glosses[]` | English definitions/translations |
+| Field       | Path                  | Description                                                         |
+| ----------- | --------------------- | ------------------------------------------------------------------- |
+| `word`      | `.word`               | Dictionary headword (without stress marks)                          |
+| `lang_code` | `.lang_code`          | ISO 639-1 language code (`ru`, `en`, `de`, etc.)                    |
+| `pos`       | `.pos`                | Part of speech: `noun`, `verb`, `adj`, `phrase`, `idiom`, etc.      |
+| `formTags`  | `.forms[0].tags[]`    | Tags for canonical form: `canonical`, `romanization`, `alternative` |
+| `glosses`   | `.senses[].glosses[]` | English definitions/translations                                    |
 
 ### Full JSON Structure
 
 ```typescript
 interface WiktionaryEntry {
-  word: string;              // "что ли"
-  lang: string;              // "Russian"
-  lang_code: string;         // "ru"
-  pos: string;               // "phrase", "noun", "verb", "adj", "idiom"
-  
+  word: string; // "что ли"
+  lang: string; // "Russian"
+  lang_code: string; // "ru"
+  pos: string; // "phrase", "noun", "verb", "adj", "idiom"
+
   forms: Array<{
-    form: string;            // "что́ ли" (with stress marks)
-    tags: string[];          // ["canonical"], ["romanization"], ["alternative"]
-    roman?: string;          // Romanization if present
+    form: string; // "что́ ли" (with stress marks)
+    tags: string[]; // ["canonical"], ["romanization"], ["alternative"]
+    roman?: string; // Romanization if present
   }>;
-  
+
   senses: Array<{
-    glosses: string[];       // ["or something, perhaps, maybe..."]
+    glosses: string[]; // ["or something, perhaps, maybe..."]
     examples?: Array<{
-      text: string;          // Example in source language
-      translation: string;   // English translation
-      roman?: string;        // Romanization
+      text: string; // Example in source language
+      translation: string; // English translation
+      roman?: string; // Romanization
     }>;
     synonyms?: Array<{ word: string }>;
-    links?: string[][];      // Related terms
-    tags?: string[];         // ["idiomatic", "colloquial", etc.]
+    links?: string[][]; // Related terms
+    tags?: string[]; // ["idiomatic", "colloquial", etc.]
   }>;
-  
+
   sounds?: Array<{
-    ipa?: string;            // "[ˈʂto‿lʲɪ]"
-    audio?: string;          // Audio file name
+    ipa?: string; // "[ˈʂto‿lʲɪ]"
+    audio?: string; // Audio file name
   }>;
-  
-  etymology_text?: string;   // Etymology explanation
+
+  etymology_text?: string; // Etymology explanation
 }
 ```
 
@@ -166,14 +170,14 @@ import { createInterface } from "readline";
 
 interface ParsedEntry {
   word: string;
-  langCode: string;  // resolved to languageId during import
+  langCode: string; // resolved to languageId during import
   pos: string;
   formTags: string[];
   glosses: string[];
 }
 
 async function* parseWiktionaryJsonl(
-  filePath: string
+  filePath: string,
 ): AsyncGenerator<ParsedEntry> {
   const rl = createInterface({
     input: createReadStream(filePath),
@@ -184,10 +188,10 @@ async function* parseWiktionaryJsonl(
     if (!line.trim()) continue;
 
     const entry = JSON.parse(line);
-    
+
     yield {
       word: entry.word,
-      langCode: entry.lang_code,  // lookup languages.id by code
+      langCode: entry.lang_code, // lookup languages.id by code
       pos: entry.pos,
       formTags: entry.forms?.[0]?.tags ?? [],
       glosses: entry.senses?.flatMap((s: any) => s.glosses ?? []) ?? [],
@@ -297,7 +301,10 @@ async function* parseJsonl(filePath: string): AsyncGenerator<ParsedEntry> {
 // ─────────────────────────────────────────────
 const languageCache = new Map<string, number>();
 
-async function getOrCreateLanguageId(code: string, name: string): Promise<number> {
+async function getOrCreateLanguageId(
+  code: string,
+  name: string,
+): Promise<number> {
   // Check cache first
   if (languageCache.has(code)) {
     return languageCache.get(code)!;
@@ -348,7 +355,7 @@ async function insertBatch(
     pos: string;
     formTags: string[];
     glosses: string[];
-  }>
+  }>,
 ): Promise<number> {
   if (batch.length === 0) return 0;
 
@@ -365,7 +372,7 @@ async function insertBatch(
 // ─────────────────────────────────────────────
 async function importWiktionary(
   filePath: string,
-  options: { batchSize: number; langFilter?: string }
+  options: { batchSize: number; langFilter?: string },
 ): Promise<ImportStats> {
   const startTime = Date.now();
   const stats: ImportStats = {
@@ -401,7 +408,10 @@ async function importWiktionary(
     }
 
     try {
-      const languageId = await getOrCreateLanguageId(entry.langCode, entry.langName);
+      const languageId = await getOrCreateLanguageId(
+        entry.langCode,
+        entry.langName,
+      );
 
       batch.push({
         word: entry.word,
@@ -418,7 +428,9 @@ async function importWiktionary(
         batch.length = 0;
 
         // Progress indicator
-        process.stdout.write(`\r⏳ Processed: ${stats.total.toLocaleString()} | Inserted: ${stats.inserted.toLocaleString()}`);
+        process.stdout.write(
+          `\r⏳ Processed: ${stats.total.toLocaleString()} | Inserted: ${stats.inserted.toLocaleString()}`,
+        );
       }
     } catch (err) {
       stats.errors++;
@@ -538,6 +550,7 @@ pnpm --filter @polyglot/infra import:wiktionary ./data/russian.jsonl
 ## Data Source
 
 Download JSONL extracts from:
+
 - **Russian**: https://kaikki.org/dictionary/Russian/
 - **Other languages**: https://kaikki.org/dictionary/
 
