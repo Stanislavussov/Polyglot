@@ -1,6 +1,6 @@
 ---
 name: validation
-description: AI response quality validation with pure deterministic checks. Validates schema (Zod), semantic correctness, language detection (franc), and example quality. Use when implementing or modifying translation validation logic.
+description: AI response quality validation with pure deterministic checks. Validates schema (Zod), semantic correctness, language detection (franc), example quality, and Wiktionary data integrity. Use when implementing or modifying translation validation logic.
 ---
 
 # validation Agent Skill
@@ -13,7 +13,7 @@ description: AI response quality validation with pure deterministic checks. Vali
 
 - **Layer:** Core (platform-independent, pure functions, no I/O)
 - **Dependencies:** `zod` (schema validation)
-- **Dependents:** `translation` agent calls validators before returning results
+- **Dependents:** `translation` agent calls validators before returning results; `infra` import scripts use Wiktionary validators for data quality checks
 
 ## Rules
 
@@ -29,13 +29,20 @@ AI Response
     │
     ├─ 1. validateSchema (Zod)           — structural JSON validation
     ├─ 2. validateSemantic               — translation ≠ original, no hallucinations
-    ├─ 3. validateLanguage                 — no-op (franc-min removed, see below)
+    ├─ 3. validateLanguage                — no-op (franc-min removed, see below)
     ├─ 4. validateExamples               — examples well-formed + word matching
     │                                       (relaxed for idiomatic equivalents)
     │
     ├─ PASS → return valid result
     ├─ FAIL → retry with strict prompt (up to 2 retries)
     └─ FAIL after retries → return with needsReview=true + ⚠️
+
+Wiktionary Data
+    │
+    ├─ 5. validateWiktionaryEntry        — raw JSONL entry: word, lang_code, pos, senses, forms
+    ├─ 6. validateWordContext            — parsed record: word, languageId, pos, formTags, glosses
+    ├─ 7. validateGlosses               — array of non-empty definition strings
+    └─ 8. validatePos                   — known POS tag check (phrase, noun, verb, idiom, etc.)
 ```
 
 ## Public API
@@ -70,6 +77,27 @@ function validateExamples(examples: ExampleInput[], word: string, expressionType
 // Reports missing translations for expected languages
 // Passes expressionType from language data to validateExamples()
 function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[]): ValidationResult;
+
+// ── Wiktionary validators (Task 13) ──
+
+// Validates a raw Wiktionary JSONL entry has required fields (word, lang_code, pos)
+// and correct data types. Validates optional fields (lang, senses, forms) when present.
+function validateWiktionaryEntry(entry: WiktionaryEntryInput): ValidationResult;
+
+// Validates a parsed word context record before DB insertion.
+// Required: word (string), languageId (positive int), pos (string).
+// Optional: formTags (string[]), glosses (non-empty string[]).
+function validateWordContext(record: WordContextInput): ValidationResult;
+
+// Validates glosses (English definitions) array: non-empty, all strings, no blanks.
+function validateGlosses(glosses: unknown): ValidationResult;
+
+// Validates POS is a known Wiktionary tag. Returns error for unknown values
+// (can be used for logging/filtering, not necessarily blocking).
+function validatePos(pos: unknown): ValidationResult;
+
+// Constant: list of known POS values from Wiktionary
+const KNOWN_POS: readonly string[];
 ```
 
 ## Types
@@ -84,7 +112,7 @@ interface ValidationResult {
 }
 
 interface ValidationError {
-  rule: string;       // "schema" | "semantic" | "language" | "examples"
+  rule: string;       // "schema" | "semantic" | "language" | "examples" | "wiktionary" | "wordContext" | "glosses" | "pos"
   message: string;    // Human-readable failure reason
   field?: string;     // Dot-path to failing field (e.g. "translations.cs.text")
 }
@@ -101,6 +129,28 @@ interface ExampleInput {
   target: string;
   native: string;
 }
+
+/** Raw Wiktionary JSONL entry shape (subset of fields we validate) */
+interface WiktionaryEntryInput {
+  word?: unknown;
+  lang?: unknown;
+  lang_code?: unknown;
+  pos?: unknown;
+  forms?: unknown;
+  senses?: unknown;
+}
+
+/** Parsed word context record ready for DB insertion */
+interface WordContextInput {
+  word?: unknown;
+  languageId?: unknown;
+  pos?: unknown;
+  formTags?: unknown;
+  glosses?: unknown;
+}
+
+/** Known POS values from Wiktionary */
+type KnownPos = "noun" | "verb" | "adj" | "adv" | "phrase" | "idiom" | "proverb" | ...;
 ```
 
 ## File Structure
@@ -113,14 +163,16 @@ packages/core/src/modules/validation/
 │   ├── schema.validator.ts               # validateSchema()
 │   ├── semantic.validator.ts             # validateSemantic()
 │   ├── language.validator.ts             # validateLanguage(), resolveToIso3()
-│   └── example.validator.ts              # validateExamples() + ExpressionType
+│   ├── example.validator.ts              # validateExamples() + ExpressionType
+│   └── wiktionary.validator.ts           # validateWiktionaryEntry(), validateWordContext(), validateGlosses(), validatePos(), KNOWN_POS
 └── __tests__/
     ├── schema.validator.test.ts          # 8 tests
     ├── semantic.validator.test.ts        # 14 tests
-    ├── language.validator.test.ts        # 11 tests
+    ├── language.validator.test.ts        # 6 tests (4 resolveToIso3 + 2 validateLanguage no-op)
     ├── example.validator.test.ts         # 7 tests
     ├── example.validator.idiomatic.test.ts  # 8 tests (Task 10 — expressionType)
-    └── validate.test.ts                  # 19 tests (8 orchestrator + 6 partial regen + 5 idiomatic)
+    ├── validate.test.ts                  # 19 tests (8 orchestrator + 6 partial regen + 5 idiomatic)
+    └── wiktionary.validator.test.ts      # 58 tests (21 entry + 19 wordContext + 8 glosses + 10 pos)
 ```
 
 ## Logging Integration
@@ -133,13 +185,14 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 
 ## Current State
 
-- 4 active validators + 1 no-op (62 tests total across 6 test files)
+- 4 active validators + 1 no-op + 4 Wiktionary validators (120 tests total across 7 test files)
 - `validateLanguage()` is a no-op — `franc-min` removed due to unreliable trigram detection on short texts. Language correctness ensured by AI prompt + Zod schema + semantic validation.
 - `validate()` orchestrator supports single-language validation for partial regeneration (Task 07)
 - `validateExamples()` accepts optional `expressionType` parameter (Task 10)
 - `validate()` orchestrator passes `expressionType` from language data to `validateExamples()` (Task 10)
 - `ExpressionType` type exported from module index
 - 8 idiomatic tests in `example.validator.idiomatic.test.ts` + 5 orchestrator idiomatic tests in `validate.test.ts`
+- **Task 13**: 4 new Wiktionary validators (`validateWiktionaryEntry`, `validateWordContext`, `validateGlosses`, `validatePos`) with 58 tests. `KNOWN_POS` constant exported for POS filtering. Types `WiktionaryEntryInput`, `WordContextInput`, `KnownPos` exported.
 
 ## Reference
 
@@ -150,3 +203,4 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 - Task: `docs/tasks/05-logging.md` (Step 3 — validation error logging)
 - Task: `docs/tasks/07-partial-regeneration.md` (single-language validation coverage)
 - Task: `docs/tasks/10-idiomatic-equivalents.md` (idiomatic equivalent validation relaxation)
+- Task: `docs/tasks/13-wiktionary-jsonl.md` (Wiktionary data integrity validation)

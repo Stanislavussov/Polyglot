@@ -4,7 +4,7 @@
  * Defines the public API types for topic management,
  * built-in datasets, cache status, and dependency injection.
  */
-import type { TranslateOutput } from "../translation/types.js";
+import type { TranslateOutput, DictionaryContext } from "../translation/types.js";
 
 // ─────────────────────────────────────────────
 // Public types
@@ -108,6 +108,7 @@ export interface TopicDeps {
     words: string[],
     sourceLang: string,
     targetLangs: string[],
+    dictionaryContexts?: Map<string, DictionaryContext>,
   ) => Promise<TranslateOutput[]>;
 
   /** Translate a single word for one target language (for partial regeneration) */
@@ -115,6 +116,7 @@ export interface TopicDeps {
     word: string,
     sourceLang: string,
     targetLang: string,
+    dictionaryContext?: DictionaryContext,
   ) => Promise<LanguageTranslationEntry>;
 
   /** Get a cached translation for a specific word+lang combo */
@@ -134,4 +136,14 @@ export interface TopicDeps {
     emoji: string;
     words: string[];
   }>;
+
+  /**
+   * Look up Wiktionary dictionary context for a word.
+   * Returns null if no context found.
+   * Injected from the database layer — core never calls DB directly.
+   */
+  lookupDictionaryContext?: (
+    word: string,
+    langCode: string,
+  ) => Promise<DictionaryContext | null>;
 }

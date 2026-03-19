@@ -8,6 +8,13 @@
       "when": 1773528685438,
       "tag": "0000_purple_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773957602791,
+      "tag": "0001_parallel_thunderbolt",
+      "breakpoints": true
     }
   ]
 }

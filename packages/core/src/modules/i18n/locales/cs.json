@@ -47,5 +47,11 @@
   "regenerating": "⏳ Aktualizuji {lang}...",
   "regenerated": "✅ Překlad pro {lang} aktualizován",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",
-  "translateModeHint": "Pošli další slovo nebo frázi."
+  "translateModeHint": "Pošli další slovo nebo frázi.",
+  "wiktionaryDefinition": "📖 Definice z Wikislovníku",
+  "wiktionarySource": "Zdroj: Wikislovník",
+  "partOfSpeech": "Slovní druh: {pos}",
+  "phraseDetected": "💬 Detekována fráze: {phrase}",
+  "idiomDetected": "🔮 Detekován idiom: {idiom}",
+  "dictionaryContext": "📚 Slovníkový kontext"
 }

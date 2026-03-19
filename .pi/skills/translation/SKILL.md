@@ -17,7 +17,7 @@ description: Word and phrase translation via AI with prompt building, response p
 
 ## Current State
 
-Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints). Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow. Task 09 translate session loop: no translation module changes needed — persistent translate mode is a bot-layer routing concern; the bot's mode router calls `translate()` for each plain text message while in translate mode; i18n keys (`translateModeOn`, `translateModeHint`) were added to support mode confirmation/hint messages. Task 10 idiomatic equivalents: added `ExpressionType` type (`'literal' | 'idiomatic_equivalent'`), `expressionType` and `equivalentNote` optional fields to `LanguageTranslation` and the Zod schema, added Idiomatic & Proverb Rule block to prompt builder, and `ExpressionType` is re-exported from the module index.
+Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints). Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow. Task 09 translate session loop: no translation module changes needed — persistent translate mode is a bot-layer routing concern; the bot's mode router calls `translate()` for each plain text message while in translate mode; i18n keys (`translateModeOn`, `translateModeHint`) were added to support mode confirmation/hint messages. Task 10 idiomatic equivalents: added `ExpressionType` type (`'literal' | 'idiomatic_equivalent'`), `expressionType` and `equivalentNote` optional fields to `LanguageTranslation` and the Zod schema, added Idiomatic & Proverb Rule block to prompt builder, and `ExpressionType` is re-exported from the module index. Task 13 Wiktionary integration: added `DictionaryContext` type for offline dictionary enrichment, optional `dictionaryContext` field on `TranslateInput`/`TranslateOutput`/`TranslationRequest`, prompt builder enrichment with Wiktionary glosses/POS/form tags, phrase/idiom detection hints, and `translateOne()` passthrough. Context is injected by caller (e.g., bot layer) — core never calls DB directly.
 
 ## Rules
 
@@ -26,6 +26,7 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 3. Knows nothing about the user — works only with text and languages
 4. Always calls the `validation` agent before returning a result
 5. AI generation function is injected (no direct dependency on AI adapter from core)
+6. Dictionary context is injected (no direct dependency on DB adapter from core)
 
 ## Types
 
@@ -37,6 +38,14 @@ type ExampleContext = "formal" | "colloquial" | "professional";
 
 interface Synonym { text: string; register: Register; }
 interface Example { context: ExampleContext; target: string; native: string; }
+
+interface DictionaryContext {
+  word: string;            // headword without stress marks
+  pos: string;             // "phrase", "noun", "verb", "adj", "idiom", etc.
+  glosses: string[];       // English definitions from Wiktionary
+  formTags?: string[];     // ["canonical", "romanization", "alternative"]
+  langCode: string;        // ISO 639-1 language code
+}
 
 interface LanguageTranslation {
   text: string;
@@ -54,6 +63,7 @@ interface TranslationRequest {
   sourceLang: string;
   targetLangs: string[];   // array, 1–4 languages
   topic?: string;
+  dictionaryContext?: DictionaryContext;  // optional Wiktionary enrichment
 }
 
 interface TranslationResult {
@@ -68,6 +78,8 @@ interface TranslateInput {
   targetLangs: string[];
   model: string;
   topic?: string;
+  userId?: number;
+  dictionaryContext?: DictionaryContext;  // optional Wiktionary enrichment
 }
 
 interface TranslateOutput {
@@ -76,7 +88,8 @@ interface TranslateOutput {
   emoji: string;
   register: Register;
   translations: Record<string, LanguageTranslation>;
-  needsReview?: boolean;   // true when validation failed after all retries
+  needsReview?: boolean;           // true when validation failed after all retries
+  dictionaryContext?: DictionaryContext;  // echoed back when used
 }
 
 type GenerateObjectFn = <T>(prompt: string, schema: ZodSchema<T>, model: string) => Promise<T>;
@@ -100,10 +113,10 @@ async function translateBatch(
   model: string, generateObjectFn: GenerateObjectFn
 ): Promise<TranslateOutput[]>;
 
-// Build the AI prompt from a request
+// Build the AI prompt from a request (includes dictionary context when provided)
 function buildTranslationPrompt(request: TranslationRequest): string;
 
-// Build strict retry prompt with error feedback
+// Build strict retry prompt with error feedback (preserves dictionary context)
 function buildStrictPrompt(request: TranslationRequest, errors: string[]): string;
 
 // Parse and validate raw AI response
@@ -113,13 +126,22 @@ function parseResponse(raw: unknown): TranslationResult;
 ## Translation Flow
 
 ```
-1. Build prompt (buildTranslationPrompt)
+1. Build prompt (buildTranslationPrompt — includes dictionary context if available)
 2. Call AI adapter (generateObjectFn with translationResultSchema)
 3. Validate response (validate from validation module)
-4. On PASS → return result
+4. On PASS → return result (with dictionaryContext echoed back if provided)
 5. On FAIL → console.warn({ original, retryCount, failReason }), retry with strict prompt (up to 2 retries)
 6. On final FAIL → console.error({ original, retryCount, failReason }), return result with needsReview: true
 ```
+
+## Dictionary Context Enrichment (Task 13)
+
+When `dictionaryContext` is provided in `TranslateInput`:
+- The prompt builder adds a "Dictionary Context (from Wiktionary):" section
+- Includes POS, glosses (max 5), and form tags
+- For `pos=phrase` or `pos=idiom`, adds a "fixed expression" translation hint
+- The context is preserved through validation retries and echoed in `TranslateOutput`
+- Callers (e.g., bot layer) are responsible for DB lookup and injection
 
 ## Zod Schemas
 
@@ -134,17 +156,18 @@ function parseResponse(raw: unknown): TranslationResult;
 
 ```
 packages/core/src/modules/translation/
-├── index.ts                    # Re-exports: translate, translateOne, translateBatch, schemas, types, ExpressionType
-├── types.ts                    # TranslateInput, TranslateOutput, ExpressionType, etc.
+├── index.ts                    # Re-exports: translate, translateOne, translateBatch, schemas, types, ExpressionType, DictionaryContext
+├── types.ts                    # TranslateInput, TranslateOutput, ExpressionType, DictionaryContext, etc.
 ├── translation.service.ts      # translate(), translateOne(), translateBatch(), parseResponse()
-├── prompt.builder.ts           # buildTranslationPrompt(), buildStrictPrompt()
+├── prompt.builder.ts           # buildTranslationPrompt(), buildStrictPrompt(), buildDictionaryHint()
 ├── schemas/
 │   └── translation.schema.ts   # Zod schemas for AI response
 └── __tests__/
-    ├── translation.schema.test.ts   # 32 tests
-    ├── prompt.builder.test.ts       # 19 tests
-    ├── translation.service.test.ts  # 27 tests (incl. 6 translateOne + 5 validation logging tests)
-    └── idiomatic-equivalents.test.ts # 18 tests (schema + prompt idiomatic features)
+    ├── translation.schema.test.ts    # 32 tests
+    ├── prompt.builder.test.ts        # 19 tests
+    ├── translation.service.test.ts   # 27 tests (incl. 6 translateOne + 5 validation logging tests)
+    ├── idiomatic-equivalents.test.ts # 18 tests (schema + prompt idiomatic features)
+    └── dictionary-context.test.ts    # 27 tests (prompt enrichment + passthrough + edge cases)
 ```
 
 ## Reference
@@ -154,3 +177,4 @@ packages/core/src/modules/translation/
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (translation section)
 - BRD § 6.1 (Word/Phrase Translation), § 10 (AI Response Schema)
+- Task 13 Wiktionary: `docs/tasks/13-wiktionary-jsonl.md`

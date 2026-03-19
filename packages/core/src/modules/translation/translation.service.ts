@@ -57,6 +57,7 @@ export async function translate(
     sourceLang: input.sourceLang,
     targetLangs: input.targetLangs,
     topic: input.topic,
+    dictionaryContext: input.dictionaryContext,
   };
 
   console.log("[translation] starting translation request", {
@@ -171,6 +172,7 @@ export async function translateOne(
       model: input.model,
       topic: input.topic,
       userId: input.userId,
+      dictionaryContext: input.dictionaryContext,
     },
     generateObjectFn,
   );
@@ -244,6 +246,10 @@ function toOutput(
 
   if (needsReview) {
     output.needsReview = true;
+  }
+
+  if (input.dictionaryContext) {
+    output.dictionaryContext = input.dictionaryContext;
   }
 
   return output;

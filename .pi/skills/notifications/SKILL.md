@@ -19,6 +19,7 @@ description: Notification scheduling and delivery with cron, timezone-aware send
 
 - `logNotificationSent()` — structured logging stub using `logger` from `@polyglot/infra`.
 - `createNotificationService(deps)` — factory that returns `{ pickSuggestedWord }`. Uses topic service (via injected deps) to pick a random word from a random built-in topic, with **partial regeneration** support: if a cached topic word is missing a translation for one of the user's learning languages, calls `regenerateTopicWord` to fill the gap (one language at a time, not re-translating the entire word).
+- **Wiktionary dictionary context** — `pickSuggestedWord` optionally enriches suggested words with Wiktionary dictionary context (glosses, POS, formTags) via `lookupDictionaryContext` dep. Fail-open: if lookup fails, the word is returned without context. 12 tests cover happy path, no-context, fail-open errors, and backward compatibility.
 - Full scheduler (cron, sendFn injection) is not yet implemented.
 
 ## Rules
@@ -64,6 +65,8 @@ async function buildNotificationPayload(user: UserForNotification): Promise<Noti
 ## Types
 
 ```typescript
+import type { DictionaryContext } from "@polyglot/core";
+
 type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
 
 interface UserForNotification {
@@ -84,6 +87,7 @@ interface SuggestedWord {
   original: string;
   emoji: string;
   translations: Record<string, string>;  // lang -> translation text
+  dictionaryContext?: DictionaryContext;  // Wiktionary enrichment (optional)
 }
 
 interface NotificationServiceDeps {
@@ -91,6 +95,7 @@ interface NotificationServiceDeps {
   regenerateTopicWord?: (topicId: string, original: string, sourceLang: string, targetLang: string) => Promise<LanguageTranslationEntry>;
   getBuiltinTopics: () => TopicMeta[];
   getUserSettings: (userId: number) => Promise<UserForNotification | null>;
+  lookupDictionaryContext?: (word: string, langCode: string) => Promise<DictionaryContext | null>;
 }
 ```
 
@@ -99,11 +104,25 @@ interface NotificationServiceDeps {
 ```
 packages/adapters/notifications/src/
 ├── index.ts                           # Exports: logNotificationSent, createNotificationService, types
-├── index.test.ts                      # Vitest tests for logNotificationSent
+├── index.test.ts                      # Vitest tests for logNotificationSent (4 tests)
 ├── types.ts                           # SendFn, NotificationPayload, SuggestedWord, NotificationServiceDeps
-├── notification.service.ts            # createNotificationService factory → pickSuggestedWord (with partial regen)
+├── notification.service.ts            # createNotificationService factory → pickSuggestedWord (with partial regen + dictionary context)
 ├── notification.service.test.ts       # 18 Vitest tests for pickSuggestedWord
+├── dictionary-context.test.ts         # 12 Vitest tests for Wiktionary dictionary context integration
 ├── scheduler.ts                       # (planned) node-cron setup, checkAndSend logic
+```
+
+## Data Flow: Dictionary Context in Notifications
+
+```
+pickSuggestedWord(userId)
+  → getUserSettings(userId)         // get user's native + learning langs
+  → getBuiltinTopics()              // random topic
+  → getTopicWords(topicId, ...)     // cache-first topic words
+  → [for each learning lang]
+      translations[lang] = existing || regenerateTopicWord(...)
+  → lookupDictionaryContext(word, nativeLang)  // Wiktionary enrichment (fail-open)
+  → return { original, emoji, translations, dictionaryContext? }
 ```
 
 ## Reference
@@ -112,3 +131,4 @@ packages/adapters/notifications/src/
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (notifications section)
 - Partial regeneration task: `docs/tasks/07-partial-regeneration.md`
+- Wiktionary integration task: `docs/tasks/13-wiktionary-jsonl.md`

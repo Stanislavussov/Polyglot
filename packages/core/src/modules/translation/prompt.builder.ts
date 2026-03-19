@@ -5,7 +5,7 @@
  * translationResultSchema exactly. Requests emoji, register,
  * CEFR level, transcription, synonyms, and example sentences.
  */
-import type { TranslationRequest } from "./types.js";
+import type { TranslationRequest, DictionaryContext } from "./types.js";
 
 /**
  * Builds the primary translation prompt.
@@ -14,15 +14,19 @@ import type { TranslationRequest } from "./types.js";
  * The output format matches translationResultSchema — JSON, no markdown.
  */
 export function buildTranslationPrompt(request: TranslationRequest): string {
-  const { text, sourceLang, targetLangs, topic } = request;
+  const { text, sourceLang, targetLangs, topic, dictionaryContext } = request;
 
   const topicHint = topic
     ? `\nThe word is used in the context of: "${topic}".`
     : "";
 
+  const dictionaryHint = dictionaryContext
+    ? buildDictionaryHint(dictionaryContext)
+    : "";
+
   const targetLangsList = targetLangs.join(", ");
 
-  return `Translate "${text}" from ${sourceLang} to ${targetLangsList}.${topicHint}
+  return `Translate "${text}" from ${sourceLang} to ${targetLangsList}.${topicHint}${dictionaryHint}
 
 Return ONLY valid JSON, no markdown, no explanation, no code fences.
 The JSON must have this exact structure:
@@ -96,4 +100,43 @@ Double-check that:
 - Register values are exactly one of: slang, colloquial, neutral, literary, professional
 - CEFR values are exactly one of: A1, A2, B1, B2, C1, C2
 - For idiomatic expressions, set expressionType to "idiomatic_equivalent" with an equivalentNote`;
+}
+
+/**
+ * Builds a dictionary context hint block for the AI prompt.
+ *
+ * Inserts Wiktionary offline data (POS, glosses) to guide the AI
+ * toward the correct sense of the word and improve translation quality.
+ */
+function buildDictionaryHint(ctx: DictionaryContext): string {
+  const lines: string[] = [
+    "",
+    "Dictionary Context (from Wiktionary):",
+    `- Word: "${ctx.word}" (${ctx.langCode})`,
+    `- Part of speech: ${ctx.pos}`,
+  ];
+
+  if (ctx.glosses.length > 0) {
+    const glossList = ctx.glosses
+      .slice(0, 5) // Limit to avoid prompt bloat
+      .map((g) => `"${g}"`)
+      .join(", ");
+    lines.push(`- Known definitions: ${glossList}`);
+  }
+
+  if (ctx.formTags && ctx.formTags.length > 0) {
+    lines.push(`- Form tags: ${ctx.formTags.join(", ")}`);
+  }
+
+  lines.push(
+    "Use these definitions to guide your translation. They establish the correct sense of the word.",
+  );
+
+  if (ctx.pos === "phrase" || ctx.pos === "idiom") {
+    lines.push(
+      "This is a fixed expression — translate the meaning, not word-by-word.",
+    );
+  }
+
+  return "\n" + lines.join("\n");
 }

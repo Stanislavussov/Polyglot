@@ -1,6 +1,6 @@
 ---
 name: i18n
-description: Internationalization of all bot texts. Provides typed t(key, lang, params?) function, locale files, and language utilities. Use when implementing or modifying bot text translations, adding new UI strings, or supporting new languages.
+description: Internationalization of all bot texts. Provides typed t(key, lang, params?) function, locale files, language name registry, and language utilities. Use when implementing or modifying bot text translations, adding new UI strings, or supporting new languages.
 ---
 
 # i18n Agent Skill
@@ -13,11 +13,11 @@ description: Internationalization of all bot texts. Provides typed t(key, lang, 
 
 - **Layer:** Core (platform-independent, no I/O)
 - **Dependencies:** None — leaf agent
-- **Dependents:** `bot` agent uses `t()` for all user-facing text
+- **Dependents:** `bot` agent uses `t()` for all user-facing text; `infra` and `db` use language name registry
 
 ## Current State
 
-Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 31 tests passing. Task 07 regeneration keys (`regenerateLang`, `regenerating`, `regenerated`) added with `{lang}` interpolation in all 3 locales. Task 09 translate mode keys (`translateModeOn`, `translateModeHint`) added in all 3 locales.
+Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) in `language-names.ts` for Wiktionary integration and bot UI. Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 59 tests passing. Task 07 regeneration keys added. Task 09 translate mode keys added. Task 13 Wiktionary dictionary context keys (`wiktionaryDefinition`, `wiktionarySource`, `partOfSpeech`, `phraseDetected`, `idiomDetected`, `dictionaryContext`) and language name registry added.
 
 ## Rules
 
@@ -26,6 +26,7 @@ Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `
 3. Keys are a strict TypeScript enum — TS won't allow passing a non-existent key
 4. Interpolation parameters are typed: `t("welcome", lang, { name: string })`
 5. Locale files live in `packages/core/src/modules/i18n/locales/` as JSON
+6. Language name lookups via `getLanguageName()` — no direct map imports from other modules
 
 ## Skills (Public API)
 
@@ -38,6 +39,12 @@ function getSupportedLangs(): SupportedLang[];
 
 // Type guard for language code
 function isSupported(lang: string): lang is SupportedLang;
+
+// Language name registry (added in Task 13)
+function getLanguageName(code: string, displayLang?: SupportedLang): string;
+function getLanguageNativeName(code: string): string;
+function getAllLanguageNames(): Array<{ code: string; name: string }>;
+function isKnownLanguage(code: string): boolean;
 ```
 
 ## Types
@@ -57,7 +64,9 @@ type I18nKey =
   | "nextTranslation" | "editTranslation" | "saveToDictionary"
   | "cefr" | "register" | "synonyms" | "examples"
   | "regenerateLang" | "regenerating" | "regenerated"
-  | "translateModeOn" | "translateModeHint";
+  | "translateModeOn" | "translateModeHint"
+  | "wiktionaryDefinition" | "wiktionarySource" | "partOfSpeech"
+  | "phraseDetected" | "idiomDetected" | "dictionaryContext";
 
 // Supported languages
 type SupportedLang = "en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl";
@@ -77,6 +86,10 @@ interface I18nParams {
   regenerateLang: { lang: string };
   regenerating: { lang: string };
   regenerated: { lang: string };
+  translateModeOn: { fromLang: string; toLangs: string };
+  partOfSpeech: { pos: string };
+  phraseDetected: { phrase: string };
+  idiomDetected: { idiom: string };
 }
 
 // Deprecated alias for SupportedLang
@@ -87,20 +100,22 @@ type Locale = SupportedLang;
 
 ```
 packages/core/src/modules/i18n/
-├── index.ts          # Re-exports: t, getSupportedLangs, isSupported, I18nService
-├── types.ts          # I18nKey, SupportedLang, LocaleMessages, I18nParams, Locale
-├── i18n.ts           # Functional API: t() with fallback + interpolation, getSupportedLangs, isSupported
-├── i18n.service.ts   # Legacy class-based I18nService (deprecated, kept for backward compatibility)
+├── index.ts              # Re-exports: t, getSupportedLangs, isSupported, language-names, I18nService
+├── types.ts              # I18nKey, SupportedLang, LocaleMessages, I18nParams, Locale
+├── i18n.ts               # Functional API: t() with fallback + interpolation, getSupportedLangs, isSupported
+├── i18n.service.ts       # Legacy class-based I18nService (deprecated, kept for backward compatibility)
+├── language-names.ts     # Language name registry: getLanguageName, getLanguageNativeName, getAllLanguageNames, isKnownLanguage
 ├── locales/
-│   ├── en.json       # English (source of truth for keys)
+│   ├── en.json           # English (source of truth for keys)
 │   ├── ru.json
 │   └── cs.json
 └── __tests__/
-    └── i18n.test.ts  # 26 tests
+    ├── i18n.test.ts          # 40 tests (t(), getSupportedLangs, isSupported, locale consistency)
+    └── language-names.test.ts # 19 tests (getLanguageName, getLanguageNativeName, getAllLanguageNames, isKnownLanguage)
 ```
 
 ## Reference
 
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (i18n section)
-- Current temporary impl: `apps/bot/src/constants.ts`
+- Task 13: `docs/tasks/13-wiktionary-jsonl.md` (Wiktionary JSONL Integration)

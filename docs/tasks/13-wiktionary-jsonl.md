@@ -560,15 +560,64 @@ Files are named like `kaikki.org-dictionary-Russian.jsonl`.
 
 ## Implementation Checklist
 
-- [ ] Add `languages` table to Drizzle schema
-- [ ] Add `wordContext` table to Drizzle schema (references `languages`)
-- [ ] Generate and apply migration
-- [ ] Create `packages/infra` package
-- [ ] Implement `import-wiktionary.ts` script with:
-  - [ ] Streaming JSONL parser
-  - [ ] Language resolution with cache
-  - [ ] Batch insert with progress indicator
-  - [ ] CLI argument parsing (`--batch-size`, `--lang`)
-- [ ] Add `import:wiktionary` script to package.json
-- [ ] Add repository methods for `wordContext` lookup
-- [ ] Integrate with translation pipeline
+- [x] Add `languages` table to Drizzle schema
+- [x] Add `wordContext` table to Drizzle schema (references `languages`)
+- [x] Generate and apply migration
+- [x] Create `packages/infra` package
+- [x] Implement `import-wiktionary.ts` script with:
+  - [x] Streaming JSONL parser
+  - [x] Language resolution with cache
+  - [x] Batch insert with progress indicator
+  - [x] CLI argument parsing (`--batch-size`, `--lang`)
+- [x] Add `import:wiktionary` script to package.json
+- [x] Add repository methods for `wordContext` lookup
+- [x] Integrate with translation pipeline (DictionaryContext type, prompt enrichment, passthrough in translate/translateOne, 27 tests)
+- [x] Integrate with topics layer (lookupDictionaryContext dep, batch context lookup, fail-open, 20 tests)
+- [x] Add i18n keys for Wiktionary dictionary context (wiktionaryDefinition, wiktionarySource, partOfSpeech, phraseDetected, idiomDetected, dictionaryContext) in en, ru, cs locale files
+- [x] Add language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) for language code → name resolution
+- [x] Add validation layer: `validateWiktionaryEntry()`, `validateWordContext()`, `validateGlosses()`, `validatePos()` with 58 tests
+- [x] Integrate with notifications layer (lookupDictionaryContext dep, fail-open dictionary context in pickSuggestedWord, optional DictionaryContext on SuggestedWord, 12 tests)
+- [x] Integrate with bot layer (lookupDictContext in translate-mode helper, renderDictionaryHint in renderer, fail-open dictionary context lookup before translate(), 21 new tests)
+
+### Files created/modified
+
+- `packages/adapters/db/src/schema.ts` — Added `languages` and `wordContext` Drizzle table definitions
+- `packages/adapters/db/src/index.ts` — Re-exports languageRepository, wordContextRepository, and types
+- `packages/adapters/db/src/repositories/language.repository.ts` — findByCode, create, getOrCreate, findAll
+- `packages/adapters/db/src/repositories/word-context.repository.ts` — findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById
+- `packages/adapters/db/src/__tests__/language.repository.test.ts` — 7 tests
+- `packages/adapters/db/src/__tests__/word-context.repository.test.ts` — 13 tests
+- `packages/adapters/db/drizzle/0001_parallel_thunderbolt.sql` — Migration for languages, word_context, topic_translation_cache
+- `packages/adapters/db/tsconfig.json` — Exclude __tests__ from build
+- `packages/infra/package.json` — Added @polyglot/adapter-db dependency, import:wiktionary script, tsx devDep
+- `packages/infra/src/scripts/import-wiktionary.ts` — Streaming JSONL import CLI with --batch-size, --lang flags
+- `packages/core/src/modules/i18n/language-names.ts` — Language name registry (60+ languages with English, native, and localized names)
+- `packages/core/src/modules/i18n/types.ts` — Added 6 new I18nKey values, 3 new I18nParams entries
+- `packages/core/src/modules/i18n/index.ts` — Re-exports language name utilities
+- `packages/core/src/modules/i18n/locales/en.json` — 6 new Wiktionary keys
+- `packages/core/src/modules/i18n/locales/ru.json` — 6 new Wiktionary keys (Russian)
+- `packages/core/src/modules/i18n/locales/cs.json` — 6 new Wiktionary keys (Czech)
+- `packages/core/src/modules/i18n/__tests__/language-names.test.ts` — 19 tests
+- `packages/core/src/modules/i18n/__tests__/i18n.test.ts` — Updated with 10 new Wiktionary key tests (59 total)
+- `packages/core/src/modules/validation/validators/wiktionary.validator.ts` — 4 Wiktionary validators + KNOWN_POS constant + types
+- `packages/core/src/modules/validation/__tests__/wiktionary.validator.test.ts` — 58 tests (21 entry + 19 wordContext + 8 glosses + 10 pos)
+- `packages/core/src/modules/validation/index.ts` — Re-exports Wiktionary validators and types
+- `packages/core/src/modules/translation/types.ts` — Added DictionaryContext type, optional dictionaryContext on TranslateInput/TranslateOutput/TranslationRequest
+- `packages/core/src/modules/translation/prompt.builder.ts` — Added buildDictionaryHint(), dictionary context enrichment in buildTranslationPrompt()
+- `packages/core/src/modules/translation/translation.service.ts` — Pass dictionaryContext through translate()/translateOne()/toOutput()
+- `packages/core/src/modules/translation/index.ts` — Re-export DictionaryContext type
+- `packages/core/src/modules/translation/__tests__/dictionary-context.test.ts` — 27 tests for dictionary context integration
+- `.pi/skills/translation/SKILL.md` — Updated with DictionaryContext type, enrichment flow, new test file
+- `packages/core/src/modules/topics/types.ts` — Added DictionaryContext import, lookupDictionaryContext to TopicDeps, updated translateBatch/translateOne signatures with optional dictionary context params
+- `packages/core/src/modules/topics/topic.service.ts` — Added lookupContextsBatch helper, wired dictionary context into getTopicWords, regenerateTopicWord, generateCustomTopic (fail-open, parallel lookups)
+- `packages/core/src/modules/topics/__tests__/dictionary-context.test.ts` — 20 tests for dictionary context integration (batch lookup, passthrough, fail-open, backward compat, partial cache)
+- `.pi/skills/topics/SKILL.md` — Updated with dictionary context integration, new deps, file structure, data flow diagram
+- `packages/adapters/notifications/src/types.ts` — Added lookupDictionaryContext to NotificationServiceDeps, optional DictionaryContext on SuggestedWord
+- `packages/adapters/notifications/src/notification.service.ts` — Wiktionary dictionary context lookup in pickSuggestedWord (fail-open)
+- `packages/adapters/notifications/src/dictionary-context.test.ts` — 12 tests for dictionary context integration (happy path, no-context, fail-open, backward compat)
+- `.pi/skills/notifications/SKILL.md` — Updated with dictionary context integration, data flow diagram, updated types and file structure
+- `apps/bot/src/scenes/helpers/translate-mode.helper.ts` — Added lookupDictContext(), wired dictionaryContext into translate() call
+- `apps/bot/src/scenes/helpers/translate-mode.helper.test.ts` — 9 tests (dict context lookup + wiring)
+- `apps/bot/src/renderers/translation.renderer.ts` — Added renderDictionaryHint(), dictionary context section in renderTranslation()
+- `apps/bot/src/__tests__/dictionary-context-renderer.test.ts` — 12 tests (dict hint rendering, phrase/idiom detection, gloss truncation)
+- `.pi/skills/bot/SKILL.md` — Updated with dictionary context integration, new functions, file structure

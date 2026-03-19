@@ -51,7 +51,13 @@ export type I18nKey =
   | "regenerating"
   | "regenerated"
   | "translateModeOn"
-  | "translateModeHint";
+  | "translateModeHint"
+  | "wiktionaryDefinition"
+  | "wiktionarySource"
+  | "partOfSpeech"
+  | "phraseDetected"
+  | "idiomDetected"
+  | "dictionaryContext";
 
 /**
  * Supported interface languages.
@@ -91,6 +97,9 @@ export interface I18nParams {
   regenerating: { lang: string };
   regenerated: { lang: string };
   translateModeOn: { fromLang: string; toLangs: string };
+  partOfSpeech: { pos: string };
+  phraseDetected: { phrase: string };
+  idiomDetected: { idiom: string };
 }
 
 /**

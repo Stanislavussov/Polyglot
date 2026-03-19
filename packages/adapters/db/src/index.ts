@@ -52,3 +52,13 @@ export type {
   TopicTranslation,
   NewTopicTranslation,
 } from "./repositories/topic.repository.js";
+export { languageRepository } from "./repositories/language.repository.js";
+export type {
+  Language,
+  NewLanguage,
+} from "./repositories/language.repository.js";
+export { wordContextRepository } from "./repositories/word-context.repository.js";
+export type {
+  WordContext,
+  NewWordContext,
+} from "./repositories/word-context.repository.js";

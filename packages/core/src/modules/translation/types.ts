@@ -8,6 +8,26 @@
 /** Whether a translation is literal or an idiomatic equivalent */
 export type ExpressionType = "literal" | "idiomatic_equivalent";
 
+/**
+ * Dictionary context from Wiktionary — offline enrichment data.
+ *
+ * Passed into the translation pipeline by the caller (e.g., bot layer)
+ * after looking up word_context from the database.
+ * Core never calls the DB directly — this is injected.
+ */
+export interface DictionaryContext {
+  /** Headword without stress marks */
+  word: string;
+  /** Part of speech: "phrase", "noun", "verb", "adj", "idiom", etc. */
+  pos: string;
+  /** English definitions/translations from Wiktionary */
+  glosses: string[];
+  /** Tags for canonical form: "canonical", "romanization", "alternative" */
+  formTags?: string[];
+  /** ISO 639-1 language code: "ru", "en", "de" */
+  langCode: string;
+}
+
 /** Word register — formality level of a word or phrase */
 export type Register =
   | "slang"
@@ -55,6 +75,8 @@ export interface TranslationRequest {
   sourceLang: string;
   targetLangs: string[];
   topic?: string;
+  /** Optional Wiktionary dictionary context for prompt enrichment */
+  dictionaryContext?: DictionaryContext;
 }
 
 /**
@@ -75,6 +97,8 @@ export interface TranslateInput {
   model: string;
   topic?: string;
   userId?: number;
+  /** Optional Wiktionary dictionary context for translation enrichment */
+  dictionaryContext?: DictionaryContext;
 }
 
 /** Output from translate() — enriched TranslationResult with metadata */
@@ -85,4 +109,6 @@ export interface TranslateOutput {
   register: Register;
   translations: Record<string, LanguageTranslation>;
   needsReview?: boolean;
+  /** Dictionary context that was used to enrich this translation (if any) */
+  dictionaryContext?: DictionaryContext;
 }

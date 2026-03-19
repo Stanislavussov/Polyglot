@@ -47,5 +47,11 @@
   "regenerating": "⏳ Обновляю {lang}...",
   "regenerated": "✅ Перевод на {lang} обновлён",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",
-  "translateModeHint": "Отправьте следующее слово или фразу."
+  "translateModeHint": "Отправьте следующее слово или фразу.",
+  "wiktionaryDefinition": "📖 Определение из Викисловаря",
+  "wiktionarySource": "Источник: Викисловарь",
+  "partOfSpeech": "Часть речи: {pos}",
+  "phraseDetected": "💬 Обнаружена фраза: {phrase}",
+  "idiomDetected": "🔮 Обнаружена идиома: {idiom}",
+  "dictionaryContext": "📚 Словарный контекст"
 }

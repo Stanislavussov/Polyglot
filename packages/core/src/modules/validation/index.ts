@@ -4,6 +4,18 @@ export { validateLanguage, resolveToIso3 } from "./validators/language.validator
 export { validateExamples } from "./validators/example.validator.js";
 export type { ExampleInput, ExpressionType } from "./validators/example.validator.js";
 export type { ValidationResult, ValidationError, ValidateInput } from "./types.js";
+export {
+  validateWiktionaryEntry,
+  validateWordContext,
+  validateGlosses,
+  validatePos,
+  KNOWN_POS,
+} from "./validators/wiktionary.validator.js";
+export type {
+  KnownPos,
+  WiktionaryEntryInput,
+  WordContextInput,
+} from "./validators/wiktionary.validator.js";
 
 import type { ZodSchema } from "zod";
 import type { ValidationResult, ValidationError } from "./types.js";

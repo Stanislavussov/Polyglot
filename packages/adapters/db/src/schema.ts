@@ -12,6 +12,43 @@ import {
 } from "drizzle-orm/pg-core";
 
 // ─────────────────────────────────────────────
+// Languages — normalized language codes
+// ─────────────────────────────────────────────
+export const languages = pgTable(
+  "languages",
+  {
+    id: serial("id").primaryKey(),
+    code: text("code").notNull().unique(),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t) => [uniqueIndex("languages_code_idx").on(t.code)],
+);
+
+// ─────────────────────────────────────────────
+// Word context — offline dictionary data
+// Imported from kaikki.org JSONL extracts
+// ─────────────────────────────────────────────
+export const wordContext = pgTable(
+  "word_context",
+  {
+    id: serial("id").primaryKey(),
+    word: text("word").notNull(),
+    languageId: integer("language_id")
+      .references(() => languages.id)
+      .notNull(),
+    pos: text("pos").notNull(),
+    formTags: text("form_tags").array().default([]),
+    glosses: text("glosses").array().default([]),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t) => [
+    index("word_context_word_lang_idx").on(t.word, t.languageId),
+    index("word_context_lang_idx").on(t.languageId),
+  ],
+);
+
+// ─────────────────────────────────────────────
 // User identification — who the user is
 // ─────────────────────────────────────────────
 export const users = pgTable("users", {

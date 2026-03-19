@@ -4,7 +4,12 @@
  * Defines public types for notification scheduling, delivery,
  * and word suggestion payloads.
  */
-import type { LanguageTranslationEntry, TopicMeta, TopicWord } from "@polyglot/core";
+import type {
+  DictionaryContext,
+  LanguageTranslationEntry,
+  TopicMeta,
+  TopicWord,
+} from "@polyglot/core";
 
 // ─────────────────────────────────────────────
 // Public types
@@ -37,6 +42,8 @@ export interface SuggestedWord {
   original: string;
   emoji: string;
   translations: Record<string, string>; // lang code -> translation text
+  /** Wiktionary dictionary context for the suggested word (if available). */
+  dictionaryContext?: DictionaryContext;
 }
 
 // ─────────────────────────────────────────────
@@ -72,4 +79,14 @@ export interface NotificationServiceDeps {
 
   /** Get user's language settings for building the suggested word. */
   getUserSettings: (userId: number) => Promise<UserForNotification | null>;
+
+  /**
+   * Look up Wiktionary dictionary context for a word.
+   * Returns null if no context found.
+   * Optional — if not provided, suggested words won't include dictionary context.
+   */
+  lookupDictionaryContext?: (
+    word: string,
+    langCode: string,
+  ) => Promise<DictionaryContext | null>;
 }

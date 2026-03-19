@@ -47,5 +47,11 @@
   "regenerating": "⏳ Regenerating {lang}...",
   "regenerated": "✅ {lang} translation updated",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",
-  "translateModeHint": "Send the next word or phrase."
+  "translateModeHint": "Send the next word or phrase.",
+  "wiktionaryDefinition": "📖 Wiktionary definition",
+  "wiktionarySource": "Source: Wiktionary",
+  "partOfSpeech": "Part of speech: {pos}",
+  "phraseDetected": "💬 Phrase detected: {phrase}",
+  "idiomDetected": "🔮 Idiom detected: {idiom}",
+  "dictionaryContext": "📚 Dictionary context"
 }

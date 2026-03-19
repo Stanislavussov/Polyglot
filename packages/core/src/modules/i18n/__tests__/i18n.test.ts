@@ -149,6 +149,65 @@ describe("i18n — t()", () => {
       "Send the next word or phrase.",
     );
   });
+
+  // Wiktionary / dictionary context keys (task 13)
+  it("returns wiktionaryDefinition in English", () => {
+    expect(t("wiktionaryDefinition", "en")).toBe("📖 Wiktionary definition");
+  });
+
+  it("returns wiktionarySource in English", () => {
+    expect(t("wiktionarySource", "en")).toBe("Source: Wiktionary");
+  });
+
+  it("returns partOfSpeech with interpolation", () => {
+    expect(t("partOfSpeech", "en", { pos: "phrase" })).toBe(
+      "Part of speech: phrase",
+    );
+  });
+
+  it("returns phraseDetected with interpolation", () => {
+    expect(t("phraseDetected", "en", { phrase: "что ли" })).toBe(
+      "💬 Phrase detected: что ли",
+    );
+  });
+
+  it("returns idiomDetected with interpolation", () => {
+    expect(t("idiomDetected", "en", { idiom: "a little bird told me" })).toBe(
+      "🔮 Idiom detected: a little bird told me",
+    );
+  });
+
+  it("returns dictionaryContext in English", () => {
+    expect(t("dictionaryContext", "en")).toBe("📚 Dictionary context");
+  });
+
+  it("returns Wiktionary keys in Russian", () => {
+    expect(t("wiktionaryDefinition", "ru")).toBe("📖 Определение из Викисловаря");
+    expect(t("wiktionarySource", "ru")).toBe("Источник: Викисловарь");
+    expect(t("partOfSpeech", "ru", { pos: "фраза" })).toBe("Часть речи: фраза");
+    expect(t("phraseDetected", "ru", { phrase: "что ли" })).toBe(
+      "💬 Обнаружена фраза: что ли",
+    );
+    expect(t("idiomDetected", "ru", { idiom: "сорока на хвосте принесла" })).toBe(
+      "🔮 Обнаружена идиома: сорока на хвосте принесла",
+    );
+    expect(t("dictionaryContext", "ru")).toBe("📚 Словарный контекст");
+  });
+
+  it("returns Wiktionary keys in Czech", () => {
+    expect(t("wiktionaryDefinition", "cs")).toBe("📖 Definice z Wikislovníku");
+    expect(t("wiktionarySource", "cs")).toBe("Zdroj: Wikislovník");
+    expect(t("partOfSpeech", "cs", { pos: "fráze" })).toBe("Slovní druh: fráze");
+    expect(t("phraseDetected", "cs", { phrase: "jak se máte" })).toBe(
+      "💬 Detekována fráze: jak se máte",
+    );
+    expect(t("dictionaryContext", "cs")).toBe("📚 Slovníkový kontext");
+  });
+
+  it("falls back to English for Wiktionary keys when locale has no file", () => {
+    expect(t("wiktionaryDefinition", "de")).toBe("📖 Wiktionary definition");
+    expect(t("dictionaryContext", "de")).toBe("📚 Dictionary context");
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -254,6 +313,12 @@ describe("i18n — locale consistency", () => {
       "regenerated",
       "translateModeOn",
       "translateModeHint",
+      "wiktionaryDefinition",
+      "wiktionarySource",
+      "partOfSpeech",
+      "phraseDetected",
+      "idiomDetected",
+      "dictionaryContext",
     ];
 
     for (const key of enKeys) {

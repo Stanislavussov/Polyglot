@@ -26,8 +26,9 @@ Already implemented:
 - `commands/start.ts` — /start handler (onboarding or main menu)
 - `scenes/onboarding.scene.ts` — 4-step onboarding conversation
 - `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation
-- `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks
+- `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks, Wiktionary dictionary context lookup (fail-open)
 - `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, save, skip)
+- `renderers/translation.renderer.ts` — renderTranslation, renderTopicWord, buildTranslationKeyboard, renderDictionaryHint (Wiktionary context display)
 - `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with regen buttons)
 
 Still needed:
@@ -54,13 +55,20 @@ Still needed:
 
 ```typescript
 // Render a full translation card for Telegram (HTML)
+// Includes dictionary context hint when output.dictionaryContext is present
 function renderTranslation(output: TranslateOutput, interfaceLang?: string): string;
+
+// Render a Wiktionary dictionary context hint (pos, glosses)
+function renderDictionaryHint(dc: DictionaryContext, lang: SupportedLang): string;
 
 // Render a single topic word card (HTML)
 function renderTopicWord(word: TopicWord): string;
 
 // Build inline keyboard with per-language regenerate buttons + save/skip
 function buildTranslationKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard;
+
+// Look up Wiktionary dictionary context for a word (fail-open)
+async function lookupDictContext(word: string, langCode: string): Promise<DictionaryContext | undefined>;
 
 // Scene: 4-step onboarding (implemented)
 async function onboarding(conversation, ctx): Promise<void>;
@@ -99,8 +107,9 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
 [Plain text message while in translate mode]
   ├─ Get user settings (interfaceLang, nativeLang, learningLangs)
   ├─ Show "Translating..." indicator
-  ├─ Call translate() with generateObject from AI adapter
-  ├─ Render translation card (HTML format)
+  ├─ Look up Wiktionary dictionary context via wordContextRepository (fail-open)
+  ├─ Call translate() with generateObject + dictionaryContext from AI adapter
+  ├─ Render translation card (HTML format, includes dictionary hint if context found)
   ├─ Show inline keyboard: Save/Skip buttons
   └─ Store pendingTranslation in session for callback handling
 
@@ -158,6 +167,16 @@ Translation results use **HTML parse mode** for safe rendering of dynamic conten
 - `<i>italic</i>` for example sentences
 - HTML entities (`&amp;`, `&lt;`, `&gt;`) for escaping user/AI content
 
+### Wiktionary Dictionary Context (Task 13)
+
+When `TranslateOutput.dictionaryContext` is present, `renderTranslation()` appends a dictionary context hint section using `renderDictionaryHint()`. The hint shows:
+- **Phrase detection** (`💬 Phrase detected: {phrase}`) for `pos === "phrase"`
+- **Idiom detection** (`🔮 Idiom detected: {idiom}`) for `pos === "idiom"`
+- **Part of speech** (`Part of speech: {pos}`) for all other POS values
+- **Glosses** (first 3 English definitions from Wiktionary, joined by `;`)
+
+The `lookupDictContext()` helper in `translate-mode.helper.ts` queries `wordContextRepository.findByWordAndLangCode()` and maps the DB result to a `DictionaryContext`. It's fail-open: if the lookup fails or returns no results, translation proceeds without enrichment.
+
 ### Idiomatic Equivalent Support (Task 10)
 
 The renderer is **transparent** to idiomatic equivalent metadata. When upstream translation types include `expressionType` and `equivalentNote` fields (added in Task 10), the renderer continues to display the `text` field as before. These metadata fields are not rendered in the Telegram output — they flow through the data model without any bot-layer changes. Compatibility is verified by dedicated transparency tests.
@@ -175,20 +194,22 @@ apps/bot/src/
 ├── commands/
 │   └── start.ts                # /start command
 ├── renderers/
-│   └── translation.renderer.ts # renderTranslation, renderTopicWord, buildTranslationKeyboard
+│   └── translation.renderer.ts # renderTranslation, renderTopicWord, buildTranslationKeyboard, renderDictionaryHint
 ├── scenes/
 │   ├── onboarding.scene.ts     # ✅ implemented (conversation-based)
 │   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation)
 │   ├── helpers/
-│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText, handleSaveCallback, handleSkipCallback
+│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (with dict context), handleSaveCallback, handleSkipCallback, lookupDictContext
+│   │   ├── translate-mode.helper.test.ts # 9 tests (dict context lookup + wiring)
 │   │   ├── regen.helper.ts           # ✅ regeneration loop helper (for onboarding)
 │   │   └── regen.helper.test.ts      # 9 tests
 │   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
-    ├── translate-mode.test.ts       # ✅ 8 tests (mode system tests)
-    ├── translation.renderer.test.ts # 41 tests
-    └── onboarding.scene.test.ts     # 16 tests
+    ├── translate-mode.test.ts              # ✅ 8 tests (mode system tests)
+    ├── translation.renderer.test.ts        # 42 tests
+    ├── dictionary-context-renderer.test.ts # 12 tests (dict context rendering)
+    └── onboarding.scene.test.ts            # 16 tests
 ```
 
 ## Reference

@@ -103,12 +103,19 @@ importers:
 
   packages/infra:
     dependencies:
+      '@polyglot/adapter-db':
+        specifier: workspace:*
+        version: link:../adapters/db
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
       pino:
         specifier: ^10.3.1
         version: 10.3.1
+    devDependencies:
+      tsx:
+        specifier: ^4.7.0
+        version: 4.21.0
 
 packages:
 

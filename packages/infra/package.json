@@ -11,10 +11,15 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "import:wiktionary": "tsx src/scripts/import-wiktionary.ts"
   },
   "dependencies": {
+    "@polyglot/adapter-db": "workspace:*",
     "dotenv": "^17.3.1",
     "pino": "^10.3.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
   }
 }

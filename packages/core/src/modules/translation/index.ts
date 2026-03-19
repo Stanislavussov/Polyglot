@@ -41,4 +41,5 @@ export type {
   CefrLevel,
   ExampleContext,
   ExpressionType,
+  DictionaryContext,
 } from "./types.js";
