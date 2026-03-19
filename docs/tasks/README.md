@@ -14,3 +14,5 @@
 | 10  | [Idiomatic & Proverb Equivalent Matching](./10-idiomatic-equivalents.md) | ✅ Done   |
 | 11  | [Input Message Limits & Validation Config](./11-input-limits-config.md) | 🔲 To Do  |
 | 12  | [Detect Literal vs Idiomatic Translation Nuances](./12-idiom-analysis.md) | 🟡 In Progress  |
+| 13  | [Wiktionary JSONL Integration](./13-wiktionary-jsonl.md) | 🔲 To Do  |
+| 14  | [Refactor Language Usage to `languages` Table](./14-language-table-refactor.md) | 🔲 To Do  |
