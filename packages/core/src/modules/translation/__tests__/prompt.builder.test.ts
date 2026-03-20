@@ -104,14 +104,32 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain('"es"');
   });
 
-  it("includes rule about examples containing the translated word", () => {
+  it("includes rule about variety in examples using different words", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("MUST contain the translated word");
+    expect(prompt).toContain("VARIETY IN EXAMPLES IS MANDATORY");
+    expect(prompt).toContain("DIFFERENT word or expression");
+    expect(prompt).toContain("use the main translation");
+    expect(prompt).toContain("first alternative translation or a synonym");
+    expect(prompt).toContain("second alternative translation or a different synonym");
   });
 
   it("requests native sentence in source language", () => {
     const prompt = buildTranslationPrompt(baseRequest);
     expect(prompt).toContain(`in en`);
+  });
+
+  it("includes alternatives structure in JSON template", () => {
+    const prompt = buildTranslationPrompt(baseRequest);
+    expect(prompt).toContain('"alternatives"');
+    expect(prompt).toContain("alternative translation 1");
+    expect(prompt).toContain("alternative translation 2");
+  });
+
+  it("includes rule about 2 alternative translations", () => {
+    const prompt = buildTranslationPrompt(baseRequest);
+    expect(prompt).toContain(
+      "Provide exactly 2 alternative translations per language",
+    );
   });
 });
 

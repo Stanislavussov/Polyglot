@@ -51,7 +51,6 @@
   "wiktionaryDefinition": "📖 Определение из Викисловаря",
   "wiktionarySource": "Источник: Викисловарь",
   "partOfSpeech": "Часть речи: {pos}",
-  "phraseDetected": "💬 Обнаружена фраза: {phrase}",
-  "idiomDetected": "🔮 Обнаружена идиома: {idiom}",
+  "expressionDetected": "💬 Обнаружено выражение: {expression}",
   "dictionaryContext": "📚 Словарный контекст"
 }

@@ -51,7 +51,6 @@
   "wiktionaryDefinition": "📖 Wiktionary definition",
   "wiktionarySource": "Source: Wiktionary",
   "partOfSpeech": "Part of speech: {pos}",
-  "phraseDetected": "💬 Phrase detected: {phrase}",
-  "idiomDetected": "🔮 Idiom detected: {idiom}",
+  "expressionDetected": "💬 Expression detected: {expression}",
   "dictionaryContext": "📚 Dictionary context"
 }

@@ -14,6 +14,7 @@ export type {
   TopicDataset,
   TopicDeps,
   TopicExpressionType,
+  TopicTranslationVariant,
   LanguageTranslationEntry,
   CachedTranslation,
   NewCachedTranslation,

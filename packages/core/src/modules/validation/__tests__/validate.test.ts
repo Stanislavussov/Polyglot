@@ -528,3 +528,201 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
     expect(result.errors).toHaveLength(0);
   });
 });
+
+/**
+ * Alternatives semantic validation tests.
+ *
+ * Verifies that the validate() orchestrator runs semantic checks
+ * on alternative translation variants (alternatives[].text).
+ */
+describe("validate — alternatives semantic validation", () => {
+  it("passes for valid alternatives", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "ahoj",
+          cefr: "A1" as const,
+          register: "colloquial" as const,
+          synonyms: [{ text: "nazdar", register: "colloquial" as const }],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
+              native: "He said hello to his colleague at the office meeting.",
+            },
+          ],
+          alternatives: [
+            {
+              text: "nazdar",
+              register: "colloquial" as const,
+              synonyms: [{ text: "čau", register: "colloquial" as const }],
+            },
+            {
+              text: "dobrý den",
+              register: "neutral" as const,
+              synonyms: [{ text: "zdravím", register: "neutral" as const }],
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("passes when alternatives field is absent (backward compatible)", () => {
+    const raw = makeValidResponse("hello");
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("passes when alternatives array is empty", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "ahoj",
+          cefr: "A1" as const,
+          register: "colloquial" as const,
+          synonyms: [],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
+              native: "He said hello to his colleague at the office meeting.",
+            },
+          ],
+          alternatives: [],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("fails when alternative text equals original", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "ahoj",
+          cefr: "A1" as const,
+          register: "colloquial" as const,
+          synonyms: [],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
+              native: "He said hello to his colleague at the office meeting.",
+            },
+          ],
+          alternatives: [
+            {
+              text: "nazdar",
+              register: "colloquial" as const,
+              synonyms: [],
+            },
+            {
+              text: "hello", // same as original — semantic error
+              register: "neutral" as const,
+              synonyms: [],
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
+    expect(
+      result.errors.some((e) =>
+        e.field?.includes("alternatives[1]"),
+      ),
+    ).toBe(true);
+  });
+
+  it("fails when alternative contains hallucination pattern", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "ahoj",
+          cefr: "A1" as const,
+          register: "colloquial" as const,
+          synonyms: [],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
+              native: "He said hello to his colleague at the office meeting.",
+            },
+          ],
+          alternatives: [
+            {
+              text: "I cannot translate this",
+              register: "neutral" as const,
+              synonyms: [],
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
+    expect(
+      result.errors.some((e) =>
+        e.field?.includes("alternatives[0]"),
+      ),
+    ).toBe(true);
+  });
+
+  it("reports correct field path for alternative errors", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        de: {
+          text: "hallo",
+          cefr: "A1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [
+            {
+              context: "formal" as const,
+              target: "Er sagte hallo zu seinem Kollegen im Büro heute.",
+              native: "He said hello to his colleague at the office today.",
+            },
+          ],
+          alternatives: [
+            {
+              text: "grüß Gott",
+              register: "neutral" as const,
+              synonyms: [],
+            },
+            {
+              text: "hello", // same as original
+              register: "neutral" as const,
+              synonyms: [],
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "hello", ["de"]);
+    expect(result.valid).toBe(false);
+    const altError = result.errors.find((e) =>
+      e.field?.includes("alternatives"),
+    );
+    expect(altError).toBeDefined();
+    expect(altError!.field).toBe("translations.de.alternatives[1].text");
+  });
+});

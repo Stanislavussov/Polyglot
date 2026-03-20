@@ -1,13 +1,15 @@
 /**
- * Tests for Wiktionary dictionary context integration in the topics layer.
+ * Tests for translation integration in the topics layer.
  *
- * Verifies that:
- * - lookupDictionaryContext is called for uncached words
- * - Dictionary contexts are passed to translateBatch / translateOne
- * - Lookup errors are handled gracefully (fail-open)
- * - Backward compatibility: no lookupDictionaryContext → no context passed
- * - Cached words skip dictionary lookup
- * - generateCustomTopic also supports dictionary context
+ * After Task 15 (context-enrichment layer), dictionary context lookup
+ * is no longer in the topics service. The injected translateBatch / translateOne
+ * functions are expected to handle context enrichment themselves.
+ *
+ * These tests verify:
+ * - translateBatch is called with the simplified signature (no dictionaryContexts map)
+ * - translateOne is called with the simplified signature (no dictionaryContext)
+ * - Cached words skip translation entirely
+ * - DictionaryContext type shape is unchanged
  */
 import { describe, it, expect, vi } from "vitest";
 import { createTopicService, getDataset } from "../topic.service.js";
@@ -24,19 +26,6 @@ import type {
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
-
-function makeDictionaryContext(
-  word: string,
-  langCode: string = "en",
-): DictionaryContext {
-  return {
-    word,
-    pos: "noun",
-    glosses: [`A definition of ${word}`],
-    formTags: ["canonical"],
-    langCode,
-  };
-}
 
 function makeTranslateOutput(
   original: string,
@@ -109,116 +98,31 @@ function createMockDeps(overrides?: Partial<TopicDeps>): TopicDeps {
 }
 
 // ─────────────────────────────────────────────
-// getTopicWords — dictionary context integration
+// getTopicWords — translation integration (post context-enrichment refactor)
 // ─────────────────────────────────────────────
 
-describe("getTopicWords with dictionary context", () => {
-  it("calls lookupDictionaryContext for each uncached word", async () => {
-    const dataset = getDataset("food")!;
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockResolvedValue(null);
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-    );
-
-    const deps = createMockDeps({
-      translateBatch,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.getTopicWords("food", "en", ["cs"]);
-
-    // lookupDictionaryContext should be called for each word
-    expect(lookupDictionaryContext).toHaveBeenCalledTimes(
-      dataset.words.length,
-    );
-    // Each call should be with (word, sourceLang)
-    expect(lookupDictionaryContext).toHaveBeenCalledWith(
-      dataset.words[0],
-      "en",
-    );
-  });
-
-  it("passes dictionary contexts to translateBatch when available", async () => {
-    const dataset = getDataset("food")!;
-
-    // Return dictionary context for the first word only
-    const firstWordCtx = makeDictionaryContext(dataset.words[0]);
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockImplementation((word: string) =>
-        Promise.resolve(
-          word === dataset.words[0] ? firstWordCtx : null,
-        ),
-      );
-
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-    );
-
-    const deps = createMockDeps({
-      translateBatch,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.getTopicWords("food", "en", ["cs"]);
-
-    // translateBatch should be called with 4 args (including contexts map)
-    expect(translateBatch).toHaveBeenCalledTimes(1);
-    const callArgs = translateBatch.mock.calls[0];
-    expect(callArgs).toHaveLength(4);
-
-    // 4th argument should be a Map with the first word's context
-    const contextsMap = callArgs[3] as Map<string, DictionaryContext>;
-    expect(contextsMap).toBeInstanceOf(Map);
-    expect(contextsMap.size).toBe(1);
-    expect(contextsMap.get(dataset.words[0])).toEqual(firstWordCtx);
-  });
-
-  it("does not pass 4th arg when no dictionary contexts found", async () => {
-    const dataset = getDataset("food")!;
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockResolvedValue(null);
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-    );
-
-    const deps = createMockDeps({
-      translateBatch,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.getTopicWords("food", "en", ["cs"]);
-
-    // translateBatch should be called with 3 args (no contexts map)
-    expect(translateBatch).toHaveBeenCalledTimes(1);
-    const callArgs = translateBatch.mock.calls[0];
-    expect(callArgs).toHaveLength(3);
-  });
-
-  it("does not call lookupDictionaryContext when dep is not provided", async () => {
+describe("getTopicWords — translation integration", () => {
+  it("calls translateBatch with 3 args (no dictionaryContexts map)", async () => {
     const dataset = getDataset("food")!;
     const translateBatch = vi.fn().mockResolvedValue(
       dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
     );
 
-    // No lookupDictionaryContext provided
     const deps = createMockDeps({ translateBatch });
     const service = createTopicService(deps);
 
     await service.getTopicWords("food", "en", ["cs"]);
 
-    // translateBatch should be called without contexts
     expect(translateBatch).toHaveBeenCalledTimes(1);
     expect(translateBatch.mock.calls[0]).toHaveLength(3);
+    expect(translateBatch).toHaveBeenCalledWith(
+      dataset.words,
+      "en",
+      ["cs"],
+    );
   });
 
-  it("skips dictionary lookup for cached words", async () => {
+  it("skips translation for cached words", async () => {
     const dataset = getDataset("food")!;
 
     // Cache all words
@@ -229,24 +133,18 @@ describe("getTopicWords with dictionary context", () => {
         ),
     );
 
-    const lookupDictionaryContext = vi.fn().mockResolvedValue(null);
     const translateBatch = vi.fn();
 
-    const deps = createMockDeps({
-      getCached,
-      translateBatch,
-      lookupDictionaryContext,
-    });
+    const deps = createMockDeps({ getCached, translateBatch });
     const service = createTopicService(deps);
 
     await service.getTopicWords("food", "en", ["cs"]);
 
-    // Everything cached — no dictionary lookups needed
-    expect(lookupDictionaryContext).not.toHaveBeenCalled();
+    // Everything cached — no translation needed
     expect(translateBatch).not.toHaveBeenCalled();
   });
 
-  it("looks up context only for uncached words (partial cache)", async () => {
+  it("translates only uncached words", async () => {
     const dataset = getDataset("food")!;
     const cachedWords = new Set(dataset.words.slice(0, 5));
     const uncachedWords = dataset.words.filter((w) => !cachedWords.has(w));
@@ -260,124 +158,28 @@ describe("getTopicWords with dictionary context", () => {
           : Promise.resolve(null),
     );
 
-    const lookupDictionaryContext = vi.fn().mockResolvedValue(null);
     const translateBatch = vi.fn().mockResolvedValue(
       uncachedWords.map((w) => makeTranslateOutput(w, ["cs"])),
     );
 
-    const deps = createMockDeps({
-      getCached,
-      translateBatch,
-      lookupDictionaryContext,
-    });
+    const deps = createMockDeps({ getCached, translateBatch });
     const service = createTopicService(deps);
 
     await service.getTopicWords("food", "en", ["cs"]);
 
-    // lookupDictionaryContext only called for uncached words
-    expect(lookupDictionaryContext).toHaveBeenCalledTimes(
-      uncachedWords.length,
+    expect(translateBatch).toHaveBeenCalledWith(
+      uncachedWords,
+      "en",
+      ["cs"],
     );
-
-    // Verify not called for cached words
-    const lookedUpWords = lookupDictionaryContext.mock.calls.map(
-      (c: unknown[]) => c[0],
-    );
-    for (const cached of cachedWords) {
-      expect(lookedUpWords).not.toContain(cached);
-    }
-  });
-
-  it("handles lookupDictionaryContext errors gracefully (fail-open)", async () => {
-    const dataset = getDataset("food")!;
-
-    // Lookup fails for all words
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockRejectedValue(new Error("DB connection failed"));
-
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-    );
-
-    const deps = createMockDeps({
-      translateBatch,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    // Should not throw — lookup errors are swallowed
-    const words = await service.getTopicWords("food", "en", ["cs"]);
-
-    expect(words).toHaveLength(dataset.words.length);
-    // translateBatch called without contexts (all lookups failed)
-    expect(translateBatch).toHaveBeenCalledTimes(1);
-    expect(translateBatch.mock.calls[0]).toHaveLength(3);
-  });
-
-  it("passes multiple dictionary contexts for multiple words", async () => {
-    const dataset = getDataset("food")!;
-
-    // Return contexts for first 3 words
-    const contextWords = new Set(dataset.words.slice(0, 3));
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockImplementation((word: string) =>
-        Promise.resolve(
-          contextWords.has(word) ? makeDictionaryContext(word) : null,
-        ),
-      );
-
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-    );
-
-    const deps = createMockDeps({
-      translateBatch,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.getTopicWords("food", "en", ["cs"]);
-
-    const callArgs = translateBatch.mock.calls[0];
-    const contextsMap = callArgs[3] as Map<string, DictionaryContext>;
-    expect(contextsMap.size).toBe(3);
-    for (const word of contextWords) {
-      expect(contextsMap.has(word)).toBe(true);
-      expect(contextsMap.get(word)!.word).toBe(word);
-    }
-  });
-
-  it("passes sourceLang to lookupDictionaryContext", async () => {
-    const dataset = getDataset("food")!;
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockResolvedValue(null);
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-    );
-
-    const deps = createMockDeps({
-      translateBatch,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.getTopicWords("food", "ru", ["cs"]);
-
-    // All lookups should use "ru" as the language code
-    for (const call of lookupDictionaryContext.mock.calls) {
-      expect(call[1]).toBe("ru");
-    }
   });
 });
 
 // ─────────────────────────────────────────────
-// regenerateTopicWord — dictionary context integration
+// regenerateTopicWord — simplified signature
 // ─────────────────────────────────────────────
 
-describe("regenerateTopicWord with dictionary context", () => {
+describe("regenerateTopicWord — simplified", () => {
   const mockTranslationEntry: LanguageTranslationEntry = {
     text: "jablko",
     cefr: "A1",
@@ -392,125 +194,28 @@ describe("regenerateTopicWord with dictionary context", () => {
     ],
   };
 
-  it("calls lookupDictionaryContext before translateOne", async () => {
+  it("calls translateOne with 3 args (no dictionaryContext)", async () => {
     const dataset = getDataset("food")!;
-    const word = dataset.words[0];
-
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockResolvedValue(makeDictionaryContext(word));
-    const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
-
-    const deps = createMockDeps({
-      translateOne,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.regenerateTopicWord("food", word, "en", "cs");
-
-    expect(lookupDictionaryContext).toHaveBeenCalledTimes(1);
-    expect(lookupDictionaryContext).toHaveBeenCalledWith(word, "en");
-  });
-
-  it("passes dictionary context to translateOne when available", async () => {
-    const dataset = getDataset("food")!;
-    const word = dataset.words[0];
-    const ctx = makeDictionaryContext(word);
-
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockResolvedValue(ctx);
-    const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
-
-    const deps = createMockDeps({
-      translateOne,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.regenerateTopicWord("food", word, "en", "cs");
-
-    // translateOne should be called with 4 args including context
-    expect(translateOne).toHaveBeenCalledWith(word, "en", "cs", ctx);
-  });
-
-  it("does not pass context to translateOne when lookup returns null", async () => {
-    const dataset = getDataset("food")!;
-    const word = dataset.words[0];
-
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockResolvedValue(null);
-    const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
-
-    const deps = createMockDeps({
-      translateOne,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.regenerateTopicWord("food", word, "en", "cs");
-
-    // translateOne called with 3 args only (no context)
-    expect(translateOne).toHaveBeenCalledWith(word, "en", "cs");
-  });
-
-  it("does not call lookupDictionaryContext when dep is not provided", async () => {
-    const dataset = getDataset("food")!;
-    const word = dataset.words[0];
+    const word = dataset.words[0]!;
 
     const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
 
-    // No lookupDictionaryContext provided
     const deps = createMockDeps({ translateOne });
     const service = createTopicService(deps);
 
     await service.regenerateTopicWord("food", word, "en", "cs");
 
-    // translateOne called with 3 args only
-    expect(translateOne).toHaveBeenCalledWith(word, "en", "cs");
-  });
-
-  it("handles lookupDictionaryContext error gracefully in regeneration", async () => {
-    const dataset = getDataset("food")!;
-    const word = dataset.words[0];
-
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockRejectedValue(new Error("DB error"));
-    const translateOne = vi.fn().mockResolvedValue(mockTranslationEntry);
-
-    const deps = createMockDeps({
-      translateOne,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    // Should not throw — lookup error is caught
-    const result = await service.regenerateTopicWord(
-      "food",
-      word,
-      "en",
-      "cs",
-    );
-
-    expect(result).toEqual(mockTranslationEntry);
-    // translateOne called without context (lookup failed)
+    expect(translateOne).toHaveBeenCalledTimes(1);
     expect(translateOne).toHaveBeenCalledWith(word, "en", "cs");
   });
 });
 
 // ─────────────────────────────────────────────
-// generateCustomTopic — dictionary context integration
+// generateCustomTopic — simplified signature
 // ─────────────────────────────────────────────
 
-describe("generateCustomTopic with dictionary context", () => {
-  it("looks up dictionary context for generated words", async () => {
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockResolvedValue(null);
-
+describe("generateCustomTopic — simplified", () => {
+  it("calls translateBatch with 3 args for generated words", async () => {
     const generateWords = vi.fn().mockResolvedValue({
       name: "Sports",
       emoji: "⚽",
@@ -523,89 +228,23 @@ describe("generateCustomTopic with dictionary context", () => {
       makeTranslateOutput("tennis", ["cs"]),
     ]);
 
-    const deps = createMockDeps({
-      generateWords,
-      translateBatch,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.generateCustomTopic("sport words", "en", ["cs"]);
-
-    // lookupDictionaryContext called for each generated word
-    expect(lookupDictionaryContext).toHaveBeenCalledTimes(3);
-    expect(lookupDictionaryContext).toHaveBeenCalledWith("football", "en");
-    expect(lookupDictionaryContext).toHaveBeenCalledWith("basketball", "en");
-    expect(lookupDictionaryContext).toHaveBeenCalledWith("tennis", "en");
-  });
-
-  it("passes dictionary contexts to translateBatch in custom topic", async () => {
-    const footballCtx = makeDictionaryContext("football");
-    const lookupDictionaryContext = vi
-      .fn()
-      .mockImplementation((word: string) =>
-        Promise.resolve(word === "football" ? footballCtx : null),
-      );
-
-    const generateWords = vi.fn().mockResolvedValue({
-      name: "Sports",
-      emoji: "⚽",
-      words: ["football", "basketball"],
-    });
-
-    const translateBatch = vi.fn().mockResolvedValue([
-      makeTranslateOutput("football", ["cs"]),
-      makeTranslateOutput("basketball", ["cs"]),
-    ]);
-
-    const deps = createMockDeps({
-      generateWords,
-      translateBatch,
-      lookupDictionaryContext,
-    });
-    const service = createTopicService(deps);
-
-    await service.generateCustomTopic("sport words", "en", ["cs"]);
-
-    // translateBatch called with contexts map
-    expect(translateBatch.mock.calls[0]).toHaveLength(4);
-    const contextsMap = translateBatch.mock.calls[0][3] as Map<
-      string,
-      DictionaryContext
-    >;
-    expect(contextsMap.size).toBe(1);
-    expect(contextsMap.get("football")).toEqual(footballCtx);
-  });
-
-  it("works without lookupDictionaryContext in custom topic", async () => {
-    const generateWords = vi.fn().mockResolvedValue({
-      name: "Sports",
-      emoji: "⚽",
-      words: ["football"],
-    });
-
-    const translateBatch = vi.fn().mockResolvedValue([
-      makeTranslateOutput("football", ["cs"]),
-    ]);
-
-    // No lookupDictionaryContext
     const deps = createMockDeps({ generateWords, translateBatch });
     const service = createTopicService(deps);
 
-    const topic = await service.generateCustomTopic(
-      "sport words",
+    await service.generateCustomTopic("sport words", "en", ["cs"]);
+
+    expect(translateBatch).toHaveBeenCalledTimes(1);
+    expect(translateBatch.mock.calls[0]).toHaveLength(3);
+    expect(translateBatch).toHaveBeenCalledWith(
+      ["football", "basketball", "tennis"],
       "en",
       ["cs"],
     );
-
-    expect(topic.words).toHaveLength(1);
-    // translateBatch called without contexts
-    expect(translateBatch.mock.calls[0]).toHaveLength(3);
   });
 });
 
 // ─────────────────────────────────────────────
-// DictionaryContext type shape
+// DictionaryContext type shape (unchanged)
 // ─────────────────────────────────────────────
 
 describe("DictionaryContext type shape", () => {

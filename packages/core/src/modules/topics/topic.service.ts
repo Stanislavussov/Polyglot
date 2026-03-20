@@ -18,8 +18,6 @@ import type {
   TopicDeps,
   LanguageTranslationEntry,
 } from "./types.js";
-import type { DictionaryContext } from "../translation/types.js";
-
 import { createRequire } from "node:module";
 
 // ─────────────────────────────────────────────
@@ -57,44 +55,6 @@ export function getBuiltinTopics(): TopicMeta[] {
  */
 export function getDataset(topicId: string): TopicDataset | undefined {
   return datasets.find((d) => d.id === topicId);
-}
-
-// ─────────────────────────────────────────────
-// Dictionary context batch lookup helper
-// ─────────────────────────────────────────────
-
-/**
- * Look up dictionary context for a batch of words.
- * Returns a Map of word → DictionaryContext for words that have context.
- * Skips words where lookup fails or returns null.
- * Returns empty map if lookupDictionaryContext dep is not provided.
- */
-async function lookupContextsBatch(
-  deps: TopicDeps,
-  words: string[],
-  sourceLang: string,
-): Promise<Map<string, DictionaryContext>> {
-  const contexts = new Map<string, DictionaryContext>();
-
-  if (!deps.lookupDictionaryContext) {
-    return contexts;
-  }
-
-  // Look up all words in parallel (dictionary lookups are fast DB reads)
-  const results = await Promise.allSettled(
-    words.map(async (word) => {
-      const ctx = await deps.lookupDictionaryContext!(word, sourceLang);
-      return { word, ctx };
-    }),
-  );
-
-  for (const result of results) {
-    if (result.status === "fulfilled" && result.value.ctx) {
-      contexts.set(result.value.word, result.value.ctx);
-    }
-  }
-
-  return contexts;
 }
 
 // ─────────────────────────────────────────────
@@ -161,28 +121,14 @@ export function createTopicService(deps: TopicDeps) {
     }
 
     // Phase 2: Batch translate uncached words (rule: never one at a time)
+    // Context enrichment is handled by the injected translateBatch function.
     let translatedWords: TopicWord[] = [];
     if (uncachedOriginals.length > 0) {
-      // Look up dictionary context for uncached words (if dep provided)
-      const dictionaryContexts = await lookupContextsBatch(
-        deps,
+      const outputs = await deps.translateBatch(
         uncachedOriginals,
         sourceLang,
+        targetLangs,
       );
-
-      // Call translateBatch — pass dictionary contexts only when available
-      const outputs = dictionaryContexts.size > 0
-        ? await deps.translateBatch(
-            uncachedOriginals,
-            sourceLang,
-            targetLangs,
-            dictionaryContexts,
-          )
-        : await deps.translateBatch(
-            uncachedOriginals,
-            sourceLang,
-            targetLangs,
-          );
 
       translatedWords = await Promise.all(
         outputs.map(async (output) => {
@@ -249,25 +195,13 @@ export function createTopicService(deps: TopicDeps) {
     // Step 1: Generate word list via AI
     const generated = await deps.generateWords(prompt);
 
-    // Step 2: Look up dictionary contexts and batch translate all words
-    const dictionaryContexts = await lookupContextsBatch(
-      deps,
+    // Step 2: Batch translate all words
+    // Context enrichment is handled by the injected translateBatch function.
+    const outputs = await deps.translateBatch(
       generated.words,
       sourceLang,
+      targetLangs,
     );
-
-    const outputs = dictionaryContexts.size > 0
-      ? await deps.translateBatch(
-          generated.words,
-          sourceLang,
-          targetLangs,
-          dictionaryContexts,
-        )
-      : await deps.translateBatch(
-          generated.words,
-          sourceLang,
-          targetLangs,
-        );
 
     // Step 3: Build Topic
     const words: TopicWord[] = outputs.map((output) => ({
@@ -384,15 +318,9 @@ export function createTopicService(deps: TopicDeps) {
       );
     }
 
-    // Look up dictionary context for the word (if dep provided)
-    const dictionaryContext = deps.lookupDictionaryContext
-      ? await deps.lookupDictionaryContext(original, sourceLang).catch(() => null)
-      : null;
-
-    // Re-translate for the single target language
-    const newTranslation = dictionaryContext
-      ? await deps.translateOne(original, sourceLang, targetLang, dictionaryContext)
-      : await deps.translateOne(original, sourceLang, targetLang);
+    // Re-translate for the single target language.
+    // Context enrichment is handled by the injected translateOne function.
+    const newTranslation = await deps.translateOne(original, sourceLang, targetLang);
 
     // Overwrite the cache entry
     await deps.setCached({

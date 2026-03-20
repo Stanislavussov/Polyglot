@@ -37,6 +37,13 @@ export const exampleSchema = z.object({
   native: z.string().min(1, "Example native sentence is required"),
 });
 
+/** Zod schema for a translation variant (alternative translation) */
+export const translationVariantSchema = z.object({
+  text: z.string().min(1, "Variant text is required"),
+  register: registerEnum,
+  synonyms: z.array(synonymSchema),
+});
+
 /** Zod schema for a single language translation */
 export const languageTranslationSchema = z.object({
   text: z.string().min(1, "Translation text is required"),
@@ -47,6 +54,7 @@ export const languageTranslationSchema = z.object({
   examples: z.array(exampleSchema).min(1, "At least one example is required"),
   expressionType: expressionTypeEnum.optional().default("literal"),
   equivalentNote: z.string().optional(),
+  alternatives: z.array(translationVariantSchema).optional(),
 });
 
 /** Zod schema for validating a translation request */
@@ -112,3 +120,4 @@ export type LanguageTranslationInput = z.infer<
 >;
 export type SynonymInput = z.infer<typeof synonymSchema>;
 export type TranslationExampleInput = z.infer<typeof exampleSchema>;
+export type TranslationVariantInput = z.infer<typeof translationVariantSchema>;

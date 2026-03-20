@@ -1,6 +1,7 @@
 // Modules
 export * from "./modules/translation/index.js";
 export * from "./modules/topics/index.js";
+export * from "./modules/context-enrichment/index.js";
 // Idiom analysis — GenerateObjectFn is also exported from translation, so we
 // re-export everything except the duplicate to avoid TS2308.
 export {

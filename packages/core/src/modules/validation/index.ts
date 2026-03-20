@@ -32,6 +32,7 @@ import type { ExpressionType } from "./validators/example.validator.js";
  * 2. Semantic validation — translation ≠ original, no hallucinations
  * 3. Language detection — via franc-min
  * 4. Example quality — examples contain the translated word
+ * 5. Alternatives semantic validation — alternatives ≠ original, no hallucinations
  *
  * Returns a merged ValidationResult with errors from all checks.
  *
@@ -115,6 +116,26 @@ export function validate(
           ...err,
           field: `translations.${lang}.${err.field ?? "examples"}`,
         });
+      }
+    }
+
+    // Step 5: Alternatives semantic validation
+    const alternatives = langData["alternatives"] as
+      | Array<{ text: string }>
+      | undefined;
+
+    if (alternatives && Array.isArray(alternatives)) {
+      for (let i = 0; i < alternatives.length; i++) {
+        const alt = alternatives[i];
+        if (alt && typeof alt.text === "string") {
+          const altResult = validateSemantic(original, alt.text);
+          for (const err of altResult.errors) {
+            allErrors.push({
+              ...err,
+              field: `translations.${lang}.alternatives[${i}].${err.field ?? "text"}`,
+            });
+          }
+        }
       }
     }
   }

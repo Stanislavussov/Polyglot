@@ -126,36 +126,13 @@ export function createNotificationService(deps: NotificationServiceDeps) {
       return null;
     }
 
-    // Step 7: Look up Wiktionary dictionary context (fail-open)
-    let dictionaryContext: import("@polyglot/core").DictionaryContext | undefined;
-    if (deps.lookupDictionaryContext) {
-      try {
-        const ctx = await deps.lookupDictionaryContext(
-          word.original,
-          user.nativeLang,
-        );
-        if (ctx) {
-          dictionaryContext = ctx;
-          logger.info(
-            { original: word.original, pos: ctx.pos, glosses: ctx.glosses.length },
-            "Dictionary context found for suggested word",
-          );
-        }
-      } catch (err) {
-        // Fail-open: dictionary context is optional enrichment
-        logger.error(
-          { err, original: word.original },
-          "Dictionary context lookup failed — continuing without context",
-        );
-      }
-    }
-
-    // Step 8: Return SuggestedWord
+    // Step 7: Return SuggestedWord
+    // Dictionary context enrichment is now handled by the context-enrichment
+    // layer at the translation level — no longer done here.
     return {
       original: word.original,
       emoji: topic.emoji,
       translations,
-      ...(dictionaryContext ? { dictionaryContext } : {}),
     };
   }
 

@@ -32,6 +32,7 @@ AI Response
     ├─ 3. validateLanguage                — no-op (franc-min removed, see below)
     ├─ 4. validateExamples               — examples well-formed + word matching
     │                                       (relaxed for idiomatic equivalents)
+    ├─ 5. validateAlternatives (semantic) — alternatives[].text ≠ original, no hallucinations
     │
     ├─ PASS → return valid result
     ├─ FAIL → retry with strict prompt (up to 2 retries)
@@ -39,10 +40,10 @@ AI Response
 
 Wiktionary Data
     │
-    ├─ 5. validateWiktionaryEntry        — raw JSONL entry: word, lang_code, pos, senses, forms
-    ├─ 6. validateWordContext            — parsed record: word, languageId, pos, formTags, glosses
-    ├─ 7. validateGlosses               — array of non-empty definition strings
-    └─ 8. validatePos                   — known POS tag check (phrase, noun, verb, idiom, etc.)
+    ├─ 6. validateWiktionaryEntry        — raw JSONL entry: word, lang_code, pos, senses, forms
+    ├─ 7. validateWordContext            — parsed record: word, languageId, pos, formTags, glosses
+    ├─ 8. validateGlosses               — array of non-empty definition strings
+    └─ 9. validatePos                   — known POS tag check (phrase, noun, verb, idiom, etc.)
 ```
 
 ## Public API
@@ -72,10 +73,11 @@ function resolveToIso3(lang: string): string | undefined;
 function validateExamples(examples: ExampleInput[], word: string, expressionType?: ExpressionType): ValidationResult;
 
 // Orchestrated: runs all validators in sequence against full translation result
-// Steps: 1) schema → 2) per-language: semantic, language, examples
+// Steps: 1) schema → 2) per-language: semantic, language, examples, alternatives semantic
 // On schema failure: stops early (cannot inspect content)
 // Reports missing translations for expected languages
 // Passes expressionType from language data to validateExamples()
+// Validates alternatives[].text semantically (≠ original, no hallucinations)
 function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[]): ValidationResult;
 
 // ── Wiktionary validators (Task 13) ──
@@ -171,7 +173,7 @@ packages/core/src/modules/validation/
     ├── language.validator.test.ts        # 6 tests (4 resolveToIso3 + 2 validateLanguage no-op)
     ├── example.validator.test.ts         # 7 tests
     ├── example.validator.idiomatic.test.ts  # 8 tests (Task 10 — expressionType)
-    ├── validate.test.ts                  # 19 tests (8 orchestrator + 6 partial regen + 5 idiomatic)
+    ├── validate.test.ts                  # 25 tests (8 orchestrator + 6 partial regen + 5 idiomatic + 6 alternatives)
     └── wiktionary.validator.test.ts      # 58 tests (21 entry + 19 wordContext + 8 glosses + 10 pos)
 ```
 
@@ -185,7 +187,7 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 
 ## Current State
 
-- 4 active validators + 1 no-op + 4 Wiktionary validators (120 tests total across 7 test files)
+- 4 active validators + 1 no-op + 4 Wiktionary validators (126 tests total across 7 test files)
 - `validateLanguage()` is a no-op — `franc-min` removed due to unreliable trigram detection on short texts. Language correctness ensured by AI prompt + Zod schema + semantic validation.
 - `validate()` orchestrator supports single-language validation for partial regeneration (Task 07)
 - `validateExamples()` accepts optional `expressionType` parameter (Task 10)
@@ -193,6 +195,7 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 - `ExpressionType` type exported from module index
 - 8 idiomatic tests in `example.validator.idiomatic.test.ts` + 5 orchestrator idiomatic tests in `validate.test.ts`
 - **Task 13**: 4 new Wiktionary validators (`validateWiktionaryEntry`, `validateWordContext`, `validateGlosses`, `validatePos`) with 58 tests. `KNOWN_POS` constant exported for POS filtering. Types `WiktionaryEntryInput`, `WordContextInput`, `KnownPos` exported.
+- `validate()` orchestrator validates `alternatives[].text` semantically — catches hallucinations and identity translations in alternative variants (6 tests in `validate.test.ts`)
 
 ## Reference
 

@@ -55,6 +55,13 @@ export interface Example {
   native: string;
 }
 
+/** A single translation variant with its own register and synonyms */
+export interface TranslationVariant {
+  text: string;
+  register: Register;
+  synonyms: Synonym[];
+}
+
 /** Translation data for a single target language */
 export interface LanguageTranslation {
   text: string;
@@ -67,6 +74,8 @@ export interface LanguageTranslation {
   expressionType?: ExpressionType;
   /** Short note in the source language explaining why an equivalent was chosen */
   equivalentNote?: string;
+  /** Up to 2 alternative translation variants, each with its own register and synonyms */
+  alternatives?: TranslationVariant[];
 }
 
 /** Input for a translation request */

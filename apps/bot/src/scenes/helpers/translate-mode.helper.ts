@@ -3,13 +3,12 @@
  * Called by the mode router when user is in translate mode.
  */
 import { generateObject } from "@polyglot/adapter-ai";
-import { userRepository, wordRepository, wordContextRepository } from "@polyglot/adapter-db";
+import { userRepository, wordRepository, createContextLookup } from "@polyglot/adapter-db";
 import {
-  translate,
+  translateWithContext,
   t,
   isSupported,
   type SupportedLang,
-  type DictionaryContext,
 } from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
 import type { BotContext } from "../../types.js";
@@ -18,34 +17,8 @@ import {
   buildTranslationKeyboard,
 } from "../../renderers/translation.renderer.js";
 
-/**
- * Look up Wiktionary dictionary context for a word.
- * Fail-open: returns undefined if lookup fails or no results found.
- */
-export async function lookupDictContext(
-  word: string,
-  langCode: string,
-): Promise<DictionaryContext | undefined> {
-  try {
-    const results = await wordContextRepository.findByWordAndLangCode(
-      word,
-      langCode,
-    );
-    if (results.length === 0) return undefined;
-
-    const entry = results[0]!;
-    return {
-      word: entry.word,
-      pos: entry.pos,
-      glosses: entry.glosses ?? [],
-      formTags: entry.formTags ?? [],
-      langCode,
-    };
-  } catch {
-    // Fail-open: dictionary context is optional enrichment
-    return undefined;
-  }
-}
+/** Singleton lookup function — created once and reused. */
+const lookupContext = createContextLookup();
 
 /**
  * Handles a text message in translate mode.
@@ -75,19 +48,15 @@ export async function handleTranslateText(
   try {
     const config = loadConfig();
 
-    // Look up Wiktionary dictionary context (fail-open)
-    const dictionaryContext = await lookupDictContext(word, nativeLang);
-
-    const output = await translate(
+    const output = await translateWithContext(
       {
         word,
         sourceLang: nativeLang,
         targetLangs: learningLangs,
         model: config.AI_MODEL,
         userId: ctx.user.id,
-        dictionaryContext,
       },
-      generateObject,
+      { lookupContext, generateObjectFn: generateObject },
     );
 
     // Delete loading message

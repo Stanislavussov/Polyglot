@@ -62,3 +62,4 @@ export type {
   WordContext,
   NewWordContext,
 } from "./repositories/word-context.repository.js";
+export { createContextLookup } from "./context-lookup.js";

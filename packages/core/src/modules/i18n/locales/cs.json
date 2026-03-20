@@ -51,7 +51,6 @@
   "wiktionaryDefinition": "📖 Definice z Wikislovníku",
   "wiktionarySource": "Zdroj: Wikislovník",
   "partOfSpeech": "Slovní druh: {pos}",
-  "phraseDetected": "💬 Detekována fráze: {phrase}",
-  "idiomDetected": "🔮 Detekován idiom: {idiom}",
+  "expressionDetected": "💬 Detekován výraz: {expression}",
   "dictionaryContext": "📚 Slovníkový kontext"
 }

@@ -328,6 +328,106 @@ describe("buildTranslationKeyboard", () => {
   });
 });
 
+// ── Alternatives rendering tests ────────────────────────────────────
+
+describe("renderTranslation — alternatives", () => {
+  const outputWithAlternatives: TranslateOutput = {
+    original: "house",
+    sourceLang: "en",
+    emoji: "🏠",
+    register: "neutral",
+    translations: {
+      cs: {
+        text: "dům",
+        cefr: "A1",
+        register: "neutral",
+        synonyms: [],
+        examples: [
+          { context: "formal", target: "Dům je velký.", native: "The house is big." },
+        ],
+        alternatives: [
+          {
+            text: "domov",
+            register: "neutral",
+            synonyms: [{ text: "bydliště", register: "neutral" }],
+          },
+          {
+            text: "stavení",
+            register: "literary",
+            synonyms: [],
+          },
+        ],
+      },
+    },
+  };
+
+  it("renders alternatives after main translation", () => {
+    const result = renderTranslation(outputWithAlternatives, "en");
+    expect(result).toContain("∙ domov (neutral)");
+    expect(result).toContain("∙ stavení (literary)");
+  });
+
+  it("renders alternative synonyms inline", () => {
+    const result = renderTranslation(outputWithAlternatives, "en");
+    expect(result).toContain("domov (neutral) — bydliště (neutral)");
+  });
+
+  it("renders alternative without synonyms (no dash)", () => {
+    const result = renderTranslation(outputWithAlternatives, "en");
+    const staveniLine = result.split("\n").find((l) => l.includes("stavení"));
+    expect(staveniLine).toBe("   ∙ stavení (literary)");
+  });
+
+  it("renders alternatives before CEFR line", () => {
+    const result = renderTranslation(outputWithAlternatives, "en");
+    const altIdx = result.indexOf("∙ domov");
+    const cefrIdx = result.indexOf("CEFR: A1");
+    expect(altIdx).toBeGreaterThan(-1);
+    expect(cefrIdx).toBeGreaterThan(altIdx);
+  });
+
+  it("does not render alternatives section when not present", () => {
+    const result = renderTranslation(sampleOutput, "en");
+    expect(result).not.toContain("∙");
+  });
+
+  it("does not render alternatives section when array is empty", () => {
+    const outputEmpty: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations["cs"]!,
+          alternatives: [],
+        },
+      },
+    };
+    const result = renderTranslation(outputEmpty, "en");
+    expect(result).not.toContain("∙");
+  });
+
+  it("escapes HTML in alternative text and synonyms", () => {
+    const xssAlternatives: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations["cs"]!,
+          alternatives: [
+            {
+              text: "<b>bad</b>",
+              register: "neutral",
+              synonyms: [{ text: "a & b", register: "neutral" }],
+            },
+          ],
+        },
+      },
+    };
+    const result = renderTranslation(xssAlternatives, "en");
+    expect(result).not.toContain("<b>bad</b>");
+    expect(result).toContain("&lt;b&gt;bad&lt;/b&gt;");
+    expect(result).toContain("a &amp; b");
+  });
+});
+
 // ── Task 10: Idiomatic Equivalent Transparency Tests ────────────────
 
 describe("renderTranslation — idiomatic equivalents", () => {

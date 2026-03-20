@@ -107,7 +107,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain("Dictionary Context (from Wiktionary):");
+    expect(prompt).toContain("Authoritative Dictionary Context (Wiktionary):");
   });
 
   it("includes the word and language code", () => {
@@ -124,33 +124,60 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain("Part of speech: phrase");
+    expect(prompt).toContain("part of speech: phrase");
   });
 
-  it("includes glosses/definitions", () => {
+  it("includes glosses/definitions as verified meaning", () => {
     const prompt = buildTranslationPrompt({
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain("Known definitions:");
+    expect(prompt).toContain("The verified meaning of this word is:");
     expect(prompt).toContain("or something, perhaps, maybe");
   });
 
-  it("includes form tags when present", () => {
+  it("includes form tags with human-readable explanations", () => {
     const prompt = buildTranslationPrompt({
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain("Form tags: canonical");
+    expect(prompt).toContain("Word form: this is the base/dictionary form of the word");
   });
 
-  it("includes guidance text for using definitions", () => {
+  it("includes MUST-use instruction when glosses are present", () => {
     const prompt = buildTranslationPrompt({
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
     expect(prompt).toContain(
-      "Use these definitions to guide your translation",
+      "You MUST use these definitions as the PRIMARY basis for your translation",
+    );
+  });
+
+  it("includes instruction to reflect meanings in alternatives and synonyms", () => {
+    const prompt = buildTranslationPrompt({
+      ...baseRequest,
+      dictionaryContext: sampleDictionaryContext,
+    });
+    expect(prompt).toContain(
+      "each alternative should capture a different sense",
+    );
+  });
+
+  it("does NOT include MUST-use instruction when glosses are empty", () => {
+    const prompt = buildTranslationPrompt({
+      text: "test",
+      sourceLang: "en",
+      targetLangs: ["ru"],
+      dictionaryContext: {
+        word: "test",
+        pos: "noun",
+        glosses: [],
+        langCode: "en",
+      },
+    });
+    expect(prompt).not.toContain(
+      "You MUST use these definitions",
     );
   });
 
@@ -188,7 +215,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
 
   it("does NOT include dictionary context section when not provided", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).not.toContain("Dictionary Context");
+    expect(prompt).not.toContain("Authoritative Dictionary Context");
     expect(prompt).not.toContain("Wiktionary");
   });
 
@@ -200,7 +227,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
         formTags: [],
       },
     });
-    expect(prompt).not.toContain("Form tags:");
+    expect(prompt).not.toContain("Word form:");
   });
 
   it("omits form tags line when formTags is undefined", () => {
@@ -214,7 +241,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: ctx,
     });
-    expect(prompt).not.toContain("Form tags:");
+    expect(prompt).not.toContain("Word form:");
   });
 
   it("limits glosses to 5 in the prompt to avoid bloat", () => {
@@ -259,9 +286,9 @@ describe("buildTranslationPrompt — dictionary context", () => {
       targetLangs: ["ru"],
       dictionaryContext: emptyGlosses,
     });
-    expect(prompt).toContain("Dictionary Context");
-    expect(prompt).toContain("Part of speech: noun");
-    expect(prompt).not.toContain("Known definitions:");
+    expect(prompt).toContain("Authoritative Dictionary Context");
+    expect(prompt).toContain("part of speech: noun");
+    expect(prompt).not.toContain("verified meaning");
   });
 
   it("coexists with topic hint", () => {
@@ -271,16 +298,30 @@ describe("buildTranslationPrompt — dictionary context", () => {
       dictionaryContext: sampleDictionaryContext,
     });
     expect(prompt).toContain("medicine");
-    expect(prompt).toContain("Dictionary Context");
-    expect(prompt).toContain("Part of speech: phrase");
+    expect(prompt).toContain("Authoritative Dictionary Context");
+    expect(prompt).toContain("part of speech: phrase");
   });
 
-  it("includes multiple form tags separated by commas", () => {
+  it("places dictionary context before topic hint and JSON template", () => {
+    const prompt = buildTranslationPrompt({
+      ...baseRequest,
+      topic: "medicine",
+      dictionaryContext: sampleDictionaryContext,
+    });
+    const dictIdx = prompt.indexOf("Authoritative Dictionary Context");
+    const topicIdx = prompt.indexOf("medicine");
+    const jsonIdx = prompt.indexOf("Return ONLY valid JSON");
+    expect(dictIdx).toBeGreaterThan(-1);
+    expect(dictIdx).toBeLessThan(topicIdx);
+    expect(dictIdx).toBeLessThan(jsonIdx);
+  });
+
+  it("includes multiple form tags with explanations", () => {
     const prompt = buildTranslationPrompt({
       ...baseRequest,
       dictionaryContext: idiomDictionaryContext,
     });
-    expect(prompt).toContain("Form tags: canonical, romanization");
+    expect(prompt).toContain("Word form: this is the base/dictionary form of the word; a romanized transliteration is available");
   });
 });
 
@@ -297,14 +338,14 @@ describe("buildStrictPrompt — dictionary context", () => {
       },
       ["some error"],
     );
-    expect(prompt).toContain("Dictionary Context (from Wiktionary):");
-    expect(prompt).toContain("Part of speech: phrase");
+    expect(prompt).toContain("Authoritative Dictionary Context (Wiktionary):");
+    expect(prompt).toContain("part of speech: phrase");
     expect(prompt).toContain("or something, perhaps, maybe");
   });
 
   it("does not include dictionary context when not provided", () => {
     const prompt = buildStrictPrompt(baseRequest, ["some error"]);
-    expect(prompt).not.toContain("Dictionary Context");
+    expect(prompt).not.toContain("Authoritative Dictionary Context");
   });
 });
 
@@ -324,8 +365,8 @@ describe("translate — dictionary context passthrough", () => {
     await translate(input, mockGenerate);
 
     const prompt = mockGenerate.mock.calls[0][0] as string;
-    expect(prompt).toContain("Dictionary Context (from Wiktionary):");
-    expect(prompt).toContain("Part of speech: phrase");
+    expect(prompt).toContain("Authoritative Dictionary Context (Wiktionary):");
+    expect(prompt).toContain("part of speech: phrase");
   });
 
   it("includes dictionaryContext in the output when provided", async () => {
@@ -395,7 +436,7 @@ describe("translate — dictionary context passthrough", () => {
 
     // Retry prompt should also include dictionary context
     const retryPrompt = mockGenerate.mock.calls[1][0] as string;
-    expect(retryPrompt).toContain("Dictionary Context");
+    expect(retryPrompt).toContain("Authoritative Dictionary Context");
 
     warnSpy.mockRestore();
     errorSpy.mockRestore();
@@ -459,7 +500,7 @@ describe("translateOne — dictionary context passthrough", () => {
     );
 
     const prompt = mockGenerate.mock.calls[0][0] as string;
-    expect(prompt).toContain("Dictionary Context (from Wiktionary):");
+    expect(prompt).toContain("Authoritative Dictionary Context (Wiktionary):");
   });
 });
 

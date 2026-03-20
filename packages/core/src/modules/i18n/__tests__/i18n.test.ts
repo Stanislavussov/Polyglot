@@ -165,15 +165,9 @@ describe("i18n — t()", () => {
     );
   });
 
-  it("returns phraseDetected with interpolation", () => {
-    expect(t("phraseDetected", "en", { phrase: "что ли" })).toBe(
-      "💬 Phrase detected: что ли",
-    );
-  });
-
-  it("returns idiomDetected with interpolation", () => {
-    expect(t("idiomDetected", "en", { idiom: "a little bird told me" })).toBe(
-      "🔮 Idiom detected: a little bird told me",
+  it("returns expressionDetected with interpolation", () => {
+    expect(t("expressionDetected", "en", { expression: "что ли" })).toBe(
+      "💬 Expression detected: что ли",
     );
   });
 
@@ -185,11 +179,8 @@ describe("i18n — t()", () => {
     expect(t("wiktionaryDefinition", "ru")).toBe("📖 Определение из Викисловаря");
     expect(t("wiktionarySource", "ru")).toBe("Источник: Викисловарь");
     expect(t("partOfSpeech", "ru", { pos: "фраза" })).toBe("Часть речи: фраза");
-    expect(t("phraseDetected", "ru", { phrase: "что ли" })).toBe(
-      "💬 Обнаружена фраза: что ли",
-    );
-    expect(t("idiomDetected", "ru", { idiom: "сорока на хвосте принесла" })).toBe(
-      "🔮 Обнаружена идиома: сорока на хвосте принесла",
+    expect(t("expressionDetected", "ru", { expression: "что ли" })).toBe(
+      "💬 Обнаружено выражение: что ли",
     );
     expect(t("dictionaryContext", "ru")).toBe("📚 Словарный контекст");
   });
@@ -198,8 +189,8 @@ describe("i18n — t()", () => {
     expect(t("wiktionaryDefinition", "cs")).toBe("📖 Definice z Wikislovníku");
     expect(t("wiktionarySource", "cs")).toBe("Zdroj: Wikislovník");
     expect(t("partOfSpeech", "cs", { pos: "fráze" })).toBe("Slovní druh: fráze");
-    expect(t("phraseDetected", "cs", { phrase: "jak se máte" })).toBe(
-      "💬 Detekována fráze: jak se máte",
+    expect(t("expressionDetected", "cs", { expression: "jak se máte" })).toBe(
+      "💬 Detekován výraz: jak se máte",
     );
     expect(t("dictionaryContext", "cs")).toBe("📚 Slovníkový kontext");
   });
@@ -316,8 +307,7 @@ describe("i18n — locale consistency", () => {
       "wiktionaryDefinition",
       "wiktionarySource",
       "partOfSpeech",
-      "phraseDetected",
-      "idiomDetected",
+      "expressionDetected",
       "dictionaryContext",
     ];
 

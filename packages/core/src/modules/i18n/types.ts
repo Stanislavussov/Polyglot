@@ -55,8 +55,7 @@ export type I18nKey =
   | "wiktionaryDefinition"
   | "wiktionarySource"
   | "partOfSpeech"
-  | "phraseDetected"
-  | "idiomDetected"
+  | "expressionDetected"
   | "dictionaryContext";
 
 /**
@@ -98,8 +97,7 @@ export interface I18nParams {
   regenerated: { lang: string };
   translateModeOn: { fromLang: string; toLangs: string };
   partOfSpeech: { pos: string };
-  phraseDetected: { phrase: string };
-  idiomDetected: { idiom: string };
+  expressionDetected: { expression: string };
 }
 
 /**

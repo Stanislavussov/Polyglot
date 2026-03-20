@@ -17,7 +17,7 @@ description: Internationalization of all bot texts. Provides typed t(key, lang, 
 
 ## Current State
 
-Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) in `language-names.ts` for Wiktionary integration and bot UI. Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 59 tests passing. Task 07 regeneration keys added. Task 09 translate mode keys added. Task 13 Wiktionary dictionary context keys (`wiktionaryDefinition`, `wiktionarySource`, `partOfSpeech`, `phraseDetected`, `idiomDetected`, `dictionaryContext`) and language name registry added.
+Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) in `language-names.ts` for Wiktionary integration and bot UI. Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 58 tests passing (39 i18n + 19 language names). Task 07 regeneration keys added. Task 09 translate mode keys added. Task 13 Wiktionary dictionary context keys (`wiktionaryDefinition`, `wiktionarySource`, `partOfSpeech`, `expressionDetected`, `dictionaryContext`) and language name registry added. `phraseDetected` and `idiomDetected` unified into `expressionDetected` with `{ expression: string }` params.
 
 ## Rules
 
@@ -66,7 +66,7 @@ type I18nKey =
   | "regenerateLang" | "regenerating" | "regenerated"
   | "translateModeOn" | "translateModeHint"
   | "wiktionaryDefinition" | "wiktionarySource" | "partOfSpeech"
-  | "phraseDetected" | "idiomDetected" | "dictionaryContext";
+  | "expressionDetected" | "dictionaryContext";
 
 // Supported languages
 type SupportedLang = "en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl";
@@ -88,8 +88,7 @@ interface I18nParams {
   regenerated: { lang: string };
   translateModeOn: { fromLang: string; toLangs: string };
   partOfSpeech: { pos: string };
-  phraseDetected: { phrase: string };
-  idiomDetected: { idiom: string };
+  expressionDetected: { expression: string };
 }
 
 // Deprecated alias for SupportedLang
@@ -110,7 +109,7 @@ packages/core/src/modules/i18n/
 │   ├── ru.json
 │   └── cs.json
 └── __tests__/
-    ├── i18n.test.ts          # 40 tests (t(), getSupportedLangs, isSupported, locale consistency)
+    ├── i18n.test.ts          # 39 tests (t(), getSupportedLangs, isSupported, locale consistency)
     └── language-names.test.ts # 19 tests (getLanguageName, getLanguageNativeName, getAllLanguageNames, isKnownLanguage)
 ```
 

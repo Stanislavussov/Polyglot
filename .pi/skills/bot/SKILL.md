@@ -26,7 +26,7 @@ Already implemented:
 - `commands/start.ts` — /start handler (onboarding or main menu)
 - `scenes/onboarding.scene.ts` — 4-step onboarding conversation
 - `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation
-- `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks, Wiktionary dictionary context lookup (fail-open)
+- `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks; uses `translateWithContext()` from context-enrichment layer (dictionary context lookup delegated to `createContextLookup()` from DB adapter)
 - `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, save, skip)
 - `renderers/translation.renderer.ts` — renderTranslation, renderTopicWord, buildTranslationKeyboard, renderDictionaryHint (Wiktionary context display)
 - `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with regen buttons)
@@ -67,9 +67,6 @@ function renderTopicWord(word: TopicWord): string;
 // Build inline keyboard with per-language regenerate buttons + save/skip
 function buildTranslationKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard;
 
-// Look up Wiktionary dictionary context for a word (fail-open)
-async function lookupDictContext(word: string, langCode: string): Promise<DictionaryContext | undefined>;
-
 // Scene: 4-step onboarding (implemented)
 async function onboarding(conversation, ctx): Promise<void>;
 
@@ -107,8 +104,8 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
 [Plain text message while in translate mode]
   ├─ Get user settings (interfaceLang, nativeLang, learningLangs)
   ├─ Show "Translating..." indicator
-  ├─ Look up Wiktionary dictionary context via wordContextRepository (fail-open)
-  ├─ Call translate() with generateObject + dictionaryContext from AI adapter
+  ├─ Call translateWithContext() with createContextLookup() + generateObject as deps
+  │   (context-enrichment layer handles dictionary lookup + fail-open internally)
   ├─ Render translation card (HTML format, includes dictionary hint if context found)
   ├─ Show inline keyboard: Save/Skip buttons
   └─ Store pendingTranslation in session for callback handling
@@ -170,12 +167,22 @@ Translation results use **HTML parse mode** for safe rendering of dynamic conten
 ### Wiktionary Dictionary Context (Task 13)
 
 When `TranslateOutput.dictionaryContext` is present, `renderTranslation()` appends a dictionary context hint section using `renderDictionaryHint()`. The hint shows:
-- **Phrase detection** (`💬 Phrase detected: {phrase}`) for `pos === "phrase"`
-- **Idiom detection** (`🔮 Idiom detected: {idiom}`) for `pos === "idiom"`
+- **Expression detection** (`💬 Expression detected: {expression}`) for `pos === "phrase"` or `pos === "idiom"` (unified handling — both use `expressionDetected` i18n key)
 - **Part of speech** (`Part of speech: {pos}`) for all other POS values
 - **Glosses** (first 3 English definitions from Wiktionary, joined by `;`)
 
-The `lookupDictContext()` helper in `translate-mode.helper.ts` queries `wordContextRepository.findByWordAndLangCode()` and maps the DB result to a `DictionaryContext`. It's fail-open: if the lookup fails or returns no results, translation proceeds without enrichment.
+Dictionary context lookup is handled by the **context-enrichment layer** (`translateWithContext()` from `@polyglot/core`). The bot passes `createContextLookup()` from `@polyglot/adapter-db` as a dependency — the enrichment layer handles fail-open lookup, transformation to `DictionaryContext`, and merging into the translation prompt. The bot never accesses `wordContextRepository` directly.
+
+### Translation Alternatives (Task 15)
+
+When `LanguageTranslation.alternatives` is present and non-empty, `renderLangBlock()` renders each alternative after the main translation header and before the CEFR line:
+```
+🔤 CS: <b>dům</b>
+   ∙ domov (neutral) — bydliště (neutral)
+   ∙ stavení (literary)
+CEFR: A1 · neutral
+```
+Each alternative shows its text, register, and optional synonyms inline. The `alternatives` field is optional — existing translations without it render unchanged.
 
 ### Idiomatic Equivalent Support (Task 10)
 
@@ -199,16 +206,16 @@ apps/bot/src/
 │   ├── onboarding.scene.ts     # ✅ implemented (conversation-based)
 │   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation)
 │   ├── helpers/
-│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (with dict context), handleSaveCallback, handleSkipCallback, lookupDictContext
-│   │   ├── translate-mode.helper.test.ts # 9 tests (dict context lookup + wiring)
+│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (uses translateWithContext), handleSaveCallback, handleSkipCallback
+│   │   ├── translate-mode.helper.test.ts # 4 tests (context enrichment wiring)
 │   │   ├── regen.helper.ts           # ✅ regeneration loop helper (for onboarding)
 │   │   └── regen.helper.test.ts      # 9 tests
 │   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 8 tests (mode system tests)
-    ├── translation.renderer.test.ts        # 42 tests
-    ├── dictionary-context-renderer.test.ts # 12 tests (dict context rendering)
+    ├── translation.renderer.test.ts        # 48 tests (includes 7 alternatives tests)
+    ├── dictionary-context-renderer.test.ts # 13 tests (dict context rendering, unified expression detection)
     └── onboarding.scene.test.ts            # 16 tests
 ```
 

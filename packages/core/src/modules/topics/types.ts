@@ -4,7 +4,7 @@
  * Defines the public API types for topic management,
  * built-in datasets, cache status, and dependency injection.
  */
-import type { TranslateOutput, DictionaryContext } from "../translation/types.js";
+import type { TranslateOutput } from "../translation/types.js";
 
 // ─────────────────────────────────────────────
 // Public types
@@ -27,6 +27,13 @@ export interface TopicWord {
 /** Whether a translation is literal or an idiomatic equivalent (mirrors translation module) */
 export type TopicExpressionType = "literal" | "idiomatic_equivalent";
 
+/** An alternative translation variant with its own register and synonyms (mirrors translation module) */
+export interface TopicTranslationVariant {
+  text: string;
+  register: string;
+  synonyms: Array<{ text: string; register: string }>;
+}
+
 /**
  * A single language translation entry stored in topics.
  * Mirrors the LanguageTranslation from the translation module
@@ -43,6 +50,8 @@ export interface LanguageTranslationEntry {
   expressionType?: TopicExpressionType;
   /** Short note in the source language explaining why an equivalent was chosen */
   equivalentNote?: string;
+  /** Up to 2 alternative translation variants, each with its own register and synonyms */
+  alternatives?: TopicTranslationVariant[];
 }
 
 /** A full topic with metadata and translated words */
@@ -103,20 +112,26 @@ export interface NewCachedTranslation {
  * Keeps core independent of adapters (db, ai).
  */
 export interface TopicDeps {
-  /** Batch translate words into target languages */
+  /**
+   * Batch translate words into target languages.
+   * Callers should inject a function that already includes context enrichment
+   * (e.g., wrapping translateBatchWithContext from the context-enrichment module).
+   */
   translateBatch: (
     words: string[],
     sourceLang: string,
     targetLangs: string[],
-    dictionaryContexts?: Map<string, DictionaryContext>,
   ) => Promise<TranslateOutput[]>;
 
-  /** Translate a single word for one target language (for partial regeneration) */
+  /**
+   * Translate a single word for one target language (for partial regeneration).
+   * Callers should inject a function that already includes context enrichment
+   * (e.g., wrapping translateOneWithContext from the context-enrichment module).
+   */
   translateOne?: (
     word: string,
     sourceLang: string,
     targetLang: string,
-    dictionaryContext?: DictionaryContext,
   ) => Promise<LanguageTranslationEntry>;
 
   /** Get a cached translation for a specific word+lang combo */
@@ -137,13 +152,4 @@ export interface TopicDeps {
     words: string[];
   }>;
 
-  /**
-   * Look up Wiktionary dictionary context for a word.
-   * Returns null if no context found.
-   * Injected from the database layer — core never calls DB directly.
-   */
-  lookupDictionaryContext?: (
-    word: string,
-    langCode: string,
-  ) => Promise<DictionaryContext | null>;
 }

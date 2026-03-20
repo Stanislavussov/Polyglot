@@ -17,9 +17,10 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 
 ## Current State
 
-Fully implemented. All tables, repositories, and singleton connection in place.
+Fully implemented. All tables, repositories, singleton connection, and context-lookup factory in place.
 - `schema.ts` — tables: `users`, `userLanguageSettings`, `words`, `translationRequests`, `topicTranslationCache`, `languages`, `wordContext`
-- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories and types
+- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories, types, and `createContextLookup`
+- `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded
 - `repositories/word.repository.ts` — create, findByUser, findById, search, delete (soft), updateContent (partial regeneration)
 - `repositories/topic.repository.ts` — getCached, setCached, markInvalid (topic translation caching)
@@ -85,6 +86,22 @@ countByLanguage(languageId: number): Promise<number>;
 findById(id: number): Promise<WordContext | null>;
 ```
 
+### Context Lookup Factory
+
+```typescript
+import type { ContextLookupFn } from "@polyglot/core";
+
+/** Creates a ContextLookupFn wrapping wordContextRepository.findByWordAndLangCode() + DB→DictionaryContext transform. Fail-open. */
+createContextLookup(): ContextLookupFn;
+```
+
+The returned function:
+1. Queries `word_context` table by word + language code
+2. Transforms the first result into `DictionaryContext` (`{ word, pos, glosses, formTags, langCode }`)
+3. Returns `undefined` if no results or on error (fail-open)
+
+This is the **single place** where DB → `DictionaryContext` transformation happens. All consumers use this factory via the context-enrichment layer instead of calling `wordContextRepository` directly for translation enrichment.
+
 ## Schema (current)
 
 See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key tables:
@@ -129,8 +146,9 @@ type NewWordContext = { word: string; languageId: number; pos: string; formTags?
 
 ```
 packages/adapters/db/src/
-├── index.ts                              # getDb(), closeDb(), re-exports
+├── index.ts                              # getDb(), closeDb(), re-exports (incl. createContextLookup)
 ├── schema.ts                             # Drizzle table definitions (users, userLanguageSettings, words, translationRequests, topicTranslationCache, languages, wordContext)
+├── context-lookup.ts                     # ✅ createContextLookup() factory — DB→DictionaryContext transform, fail-open
 ├── repositories/
 │   ├── user.repository.ts                # ✅ implemented
 │   ├── word.repository.ts                # ✅ implemented (+ updateContent for partial regen)
@@ -142,7 +160,8 @@ packages/adapters/db/src/
     ├── topic.repository.test.ts          # 4 tests
     ├── word.repository.test.ts           # 12 tests
     ├── language.repository.test.ts       # 7 tests (findByCode, create, getOrCreate, findAll)
-    └── word-context.repository.test.ts   # 13 tests (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
+    ├── word-context.repository.test.ts   # 13 tests (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
+    └── context-lookup.test.ts            # 9 tests (factory returns fn, transforms result, no results→undefined, error→undefined, null glosses/formTags, multiple entries, langCode from arg)
 ```
 
 ## Migration

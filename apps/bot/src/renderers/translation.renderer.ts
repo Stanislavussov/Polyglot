@@ -9,7 +9,6 @@ import type {
   TopicWord,
   LanguageTranslationEntry,
   SupportedLang,
-  DictionaryContext,
 } from "@polyglot/core";
 import { t, isSupported } from "@polyglot/core";
 
@@ -48,39 +47,14 @@ export function renderTranslation(
     lines.push("");
   }
 
-  if (output.dictionaryContext) {
-    lines.push(renderDictionaryHint(output.dictionaryContext, lang));
-    lines.push("");
-  }
+  // Dictionary context is NOT rendered to the user — it is only used
+  // to enrich the AI prompt via the context-enrichment layer.
 
   if (output.needsReview) {
     lines.push(esc(t("translationNeedsReview", lang)));
   }
 
   return lines.join("\n").trim();
-}
-
-/** Render a dictionary context hint section */
-export function renderDictionaryHint(
-  dc: DictionaryContext,
-  lang: SupportedLang,
-): string {
-  const lines: string[] = [];
-
-  if (dc.pos === "phrase") {
-    lines.push(esc(t("phraseDetected", lang, { phrase: dc.word })));
-  } else if (dc.pos === "idiom") {
-    lines.push(esc(t("idiomDetected", lang, { idiom: dc.word })));
-  } else {
-    lines.push(esc(t("partOfSpeech", lang, { pos: dc.pos })));
-  }
-
-  if (dc.glosses.length > 0) {
-    const glossText = dc.glosses.slice(0, 3).join("; ");
-    lines.push(`📖 ${esc(glossText)}`);
-  }
-
-  return lines.join("\n");
 }
 
 /** Render a single language translation block */
@@ -96,6 +70,14 @@ function renderLangBlock(
     : `<b>${esc(lt.text)}</b>`;
 
   lines.push(`🔤 ${esc(code.toUpperCase())}: ${header}`);
+
+  if (lt.alternatives && lt.alternatives.length > 0) {
+    for (const alt of lt.alternatives) {
+      const altSyns = alt.synonyms.map(s => `${esc(s.text)} (${esc(s.register)})`).join(", ");
+      lines.push(`   ∙ ${esc(alt.text)} (${esc(alt.register)})${altSyns ? ` — ${altSyns}` : ""}`);
+    }
+  }
+
   lines.push(
     `${esc(t("cefr", lang, { level: lt.cefr }))} · ${esc(lt.register)}`,
   );

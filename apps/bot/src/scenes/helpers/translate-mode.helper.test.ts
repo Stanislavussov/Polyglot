@@ -9,6 +9,10 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
 }));
 
+const { mockLookupContext } = vi.hoisted(() => ({
+  mockLookupContext: vi.fn(),
+}));
+
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: {
     getSettings: vi.fn(),
@@ -16,9 +20,7 @@ vi.mock("@polyglot/adapter-db", () => ({
   wordRepository: {
     create: vi.fn(),
   },
-  wordContextRepository: {
-    findByWordAndLangCode: vi.fn(),
-  },
+  createContextLookup: () => mockLookupContext,
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -27,7 +29,7 @@ vi.mock("@polyglot/core", async () => {
   );
   return {
     ...actual,
-    translate: vi.fn().mockResolvedValue({
+    translateWithContext: vi.fn().mockResolvedValue({
       original: "hello",
       sourceLang: "en",
       emoji: "👋",
@@ -50,10 +52,9 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { lookupDictContext, handleTranslateText } from "./translate-mode.helper.js";
-import { wordContextRepository } from "@polyglot/adapter-db";
+import { handleTranslateText } from "./translate-mode.helper.js";
 import { userRepository } from "@polyglot/adapter-db";
-import { translate } from "@polyglot/core";
+import { translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../types.js";
 
 function createMockCtx(overrides: Partial<{ nativeLang: string; learningLangs: string[] }> = {}): BotContext {
@@ -75,106 +76,7 @@ function createMockCtx(overrides: Partial<{ nativeLang: string; learningLangs: s
   } as unknown as BotContext;
 }
 
-describe("lookupDictContext", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("returns DictionaryContext when word is found", async () => {
-    vi.mocked(wordContextRepository.findByWordAndLangCode).mockResolvedValue([
-      {
-        id: 1,
-        word: "что ли",
-        languageId: 1,
-        pos: "phrase",
-        formTags: ["canonical"],
-        glosses: ["or something", "perhaps"],
-        createdAt: new Date(),
-      },
-    ]);
-
-    const result = await lookupDictContext("что ли", "ru");
-
-    expect(result).toEqual({
-      word: "что ли",
-      pos: "phrase",
-      glosses: ["or something", "perhaps"],
-      formTags: ["canonical"],
-      langCode: "ru",
-    });
-  });
-
-  it("returns undefined when no results found", async () => {
-    vi.mocked(wordContextRepository.findByWordAndLangCode).mockResolvedValue([]);
-
-    const result = await lookupDictContext("unknown", "en");
-
-    expect(result).toBeUndefined();
-  });
-
-  it("returns undefined when repository throws (fail-open)", async () => {
-    vi.mocked(wordContextRepository.findByWordAndLangCode).mockRejectedValue(
-      new Error("DB connection failed"),
-    );
-
-    const result = await lookupDictContext("hello", "en");
-
-    expect(result).toBeUndefined();
-  });
-
-  it("uses the first result when multiple entries found", async () => {
-    vi.mocked(wordContextRepository.findByWordAndLangCode).mockResolvedValue([
-      {
-        id: 1,
-        word: "bank",
-        languageId: 1,
-        pos: "noun",
-        formTags: ["canonical"],
-        glosses: ["financial institution"],
-        createdAt: new Date(),
-      },
-      {
-        id: 2,
-        word: "bank",
-        languageId: 1,
-        pos: "noun",
-        formTags: ["canonical"],
-        glosses: ["riverbank"],
-        createdAt: new Date(),
-      },
-    ]);
-
-    const result = await lookupDictContext("bank", "en");
-
-    expect(result?.glosses).toEqual(["financial institution"]);
-  });
-
-  it("handles null glosses and formTags gracefully", async () => {
-    vi.mocked(wordContextRepository.findByWordAndLangCode).mockResolvedValue([
-      {
-        id: 1,
-        word: "test",
-        languageId: 1,
-        pos: "noun",
-        formTags: null,
-        glosses: null,
-        createdAt: new Date(),
-      },
-    ]);
-
-    const result = await lookupDictContext("test", "en");
-
-    expect(result).toEqual({
-      word: "test",
-      pos: "noun",
-      glosses: [],
-      formTags: [],
-      langCode: "en",
-    });
-  });
-});
-
-describe("handleTranslateText — dictionary context wiring", () => {
+describe("handleTranslateText — context enrichment", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(userRepository.getSettings).mockResolvedValue({
@@ -184,79 +86,48 @@ describe("handleTranslateText — dictionary context wiring", () => {
     } as any);
   });
 
-  it("passes dictionaryContext to translate() when found", async () => {
-    vi.mocked(wordContextRepository.findByWordAndLangCode).mockResolvedValue([
-      {
-        id: 1,
-        word: "привет",
-        languageId: 1,
-        pos: "noun",
-        formTags: ["canonical"],
-        glosses: ["greeting", "hello"],
-        createdAt: new Date(),
-      },
-    ]);
-
+  it("calls translateWithContext with correct input and deps", async () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "привет");
 
-    expect(translate).toHaveBeenCalledWith(
+    expect(translateWithContext).toHaveBeenCalledWith(
       expect.objectContaining({
         word: "привет",
-        dictionaryContext: {
-          word: "привет",
-          pos: "noun",
-          glosses: ["greeting", "hello"],
-          formTags: ["canonical"],
-          langCode: "ru",
-        },
+        sourceLang: "ru",
+        targetLangs: ["cs", "de"],
       }),
-      expect.anything(),
-    );
-  });
-
-  it("passes undefined dictionaryContext when not found", async () => {
-    vi.mocked(wordContextRepository.findByWordAndLangCode).mockResolvedValue([]);
-
-    const ctx = createMockCtx();
-    await handleTranslateText(ctx, "unknown_word");
-
-    expect(translate).toHaveBeenCalledWith(
       expect.objectContaining({
-        word: "unknown_word",
-        dictionaryContext: undefined,
+        lookupContext: mockLookupContext,
+        generateObjectFn: expect.any(Function),
       }),
-      expect.anything(),
     );
   });
 
-  it("proceeds with translation when lookup fails", async () => {
-    vi.mocked(wordContextRepository.findByWordAndLangCode).mockRejectedValue(
-      new Error("DB error"),
-    );
-
+  it("passes lookupContext from createContextLookup to deps", async () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "hello");
 
-    // translate() should still be called
-    expect(translate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        word: "hello",
-        dictionaryContext: undefined,
-      }),
-      expect.anything(),
-    );
+    const depsArg = vi.mocked(translateWithContext).mock.calls[0]![1];
+    expect(depsArg.lookupContext).toBe(mockLookupContext);
   });
 
-  it("looks up word using the source language code", async () => {
-    vi.mocked(wordContextRepository.findByWordAndLangCode).mockResolvedValue([]);
-
+  it("does not include dictionaryContext in input (layer fills it)", async () => {
     const ctx = createMockCtx();
-    await handleTranslateText(ctx, "bonjour");
+    await handleTranslateText(ctx, "hello");
 
-    expect(wordContextRepository.findByWordAndLangCode).toHaveBeenCalledWith(
-      "bonjour",
-      "ru", // nativeLang from settings
+    const inputArg = vi.mocked(translateWithContext).mock.calls[0]![0];
+    expect("dictionaryContext" in inputArg).toBe(false);
+  });
+
+  it("includes userId in translateWithContext input", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "hello");
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 1,
+      }),
+      expect.anything(),
     );
   });
 });

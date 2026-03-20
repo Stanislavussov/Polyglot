@@ -19,7 +19,7 @@ description: Notification scheduling and delivery with cron, timezone-aware send
 
 - `logNotificationSent()` — structured logging stub using `logger` from `@polyglot/infra`.
 - `createNotificationService(deps)` — factory that returns `{ pickSuggestedWord }`. Uses topic service (via injected deps) to pick a random word from a random built-in topic, with **partial regeneration** support: if a cached topic word is missing a translation for one of the user's learning languages, calls `regenerateTopicWord` to fill the gap (one language at a time, not re-translating the entire word).
-- **Wiktionary dictionary context** — `pickSuggestedWord` optionally enriches suggested words with Wiktionary dictionary context (glosses, POS, formTags) via `lookupDictionaryContext` dep. Fail-open: if lookup fails, the word is returned without context. 12 tests cover happy path, no-context, fail-open errors, and backward compatibility.
+- After Task 15 (context-enrichment layer), dictionary context lookup was removed from `NotificationServiceDeps` — `lookupDictionaryContext` is gone. Dictionary context enrichment is now handled by the context-enrichment layer at the translation level.
 - Full scheduler (cron, sendFn injection) is not yet implemented.
 
 ## Rules
@@ -87,7 +87,7 @@ interface SuggestedWord {
   original: string;
   emoji: string;
   translations: Record<string, string>;  // lang -> translation text
-  dictionaryContext?: DictionaryContext;  // Wiktionary enrichment (optional)
+  dictionaryContext?: DictionaryContext;  // Wiktionary enrichment (optional, set by context-enrichment layer)
 }
 
 interface NotificationServiceDeps {
@@ -95,7 +95,8 @@ interface NotificationServiceDeps {
   regenerateTopicWord?: (topicId: string, original: string, sourceLang: string, targetLang: string) => Promise<LanguageTranslationEntry>;
   getBuiltinTopics: () => TopicMeta[];
   getUserSettings: (userId: number) => Promise<UserForNotification | null>;
-  lookupDictionaryContext?: (word: string, langCode: string) => Promise<DictionaryContext | null>;
+  // Note: lookupDictionaryContext was removed in Task 15.
+  // Dictionary context enrichment is now handled by the context-enrichment layer.
 }
 ```
 
@@ -106,13 +107,13 @@ packages/adapters/notifications/src/
 ├── index.ts                           # Exports: logNotificationSent, createNotificationService, types
 ├── index.test.ts                      # Vitest tests for logNotificationSent (4 tests)
 ├── types.ts                           # SendFn, NotificationPayload, SuggestedWord, NotificationServiceDeps
-├── notification.service.ts            # createNotificationService factory → pickSuggestedWord (with partial regen + dictionary context)
+├── notification.service.ts            # createNotificationService factory → pickSuggestedWord (with partial regen)
 ├── notification.service.test.ts       # 18 Vitest tests for pickSuggestedWord
-├── dictionary-context.test.ts         # 12 Vitest tests for Wiktionary dictionary context integration
+├── dictionary-context.test.ts         # 4 Vitest tests verifying post-context-enrichment refactor (no lookupDictionaryContext)
 ├── scheduler.ts                       # (planned) node-cron setup, checkAndSend logic
 ```
 
-## Data Flow: Dictionary Context in Notifications
+## Data Flow: Word Suggestion in Notifications
 
 ```
 pickSuggestedWord(userId)
@@ -121,8 +122,8 @@ pickSuggestedWord(userId)
   → getTopicWords(topicId, ...)     // cache-first topic words
   → [for each learning lang]
       translations[lang] = existing || regenerateTopicWord(...)
-  → lookupDictionaryContext(word, nativeLang)  // Wiktionary enrichment (fail-open)
-  → return { original, emoji, translations, dictionaryContext? }
+  → return { original, emoji, translations }
+  // Note: dictionary context enrichment is handled upstream by context-enrichment layer
 ```
 
 ## Reference

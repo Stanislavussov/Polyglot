@@ -19,6 +19,7 @@ export {
   languageTranslationSchema,
   synonymSchema,
   exampleSchema,
+  translationVariantSchema,
 } from "./schemas/translation.schema.js";
 export type {
   TranslationRequestInput,
@@ -26,6 +27,7 @@ export type {
   LanguageTranslationInput,
   SynonymInput,
   TranslationExampleInput,
+  TranslationVariantInput,
 } from "./schemas/translation.schema.js";
 
 // Types
@@ -35,6 +37,7 @@ export type {
   TranslateInput,
   TranslateOutput,
   LanguageTranslation,
+  TranslationVariant,
   Synonym,
   Example,
   Register,
