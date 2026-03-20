@@ -56,7 +56,8 @@ export type I18nKey =
   | "wiktionarySource"
   | "partOfSpeech"
   | "expressionDetected"
-  | "dictionaryContext";
+  | "dictionaryContext"
+  | "detectedLang";
 
 /**
  * Supported interface languages.
@@ -98,6 +99,7 @@ export interface I18nParams {
   translateModeOn: { fromLang: string; toLangs: string };
   partOfSpeech: { pos: string };
   expressionDetected: { expression: string };
+  detectedLang: { lang: string };
 }
 
 /**

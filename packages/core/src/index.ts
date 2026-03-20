@@ -39,6 +39,7 @@ export type {
 } from "./modules/validation/index.js";
 
 export * from "./modules/i18n/index.js";
+export * from "./modules/language-detect/index.js";
 
 // Shared
 export * from "./shared/errors.js";

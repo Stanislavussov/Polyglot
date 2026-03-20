@@ -52,5 +52,6 @@
   "wiktionarySource": "Zdroj: Wikislovník",
   "partOfSpeech": "Slovní druh: {pos}",
   "expressionDetected": "💬 Detekován výraz: {expression}",
-  "dictionaryContext": "📚 Slovníkový kontext"
+  "dictionaryContext": "📚 Slovníkový kontext",
+  "detectedLang": "🔍 Rozpoznáno: {lang}"
 }

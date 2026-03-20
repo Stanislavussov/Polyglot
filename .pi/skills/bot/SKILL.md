@@ -35,6 +35,15 @@ Still needed:
 - `scenes/dictionary.scene.ts` — dictionary browsing
 - `scenes/settings.scene.ts` — user settings
 
+### Auto-Detect Input Language (Task 16)
+
+The translate-mode helper now uses `resolveTranslationDirection()` from `@polyglot/core` to automatically detect the input language and adjust the translation direction:
+- Input in native language → translates to all learning languages (unchanged behavior)
+- Input in a learning language → translates to native + remaining learning languages (reversed direction)
+- Ambiguous/unknown input → falls back to native→learning (safe default)
+
+When the detected language differs from the native language (reversed direction), a `🔍 Detected: {lang}` indicator is prepended to the translation card using `getLanguageName()` for localized display names and the `detectedLang` i18n key.
+
 ## Rules
 
 1. Never contains business logic — only calls to other agents
@@ -103,10 +112,13 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
 
 [Plain text message while in translate mode]
   ├─ Get user settings (interfaceLang, nativeLang, learningLangs)
+  ├─ Auto-detect input language via resolveTranslationDirection()
+  │   (determines sourceLang/targetLangs based on detected language)
   ├─ Show "Translating..." indicator
-  ├─ Call translateWithContext() with createContextLookup() + generateObject as deps
+  ├─ Call translateWithContext() with resolved direction + createContextLookup() + generateObject
   │   (context-enrichment layer handles dictionary lookup + fail-open internally)
   ├─ Render translation card (HTML format, includes dictionary hint if context found)
+  ├─ Prepend "🔍 Detected: {lang}" when direction is reversed (detected ≠ native)
   ├─ Show inline keyboard: Save/Skip buttons
   └─ Store pendingTranslation in session for callback handling
 
@@ -206,8 +218,10 @@ apps/bot/src/
 │   ├── onboarding.scene.ts     # ✅ implemented (conversation-based)
 │   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation)
 │   ├── helpers/
-│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (uses translateWithContext), handleSaveCallback, handleSkipCallback
+│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (uses translateWithContext + resolveTranslationDirection), handleSaveCallback, handleSkipCallback
 │   │   ├── translate-mode.helper.test.ts # 4 tests (context enrichment wiring)
+│   │   ├── __tests__/
+│   │   │   └── translate-mode-detection.test.ts # 8 tests (auto-detect language direction)
 │   │   ├── regen.helper.ts           # ✅ regeneration loop helper (for onboarding)
 │   │   └── regen.helper.test.ts      # 9 tests
 │   ├── dictionary.scene.ts     # ❌ to be created

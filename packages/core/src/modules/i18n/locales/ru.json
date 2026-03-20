@@ -52,5 +52,6 @@
   "wiktionarySource": "Источник: Викисловарь",
   "partOfSpeech": "Часть речи: {pos}",
   "expressionDetected": "💬 Обнаружено выражение: {expression}",
-  "dictionaryContext": "📚 Словарный контекст"
+  "dictionaryContext": "📚 Словарный контекст",
+  "detectedLang": "🔍 Определён: {lang}"
 }

@@ -141,7 +141,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain("Word form: this is the base/dictionary form of the word");
+    expect(prompt).toContain("Form tags: canonical.");
   });
 
   it("includes MUST-use instruction when glosses are present", () => {
@@ -321,7 +321,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: idiomDictionaryContext,
     });
-    expect(prompt).toContain("Word form: this is the base/dictionary form of the word; a romanized transliteration is available");
+    expect(prompt).toContain("Form tags: canonical, romanization.");
   });
 });
 

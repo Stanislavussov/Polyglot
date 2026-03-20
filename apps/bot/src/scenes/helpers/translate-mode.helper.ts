@@ -6,7 +6,9 @@ import { generateObject } from "@polyglot/adapter-ai";
 import { userRepository, wordRepository, createContextLookup } from "@polyglot/adapter-db";
 import {
   translateWithContext,
+  resolveTranslationDirection,
   t,
+  getLanguageName,
   isSupported,
   type SupportedLang,
 } from "@polyglot/core";
@@ -42,6 +44,18 @@ export async function handleTranslateText(
     return;
   }
 
+  // Auto-detect input language and resolve translation direction
+  const { sourceLang, targetLangs, detectedLang } = resolveTranslationDirection({
+    text: word,
+    nativeLang,
+    learningLangs,
+  });
+
+  logger.debug(
+    { word, detectedLang, sourceLang, targetLangs },
+    "Resolved translation direction",
+  );
+
   // Show loading message
   const loadingMsg = await ctx.reply(t("translating", lang));
 
@@ -51,8 +65,8 @@ export async function handleTranslateText(
     const output = await translateWithContext(
       {
         word,
-        sourceLang: nativeLang,
-        targetLangs: learningLangs,
+        sourceLang,
+        targetLangs,
         model: config.AI_MODEL,
         userId: ctx.user.id,
       },
@@ -67,7 +81,14 @@ export async function handleTranslateText(
 
     // Render and send translation card
     const langCodes = Object.keys(output.translations);
-    const card = renderTranslation(output, lang);
+    let card = renderTranslation(output, lang);
+
+    // Show detected language when it differs from native (i.e., reversed direction)
+    if (detectedLang && detectedLang !== nativeLang) {
+      const displayName = getLanguageName(detectedLang, lang);
+      card = t("detectedLang", lang, { lang: displayName }) + "\n" + card;
+    }
+
     const keyboard = buildTranslationKeyboard(langCodes, lang);
     const cardMsg = await ctx.reply(card, {
       reply_markup: keyboard,

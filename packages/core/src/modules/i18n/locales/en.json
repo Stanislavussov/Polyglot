@@ -52,5 +52,6 @@
   "wiktionarySource": "Source: Wiktionary",
   "partOfSpeech": "Part of speech: {pos}",
   "expressionDetected": "💬 Expression detected: {expression}",
-  "dictionaryContext": "📚 Dictionary context"
+  "dictionaryContext": "📚 Dictionary context",
+  "detectedLang": "🔍 Detected: {lang}"
 }

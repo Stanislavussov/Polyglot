@@ -20,6 +20,10 @@ description: Topic management with built-in datasets, cache-first translation, a
 
 Fully implemented with partial regeneration, idiomatic equivalent passthrough, and translation alternatives support. After Task 15 (context-enrichment layer), dictionary context lookup was removed from `TopicDeps` — the `lookupDictionaryContext` dep and internal `lookupContextsBatch` helper are gone. Callers should now inject context-enriched `translateBatch`/`translateOne` functions (e.g., wrapping `translateBatchWithContext`/`translateOneWithContext` from the context-enrichment module). The `LanguageTranslationEntry` type includes optional `expressionType`, `equivalentNote`, and `alternatives` fields. The `TopicTranslationVariant` type mirrors the translation module's `TranslationVariant` for decoupled alternative translation storage. All public API functions working with 65 tests passing.
 
+### Task 16 Compatibility (Auto-Detect Input Language)
+
+No changes needed. Topics always translate from a dataset-defined source language (`sourceLang` parameter), not from user free-form input. Auto-detection applies only to the bot layer's translate-mode helper where users type arbitrary text. The topics module is direction-agnostic — it accepts whatever `sourceLang`/`targetLangs` the caller provides.
+
 ## Rules
 
 1. Always checks cache before calling the `translation` agent

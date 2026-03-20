@@ -187,7 +187,8 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 
 ## Current State
 
-- 4 active validators + 1 no-op + 4 Wiktionary validators (126 tests total across 7 test files)
+- 4 active validators + 1 no-op + 4 Wiktionary validators (126 tests total across 7 test files in validation module)
+- **Task 16**: New `language-detect` module (`packages/core/src/modules/language-detect/`) with `detectLanguage()` (franc + script heuristics) and `resolveTranslationDirection()` (direction logic). 33 tests across 2 test files. `franc` added as dependency to `@polyglot/core`. Types `ResolveDirectionInput`, `TranslationDirection` exported.
 - `validateLanguage()` is a no-op — `franc-min` removed due to unreliable trigram detection on short texts. Language correctness ensured by AI prompt + Zod schema + semantic validation.
 - `validate()` orchestrator supports single-language validation for partial regeneration (Task 07)
 - `validateExamples()` accepts optional `expressionType` parameter (Task 10)
@@ -196,6 +197,45 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 - 8 idiomatic tests in `example.validator.idiomatic.test.ts` + 5 orchestrator idiomatic tests in `validate.test.ts`
 - **Task 13**: 4 new Wiktionary validators (`validateWiktionaryEntry`, `validateWordContext`, `validateGlosses`, `validatePos`) with 58 tests. `KNOWN_POS` constant exported for POS filtering. Types `WiktionaryEntryInput`, `WordContextInput`, `KnownPos` exported.
 - `validate()` orchestrator validates `alternatives[].text` semantically — catches hallucinations and identity translations in alternative variants (6 tests in `validate.test.ts`)
+
+## Language Detection Module (Task 16)
+
+Separate module at `packages/core/src/modules/language-detect/` — pure functions, no I/O.
+
+### Public API
+
+```typescript
+// Detect input language from a set of candidates using franc + script heuristics
+function detectLanguage(text: string, candidates: string[]): string | undefined;
+
+// Resolve translation direction based on detected language
+function resolveTranslationDirection(input: ResolveDirectionInput): TranslationDirection;
+
+interface ResolveDirectionInput {
+  text: string;         // User's input text
+  nativeLang: string;   // ISO 639-1
+  learningLangs: string[]; // ISO 639-1
+}
+
+interface TranslationDirection {
+  sourceLang: string;        // ISO 639-1
+  targetLangs: string[];     // ISO 639-1
+  detectedLang: string | undefined; // ISO 639-1 or undefined
+}
+```
+
+### File Structure
+
+```
+packages/core/src/modules/language-detect/
+├── index.ts                    # Re-exports
+├── detect-language.ts          # detectLanguage() — franc + script heuristics
+├── resolve-direction.ts        # resolveTranslationDirection() — direction logic
+├── types.ts                    # ResolveDirectionInput, TranslationDirection
+└── __tests__/
+    ├── detect-language.test.ts   # 22 tests
+    └── resolve-direction.test.ts # 11 tests
+```
 
 ## Reference
 
@@ -207,3 +247,4 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 - Task: `docs/tasks/07-partial-regeneration.md` (single-language validation coverage)
 - Task: `docs/tasks/10-idiomatic-equivalents.md` (idiomatic equivalent validation relaxation)
 - Task: `docs/tasks/13-wiktionary-jsonl.md` (Wiktionary data integrity validation)
+- Task: `docs/tasks/16-auto-detect-input-language.md` (language detection + direction resolver)

@@ -199,6 +199,31 @@ describe("i18n — t()", () => {
     expect(t("wiktionaryDefinition", "de")).toBe("📖 Wiktionary definition");
     expect(t("dictionaryContext", "de")).toBe("📚 Dictionary context");
   });
+
+  // Detected language key (task 16)
+  it("returns detectedLang with {lang} interpolation in English", () => {
+    expect(t("detectedLang", "en", { lang: "English" })).toBe(
+      "🔍 Detected: English",
+    );
+  });
+
+  it("returns detectedLang with {lang} interpolation in Russian", () => {
+    expect(t("detectedLang", "ru", { lang: "Английский" })).toBe(
+      "🔍 Определён: Английский",
+    );
+  });
+
+  it("returns detectedLang with {lang} interpolation in Czech", () => {
+    expect(t("detectedLang", "cs", { lang: "Angličtina" })).toBe(
+      "🔍 Rozpoznáno: Angličtina",
+    );
+  });
+
+  it("falls back to English for detectedLang when locale has no file", () => {
+    expect(t("detectedLang", "de", { lang: "Englisch" })).toBe(
+      "🔍 Detected: Englisch",
+    );
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -309,6 +334,7 @@ describe("i18n — locale consistency", () => {
       "partOfSpeech",
       "expressionDetected",
       "dictionaryContext",
+      "detectedLang",
     ];
 
     for (const key of enKeys) {
