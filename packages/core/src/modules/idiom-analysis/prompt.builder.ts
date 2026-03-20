@@ -1,14 +1,19 @@
 import type { IdiomAnalysisInput } from './types.js';
+import { getLanguageName } from '../i18n/language-names.js';
 
 /**
- * Builds a prompt for AI to analyze translation quality for idiomatic correctness
+ * Builds a prompt for AI to analyze translation quality for idiomatic correctness.
+ *
+ * Accepts ISO 639-1 codes (e.g. "en", "cs") and converts to full English names
+ * for the AI prompt (e.g. "English", "Czech").
  */
 export function buildIdiomAnalysisPrompt(input: IdiomAnalysisInput): string {
   // Escape quotes in input to prevent prompt injection
   const sourcePhrase = input.sourcePhrase.replace(/"/g, '\\"');
   const translatedPhrase = input.translatedPhrase.replace(/"/g, '\\"');
-  const sourceLang = input.sourceLang.replace(/"/g, '\\"');
-  const targetLang = input.targetLang.replace(/"/g, '\\"');
+  // Convert ISO 639-1 codes to full names for the AI prompt
+  const sourceLang = getLanguageName(input.sourceLang).replace(/"/g, '\\"');
+  const targetLang = getLanguageName(input.targetLang).replace(/"/g, '\\"');
 
   return `You are a linguistic expert analyzing translation quality between languages.
 

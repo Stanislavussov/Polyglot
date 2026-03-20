@@ -6,6 +6,7 @@
  * CEFR level, transcription, synonyms, and example sentences.
  */
 import type { TranslationRequest, DictionaryContext } from "./types.js";
+import { getLanguageName } from "../i18n/language-names.js";
 
 /**
  * Builds the primary translation prompt.
@@ -24,9 +25,10 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
     ? buildDictionaryHint(dictionaryContext)
     : "";
 
-  const targetLangsList = targetLangs.join(", ");
+  const sourceLangName = getLanguageName(sourceLang);
+  const targetLangNames = targetLangs.map((l) => getLanguageName(l)).join(", ");
 
-  return `Translate "${text}" from ${sourceLang} to ${targetLangsList}.${dictionaryHint}${topicHint}
+  return `Translate "${text}" from ${sourceLangName} to ${targetLangNames}.${dictionaryHint}${topicHint}
 
 Return ONLY valid JSON, no markdown, no explanation, no code fences.
 The JSON must have this exact structure:
@@ -37,7 +39,7 @@ The JSON must have this exact structure:
 ${targetLangs
   .map(
     (lang) => `    "${lang}": {
-      "text": "<translation in ${lang}>",
+      "text": "<translation in ${getLanguageName(lang)}>",
       "cefr": "<CEFR level: A1 | A2 | B1 | B2 | C1 | C2>",
       "transcription": "<IPA transcription if applicable, otherwise omit>",
       "register": "<register: slang | colloquial | neutral | literary | professional>",
@@ -51,9 +53,9 @@ ${targetLangs
         { "text": "<alternative translation 2>", "register": "<register>", "synonyms": [{ "text": "<syn>", "register": "<reg>" }] }
       ],
       "examples": [
-        { "context": "formal", "target": "<formal example sentence in ${lang}>", "native": "<same sentence in ${sourceLang}>" },
-        { "context": "colloquial", "target": "<casual example sentence in ${lang}>", "native": "<same sentence in ${sourceLang}>" },
-        { "context": "professional", "target": "<professional example sentence in ${lang}>", "native": "<same sentence in ${sourceLang}>" }
+        { "context": "formal", "target": "<formal example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" },
+        { "context": "colloquial", "target": "<casual example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" },
+        { "context": "professional", "target": "<professional example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" }
       ]
     }`,
   )
@@ -128,7 +130,7 @@ function buildDictionaryHint(ctx: DictionaryContext): string {
   const lines: string[] = [
     "",
     "IMPORTANT — Authoritative Dictionary Context (Wiktionary):",
-    `Word: "${ctx.word}" (${ctx.langCode}), part of speech: ${ctx.pos}.`,
+    `Word: "${ctx.word}" (${getLanguageName(ctx.langCode)}), part of speech: ${ctx.pos}.`,
   ];
 
   if (ctx.glosses.length > 0) {

@@ -110,13 +110,13 @@ describe("buildTranslationPrompt — dictionary context", () => {
     expect(prompt).toContain("Authoritative Dictionary Context (Wiktionary):");
   });
 
-  it("includes the word and language code", () => {
+  it("includes the word and language name", () => {
     const prompt = buildTranslationPrompt({
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
     expect(prompt).toContain('"что ли"');
-    expect(prompt).toContain("(ru)");
+    expect(prompt).toContain("(Russian)");
   });
 
   it("includes part of speech", () => {

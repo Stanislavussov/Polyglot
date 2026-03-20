@@ -1,49 +1,5 @@
 import { franc } from "franc";
-
-/**
- * Mapping from ISO 639-1 (2-letter) to ISO 639-3 (3-letter) codes.
- * franc uses ISO 639-3 internally.
- */
-const ISO1_TO_ISO3: Record<string, string> = {
-  en: "eng",
-  cs: "ces",
-  ru: "rus",
-  uk: "ukr",
-  de: "deu",
-  fr: "fra",
-  es: "spa",
-  it: "ita",
-  pt: "por",
-  pl: "pol",
-  nl: "nld",
-  sv: "swe",
-  da: "dan",
-  no: "nob",
-  fi: "fin",
-  ja: "jpn",
-  zh: "cmn",
-  ko: "kor",
-  ar: "arb",
-  hi: "hin",
-  tr: "tur",
-  el: "ell",
-  hu: "hun",
-  ro: "ron",
-  bg: "bul",
-  hr: "hrv",
-  sk: "slk",
-  sl: "slv",
-  sr: "srp",
-  lt: "lit",
-  lv: "lav",
-  et: "est",
-};
-
-/** Inverse mapping: ISO 639-3 → ISO 639-1 */
-const ISO3_TO_ISO1: Record<string, string> = {};
-for (const [iso1, iso3] of Object.entries(ISO1_TO_ISO3)) {
-  ISO3_TO_ISO1[iso3] = iso1;
-}
+import { ISO1_TO_ISO3, ISO3_TO_ISO1 } from "../i18n/language-codes.js";
 
 /**
  * Unicode script ranges for heuristic detection of short texts.

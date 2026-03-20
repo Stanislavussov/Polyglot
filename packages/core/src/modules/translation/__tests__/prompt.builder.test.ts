@@ -17,14 +17,14 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain('"hello"');
   });
 
-  it("includes the source language", () => {
+  it("includes the source language as full name", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("from en");
+    expect(prompt).toContain("from English");
   });
 
-  it("includes all target languages", () => {
+  it("includes all target languages as full names", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("to cs, de");
+    expect(prompt).toContain("to Czech, German");
   });
 
   it("includes JSON structure template for each target language", () => {
@@ -97,7 +97,7 @@ describe("buildTranslationPrompt", () => {
       sourceLang: "en",
       targetLangs: ["cs", "de", "fr", "es"],
     });
-    expect(prompt).toContain("to cs, de, fr, es");
+    expect(prompt).toContain("to Czech, German, French, Spanish");
     expect(prompt).toContain('"cs"');
     expect(prompt).toContain('"de"');
     expect(prompt).toContain('"fr"');
@@ -113,9 +113,9 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("second alternative translation or a different synonym");
   });
 
-  it("requests native sentence in source language", () => {
+  it("requests native sentence in source language (full name)", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain(`in en`);
+    expect(prompt).toContain("in English");
   });
 
   it("includes alternatives structure in JSON template", () => {
@@ -143,8 +143,8 @@ describe("buildStrictPrompt", () => {
   it("includes the base prompt", () => {
     const prompt = buildStrictPrompt(baseRequest, ["some error"]);
     expect(prompt).toContain('"hello"');
-    expect(prompt).toContain("from en");
-    expect(prompt).toContain("to cs");
+    expect(prompt).toContain("from English");
+    expect(prompt).toContain("to Czech");
   });
 
   it("includes error feedback", () => {

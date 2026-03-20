@@ -17,8 +17,10 @@ export type SourceExpressionType =
 /** Input for idiom analysis */
 export interface IdiomAnalysisInput {
   sourcePhrase: string;
+  /** Source language — ISO 639-1 code (e.g. "en", "ru") */
   sourceLang: string;
   translatedPhrase: string;
+  /** Target language — ISO 639-1 code (e.g. "cs", "de") */
   targetLang: string;
 }
 

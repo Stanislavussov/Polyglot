@@ -6,9 +6,9 @@ import type { IdiomAnalysisResult, GenerateObjectFn } from '../types.js';
 describe('analyzeIdiom', () => {
   const mockInput: AnalyzeInput = {
     sourcePhrase: 'Break a leg',
-    sourceLang: 'English',
+    sourceLang: 'en',
     translatedPhrase: 'Zlom si nohu',
-    targetLang: 'Czech',
+    targetLang: 'cs',
     model: 'test-model',
   };
 
@@ -73,16 +73,16 @@ describe('analyzeIdiomBatch', () => {
   const inputs: AnalyzeInput[] = [
     {
       sourcePhrase: 'Break a leg',
-      sourceLang: 'English',
+      sourceLang: 'en',
       translatedPhrase: 'Zlom si nohu',
-      targetLang: 'Czech',
+      targetLang: 'cs',
       model: 'test-model',
     },
     {
       sourcePhrase: 'Piece of cake',
-      sourceLang: 'English',
+      sourceLang: 'en',
       translatedPhrase: 'Hračka',
-      targetLang: 'Czech',
+      targetLang: 'cs',
       model: 'test-model',
     },
   ];
@@ -150,9 +150,9 @@ describe('analyzeIdiomBatch', () => {
 describe('needsIdiomReview', () => {
   const mockInput: AnalyzeInput = {
     sourcePhrase: 'Break a leg',
-    sourceLang: 'English',
+    sourceLang: 'en',
     translatedPhrase: 'Zlom si nohu',
-    targetLang: 'Czech',
+    targetLang: 'cs',
     model: 'test-model',
   };
 

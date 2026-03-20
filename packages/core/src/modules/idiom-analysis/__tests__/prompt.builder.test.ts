@@ -5,9 +5,9 @@ import type { IdiomAnalysisInput } from '../types.js';
 describe('buildIdiomAnalysisPrompt', () => {
   const sampleInput: IdiomAnalysisInput = {
     sourcePhrase: 'Break a leg',
-    sourceLang: 'English',
+    sourceLang: 'en',
     translatedPhrase: 'Zlom si nohu',
-    targetLang: 'Czech',
+    targetLang: 'cs',
   };
 
   it('includes source phrase and language', () => {
@@ -40,25 +40,25 @@ describe('buildIdiomAnalysisPrompt', () => {
   it('escapes quotes in source phrase', () => {
     const inputWithQuotes: IdiomAnalysisInput = {
       sourcePhrase: 'He said "hello"',
-      sourceLang: 'English',
+      sourceLang: 'en',
       translatedPhrase: 'Řekl "ahoj"',
-      targetLang: 'Czech',
+      targetLang: 'cs',
     };
     const prompt = buildIdiomAnalysisPrompt(inputWithQuotes);
     expect(prompt).toContain('He said \\"hello\\"');
     expect(prompt).toContain('Řekl \\"ahoj\\"');
   });
 
-  it('escapes quotes in language names', () => {
-    const inputWithQuotes: IdiomAnalysisInput = {
+  it('converts ISO codes to full language names', () => {
+    const input: IdiomAnalysisInput = {
       sourcePhrase: 'Test',
-      sourceLang: '"Formal" English',
+      sourceLang: 'de',
       translatedPhrase: 'Test',
-      targetLang: '"Standard" Czech',
+      targetLang: 'fr',
     };
-    const prompt = buildIdiomAnalysisPrompt(inputWithQuotes);
-    expect(prompt).toContain('\\"Formal\\" English');
-    expect(prompt).toContain('\\"Standard\\" Czech');
+    const prompt = buildIdiomAnalysisPrompt(input);
+    expect(prompt).toContain('Source language: German');
+    expect(prompt).toContain('Target language: French');
   });
 
   it('contains important rules section', () => {
