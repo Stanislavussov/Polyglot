@@ -17,3 +17,4 @@
 | 13  | [Wiktionary JSONL Integration](./13-wiktionary-jsonl.md) | ✅ Done  |
 | 14  | [Refactor Language Usage to `languages` Table](./14-language-table-refactor.md) | 🔲 To Do  |
 | 15  | [Context Enrichment Layer (Pre-AI Dictionary Lookup)](./15-context-enrichment-layer.md) | ✅ Done   |
+| 16  | [Auto-Detect Input Language & Smart Translation Direction](./16-auto-detect-input-language.md) | 🔲 To Do  |
