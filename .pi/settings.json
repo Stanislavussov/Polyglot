@@ -18,7 +18,7 @@
         "role": "Takes a high-level goal or problem statement and breaks it down into a clear, actionable task list for the development team. Each task should have specific acceptance criteria and be small enough to be completed in a few hours. Does NOT modify any files.",
         "rules": "Break down goals into tasks that are actionable and testable.\nEach task should have clear acceptance criteria — what does 'done' look like?\nTasks should be small and focused — ideally completable in a few hours.\nUse the project structure and existing codebase to inform task creation.\nRead-only — never modify, create, or delete files.",
         "model": "anthropic/claude-sonnet-4-6",
-        "enabledTools": ["read", "bash"]
+        "enabledTools": ["read", "bash", "write"]
       },
       {
         "name": "i18n",
