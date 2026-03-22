@@ -189,6 +189,7 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 
 - 4 active validators + 1 no-op + 4 Wiktionary validators (126 tests total across 7 test files in validation module)
 - **Task 16**: New `language-detect` module (`packages/core/src/modules/language-detect/`) with `detectLanguage()` (franc + script heuristics) and `resolveTranslationDirection()` (direction logic). 33 tests across 2 test files. `franc` added as dependency to `@polyglot/core`. Types `ResolveDirectionInput`, `TranslationDirection` exported.
+- **Task 17**: New `resolveDirectionFromSource()` in language-detect module — resolves translation direction from an explicit source language (no detection). Returns `null` if source lang is not in user's config (stale selection validation). 15 tests. Type `ResolveFromSourceInput` exported.
 - `validateLanguage()` is a no-op — `franc-min` removed due to unreliable trigram detection on short texts. Language correctness ensured by AI prompt + Zod schema + semantic validation.
 - `validate()` orchestrator supports single-language validation for partial regeneration (Task 07)
 - `validateExamples()` accepts optional `expressionType` parameter (Task 10)
@@ -211,9 +212,20 @@ function detectLanguage(text: string, candidates: string[]): string | undefined;
 // Resolve translation direction based on detected language
 function resolveTranslationDirection(input: ResolveDirectionInput): TranslationDirection;
 
+// Resolve translation direction from an explicit source language (no detection).
+// Used when user manually selects source language via inline keyboard (Task 17).
+// Returns null if sourceLang is not in user's config (stale selection).
+function resolveDirectionFromSource(input: ResolveFromSourceInput): TranslationDirection | null;
+
 interface ResolveDirectionInput {
   text: string;         // User's input text
   nativeLang: string;   // ISO 639-1
+  learningLangs: string[]; // ISO 639-1
+}
+
+interface ResolveFromSourceInput {
+  sourceLang: string;      // Explicit source language (ISO 639-1)
+  nativeLang: string;      // ISO 639-1
   learningLangs: string[]; // ISO 639-1
 }
 
@@ -230,11 +242,12 @@ interface TranslationDirection {
 packages/core/src/modules/language-detect/
 ├── index.ts                    # Re-exports
 ├── detect-language.ts          # detectLanguage() — franc + script heuristics
-├── resolve-direction.ts        # resolveTranslationDirection() — direction logic
-├── types.ts                    # ResolveDirectionInput, TranslationDirection
+├── resolve-direction.ts        # resolveTranslationDirection() + resolveDirectionFromSource() — direction logic
+├── types.ts                    # ResolveDirectionInput, ResolveFromSourceInput, TranslationDirection
 └── __tests__/
-    ├── detect-language.test.ts   # 22 tests
-    └── resolve-direction.test.ts # 11 tests
+    ├── detect-language.test.ts                # 22 tests
+    ├── resolve-direction.test.ts              # 11 tests
+    └── resolve-direction-from-source.test.ts  # 15 tests (Task 17)
 ```
 
 ## Reference
@@ -248,3 +261,4 @@ packages/core/src/modules/language-detect/
 - Task: `docs/tasks/10-idiomatic-equivalents.md` (idiomatic equivalent validation relaxation)
 - Task: `docs/tasks/13-wiktionary-jsonl.md` (Wiktionary data integrity validation)
 - Task: `docs/tasks/16-auto-detect-input-language.md` (language detection + direction resolver)
+- Task: `docs/tasks/17-next-translation-language-menu.md` (explicit source lang direction resolver)

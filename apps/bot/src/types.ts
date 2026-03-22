@@ -20,6 +20,13 @@ export interface SessionData {
   pendingTranslation?: TranslateOutput;
   /** Message ID of the card showing the pending translation */
   pendingCardMsgId?: number;
+  /**
+   * Explicit source language for the next translation (Task 17).
+   * When set, skips auto-detection and uses this language as source.
+   * null/undefined = auto-detect (default behavior via Task 16).
+   * Session-only — does not persist across bot restarts.
+   */
+  nextSourceLang?: string | null;
 }
 
 /** Custom context properties injected by auth middleware */

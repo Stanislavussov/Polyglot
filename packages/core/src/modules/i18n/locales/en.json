@@ -53,5 +53,7 @@
   "partOfSpeech": "Part of speech: {pos}",
   "expressionDetected": "💬 Expression detected: {expression}",
   "dictionaryContext": "📚 Dictionary context",
-  "detectedLang": "🔍 Detected: {lang}"
+  "detectedLang": "🔍 Detected: {lang}",
+  "nextTranslationFrom": "Next translation from:",
+  "nextSourceSet": "🔤 Next from: {lang}"
 }

@@ -8,6 +8,16 @@ export interface ResolveDirectionInput {
   learningLangs: string[];
 }
 
+/** Input for resolveDirectionFromSource() — explicit source language, no detection */
+export interface ResolveFromSourceInput {
+  /** Explicit source language (ISO 639-1) */
+  sourceLang: string;
+  /** User's native language (ISO 639-1) */
+  nativeLang: string;
+  /** User's learning languages (ISO 639-1) */
+  learningLangs: string[];
+}
+
 /** Resolved translation direction based on detected input language */
 export interface TranslationDirection {
   /** Source language for translation (ISO 639-1) */

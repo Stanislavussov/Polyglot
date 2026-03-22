@@ -8,7 +8,7 @@ import { authMiddleware } from "./middlewares/auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
-import { handleSaveCallback, handleSkipCallback } from "./scenes/helpers/translate-mode.helper.js";
+import { handleSaveCallback, handleSkipCallback, handleSourceLangCallback } from "./scenes/helpers/translate-mode.helper.js";
 import { startCommand } from "./commands/start.js";
 import type { BotContext, SessionData } from "./types.js";
 
@@ -27,6 +27,7 @@ bot.use(
       activeMode: "idle",
       pendingTranslation: undefined,
       pendingCardMsgId: undefined,
+      nextSourceLang: null,
     }),
   }),
 );
@@ -48,6 +49,7 @@ bot.command("translate", handleTranslateCommand);
 // ── Register callback handlers for translate mode ──
 bot.callbackQuery("tr:save", handleSaveCallback);
 bot.callbackQuery("tr:skip", handleSkipCallback);
+bot.callbackQuery(/^tr:srclang:/, handleSourceLangCallback);
 
 // ── Mode router — processes plain text based on active mode ──
 // Must be after commands so commands take priority

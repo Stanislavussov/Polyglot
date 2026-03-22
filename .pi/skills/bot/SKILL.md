@@ -28,12 +28,22 @@ Already implemented:
 - `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation
 - `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks; uses `translateWithContext()` from context-enrichment layer (dictionary context lookup delegated to `createContextLookup()` from DB adapter)
 - `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, save, skip)
-- `renderers/translation.renderer.ts` — renderTranslation, renderTopicWord, buildTranslationKeyboard, renderDictionaryHint (Wiktionary context display)
-- `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with regen buttons)
+- `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with regen buttons), buildSourceLangKeyboard (source language selection keyboard)
 
 Still needed:
 - `scenes/dictionary.scene.ts` — dictionary browsing
 - `scenes/settings.scene.ts` — user settings
+
+### Post-Translation Source Language Selection Menu (Task 17)
+
+After Save/Skip in translate mode, an inline keyboard menu is shown with buttons for each configured language (native + learning langs). The user can tap a button to set the source language for the next translation, bypassing auto-detection. Key implementation details:
+
+- **Session state**: `SessionData.nextSourceLang?: string | null` — stores the explicit source language selection
+- **Keyboard builder**: `buildSourceLangKeyboard(langs, currentSelection)` in `translation.renderer.ts` — renders language buttons with `tr:srclang:{code}` callback data, marks selected with ✓, returns null when user has ≤2 languages
+- **Callback handler**: `handleSourceLangCallback(ctx)` in `translate-mode.helper.ts` — parses callback, sets session, answers with confirmation, updates keyboard in-place
+- **Translation integration**: `handleTranslateText()` checks `nextSourceLang` first; if set, uses `resolveDirectionFromSource()` instead of auto-detect; validates against current config, resets if invalid
+- **Menu suppression**: Not shown when user has only 1 native + 1 learning language (auto-detect sufficient)
+- **i18n keys**: `nextTranslationFrom` (header), `nextSourceSet` (confirmation with `{lang}` param)
 
 ### Auto-Detect Input Language (Task 16)
 
@@ -64,11 +74,8 @@ When the detected language differs from the native language (reversed direction)
 
 ```typescript
 // Render a full translation card for Telegram (HTML)
-// Includes dictionary context hint when output.dictionaryContext is present
+// Dictionary context (if present) is NOT rendered — used only for AI prompt enrichment
 function renderTranslation(output: TranslateOutput, interfaceLang?: string): string;
-
-// Render a Wiktionary dictionary context hint (pos, glosses)
-function renderDictionaryHint(dc: DictionaryContext, lang: SupportedLang): string;
 
 // Render a single topic word card (HTML)
 function renderTopicWord(word: TopicWord): string;
@@ -91,6 +98,16 @@ async function handleSaveCallback(ctx: BotContext): Promise<void>;
 // Callback: Skip translation (discard)
 async function handleSkipCallback(ctx: BotContext): Promise<void>;
 
+// Callback: Source language selection (Task 17)
+async function handleSourceLangCallback(ctx: BotContext): Promise<void>;
+
+// Build source language selection keyboard (Task 17)
+// Returns null when user has ≤2 languages (auto-detect sufficient)
+function buildSourceLangKeyboard(langs: LangOption[], currentSelection: string | null): InlineKeyboard | null;
+
+// Build language option list from user settings (Task 17)
+function buildLangOptions(nativeLang: string, learningLangs: string[], interfaceLang: SupportedLang): LangOption[];
+
 // Helper: regeneration loop (regen/save/skip callback handling)
 async function handleRegenLoop(conversation, ctx, output, lang, userId, cardMsgId): Promise<void>;
 
@@ -112,12 +129,14 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
 
 [Plain text message while in translate mode]
   ├─ Get user settings (interfaceLang, nativeLang, learningLangs)
-  ├─ Auto-detect input language via resolveTranslationDirection()
-  │   (determines sourceLang/targetLangs based on detected language)
+  ├─ Resolve translation direction:
+  │   ├─ If nextSourceLang set → use resolveDirectionFromSource() (explicit, no detection)
+  │   ├─ If nextSourceLang invalid → reset to null, fall back to auto-detect
+  │   └─ If nextSourceLang null → auto-detect via resolveTranslationDirection()
   ├─ Show "Translating..." indicator
   ├─ Call translateWithContext() with resolved direction + createContextLookup() + generateObject
   │   (context-enrichment layer handles dictionary lookup + fail-open internally)
-  ├─ Render translation card (HTML format, includes dictionary hint if context found)
+  ├─ Render translation card (HTML format)
   ├─ Prepend "🔍 Detected: {lang}" when direction is reversed (detected ≠ native)
   ├─ Show inline keyboard: Save/Skip buttons
   └─ Store pendingTranslation in session for callback handling
@@ -126,12 +145,17 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
   ├─ Save to dictionary via wordRepository.create()
   ├─ Show "✅ Saved to dictionary!"
   ├─ Clear pending state
-  └─ Show hint: "Send the next word or phrase."
+  └─ Show source language selection menu (or plain hint if ≤2 langs)
 
 [Skip callback]
   ├─ Remove keyboard from card
   ├─ Clear pending state
-  └─ Show hint: "Send the next word or phrase."
+  └─ Show source language selection menu (or plain hint if ≤2 langs)
+
+[Source language selection callback (tr:srclang:{code})]
+  ├─ Set ctx.session.nextSourceLang = code
+  ├─ Answer with confirmation "🔤 Next from: {lang}"
+  └─ Update keyboard in-place (✓ on selected button)
 ```
 
 **Mode Persistence:**
@@ -178,10 +202,7 @@ Translation results use **HTML parse mode** for safe rendering of dynamic conten
 
 ### Wiktionary Dictionary Context (Task 13)
 
-When `TranslateOutput.dictionaryContext` is present, `renderTranslation()` appends a dictionary context hint section using `renderDictionaryHint()`. The hint shows:
-- **Expression detection** (`💬 Expression detected: {expression}`) for `pos === "phrase"` or `pos === "idiom"` (unified handling — both use `expressionDetected` i18n key)
-- **Part of speech** (`Part of speech: {pos}`) for all other POS values
-- **Glosses** (first 3 English definitions from Wiktionary, joined by `;`)
+Dictionary context (`TranslateOutput.dictionaryContext`) is **not rendered** in the user-facing Telegram card. It is used only to enrich the AI translation prompt via the context-enrichment layer. The renderer explicitly ignores the `dictionaryContext` field — tests verify no POS, glosses, or expression hints appear in the card output.
 
 Dictionary context lookup is handled by the **context-enrichment layer** (`translateWithContext()` from `@polyglot/core`). The bot passes `createContextLookup()` from `@polyglot/adapter-db` as a dependency — the enrichment layer handles fail-open lookup, transformation to `DictionaryContext`, and merging into the translation prompt. The bot never accesses `wordContextRepository` directly.
 
@@ -213,15 +234,19 @@ apps/bot/src/
 ├── commands/
 │   └── start.ts                # /start command
 ├── renderers/
-│   └── translation.renderer.ts # renderTranslation, renderTopicWord, buildTranslationKeyboard, renderDictionaryHint
+│   ├── translation.renderer.ts # renderTranslation, renderTopicWord, buildTranslationKeyboard, buildSourceLangKeyboard
+│   └── __tests__/
+│       └── source-lang-menu.test.ts     # 8 tests (keyboard rendering, ✓ marks, suppression)
 ├── scenes/
 │   ├── onboarding.scene.ts     # ✅ implemented (conversation-based)
 │   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation)
 │   ├── helpers/
-│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (uses translateWithContext + resolveTranslationDirection), handleSaveCallback, handleSkipCallback
+│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (uses translateWithContext + resolveDirectionFromSource/resolveTranslationDirection), handleSaveCallback, handleSkipCallback, handleSourceLangCallback
 │   │   ├── translate-mode.helper.test.ts # 4 tests (context enrichment wiring)
 │   │   ├── __tests__/
-│   │   │   └── translate-mode-detection.test.ts # 8 tests (auto-detect language direction)
+│   │   │   ├── translate-mode-detection.test.ts      # 8 tests (auto-detect language direction)
+│   │   │   ├── translate-mode-source-lang.test.ts    # 11 tests (explicit source lang override)
+│   │   │   └── source-lang-callback.test.ts          # 7 tests (callback handling)
 │   │   ├── regen.helper.ts           # ✅ regeneration loop helper (for onboarding)
 │   │   └── regen.helper.test.ts      # 9 tests
 │   ├── dictionary.scene.ts     # ❌ to be created
@@ -229,7 +254,7 @@ apps/bot/src/
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 8 tests (mode system tests)
     ├── translation.renderer.test.ts        # 48 tests (includes 7 alternatives tests)
-    ├── dictionary-context-renderer.test.ts # 13 tests (dict context rendering, unified expression detection)
+    ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
     └── onboarding.scene.test.ts            # 16 tests
 ```
 

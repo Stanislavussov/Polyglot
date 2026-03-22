@@ -1,6 +1,6 @@
 # Task 17: Post-Translation Source Language Selection Menu
 
-**Status:** 🔲 To Do
+**Status:** ✅ Done
 
 ## Description
 
@@ -70,22 +70,22 @@ The `learningLangs` array and `nativeLang` are already stored in `userLanguageSe
 
 ### Step 1: Extend session data with nextSourceLang
 
-- [ ] In `apps/bot/src/types.ts`:
+- [x] In `apps/bot/src/types.ts`:
   - Add `nextSourceLang?: string | null` to `SessionData`
   - `null` or `undefined` means "auto-detect" (default behavior, Task 16)
   - A language code (e.g., `"cs"`) means "next translation source is this language"
 
 ### Step 2: Add i18n keys
 
-- [ ] In `packages/core/src/modules/i18n/types.ts`:
+- [x] In `packages/core/src/modules/i18n/types.ts`:
   - Add new keys:
     - `nextTranslationFrom` — section header (e.g., "Next translation from:")
     - `nextSourceSet` — confirmation when a language is selected (e.g., "🔤 Next from: {lang}")
-- [ ] Add translations for all locales (en, ru, cs)
+- [x] Add translations for all locales (en, ru, cs)
 
 ### Step 3: Build the source language selection keyboard
 
-- [ ] In `apps/bot/src/renderers/translation.renderer.ts` (or a new helper):
+- [x] In `apps/bot/src/renderers/translation.renderer.ts` (or a new helper):
   - Implement `buildSourceLangKeyboard(langs: LangOption[], currentSelection: string | null, interfaceLang?: string): InlineKeyboard`
     ```typescript
     interface LangOption {
@@ -102,7 +102,7 @@ The `learningLangs` array and `nativeLang` are already stored in `userLanguageSe
 
 ### Step 4: Show source language menu after Save/Skip
 
-- [ ] In `apps/bot/src/scenes/helpers/translate-mode.helper.ts`:
+- [x] In `apps/bot/src/scenes/helpers/translate-mode.helper.ts`:
   - After Save callback: replace plain `translateModeHint` reply with a message that includes:
     1. The hint text (`translateModeHint`)
     2. The `nextTranslationFrom` header
@@ -113,18 +113,18 @@ The `learningLangs` array and `nativeLang` are already stored in `userLanguageSe
 
 ### Step 5: Handle source language selection callback
 
-- [ ] In `apps/bot/src/scenes/helpers/translate-mode.helper.ts` (or a new helper file):
+- [x] In `apps/bot/src/scenes/helpers/translate-mode.helper.ts` (or a new helper file):
   - Implement `handleSourceLangCallback(ctx: BotContext): Promise<void>`
   - Parse callback data `tr:srclang:{code}`
   - Set `ctx.session.nextSourceLang = code`
   - Answer callback query with confirmation text (`nextSourceSet`)
   - Update the keyboard in-place to reflect the new selection (mark ✓ on the selected button)
-- [ ] Register the callback handler in `apps/bot/src/index.ts`:
+- [x] Register the callback handler in `apps/bot/src/index.ts`:
   - `bot.callbackQuery(/^tr:srclang:/, handleSourceLangCallback)`
 
 ### Step 6: Integrate nextSourceLang into translation direction
 
-- [ ] In `apps/bot/src/scenes/helpers/translate-mode.helper.ts` → `handleTranslateText()`:
+- [x] In `apps/bot/src/scenes/helpers/translate-mode.helper.ts` → `handleTranslateText()`:
   - If `ctx.session.nextSourceLang` is set and is not `null`:
     - **Skip** `resolveTranslationDirection()` (no auto-detection needed)
     - Set `sourceLang = ctx.session.nextSourceLang`
@@ -137,24 +137,24 @@ The `learningLangs` array and `nativeLang` are already stored in `userLanguageSe
 
 ### Step 7: Write tests
 
-- [ ] `apps/bot/src/renderers/__tests__/source-lang-menu.test.ts`:
+- [x] `apps/bot/src/renderers/__tests__/source-lang-menu.test.ts`:
   - Renders buttons for each configured language (native + learning langs)
   - Marks currently selected language with ✓
   - No ✓ on any button when nothing is selected yet
   - Does not render menu for single learning language + native (2 total)
   - Callback data format is correct (`tr:srclang:{code}`)
-- [ ] `apps/bot/src/scenes/helpers/__tests__/source-lang-callback.test.ts`:
+- [x] `apps/bot/src/scenes/helpers/__tests__/source-lang-callback.test.ts`:
   - Tapping a language sets `session.nextSourceLang`
   - Tapping a different language switches `session.nextSourceLang`
   - Confirmation message is sent
   - Keyboard is updated with new ✓ mark
-- [ ] `apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts`:
+- [x] `apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts`:
   - With `nextSourceLang = "cs"`: sourceLang is Czech, targetLangs = [ru, en]
   - With `nextSourceLang = "ru"`: sourceLang is Russian, targetLangs = [cs, en]
   - With `nextSourceLang = null` (first time): falls back to auto-detect via `resolveTranslationDirection()`
   - Source language menu appears after Save
   - Source language menu appears after Skip
-- [ ] All new and existing tests pass: `pnpm test`
+- [x] All new and existing tests pass: `pnpm test` (741 tests, 50 files)
 
 ---
 
@@ -196,15 +196,27 @@ The feature is **fully encapsulated** in the bot layer (session state + UI) with
 
 ## Acceptance Criteria
 
-- [ ] After Save/Skip in translate mode, an inline keyboard with source language buttons always appears
-- [ ] Tapping a language button sets it as the source language for the next translation
-- [ ] No "Auto" button — only concrete language choices (native + learning langs)
-- [ ] The currently selected source language is visually marked (✓ prefix)
-- [ ] When a source language is explicitly selected, auto-detection is bypassed
-- [ ] Target languages are correctly derived from the selected source language
-- [ ] First translation (no selection yet) falls back to auto-detect, menu appears after Save/Skip
-- [ ] The source language menu is **not** shown when the user has only 1 learning language
-- [ ] `nextSourceLang` is session-only — does not persist to DB
-- [ ] All texts use i18n — no hardcoded strings
-- [ ] All new and existing tests pass: `pnpm test`
-- [ ] All packages build: `pnpm -r run build`
+- [x] After Save/Skip in translate mode, an inline keyboard with source language buttons always appears
+- [x] Tapping a language button sets it as the source language for the next translation
+- [x] No "Auto" button — only concrete language choices (native + learning langs)
+- [x] The currently selected source language is visually marked (✓ prefix)
+- [x] When a source language is explicitly selected, auto-detection is bypassed
+- [x] Target languages are correctly derived from the selected source language
+- [x] First translation (no selection yet) falls back to auto-detect, menu appears after Save/Skip
+- [x] The source language menu is **not** shown when the user has only 1 learning language
+- [x] `nextSourceLang` is session-only — does not persist to DB
+- [x] All texts use i18n — no hardcoded strings
+- [x] All new and existing tests pass: `pnpm test` (741 tests, 50 files)
+- [x] All packages build: `pnpm -r run build`
+
+## Files created/modified
+
+- `apps/bot/src/types.ts` — Added `nextSourceLang?: string | null` to `SessionData`
+- `apps/bot/src/index.ts` — Registered `handleSourceLangCallback`, added `nextSourceLang` to session initial state
+- `apps/bot/src/renderers/translation.renderer.ts` — Added `buildSourceLangKeyboard()` and `LangOption` interface
+- `apps/bot/src/scenes/helpers/translate-mode.helper.ts` — Added `handleSourceLangCallback`, `buildLangOptions`, `sendSourceLangMenu`; updated `handleTranslateText` for explicit source, updated Save/Skip to show menu
+- `apps/bot/src/renderers/__tests__/source-lang-menu.test.ts` — 8 tests for keyboard rendering
+- `apps/bot/src/scenes/helpers/__tests__/source-lang-callback.test.ts` — 7 tests for callback handling
+- `apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts` — 11 tests for integration
+- `docs/tasks/17-next-translation-language-menu.md` — Updated status and checkboxes
+- `.pi/skills/bot/SKILL.md` — Updated Current State, File Structure, Skills

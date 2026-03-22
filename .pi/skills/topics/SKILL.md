@@ -24,6 +24,10 @@ Fully implemented with partial regeneration, idiomatic equivalent passthrough, a
 
 No changes needed. Topics always translate from a dataset-defined source language (`sourceLang` parameter), not from user free-form input. Auto-detection applies only to the bot layer's translate-mode helper where users type arbitrary text. The topics module is direction-agnostic — it accepts whatever `sourceLang`/`targetLangs` the caller provides.
 
+### Task 17 Compatibility (Post-Translation Source Language Selection Menu)
+
+No changes needed. The source language selection menu is a bot-layer UI concern (session state, inline keyboards, callbacks). The core i18n keys (`nextTranslationFrom`, `nextSourceSet`) and locale translations (en, ru, cs) were already in place. The topics module is unaffected — it works with explicit `sourceLang`/`targetLangs` pairs passed by the caller, not with user session state or auto-detection.
+
 ## Rules
 
 1. Always checks cache before calling the `translation` agent

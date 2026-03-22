@@ -53,5 +53,7 @@
   "partOfSpeech": "Slovní druh: {pos}",
   "expressionDetected": "💬 Detekován výraz: {expression}",
   "dictionaryContext": "📚 Slovníkový kontext",
-  "detectedLang": "🔍 Rozpoznáno: {lang}"
+  "detectedLang": "🔍 Rozpoznáno: {lang}",
+  "nextTranslationFrom": "Další překlad z:",
+  "nextSourceSet": "🔤 Příště z: {lang}"
 }

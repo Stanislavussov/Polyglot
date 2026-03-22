@@ -57,7 +57,9 @@ export type I18nKey =
   | "partOfSpeech"
   | "expressionDetected"
   | "dictionaryContext"
-  | "detectedLang";
+  | "detectedLang"
+  | "nextTranslationFrom"
+  | "nextSourceSet";
 
 /**
  * Supported interface languages.
@@ -100,6 +102,7 @@ export interface I18nParams {
   partOfSpeech: { pos: string };
   expressionDetected: { expression: string };
   detectedLang: { lang: string };
+  nextSourceSet: { lang: string };
 }
 
 /**

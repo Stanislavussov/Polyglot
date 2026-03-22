@@ -53,5 +53,7 @@
   "partOfSpeech": "Часть речи: {pos}",
   "expressionDetected": "💬 Обнаружено выражение: {expression}",
   "dictionaryContext": "📚 Словарный контекст",
-  "detectedLang": "🔍 Определён: {lang}"
+  "detectedLang": "🔍 Определён: {lang}",
+  "nextTranslationFrom": "Следующий перевод с:",
+  "nextSourceSet": "🔤 Далее с: {lang}"
 }

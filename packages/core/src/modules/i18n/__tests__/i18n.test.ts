@@ -224,6 +224,47 @@ describe("i18n — t()", () => {
       "🔍 Detected: Englisch",
     );
   });
+
+  // Next source language selection keys (task 17)
+  it("returns nextTranslationFrom in English", () => {
+    expect(t("nextTranslationFrom", "en")).toBe("Next translation from:");
+  });
+
+  it("returns nextSourceSet with {lang} interpolation in English", () => {
+    expect(t("nextSourceSet", "en", { lang: "Czech" })).toBe(
+      "🔤 Next from: Czech",
+    );
+  });
+
+  it("returns nextTranslationFrom in Russian", () => {
+    expect(t("nextTranslationFrom", "ru")).toBe("Следующий перевод с:");
+  });
+
+  it("returns nextSourceSet with {lang} interpolation in Russian", () => {
+    expect(t("nextSourceSet", "ru", { lang: "Чешский" })).toBe(
+      "🔤 Далее с: Чешский",
+    );
+  });
+
+  it("returns nextTranslationFrom in Czech", () => {
+    expect(t("nextTranslationFrom", "cs")).toBe("Další překlad z:");
+  });
+
+  it("returns nextSourceSet with {lang} interpolation in Czech", () => {
+    expect(t("nextSourceSet", "cs", { lang: "Angličtina" })).toBe(
+      "🔤 Příště z: Angličtina",
+    );
+  });
+
+  it("falls back to English for nextTranslationFrom when locale has no file", () => {
+    expect(t("nextTranslationFrom", "de")).toBe("Next translation from:");
+  });
+
+  it("falls back to English for nextSourceSet when locale has no file", () => {
+    expect(t("nextSourceSet", "de", { lang: "Englisch" })).toBe(
+      "🔤 Next from: Englisch",
+    );
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -335,6 +376,8 @@ describe("i18n — locale consistency", () => {
       "expressionDetected",
       "dictionaryContext",
       "detectedLang",
+      "nextTranslationFrom",
+      "nextSourceSet",
     ];
 
     for (const key of enKeys) {

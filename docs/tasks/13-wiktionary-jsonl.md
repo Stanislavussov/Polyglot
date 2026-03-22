@@ -577,7 +577,7 @@ Files are named like `kaikki.org-dictionary-Russian.jsonl`.
 - [x] Add language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) for language code → name resolution
 - [x] Add validation layer: `validateWiktionaryEntry()`, `validateWordContext()`, `validateGlosses()`, `validatePos()` with 58 tests
 - [x] Integrate with notifications layer (lookupDictionaryContext dep, fail-open dictionary context in pickSuggestedWord, optional DictionaryContext on SuggestedWord, 12 tests)
-- [x] Integrate with bot layer (lookupDictContext in translate-mode helper, renderDictionaryHint in renderer, fail-open dictionary context lookup before translate(), 21 new tests)
+- [x] Integrate with bot layer (dictionary context lookup via context-enrichment layer, fail-open; dictionary context is AI-prompt-only — not rendered in Telegram card)
 
 ### Files created/modified
 
@@ -591,7 +591,7 @@ Files are named like `kaikki.org-dictionary-Russian.jsonl`.
 - `packages/adapters/db/tsconfig.json` — Exclude __tests__ from build
 - `packages/infra/package.json` — Added @polyglot/adapter-db dependency, import:wiktionary script, tsx devDep
 - `packages/infra/src/scripts/import-wiktionary.ts` — Streaming JSONL import CLI with --batch-size, --lang flags
-- `packages/core/src/modules/i18n/language-names.ts` — Language name registry (60+ languages with English, native, and localized names)
+- `packages/core/src/modules/i18n/language-registry.ts` — Language registry (60+ languages with English, native, and localized names; ISO code mapping; flag/display helpers)
 - `packages/core/src/modules/i18n/types.ts` — Added 6 new I18nKey values, 3 new I18nParams entries
 - `packages/core/src/modules/i18n/index.ts` — Re-exports language name utilities
 - `packages/core/src/modules/i18n/locales/en.json` — 6 new Wiktionary keys
@@ -618,6 +618,6 @@ Files are named like `kaikki.org-dictionary-Russian.jsonl`.
 - `.pi/skills/notifications/SKILL.md` — Updated with dictionary context integration, data flow diagram, updated types and file structure
 - `apps/bot/src/scenes/helpers/translate-mode.helper.ts` — Added lookupDictContext(), wired dictionaryContext into translate() call
 - `apps/bot/src/scenes/helpers/translate-mode.helper.test.ts` — 9 tests (dict context lookup + wiring)
-- `apps/bot/src/renderers/translation.renderer.ts` — Added renderDictionaryHint(), dictionary context section in renderTranslation()
-- `apps/bot/src/__tests__/dictionary-context-renderer.test.ts` — 12 tests (dict hint rendering, phrase/idiom detection, gloss truncation)
+- `apps/bot/src/renderers/translation.renderer.ts` — Dictionary context is explicitly not rendered (AI-prompt-only); comment documents this
+- `apps/bot/src/__tests__/dictionary-context-renderer.test.ts` — 6 tests (verifies dictionary context is NOT rendered in user-facing card)
 - `.pi/skills/bot/SKILL.md` — Updated with dictionary context integration, new functions, file structure

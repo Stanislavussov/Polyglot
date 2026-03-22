@@ -153,3 +153,38 @@ export function buildTranslationKeyboard(
 
   return kb;
 }
+
+/** Language option for source language selection keyboard */
+export interface LangOption {
+  code: string;
+  name: string; // localized display name
+}
+
+/**
+ * Build inline keyboard for post-translation source language selection.
+ * Shows one button per configured language (native + learning).
+ * Currently selected language is prefixed with ✓.
+ *
+ * Returns null when user has only 2 languages total (auto-detect sufficient).
+ *
+ * @param langs - All user languages (native + learning) with localized names
+ * @param currentSelection - Currently selected source language code, or null
+ * @returns InlineKeyboard or null if menu should not be shown
+ */
+export function buildSourceLangKeyboard(
+  langs: LangOption[],
+  currentSelection: string | null,
+): InlineKeyboard | null {
+  // Don't show menu when user has only 2 languages (1 native + 1 learning)
+  if (langs.length <= 2) return null;
+
+  const kb = new InlineKeyboard();
+
+  for (const lang of langs) {
+    const label =
+      currentSelection === lang.code ? `✓ ${lang.name}` : lang.name;
+    kb.text(label, `tr:srclang:${lang.code}`);
+  }
+
+  return kb;
+}

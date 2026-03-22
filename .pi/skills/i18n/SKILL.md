@@ -17,7 +17,7 @@ description: Internationalization of all bot texts. Provides typed t(key, lang, 
 
 ## Current State
 
-Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) in `language-names.ts` for Wiktionary integration and bot UI. Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 62 tests passing (43 i18n + 19 language names). Task 07 regeneration keys added. Task 09 translate mode keys added. Task 13 Wiktionary dictionary context keys (`wiktionaryDefinition`, `wiktionarySource`, `partOfSpeech`, `expressionDetected`, `dictionaryContext`) and language name registry added. `phraseDetected` and `idiomDetected` unified into `expressionDetected` with `{ expression: string }` params. Task 16 auto-detect input language key added: `detectedLang` with `{ lang: string }` params for displaying detected source language in translation cards.
+Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) in `language-registry.ts` for Wiktionary integration and bot UI. Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 79 tests passing (51 i18n + 17 language names + 11 language codes). Task 07 regeneration keys added. Task 09 translate mode keys added. Task 13 Wiktionary dictionary context keys (`wiktionaryDefinition`, `wiktionarySource`, `partOfSpeech`, `expressionDetected`, `dictionaryContext`) and language name registry added. `phraseDetected` and `idiomDetected` unified into `expressionDetected` with `{ expression: string }` params. Task 16 auto-detect input language key added: `detectedLang` with `{ lang: string }` params for displaying detected source language in translation cards. Task 17 post-translation source language selection keys added: `nextTranslationFrom` (header text) and `nextSourceSet` with `{ lang: string }` params for confirmation when user selects source language.
 
 ## Rules
 
@@ -40,11 +40,20 @@ function getSupportedLangs(): SupportedLang[];
 // Type guard for language code
 function isSupported(lang: string): lang is SupportedLang;
 
-// Language name registry (added in Task 13)
+// Language registry — initialized from DB at startup (Task 13+)
+function initLanguageRegistry(entries: LanguageEntry[]): void;
+function isRegistryInitialized(): boolean;
 function getLanguageName(code: string, displayLang?: SupportedLang): string;
 function getLanguageNativeName(code: string): string;
 function getAllLanguageNames(): Array<{ code: string; name: string }>;
 function isKnownLanguage(code: string): boolean;
+function getIso1ToIso3Map(): Record<string, string>;
+function getIso3ToIso1Map(): Record<string, string>;
+function resolveToIso3(lang: string): string | undefined;
+function normalizeToIso1(lang: string): string | undefined;
+function getLangFlag(code: string): string | undefined;
+function getLangDisplay(code: string): string;
+function getSupportedLanguages(): LanguageEntry[];
 ```
 
 ## Types
@@ -67,7 +76,8 @@ type I18nKey =
   | "translateModeOn" | "translateModeHint"
   | "wiktionaryDefinition" | "wiktionarySource" | "partOfSpeech"
   | "expressionDetected" | "dictionaryContext"
-  | "detectedLang";
+  | "detectedLang"
+  | "nextTranslationFrom" | "nextSourceSet";
 
 // Supported languages
 type SupportedLang = "en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl";
@@ -91,6 +101,7 @@ interface I18nParams {
   partOfSpeech: { pos: string };
   expressionDetected: { expression: string };
   detectedLang: { lang: string };
+  nextSourceSet: { lang: string };
 }
 
 // Deprecated alias for SupportedLang
@@ -105,14 +116,15 @@ packages/core/src/modules/i18n/
 ├── types.ts              # I18nKey, SupportedLang, LocaleMessages, I18nParams, Locale
 ├── i18n.ts               # Functional API: t() with fallback + interpolation, getSupportedLangs, isSupported
 ├── i18n.service.ts       # Legacy class-based I18nService (deprecated, kept for backward compatibility)
-├── language-names.ts     # Language name registry: getLanguageName, getLanguageNativeName, getAllLanguageNames, isKnownLanguage
+├── language-registry.ts  # Language registry: initLanguageRegistry, getLanguageName, getLanguageNativeName, getAllLanguageNames, isKnownLanguage, getLangDisplay, getLangFlag, resolveToIso3, normalizeToIso1, getSupportedLanguages
 ├── locales/
 │   ├── en.json           # English (source of truth for keys)
 │   ├── ru.json
 │   └── cs.json
 └── __tests__/
-    ├── i18n.test.ts          # 39 tests (t(), getSupportedLangs, isSupported, locale consistency)
-    └── language-names.test.ts # 19 tests (getLanguageName, getLanguageNativeName, getAllLanguageNames, isKnownLanguage)
+    ├── i18n.test.ts           # 51 tests (t(), getSupportedLangs, isSupported, locale consistency)
+    ├── language-names.test.ts # 17 tests (getLanguageName, getLanguageNativeName, getAllLanguageNames, isKnownLanguage)
+    └── language-codes.test.ts # 11 tests (resolveToIso3, normalizeToIso1, getIso1ToIso3Map, getIso3ToIso1Map)
 ```
 
 ## Reference

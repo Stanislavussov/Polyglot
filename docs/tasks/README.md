@@ -18,4 +18,4 @@
 | 14  | [Refactor Language Usage to `languages` Table](./14-language-table-refactor.md) | 🔲 To Do  |
 | 15  | [Context Enrichment Layer (Pre-AI Dictionary Lookup)](./15-context-enrichment-layer.md) | ✅ Done   |
 | 16  | [Auto-Detect Input Language & Smart Translation Direction](./16-auto-detect-input-language.md) | ✅ Done   |
-| 17  | [Post-Translation Language Selection Menu](./17-next-translation-language-menu.md) | 🔲 To Do  |
+| 17  | [Post-Translation Language Selection Menu](./17-next-translation-language-menu.md) | ✅ Done   |
