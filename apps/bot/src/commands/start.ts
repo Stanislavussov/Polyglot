@@ -18,7 +18,9 @@ export async function startCommand(ctx: BotContext): Promise<void> {
   }
 
   if (user.onboarded) {
-    // User already onboarded — show main menu
+    // User already onboarded — restore translate mode and persist to DB
+    ctx.session.activeMode = "translate";
+    await userRepository.updateActiveMode(user.id, "translate");
     const settings = await userRepository.getSettings(user.id);
     const rawLang = settings?.interfaceLang ?? "en";
     const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";

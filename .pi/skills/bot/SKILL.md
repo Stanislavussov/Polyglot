@@ -18,14 +18,14 @@ description: Telegram bot using grammY with conversations plugin. Manages scenes
 ## Current State
 
 Already implemented:
-- `index.ts` — grammY bot setup, session middleware, mode router, callback handlers, graceful shutdown
-- `types.ts` — BotContext, ConversationContext, UserMode, SessionData (with activeMode field)
+- `index.ts` — grammY bot setup, session middleware (default mode: "translate"), mode router, callback handlers, graceful shutdown
+- `types.ts` — BotContext, ConversationContext, UserMode, SessionData (with activeMode field, DB-persisted)
 - `constants.ts` — LANGUAGES display data, langDisplay() (no business text — all i18n via core)
-- `middlewares/auth.ts` — resolves/creates user, attaches to ctx.user
-- `middlewares/mode-router.ts` — routes plain text to active mode handler (translate/idle)
-- `commands/start.ts` — /start handler (onboarding or main menu)
-- `scenes/onboarding.scene.ts` — 4-step onboarding conversation
-- `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation
+- `middlewares/auth.ts` — resolves/creates user, attaches to ctx.user; hydrates session activeMode from DB for onboarded users (Task 20)
+- `middlewares/mode-router.ts` — routes plain text to active mode handler; idle mode falls back to translate for onboarded users (persisted to DB), shows /start hint for non-onboarded; debug logging for mode routing
+- `commands/start.ts` — /start handler (onboarding or main menu); restores translate mode for onboarded users (persisted to DB)
+- `scenes/onboarding.scene.ts` — 4-step onboarding conversation; sets activeMode = "translate" on completion (persisted to DB)
+- `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation (persisted to DB)
 - `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks; uses `translateWithContext()` from context-enrichment layer (dictionary context lookup delegated to `createContextLookup()` from DB adapter)
 - `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, save, skip)
 - `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with regen buttons), buildSourceLangKeyboard (source language selection keyboard)
@@ -33,6 +33,29 @@ Already implemented:
 Still needed:
 - `scenes/dictionary.scene.ts` — dictionary browsing
 - `scenes/settings.scene.ts` — user settings
+
+### Always-On Translation (Task 19)
+
+Translation is always active for onboarded users. Multiple layers ensure no text message is silently dropped:
+1. **Default session mode** is `"translate"` (not `"idle"`) — new/restarted sessions start translating
+2. **Onboarding completion** sets `activeMode = "translate"` — freshly onboarded users can immediately send words
+3. **`/start` for returning users** restores `activeMode = "translate"` — recovers after bot restart
+4. **Idle mode fallback** in mode router: onboarded users get translated (with warn log), non-onboarded users get `/start` hint
+5. **Debug logging** in mode router: logs `{ mode, text, userId }` on every routed message
+
+### Persistent activeMode in Database (Task 20)
+
+The user's `activeMode` is now persisted in the `userLanguageSettings.activeMode` DB column so it survives bot restarts. The session is hydrated from DB on every request via the auth middleware.
+
+**Read path:** Auth middleware loads settings for onboarded users → sets `ctx.session.activeMode` from DB value → validates against known modes (falls back to `"translate"` for unknown values).
+
+**Write path:** Every mode change writes to both session AND DB simultaneously:
+- `/start` for onboarded users → `updateActiveMode(userId, "translate")`
+- `/translate` command → `updateActiveMode(userId, "translate")`
+- Onboarding completion → `updateActiveMode(userId, "translate")` via `conversation.external()`
+- Mode router idle→translate fallback → `updateActiveMode(userId, "translate")`
+
+**Forward compatibility:** The `VALID_MODES` set in auth.ts and the `UserMode` type will be extended when "mentor" and "quiz" modes are implemented. Unknown DB values gracefully fall back to "translate".
 
 ### Post-Translation Source Language Selection Menu (Task 17)
 
@@ -229,17 +252,20 @@ apps/bot/src/
 ├── types.ts                    # BotContext, ConversationContext, UserMode, SessionData
 ├── constants.ts                # LANGUAGES display data, langDisplay()
 ├── middlewares/
-│   ├── auth.ts                 # Auth middleware (user resolution)
-│   └── mode-router.ts          # ✅ Routes plain text to active mode handler
+│   ├── auth.ts                 # Auth middleware (user resolution + activeMode hydration from DB)
+│   ├── auth.test.ts            # 7 tests (user resolution, activeMode hydration, fallback)
+│   └── mode-router.ts          # ✅ Routes plain text to active mode handler (idle→translate fallback, DB persist)
 ├── commands/
-│   └── start.ts                # /start command
+│   ├── start.ts                # /start command (restores translate mode, persists to DB)
+│   └── start.test.ts           # 4 tests (activeMode restore, DB persistence, onboarding entry, no user)
 ├── renderers/
 │   ├── translation.renderer.ts # renderTranslation, renderTopicWord, buildTranslationKeyboard, buildSourceLangKeyboard
 │   └── __tests__/
 │       └── source-lang-menu.test.ts     # 8 tests (keyboard rendering, ✓ marks, suppression)
 ├── scenes/
-│   ├── onboarding.scene.ts     # ✅ implemented (conversation-based)
-│   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation)
+│   ├── onboarding.scene.ts     # ✅ implemented (conversation-based, persists activeMode to DB)
+│   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation, persists to DB)
+│   ├── translate.scene.test.ts # 3 tests (mode activation, DB persistence, confirmation)
 │   ├── helpers/
 │   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (uses translateWithContext + resolveDirectionFromSource/resolveTranslationDirection), handleSaveCallback, handleSkipCallback, handleSourceLangCallback
 │   │   ├── translate-mode.helper.test.ts # 4 tests (context enrichment wiring)
@@ -252,10 +278,10 @@ apps/bot/src/
 │   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
-    ├── translate-mode.test.ts              # ✅ 8 tests (mode system tests)
+    ├── translate-mode.test.ts              # ✅ 11 tests (mode system tests, idle fallback, DB persistence)
     ├── translation.renderer.test.ts        # 48 tests (includes 7 alternatives tests)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
-    └── onboarding.scene.test.ts            # 16 tests
+    └── onboarding.scene.test.ts            # 18 tests (includes activeMode post-onboarding + DB persistence)
 ```
 
 ## Reference

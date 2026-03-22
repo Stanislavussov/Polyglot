@@ -19,3 +19,5 @@
 | 15  | [Context Enrichment Layer (Pre-AI Dictionary Lookup)](./15-context-enrichment-layer.md) | ✅ Done   |
 | 16  | [Auto-Detect Input Language & Smart Translation Direction](./16-auto-detect-input-language.md) | ✅ Done   |
 | 17  | [Post-Translation Language Selection Menu](./17-next-translation-language-menu.md) | ✅ Done   |
+| 19  | [Fix Translate Mode Loss — Always-On Translation](./19-fix-translate-mode-persistence.md) | ✅ Done   |
+| 20  | [Persist activeMode in the Database](./20-persist-active-mode.md) | ✅ Done   |

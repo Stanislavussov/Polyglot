@@ -14,7 +14,8 @@ vi.mock("@polyglot/adapter-db", () => ({
   userRepository: {
     findByTelegramId: vi.fn(),
     create: vi.fn(),
-    getSettings: vi.fn(),
+    getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
+    updateActiveMode: vi.fn().mockResolvedValue({}),
   },
   wordRepository: {
     create: vi.fn(),
@@ -43,21 +44,27 @@ vi.mock("../scenes/helpers/translate-mode.helper.js", () => ({
 }));
 
 import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
+import { userRepository } from "@polyglot/adapter-db";
+
+const repo = vi.mocked(userRepository);
 
 function createMockContext(
   overrides: {
     text?: string;
     activeMode?: UserMode;
+    onboarded?: boolean;
+    userId?: number;
   } = {},
 ): BotContext {
   const session: SessionData = {
-    activeMode: overrides.activeMode ?? "idle",
+    activeMode: overrides.activeMode ?? "translate",
     pendingTranslation: undefined,
     pendingCardMsgId: undefined,
+    nextSourceLang: null,
   };
 
   return {
-    from: { id: 123456789 },
+    from: { id: overrides.userId ?? 123456789 },
     chat: { id: 123456789 },
     message: overrides.text !== undefined ? { text: overrides.text } : undefined,
     session,
@@ -65,7 +72,11 @@ function createMockContext(
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
     },
-    user: { id: 1, telegramId: 123456789 },
+    user: {
+      id: 1,
+      telegramId: overrides.userId ?? 123456789,
+      onboarded: overrides.onboarded ?? true,
+    },
   } as unknown as BotContext;
 }
 
@@ -105,14 +116,62 @@ describe("Translate Mode System", () => {
       expect(next).not.toHaveBeenCalled();
     });
 
-    it("calls next() in idle mode", async () => {
-      const ctx = createMockContext({ text: "hello", activeMode: "idle" });
+    it("falls back to translation in idle mode for onboarded user", async () => {
+      const ctx = createMockContext({
+        text: "hello",
+        activeMode: "idle",
+        onboarded: true,
+      });
       const next = vi.fn().mockResolvedValue(undefined);
 
       await modeRouterMiddleware(ctx, next);
 
-      expect(next).toHaveBeenCalled();
+      expect(handleTranslateText).toHaveBeenCalledWith(ctx, "hello");
+      expect(next).not.toHaveBeenCalled();
+      // Should also fix the session mode
+      expect(ctx.session.activeMode).toBe("translate");
+    });
+
+    it("persists idle→translate fallback to DB for onboarded user", async () => {
+      const ctx = createMockContext({
+        text: "hello",
+        activeMode: "idle",
+        onboarded: true,
+      });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(repo.updateActiveMode).toHaveBeenCalledWith(1, "translate");
+    });
+
+    it("shows hint for non-onboarded user in idle mode", async () => {
+      const ctx = createMockContext({
+        text: "hello",
+        activeMode: "idle",
+        onboarded: false,
+      });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
       expect(handleTranslateText).not.toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
+      expect(ctx.reply).toHaveBeenCalledWith("[welcome]");
+    });
+
+    it("falls back to translation for unknown mode with onboarded user", async () => {
+      const ctx = createMockContext({
+        text: "hello",
+        activeMode: "something_unknown" as UserMode,
+        onboarded: true,
+      });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(handleTranslateText).toHaveBeenCalledWith(ctx, "hello");
+      expect(ctx.session.activeMode).toBe("translate");
     });
   });
 });
@@ -130,14 +189,15 @@ describe("UserMode type", () => {
 });
 
 describe("SessionData", () => {
-  it("has correct initial state", () => {
+  it("has translate as default active mode", () => {
     const session: SessionData = {
-      activeMode: "idle",
+      activeMode: "translate",
       pendingTranslation: undefined,
       pendingCardMsgId: undefined,
+      nextSourceLang: null,
     };
 
-    expect(session.activeMode).toBe("idle");
+    expect(session.activeMode).toBe("translate");
     expect(session.pendingTranslation).toBeUndefined();
     expect(session.pendingCardMsgId).toBeUndefined();
   });

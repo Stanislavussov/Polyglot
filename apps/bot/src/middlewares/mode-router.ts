@@ -1,8 +1,14 @@
 /**
  * Mode router middleware — routes plain text messages based on active mode.
  * This is the core of the persistent mode system.
+ *
+ * Translation is always-on for onboarded users: even if mode is somehow "idle",
+ * the router falls back to translation rather than silently dropping messages.
  */
 import type { NextFunction } from "grammy";
+import { t, isSupported, type SupportedLang } from "@polyglot/core";
+import { userRepository } from "@polyglot/adapter-db";
+import { logger } from "@polyglot/infra";
 import type { BotContext } from "../types.js";
 import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
 
@@ -22,6 +28,12 @@ export async function modeRouterMiddleware(
 
   // Route based on active mode
   const mode = ctx.session.activeMode;
+  const userId = ctx.from?.id;
+
+  logger.debug(
+    { mode, text: text.slice(0, 30), userId },
+    "Mode router: routing message",
+  );
 
   switch (mode) {
     case "translate":
@@ -29,9 +41,31 @@ export async function modeRouterMiddleware(
       return; // Don't call next() — we handled it
 
     case "idle":
-    default:
-      // In idle mode, show a hint to pick a mode
-      // For now, silently pass to next() (other handlers may process it)
-      return next();
+    default: {
+      // Safety net: idle mode should not silently drop messages.
+      // For onboarded users → fall back to translation and persist to DB.
+      // For non-onboarded users → hint to run /start.
+      const user = ctx.user;
+
+      if (user?.onboarded) {
+        logger.warn(
+          { mode, userId },
+          "Onboarded user hit idle mode — falling back to translate",
+        );
+        ctx.session.activeMode = "translate";
+        await userRepository.updateActiveMode(user.id, "translate");
+        await handleTranslateText(ctx, text);
+        return;
+      }
+
+      // Non-onboarded user — show hint to start onboarding
+      const settings = user
+        ? await userRepository.getSettings(user.id)
+        : null;
+      const rawLang = settings?.interfaceLang ?? "en";
+      const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
+      await ctx.reply(t("welcome", lang));
+      return;
+    }
   }
 }

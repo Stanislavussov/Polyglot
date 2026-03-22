@@ -86,6 +86,8 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   nativeLang: text("native_lang").notNull(),
   learningLangs: text("learning_langs").array().notNull().default([]),
   timezone: text("timezone").default("UTC").notNull(),
+  /** Current bot mode: "translate" | "mentor" | "quiz" (extensible) */
+  activeMode: text("active_mode").default("translate").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

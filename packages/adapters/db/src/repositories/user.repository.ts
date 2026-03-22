@@ -42,11 +42,26 @@ export const userRepository = {
           nativeLang: settings.nativeLang,
           learningLangs: settings.learningLangs,
           timezone: settings.timezone,
+          activeMode: settings.activeMode,
           updatedAt: new Date(),
         },
       })
       .returning();
     return rows[0]!;
+  },
+
+  /** Update user's active mode (translate, mentor, quiz, etc.). */
+  async updateActiveMode(
+    userId: number,
+    mode: string,
+  ): Promise<UserLanguageSettings | null> {
+    const db = getDb();
+    const rows = await db
+      .update(userLanguageSettings)
+      .set({ activeMode: mode, updatedAt: new Date() })
+      .where(eq(userLanguageSettings.userId, userId))
+      .returning();
+    return rows[0] ?? null;
   },
 
   /** Get user language settings by user ID. */

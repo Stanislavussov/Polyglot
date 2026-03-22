@@ -5,7 +5,8 @@ import type { TranslateOutput } from "@polyglot/core";
 
 /**
  * Active mode for the bot — determines how plain text messages are routed.
- * Extensible: add new modes like "mentor" in the future.
+ * Persisted in DB (userLanguageSettings.activeMode) to survive bot restarts.
+ * Extensible: add "mentor" | "quiz" when those features land.
  */
 export type UserMode = "idle" | "translate";
 

@@ -19,7 +19,7 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 
 Fully implemented. All tables, repositories, singleton connection, and context-lookup factory in place.
 - `schema.ts` — tables: `users`, `userLanguageSettings`, `words`, `translationRequests`, `topicTranslationCache`, `languages`, `wordContext`
-- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories, types, and `createContextLookup`
+- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories, types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
 - `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded
 - `repositories/word.repository.ts` — create, findByUser, findById, search, delete (soft), updateContent (partial regeneration)
@@ -43,6 +43,7 @@ findByTelegramId(telegramId: number): Promise<User | null>;
 create(data: NewUser): Promise<User>;
 updateSettings(userId: number, settings: Omit<NewUserLanguageSettings, "userId">): Promise<UserLanguageSettings>;
 getSettings(userId: number): Promise<UserLanguageSettings | null>;
+updateActiveMode(userId: number, mode: string): Promise<UserLanguageSettings | null>;
 updateOnboardingStep(userId: number, step: number): Promise<User>;
 markOnboarded(userId: number): Promise<User>;
 ```
@@ -106,7 +107,7 @@ This is the **single place** where DB → `DictionaryContext` transformation hap
 
 See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key tables:
 - `users` — id, telegramId, username, onboardingStep, onboarded, isActive, createdAt
-- `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, isActive, updatedAt
+- `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode (default "translate"), isActive, updatedAt
 - `words` — userId, original, sourceLang, content (JSONB with translations per target lang), isActive, createdAt, updatedAt
 - `translationRequests` — userId, original, sourceLang, targetLangs[], createdAt (for rate limiting)
 - `topicTranslationCache` — topicId, original, sourceLang, targetLang, content (JSONB), isValid, invalidReason, createdAt, updatedAt; unique index on (topicId, original, sourceLang, targetLang)
@@ -133,9 +134,19 @@ See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key
 ## Types
 
 ```typescript
-// Language types
-type Language = { id: number; code: string; name: string; createdAt: Date | null };
-type NewLanguage = { code: string; name: string; createdAt?: Date };
+// Language types (inferred from schema — includes metadata columns from 0002 migration)
+type Language = {
+  id: number; code: string; name: string;
+  nativeName: string | null; flag: string | null; iso3Code: string | null;
+  isSupported: boolean; localizedNames: Record<string, string> | null;
+  createdAt: Date | null;
+};
+type NewLanguage = {
+  code: string; name: string;
+  nativeName?: string | null; flag?: string | null; iso3Code?: string | null;
+  isSupported?: boolean; localizedNames?: Record<string, string> | null;
+  createdAt?: Date | null;
+};
 
 // WordContext types
 type WordContext = { id: number; word: string; languageId: number; pos: string; formTags: string[] | null; glosses: string[] | null; createdAt: Date | null };
@@ -146,9 +157,10 @@ type NewWordContext = { word: string; languageId: number; pos: string; formTags?
 
 ```
 packages/adapters/db/src/
-├── index.ts                              # getDb(), closeDb(), re-exports (incl. createContextLookup)
+├── index.ts                              # getDb(), closeDb(), re-exports (incl. createContextLookup + language cache)
 ├── schema.ts                             # Drizzle table definitions (users, userLanguageSettings, words, translationRequests, topicTranslationCache, languages, wordContext)
 ├── context-lookup.ts                     # ✅ createContextLookup() factory — DB→DictionaryContext transform, fail-open
+├── language-cache.ts                     # ✅ loadLanguageCache(), getLang(), getLangDisplay(), getSupportedLangs(), normalizeToIso1(), etc. — in-memory cache loaded from languages table at startup
 ├── repositories/
 │   ├── user.repository.ts                # ✅ implemented
 │   ├── word.repository.ts                # ✅ implemented (+ updateContent for partial regen)
@@ -157,6 +169,7 @@ packages/adapters/db/src/
 │   └── word-context.repository.ts        # ✅ implemented (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
 └── __tests__/
     ├── getDb.test.ts                     # 1 test
+    ├── user.repository.test.ts           # 14 tests (findByTelegramId, create, updateSettings, getSettings, updateActiveMode, updateOnboardingStep, markOnboarded)
     ├── topic.repository.test.ts          # 4 tests
     ├── word.repository.test.ts           # 12 tests
     ├── language.repository.test.ts       # 7 tests (findByCode, create, getOrCreate, findAll)
@@ -170,6 +183,8 @@ packages/adapters/db/src/
 packages/adapters/db/drizzle/
 ├── 0000_purple_butterfly.sql             # Initial schema (users, userLanguageSettings, words, translationRequests)
 ├── 0001_parallel_thunderbolt.sql         # Adds languages, word_context, topic_translation_cache tables
+├── 0002_languages_metadata.sql           # Language metadata columns + seed data
+├── 0003_active_mode.sql                  # Adds active_mode column to user_language_settings
 └── meta/
     ├── _journal.json
     ├── 0000_snapshot.json

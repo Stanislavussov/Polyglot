@@ -24,7 +24,7 @@ const bot = new Bot<BotContext>(config.BOT_TOKEN);
 bot.use(
   session({
     initial: (): SessionData => ({
-      activeMode: "idle",
+      activeMode: "translate",
       pendingTranslation: undefined,
       pendingCardMsgId: undefined,
       nextSourceLang: null,

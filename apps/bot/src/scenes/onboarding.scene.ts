@@ -99,6 +99,12 @@ export async function onboarding(
   }
 
   await conversation.external(() => userRepository.markOnboarded(userId));
+
+  // Activate translate mode and persist to DB so it survives restarts
+  ctx.session.activeMode = "translate";
+  await conversation.external(() =>
+    userRepository.updateActiveMode(userId, "translate"),
+  );
   logger.info({ userId }, "User completed onboarding");
 }
 

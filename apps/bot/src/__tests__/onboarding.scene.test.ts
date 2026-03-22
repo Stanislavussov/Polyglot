@@ -9,6 +9,7 @@ vi.mock("@polyglot/adapter-db", () => ({
     updateOnboardingStep: vi.fn(),
     updateSettings: vi.fn(),
     markOnboarded: vi.fn(),
+    updateActiveMode: vi.fn().mockResolvedValue({}),
   },
   getSupportedLangs: () => [
     { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", iso3Code: "rus", isSupported: true },
@@ -104,6 +105,12 @@ function setup(
   const ctx = {
     from: { id: 123456 },
     reply: vi.fn(async () => ({ message_id: 1 })),
+    session: {
+      activeMode: "idle",
+      pendingTranslation: undefined,
+      pendingCardMsgId: undefined,
+      nextSourceLang: null,
+    },
   } as any;
 
   return { conversation, ctx };
@@ -153,6 +160,36 @@ describe("onboarding", () => {
         learningLangs: ["cs"],
       });
       expect(repo.markOnboarded).toHaveBeenCalledWith(1);
+    });
+
+    it("sets activeMode to 'translate' after completion", async () => {
+      const { conversation, ctx } = setup([
+        cb("lang:en"),
+        cb("lang:ru"),
+        cb("learn:cs"),
+        cb("learn:done"),
+        txt("hello"),
+        cb("demo:save"),
+      ]);
+
+      expect(ctx.session.activeMode).toBe("idle"); // before
+      await onboarding(conversation, ctx);
+      expect(ctx.session.activeMode).toBe("translate"); // after
+    });
+
+    it("persists activeMode to DB after completion", async () => {
+      const { conversation, ctx } = setup([
+        cb("lang:en"),
+        cb("lang:ru"),
+        cb("learn:cs"),
+        cb("learn:done"),
+        txt("hello"),
+        cb("demo:save"),
+      ]);
+
+      await onboarding(conversation, ctx);
+
+      expect(repo.updateActiveMode).toHaveBeenCalledWith(1, "translate");
     });
 
     it("handles demo skip (no save) and still completes", async () => {
