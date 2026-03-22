@@ -1,5 +1,5 @@
 import { franc } from "franc";
-import { ISO1_TO_ISO3, ISO3_TO_ISO1 } from "../i18n/language-codes.js";
+import { getIso1ToIso3Map, getIso3ToIso1Map } from "../i18n/language-registry.js";
 
 /**
  * Unicode script ranges for heuristic detection of short texts.
@@ -150,11 +150,12 @@ function detectByScript(text: string, candidates: string[]): string | undefined 
  */
 function detectByFranc(text: string, candidates: string[]): string | undefined {
   // Convert candidates from ISO 639-1 to ISO 639-3 for franc
+  const iso1ToIso3 = getIso1ToIso3Map();
   const iso3Candidates: string[] = [];
   const iso3ToCandidate: Record<string, string> = {};
 
   for (const c of candidates) {
-    const iso3 = ISO1_TO_ISO3[c];
+    const iso3 = iso1ToIso3[c];
     if (iso3) {
       iso3Candidates.push(iso3);
       iso3ToCandidate[iso3] = c;

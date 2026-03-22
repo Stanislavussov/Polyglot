@@ -1,20 +1,23 @@
 // Functional API (primary)
 export { t, getSupportedLangs, isSupported } from "./i18n.js";
 
-// Language name registry (used by Wiktionary import, bot UI, etc.)
+// Language registry — single source of truth, populated from DB at startup
 export {
+  initLanguageRegistry,
+  isRegistryInitialized,
   getLanguageName,
   getLanguageNativeName,
   getAllLanguageNames,
   isKnownLanguage,
-} from "./language-names.js";
-
-// Language code mappings (ISO 639-1 ↔ ISO 639-3 — single source of truth)
-export {
-  ISO1_TO_ISO3,
-  ISO3_TO_ISO1,
+  getIso1ToIso3Map,
+  getIso3ToIso1Map,
   resolveToIso3,
-} from "./language-codes.js";
+  normalizeToIso1,
+  getLangFlag,
+  getLangDisplay,
+  getSupportedLanguages,
+} from "./language-registry.js";
+export type { LanguageEntry } from "./language-registry.js";
 
 // Types
 export type { I18nKey, SupportedLang, LocaleMessages, I18nParams, Locale } from "./types.js";

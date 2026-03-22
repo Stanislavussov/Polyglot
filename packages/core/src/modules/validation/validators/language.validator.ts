@@ -1,5 +1,5 @@
 import type { ValidationResult } from "../types.js";
-import { resolveToIso3 } from "../../i18n/language-codes.js";
+import { resolveToIso3 } from "../../i18n/language-registry.js";
 
 export { resolveToIso3 };
 

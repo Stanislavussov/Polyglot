@@ -10,6 +10,27 @@ vi.mock("@polyglot/adapter-db", () => ({
     updateSettings: vi.fn(),
     markOnboarded: vi.fn(),
   },
+  getSupportedLangs: () => [
+    { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", iso3Code: "rus", isSupported: true },
+    { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", iso3Code: "eng", isSupported: true },
+    { code: "cs", name: "Czech", nativeName: "Čeština", flag: "🇨🇿", iso3Code: "ces", isSupported: true },
+    { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪", iso3Code: "deu", isSupported: true },
+    { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷", iso3Code: "fra", isSupported: true },
+    { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸", iso3Code: "spa", isSupported: true },
+    { code: "it", name: "Italian", nativeName: "Italiano", flag: "🇮🇹", iso3Code: "ita", isSupported: true },
+    { code: "pt", name: "Portuguese", nativeName: "Português", flag: "🇵🇹", iso3Code: "por", isSupported: true },
+    { code: "uk", name: "Ukrainian", nativeName: "Українська", flag: "🇺🇦", iso3Code: "ukr", isSupported: true },
+    { code: "pl", name: "Polish", nativeName: "Polski", flag: "🇵🇱", iso3Code: "pol", isSupported: true },
+  ],
+  getLangDisplay: (code: string) => {
+    const map: Record<string, string> = {
+      ru: "🇷🇺 Русский", en: "🇬🇧 English", cs: "🇨🇿 Čeština",
+      de: "🇩🇪 Deutsch", fr: "🇫🇷 Français", es: "🇪🇸 Español",
+      it: "🇮🇹 Italiano", pt: "🇵🇹 Português", uk: "🇺🇦 Українська",
+      pl: "🇵🇱 Polski",
+    };
+    return map[code] ?? code;
+  },
 }));
 
 vi.mock("@polyglot/infra", () => ({

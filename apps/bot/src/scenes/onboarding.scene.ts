@@ -3,7 +3,8 @@ import type { Conversation } from "@grammyjs/conversations";
 import { userRepository } from "@polyglot/adapter-db";
 import { t, isSupported, type I18nKey, type SupportedLang } from "@polyglot/core";
 import type { BotContext, ConversationContext } from "../types.js";
-import { LANGUAGES, MAX_LEARNING_LANGS, langDisplay } from "../constants.js";
+import { MAX_LEARNING_LANGS } from "../constants.js";
+import { getSupportedLangs, getLangDisplay } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/infra";
 
 type OnboardingConversation = Conversation<BotContext, ConversationContext>;
@@ -113,8 +114,8 @@ async function stepChooseLanguage(
   showBack: boolean,
 ): Promise<SupportedLang | BackAction> {
   const keyboard = new InlineKeyboard();
-  for (const l of LANGUAGES) {
-    keyboard.text(`${l.flag} ${l.label}`, `lang:${l.code}`).row();
+  for (const l of getSupportedLangs()) {
+    keyboard.text(getLangDisplay(l.code), `lang:${l.code}`).row();
   }
   if (showBack) {
     keyboard.text(`⬅️ ${t("back", lang)}`, "onb:back").row();
@@ -140,7 +141,7 @@ async function stepChooseLanguage(
   await response.answerCallbackQuery();
 
   await response.editMessageText(
-    `${t(textKey, lang)}\n\n✅ ${langDisplay(selectedCode)}`,
+    `${t(textKey, lang)}\n\n✅ ${getLangDisplay(selectedCode)}`,
   );
 
   return isSupported(selectedCode) ? selectedCode : "en";
@@ -160,12 +161,12 @@ async function stepChooseLearningLangs(
 
   function buildKeyboard(): InlineKeyboard {
     const keyboard = new InlineKeyboard();
-    for (const l of LANGUAGES) {
+    for (const l of getSupportedLangs()) {
       if (l.code === nativeLang) continue;
       const isSelected = selected.includes(l.code);
       const prefix = isSelected ? "✅ " : "";
       keyboard
-        .text(`${prefix}${l.flag} ${l.label}`, `learn:${l.code}`)
+        .text(`${prefix}${getLangDisplay(l.code)}`, `learn:${l.code}`)
         .row();
     }
     if (selected.length > 0) {
@@ -203,7 +204,7 @@ async function stepChooseLearningLangs(
         continue;
       }
       await response.answerCallbackQuery();
-      const selectedDisplay = selected.map((c) => langDisplay(c)).join(", ");
+      const selectedDisplay = selected.map((c) => getLangDisplay(c)).join(", ");
       await response.editMessageText(`${promptText}\n\n✅ ${selectedDisplay}`);
       return selected;
     }
@@ -214,7 +215,7 @@ async function stepChooseLearningLangs(
     if (idx >= 0) {
       selected.splice(idx, 1);
       await response.answerCallbackQuery({
-        text: t("langRemoved", interfaceLang, { lang: langDisplay(langCode) }),
+        text: t("langRemoved", interfaceLang, { lang: getLangDisplay(langCode) }),
       });
     } else if (selected.length >= MAX_LEARNING_LANGS) {
       await response.answerCallbackQuery({
@@ -225,7 +226,7 @@ async function stepChooseLearningLangs(
     } else {
       selected.push(langCode);
       await response.answerCallbackQuery({
-        text: t("langAdded", interfaceLang, { lang: langDisplay(langCode) }),
+        text: t("langAdded", interfaceLang, { lang: getLangDisplay(langCode) }),
       });
     }
 

@@ -5,7 +5,7 @@
 import { userRepository } from "@polyglot/adapter-db";
 import { t, isSupported, type SupportedLang } from "@polyglot/core";
 import type { BotContext } from "../types.js";
-import { langDisplay } from "../constants.js";
+import { getLangDisplay } from "@polyglot/adapter-db";
 
 /**
  * Handles /translate command — activates translate mode.
@@ -23,8 +23,8 @@ export async function handleTranslateCommand(ctx: BotContext): Promise<void> {
   const learningLangs = settings?.learningLangs ?? [];
 
   // Build language display strings
-  const fromLang = langDisplay(nativeLang);
-  const toLangs = learningLangs.map(langDisplay).join(", ") || "—";
+  const fromLang = getLangDisplay(nativeLang);
+  const toLangs = learningLangs.map(getLangDisplay).join(", ") || "—";
 
   // Send confirmation message with language direction
   await ctx.reply(t("translateModeOn", lang, { fromLang, toLangs }));

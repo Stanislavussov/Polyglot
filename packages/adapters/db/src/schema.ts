@@ -12,14 +12,26 @@ import {
 } from "drizzle-orm/pg-core";
 
 // ─────────────────────────────────────────────
-// Languages — normalized language codes
+// Languages — single source of truth for all language metadata
 // ─────────────────────────────────────────────
 export const languages = pgTable(
   "languages",
   {
     id: serial("id").primaryKey(),
+    /** ISO 639-1 code: "en", "ru", "cs" */
     code: text("code").notNull().unique(),
+    /** English name: "English", "Russian", "Czech" */
     name: text("name").notNull(),
+    /** Native/autonym name: "English", "Русский", "Čeština" */
+    nativeName: text("native_name"),
+    /** Emoji flag: "🇬🇧", "🇷🇺", "🇨🇿" */
+    flag: text("flag"),
+    /** ISO 639-3 code for franc detection: "eng", "rus", "ces" */
+    iso3Code: text("iso3_code"),
+    /** Available in bot UI as interface/learning language */
+    isSupported: boolean("is_supported").default(false).notNull(),
+    /** Localized names: {"ru": "Английский", "cs": "Angličtina"} */
+    localizedNames: jsonb("localized_names").$type<Record<string, string>>(),
     createdAt: timestamp("created_at").defaultNow(),
   },
   (t) => [uniqueIndex("languages_code_idx").on(t.code)],

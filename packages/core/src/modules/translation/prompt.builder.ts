@@ -6,7 +6,7 @@
  * CEFR level, transcription, synonyms, and example sentences.
  */
 import type { TranslationRequest, DictionaryContext } from "./types.js";
-import { getLanguageName } from "../i18n/language-names.js";
+import { getLanguageName } from "../i18n/language-registry.js";
 
 /**
  * Builds the primary translation prompt.

@@ -63,3 +63,23 @@ export type {
   NewWordContext,
 } from "./repositories/word-context.repository.js";
 export { createContextLookup } from "./context-lookup.js";
+
+// Language cache — loaded from DB, serves all language metadata
+export {
+  loadLanguageCache,
+  isLanguageCacheLoaded,
+  getLang,
+  getAllLangs,
+  getSupportedLangs,
+  getLangName,
+  getLangNativeName,
+  getLangFlag,
+  getLangDisplay,
+  getIso3,
+  getIso1FromIso3,
+  isKnownLang,
+  getIso1ToIso3Map,
+  getIso3ToIso1Map,
+  normalizeToIso1,
+} from "./language-cache.js";
+export type { CachedLanguage } from "./language-cache.js";

@@ -2,7 +2,8 @@ import { Bot, session } from "grammy";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { loadConfig } from "@polyglot/infra";
 import { logger } from "@polyglot/infra";
-import { closeDb } from "@polyglot/adapter-db";
+import { closeDb, loadLanguageCache, getAllLangs } from "@polyglot/adapter-db";
+import { initLanguageRegistry } from "@polyglot/core";
 import { authMiddleware } from "./middlewares/auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
@@ -96,6 +97,13 @@ bot.catch((err) => {
 // ── Start bot ──
 async function main(): Promise<void> {
   setupGracefulShutdown();
+
+  // Load languages from DB into cache → init core registry
+  await loadLanguageCache();
+  const allLangs = getAllLangs();
+  initLanguageRegistry(allLangs);
+  logger.info({ count: allLangs.length }, "Language registry loaded from DB");
+
   await setBotCommands();
 
   logger.info("Starting bot in long-polling mode...");

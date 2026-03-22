@@ -27,7 +27,6 @@ export {
   validateSchema,
   validateSemantic,
   validateLanguage,
-  resolveToIso3,
   validateExamples,
   validate,
 } from "./modules/validation/index.js";

@@ -11,6 +11,9 @@ importers:
       '@polyglot/adapter-db':
         specifier: workspace:*
         version: link:packages/adapters/db
+      '@polyglot/core':
+        specifier: workspace:*
+        version: link:packages/core
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1
@@ -119,6 +122,9 @@ importers:
       '@polyglot/adapter-db':
         specifier: workspace:*
         version: link:../adapters/db
+      '@polyglot/core':
+        specifier: workspace:*
+        version: link:../core
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1

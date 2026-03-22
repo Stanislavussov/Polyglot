@@ -20,6 +20,9 @@ import {
   closeDb,
   languageRepository,
   wordContextRepository,
+  loadLanguageCache,
+  normalizeToIso1,
+  getLangName,
 } from "@polyglot/adapter-db";
 
 // ─────────────────────────────────────────────
@@ -60,10 +63,17 @@ async function* parseJsonl(filePath: string): AsyncGenerator<ParsedEntry> {
       // Skip entries without required fields
       if (!entry.word || !entry.lang_code || !entry.pos) continue;
 
+      // Normalize lang_code to ISO 639-1 (e.g. "ces" → "cs", "ru" → "ru")
+      const rawCode: string = entry.lang_code;
+      const normalizedCode = normalizeToIso1(rawCode) ?? rawCode;
+      // Use canonical name from our registry, fall back to Wiktionary's lang field
+      const langName = getLangName(normalizedCode);
+      const resolvedName = langName !== normalizedCode ? langName : (entry.lang ?? normalizedCode);
+
       yield {
         word: entry.word,
-        langCode: entry.lang_code,
-        langName: entry.lang ?? entry.lang_code,
+        langCode: normalizedCode,
+        langName: resolvedName,
         pos: entry.pos,
         formTags: entry.forms?.[0]?.tags ?? [],
         glosses: entry.senses?.flatMap((s: any) => s.glosses ?? []) ?? [],
@@ -227,6 +237,8 @@ Examples:
   const langFilter = values.lang;
 
   try {
+    // Load language cache for normalization (ISO 639-3 → ISO 639-1)
+    await loadLanguageCache();
     await importWiktionary(filePath, { batchSize, langFilter });
   } catch (err) {
     console.error("❌ Import failed:", err);

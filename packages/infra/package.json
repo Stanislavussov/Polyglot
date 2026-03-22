@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@polyglot/adapter-db": "workspace:*",
+    "@polyglot/core": "workspace:*",
     "dotenv": "^17.3.1",
     "pino": "^10.3.1"
   },
