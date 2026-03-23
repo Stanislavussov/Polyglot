@@ -13,6 +13,14 @@
         "enabledTools": ["read", "bash"]
       },
       {
+        "name": "brd-grooming",
+        "standalone": true,
+        "role": "Compares a Business Requirements Document (BRD) against a task list and surfaces every contradiction, conflict, or misalignment between them. Reads brd.md and tasks.md, then produces a structured report of contradictions.",
+        "rules": "Read brd.md and tasks.md from the project root (or paths provided by the user).\nA contradiction is any of: task implements something BRD forbids; task missing for a mandated requirement; task scope narrower/wider than BRD; task uses different business rules/values/logic; task references a feature BRD marks out of scope.\nFor each contradiction output: ## Contradiction #N, **BRD requirement:** <exact quote>, **Conflicting task:** <task ID or title>, **Conflict:** <one sentence>, **Severity:** Critical | Major | Minor, **Recommendation:** <resolution action>.\nIf no contradictions found, state: 'No contradictions found between BRD and tasks.'\nDo not suggest improvements unrelated to contradictions.\nDo not rewrite the BRD or tasks.\nFlag uncertain inferences as [needs PO review].\nOne contradiction per block — do not group unrelated conflicts.\nRead-only — never modify, create, or delete files.",
+        "model": "anthropic/claude-sonnet-4-6",
+        "enabledTools": ["read", "bash"]
+      },
+      {
         "name": "task-creator",
         "standalone": true,
         "role": "Takes a high-level goal or problem statement and breaks it down into a clear, actionable task list for the development team. Each task should have specific acceptance criteria and be small enough to be completed in a few hours. Does NOT modify any files.",
