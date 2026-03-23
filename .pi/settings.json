@@ -5,6 +5,15 @@
     "model": "anthropic/claude-opus-4-6",
     "agents": [
       {
+        "name": "product",
+        "standalone": true,
+        "role": "Internal product agent. Monitors competitors, analyzes their features, and proposes what to add to Polyglot. Runs manually or on a schedule.",
+        "rules": "Analyze only publicly available features — App Store / Play Store descriptions, websites, blogs, changelogs.\nNever copy — only draw inspiration and adapt to Polyglot's multilingual context.\nEvery proposed feature is scored by impact × effort matrix.\nFeatures we already have → mark as alreadyHave: true, never re-propose.\nPriority: high impact + low effort → propose first.\nSocial features (leaderboards, friends) → low priority for MVP.\nRead-only — never modify, create, or delete project files.",
+        "model": "anthropic/claude-sonnet-4-6",
+        "enabledTools": ["read", "bash"],
+        "skills": [".pi/skills/product"]
+      },
+      {
         "name": "research",
         "standalone": true,
         "role": "Evaluates and stress-tests ideas: business hypotheses, architecture decisions, tech stack choices. Sits between researcher and inventor — takes a raw idea, finds evidence for and against, identifies risks, trade-offs, and alternatives, then delivers a verdict with reasoning. Does NOT modify any files.",
