@@ -72,6 +72,7 @@ const FAKE_USER = {
 function setup(
   actions: UserAction[],
   user: typeof FAKE_USER | null = FAKE_USER,
+  telegramLocale?: string,
 ) {
   let idx = 0;
 
@@ -103,7 +104,7 @@ function setup(
   } as any;
 
   const ctx = {
-    from: { id: 123456 },
+    from: { id: 123456, language_code: telegramLocale },
     reply: vi.fn(async () => ({ message_id: 1 })),
     session: {
       activeMode: "idle",
@@ -136,26 +137,23 @@ describe("onboarding", () => {
     vi.clearAllMocks();
   });
 
-  // ── Forward-only flow ────────────────────────────────────────────────────
+  // ── Forward-only flow (3 steps) ──────────────────────────────────────────
 
   describe("forward-only flow", () => {
-    it("completes all 4 steps and marks user as onboarded", async () => {
+    it("completes all 3 steps and marks user as onboarded", async () => {
       const { conversation, ctx } = setup([
-        cb("lang:en"), // Step 1: interface language
-        cb("lang:ru"), // Step 2: native language
-        cb("learn:cs"), // Step 3: select Czech
-        cb("learn:done"), // Step 3: confirm
-        txt("hello"), // Step 4: enter word
-        cb("demo:save"), // Step 4: save
+        cb("lang:ru"), // Step 1: native language
+        cb("learn:cs"), // Step 2: select Czech
+        cb("learn:done"), // Step 2: confirm
+        txt("hello"), // Step 3: enter word (demo)
       ]);
 
       await onboarding(conversation, ctx);
 
       expect(repo.updateOnboardingStep).toHaveBeenCalledWith(1, 1);
       expect(repo.updateOnboardingStep).toHaveBeenCalledWith(1, 2);
-      expect(repo.updateOnboardingStep).toHaveBeenCalledWith(1, 3);
       expect(repo.updateSettings).toHaveBeenCalledWith(1, {
-        interfaceLang: "en",
+        interfaceLang: "ru", // inferred from native language
         nativeLang: "ru",
         learningLangs: ["cs"],
       });
@@ -164,12 +162,10 @@ describe("onboarding", () => {
 
     it("sets activeMode to 'translate' after completion", async () => {
       const { conversation, ctx } = setup([
-        cb("lang:en"),
         cb("lang:ru"),
         cb("learn:cs"),
         cb("learn:done"),
         txt("hello"),
-        cb("demo:save"),
       ]);
 
       expect(ctx.session.activeMode).toBe("idle"); // before
@@ -179,12 +175,10 @@ describe("onboarding", () => {
 
     it("persists activeMode to DB after completion", async () => {
       const { conversation, ctx } = setup([
-        cb("lang:en"),
         cb("lang:ru"),
         cb("learn:cs"),
         cb("learn:done"),
         txt("hello"),
-        cb("demo:save"),
       ]);
 
       await onboarding(conversation, ctx);
@@ -192,19 +186,71 @@ describe("onboarding", () => {
       expect(repo.updateActiveMode).toHaveBeenCalledWith(1, "translate");
     });
 
-    it("handles demo skip (no save) and still completes", async () => {
+    it("demo step shows result immediately without Save/Skip prompt", async () => {
       const { conversation, ctx } = setup([
         cb("lang:en"),
-        cb("lang:ru"),
         cb("learn:cs"),
         cb("learn:done"),
         txt("hello"),
-        cb("demo:skip"), // skip saving
       ]);
 
       await onboarding(conversation, ctx);
 
+      // After the word is entered, ctx.reply should be called with the
+      // demo result (parse_mode: "Markdown") and then the completion message.
+      // No Save/Skip keyboard should be shown.
+      const replyCalls = ctx.reply.mock.calls;
+      // Find the demo result call — it has parse_mode: "Markdown"
+      const demoCall = replyCalls.find(
+        (call: any[]) => call[1]?.parse_mode === "Markdown",
+      );
+      expect(demoCall).toBeDefined();
+      // Should NOT have reply_markup (no Save/Skip buttons)
+      expect(demoCall[1]?.reply_markup).toBeUndefined();
+
       expect(repo.markOnboarded).toHaveBeenCalledWith(1);
+    });
+  });
+
+  // ── Interface language inference ─────────────────────────────────────────
+
+  describe("interface language inference", () => {
+    it("infers interface language from native language", async () => {
+      const { conversation, ctx } = setup([
+        cb("lang:ru"), // native = Russian
+        cb("learn:en"),
+        cb("learn:done"),
+        txt("привет"),
+      ]);
+
+      await onboarding(conversation, ctx);
+
+      expect(repo.updateSettings).toHaveBeenCalledWith(1, {
+        interfaceLang: "ru", // inferred from native
+        nativeLang: "ru",
+        learningLangs: ["en"],
+      });
+    });
+
+    it("uses native language over Telegram locale", async () => {
+      const { conversation, ctx } = setup(
+        [
+          cb("lang:cs"), // native = Czech
+          cb("learn:en"),
+          cb("learn:done"),
+          txt("ahoj"),
+        ],
+        FAKE_USER,
+        "ru", // Telegram locale is Russian, but native is Czech
+      );
+
+      await onboarding(conversation, ctx);
+
+      expect(repo.updateSettings).toHaveBeenCalledWith(1, {
+        interfaceLang: "cs", // uses native, not Telegram locale
+        nativeLang: "cs",
+        learningLangs: ["en"],
+      });
     });
   });
 
@@ -229,21 +275,19 @@ describe("onboarding", () => {
   describe("back navigation", () => {
     it("back from step 2 returns to step 1 and completes with new choice", async () => {
       const { conversation, ctx } = setup([
-        cb("lang:en"), // Step 1: pick English
-        cb("onb:back"), // Step 2: back
-        cb("lang:ru"), // Step 1 (again): pick Russian
-        cb("lang:en"), // Step 2 (again): pick English as native
-        cb("learn:cs"), // Step 3
+        cb("lang:ru"), // Step 1: pick Russian
+        cb("learn:back"), // Step 2: back
+        cb("lang:en"), // Step 1 (again): pick English
+        cb("learn:cs"), // Step 2 (again)
         cb("learn:done"),
-        txt("hello"), // Step 4
-        cb("demo:save"),
+        txt("hello"), // Step 3
       ]);
 
       await onboarding(conversation, ctx);
 
       expect(repo.markOnboarded).toHaveBeenCalled();
       expect(repo.updateSettings).toHaveBeenCalledWith(1, {
-        interfaceLang: "ru", // changed on second pass
+        interfaceLang: "en", // changed — inferred from new native
         nativeLang: "en",
         learningLangs: ["cs"],
       });
@@ -251,37 +295,13 @@ describe("onboarding", () => {
 
     it("back from step 3 returns to step 2 and completes with new choice", async () => {
       const { conversation, ctx } = setup([
-        cb("lang:en"), // Step 1
-        cb("lang:ru"), // Step 2: pick Russian
-        cb("learn:back"), // Step 3: back
-        cb("lang:en"), // Step 2 (again): change to English
-        cb("learn:cs"), // Step 3 (again)
+        cb("lang:ru"), // Step 1
+        cb("learn:cs"), // Step 2: select Czech
         cb("learn:done"),
-        txt("hello"),
-        cb("demo:save"),
-      ]);
-
-      await onboarding(conversation, ctx);
-
-      expect(repo.markOnboarded).toHaveBeenCalled();
-      expect(repo.updateSettings).toHaveBeenCalledWith(1, {
-        interfaceLang: "en",
-        nativeLang: "en", // changed on second pass
-        learningLangs: ["cs"],
-      });
-    });
-
-    it("back from step 4 returns to step 3 and completes with new choice", async () => {
-      const { conversation, ctx } = setup([
-        cb("lang:en"), // Step 1
-        cb("lang:ru"), // Step 2
-        cb("learn:cs"), // Step 3: select Czech
+        cb("onb:back"), // Step 3: back
+        cb("learn:de"), // Step 2 (again): select German
         cb("learn:done"),
-        cb("onb:back"), // Step 4: back
-        cb("learn:de"), // Step 3 (again): select German
-        cb("learn:done"),
-        txt("hello"), // Step 4 (again)
-        cb("demo:save"),
+        txt("hello"), // Step 3 (again)
       ]);
 
       await onboarding(conversation, ctx);
@@ -289,27 +309,23 @@ describe("onboarding", () => {
       expect(repo.markOnboarded).toHaveBeenCalled();
       // Last updateSettings call should have the new languages
       expect(repo.updateSettings).toHaveBeenLastCalledWith(1, {
-        interfaceLang: "en",
+        interfaceLang: "ru",
         nativeLang: "ru",
         learningLangs: ["de"], // changed on second pass
       });
     });
 
-    it("supports multiple consecutive backs (4 → 3 → 2 → 1) and completes", async () => {
+    it("supports multiple consecutive backs (3 → 2 → 1) and completes", async () => {
       const { conversation, ctx } = setup([
-        cb("lang:en"), // Step 1
-        cb("lang:ru"), // Step 2
-        cb("learn:cs"), // Step 3
+        cb("lang:ru"), // Step 1
+        cb("learn:cs"), // Step 2
         cb("learn:done"),
-        cb("onb:back"), // Step 4: back → 3
-        cb("learn:back"), // Step 3: back → 2
-        cb("onb:back"), // Step 2: back → 1
+        cb("onb:back"), // Step 3: back → 2
+        cb("learn:back"), // Step 2: back → 1
         cb("lang:cs"), // Step 1 (again): pick Czech
-        cb("lang:ru"), // Step 2 (again)
-        cb("learn:en"), // Step 3 (again): select English
+        cb("learn:en"), // Step 2 (again): select English
         cb("learn:done"),
-        txt("world"), // Step 4 (again)
-        cb("demo:skip"),
+        txt("world"), // Step 3 (again)
       ]);
 
       await onboarding(conversation, ctx);
@@ -317,29 +333,27 @@ describe("onboarding", () => {
       expect(repo.markOnboarded).toHaveBeenCalled();
       expect(repo.updateSettings).toHaveBeenLastCalledWith(1, {
         interfaceLang: "cs",
-        nativeLang: "ru",
+        nativeLang: "cs",
         learningLangs: ["en"],
       });
     });
 
-    it("back from step 3 resets learning language selection", async () => {
+    it("back from step 2 resets learning language selection", async () => {
       const { conversation, ctx } = setup([
-        cb("lang:en"), // Step 1
-        cb("lang:ru"), // Step 2
-        cb("learn:cs"), // Step 3: select Czech
-        cb("learn:de"), // Step 3: select German
-        cb("learn:back"), // Step 3: back (selection discarded)
-        cb("lang:ru"), // Step 2 (again)
-        cb("learn:fr"), // Step 3 (again): only French this time
+        cb("lang:ru"), // Step 1
+        cb("learn:cs"), // Step 2: select Czech
+        cb("learn:de"), // Step 2: select German
+        cb("learn:back"), // Step 2: back (selection discarded)
+        cb("lang:ru"), // Step 1 (again)
+        cb("learn:fr"), // Step 2 (again): only French this time
         cb("learn:done"),
         txt("hello"),
-        cb("demo:save"),
       ]);
 
       await onboarding(conversation, ctx);
 
       expect(repo.updateSettings).toHaveBeenLastCalledWith(1, {
-        interfaceLang: "en",
+        interfaceLang: "ru",
         nativeLang: "ru",
         learningLangs: ["fr"], // previous cs+de selection was discarded
       });
@@ -352,37 +366,32 @@ describe("onboarding", () => {
     it("does not call updateOnboardingStep when going back", async () => {
       const { conversation, ctx } = setup([
         cb("lang:en"), // Step 1: forward
-        cb("onb:back"), // Step 2: back (no step-2 DB call)
+        cb("learn:back"), // Step 2: back (no step-2 DB call)
         cb("lang:en"), // Step 1: forward (again)
-        cb("lang:ru"), // Step 2: forward
         cb("learn:cs"),
         cb("learn:done"),
         txt("hello"),
-        cb("demo:save"),
       ]);
 
       await onboarding(conversation, ctx);
 
-      // Step 1 completed twice, step 2 once, step 3 once
+      // Step 1 completed twice, step 2 once
       expect(repo.updateOnboardingStep.mock.calls).toEqual([
         [1, 1],
         [1, 1],
         [1, 2],
-        [1, 3],
       ]);
     });
 
-    it("calls updateSettings again after back from step 4 and re-completing step 3", async () => {
+    it("calls updateSettings again after back from step 3 and re-completing step 2", async () => {
       const { conversation, ctx } = setup([
         cb("lang:en"),
-        cb("lang:ru"),
         cb("learn:cs"),
-        cb("learn:done"), // first step 3 completion → updateSettings #1
-        cb("onb:back"), // Step 4: back → 3
+        cb("learn:done"), // first step 2 completion → updateSettings #1
+        cb("onb:back"), // Step 3: back → 2
         cb("learn:de"),
-        cb("learn:done"), // second step 3 completion → updateSettings #2
+        cb("learn:done"), // second step 2 completion → updateSettings #2
         txt("hello"),
-        cb("demo:save"),
       ]);
 
       await onboarding(conversation, ctx);
@@ -390,12 +399,12 @@ describe("onboarding", () => {
       expect(repo.updateSettings).toHaveBeenCalledTimes(2);
       expect(repo.updateSettings).toHaveBeenNthCalledWith(1, 1, {
         interfaceLang: "en",
-        nativeLang: "ru",
+        nativeLang: "en",
         learningLangs: ["cs"],
       });
       expect(repo.updateSettings).toHaveBeenNthCalledWith(2, 1, {
         interfaceLang: "en",
-        nativeLang: "ru",
+        nativeLang: "en",
         learningLangs: ["de"],
       });
     });
@@ -403,18 +412,14 @@ describe("onboarding", () => {
     it("calls markOnboarded exactly once at the end", async () => {
       const { conversation, ctx } = setup([
         cb("lang:en"),
-        cb("onb:back"), // back from step 2
+        cb("learn:back"), // back from step 2
         cb("lang:en"),
-        cb("lang:ru"),
-        cb("learn:back"), // back from step 3
-        cb("lang:ru"),
         cb("learn:cs"),
         cb("learn:done"),
-        cb("onb:back"), // back from step 4
+        cb("onb:back"), // back from step 3
         cb("learn:cs"),
         cb("learn:done"),
         txt("hello"),
-        cb("demo:save"),
       ]);
 
       await onboarding(conversation, ctx);
@@ -429,12 +434,10 @@ describe("onboarding", () => {
   describe("back button presence in keyboards", () => {
     async function runFullFlow() {
       const harness = setup([
-        cb("lang:en"),
         cb("lang:ru"),
         cb("learn:cs"),
         cb("learn:done"),
         txt("hello"),
-        cb("demo:save"),
       ]);
       await onboarding(harness.conversation, harness.ctx);
       return harness.ctx;
@@ -442,38 +445,32 @@ describe("onboarding", () => {
 
     it("step 1 keyboard does NOT have a back button", async () => {
       const ctx = await runFullFlow();
-      // ctx.reply call [0] = step 1 prompt
+      // ctx.reply call [0] = step 1 prompt (native language)
       const kb = getKeyboard(ctx, 0);
       expect(hasButton(kb, "onb:back")).toBe(false);
+      expect(hasButton(kb, "learn:back")).toBe(false);
     });
 
     it("step 2 keyboard HAS a back button", async () => {
       const ctx = await runFullFlow();
-      // ctx.reply call [1] = step 2 prompt
+      // ctx.reply call [1] = step 2 prompt (learning languages)
       const kb = getKeyboard(ctx, 1);
-      expect(hasButton(kb, "onb:back")).toBe(true);
-    });
-
-    it("step 3 keyboard HAS a back button", async () => {
-      const ctx = await runFullFlow();
-      // ctx.reply call [2] = step 3 prompt
-      const kb = getKeyboard(ctx, 2);
       expect(hasButton(kb, "learn:back")).toBe(true);
     });
 
-    it("step 4 (enter word) prompt HAS a back button", async () => {
+    it("step 3 (enter word) prompt HAS a back button", async () => {
       const ctx = await runFullFlow();
-      // ctx.reply call [3] = step 4 "enter word" prompt
-      const kb = getKeyboard(ctx, 3);
+      // ctx.reply call [2] = step 3 "enter word" prompt
+      const kb = getKeyboard(ctx, 2);
       expect(hasButton(kb, "onb:back")).toBe(true);
     });
 
-    it("step 4 (save/skip) prompt does NOT have a back button", async () => {
+    it("step 3 (demo result) does NOT have Save/Skip buttons", async () => {
       const ctx = await runFullFlow();
-      // ctx.reply call [4] = step 4 translation result prompt
-      const kb = getKeyboard(ctx, 4);
-      expect(hasButton(kb, "onb:back")).toBe(false);
-      expect(hasButton(kb, "learn:back")).toBe(false);
+      // ctx.reply call [3] = step 3 translation result (no keyboard)
+      const kb = getKeyboard(ctx, 3);
+      expect(hasButton(kb, "demo:save")).toBe(false);
+      expect(hasButton(kb, "demo:skip")).toBe(false);
     });
   });
 });

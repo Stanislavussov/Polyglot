@@ -7,6 +7,9 @@ export type NewUser = typeof users.$inferInsert;
 export type UserLanguageSettings = typeof userLanguageSettings.$inferSelect;
 export type NewUserLanguageSettings = typeof userLanguageSettings.$inferInsert;
 
+/** Maximum number of learning languages per user (BRD §5, §12). */
+export const MAX_LEARNING_LANGS = 4;
+
 export const userRepository = {
   /** Find a user by their Telegram ID. */
   async findByTelegramId(telegramId: number): Promise<User | null> {
@@ -26,11 +29,19 @@ export const userRepository = {
     return rows[0]!;
   },
 
-  /** Update user language settings (upsert). */
+  /** Update user language settings (upsert). Throws if learningLangs exceeds MAX_LEARNING_LANGS. */
   async updateSettings(
     userId: number,
     settings: Omit<NewUserLanguageSettings, "userId">,
   ): Promise<UserLanguageSettings> {
+    if (
+      settings.learningLangs &&
+      settings.learningLangs.length > MAX_LEARNING_LANGS
+    ) {
+      throw new Error(
+        `Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got ${settings.learningLangs.length}`,
+      );
+    }
     const db = getDb();
     const rows = await db
       .insert(userLanguageSettings)
@@ -89,12 +100,12 @@ export const userRepository = {
     return rows[0]!;
   },
 
-  /** Mark user as onboarded. */
+  /** Mark user as onboarded (3-step flow per BRD §5). */
   async markOnboarded(userId: number): Promise<User> {
     const db = getDb();
     const rows = await db
       .update(users)
-      .set({ onboarded: true, onboardingStep: 4 })
+      .set({ onboarded: true, onboardingStep: 3 })
       .where(eq(users.id, userId))
       .returning();
     return rows[0]!;

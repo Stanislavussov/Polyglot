@@ -52,7 +52,7 @@ vi.mock("../index.js", () => ({
   getDb: () => mockDb,
 }));
 
-const { userRepository } = await import(
+const { userRepository, MAX_LEARNING_LANGS } = await import(
   "../repositories/user.repository.js"
 );
 
@@ -198,6 +198,63 @@ describe("userRepository", () => {
         interfaceLang: "en",
       });
     });
+
+    it("allows exactly MAX_LEARNING_LANGS (4) languages", async () => {
+      const settings = makeSettings({
+        learningLangs: ["cs", "de", "fr", "es"],
+      });
+      mockRows.push(settings);
+
+      const result = await userRepository.updateSettings(1, {
+        interfaceLang: "en",
+        nativeLang: "ru",
+        learningLangs: ["cs", "de", "fr", "es"],
+      });
+
+      expect(result).toEqual(settings);
+      expect(insertFn).toHaveBeenCalledOnce();
+    });
+
+    it("throws when learningLangs exceeds MAX_LEARNING_LANGS (BUG-09)", async () => {
+      await expect(
+        userRepository.updateSettings(1, {
+          interfaceLang: "en",
+          nativeLang: "ru",
+          learningLangs: ["cs", "de", "fr", "es", "it"],
+        }),
+      ).rejects.toThrow(
+        `Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got 5`,
+      );
+
+      // Should NOT have called the DB
+      expect(insertFn).not.toHaveBeenCalled();
+    });
+
+    it("allows settings update when learningLangs is not provided", async () => {
+      const settings = makeSettings();
+      mockRows.push(settings);
+
+      // No learningLangs in settings — should not throw
+      const result = await userRepository.updateSettings(1, {
+        interfaceLang: "en",
+        nativeLang: "ru",
+      } as Omit<typeof settings, "id" | "userId" | "isActive" | "updatedAt">);
+
+      expect(result).toEqual(settings);
+    });
+
+    it("allows empty learningLangs array", async () => {
+      const settings = makeSettings({ learningLangs: [] });
+      mockRows.push(settings);
+
+      const result = await userRepository.updateSettings(1, {
+        interfaceLang: "en",
+        nativeLang: "ru",
+        learningLangs: [],
+      });
+
+      expect(result).toEqual(settings);
+    });
   });
 
   describe("getSettings", () => {
@@ -281,8 +338,8 @@ describe("userRepository", () => {
   });
 
   describe("markOnboarded", () => {
-    it("sets onboarded to true and step to 4", async () => {
-      const user = makeUser({ onboarded: true, onboardingStep: 4 });
+    it("sets onboarded to true and step to 3 (BRD §5 — 3-step onboarding)", async () => {
+      const user = makeUser({ onboarded: true, onboardingStep: 3 });
       updateReturningFn.mockResolvedValueOnce([user]);
 
       const result = await userRepository.markOnboarded(1);
@@ -290,7 +347,7 @@ describe("userRepository", () => {
       expect(result).toEqual(user);
       expect(lastUpdateSet).toMatchObject({
         onboarded: true,
-        onboardingStep: 4,
+        onboardingStep: 3,
       });
     });
   });

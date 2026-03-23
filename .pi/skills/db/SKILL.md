@@ -36,16 +36,25 @@ Fully implemented. All tables, repositories, singleton connection, and context-l
 
 ## Skills (Public API)
 
+### Constants
+
+```typescript
+/** Maximum number of learning languages per user (BRD §5, §12). */
+MAX_LEARNING_LANGS = 4;
+```
+
 ### UserRepository
 
 ```typescript
 findByTelegramId(telegramId: number): Promise<User | null>;
 create(data: NewUser): Promise<User>;
 updateSettings(userId: number, settings: Omit<NewUserLanguageSettings, "userId">): Promise<UserLanguageSettings>;
+  // Throws Error if settings.learningLangs.length > MAX_LEARNING_LANGS (4)
 getSettings(userId: number): Promise<UserLanguageSettings | null>;
 updateActiveMode(userId: number, mode: string): Promise<UserLanguageSettings | null>;
 updateOnboardingStep(userId: number, step: number): Promise<User>;
 markOnboarded(userId: number): Promise<User>;
+  // Sets onboardingStep to 3 (BRD §5 — 3-step onboarding)
 ```
 
 ### WordRepository
@@ -169,7 +178,7 @@ packages/adapters/db/src/
 │   └── word-context.repository.ts        # ✅ implemented (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
 └── __tests__/
     ├── getDb.test.ts                     # 1 test
-    ├── user.repository.test.ts           # 14 tests (findByTelegramId, create, updateSettings, getSettings, updateActiveMode, updateOnboardingStep, markOnboarded)
+    ├── user.repository.test.ts           # 18 tests (findByTelegramId, create, updateSettings incl. max-4 guard, getSettings, updateActiveMode, updateOnboardingStep, markOnboarded)
     ├── topic.repository.test.ts          # 4 tests
     ├── word.repository.test.ts           # 12 tests
     ├── language.repository.test.ts       # 7 tests (findByCode, create, getOrCreate, findAll)

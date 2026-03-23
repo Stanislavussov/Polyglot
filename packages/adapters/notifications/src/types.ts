@@ -15,6 +15,13 @@ import type {
 // Public types
 // ─────────────────────────────────────────────
 
+/**
+ * Notification type — matches BRD §2.5 notification categories.
+ * - 'suggested': AI-suggested word based on user's saved topics
+ * - 'srs': Word from dictionary due for review according to SRS schedule
+ */
+export type NotificationType = "suggested" | "srs";
+
 /** Injected send function — the notifications module never imports the bot. */
 export type SendFn = (
   telegramId: number,

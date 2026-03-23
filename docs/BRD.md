@@ -252,7 +252,7 @@ Cards appear in **all** of the following contexts:
 
 ### ✨ Next translation
 
-- **Status: TBD** — see [Section 14](https://claude.ai/chat/b7b52ffc-feb9-4055-b3ca-99875a54be60#14-open-questions--tbd)
+- **Status: Resolved** — The button is redundant because persistent translate mode (Task 09) already handles continuous translation. In translate mode, every message is automatically treated as a word to translate. The button remains in the layout as a UX alias: tapping it keeps the user in translate mode and prompts for the next word.
 
 ### ↔️ Flip
 
@@ -396,7 +396,7 @@ Users are identified by `telegram_user_id`. No separate account system in MVP.
 
 | #   | Question                                                     | Blocks                             | Priority     |
 | --- | ------------------------------------------------------------ | ---------------------------------- | ------------ |
-| 1   | What does "Next translation" button do?                      | Topic and notification development | 🔴 Critical  |
+| 1   | ~~What does "Next translation" button do?~~ **Resolved:** The button is redundant — persistent translate mode (Task 09) already handles continuous translation. The button remains in the layout as a UX alias that keeps the user in translate mode. | ~~Topic and notification development~~ | ✅ Resolved  |
 | 2   | Does "Edit translation" allow editing example sentences too? | Dictionary development             | 🟡 Important |
 | 3   | Is "Flip" state persisted between sessions?                  | SRS development                    | 🟡 Important |
 | 4   | Should "Next idea" and "Don't suggest" appear on SRS cards?  | SRS development                    | 🟡 Important |

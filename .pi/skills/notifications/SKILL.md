@@ -17,7 +17,7 @@ description: Notification scheduling and delivery with cron, timezone-aware send
 
 ## Current State
 
-- `logNotificationSent()` — structured logging stub using `logger` from `@polyglot/infra`.
+- `logNotificationSent()` — structured logging stub using `logger` from `@polyglot/infra`. Accepts both `'suggested'` and `'srs'` notification types (BUG-07 fix). Uses `NotificationType` alias.
 - `createNotificationService(deps)` — factory that returns `{ pickSuggestedWord }`. Uses topic service (via injected deps) to pick a random word from a random built-in topic, with **partial regeneration** support: if a cached topic word is missing a translation for one of the user's learning languages, calls `regenerateTopicWord` to fill the gap (one language at a time, not re-translating the entire word).
 - After Task 15 (context-enrichment layer), dictionary context lookup was removed from `NotificationServiceDeps` — `lookupDictionaryContext` is gone. Dictionary context enrichment is now handled by the context-enrichment layer at the translation level.
 - Full scheduler (cron, sendFn injection) is not yet implemented.
@@ -42,7 +42,7 @@ cron.schedule("0 * * * *", () => checkAndSend());  // Run every hour, check whic
 
 ```typescript
 // Log a successfully dispatched notification (implemented)
-function logNotificationSent(params: { userId: number; type: 'suggested'; wordId: number }): void;
+function logNotificationSent(params: { userId: number; type: NotificationType; wordId: number }): void;
 
 // Create notification service with injected deps (implemented)
 function createNotificationService(deps: NotificationServiceDeps): {
@@ -66,6 +66,9 @@ async function buildNotificationPayload(user: UserForNotification): Promise<Noti
 
 ```typescript
 import type { DictionaryContext } from "@polyglot/core";
+
+/** BRD §2.5 notification categories: AI-suggested word or SRS review word. */
+type NotificationType = "suggested" | "srs";
 
 type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
 
@@ -105,7 +108,7 @@ interface NotificationServiceDeps {
 ```
 packages/adapters/notifications/src/
 ├── index.ts                           # Exports: logNotificationSent, createNotificationService, types
-├── index.test.ts                      # Vitest tests for logNotificationSent (4 tests)
+├── index.test.ts                      # Vitest tests for logNotificationSent (6 tests, incl. BUG-07 srs type)
 ├── types.ts                           # SendFn, NotificationPayload, SuggestedWord, NotificationServiceDeps
 ├── notification.service.ts            # createNotificationService factory → pickSuggestedWord (with partial regen)
 ├── notification.service.test.ts       # 18 Vitest tests for pickSuggestedWord

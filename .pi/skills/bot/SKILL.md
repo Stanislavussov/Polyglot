@@ -24,7 +24,7 @@ Already implemented:
 - `middlewares/auth.ts` — resolves/creates user, attaches to ctx.user; hydrates session activeMode from DB for onboarded users (Task 20)
 - `middlewares/mode-router.ts` — routes plain text to active mode handler; idle mode falls back to translate for onboarded users (persisted to DB), shows /start hint for non-onboarded; debug logging for mode routing
 - `commands/start.ts` — /start handler (onboarding or main menu); restores translate mode for onboarded users (persisted to DB)
-- `scenes/onboarding.scene.ts` — 4-step onboarding conversation; sets activeMode = "translate" on completion (persisted to DB)
+- `scenes/onboarding.scene.ts` — 3-step onboarding conversation (BRD §5); infers interface language from native language; sets activeMode = "translate" on completion (persisted to DB)
 - `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation (persisted to DB)
 - `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks; uses `translateWithContext()` from context-enrichment layer (dictionary context lookup delegated to `createContextLookup()` from DB adapter)
 - `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, save, skip)
@@ -106,7 +106,7 @@ function renderTopicWord(word: TopicWord): string;
 // Build inline keyboard with per-language regenerate buttons + save/skip
 function buildTranslationKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard;
 
-// Scene: 4-step onboarding (implemented)
+// Scene: 3-step onboarding (BUG-01 fix — BRD §5)
 async function onboarding(conversation, ctx): Promise<void>;
 
 // Command: /translate — sets mode and shows confirmation
@@ -187,15 +187,16 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
 - Mode switches only when user sends another mode command (e.g., future `/mentor`)
 - Non-mode commands (`/help`, `/settings`, `/start`) don't change the mode
 
-## Onboarding Flow (4 Steps)
+## Onboarding Flow (3 Steps — BRD §5)
 
 ```
 /start
-  ├─ Step 1: Choose interface language (inline keyboard)
-  ├─ Step 2: Choose native language (inline keyboard)
-  ├─ Step 3: Choose learning languages (multi-select, 1–4)
-  └─ Step 4: Demo translation → "Save to dictionary?" → Complete
+  ├─ Step 1: Choose native language (inline keyboard) — interface language inferred
+  ├─ Step 2: Choose learning languages (multi-select, 1–4)
+  └─ Step 3: Demo translation → shows result immediately (no Save/Skip) → Complete
 ```
+
+Interface language is inferred from native language (or Telegram locale as fallback). No separate interface language selection step.
 
 ## grammY Conversations Pattern
 
@@ -263,7 +264,7 @@ apps/bot/src/
 │   └── __tests__/
 │       └── source-lang-menu.test.ts     # 8 tests (keyboard rendering, ✓ marks, suppression)
 ├── scenes/
-│   ├── onboarding.scene.ts     # ✅ implemented (conversation-based, persists activeMode to DB)
+│   ├── onboarding.scene.ts     # ✅ 3-step onboarding (BRD §5, BUG-01 fix, infers interface lang)
 │   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation, persists to DB)
 │   ├── translate.scene.test.ts # 3 tests (mode activation, DB persistence, confirmation)
 │   ├── helpers/
@@ -279,9 +280,9 @@ apps/bot/src/
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 11 tests (mode system tests, idle fallback, DB persistence)
-    ├── translation.renderer.test.ts        # 48 tests (includes 7 alternatives tests)
+    ├── translation.renderer.test.ts        # 50 tests (includes 7 alternatives tests)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
-    └── onboarding.scene.test.ts            # 18 tests (includes activeMode post-onboarding + DB persistence)
+    └── onboarding.scene.test.ts            # 18 tests (3-step flow, back nav, interface lang inference, no Save/Skip)
 ```
 
 ## Reference

@@ -19,6 +19,8 @@ description: Internationalization of all bot texts. Provides typed t(key, lang, 
 
 Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) in `language-registry.ts` for Wiktionary integration and bot UI. Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 79 tests passing (51 i18n + 17 language names + 11 language codes). Task 07 regeneration keys added. Task 09 translate mode keys added. Task 13 Wiktionary dictionary context keys (`wiktionaryDefinition`, `wiktionarySource`, `partOfSpeech`, `expressionDetected`, `dictionaryContext`) and language name registry added. `phraseDetected` and `idiomDetected` unified into `expressionDetected` with `{ expression: string }` params. Task 16 auto-detect input language key added: `detectedLang` with `{ lang: string }` params for displaying detected source language in translation cards. Task 17 post-translation source language selection keys added: `nextTranslationFrom` (header text) and `nextSourceSet` with `{ lang: string }` params for confirmation when user selects source language.
 
+**BUG-01 fix applied:** Removed `chooseInterfaceLang` and `onboardingCompleteNoSave` keys (interface language step removed from onboarding, Save/Skip prompt removed from demo step). Updated `demoResult` to show result immediately without save prompt. Onboarding now 3 steps: native lang → learning langs → demo translation.
+
 ## Rules
 
 1. Only `t(key, lang)` — no direct locale file imports from other modules
@@ -63,8 +65,8 @@ function getSupportedLanguages(): LanguageEntry[];
 type I18nKey =
   | "welcome" | "choose_language" | "translate" | "dictionary" | "topics"
   | "settings" | "back" | "cancel" | "done" | "yes" | "no"
-  | "chooseInterfaceLang" | "chooseNativeLang" | "chooseLearningLangs"
-  | "enterWord" | "demoResult" | "onboardingComplete" | "onboardingCompleteNoSave"
+  | "chooseNativeLang" | "chooseLearningLangs"
+  | "enterWord" | "demoResult" | "onboardingComplete"
   | "welcomeBack" | "maxLangsReached" | "selectAtLeastOne" | "langAdded"
   | "langRemoved" | "enterWordToTranslate" | "translating" | "translationError"
   | "translationUnavailable" | "translationNeedsReview" | "saveToDict"

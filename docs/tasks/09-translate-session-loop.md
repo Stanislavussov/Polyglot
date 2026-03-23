@@ -19,7 +19,7 @@ The user always has exactly one active mode. Sending a mode-switching command ch
 
 - `tech-reqs/14-agents.md` (agent contracts — bot scene rules)
 - BRD §6.1 (translation is a core loop)
-- BRD §9 ("✨ Next translation" button — open question, resolved by this task)
+- BRD §9 ("✨ Next translation" button — resolved via Option C in BRD §14: the button is redundant because persistent translate mode already handles continuous translation)
 
 ---
 

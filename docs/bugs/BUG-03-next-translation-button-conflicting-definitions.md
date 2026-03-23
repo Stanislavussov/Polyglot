@@ -3,7 +3,7 @@
 **Severity:** 🟠 Major  
 **Source Tasks:** Task 09 (`docs/tasks/09-translate-session-loop.md`), Task 17 (`docs/tasks/17-next-translation-language-menu.md`)  
 **BRD Reference:** §9 Action Buttons — "✨ Next translation" (Open Question #1)  
-**Status:** 🔲 Open
+**Status:** ✅ Resolved
 
 ---
 
@@ -44,13 +44,13 @@ Both tasks were written and merged without first resolving the BRD open question
 
 ## Acceptance Criteria
 
-- [ ] BRD Open Question #1 ("What does '✨ Next translation' button do?") is formally answered with a product decision documented in `docs/BRD.md` Section 9
-- [ ] One of the following outcomes is selected and documented:
+- [x] BRD Open Question #1 ("What does '✨ Next translation' button do?") is formally answered with a product decision documented in `docs/BRD.md` Section 9
+- [x] One of the following outcomes is selected and documented:
   - **Option A:** The "✨ Next translation" button triggers translate mode (Task 09's interpretation) — Task 17's source language menu is a separate feature not tied to this button
   - **Option B:** The "✨ Next translation" button opens a source language selector (Task 17's interpretation) — Task 09's persistent mode is the underlying mechanism, not the button's definition
   - **Option C:** The button is removed from the BRD — persistent translate mode (Task 09) already makes it redundant
-- [ ] Task 09 and Task 17 are updated to reference the resolved definition without claiming to resolve the open question independently
-- [ ] No conflicting documentation remains across both task files and the BRD
+- [x] Task 09 and Task 17 are updated to reference the resolved definition without claiming to resolve the open question independently
+- [x] No conflicting documentation remains across both task files and the BRD
 
 ---
 

@@ -180,9 +180,9 @@ packages/core/src/modules/translation/
 └── __tests__/
     ├── translation.schema.test.ts    # 32 tests
     ├── prompt.builder.test.ts        # 21 tests (incl. alternatives + variant guidance)
-    ├── translation.service.test.ts   # 61 tests (incl. 6 translateOne + 5 validation logging + alternatives + dictionary context passthrough)
+    ├── translation.service.test.ts   # 27 tests (incl. translateOne + validation logging + alternatives + dictionary context passthrough)
     ├── idiomatic-equivalents.test.ts # 18 tests (schema + prompt idiomatic features)
-    └── dictionary-context.test.ts    # 35 tests (prompt enrichment + passthrough + edge cases + multi-variant guidance)
+    └── dictionary-context.test.ts    # 30 tests (prompt enrichment + passthrough + edge cases + multi-variant guidance)
 ```
 
 ## Reference

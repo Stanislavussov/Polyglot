@@ -3,7 +3,7 @@
 **Severity:** 🔴 Critical  
 **Source Task:** Task 03 (`docs/tasks/03-bot-setup.md`)  
 **BRD Reference:** §5 Onboarding  
-**Status:** 🔲 Open
+**Status:** ✅ Resolved
 
 ---
 
@@ -46,15 +46,15 @@ Task 03 added an interface language selection step (Step 1) that has no correspo
 
 ## Acceptance Criteria
 
-- [ ] Onboarding consists of exactly **3 steps**, no more
-- [ ] **Step 1:** "What is your native language?" — inline keyboard with language options
-- [ ] **Step 2:** "Which languages are you learning?" — multi-select, 1–4 languages, ✅ Done button
-- [ ] **Step 3:** Demo translation — user enters a word, bot shows a real AI translation result; step ends immediately after the result is displayed (no Save/Skip prompt)
-- [ ] Interface language (UI language) is inferred from native language or Telegram locale — it is **not** a separate onboarding step
-- [ ] `onboarded = true` is set after Step 3 completes
-- [ ] All onboarding-related i18n keys updated to reflect 3 steps
-- [ ] Existing tests updated to reflect 3-step flow
-- [ ] `pnpm test` passes; `pnpm -r run build` succeeds
+- [x] Onboarding consists of exactly **3 steps**, no more
+- [x] **Step 1:** "What is your native language?" — inline keyboard with language options
+- [x] **Step 2:** "Which languages are you learning?" — multi-select, 1–4 languages, ✅ Done button
+- [x] **Step 3:** Demo translation — user enters a word, bot shows a real AI translation result; step ends immediately after the result is displayed (no Save/Skip prompt)
+- [x] Interface language (UI language) is inferred from native language or Telegram locale — it is **not** a separate onboarding step
+- [x] `onboarded = true` is set after Step 3 completes
+- [x] All onboarding-related i18n keys updated to reflect 3 steps
+- [x] Existing tests updated to reflect 3-step flow
+- [x] `pnpm test` passes; `pnpm -r run build` succeeds
 
 ---
 

@@ -4,10 +4,10 @@ Bugs identified from BRD vs. task/code audit. Each bug documents the discrepancy
 
 | #   | Bug | Severity | Source Tasks | Status |
 |-----|-----|----------|--------------|--------|
-| [BUG-01](./BUG-01-onboarding-exceeds-brd-max-steps.md) | Onboarding implements 4 steps — BRD mandates max 3 | 🔴 Critical | Task 03 | 🔲 Open |
-| [BUG-03](./BUG-03-next-translation-button-conflicting-definitions.md) | Tasks 09 & 17 both resolve "Next translation" button with conflicting definitions | 🟠 Major | Task 09, Task 17 | 🔲 Open |
-| [BUG-07](./BUG-07-logging-missing-srs-notification-type.md) | Logging stub only supports `'suggested'` — missing `'srs'` notification type | 🟡 Minor | Task 05 | 🔲 Open |
-| [BUG-09](./BUG-09-user-learning-languages-no-max-4-enforcement.md) | `userRepository.updateSettings()` has no max-4 language enforcement required by BRD | 🟡 Minor | Task 14 | 🔲 Open |
+| [BUG-01](./BUG-01-onboarding-exceeds-brd-max-steps.md) | Onboarding implements 4 steps — BRD mandates max 3 | 🔴 Critical | Task 03 | ✅ Resolved |
+| [BUG-03](./BUG-03-next-translation-button-conflicting-definitions.md) | Tasks 09 & 17 both resolve "Next translation" button with conflicting definitions | 🟠 Major | Task 09, Task 17 | ✅ Resolved |
+| [BUG-07](./BUG-07-logging-missing-srs-notification-type.md) | Logging stub only supports `'suggested'` — missing `'srs'` notification type | 🟡 Minor | Task 05 | ✅ Resolved |
+| [BUG-09](./BUG-09-user-learning-languages-no-max-4-enforcement.md) | `userRepository.updateSettings()` has no max-4 language enforcement required by BRD | 🟡 Minor | Task 14 | ✅ Resolved |
 
 ---
 

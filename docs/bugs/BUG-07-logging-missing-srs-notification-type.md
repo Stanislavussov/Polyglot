@@ -3,7 +3,7 @@
 **Severity:** 🟡 Minor  
 **Source Task:** Task 05 (`docs/tasks/05-logging.md`)  
 **BRD Reference:** §2.5 (Post-MVP) Notifications  
-**Status:** 🔲 Open
+**Status:** ✅ Resolved
 
 ---
 
@@ -52,8 +52,8 @@ Task 05 was created when notifications were fully in stub/placeholder state. The
 
 ## Acceptance Criteria
 
-- [ ] The `type` field in `logNotificationSent()` is expanded to a union: `'suggested' | 'srs'`
-- [ ] Updated function signature:
+- [x] The `type` field in `logNotificationSent()` is expanded to a union: `'suggested' | 'srs'`
+- [x] Updated function signature:
   ```typescript
   export function logNotificationSent(params: {
     userId: number;
@@ -61,9 +61,9 @@ Task 05 was created when notifications were fully in stub/placeholder state. The
     wordId: number;
   }): void
   ```
-- [ ] If a `NotificationType` type alias exists elsewhere, it is updated consistently
-- [ ] TypeScript compiles cleanly: `pnpm -r run build`
-- [ ] All existing tests pass: `pnpm test`
+- [x] If a `NotificationType` type alias exists elsewhere, it is updated consistently
+- [x] TypeScript compiles cleanly: `pnpm -r run build`
+- [x] All existing tests pass: `pnpm test`
 
 ---
 

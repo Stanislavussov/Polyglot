@@ -2,9 +2,11 @@
 
 **Status:** ✅ Done
 
+> **⚠️ Amendment (BUG-01):** Onboarding was originally implemented as 4 steps per this task. [BUG-01](../bugs/BUG-01-onboarding-exceeds-brd-max-steps.md) identified that the BRD mandates max 3 steps. The onboarding scene was refactored to 3 steps: (1) native language, (2) learning languages, (3) demo translation (no Save/Skip). Interface language is inferred from native language or Telegram locale. See `apps/bot/src/scenes/onboarding.scene.ts` for the current 3-step implementation.
+
 ## Description
 
-Set up the grammY Telegram bot in `apps/bot/`, wire it to the DB adapter, implement the `/start` command that triggers the onboarding flow (4 steps) as described in `tech-reqs/09-onboarding.md` and `tech-reqs/10-bot-commands.md`.
+Set up the grammY Telegram bot in `apps/bot/`, wire it to the DB adapter, implement the `/start` command that triggers the onboarding flow as described in `tech-reqs/09-onboarding.md` and `tech-reqs/10-bot-commands.md`.
 
 ## Subtasks
 

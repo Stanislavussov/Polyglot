@@ -119,7 +119,7 @@ export const logger = pino({ level: 'info' }, pino.destination(1));
    */
   export function logNotificationSent(params: {
     userId: number;
-    type: 'suggested';
+    type: 'suggested' | 'srs';  // BUG-07 fix: expanded to include SRS notification type per BRD §2.5
     wordId: number;
   }): void {
     logger.info(params, 'Notification sent');

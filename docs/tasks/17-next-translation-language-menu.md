@@ -49,7 +49,7 @@ Implement an **inline keyboard menu** that appears after translation, allowing t
 
 **References:**
 
-- BRD §9 ("✨ Next translation" button — TBD, resolved by this task)
+- BRD §9 ("✨ Next translation" button — resolved via Option C in BRD §14: the button is redundant because persistent translate mode (Task 09) handles continuous translation. This task provides post-translation source language selection as a separate feature)
 - `docs/tasks/09-translate-session-loop.md` (persistent translate mode)
 - `docs/tasks/16-auto-detect-input-language.md` (auto-detect integration)
 - `.pi/skills/bot/SKILL.md` (translate-mode helper, renderer)

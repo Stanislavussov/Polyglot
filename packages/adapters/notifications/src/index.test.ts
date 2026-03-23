@@ -53,4 +53,32 @@ describe("logNotificationSent", () => {
     expect(data.userId).toBe(999999999);
     expect(data.wordId).toBe(2147483647);
   });
+
+  // ─────────────────────────────────────────────
+  // BUG-07: SRS notification type support
+  // ─────────────────────────────────────────────
+
+  it("accepts 'srs' notification type (BUG-07)", () => {
+    logNotificationSent({ userId: 10, type: "srs", wordId: 42 });
+
+    expect(mockInfo).toHaveBeenCalledOnce();
+    const [data, msg] = mockInfo.mock.calls[0];
+    expect(msg).toBe("Notification sent");
+    expect(data.type).toBe("srs");
+    expect(data.userId).toBe(10);
+    expect(data.wordId).toBe(42);
+  });
+
+  it("logs both 'suggested' and 'srs' types correctly", () => {
+    logNotificationSent({ userId: 1, type: "suggested", wordId: 100 });
+    logNotificationSent({ userId: 2, type: "srs", wordId: 200 });
+
+    expect(mockInfo).toHaveBeenCalledTimes(2);
+
+    const [data1] = mockInfo.mock.calls[0];
+    expect(data1.type).toBe("suggested");
+
+    const [data2] = mockInfo.mock.calls[1];
+    expect(data2.type).toBe("srs");
+  });
 });

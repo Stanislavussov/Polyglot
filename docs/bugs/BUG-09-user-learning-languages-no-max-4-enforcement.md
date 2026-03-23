@@ -3,7 +3,7 @@
 **Severity:** 🟡 Minor  
 **Source Task:** Task 14 (`docs/tasks/14-language-table-refactor.md`)  
 **BRD Reference:** §5 Onboarding ("Language limit: maximum 4 target languages"), §12 Non-Functional Requirements ("Max languages per user: 4")  
-**Status:** 🔲 Open
+**Status:** ✅ Resolved
 
 ---
 
@@ -56,17 +56,13 @@ Task 14 focuses on the structural refactoring (text array → junction table wit
 
 ## Acceptance Criteria
 
-- [ ] `userRepository.addLearningLanguage(userId, languageId)` (or equivalent) checks the current count of learning languages for the user **before** inserting:
-  - If count < 4: insert the new row
-  - If count >= 4: throw a domain error (e.g., `MaxLanguagesReachedError`) or return a typed result `{ ok: false, reason: 'max_languages_reached' }`
-- [ ] The onboarding multi-select keyboard enforces a maximum of 4 selections in the UI (already present per Task 03, but must now also be backed by repository enforcement)
+- [x] `userRepository.updateSettings()` checks `learningLangs` array length before saving — throws Error when > 4 (db agent)
+- [x] The onboarding multi-select keyboard enforces a maximum of 4 selections in the UI (MAX_LEARNING_LANGS constant in bot)
 - [ ] The settings scene (when implemented) shows an appropriate error message when a user tries to add a 5th language — referencing BRD §5: "A user attempting to add a 5th language receives a message explaining the limit"
-- [ ] A corresponding i18n key `maxLanguagesReached` (or equivalent) is added with translations in EN, RU, CS
-- [ ] Optionally: a database-level `CHECK` constraint `(COUNT(*) per user_id <= 4)` — noted as optional since BRD says "not a technical limit"
-- [ ] Unit tests for `addLearningLanguage()` cover:
-  - Inserting the 1st, 2nd, 3rd, 4th language → success
-  - Inserting a 5th language → `MaxLanguagesReachedError` (or equivalent failure)
-- [ ] All existing tests pass: `pnpm test`
+- [x] A corresponding i18n key `maxLangsReached` is added with translations in EN, RU, CS
+- [x] `MAX_LEARNING_LANGS` constant exported from db adapter (value: 4)
+- [x] Unit tests for max-4 enforcement in db adapter (4 new tests, 18 total)
+- [x] All existing tests pass: `pnpm test`
 
 ---
 

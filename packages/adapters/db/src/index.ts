@@ -38,7 +38,7 @@ export async function closeDb(): Promise<void> {
 }
 
 // Re-export repositories and types
-export { userRepository } from "./repositories/user.repository.js";
+export { userRepository, MAX_LEARNING_LANGS } from "./repositories/user.repository.js";
 export type {
   User,
   NewUser,
