@@ -27,6 +27,16 @@ Fully implemented. All tables, repositories, singleton connection, and context-l
 - `repositories/language.repository.ts` — findByCode, create, getOrCreate, findAll (normalized language codes)
 - `repositories/word-context.repository.ts` — findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById (offline dictionary data)
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the DB agent. Only modify the database adapter layer.
+- **Produces:** DB schema, repositories, migrations, and tests in `packages/adapters/db/src/`
+- **Never:** modify code outside `packages/adapters/db/src/` and `packages/adapters/db/drizzle/`
+- **Never:** contain business logic — only CRUD operations
+- **Never:** use raw SQL — all queries via Drizzle ORM
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/adapters/db/src/**`, `packages/adapters/db/drizzle/**`
+
 ## Rules
 
 1. No business logic — CRUD operations only

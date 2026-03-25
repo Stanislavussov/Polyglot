@@ -28,6 +28,16 @@ No changes needed. Topics always translate from a dataset-defined source languag
 
 No changes needed. The source language selection menu is a bot-layer UI concern (session state, inline keyboards, callbacks). The core i18n keys (`nextTranslationFrom`, `nextSourceSet`) and locale translations (en, ru, cs) were already in place. The topics module is unaffected — it works with explicit `sourceLang`/`targetLangs` pairs passed by the caller, not with user session state or auto-detection.
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the topics agent. Only modify the topics module.
+- **Produces:** topics source code, datasets, and tests in `packages/core/src/modules/topics/`
+- **Never:** modify code outside `packages/core/src/modules/topics/`
+- **Never:** import DB or AI adapters directly — all dependencies injected via `TopicDeps`
+- **Never:** know about users — works only with language pairs
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/core/src/modules/topics/**`
+
 ## Rules
 
 1. Always checks cache before calling the `translation` agent

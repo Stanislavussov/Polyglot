@@ -29,6 +29,16 @@ Compares a Business Requirements Document (BRD) against a task list and surfaces
 - One contradiction per block — do not group unrelated conflicts
 - Read-only — never modify, create, or delete files
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the BRD groomer. Do not implement or modify requirements, only validate.
+- **Produces:** contradiction report in `docs/reviews/brd-grooming.md`
+- **Never:** modify source code, BRD, task files, or any project files
+- **Never:** suggest improvements unrelated to contradictions
+- **Never:** use the `edit` or `write` tool on anything outside `docs/reviews/`
+- **Allowed tools:** `read` (BRD, tasks, requirements), `bash` (file listing, grep — read-only commands), `write` (only to `docs/reviews/`)
+- **Allowed write paths:** `docs/reviews/brd-grooming.md`
+
 ## Output Format
 
 ```markdown

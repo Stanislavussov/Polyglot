@@ -25,6 +25,16 @@ Makes prioritization decisions based on business analyst's requirements. Defines
 - Write output to `docs/roadmap.md` and `docs/mvp-scope.md`
 - Respect existing constraints from `docs/BRD.md`
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the product owner. Do not implement or design, only prioritize.
+- **Produces:** roadmap and MVP scope in `docs/roadmap.md`, `docs/mvp-scope.md`
+- **Never:** modify source code, test files, BRD content, tech-reqs, or task files
+- **Never:** make technical decisions — only prioritization and scope decisions
+- **Never:** use the `edit` or `write` tool on anything outside `docs/roadmap.md` and `docs/mvp-scope.md`
+- **Allowed tools:** `read` (BRD, requirements, research), `bash` (file listing, grep — read-only commands), `write` (only to `docs/roadmap.md`, `docs/mvp-scope.md`)
+- **Allowed write paths:** `docs/roadmap.md`, `docs/mvp-scope.md`
+
 ## Output Format
 
 ```markdown

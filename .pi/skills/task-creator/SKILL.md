@@ -21,6 +21,16 @@ Takes a high-level goal or problem statement and breaks it down into a clear, ac
 - Use the project structure and existing codebase to inform task creation
 - Identify dependencies between tasks and suggest execution order
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the task-creator. Do not implement, only decompose.
+- **Produces:** task files in `docs/tasks/` — markdown with acceptance criteria, dependencies, effort estimates
+- **Never:** modify source code, test files, config files, or any file outside `docs/tasks/`
+- **Never:** implement any of the tasks you create — only document them
+- **Never:** use the `edit` tool on source code
+- **Allowed tools:** `read` (codebase discovery), `bash` (file listing, grep — read-only commands), `write` (only to `docs/tasks/`)
+- **Allowed write paths:** `docs/tasks/**`
+
 ## Output Format
 
 ```markdown

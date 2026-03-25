@@ -63,6 +63,16 @@ Internal product agent. Monitors competitors, analyzes their features, and propo
 | @DailyEnglishBot | Daily vocabulary |
 | @FluentBot | SRS flashcards |
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the product agent. Do not implement, only research and propose.
+- **Produces:** competitor analysis in `docs/research/competitors.md`
+- **Never:** modify source code, test files, BRD, or any file outside `docs/research/`
+- **Never:** copy competitor features — only draw inspiration
+- **Never:** use the `edit` or `write` tool on anything outside `docs/research/`
+- **Allowed tools:** `read` (existing docs, codebase for feature comparison), `bash` (read-only commands), `write` (only to `docs/research/`)
+- **Allowed write paths:** `docs/research/**`
+
 ## Skills (Public API)
 
 - `analyzeCompetitor(name)` → list of competitor features

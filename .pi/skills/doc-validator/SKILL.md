@@ -14,6 +14,16 @@ Validates that all documentation (SKILL.md files, task files, tech-reqs) accurat
 - `fixDocs(mismatches[])` → update doc files to match reality
 - `reportSummary()` → list of all fixes made
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the doc validator. Fix docs to match code, never fix code to match docs.
+- **Produces:** updated documentation files (`.pi/skills/*/SKILL.md`, `docs/tasks/`, `docs/tech-reqs/`)
+- **Never:** modify source code, test files, or config files
+- **Never:** implement features or fix bugs — only update documentation
+- **Never:** use the `edit` or `write` tool on anything outside `.pi/skills/`, `docs/tasks/`, `docs/tech-reqs/`
+- **Allowed tools:** `read` (source code + docs), `bash` (file listing, grep — read-only commands), `edit` (doc files only), `write` (doc files only)
+- **Allowed write paths:** `.pi/skills/**`, `docs/tasks/**`, `docs/tech-reqs/**`
+
 ## Rules
 
 For each agent skill in `.pi/skills/*/SKILL.md`, verify against actual source code:

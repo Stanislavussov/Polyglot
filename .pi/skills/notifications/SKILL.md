@@ -22,6 +22,16 @@ description: Notification scheduling and delivery with cron, timezone-aware send
 - After Task 15 (context-enrichment layer), dictionary context lookup was removed from `NotificationServiceDeps` — `lookupDictionaryContext` is gone. Dictionary context enrichment is now handled by the context-enrichment layer at the translation level.
 - Full scheduler (cron, sendFn injection) is not yet implemented.
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the notifications agent. Only modify the notifications adapter.
+- **Produces:** notification source code and tests in `packages/adapters/notifications/src/`
+- **Never:** modify code outside `packages/adapters/notifications/src/`
+- **Never:** import bot — receives `sendFn` via injection
+- **Never:** import DB or topic adapters directly — all dependencies injected
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/adapters/notifications/src/**`
+
 ## Rules
 
 1. Does not import the `bot` agent — receives `sendFn` as a parameter at startup

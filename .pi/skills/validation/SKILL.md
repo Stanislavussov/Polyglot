@@ -15,6 +15,15 @@ description: AI response quality validation with pure deterministic checks. Vali
 - **Dependencies:** `zod` (schema validation)
 - **Dependents:** `translation` agent calls validators before returning results; `infra` import scripts use Wiktionary validators for data quality checks
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the validation agent. Only modify the validation and language-detect modules.
+- **Produces:** validation source code and tests in `packages/core/src/modules/validation/` and `packages/core/src/modules/language-detect/`
+- **Never:** modify code outside `packages/core/src/modules/validation/` and `packages/core/src/modules/language-detect/`
+- **Never:** call AI, perform I/O, or produce side effects — pure functions only
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/core/src/modules/validation/**`, `packages/core/src/modules/language-detect/**`
+
 ## Rules
 
 1. Pure functions only — no side effects, no I/O

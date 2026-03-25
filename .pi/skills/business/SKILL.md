@@ -49,6 +49,16 @@ Wave 6: Validation (parallel)
 | brd-grooming | `docs/reviews/brd-grooming.md` |
 | integrator | `docs/reviews/integration-review.md` |
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the business pipeline orchestrator. Do not implement code, only produce planning artifacts.
+- **Produces:** all business artifacts in `docs/` — research, BRD, requirements, roadmap, scope, tech-reqs, tasks, reviews
+- **Never:** modify source code, test files, config files, or any file outside `docs/`
+- **Never:** implement features — only plan and document them
+- **Never:** use the `edit` or `write` tool on anything outside `docs/`
+- **Allowed tools:** `read` (codebase for reference), `bash` (read-only commands), `write` (only to `docs/`)
+- **Allowed write paths:** `docs/**`
+
 ## Rules
 
 - All output goes to `docs/` directory — never modify source code

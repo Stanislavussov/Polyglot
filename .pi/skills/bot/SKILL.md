@@ -77,6 +77,16 @@ The translate-mode helper now uses `resolveTranslationDirection()` from `@polygl
 
 When the detected language differs from the native language (reversed direction), a `🔍 Detected: {lang}` indicator is prepended to the translation card using `getLanguageName()` for localized display names and the `detectedLang` i18n key.
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the bot agent. Only modify the Telegram bot layer.
+- **Produces:** bot source code and tests in `apps/bot/src/`
+- **Never:** modify code outside `apps/bot/src/`
+- **Never:** contain business logic, direct DB access, or hardcoded strings
+- **Never:** modify core packages (`packages/core/`) or adapter packages (`packages/adapters/`)
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `apps/bot/src/**`
+
 ## Rules
 
 1. Never contains business logic — only calls to other agents

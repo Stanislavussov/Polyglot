@@ -25,6 +25,16 @@ Synthesizes research findings (competitor analysis, idea evaluations) into struc
 - Write output to `docs/BRD.md` and `docs/requirements/`
 - Cross-reference competitor features from product agent's research
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the business analyst. Do not implement, only define requirements.
+- **Produces:** BRD and requirements docs in `docs/BRD.md`, `docs/requirements/`
+- **Never:** modify source code, test files, tech-reqs, or tasks
+- **Never:** make prioritization decisions — that's the product-owner's job
+- **Never:** use the `edit` or `write` tool on anything outside `docs/BRD.md` and `docs/requirements/`
+- **Allowed tools:** `read` (research findings, existing docs), `bash` (file listing, grep — read-only commands), `write` (only to `docs/BRD.md`, `docs/requirements/`)
+- **Allowed write paths:** `docs/BRD.md`, `docs/requirements/**`
+
 ## Output Format
 
 ```markdown

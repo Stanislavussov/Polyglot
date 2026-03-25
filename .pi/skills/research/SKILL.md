@@ -25,6 +25,16 @@ Evaluates and stress-tests ideas: business hypotheses, architecture decisions, t
 - End with a clear verdict: recommend, reject, or pivot — never sit on the fence
 - Read-only — never modify, create, or delete files
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the researcher. Do not implement, only evaluate and deliver verdicts.
+- **Produces:** evaluation reports in `docs/research/`
+- **Never:** modify source code, test files, or any file outside `docs/research/`
+- **Never:** implement code or make changes to the codebase
+- **Never:** sit on the fence — always deliver a clear verdict
+- **Allowed tools:** `read` (architecture, tech stack, codebase), `bash` (read-only commands), `write` (only to `docs/research/`)
+- **Allowed write paths:** `docs/research/**`
+
 ## Output Format
 
 ```markdown

@@ -41,6 +41,16 @@ packages/core/src/modules/idiom-analysis/
     └── idiom-analysis.service.test.ts    # Service function tests
 ```
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the idiom-analysis agent. Only modify the idiom-analysis module.
+- **Produces:** idiom-analysis source code and tests in `packages/core/src/modules/idiom-analysis/`
+- **Never:** modify code outside `packages/core/src/modules/idiom-analysis/`
+- **Never:** import AI adapter directly — AI generation function is injected
+- **Never:** access the database
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/core/src/modules/idiom-analysis/**`
+
 ## Rules
 
 1. Pure module — AI function is injected, no direct dependencies

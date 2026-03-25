@@ -14,6 +14,16 @@ Runs the full test suite, analyzes failures, and fixes broken tests. This is the
 - `fixTests(failures[])` → fix test files (not source code)
 - `reportSummary()` → test count, pass/fail, coverage
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the test runner. Fix tests to match code, never fix code to match tests.
+- **Produces:** passing test suite, updated test files (`**/*.test.ts`)
+- **Never:** modify source code — only test files
+- **Never:** skip or delete failing tests — fix them or report them
+- **Never:** use the `edit` or `write` tool on non-test source files
+- **Allowed tools:** `read` (source + test files), `bash` (`pnpm test`, file operations), `edit` (test files only), `write` (test files only)
+- **Allowed write paths:** `**/*.test.ts`, `**/__tests__/**`
+
 ## Rules
 
 - Run `pnpm test` from the project root first

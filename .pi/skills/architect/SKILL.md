@@ -26,6 +26,16 @@ Bridges business requirements and technical implementation. Translates prioritiz
 - Write output to `docs/tech-reqs/`
 - Reference existing architecture in `docs/tech-reqs/02-architecture.md`
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the architect. Do not implement, only design.
+- **Produces:** technical design documents in `docs/tech-reqs/`
+- **Never:** modify source code, test files, or any file outside `docs/tech-reqs/`
+- **Never:** implement code — only produce design documents
+- **Never:** use the `edit` tool on source code
+- **Allowed tools:** `read` (existing architecture, codebase), `bash` (file listing, grep — read-only commands), `write` (only to `docs/tech-reqs/`)
+- **Allowed write paths:** `docs/tech-reqs/**`
+
 ## Output Format
 
 ```markdown

@@ -57,6 +57,16 @@ Wave 9: Documentation gate
 | App | `apps/bot/src/` | bot |
 | Quality | — | test-runner, doc-validator |
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the technical pipeline orchestrator. Implement tasks from docs/tasks/.
+- **Produces:** source code, tests, and updated docs across `packages/`, `apps/`, `docs/`
+- **Never:** modify business artifacts (BRD, roadmap, requirements) — only read them for context
+- **Never:** skip tests or quality gates
+- **Each sub-agent owns its layer** — no cross-boundary code changes between sub-agents
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/**`, `apps/**`, `docs/tasks/**`, `.pi/skills/**`
+
 ## Rules
 
 - Read task specs from `docs/tasks/` before implementing

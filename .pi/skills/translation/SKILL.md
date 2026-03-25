@@ -25,6 +25,16 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 - **TranslationVariant & alternatives**: Each `LanguageTranslation` now has an optional `alternatives?: TranslationVariant[]` field (up to 2 additional translations beyond the main `text`). Each variant has its own `text`, `register`, and `synonyms`. The AI prompt requests exactly 2 alternatives per language. The Zod schema (`translationVariantSchema`) validates variant entries.
 - **Dictionary context multi-variant guidance**: When `dictionaryContext` has glosses, the prompt builder adds a hint to inform different translation variants — each alternative should capture a different sense or nuance if the word has multiple meanings.
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the translation agent. Only modify the translation module.
+- **Produces:** translation source code and tests in `packages/core/src/modules/translation/`
+- **Never:** modify code outside `packages/core/src/modules/translation/`
+- **Never:** save results, access DB directly, or know about users
+- **Never:** import AI adapter directly — AI generation function is injected
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/core/src/modules/translation/**`
+
 ## Rules
 
 1. One method `translate()` — the single entry point

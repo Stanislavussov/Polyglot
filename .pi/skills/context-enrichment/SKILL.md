@@ -28,6 +28,15 @@ All 3 consumers migrated:
 - Topics service receives context-enriched `translateBatch`/`translateOne` via DI
 - Notifications service no longer does dictionary lookup (handled at translation level)
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the context-enrichment agent. Only modify the enrichment module and its DB adapter factory.
+- **Produces:** enrichment source code and tests in `packages/core/src/modules/context-enrichment/` and `packages/adapters/db/src/context-lookup.ts`
+- **Never:** modify code outside `packages/core/src/modules/context-enrichment/` and `packages/adapters/db/src/context-lookup.ts`
+- **Never:** import DB or AI adapters directly from core — all dependencies injected
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/core/src/modules/context-enrichment/**`, `packages/adapters/db/src/context-lookup.ts`, `packages/adapters/db/src/__tests__/context-lookup.test.ts`
+
 ## Rules
 
 1. Core module — never imports DB or AI adapters directly

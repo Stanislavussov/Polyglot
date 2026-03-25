@@ -20,6 +20,16 @@ description: AI adapter using Vercel AI SDK with OpenRouter/multi-provider suppo
 Fully implemented. All 4 source files + 5 test files in place. 47 tests passing.
 `userId` support added to `AIRequestLog`, `GenerateOptions`, and threaded through `generateObject`/`generateText` → `logRequest` → pino output (Task 05 — structured logging).
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the AI adapter agent. Only modify the AI adapter layer.
+- **Produces:** AI adapter source code and tests in `packages/adapters/ai/src/`
+- **Never:** modify code outside `packages/adapters/ai/src/`
+- **Never:** contain domain/business logic — only send requests and return responses
+- **Never:** hardcode model IDs or API keys
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/adapters/ai/src/**`
+
 ## Rules
 
 1. Has no knowledge of domain logic — only sends requests and returns responses

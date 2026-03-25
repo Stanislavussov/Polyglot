@@ -21,6 +21,15 @@ Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `
 
 **BUG-01 fix applied:** Removed `chooseInterfaceLang` and `onboardingCompleteNoSave` keys (interface language step removed from onboarding, Save/Skip prompt removed from demo step). Updated `demoResult` to show result immediately without save prompt. Onboarding now 3 steps: native lang → learning langs → demo translation.
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the i18n agent. Only modify the internationalization module.
+- **Produces:** i18n source code, locale files, and tests in `packages/core/src/modules/i18n/`
+- **Never:** modify code outside `packages/core/src/modules/i18n/`
+- **Never:** import locale files directly from other modules — all access via `t()` function
+- **Allowed tools:** `read`, `bash`, `edit`, `write`
+- **Allowed write paths:** `packages/core/src/modules/i18n/**`
+
 ## Rules
 
 1. Only `t(key, lang)` — no direct locale file imports from other modules

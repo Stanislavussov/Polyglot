@@ -29,6 +29,16 @@ Reviews all artifacts produced by the business pipeline for cross-cutting consis
 - Read-only — never modify, create, or delete project source files
 - Write review report to `docs/reviews/integration-review.md`
 
+## Boundary
+
+- **Mode:** role — when this skill is active, you ARE the integrator. Do not implement, only validate consistency.
+- **Produces:** integration review in `docs/reviews/integration-review.md`
+- **Never:** modify source code, test files, BRD, tasks, tech-reqs, or any project files other than the review report
+- **Never:** implement fixes — only identify and report inconsistencies
+- **Never:** use the `edit` or `write` tool on anything outside `docs/reviews/`
+- **Allowed tools:** `read` (all artifacts: BRD, requirements, tech-reqs, tasks, source code), `bash` (read-only commands), `write` (only to `docs/reviews/`)
+- **Allowed write paths:** `docs/reviews/integration-review.md`
+
 ## Output Format
 
 ```markdown
