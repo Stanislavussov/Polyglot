@@ -1,3 +1,8 @@
+---
+name: product
+description: "Monitors competitors, analyzes their features, and proposes what to add to Polyglot. Use when evaluating competitor features, prioritizing new features, or generating competitive analysis reports."
+---
+
 # Product — Competitor Intelligence Skill
 
 Internal product agent. Monitors competitors, analyzes their features, and proposes what to add to Polyglot. Runs manually or on a schedule.

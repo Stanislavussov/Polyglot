@@ -1,6 +1,6 @@
 ---
 name: research
-description: Evaluates and stress-tests ideas: business hypotheses, architecture decisions, tech stack choices. Finds evidence for and against, identifies risks, trade-offs, and alternatives, then delivers a verdict with reasoning. Use when evaluating architecture decisions, tech stack choices, or business hypotheses.
+description: "Evaluates and stress-tests ideas: business hypotheses, architecture decisions, tech stack choices. Finds evidence for and against, identifies risks, trade-offs, and alternatives, then delivers a verdict with reasoning. Use when evaluating architecture decisions, tech stack choices, or business hypotheses."
 ---
 
 # Research — Idea Evaluator Skill

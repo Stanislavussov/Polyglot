@@ -5,128 +5,180 @@
     "model": "anthropic/claude-opus-4-6",
     "agents": [
       {
-        "name": "product",
+        "name": "business",
         "standalone": true,
-        "role": "Internal product agent. Monitors competitors, analyzes their features, and proposes what to add to Polyglot. Runs manually or on a schedule.",
-        "rules": "Analyze only publicly available features — App Store / Play Store descriptions, websites, blogs, changelogs.\nNever copy — only draw inspiration and adapt to Polyglot's multilingual context.\nEvery proposed feature is scored by impact × effort matrix.\nFeatures we already have → mark as alreadyHave: true, never re-propose.\nPriority: high impact + low effort → propose first.\nSocial features (leaderboards, friends) → low priority for MVP.\nRead-only — never modify, create, or delete project files.",
+        "role": "Business analysis and planning pipeline. Orchestrates research, requirements analysis, prioritization, architecture design, task creation, and cross-cutting validation. Produces artifacts in docs/ that the technical pipeline consumes asynchronously.",
+        "rules": "All output goes to docs/ directory — never modify source code.\nArtifacts flow: research → requirements (BRD) → prioritized scope → architecture → tasks → validation.\nEach sub-agent reads upstream artifacts and produces its own.\nFinal validators (brd-grooming, integrator) check consistency across all layers.",
         "model": "anthropic/claude-sonnet-4-6",
-        "enabledTools": ["read", "bash"],
-        "skills": [".pi/skills/product"]
-      },
-      {
-        "name": "research",
-        "standalone": true,
-        "role": "Evaluates and stress-tests ideas: business hypotheses, architecture decisions, tech stack choices. Sits between researcher and inventor — takes a raw idea, finds evidence for and against, identifies risks, trade-offs, and alternatives, then delivers a verdict with reasoning. Does NOT modify any files.",
-        "rules": "Always present both sides — pros/cons, risks/opportunities.\nBack claims with evidence: benchmarks, case studies, ecosystem stats, known pitfalls.\nFor arch decisions — evaluate scalability, maintainability, team fit, migration cost.\nFor tech stack — compare at least 2-3 alternatives on concrete criteria.\nFor business ideas — assess market, feasibility, effort-to-value ratio.\nEnd with a clear verdict: recommend, reject, or pivot — never sit on the fence.\nRead-only — never modify, create, or delete files.",
-        "model": "anthropic/claude-sonnet-4-6",
-        "enabledTools": ["read", "bash"],
-        "skills": [".pi/skills/research"]
-      },
-      {
-        "name": "brd-grooming",
-        "standalone": true,
-        "role": "Compares a Business Requirements Document (BRD) against a task list and surfaces every contradiction, conflict, or misalignment between them. Reads brd.md and tasks.md, then produces a structured report of contradictions.",
-        "rules": "Read brd.md and tasks.md from the project root (or paths provided by the user).\nA contradiction is any of: task implements something BRD forbids; task missing for a mandated requirement; task scope narrower/wider than BRD; task uses different business rules/values/logic; task references a feature BRD marks out of scope.\nFor each contradiction output: ## Contradiction #N, **BRD requirement:** <exact quote>, **Conflicting task:** <task ID or title>, **Conflict:** <one sentence>, **Severity:** Critical | Major | Minor, **Recommendation:** <resolution action>.\nIf no contradictions found, state: 'No contradictions found between BRD and tasks.'\nDo not suggest improvements unrelated to contradictions.\nDo not rewrite the BRD or tasks.\nFlag uncertain inferences as [needs PO review].\nOne contradiction per block — do not group unrelated conflicts.\nRead-only — never modify, create, or delete files.",
-        "model": "anthropic/claude-sonnet-4-6",
-        "enabledTools": ["read", "bash"],
-        "skills": [".pi/skills/brd-grooming"]
-      },
-      {
-        "name": "task-creator",
-        "standalone": true,
-        "role": "Takes a high-level goal or problem statement and breaks it down into a clear, actionable task list for the development team. Each task should have specific acceptance criteria and be small enough to be completed in a few hours. Does NOT modify any files.",
-        "rules": "Break down goals into tasks that are actionable and testable.\nEach task should have clear acceptance criteria — what does 'done' look like?\nTasks should be small and focused — ideally completable in a few hours.\nUse the project structure and existing codebase to inform task creation.\nRead-only — never modify, create, or delete files.",
-        "model": "anthropic/claude-sonnet-4-6",
+        "skills": [".pi/skills/business"],
         "enabledTools": ["read", "bash", "write"],
-        "skills": [".pi/skills/task-creator"]
-      },
-      {
-        "name": "i18n",
-        "role": "Internationalization of all bot texts. Leaf agent — no dependencies on other modules. Works in packages/core/src.",
-        "rules": "Only `t(key, lang)` — no direct locale file imports from other modules.\nOn missing key — fallback to `en`, never throw an error.\nKeys are a strict enum — TypeScript won't allow passing a non-existent key.\nInterpolation parameters are typed: `t(\"welcome\", lang, { name: string })`.\nSkills: t(key, lang, params?), getSupportedLangs(), isSupported(lang).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock external deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/i18n/SKILL.md`: sync 'Current State' (what's implemented vs still needed), 'File Structure' (add/remove files), 'Skills (Public API)' (update signatures if changed), and 'Types' (if modified). Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
-        "type": "coding",
-        "skills": [".pi/skills/i18n"]
-      },
-      {
-        "name": "validation",
-        "role": "Checks AI response quality. Leaf agent — no dependencies on other modules. Works in packages/core/src.",
-        "rules": "Pure functions only — no side effects, no I/O.\nNever calls AI — only deterministic checks.\nEach rule is a separate function named `validate*`.\nAlways returns a failure reason — always explains what went wrong.\nSkills: validateSchema(raw, schema), validateSemantic(original, translation), validateLanguage(text, expectedLang), validateExamples(examples, word), validate(all above, orchestrated).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock external deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/validation/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
-        "type": "coding",
-        "skills": [".pi/skills/validation"],
-        "dependsOn": ["i18n"]
-      },
-      {
-        "name": "db",
-        "role": "The only module that knows about Drizzle and PostgreSQL. All other agents get data only through repositories. Works in packages/adapters/db/src.",
-        "rules": "No business logic — CRUD operations only.\nAll queries typed via Drizzle — no raw SQL.\nSingle connection instance — singleton `getDb()`.\nEach repository is a separate file with a single responsibility.\nSkills: UserRepository (findByTelegramId, create, updateSettings), WordRepository (create, findByUser, findById, search, delete), TopicRepository (getCached, setCached, markInvalid).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock Drizzle/pg — tests run without a real DB. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/db/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', 'Schema', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
-        "type": "coding",
-        "skills": [".pi/skills/db"],
-        "dependsOn": ["validation", "i18n"]
-      },
-      {
-        "name": "ai",
-        "role": "The only module that knows about OpenRouter and Vercel AI SDK. All other agents receive AI responses through it exclusively. Works in packages/adapters/ai/src.",
-        "rules": "Has no knowledge of domain logic — only sends requests and returns responses.\nAll requests are logged: `model`, `tokens`, `cost_usd`, `duration_ms`.\nModel is always a parameter, never hardcoded internally.\n`maxRetries` is configurable from outside.\nSkills: generateObject<T>(prompt, schema, model), generateText(prompt, model), getAvailableModels(), estimateCost(tokens, model).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock Vercel AI SDK calls — tests run without real API keys. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/ai/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
-        "type": "coding",
-        "skills": [".pi/skills/ai"],
-        "dependsOn": ["validation"]
-      },
-      {
-        "name": "translation",
-        "role": "Translates words and phrases via AI. Knows about prompts and response structure. Works in packages/core/src.",
-        "rules": "One method `translate()` — the single entry point.\nDoes not save results — only returns them.\nKnows nothing about the user — works only with text and languages.\nAlways calls the `validation` agent before returning a result.\nSkills: translate(input), translateBatch(words, ...), buildPrompt(input), parseResponse(raw).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock AI adapter calls. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/translation/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
-        "type": "coding",
-        "skills": [".pi/skills/translation"],
-        "dependsOn": ["ai", "validation"]
-      },
-      {
-        "name": "topics",
-        "role": "Manages topics and caching of dataset translations. Works in packages/core/src.",
-        "rules": "Always checks cache before calling the `translation` agent.\nCalls `translation` in batch only — never one word at a time.\nKnows nothing about the user — works with language pairs.\nBuilt-in datasets are loaded once at startup.\nSkills: getBuiltinTopics(), getTopicWords(topicId, sourceLang, targetLangs), generateCustomTopic(prompt, sourceLang, targetLangs), getCacheStatus(topicId, sourceLang, targetLangs).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock translation and DB deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/topics/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
-        "type": "coding",
-        "dependsOn": ["translation", "db"],
-        "skills": [".pi/skills/topics"]
-      },
-      {
-        "name": "notifications",
-        "role": "Manages notification scheduling and delivery. Isolated from the bot via injection. Works in packages/adapters/notifications/src.",
-        "rules": "Does not import the `bot` agent — receives `sendFn` as a parameter at startup.\nOne cron job for the entire schedule — do not create a job per user.\nOn send error — log and continue, do not stop the entire scheduler.\nRespect user timezone when sending.\nSkills: startScheduler(sendFn), stopScheduler(), getUsersForNotification(time), buildNotificationPayload(user), pickSuggestedWord(userId).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock DB and cron deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/notifications/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
-        "type": "coding",
-        "dependsOn": ["db", "topics"],
-        "skills": [".pi/skills/notifications"]
-      },
-      {
-        "name": "bot",
-        "role": "Manages all user interaction via Telegram. The only module that knows about grammY. Works in apps/bot/src.",
-        "rules": "Never contains business logic — only calls to other agents.\nNever accesses the DB directly — only through the `db` agent.\nAll texts only through the `i18n` agent — no hardcoded strings.\nEach scene is a separate file, max 100 lines.\nSkills: renderTranslation(output), renderTopicWord(word), handleOnboarding(), handleTranslate(), handleDictionary(), handleSettings().\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock grammY context and external deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/bot/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
-        "type": "coding",
-        "dependsOn": ["i18n", "db", "translation", "topics", "notifications"],
-        "skills": [".pi/skills/bot"]
-      },
-      {
-        "name": "test-runner",
-        "role": "Runs the full test suite, analyzes failures, and fixes broken tests. This is the final quality gate in the pipeline.",
-        "rules": "Run `pnpm test` from the project root first.\nIf all tests pass — report success summary with test count and coverage.\nIf tests fail — read the failing test files AND the source files they test.\nFix only test files — never modify source code.\nCommon fixes: update mocks to match changed signatures, fix import paths, adjust expected values.\nAfter fixing, re-run `pnpm test` to verify — repeat until green or max 3 attempts.\nIf tests still fail after 3 attempts — report the remaining failures clearly with file paths and error messages.\nNever skip or delete failing tests — fix them or report them.",
-        "type": "coding",
-        "skills": [".pi/skills/test-runner"],
-        "dependsOn": [
-          "bot",
-          "notifications",
-          "topics",
-          "translation",
-          "ai",
-          "validation",
-          "db",
-          "i18n"
+        "subAgents": [
+          {
+            "name": "product",
+            "role": "Competitor intelligence. Monitors competitors, analyzes their features, and proposes what to add to Polyglot.",
+            "rules": "Analyze only publicly available features — App Store / Play Store descriptions, websites, blogs, changelogs.\nNever copy — only draw inspiration and adapt to Polyglot's multilingual context.\nEvery proposed feature is scored by impact × effort matrix.\nFeatures we already have → mark as alreadyHave: true, never re-propose.\nPriority: high impact + low effort → propose first.\nSocial features (leaderboards, friends) → low priority for MVP.\nWrite findings to docs/research/competitors.md.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/product"]
+          },
+          {
+            "name": "researcher",
+            "role": "Idea evaluator. Stress-tests business hypotheses, architecture decisions, and tech stack choices. Finds evidence for and against, identifies risks, trade-offs, and alternatives.",
+            "rules": "Always present both sides — pros/cons, risks/opportunities.\nBack claims with evidence: benchmarks, case studies, ecosystem stats, known pitfalls.\nFor arch decisions — evaluate scalability, maintainability, team fit, migration cost.\nFor tech stack — compare at least 2-3 alternatives on concrete criteria.\nFor business ideas — assess market, feasibility, effort-to-value ratio.\nEnd with a clear verdict: recommend, reject, or pivot — never sit on the fence.\nWrite findings to docs/research/evaluation.md.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/research"]
+          },
+          {
+            "name": "business-analyst",
+            "role": "Requirements synthesizer. Takes research findings and produces structured business requirements, user stories, and the BRD.",
+            "rules": "Synthesize research into actionable requirements — don't just summarize.\nEvery requirement must have: ID, description, acceptance criteria, priority placeholder.\nUser stories follow: 'As a [user], I want [action], so that [benefit]'.\nIdentify and flag gaps, ambiguities, and assumptions as [needs clarification].\nNever make prioritization decisions — that's the product-owner's job.\nWrite output to docs/BRD.md and docs/requirements/.\nCross-reference competitor features from product agent's research.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/business-analyst"],
+            "dependsOn": ["product", "researcher"]
+          },
+          {
+            "name": "product-owner",
+            "role": "Prioritization and scope. Makes go/no-go decisions on features, defines MVP scope, and builds the release roadmap.",
+            "rules": "Prioritize by user value × feasibility — not by technical coolness.\nUse MoSCoW method: Must have, Should have, Could have, Won't have (this release).\nMVP is the smallest set of Must-haves that delivers user value.\nEvery 'Won't have' needs a one-line rationale.\nDefer decisions to future milestones rather than cutting entirely.\nNever modify BRD requirements — only tag them with priority and scope.\nWrite output to docs/roadmap.md and docs/mvp-scope.md.\nRespect existing constraints from docs/BRD.md.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/product-owner"],
+            "dependsOn": ["business-analyst"]
+          },
+          {
+            "name": "architect",
+            "role": "Technical design. Translates prioritized business requirements into component boundaries, API contracts, data models, and technical decisions.",
+            "rules": "Design must align with existing monorepo architecture (packages/core, packages/adapters, apps/bot).\nDefine clear boundaries — each component owns its data and exposes an API.\nAPI contracts are typed (TypeScript interfaces) — no any types.\nEvery technical decision documents: context, options considered, decision, trade-offs.\nData model changes require migration strategy.\nNever implement code — only produce design documents.\nWrite output to docs/tech-reqs/.\nReference existing architecture in docs/tech-reqs/02-architecture.md.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/architect"],
+            "dependsOn": ["product-owner"]
+          },
+          {
+            "name": "task-creator",
+            "role": "Task decomposition. Breaks architecture designs and scoped requirements into clear, actionable development tasks with acceptance criteria.",
+            "rules": "Break down goals into tasks that are actionable and testable.\nEach task should have clear acceptance criteria — what does 'done' look like?\nTasks should be small and focused — ideally completable in a few hours.\nUse the project structure and existing codebase to inform task creation.\nIdentify dependencies between tasks and suggest execution order.\nWrite tasks to docs/tasks/.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/task-creator"],
+            "dependsOn": ["architect"]
+          },
+          {
+            "name": "brd-grooming",
+            "role": "BRD-vs-tasks validator. Compares the BRD against the task list and surfaces every contradiction, conflict, or misalignment.",
+            "rules": "Read docs/BRD.md and docs/tasks/ (or paths provided by the user).\nA contradiction is any of: task implements something BRD forbids; task missing for a mandated requirement; task scope narrower/wider than BRD; task uses different business rules/values/logic; task references a feature BRD marks out of scope.\nFor each contradiction output: ## Contradiction #N, BRD requirement (exact quote), Conflicting task (ID or title), Conflict (one sentence), Severity (Critical | Major | Minor), Recommendation (resolution action).\nIf no contradictions found, state: 'No contradictions found between BRD and tasks.'\nDo not suggest improvements unrelated to contradictions.\nDo not rewrite the BRD or tasks.\nFlag uncertain inferences as [needs PO review].\nOne contradiction per block — do not group unrelated conflicts.\nWrite review to docs/reviews/brd-grooming.md.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/brd-grooming"],
+            "dependsOn": ["task-creator"]
+          },
+          {
+            "name": "integrator",
+            "role": "Cross-cutting consistency checker. Reviews all pipeline artifacts for naming consistency, data flow completeness, API contract alignment, and missing integration points.",
+            "rules": "Read ALL artifacts: BRD, requirements, roadmap, tech-reqs, tasks.\nCheck cross-cutting concerns: naming consistency (same concept uses same name everywhere), data flow completeness (every input has a source, every output has a consumer), API contract alignment (tech-req interfaces match task implementations), error handling coverage (every failure mode has a handling strategy), requirement traceability (every requirement maps to tasks, every task maps to requirements).\nFor each inconsistency: identify the two conflicting artifacts, explain the mismatch, suggest resolution.\nSeverity levels: Critical (blocks implementation), Major (causes rework), Minor (cosmetic).\nNever modify source code files.\nWrite review to docs/reviews/integration-review.md.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/integrator"],
+            "dependsOn": ["task-creator"]
+          }
         ]
       },
       {
-        "name": "doc-validator",
-        "role": "Validates that all documentation (SKILL.md files, task files, tech-reqs) accurately reflects the current code state. Reads source code and docs, finds mismatches, and fixes the docs. This is the final pipeline gate — runs after tests pass.",
-        "rules": "For each agent skill in `.pi/skills/*/SKILL.md`, verify against actual source code:\n1. 'Current State' — matches what's actually implemented vs still empty/stubbed. Check every file listed.\n2. 'File Structure' — matches actual files on disk (no missing, no extra unlisted files).\n3. 'Skills (Public API)' — function signatures match exported functions in source code.\n4. 'Types' — type/interface definitions match actual types in source.\n5. 'Schema' sections (db) — match actual Drizzle schema.\nFor task files in `docs/tasks/`:\n6. Subtask checkboxes — check boxes for work that's actually done (files exist, functions implemented).\n7. 'Files created/modified' — lists match actual created/modified files.\n8. Status in `docs/tasks/README.md` — mark tasks as ✅ Done when all acceptance criteria are met.\nFix all mismatches directly in the doc files.\nNever modify source code — only docs.\nReport a summary of all fixes made.",
-        "type": "coding",
-        "skills": [".pi/skills/doc-validator"],
-        "dependsOn": ["test-runner"]
+        "name": "technical",
+        "standalone": false,
+        "role": "Technical implementation pipeline. Reads task specs from docs/tasks/ and docs/tech-reqs/, then implements across all architecture layers with quality gates.",
+        "rules": "Read task specs from docs/tasks/ before implementing.\nEach sub-agent owns its layer — no cross-boundary code changes.\nAll agents write tests and update documentation.\nFinal quality gates: test-runner then doc-validator.",
+        "skills": [".pi/skills/technical"],
+        "subAgents": [
+          {
+            "name": "i18n",
+            "role": "Internationalization of all bot texts. Leaf agent — no dependencies on other modules. Works in packages/core/src.",
+            "rules": "Only `t(key, lang)` — no direct locale file imports from other modules.\nOn missing key — fallback to `en`, never throw an error.\nKeys are a strict enum — TypeScript won't allow passing a non-existent key.\nInterpolation parameters are typed: `t(\"welcome\", lang, { name: string })`.\nSkills: t(key, lang, params?), getSupportedLangs(), isSupported(lang).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock external deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/i18n/SKILL.md`: sync 'Current State' (what's implemented vs still needed), 'File Structure' (add/remove files), 'Skills (Public API)' (update signatures if changed), and 'Types' (if modified). Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
+            "type": "coding",
+            "skills": [".pi/skills/i18n"]
+          },
+          {
+            "name": "validation",
+            "role": "Checks AI response quality. Leaf agent — no dependencies on other modules. Works in packages/core/src.",
+            "rules": "Pure functions only — no side effects, no I/O.\nNever calls AI — only deterministic checks.\nEach rule is a separate function named `validate*`.\nAlways returns a failure reason — always explains what went wrong.\nSkills: validateSchema(raw, schema), validateSemantic(original, translation), validateLanguage(text, expectedLang), validateExamples(examples, word), validate(all above, orchestrated).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock external deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/validation/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
+            "type": "coding",
+            "skills": [".pi/skills/validation"],
+            "dependsOn": ["i18n"]
+          },
+          {
+            "name": "db",
+            "role": "The only module that knows about Drizzle and PostgreSQL. All other agents get data only through repositories. Works in packages/adapters/db/src.",
+            "rules": "No business logic — CRUD operations only.\nAll queries typed via Drizzle — no raw SQL.\nSingle connection instance — singleton `getDb()`.\nEach repository is a separate file with a single responsibility.\nSkills: UserRepository (findByTelegramId, create, updateSettings), WordRepository (create, findByUser, findById, search, delete), TopicRepository (getCached, setCached, markInvalid).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock Drizzle/pg — tests run without a real DB. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/db/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', 'Schema', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
+            "type": "coding",
+            "skills": [".pi/skills/db"],
+            "dependsOn": ["validation", "i18n"]
+          },
+          {
+            "name": "ai",
+            "role": "The only module that knows about OpenRouter and Vercel AI SDK. All other agents receive AI responses through it exclusively. Works in packages/adapters/ai/src.",
+            "rules": "Has no knowledge of domain logic — only sends requests and returns responses.\nAll requests are logged: `model`, `tokens`, `cost_usd`, `duration_ms`.\nModel is always a parameter, never hardcoded internally.\n`maxRetries` is configurable from outside.\nSkills: generateObject<T>(prompt, schema, model), generateText(prompt, model), getAvailableModels(), estimateCost(tokens, model).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock Vercel AI SDK calls — tests run without real API keys. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/ai/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
+            "type": "coding",
+            "skills": [".pi/skills/ai"],
+            "dependsOn": ["validation"]
+          },
+          {
+            "name": "translation",
+            "role": "Translates words and phrases via AI. Knows about prompts and response structure. Works in packages/core/src.",
+            "rules": "One method `translate()` — the single entry point.\nDoes not save results — only returns them.\nKnows nothing about the user — works only with text and languages.\nAlways calls the `validation` agent before returning a result.\nSkills: translate(input), translateBatch(words, ...), buildPrompt(input), parseResponse(raw).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock AI adapter calls. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/translation/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
+            "type": "coding",
+            "skills": [".pi/skills/translation"],
+            "dependsOn": ["ai", "validation"]
+          },
+          {
+            "name": "topics",
+            "role": "Manages topics and caching of dataset translations. Works in packages/core/src.",
+            "rules": "Always checks cache before calling the `translation` agent.\nCalls `translation` in batch only — never one word at a time.\nKnows nothing about the user — works with language pairs.\nBuilt-in datasets are loaded once at startup.\nSkills: getBuiltinTopics(), getTopicWords(topicId, sourceLang, targetLangs), generateCustomTopic(prompt, sourceLang, targetLangs), getCacheStatus(topicId, sourceLang, targetLangs).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock translation and DB deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/topics/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
+            "type": "coding",
+            "skills": [".pi/skills/topics"],
+            "dependsOn": ["translation", "db"]
+          },
+          {
+            "name": "notifications",
+            "role": "Manages notification scheduling and delivery. Isolated from the bot via injection. Works in packages/adapters/notifications/src.",
+            "rules": "Does not import the `bot` agent — receives `sendFn` as a parameter at startup.\nOne cron job for the entire schedule — do not create a job per user.\nOn send error — log and continue, do not stop the entire scheduler.\nRespect user timezone when sending.\nSkills: startScheduler(sendFn), stopScheduler(), getUsersForNotification(time), buildNotificationPayload(user), pickSuggestedWord(userId).\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock DB and cron deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/notifications/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
+            "type": "coding",
+            "skills": [".pi/skills/notifications"],
+            "dependsOn": ["db", "topics"]
+          },
+          {
+            "name": "bot",
+            "role": "Manages all user interaction via Telegram. The only module that knows about grammY. Works in apps/bot/src.",
+            "rules": "Never contains business logic — only calls to other agents.\nNever accesses the DB directly — only through the `db` agent.\nAll texts only through the `i18n` agent — no hardcoded strings.\nEach scene is a separate file, max 100 lines.\nSkills: renderTranslation(output), renderTopicWord(word), handleOnboarding(), handleTranslate(), handleDictionary(), handleSettings().\nTesting: after implementing, write Vitest tests next to the source file as `<module>.test.ts`. Use `import { describe, it, expect, vi } from 'vitest'`. Cover happy path, edge cases, error handling. Mock grammY context and external deps. Use `.js` extensions in imports.\nDocs: after implementing, update your SKILL.md in `.pi/skills/bot/SKILL.md`: sync 'Current State', 'File Structure', 'Skills (Public API)', and 'Types'. Also update `docs/tasks/` — check completed subtask boxes, add files to 'Files created/modified', update README.md status if task is done.",
+            "type": "coding",
+            "skills": [".pi/skills/bot"],
+            "dependsOn": [
+              "i18n",
+              "db",
+              "translation",
+              "topics",
+              "notifications"
+            ]
+          },
+          {
+            "name": "test-runner",
+            "role": "Runs the full test suite, analyzes failures, and fixes broken tests. Final quality gate.",
+            "rules": "Run `pnpm test` from the project root first.\nIf all tests pass — report success summary with test count and coverage.\nIf tests fail — read the failing test files AND the source files they test.\nFix only test files — never modify source code.\nCommon fixes: update mocks to match changed signatures, fix import paths, adjust expected values.\nAfter fixing, re-run `pnpm test` to verify — repeat until green or max 3 attempts.\nIf tests still fail after 3 attempts — report the remaining failures clearly with file paths and error messages.\nNever skip or delete failing tests — fix them or report them.",
+            "type": "coding",
+            "skills": [".pi/skills/test-runner"],
+            "dependsOn": [
+              "bot",
+              "notifications",
+              "topics",
+              "translation",
+              "ai",
+              "validation",
+              "db",
+              "i18n"
+            ]
+          },
+          {
+            "name": "doc-validator",
+            "role": "Validates that all documentation accurately reflects the current code state. Final pipeline gate.",
+            "rules": "For each agent skill in `.pi/skills/*/SKILL.md`, verify against actual source code:\n1. 'Current State' — matches what's actually implemented vs still empty/stubbed. Check every file listed.\n2. 'File Structure' — matches actual files on disk (no missing, no extra unlisted files).\n3. 'Skills (Public API)' — function signatures match exported functions in source code.\n4. 'Types' — type/interface definitions match actual types in source.\n5. 'Schema' sections (db) — match actual Drizzle schema.\nFor task files in `docs/tasks/`:\n6. Subtask checkboxes — check boxes for work that's actually done (files exist, functions implemented).\n7. 'Files created/modified' — lists match actual created/modified files.\n8. Status in `docs/tasks/README.md` — mark tasks as ✅ Done when all acceptance criteria are met.\nFix all mismatches directly in the doc files.\nNever modify source code — only docs.\nReport a summary of all fixes made.",
+            "type": "coding",
+            "skills": [".pi/skills/doc-validator"],
+            "dependsOn": ["test-runner"]
+          }
+        ]
       }
     ]
   }
