@@ -19,7 +19,8 @@
         "role": "Evaluates and stress-tests ideas: business hypotheses, architecture decisions, tech stack choices. Sits between researcher and inventor — takes a raw idea, finds evidence for and against, identifies risks, trade-offs, and alternatives, then delivers a verdict with reasoning. Does NOT modify any files.",
         "rules": "Always present both sides — pros/cons, risks/opportunities.\nBack claims with evidence: benchmarks, case studies, ecosystem stats, known pitfalls.\nFor arch decisions — evaluate scalability, maintainability, team fit, migration cost.\nFor tech stack — compare at least 2-3 alternatives on concrete criteria.\nFor business ideas — assess market, feasibility, effort-to-value ratio.\nEnd with a clear verdict: recommend, reject, or pivot — never sit on the fence.\nRead-only — never modify, create, or delete files.",
         "model": "anthropic/claude-sonnet-4-6",
-        "enabledTools": ["read", "bash"]
+        "enabledTools": ["read", "bash"],
+        "skills": [".pi/skills/research"]
       },
       {
         "name": "brd-grooming",
@@ -27,7 +28,8 @@
         "role": "Compares a Business Requirements Document (BRD) against a task list and surfaces every contradiction, conflict, or misalignment between them. Reads brd.md and tasks.md, then produces a structured report of contradictions.",
         "rules": "Read brd.md and tasks.md from the project root (or paths provided by the user).\nA contradiction is any of: task implements something BRD forbids; task missing for a mandated requirement; task scope narrower/wider than BRD; task uses different business rules/values/logic; task references a feature BRD marks out of scope.\nFor each contradiction output: ## Contradiction #N, **BRD requirement:** <exact quote>, **Conflicting task:** <task ID or title>, **Conflict:** <one sentence>, **Severity:** Critical | Major | Minor, **Recommendation:** <resolution action>.\nIf no contradictions found, state: 'No contradictions found between BRD and tasks.'\nDo not suggest improvements unrelated to contradictions.\nDo not rewrite the BRD or tasks.\nFlag uncertain inferences as [needs PO review].\nOne contradiction per block — do not group unrelated conflicts.\nRead-only — never modify, create, or delete files.",
         "model": "anthropic/claude-sonnet-4-6",
-        "enabledTools": ["read", "bash"]
+        "enabledTools": ["read", "bash"],
+        "skills": [".pi/skills/brd-grooming"]
       },
       {
         "name": "task-creator",
@@ -35,7 +37,8 @@
         "role": "Takes a high-level goal or problem statement and breaks it down into a clear, actionable task list for the development team. Each task should have specific acceptance criteria and be small enough to be completed in a few hours. Does NOT modify any files.",
         "rules": "Break down goals into tasks that are actionable and testable.\nEach task should have clear acceptance criteria — what does 'done' look like?\nTasks should be small and focused — ideally completable in a few hours.\nUse the project structure and existing codebase to inform task creation.\nRead-only — never modify, create, or delete files.",
         "model": "anthropic/claude-sonnet-4-6",
-        "enabledTools": ["read", "bash", "write"]
+        "enabledTools": ["read", "bash", "write"],
+        "skills": [".pi/skills/task-creator"]
       },
       {
         "name": "i18n",
@@ -105,6 +108,7 @@
         "role": "Runs the full test suite, analyzes failures, and fixes broken tests. This is the final quality gate in the pipeline.",
         "rules": "Run `pnpm test` from the project root first.\nIf all tests pass — report success summary with test count and coverage.\nIf tests fail — read the failing test files AND the source files they test.\nFix only test files — never modify source code.\nCommon fixes: update mocks to match changed signatures, fix import paths, adjust expected values.\nAfter fixing, re-run `pnpm test` to verify — repeat until green or max 3 attempts.\nIf tests still fail after 3 attempts — report the remaining failures clearly with file paths and error messages.\nNever skip or delete failing tests — fix them or report them.",
         "type": "coding",
+        "skills": [".pi/skills/test-runner"],
         "dependsOn": [
           "bot",
           "notifications",
@@ -121,6 +125,7 @@
         "role": "Validates that all documentation (SKILL.md files, task files, tech-reqs) accurately reflects the current code state. Reads source code and docs, finds mismatches, and fixes the docs. This is the final pipeline gate — runs after tests pass.",
         "rules": "For each agent skill in `.pi/skills/*/SKILL.md`, verify against actual source code:\n1. 'Current State' — matches what's actually implemented vs still empty/stubbed. Check every file listed.\n2. 'File Structure' — matches actual files on disk (no missing, no extra unlisted files).\n3. 'Skills (Public API)' — function signatures match exported functions in source code.\n4. 'Types' — type/interface definitions match actual types in source.\n5. 'Schema' sections (db) — match actual Drizzle schema.\nFor task files in `docs/tasks/`:\n6. Subtask checkboxes — check boxes for work that's actually done (files exist, functions implemented).\n7. 'Files created/modified' — lists match actual created/modified files.\n8. Status in `docs/tasks/README.md` — mark tasks as ✅ Done when all acceptance criteria are met.\nFix all mismatches directly in the doc files.\nNever modify source code — only docs.\nReport a summary of all fixes made.",
         "type": "coding",
+        "skills": [".pi/skills/doc-validator"],
         "dependsOn": ["test-runner"]
       }
     ]
