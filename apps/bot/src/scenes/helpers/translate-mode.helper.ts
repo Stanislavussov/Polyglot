@@ -8,6 +8,7 @@ import {
   translateWithContext,
   resolveTranslationDirection,
   resolveDirectionFromSource,
+  FULL_OUTPUT,
   t,
   getLanguageName,
   getLangDisplay,
@@ -110,6 +111,7 @@ export async function handleTranslateText(
         targetLangs,
         model: config.AI_MODEL,
         userId: ctx.user.id,
+        outputConfig: FULL_OUTPUT,
       },
       { lookupContext, generateObjectFn: generateObject },
     );

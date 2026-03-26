@@ -43,6 +43,19 @@ Translation is always active for onboarded users. Multiple layers ensure no text
 4. **Idle mode fallback** in mode router: onboarded users get translated (with warn log), non-onboarded users get `/start` hint
 5. **Debug logging** in mode router: logs `{ mode, text, userId }` on every routed message
 
+### Translation Output Config Presets (Task 21)
+
+Bot callers use centralized `TranslationOutputConfig` presets from `@polyglot/core` to control which sections appear in AI translation responses. This reduces token usage for use cases that don't need full verbosity.
+
+**Caller → preset mapping:**
+
+| Caller | Preset | Rationale |
+|---|---|---|
+| `translate-mode.helper.ts` (`handleTranslateText`) | `FULL_OUTPUT` | Interactive translation — user expects rich cards |
+| `regen.helper.ts` (`handleRegenLoop`) | `FULL_OUTPUT` | Regeneration — same rich detail as interactive |
+
+Both callers import `FULL_OUTPUT` from `@polyglot/core` and pass `outputConfig: FULL_OUTPUT` in their translation input. Rule: callers must always use a named preset — never construct `TranslationOutputConfig` inline.
+
 ### Persistent activeMode in Database (Task 20)
 
 The user's `activeMode` is now persisted in the `userLanguageSettings.activeMode` DB column so it survives bot restarts. The session is hydrated from DB on every request via the auth middleware.

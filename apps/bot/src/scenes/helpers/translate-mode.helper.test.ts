@@ -103,6 +103,20 @@ describe("handleTranslateText — context enrichment", () => {
     );
   });
 
+  it("passes FULL_OUTPUT preset as outputConfig", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "hello");
+
+    const inputArg = vi.mocked(translateWithContext).mock.calls[0]![0];
+    expect(inputArg.outputConfig).toEqual({
+      includeExamples: true,
+      includeTranscription: true,
+      includeSynonyms: true,
+      includeAlternatives: true,
+      includeEquivalentNote: true,
+    });
+  });
+
   it("passes lookupContext from createContextLookup to deps", async () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "hello");

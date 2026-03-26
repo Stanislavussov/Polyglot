@@ -5,6 +5,7 @@
  * prompt output and TypeScript types are derived from it.
  */
 import { z } from "zod";
+import type { TranslationOutputConfig } from "../types.js";
 
 /** Valid register values */
 const registerEnum = z.enum([
@@ -89,6 +90,37 @@ export const translationResultSchema = z.object({
 });
 
 /**
+ * Build a per-language translation schema, optionally relaxing validation
+ * for fields disabled by TranslationOutputConfig.
+ *
+ * When a field is disabled (e.g. includeExamples: false), the schema
+ * accepts empty arrays / missing fields instead of requiring them.
+ *
+ * @param config - Optional output config to relax disabled fields
+ * @returns Zod schema for a single language translation entry
+ */
+export function buildLanguageTranslationSchema(config?: TranslationOutputConfig) {
+  const includeExamples = config?.includeExamples !== false;
+  const includeSynonyms = config?.includeSynonyms !== false;
+
+  return z.object({
+    text: z.string().min(1, "Translation text is required"),
+    cefr: cefrEnum,
+    transcription: z.string().optional(),
+    register: registerEnum,
+    synonyms: includeSynonyms
+      ? z.array(synonymSchema)
+      : z.array(synonymSchema).default([]),
+    examples: includeExamples
+      ? z.array(exampleSchema).min(1, "At least one example is required")
+      : z.array(exampleSchema).default([]),
+    expressionType: expressionTypeEnum.optional().default("literal"),
+    equivalentNote: z.string().optional(),
+    alternatives: z.array(translationVariantSchema).optional(),
+  });
+}
+
+/**
  * Build a translation result schema with required language keys.
  *
  * Unlike the generic translationResultSchema (which accepts any keys),
@@ -97,12 +129,14 @@ export const translationResultSchema = z.object({
  * expected translations instead of returning partial/empty objects.
  *
  * @param targetLangs - Language codes that must be present (e.g. ["cs", "en", "es"])
+ * @param config - Optional output config to relax disabled fields
  * @returns Zod schema with explicit required language keys
  */
-export function buildTranslationResultSchema(targetLangs: string[]) {
-  const langEntries: Record<string, typeof languageTranslationSchema> = {};
+export function buildTranslationResultSchema(targetLangs: string[], config?: TranslationOutputConfig) {
+  const langSchema = buildLanguageTranslationSchema(config);
+  const langEntries: Record<string, typeof langSchema> = {};
   for (const lang of targetLangs) {
-    langEntries[lang] = languageTranslationSchema;
+    langEntries[lang] = langSchema;
   }
 
   return z.object({

@@ -18,6 +18,7 @@ import type {
   TopicDeps,
   LanguageTranslationEntry,
 } from "./types.js";
+import { MINIMAL_OUTPUT } from "../translation/translation-output.presets.js";
 import { createRequire } from "node:module";
 
 // ─────────────────────────────────────────────
@@ -122,12 +123,14 @@ export function createTopicService(deps: TopicDeps) {
 
     // Phase 2: Batch translate uncached words (rule: never one at a time)
     // Context enrichment is handled by the injected translateBatch function.
+    // Uses MINIMAL_OUTPUT preset — topics only need core fields + transcription.
     let translatedWords: TopicWord[] = [];
     if (uncachedOriginals.length > 0) {
       const outputs = await deps.translateBatch(
         uncachedOriginals,
         sourceLang,
         targetLangs,
+        MINIMAL_OUTPUT,
       );
 
       translatedWords = await Promise.all(
@@ -197,10 +200,12 @@ export function createTopicService(deps: TopicDeps) {
 
     // Step 2: Batch translate all words
     // Context enrichment is handled by the injected translateBatch function.
+    // Uses MINIMAL_OUTPUT preset — topics only need core fields + transcription.
     const outputs = await deps.translateBatch(
       generated.words,
       sourceLang,
       targetLangs,
+      MINIMAL_OUTPUT,
     );
 
     // Step 3: Build Topic
@@ -320,7 +325,8 @@ export function createTopicService(deps: TopicDeps) {
 
     // Re-translate for the single target language.
     // Context enrichment is handled by the injected translateOne function.
-    const newTranslation = await deps.translateOne(original, sourceLang, targetLang);
+    // Uses MINIMAL_OUTPUT preset — topics only need core fields + transcription.
+    const newTranslation = await deps.translateOne(original, sourceLang, targetLang, MINIMAL_OUTPUT);
 
     // Overwrite the cache entry
     await deps.setCached({

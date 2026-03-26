@@ -178,6 +178,32 @@ describe("handleRegenLoop", () => {
     expect(ctx.api.editMessageText).toHaveBeenCalled();
   });
 
+  it("passes FULL_OUTPUT preset as outputConfig to translateOne", async () => {
+    const { conversation } = createMockConversation([
+      "tr:regen:cs",
+      "tr:skip",
+    ]);
+    const ctx = createMockCtx();
+
+    await handleRegenLoop(
+      conversation as any,
+      ctx as any,
+      sampleOutput,
+      "en" as SupportedLang,
+      1,
+      42,
+    );
+
+    const call = vi.mocked(translateOne).mock.calls[0]!;
+    expect(call[0].outputConfig).toEqual({
+      includeExamples: true,
+      includeTranscription: true,
+      includeSynonyms: true,
+      includeAlternatives: true,
+      includeEquivalentNote: true,
+    });
+  });
+
   it("shows loading message during regeneration", async () => {
     const { conversation, editMessageText } = createMockConversation([
       "tr:regen:de",

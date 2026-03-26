@@ -58,6 +58,7 @@ export async function translate(
     targetLangs: input.targetLangs,
     topic: input.topic,
     dictionaryContext: input.dictionaryContext,
+    outputConfig: input.outputConfig,
   };
 
   console.log("[translation] starting translation request", {
@@ -70,7 +71,7 @@ export async function translate(
 
   // Step 1: Build prompt and call AI
   // Use dynamic schema with required language keys so AI SDK enforces their presence
-  const schema = buildTranslationResultSchema(input.targetLangs);
+  const schema = buildTranslationResultSchema(input.targetLangs, input.outputConfig);
   let prompt = buildTranslationPrompt(request);
   let result: TranslationResult;
   let lastErrors: string[] = [];
@@ -173,6 +174,7 @@ export async function translateOne(
       topic: input.topic,
       userId: input.userId,
       dictionaryContext: input.dictionaryContext,
+      outputConfig: input.outputConfig,
     },
     generateObjectFn,
   );

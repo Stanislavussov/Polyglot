@@ -18,7 +18,11 @@ description: Topic management with built-in datasets, cache-first translation, a
 
 ## Current State
 
-Fully implemented with partial regeneration, idiomatic equivalent passthrough, and translation alternatives support. After Task 15 (context-enrichment layer), dictionary context lookup was removed from `TopicDeps` — the `lookupDictionaryContext` dep and internal `lookupContextsBatch` helper are gone. Callers should now inject context-enriched `translateBatch`/`translateOne` functions (e.g., wrapping `translateBatchWithContext`/`translateOneWithContext` from the context-enrichment module). The `LanguageTranslationEntry` type includes optional `expressionType`, `equivalentNote`, and `alternatives` fields. The `TopicTranslationVariant` type mirrors the translation module's `TranslationVariant` for decoupled alternative translation storage. All public API functions working with 65 tests passing.
+Fully implemented with partial regeneration, idiomatic equivalent passthrough, and translation alternatives support. After Task 15 (context-enrichment layer), dictionary context lookup was removed from `TopicDeps` — the `lookupDictionaryContext` dep and internal `lookupContextsBatch` helper are gone. Callers should now inject context-enriched `translateBatch`/`translateOne` functions (e.g., wrapping `translateBatchWithContext`/`translateOneWithContext` from the context-enrichment module). The `LanguageTranslationEntry` type includes optional `expressionType`, `equivalentNote`, and `alternatives` fields. The `TopicTranslationVariant` type mirrors the translation module's `TranslationVariant` for decoupled alternative translation storage.
+
+**Task 21:** Added `TranslationOutputConfig` support via the `MINIMAL_OUTPUT` preset. The `TopicDeps` interface now accepts an optional `outputConfig` parameter on `translateBatch` and `translateOne`. The topic service always passes `MINIMAL_OUTPUT` (only transcription, no examples/synonyms/alternatives/equivalentNote) to save tokens during bulk and single-word topic translation. This is backward-compatible — the parameter is optional in the interface.
+
+All public API functions working with 76 tests passing.
 
 ### Task 16 Compatibility (Auto-Detect Input Language)
 
@@ -93,17 +97,21 @@ function createTopicService(deps: TopicDeps): {
 interface TopicDeps {
   // Batch translate words — callers should inject a context-enriched function
   // (e.g., wrapping translateBatchWithContext from the context-enrichment module)
+  // The optional outputConfig controls which AI response fields are requested
   translateBatch: (
     words: string[],
     sourceLang: string,
     targetLangs: string[],
+    outputConfig?: TranslationOutputConfig,
   ) => Promise<TranslateOutput[]>;
   // Single-language translation for partial regeneration (optional)
   // Callers should inject a context-enriched function
+  // The optional outputConfig controls which AI response fields are requested
   translateOne?: (
     word: string,
     sourceLang: string,
     targetLang: string,
+    outputConfig?: TranslationOutputConfig,
   ) => Promise<LanguageTranslationEntry>;
   // Cache read (from db topicRepository.getCached)
   getCached: (topicId: string, original: string, sourceLang: string, targetLang: string) => Promise<CachedTranslation | null>;
@@ -179,8 +187,18 @@ interface TopicDataset {
 After Task 15, dictionary context lookup is **no longer done inside the topics service**. Context enrichment is handled externally by the context-enrichment layer (`translateWithContext`, `translateBatchWithContext` from `@polyglot/core`).
 
 Callers inject context-enriched `translateBatch`/`translateOne` functions into `TopicDeps`:
-- `translateBatch` is called with 3 args: `(words, sourceLang, targetLangs)` — no `dictionaryContexts` map
-- `translateOne` is called with 3 args: `(word, sourceLang, targetLang)` — no `dictionaryContext`
+- `translateBatch` is called with 4 args: `(words, sourceLang, targetLangs, outputConfig?)` — the topic service always passes `MINIMAL_OUTPUT`
+- `translateOne` is called with 4 args: `(word, sourceLang, targetLang, outputConfig?)` — the topic service always passes `MINIMAL_OUTPUT`
+
+### Output Config Preset
+
+The topic service uses the `MINIMAL_OUTPUT` preset from the translation module (`translation-output.presets.ts`). This preset requests only core translation fields + transcription — no examples, synonyms, alternatives, or equivalentNote. This saves tokens during bulk topic translation.
+
+| Function | Preset | Rationale |
+|---|---|---|
+| `getTopicWords` (batch) | `MINIMAL_OUTPUT` | Cached batch job — save tokens, only need core translation + transcription |
+| `generateCustomTopic` (batch) | `MINIMAL_OUTPUT` | Same — custom topics are also bulk translated |
+| `regenerateTopicWord` (single) | `MINIMAL_OUTPUT` | Single-word regeneration within topic context |
 
 ### Data flow
 ```
@@ -189,7 +207,7 @@ Bot layer
   └── injects translateOne (wrapping translateOneWithContext with model/generateObjectFn/lookupContext)
     └── Topics service
         ├── Checks cache first
-        ├── Calls injected translateBatch/translateOne (context enrichment happens inside)
+        ├── Calls injected translateBatch/translateOne with MINIMAL_OUTPUT (context enrichment happens inside)
         └── Caches results
 ```
 
@@ -207,7 +225,7 @@ Bot layer
 packages/core/src/modules/topics/
 ├── index.ts              # Re-exports public API (incl. TopicExpressionType, TopicTranslationVariant)
 ├── types.ts              # TopicMeta, TopicWord, Topic, CacheStatus, TopicDeps, TopicExpressionType, TopicTranslationVariant
-├── topic.service.ts      # getBuiltinTopics, createTopicService (factory)
+├── topic.service.ts      # getBuiltinTopics, createTopicService (factory); imports MINIMAL_OUTPUT from translation module
 ├── datasets/
 │   ├── food.json         # 25 food & cooking words
 │   ├── travel.json       # 25 travel & transport words
@@ -216,7 +234,8 @@ packages/core/src/modules/topics/
     ├── topic.service.test.ts       # 37 tests (27 original + 10 regenerateTopicWord)
     ├── idiomatic-equivalents.test.ts  # 10 tests for idiomatic field passthrough
     ├── dictionary-context.test.ts  # 8 tests for post-context-enrichment translation integration
-    └── alternatives.test.ts        # 10 tests for translation alternatives passthrough
+    ├── alternatives.test.ts        # 10 tests for translation alternatives passthrough
+    └── output-config.test.ts       # 11 tests for MINIMAL_OUTPUT preset passthrough
 ```
 
 ## Usage Example
@@ -237,13 +256,15 @@ const topics = getBuiltinTopics();
 const lookupContext = createContextLookup();
 const enrichmentDeps = { lookupContext, generateObjectFn: generateObject };
 
-// Create service with context-enriched translate functions
+// Create service with context-enriched translate functions.
+// The 4th arg (outputConfig) is passed by the topic service internally
+// (always MINIMAL_OUTPUT) — the injected function should forward it.
 const service = createTopicService({
-  translateBatch: (words, src, tgt) =>
-    translateBatchWithContext(words, src, tgt, model, enrichmentDeps),
-  translateOne: (word, src, tgt) =>
+  translateBatch: (words, src, tgt, outputConfig) =>
+    translateBatchWithContext(words, src, tgt, model, enrichmentDeps, outputConfig),
+  translateOne: (word, src, tgt, outputConfig) =>
     translateOneWithContext(
-      { word, sourceLang: src, targetLangs: [tgt], targetLang: tgt, model },
+      { word, sourceLang: src, targetLangs: [tgt], targetLang: tgt, model, outputConfig },
       enrichmentDeps,
     ),
   getCached: topicRepository.getCached,
@@ -251,9 +272,10 @@ const service = createTopicService({
 });
 
 // Get translated words (cache-first, with Wiktionary enrichment via context-enrichment layer)
+// Internally uses MINIMAL_OUTPUT — only core fields + transcription, no examples/synonyms
 const words = await service.getTopicWords("food", "en", ["cs", "de"]);
 
-// Regenerate a single language (context enrichment handled by injected translateOne)
+// Regenerate a single language (uses MINIMAL_OUTPUT preset)
 const newCsTranslation = await service.regenerateTopicWord("food", "apple", "en", "cs");
 ```
 

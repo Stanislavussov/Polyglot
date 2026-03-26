@@ -10,6 +10,7 @@ import type {
   LanguageTranslationEntry,
 } from "../types.js";
 import type { TranslateOutput } from "../../translation/types.js";
+import { MINIMAL_OUTPUT } from "../../translation/translation-output.presets.js";
 
 // ─────────────────────────────────────────────
 // Helpers
@@ -275,12 +276,13 @@ describe("createTopicService", () => {
       // All words returned
       expect(words).toHaveLength(dataset.words.length);
 
-      // translateBatch called with only uncached words
+      // translateBatch called with only uncached words + MINIMAL_OUTPUT
       expect(translateBatch).toHaveBeenCalledTimes(1);
       expect(translateBatch).toHaveBeenCalledWith(
         uncachedWords,
         "en",
         ["cs"],
+        MINIMAL_OUTPUT,
       );
 
       // setCached called for each translated word × each target lang
@@ -445,6 +447,7 @@ describe("createTopicService", () => {
         ["dog", "cat"],
         "en",
         ["cs", "de"],
+        MINIMAL_OUTPUT,
       );
     });
 
@@ -655,7 +658,7 @@ describe("createTopicService", () => {
       await service.regenerateTopicWord("food", word, "en", "cs");
 
       expect(translateOne).toHaveBeenCalledTimes(1);
-      expect(translateOne).toHaveBeenCalledWith(word, "en", "cs");
+      expect(translateOne).toHaveBeenCalledWith(word, "en", "cs", MINIMAL_OUTPUT);
     });
 
     it("updates cache with new translation", async () => {

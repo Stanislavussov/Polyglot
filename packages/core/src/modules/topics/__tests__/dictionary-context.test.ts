@@ -22,6 +22,7 @@ import type {
   TranslateOutput,
   DictionaryContext,
 } from "../../translation/types.js";
+import { MINIMAL_OUTPUT } from "../../translation/translation-output.presets.js";
 
 // ─────────────────────────────────────────────
 // Helpers
@@ -102,7 +103,7 @@ function createMockDeps(overrides?: Partial<TopicDeps>): TopicDeps {
 // ─────────────────────────────────────────────
 
 describe("getTopicWords — translation integration", () => {
-  it("calls translateBatch with 3 args (no dictionaryContexts map)", async () => {
+  it("calls translateBatch with 4 args (words, sourceLang, targetLangs, outputConfig)", async () => {
     const dataset = getDataset("food")!;
     const translateBatch = vi.fn().mockResolvedValue(
       dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
@@ -114,11 +115,12 @@ describe("getTopicWords — translation integration", () => {
     await service.getTopicWords("food", "en", ["cs"]);
 
     expect(translateBatch).toHaveBeenCalledTimes(1);
-    expect(translateBatch.mock.calls[0]).toHaveLength(3);
+    expect(translateBatch.mock.calls[0]).toHaveLength(4);
     expect(translateBatch).toHaveBeenCalledWith(
       dataset.words,
       "en",
       ["cs"],
+      MINIMAL_OUTPUT,
     );
   });
 
@@ -171,6 +173,7 @@ describe("getTopicWords — translation integration", () => {
       uncachedWords,
       "en",
       ["cs"],
+      MINIMAL_OUTPUT,
     );
   });
 });
@@ -194,7 +197,7 @@ describe("regenerateTopicWord — simplified", () => {
     ],
   };
 
-  it("calls translateOne with 3 args (no dictionaryContext)", async () => {
+  it("calls translateOne with 4 args (word, sourceLang, targetLang, outputConfig)", async () => {
     const dataset = getDataset("food")!;
     const word = dataset.words[0]!;
 
@@ -206,7 +209,7 @@ describe("regenerateTopicWord — simplified", () => {
     await service.regenerateTopicWord("food", word, "en", "cs");
 
     expect(translateOne).toHaveBeenCalledTimes(1);
-    expect(translateOne).toHaveBeenCalledWith(word, "en", "cs");
+    expect(translateOne).toHaveBeenCalledWith(word, "en", "cs", MINIMAL_OUTPUT);
   });
 });
 
@@ -215,7 +218,7 @@ describe("regenerateTopicWord — simplified", () => {
 // ─────────────────────────────────────────────
 
 describe("generateCustomTopic — simplified", () => {
-  it("calls translateBatch with 3 args for generated words", async () => {
+  it("calls translateBatch with 4 args for generated words (incl. MINIMAL_OUTPUT)", async () => {
     const generateWords = vi.fn().mockResolvedValue({
       name: "Sports",
       emoji: "⚽",
@@ -234,11 +237,12 @@ describe("generateCustomTopic — simplified", () => {
     await service.generateCustomTopic("sport words", "en", ["cs"]);
 
     expect(translateBatch).toHaveBeenCalledTimes(1);
-    expect(translateBatch.mock.calls[0]).toHaveLength(3);
+    expect(translateBatch.mock.calls[0]).toHaveLength(4);
     expect(translateBatch).toHaveBeenCalledWith(
       ["football", "basketball", "tennis"],
       "en",
       ["cs"],
+      MINIMAL_OUTPUT,
     );
   });
 });

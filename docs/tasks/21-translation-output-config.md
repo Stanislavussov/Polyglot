@@ -1,6 +1,6 @@
 # Task 21: Translation Output Config
 
-**Status:** 🔲 To Do
+**Status:** ✅ Done
 
 ## Goal
 
@@ -397,18 +397,18 @@ Update the skill file to document:
 
 ## Acceptance Criteria (Summary)
 
-- [ ] `TranslationOutputConfig` interface is defined with 5 optional boolean fields, all defaulting to `true`
-- [ ] `TranslateInput.outputConfig` and `TranslationRequest.outputConfig` are optional (no breaking change)
-- [ ] `translation-output.presets.ts` exists with `FULL_OUTPUT`, `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT` — all exported from `@polyglot/core`
-- [ ] `buildTranslationPrompt({ ..., outputConfig: { includeExamples: false } })` produces a prompt with no `examples` field and no variety-in-examples rules
-- [ ] `buildTranslationPrompt({ ..., outputConfig: { includeEquivalentNote: false } })` produces a prompt with no `Idiomatic & Proverb Rule` block
-- [ ] `buildTranslationResultSchema(langs, { includeExamples: false })` returns a schema that passes validation when `examples` is `[]`
-- [ ] `translate({ ..., outputConfig: MINIMAL_OUTPUT }, fn)` uses the config-aware prompt and schema end-to-end
-- [ ] `translateWithContext({ ..., outputConfig: FULL_OUTPUT }, deps)` correctly forwards config to `translate()`
-- [ ] Every call site uses a named preset — no inline `TranslationOutputConfig` construction in callers
-- [ ] `topic.service.ts` uses `MINIMAL_OUTPUT`, bot helpers use `FULL_OUTPUT`
-- [ ] Passing `undefined` config or `{}` config produces behavior identical to today (backward-compatible)
-- [ ] All existing tests pass: `pnpm test` (zero regressions)
-- [ ] TypeScript compiles cleanly: `pnpm -r run build`
-- [ ] At least 20 new unit tests in `output-config.test.ts` (including 3 preset tests)
-- [ ] `.pi/skills/translation/SKILL.md` updated with presets, new type, updated signatures, and "no inline config" rule
+- [x] `TranslationOutputConfig` interface is defined with 5 optional boolean fields, all defaulting to `true`
+- [x] `TranslateInput.outputConfig` and `TranslationRequest.outputConfig` are optional (no breaking change)
+- [x] `translation-output.presets.ts` exists with `FULL_OUTPUT`, `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT` — all exported from `@polyglot/core`
+- [x] `buildTranslationPrompt({ ..., outputConfig: { includeExamples: false } })` produces a prompt with no `examples` field and no variety-in-examples rules
+- [x] `buildTranslationPrompt({ ..., outputConfig: { includeEquivalentNote: false } })` produces a prompt with no `Idiomatic & Proverb Rule` block
+- [x] `buildTranslationResultSchema(langs, { includeExamples: false })` returns a schema that passes validation when `examples` is `[]`
+- [x] `translate({ ..., outputConfig: MINIMAL_OUTPUT }, fn)` uses the config-aware prompt and schema end-to-end
+- [x] `translateWithContext({ ..., outputConfig: FULL_OUTPUT }, deps)` correctly forwards config to `translate()`
+- [x] Every call site uses a named preset — no inline `TranslationOutputConfig` construction in callers
+- [x] `topic.service.ts` uses `MINIMAL_OUTPUT`, bot helpers use `FULL_OUTPUT`
+- [x] Passing `undefined` config or `{}` config produces behavior identical to today (backward-compatible)
+- [x] All existing tests pass: `pnpm test` (zero regressions)
+- [x] TypeScript compiles cleanly: `pnpm -r run build`
+- [x] At least 20 new unit tests in `output-config.test.ts` (including 3 preset tests)
+- [x] `.pi/skills/translation/SKILL.md` updated with presets, new type, updated signatures, and "no inline config" rule

@@ -16,6 +16,7 @@ export {
   translationRequestSchema,
   translationResultSchema,
   buildTranslationResultSchema,
+  buildLanguageTranslationSchema,
   languageTranslationSchema,
   synonymSchema,
   exampleSchema,
@@ -38,6 +39,7 @@ export type {
   TranslateOutput,
   LanguageTranslation,
   TranslationVariant,
+  TranslationOutputConfig,
   Synonym,
   Example,
   Register,
@@ -46,3 +48,10 @@ export type {
   ExpressionType,
   DictionaryContext,
 } from "./types.js";
+
+// Output presets
+export {
+  FULL_OUTPUT,
+  MINIMAL_OUTPUT,
+  NOTIFICATION_OUTPUT,
+} from "./translation-output.presets.js";

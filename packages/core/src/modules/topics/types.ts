@@ -4,7 +4,7 @@
  * Defines the public API types for topic management,
  * built-in datasets, cache status, and dependency injection.
  */
-import type { TranslateOutput } from "../translation/types.js";
+import type { TranslateOutput, TranslationOutputConfig } from "../translation/types.js";
 
 // ─────────────────────────────────────────────
 // Public types
@@ -116,22 +116,26 @@ export interface TopicDeps {
    * Batch translate words into target languages.
    * Callers should inject a function that already includes context enrichment
    * (e.g., wrapping translateBatchWithContext from the context-enrichment module).
+   * The optional outputConfig controls which fields are requested from AI.
    */
   translateBatch: (
     words: string[],
     sourceLang: string,
     targetLangs: string[],
+    outputConfig?: TranslationOutputConfig,
   ) => Promise<TranslateOutput[]>;
 
   /**
    * Translate a single word for one target language (for partial regeneration).
    * Callers should inject a function that already includes context enrichment
    * (e.g., wrapping translateOneWithContext from the context-enrichment module).
+   * The optional outputConfig controls which fields are requested from AI.
    */
   translateOne?: (
     word: string,
     sourceLang: string,
     targetLang: string,
+    outputConfig?: TranslationOutputConfig,
   ) => Promise<LanguageTranslationEntry>;
 
   /** Get a cached translation for a specific word+lang combo */

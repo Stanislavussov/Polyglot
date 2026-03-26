@@ -5,7 +5,7 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { generateObject } from "@polyglot/adapter-ai";
 import { wordRepository } from "@polyglot/adapter-db";
-import { translateOne, t, type TranslateOutput, type SupportedLang } from "@polyglot/core";
+import { translateOne, FULL_OUTPUT, t, type TranslateOutput, type SupportedLang } from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
 import type { BotContext, ConversationContext } from "../../types.js";
 import {
@@ -81,6 +81,7 @@ export async function handleRegenLoop(
             targetLang: regenLang,
             model: config.AI_MODEL,
             userId,
+            outputConfig: FULL_OUTPUT,
           },
           generateObject,
         );
