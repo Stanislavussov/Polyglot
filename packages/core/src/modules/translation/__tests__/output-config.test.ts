@@ -42,9 +42,9 @@ function validLangEntry(overrides?: Record<string, unknown>) {
 // ─── Preset Tests ─────────────────────────────────────────
 
 describe("presets", () => {
-  it("FULL_OUTPUT has all 5 fields set to true", () => {
+  it("FULL_OUTPUT has all fields set to true except includeExamples", () => {
     expect(FULL_OUTPUT).toEqual({
-      includeExamples: true,
+      includeExamples: false,
       includeTranscription: true,
       includeSynonyms: true,
       includeAlternatives: true,

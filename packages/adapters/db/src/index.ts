@@ -62,6 +62,8 @@ export type {
   WordContext,
   NewWordContext,
 } from "./repositories/word-context.repository.js";
+export { translationRequestRepository } from "./repositories/translation-request.repository.js";
+export type { TranslationRequestDTO } from "./repositories/translation-request.repository.js";
 export { createContextLookup } from "./context-lookup.js";
 
 // Language cache — loaded from DB, serves all language metadata

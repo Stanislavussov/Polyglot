@@ -123,13 +123,33 @@ export const translationRequests = pgTable(
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     original: text("original").notNull(),
-    sourceLang: text("source_lang"),
-    targetLangs: text("target_langs").array().notNull(),
+    sourceLangId: integer("source_lang_id").references(() => languages.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (t) => [
     index("translation_requests_user_idx").on(t.userId),
     index("translation_requests_user_date_idx").on(t.userId, t.createdAt),
+  ],
+);
+
+// ─────────────────────────────────────────────
+// Junction table: translation request → target languages
+// Each request can have multiple target languages with FK integrity
+// ─────────────────────────────────────────────
+export const translationRequestTargetLangs = pgTable(
+  "translation_request_target_langs",
+  {
+    id: serial("id").primaryKey(),
+    requestId: integer("request_id")
+      .references(() => translationRequests.id, { onDelete: "cascade" })
+      .notNull(),
+    languageId: integer("language_id")
+      .references(() => languages.id)
+      .notNull(),
+  },
+  (t) => [
+    index("tr_target_langs_request_idx").on(t.requestId),
+    uniqueIndex("tr_target_langs_unique_idx").on(t.requestId, t.languageId),
   ],
 );
 

@@ -77,17 +77,17 @@ export function getRecentRequests(userId: number, limit: number): Promise<Transl
 
 ## Acceptance Criteria
 
-- [ ] `sourceLang` TEXT column replaced with `sourceLangId` INTEGER FK → `languages.id` (nullable)
-- [ ] `targetLangs` TEXT[] column removed; replaced by `translationRequestTargetLangs` junction table
-- [ ] Junction table has composite unique index on `(requestId, languageId)` and an index on `requestId`
-- [ ] Drizzle migration generated and applies cleanly against existing data
-- [ ] Data migration script populates `sourceLangId` from existing `sourceLang` text values and populates junction table from `targetLangs` array
-- [ ] Old `sourceLang` and `targetLangs` columns dropped after data migration
-- [ ] New `translation-request.repository.ts` created with at least `logTranslationRequest` and `getUserRequestsInWindow`
-- [ ] Repository methods accept/return language codes (strings), not IDs
-- [ ] All existing callers of `translationRequests` schema (if any) updated to use the repository
-- [ ] Existing indexes preserved or improved
-- [ ] Tests pass — schema tests, repository tests, and any integration tests
+- [x] `sourceLang` TEXT column replaced with `sourceLangId` INTEGER FK → `languages.id` (nullable)
+- [x] `targetLangs` TEXT[] column removed; replaced by `translationRequestTargetLangs` junction table
+- [x] Junction table has composite unique index on `(requestId, languageId)` and an index on `requestId`
+- [x] Drizzle migration generated and applies cleanly against existing data
+- [x] Data migration script populates `sourceLangId` from existing `sourceLang` text values and populates junction table from `targetLangs` array
+- [x] Old `sourceLang` and `targetLangs` columns dropped after data migration
+- [x] New `translation-request.repository.ts` created with at least `logTranslationRequest` and `getUserRequestsInWindow`
+- [x] Repository methods accept/return language codes (strings), not IDs
+- [x] All existing callers of `translationRequests` schema (if any) updated to use the repository
+- [x] Existing indexes preserved or improved
+- [x] Tests pass — schema tests, repository tests, and any integration tests
 
 ## Dependencies
 
@@ -146,6 +146,14 @@ JOIN languages l ON l.code = target_code;
 ALTER TABLE translation_requests DROP COLUMN source_lang;
 ALTER TABLE translation_requests DROP COLUMN target_langs;
 ```
+
+## Files created/modified
+
+- `packages/adapters/db/src/schema.ts` — replaced `sourceLang`/`targetLangs` in `translationRequests` with `sourceLangId` FK; added `translationRequestTargetLangs` junction table
+- `packages/adapters/db/src/repositories/translation-request.repository.ts` — **new** — `logTranslationRequest`, `getUserRequestsInWindow`, `getRecentRequests`
+- `packages/adapters/db/src/index.ts` — added exports for `translationRequestRepository` and `TranslationRequestDTO`
+- `packages/adapters/db/drizzle/0004_link_translation_requests_languages.sql` — **new** — migration with data migration + old column drop
+- `packages/adapters/db/src/__tests__/translation-request.repository.test.ts` — **new** — 11 tests
 
 ## Notes
 

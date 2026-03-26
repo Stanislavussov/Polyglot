@@ -20,10 +20,11 @@ learningLangs: text("learning_langs").array(),        // ["cs", "de", "fr"]
 sourceLang: text("source_lang").notNull(),            // "en", "ru"
 ```
 
-### `translationRequests`
+### `translationRequests` ✅ (migrated by Task 23)
 ```typescript
-sourceLang: text("source_lang"),                      // "en"
-targetLangs: text("target_langs").array().notNull(),  // ["cs", "de"]
+// Already migrated — now uses FK references:
+sourceLangId: integer("source_lang_id").references(() => languages.id),  // FK to languages
+// targetLangs replaced by translationRequestTargetLangs junction table
 ```
 
 ### `topicTranslationCache`
@@ -254,14 +255,14 @@ async getUserSettings(telegramId: number) {
 
 ## Implementation Checklist
 
-- [ ] Create `languages` table and seed data
+- [x] Create `languages` table and seed data
 - [ ] Create `userLearningLanguages` junction table
-- [ ] Create `translationRequestTargetLangs` junction table
-- [ ] Add `*LangId` FK columns to existing tables
+- [x] Create `translationRequestTargetLangs` junction table (Task 23)
+- [ ] Add `*LangId` FK columns to existing tables (partially done: `translationRequests.sourceLangId` via Task 23)
 - [ ] Write data migration script
 - [ ] Update `user.repository.ts` — join languages, resolve codes
 - [ ] Update `word.repository.ts` — same
-- [ ] Add `language.repository.ts` — `getByCode()`, `getAll()`, `ensureExists()`
+- [x] Add `language.repository.ts` — `findByCode()`, `findAll()`, `getOrCreate()`, `create()` (already exists)
 - [ ] Update bot scenes to use repository methods
 - [ ] Update notification service types
 - [ ] Drop old TEXT columns after verification

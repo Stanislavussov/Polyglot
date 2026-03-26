@@ -22,3 +22,4 @@
 | 19  | [Fix Translate Mode Loss — Always-On Translation](./19-fix-translate-mode-persistence.md) | ✅ Done   |
 | 20  | [Persist activeMode in the Database](./20-persist-active-mode.md) | ✅ Done   |
 | 21  | [Translation Output Config](./21-translation-output-config.md) | ✅ Done   |
+| 23  | [Link translation_requests to languages](./23-link-translation-requests-to-languages.md) | ✅ Done   |

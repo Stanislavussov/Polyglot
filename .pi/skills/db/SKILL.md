@@ -18,8 +18,8 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 ## Current State
 
 Fully implemented. All tables, repositories, singleton connection, and context-lookup factory in place.
-- `schema.ts` — tables: `users`, `userLanguageSettings`, `words`, `translationRequests`, `topicTranslationCache`, `languages`, `wordContext`
-- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories, types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
+- `schema.ts` — tables: `users`, `userLanguageSettings`, `words`, `translationRequests`, `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`
+- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `translationRequestRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
 - `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded
 - `repositories/word.repository.ts` — create, findByUser, findById, search, delete (soft), updateContent (partial regeneration)
@@ -95,6 +95,14 @@ getOrCreate(code: string, name: string): Promise<Language>;
 findAll(): Promise<Language[]>;
 ```
 
+### TranslationRequestRepository
+
+```typescript
+logTranslationRequest(userId: number, original: string, sourceLangCode: string | null, targetLangCodes: string[]): Promise<number>;
+getUserRequestsInWindow(userId: number, windowStart: Date): Promise<number>;
+getRecentRequests(userId: number, limit: number): Promise<TranslationRequestDTO[]>;
+```
+
 ### WordContextRepository
 
 ```typescript
@@ -128,7 +136,8 @@ See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key
 - `users` — id, telegramId, username, onboardingStep, onboarded, isActive, createdAt
 - `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode (default "translate"), isActive, updatedAt
 - `words` — userId, original, sourceLang, content (JSONB with translations per target lang), isActive, createdAt, updatedAt
-- `translationRequests` — userId, original, sourceLang, targetLangs[], createdAt (for rate limiting)
+- `translationRequests` — userId, original, sourceLangId (FK → languages.id, nullable), createdAt (for rate limiting)
+- `translationRequestTargetLangs` — requestId (FK → translationRequests.id), languageId (FK → languages.id); unique index on (requestId, languageId)
 - `topicTranslationCache` — topicId, original, sourceLang, targetLang, content (JSONB), isValid, invalidReason, createdAt, updatedAt; unique index on (topicId, original, sourceLang, targetLang)
 - `languages` — id, code (unique), name, createdAt; unique index on code. Normalized lookup for language codes (e.g. "ru" → "Russian")
 - `wordContext` — id, word, languageId (FK → languages.id), pos, formTags (text[]), glosses (text[]), createdAt; indexes on (word, languageId) and (languageId). Offline dictionary data from Wiktionary JSONL
@@ -167,6 +176,13 @@ type NewLanguage = {
   createdAt?: Date | null;
 };
 
+// TranslationRequestDTO (returned by getRecentRequests — language codes, not IDs)
+type TranslationRequestDTO = {
+  id: number; userId: number; original: string;
+  sourceLangCode: string | null; targetLangCodes: string[];
+  createdAt: Date;
+};
+
 // WordContext types
 type WordContext = { id: number; word: string; languageId: number; pos: string; formTags: string[] | null; glosses: string[] | null; createdAt: Date | null };
 type NewWordContext = { word: string; languageId: number; pos: string; formTags?: string[]; glosses?: string[] };
@@ -177,7 +193,7 @@ type NewWordContext = { word: string; languageId: number; pos: string; formTags?
 ```
 packages/adapters/db/src/
 ├── index.ts                              # getDb(), closeDb(), re-exports (incl. createContextLookup + language cache)
-├── schema.ts                             # Drizzle table definitions (users, userLanguageSettings, words, translationRequests, topicTranslationCache, languages, wordContext)
+├── schema.ts                             # Drizzle table definitions (users, userLanguageSettings, words, translationRequests, translationRequestTargetLangs, topicTranslationCache, languages, wordContext)
 ├── context-lookup.ts                     # ✅ createContextLookup() factory — DB→DictionaryContext transform, fail-open
 ├── language-cache.ts                     # ✅ loadLanguageCache(), getLang(), getLangDisplay(), getSupportedLangs(), normalizeToIso1(), etc. — in-memory cache loaded from languages table at startup
 ├── repositories/
@@ -185,6 +201,7 @@ packages/adapters/db/src/
 │   ├── word.repository.ts                # ✅ implemented (+ updateContent for partial regen)
 │   ├── topic.repository.ts               # ✅ implemented
 │   ├── language.repository.ts            # ✅ implemented (findByCode, create, getOrCreate, findAll)
+│   ├── translation-request.repository.ts  # ✅ implemented (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)
 │   └── word-context.repository.ts        # ✅ implemented (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
 └── __tests__/
     ├── getDb.test.ts                     # 1 test
@@ -193,6 +210,7 @@ packages/adapters/db/src/
     ├── word.repository.test.ts           # 12 tests
     ├── language.repository.test.ts       # 7 tests (findByCode, create, getOrCreate, findAll)
     ├── word-context.repository.test.ts   # 13 tests (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
+    ├── translation-request.repository.test.ts # 11 tests (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)
     └── context-lookup.test.ts            # 9 tests (factory returns fn, transforms result, no results→undefined, error→undefined, null glosses/formTags, multiple entries, langCode from arg)
 ```
 
@@ -204,6 +222,7 @@ packages/adapters/db/drizzle/
 ├── 0001_parallel_thunderbolt.sql         # Adds languages, word_context, topic_translation_cache tables
 ├── 0002_languages_metadata.sql           # Language metadata columns + seed data
 ├── 0003_active_mode.sql                  # Adds active_mode column to user_language_settings
+├── 0004_link_translation_requests_languages.sql # Links translation_requests to languages via FK + junction table
 └── meta/
     ├── _journal.json
     ├── 0000_snapshot.json
