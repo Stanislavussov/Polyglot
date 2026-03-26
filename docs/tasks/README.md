@@ -19,7 +19,12 @@
 | 15  | [Context Enrichment Layer (Pre-AI Dictionary Lookup)](./15-context-enrichment-layer.md) | ✅ Done   |
 | 16  | [Auto-Detect Input Language & Smart Translation Direction](./16-auto-detect-input-language.md) | ✅ Done   |
 | 17  | [Post-Translation Language Selection Menu](./17-next-translation-language-menu.md) | ✅ Done   |
+| 18  | [Language Buttons Native Display](./18-language-buttons-native-display.md) | 🔲 To Do  |
 | 19  | [Fix Translate Mode Loss — Always-On Translation](./19-fix-translate-mode-persistence.md) | ✅ Done   |
 | 20  | [Persist activeMode in the Database](./20-persist-active-mode.md) | ✅ Done   |
 | 21  | [Translation Output Config](./21-translation-output-config.md) | ✅ Done   |
+| 22  | [Dependency Cruiser](./22-dependency-cruiser.md) | 🔲 To Do  |
 | 23  | [Link translation_requests to languages](./23-link-translation-requests-to-languages.md) | ✅ Done   |
+| 24  | [Token Usage Tracking](./24-token-usage-tracking.md) | 🔲 To Do  |
+| 25  | [Show Language Emoji Flag in Translation Card](./25-language-flag-in-translation-card.md) | ✅ Done   |
+| 26  | [Diacritics-Aware Translation](./26-diacritics-aware-translation.md) | 🔲 To Do  |

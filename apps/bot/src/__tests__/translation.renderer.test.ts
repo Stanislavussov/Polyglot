@@ -1,10 +1,31 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   renderTranslation,
   renderTopicWord,
   buildTranslationKeyboard,
 } from "../renderers/translation.renderer.js";
 import type { TranslateOutput, TopicWord } from "@polyglot/core";
+
+// Mock getLangFlag from @polyglot/core
+vi.mock("@polyglot/core", async () => {
+  const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
+  const flagMap: Record<string, string> = {
+    en: "🇬🇧",
+    cs: "🇨🇿",
+    de: "🇩🇪",
+    fr: "🇫🇷",
+    es: "🇪🇸",
+    ru: "🇷🇺",
+    it: "🇮🇹",
+    pt: "🇵🇹",
+    uk: "🇺🇦",
+    pl: "🇵🇱",
+  };
+  return {
+    ...actual,
+    getLangFlag: vi.fn((code: string) => flagMap[code]),
+  };
+});
 
 const sampleOutput: TranslateOutput = {
   original: "hello",
@@ -41,9 +62,9 @@ describe("renderTranslation", () => {
     expect(result).toContain("Register: neutral");
   });
 
-  it("renders language code in uppercase", () => {
+  it("renders language code in uppercase with flag from DB", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("🔤 CS:");
+    expect(result).toContain("🇨🇿 CS:");
   });
 
   it("renders translation text as bold", () => {
@@ -119,7 +140,7 @@ describe("renderTranslation", () => {
       },
     };
     const result = renderTranslation(noTranscription, "en");
-    expect(result).toContain("🔤 CS: <b>ahoj</b>");
+    expect(result).toContain("🇨🇿 CS: <b>ahoj</b>");
     expect(result).not.toContain("[");
   });
 
@@ -161,7 +182,7 @@ describe("renderTranslation", () => {
     expect(result).toContain("&lt;script&gt;");
   });
 
-  it("renders multiple target languages", () => {
+  it("renders multiple target languages with their flags", () => {
     const multiLang: TranslateOutput = {
       ...sampleOutput,
       translations: {
@@ -176,9 +197,27 @@ describe("renderTranslation", () => {
       },
     };
     const result = renderTranslation(multiLang, "en");
-    expect(result).toContain("🔤 CS:");
-    expect(result).toContain("🔤 DE:");
+    expect(result).toContain("🇨🇿 CS:");
+    expect(result).toContain("🇩🇪 DE:");
     expect(result).toContain("<b>hallo</b>");
+  });
+
+  it("falls back to 🔤 when getLangFlag returns undefined", () => {
+    // "xx" is not in the flag map, so getLangFlag returns undefined
+    const unknownLang: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        xx: {
+          text: "test",
+          cefr: "A1",
+          register: "neutral",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = renderTranslation(unknownLang, "en");
+    expect(result).toContain("🔤 XX:");
   });
 });
 
@@ -209,10 +248,27 @@ describe("renderTopicWord", () => {
     expect(result).toContain("<b>apple</b>");
   });
 
-  it("renders translations with language codes", () => {
+  it("renders translations with language flags from DB", () => {
     const result = renderTopicWord(sampleWord);
-    expect(result).toContain("🔤 CS: <b>jablko</b>");
-    expect(result).toContain("🔤 DE:");
+    expect(result).toContain("🇨🇿 CS: <b>jablko</b>");
+    expect(result).toContain("🇩🇪 DE:");
+  });
+
+  it("falls back to 🔤 in topic word when getLangFlag returns undefined", () => {
+    const unknownWord: TopicWord = {
+      original: "test",
+      translations: {
+        zz: {
+          text: "test",
+          cefr: "A1",
+          register: "neutral",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = renderTopicWord(unknownWord);
+    expect(result).toContain("🔤 ZZ:");
   });
 
   it("renders transcription when present", () => {
@@ -223,7 +279,7 @@ describe("renderTopicWord", () => {
   it("renders without transcription when absent", () => {
     const result = renderTopicWord(sampleWord);
     // CS entry has no transcription
-    expect(result).toContain("🔤 CS: <b>jablko</b>");
+    expect(result).toContain("🇨🇿 CS: <b>jablko</b>");
     // Make sure there's no spurious bracket after jablko
     const csLine = result.split("\n").find((l) => l.includes("CS:"));
     expect(csLine).not.toContain("[");

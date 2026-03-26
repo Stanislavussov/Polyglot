@@ -253,6 +253,10 @@ Dictionary context (`TranslateOutput.dictionaryContext`) is **not rendered** in 
 
 Dictionary context lookup is handled by the **context-enrichment layer** (`translateWithContext()` from `@polyglot/core`). The bot passes `createContextLookup()` from `@polyglot/adapter-db` as a dependency — the enrichment layer handles fail-open lookup, transformation to `DictionaryContext`, and merging into the translation prompt. The bot never accesses `wordContextRepository` directly.
 
+### Language Flags in Translation Cards (Task 25)
+
+The translation card and topic word card now display emoji flags from the DB language registry instead of a hardcoded `🔤`. Both `renderLangBlock()` and `renderTopicWord()` call `getLangFlag(code)` from `@polyglot/core` with a `?? "🔤"` fallback for languages without a flag. All 10 supported languages have flags populated in the DB (en→🇬🇧, ru→🇷🇺, cs→🇨🇿, de→🇩🇪, fr→🇫🇷, es→🇪🇸, it→🇮🇹, pt→🇵🇹, uk→🇺🇦, pl→🇵🇱).
+
 ### Translation Alternatives (Task 15)
 
 When `LanguageTranslation.alternatives` is present and non-empty, `renderLangBlock()` renders each alternative after the main translation header and before the CEFR line:

@@ -1,6 +1,6 @@
 # Task 25: Show Language Emoji Flag from DB in Translation Card
 
-**Status:** 🔲 To Do
+**Status:** ✅ Done
 
 ## Description
 
@@ -57,7 +57,7 @@ The `languages` table already stores emoji flags (`flag` column: 🇬🇧, 🇷�
 
 Replace the hardcoded `🔤` with the actual emoji flag from the language registry.
 
-- [ ] In `apps/bot/src/renderers/translation.renderer.ts`:
+- [x] In `apps/bot/src/renderers/translation.renderer.ts`:
   - Import `getLangFlag` from `@polyglot/core`
   - In `renderLangBlock()`, replace:
     ```typescript
@@ -68,7 +68,7 @@ Replace the hardcoded `🔤` with the actual emoji flag from the language regist
     lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}`);
     ```
   - Graceful fallback: if the language has no flag in the DB, keep `🔤` as default
-- [ ] Apply the same change to `renderTopicWord()`:
+- [x] Apply the same change to `renderTopicWord()`:
   ```typescript
   // before
   lines.push(`🔤 ${esc(code.toUpperCase())}: ${header}`);
@@ -76,7 +76,7 @@ Replace the hardcoded `🔤` with the actual emoji flag from the language regist
   const flag = getLangFlag(code) ?? "🔤";
   lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}`);
   ```
-- [ ] Update tests in `apps/bot/src/__tests__/translation.renderer.test.ts`:
+- [x] Update tests in `apps/bot/src/__tests__/translation.renderer.test.ts`:
   - Mock `getLangFlag` to return emoji flags for test language codes
   - Assert that the rendered output contains the flag emoji instead of `🔤`
   - Assert fallback to `🔤` when `getLangFlag` returns `undefined`
@@ -85,12 +85,12 @@ Replace the hardcoded `🔤` with the actual emoji flag from the language regist
 
 Verify that every supported language in the DB has a `flag` value. If any are missing, add a migration or seed script to fill them.
 
-- [ ] Run a query to check for supported languages with null/empty `flag`:
+- [x] Run a query to check for supported languages with null/empty `flag`:
   ```sql
   SELECT code, name, flag FROM languages WHERE is_supported = true AND (flag IS NULL OR flag = '');
   ```
-- [ ] If gaps exist, create a data migration in `packages/adapters/db/src/migrations/` to populate missing flags
-- [ ] Common flags to ensure:
+- [x] All supported languages already have non-null flag values in migration 0002_languages_metadata.sql — no data migration needed
+- [x] Common flags to ensure:
   | Code | Flag |
   |------|------|
   | en   | 🇬🇧  |
@@ -149,9 +149,9 @@ Verify that every supported language in the DB has a `flag` value. If any are mi
 
 ## Acceptance Criteria
 
-- [ ] Translation card shows emoji flag (🇬🇧, 🇨🇿, etc.) from the `languages` table instead of hardcoded `🔤`
-- [ ] Topic word card (`renderTopicWord`) also uses the flag from DB
-- [ ] When a language has no flag in DB, `🔤` is shown as fallback
-- [ ] All supported languages in the DB have non-null `flag` values
-- [ ] Existing tests updated and passing: `pnpm test`
-- [ ] All packages build: `pnpm -r run build`
+- [x] Translation card shows emoji flag (🇬🇧, 🇨🇿, etc.) from the `languages` table instead of hardcoded `🔤`
+- [x] Topic word card (`renderTopicWord`) also uses the flag from DB
+- [x] When a language has no flag in DB, `🔤` is shown as fallback
+- [x] All supported languages in the DB have non-null `flag` values
+- [x] Existing tests updated and passing: `pnpm test`
+- [x] All packages build: `pnpm -r run build`

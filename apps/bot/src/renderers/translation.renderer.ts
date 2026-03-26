@@ -10,7 +10,7 @@ import type {
   LanguageTranslationEntry,
   SupportedLang,
 } from "@polyglot/core";
-import { t, isSupported } from "@polyglot/core";
+import { t, isSupported, getLangFlag } from "@polyglot/core";
 
 /** Escape HTML special characters for Telegram */
 function esc(text: string): string {
@@ -69,7 +69,8 @@ function renderLangBlock(
     ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]`
     : `<b>${esc(lt.text)}</b>`;
 
-  lines.push(`🔤 ${esc(code.toUpperCase())}: ${header}`);
+  const flag = getLangFlag(code) ?? "🔤";
+  lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}`);
 
   if (lt.alternatives && lt.alternatives.length > 0) {
     for (const alt of lt.alternatives) {
@@ -121,7 +122,8 @@ export function renderTopicWord(word: TopicWord): string {
     const header = e.transcription
       ? `<b>${esc(e.text)}</b> [${esc(e.transcription)}]`
       : `<b>${esc(e.text)}</b>`;
-    lines.push(`🔤 ${esc(code.toUpperCase())}: ${header}`);
+    const flag = getLangFlag(code) ?? "🔤";
+    lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}`);
   }
 
   return lines.join("\n").trim();
