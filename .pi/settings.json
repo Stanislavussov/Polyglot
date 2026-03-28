@@ -9,8 +9,8 @@
       {
         "name": "business",
         "standalone": true,
-        "role": "Business analysis and planning pipeline. Produces artifacts in docs/ that the technical pipeline consumes.",
-        "rules": "All output goes to docs/ — never modify source code.\nArtifacts flow: research → BRD → scope → architecture → tasks → validation.\nLanguages and modes in requirements must reference DB tables, not fixed lists.",
+        "role": "Business analysis pipeline. All output to docs/ — never touch source code.",
+        "rules": "Artifacts flow: research → BRD → scope → architecture → tasks → validation. Languages/modes in requirements must reference DB tables.\nBe concise in all output — write core information with nuances, no filler, no repetition, no boilerplate. Every sentence must carry signal. Tables over prose when possible.",
         "model": "anthropic/claude-sonnet-4-6",
         "skills": [
           ".pi/skills/business"
@@ -23,128 +23,65 @@
         "subAgents": [
           {
             "name": "product",
-            "role": "Competitor intelligence — analyzes features and proposes additions to Polyglot.",
-            "rules": "Analyze only public features (App Store, websites, changelogs).\nNever copy — only draw inspiration and adapt to Polyglot's context.\nScore by impact × effort. High impact + low effort first.\nMark existing features as alreadyHave: true.\nSocial features (leaderboards, friends) → low priority for MVP.\nWrite to docs/research/competitors.md.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/product"
-            ]
+            "role": "Competitor intelligence → docs/research/competitors.md",
+            "rules": "See skill for details. Score by impact × effort. Write only to docs/research/.\nBe dense — competitor table + short rationale per proposal, no essays.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/product"]
           },
           {
             "name": "researcher",
-            "role": "Stress-tests business hypotheses, architecture decisions, and tech stack choices.",
-            "rules": "Present both sides — pros/cons, risks/opportunities.\nBack claims with evidence: benchmarks, case studies, ecosystem stats.\nFor arch decisions — evaluate scalability, maintainability, migration cost.\nFor tech stack — compare 2-3 alternatives on concrete criteria.\nEnd with a clear verdict: recommend, reject, or pivot — never sit on the fence.\nWrite to docs/research/evaluation.md.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/research"
-            ]
+            "role": "Stress-tests hypotheses and tech decisions → docs/research/evaluation.md",
+            "rules": "See skill for details. Always end with a verdict. Write only to docs/research/.\nKeep evaluations tight — evidence bullets + risk table + verdict. No padding.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/research"]
           },
           {
             "name": "business-analyst",
-            "role": "Synthesizes research into structured business requirements, user stories, and the BRD.",
-            "rules": "Every requirement: ID, description, acceptance criteria, priority placeholder.\nUser stories: 'As a [user], I want [action], so that [benefit]'.\nFlag gaps as [needs clarification]. Never prioritize — that's the PO's job.\nWrite to docs/BRD.md and docs/requirements/.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/business-analyst"
-            ],
-            "dependsOn": [
-              "product",
-              "researcher"
-            ]
+            "role": "Synthesizes research into BRD and requirements → docs/BRD.md, docs/requirements/",
+            "rules": "See skill for details. Never prioritize — PO's job.\nCompact requirements — ID, one-liner, acceptance criteria bullets. No narratives.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/business-analyst"],
+            "dependsOn": ["product", "researcher"]
           },
           {
             "name": "product-owner",
-            "role": "Prioritizes features, defines MVP scope, builds release roadmap.",
-            "rules": "MoSCoW: Must / Should / Could / Won't (with rationale).\nMVP = smallest Must-haves set that delivers user value.\nNever modify BRD — only tag with priority and scope.\nWrite to docs/roadmap.md and docs/mvp-scope.md.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/product-owner"
-            ],
-            "dependsOn": [
-              "business-analyst"
-            ]
+            "role": "Prioritizes scope, defines MVP → docs/roadmap.md, docs/mvp-scope.md",
+            "rules": "See skill for details. MoSCoW method. Never modify BRD.\nRoadmap as tables, not paragraphs. One-line rationale per item.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/product-owner"],
+            "dependsOn": ["business-analyst"]
           },
           {
             "name": "architect",
-            "role": "Translates requirements into component boundaries, API contracts, and data models.",
-            "rules": "Align with monorepo: packages/core, packages/adapters, apps/bot.\nTyped API contracts (TypeScript interfaces) — no `any`.\nDocument decisions: context, options, decision, trade-offs.\nNever implement code — only design documents.\nWrite to docs/tech-reqs/.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/architect",
-              ".pi/skills/db-sot"
-            ],
-            "dependsOn": [
-              "product-owner"
-            ]
+            "role": "Technical design: components, APIs, data models → docs/tech-reqs/",
+            "rules": "See skill for details. Align with monorepo structure. DB-SOT for domain values.\nDesign docs: boundaries + TS interfaces + decision table. No prose introductions.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/architect", ".pi/skills/db-sot"],
+            "dependsOn": ["product-owner"]
           },
           {
             "name": "task-creator",
-            "role": "Breaks architecture designs into actionable development tasks with acceptance criteria.",
-            "rules": "Each task: clear acceptance criteria, small (few hours), testable.\nIdentify dependencies and execution order.\nWrite to docs/tasks/.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/task-creator"
-            ],
-            "dependsOn": [
-              "architect"
-            ]
+            "role": "Breaks designs into dev tasks → docs/tasks/",
+            "rules": "See skill for details. Small tasks, clear acceptance criteria, dependency order.\nTask = title + goal (1 line) + criteria (checkboxes) + deps + files. Nothing else.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/task-creator"],
+            "dependsOn": ["architect"]
           },
           {
             "name": "brd-grooming",
-            "role": "Compares BRD against task list — surfaces contradictions and misalignments.",
-            "rules": "Read docs/BRD.md and docs/tasks/.\nContradiction = task implements what BRD forbids, task missing for mandated requirement, scope mismatch, different business rules, or references out-of-scope feature.\nFor each: ## Contradiction #N with exact BRD quote, conflicting task, severity (Critical/Major/Minor), recommendation. One per block.\nDon't rewrite BRD or tasks. Don't suggest unrelated improvements. Flag uncertainty as [needs PO review].\nWrite to docs/reviews/brd-grooming.md.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/brd-grooming"
-            ],
-            "dependsOn": [
-              "task-creator"
-            ]
+            "role": "BRD vs tasks contradiction check → docs/reviews/brd-grooming.md",
+            "rules": "See skill for details. Don't rewrite BRD or tasks.\nOne block per contradiction — quote + conflict + severity + fix. No preambles.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/brd-grooming"],
+            "dependsOn": ["task-creator"]
           },
           {
             "name": "integrator",
-            "role": "Cross-cutting consistency checker across all pipeline artifacts.",
-            "rules": "Check: naming consistency, data flow completeness, API contract alignment, error handling coverage, requirement traceability.\nFlag artifacts with fixed language/mode lists — must be DB-driven.\nSeverity: Critical (blocks) / Major (rework) / Minor (cosmetic).\nNever modify source code. Write to docs/reviews/integration-review.md.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/integrator",
-              ".pi/skills/db-sot"
-            ],
-            "dependsOn": [
-              "task-creator"
-            ]
+            "role": "Cross-cutting consistency check → docs/reviews/integration-review.md",
+            "rules": "See skill for details. Flag hardcoded language/mode lists — must be DB-driven.\nIssue table + traceability matrix. Skip summaries and conclusions — findings speak for themselves.",
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/integrator", ".pi/skills/db-sot"],
+            "dependsOn": ["task-creator"]
           }
         ]
       },
