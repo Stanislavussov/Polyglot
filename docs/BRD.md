@@ -103,7 +103,14 @@ The user enters anything — a word, phrase, idiom, or fixed expression. The AI 
 | Synonyms          | With their respective register labels                                       |
 | Example sentences | 2–3 sentences covering different contexts: formal, colloquial, professional |
 
-**Save flow:** one-button save directly from the translation result. Full content (translation + emoji + CEFR + synonyms + examples) is saved.
+**Save flow:** one-button save directly from the translation result. Available for **word** and **phrase** input types only — sentence translations cannot be saved to dictionary.
+- Save button label reflects input type: "💾 Save word" or "💾 Save phrase"
+- Content stored: emoji, register, per-language translations (text, CEFR, transcription, register, synonyms, examples, alternatives, expression type) — internal pipeline fields are excluded
+- Source language stored as FK to `languages` table (not plain text)
+- Input type stored as dedicated column for future SRS/quiz differentiation
+- Duplicate detection: tapping Save on an already-saved word shows "Already in dictionary" instead of creating a duplicate entry
+- After save: Save/Skip buttons replaced by regen-only keyboard, allowing translation refinement of the saved entry
+- See detailed requirements: `docs/requirements/30-save-to-dictionary.md` (FEAT-30)
 
 ---
 
@@ -111,7 +118,7 @@ The user enters anything — a word, phrase, idiom, or fixed expression. The AI 
 
 | Feature                       | Inspiration              | Why deferred                           |
 | ----------------------------- | ------------------------ | -------------------------------------- |
-| Personal Dictionary           | —                        | Requires save flow, edit UX, storage   |
+| Personal Dictionary (Save flow) | —                      | ✅ Save mechanism: **In Design** (FEAT-30) — browse, search, edit deferred |
 | Ready-Made Topic Sets         | —                        | Content curation and cache infra       |
 | Spaced Repetition (SRS)       | —                        | Complex scheduling logic               |
 | Quizzes                       | —                        | Depends on dictionary and SRS          |
@@ -126,10 +133,19 @@ The user enters anything — a word, phrase, idiom, or fixed expression. The AI 
 
 ### Post-MVP 2.1 Personal Dictionary
 
-- Save words directly from translation results
-- Each word stored with translations across **all user languages**
-- Search and browse dictionary
+**Save mechanism (FEAT-30) — In Design.** The core save flow (inline button → dictionary entry) is being actively designed. Full requirements: `docs/requirements/30-save-to-dictionary.md`.
+
+**What is being implemented now (FEAT-30):**
+- Save words/phrases directly from translation results via one-tap inline button
+- Each word stored with: original text, source language (FK to `languages` table), input type (`word`|`phrase`), full sanitized translation content (JSONB)
+- Duplicate detection: second save of same word shows "Already in dictionary" instead of creating duplicate
+- Post-save keyboard: regen buttons remain active so users can refine translations after saving
+
+**Deferred to v2 (not in FEAT-30):**
+- Browse and search saved dictionary (`/dictionary` command)
 - **Edit translation:** user can manually correct AI-generated translation for any saved word. The edit is stored in the user's profile and does **not** affect the shared translation cache.
+- Save to specific topic/collection
+- SRS scheduling triggered on save
 
 **Open question:** does "Edit translation" allow editing example sentences as well, or only the translation field? → See [Section 14](#14-open-questions--tbd)
 
@@ -235,9 +251,12 @@ Cards appear in **all** of the following contexts:
 
 ### ➕ Save to dictionary
 
-- Saves word to personal dictionary and adds to SRS queue
-- **Shown only** when word is not yet saved
-- Hidden after tap (replaced by confirmation or disappears)
+- Saves word or phrase to personal dictionary
+- **Shown only** for `word` and `phrase` input types — never shown for `sentence` (per Task 27)
+- Button label is input-type aware: "💾 Save word" for words, "💾 Save phrase" for phrases
+- If already saved: tap shows "Already in dictionary" notification (no duplicate created)
+- After save: Save/Skip buttons replaced by regen-only keyboard; confirmation shown in message
+- Does **not** add to SRS queue at this stage — SRS integration is Post-MVP 2.3
 
 ### 🎲 Next idea
 
@@ -406,3 +425,9 @@ Users are identified by `telegram_user_id`. No separate account system in MVP.
 | 8   | Data storage region — EU compliance required?                | Infrastructure                     | 🔴 Critical  |
 | 9   | Quiz result impact on SRS interval in v2?                    | v2 planning                        | 🟠 Medium    |
 | 10  | Maximum overdue cards shown per SRS session (suggested: 20)  | SRS development                    | 🟡 Important |
+| 11  | **[FEAT-30/C1]** Is a breaking DB migration for `sourceLang → sourceLangId` FK acceptable? Need backfill strategy. | FEAT-30 DB migration | 🔴 Critical |
+| 12  | **[FEAT-30/C2]** Add `word_target_langs` junction table for target language FK integrity (Option A), or validate JSONB keys at write time (Option B)? | FEAT-30 architecture | 🟠 Medium |
+| 13  | **[FEAT-30/C3]** Duplicate save: (A) show "Already saved" + stop (Reverso-style), or (B) silently update existing entry with latest translation? | FEAT-30 UX | 🟡 Important |
+| 14  | **[FEAT-30/C4]** Should phrase card have different layout from word card (examples first, no synonyms), or just different button label? | FEAT-30 rendering | 🟡 Important |
+| 15  | **[FEAT-30/C5]** Post-save regen: (A) auto-update saved entry silently, (B) revert to unsaved state, or (C) prompt to re-save? | FEAT-30 regen flow | 🟡 Important |
+| 16  | **[FEAT-30/C6]** Is defaulting all pre-existing `words` entries to `inputType = 'word'` an acceptable approximation? | FEAT-30 migration | 🟠 Medium |
