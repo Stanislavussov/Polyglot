@@ -104,8 +104,6 @@ export const words = pgTable(
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     original: text("original").notNull(),
-    /** @deprecated Use sourceLangId FK instead. Retained for backward compat; will be dropped in migration 0006. */
-    sourceLang: text("source_lang"),
     sourceLangId: integer("source_lang_id")
       .references(() => languages.id)
       .notNull(),

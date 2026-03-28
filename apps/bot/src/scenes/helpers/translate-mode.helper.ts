@@ -203,7 +203,8 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const output = ctx.session.pendingTranslation;
   const inputType = ctx.session.lastInputType;
   if (!output) {
-    await ctx.answerCallbackQuery();
+    logger.warn({ userId: ctx.from?.id }, "Save clicked but pendingTranslation is empty (session lost?)");
+    await ctx.answerCallbackQuery({ text: "⚠️ Session expired. Please translate the word again.", show_alert: true });
     return;
   }
 
@@ -263,7 +264,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
 export async function handleSkipCallback(ctx: BotContext): Promise<void> {
   const output = ctx.session.pendingTranslation;
   if (!output) {
-    await ctx.answerCallbackQuery();
+    await ctx.answerCallbackQuery({ text: "⚠️ Session expired. Please translate the word again.", show_alert: true });
     return;
   }
 

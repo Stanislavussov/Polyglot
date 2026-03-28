@@ -37,3 +37,4 @@
 | 21  | [Translation Output Config](./finished/21-translation-output-config.md) |
 | 23  | [Link translation_requests to languages](./finished/23-link-translation-requests-to-languages.md) |
 | 25  | [Language Emoji Flag in Translation Card](./finished/25-language-flag-in-translation-card.md) |
+| 30  | [Save to Dictionary](./finished/30-save-to-dictionary.md) |

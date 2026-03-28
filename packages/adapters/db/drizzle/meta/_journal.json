@@ -15,6 +15,41 @@
       "when": 1773957602791,
       "tag": "0001_parallel_thunderbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774000000000,
+      "tag": "0002_languages_metadata",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774100000000,
+      "tag": "0003_active_mode",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774200000000,
+      "tag": "0004_link_translation_requests_languages",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774300000000,
+      "tag": "0005_words_dictionary_improvements",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1774716900000,
+      "tag": "0006_drop_words_source_lang",
+      "breakpoints": true
     }
   ]
 }
