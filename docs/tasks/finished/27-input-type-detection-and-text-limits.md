@@ -1,6 +1,6 @@
 # Task 27: Input Type Detection (Phrase vs Sentence) & Adaptive Translation Pipeline
 
-**Status:** 🟡 In Progress
+**Status:** ✅ Done
 
 ## Description
 
@@ -47,11 +47,11 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 > **Implementation note:** The classifier was implemented as `apps/bot/src/utils/classify-input.ts` in the bot layer instead of `packages/core/src/modules/input-classifier/`. The `InputType` type itself was added to `packages/core/src/modules/translation/types.ts` and `packages/core/src/modules/validation/types.ts` for cross-layer use. Functionality is identical to the spec below.
 
-- [ ] ~~Create `packages/core/src/modules/input-classifier/`:~~ (placed in `apps/bot/src/utils/classify-input.ts` instead)
+- [x] ~~Create `packages/core/src/modules/input-classifier/`:~~ (placed in `apps/bot/src/utils/classify-input.ts` instead)
   - `types.ts` — `InputType`, `InputClassification`, `InputClassifierConfig`
   - `input-classifier.ts` — pure, stateless classification
   - `index.ts` — re-export public surface
-- [ ] Types:
+- [x] Types:
   ```ts
   /** Detected input type */
   type InputType = 'word' | 'phrase' | 'sentence';
@@ -73,7 +73,7 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
     maxPhraseTokens: number;
   }
   ```
-- [ ] Classification function:
+- [x] Classification function:
   ```ts
   function classifyInput(text: string, config?: Partial<InputClassifierConfig>): InputClassification
   ```
@@ -195,7 +195,7 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 > **Implementation note:** The context-enrichment module was NOT modified. Instead, the bot's `translate-mode.helper.ts` passes a no-op `lookupContext` function (`async () => undefined`) when the input is a sentence, achieving the same result at the caller level.
 
-- [ ] ~~In `packages/core/src/modules/context-enrichment/`~~: Sentence dictionary skip is handled at the bot layer (no-op `lookupContext`) instead of modifying the enrichment module. The `inputType` is passed through to `translate()` via `translateWithContext()` input.
+- [x] ~~In `packages/core/src/modules/context-enrichment/`~~: Sentence dictionary skip is handled at the bot layer (no-op `lookupContext`) instead of modifying the enrichment module. The `inputType` is passed through to `translate()` via `translateWithContext()` input.
 
 ### Step 9: Adapt the regen helper for sentences
 
@@ -228,11 +228,8 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ### Step 11: Add config env var (optional tuning)
 
-- [ ] In `packages/infra/src/config.ts`, extend `envSchema` with:
-  ```ts
-  INPUT_MAX_PHRASE_WORDS: z.coerce.number().int().min(2).default(6),
-  ```
-- [ ] This allows tuning the phrase↔sentence boundary without a code change
+- [x] ~In `packages/infra/src/config.ts`, extend `envSchema`~ — skipped; classifier uses hardcoded defaults (`maxWordTokens: 2`, `maxPhraseTokens: 6`) with config override via function parameter
+- [x] ~Tunable via env var~ — tunable via function parameter instead
 
 ### Step 12: Write tests
 
@@ -276,7 +273,7 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ### Step 13: Update docs
 
-- [ ] Update `docs/tech-reqs/13-env.md` — document `INPUT_MAX_PHRASE_WORDS`
+- [x] ~Update `docs/tech-reqs/13-env.md`~ — not needed (env var not implemented)
 - [x] Update `.pi/skills/translation/SKILL.md`:
   - Add `SENTENCE_OUTPUT` to preset table
   - Add `inputType` to `TranslateInput` / `TranslationRequest` types
@@ -490,10 +487,10 @@ Plus: no validation retries triggered by irrelevant checks → further savings.
 - [x] Word/phrase behavior is completely unchanged (backward compatible)
 - [x] `SENTENCE_OUTPUT` preset exists and is re-exported from `@polyglot/core`
 - [x] `sentenceTranslation` i18n key resolves in en/ru/cs
-- [ ] `INPUT_MAX_PHRASE_WORDS` env var has working default (6); missing value does not crash
+- [x] ~`INPUT_MAX_PHRASE_WORDS` env var~ — skipped; classifier uses hardcoded defaults with function-parameter override
 - [x] All unit tests for `classifyInput` pass (≥11 cases)
 - [x] Prompt builder tests cover sentence vs word/phrase prompt differences
 - [x] Validation tests cover sentence-mode semantic skip
 - [x] Renderer tests cover `renderSentenceTranslation` and `buildSentenceKeyboard`
 - [x] All existing tests pass without modification
-- [ ] All packages build: `pnpm -r run build`
+- [x] All packages build: `pnpm -r run build`
