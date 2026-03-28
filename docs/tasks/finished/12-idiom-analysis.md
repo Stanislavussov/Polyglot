@@ -1,6 +1,6 @@
 # Task 12: Detect Literal vs Idiomatic Translation Nuances
 
-**Status:** 🟡 In Progress (only manual smoke test remaining)
+**Status:** ✅ Done
 
 ## Description
 
