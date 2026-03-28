@@ -106,7 +106,8 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
     // Step 3: Validate response (use the same config-aware schema
     // so disabled fields like examples don't trigger false failures)
     // Pass inputType so validation can skip semantic checks for sentences.
-    const validation = validate(result, schema, input.word, input.targetLangs, input.inputType);
+    // Pass outputConfig so validation skips checks for disabled fields.
+    const validation = validate(result, schema, input.word, input.targetLangs, input.inputType, input.outputConfig);
 
     // Step 4: On PASS → return result
     if (validation.valid) {

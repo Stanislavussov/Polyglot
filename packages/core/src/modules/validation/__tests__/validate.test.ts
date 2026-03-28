@@ -873,3 +873,150 @@ describe("validate — sentence inputType (Task 27)", () => {
     expect(result.errors).toHaveLength(0);
   });
 });
+
+// ─── ValidateOptions (output config–driven validation) ──────────────
+
+describe("validate with ValidateOptions", () => {
+  /** Schema that relaxes examples (default to []) — mirrors buildLanguageTranslationSchema({ includeExamples: false }) */
+  const noExamplesSchema = z.object({
+    emoji: z.string(),
+    register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
+    translations: z.record(
+      z.string(),
+      z.object({
+        text: z.string(),
+        cefr: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
+        register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
+        synonyms: z.array(z.object({ text: z.string(), register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]) })),
+        examples: z.array(z.object({ context: z.string(), target: z.string(), native: z.string() })).default([]),
+        expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
+        alternatives: z.array(z.object({ text: z.string(), register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]), synonyms: z.array(z.object({ text: z.string(), register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]) })) })).optional(),
+      }),
+    ),
+  });
+
+  it("skips example validation when includeExamples is false", () => {
+    const raw = {
+      emoji: "🐻",
+      register: "neutral" as const,
+      translations: {
+        en: {
+          text: "beast",
+          cefr: "B1" as const,
+          register: "colloquial" as const,
+          synonyms: [{ text: "creature", register: "neutral" as const }],
+          examples: [], // empty — config says no examples
+        },
+        cs: {
+          text: "zvíře",
+          cefr: "A2" as const,
+          register: "neutral" as const,
+          synonyms: [{ text: "bestie", register: "colloquial" as const }],
+          examples: [], // empty — config says no examples
+        },
+      },
+    };
+    const result = validate(raw, noExamplesSchema, "зверюга", ["en", "cs"], undefined, { includeExamples: false });
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("still validates examples when includeExamples is not set (defaults to true)", () => {
+    const raw = {
+      emoji: "🐻",
+      register: "neutral" as const,
+      translations: {
+        en: {
+          text: "beast",
+          cefr: "B1" as const,
+          register: "colloquial" as const,
+          synonyms: [],
+          examples: [], // empty — but config doesn't disable examples
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "зверюга", ["en"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "examples" && e.message.includes("No examples provided"))).toBe(true);
+  });
+
+  it("skips alternatives validation when includeAlternatives is false", () => {
+    const raw = {
+      emoji: "🐻",
+      register: "neutral" as const,
+      translations: {
+        en: {
+          text: "beast",
+          cefr: "B1" as const,
+          register: "colloquial" as const,
+          synonyms: [],
+          examples: [{ context: "colloquial", target: "What a beast!", native: "Ну и зверюга!" }],
+          // alternatives with hallucinated text — should be ignored when disabled
+          alternatives: [{ text: "зверюга", register: "neutral", synonyms: [] }],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "зверюга", ["en"], undefined, { includeAlternatives: false });
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("still validates alternatives when includeAlternatives is not set", () => {
+    const raw = {
+      emoji: "🐻",
+      register: "neutral" as const,
+      translations: {
+        en: {
+          text: "beast",
+          cefr: "B1" as const,
+          register: "colloquial" as const,
+          synonyms: [],
+          examples: [{ context: "colloquial", target: "What a beast!", native: "Ну и зверюга!" }],
+          alternatives: [{ text: "зверюга", register: "neutral", synonyms: [] }], // same as original — should fail
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "зверюга", ["en"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "semantic" && e.field?.includes("alternatives"))).toBe(true);
+  });
+
+  it("skips both examples and alternatives when both are disabled", () => {
+    const raw = {
+      emoji: "🐻",
+      register: "neutral" as const,
+      translations: {
+        en: {
+          text: "beast",
+          cefr: "B1" as const,
+          register: "colloquial" as const,
+          synonyms: [],
+          examples: [],
+          alternatives: [{ text: "зверюга", register: "neutral", synonyms: [] }],
+        },
+      },
+    };
+    const result = validate(raw, noExamplesSchema, "зверюга", ["en"], undefined, { includeExamples: false, includeAlternatives: false });
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("semantic validation still runs even when examples/alternatives are disabled", () => {
+    const raw = {
+      emoji: "🐻",
+      register: "neutral" as const,
+      translations: {
+        en: {
+          text: "зверюга", // same as original — semantic should catch this
+          cefr: "B1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = validate(raw, noExamplesSchema, "зверюга", ["en"], undefined, { includeExamples: false, includeAlternatives: false });
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
+  });
+});

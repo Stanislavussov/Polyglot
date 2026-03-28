@@ -92,7 +92,9 @@ function validateExamples(examples: ExampleInput[], word: string, expressionType
 // Validates alternatives[].text semantically (≠ original, no hallucinations)
 // When inputType is 'sentence', steps 2 (semantic), 4 (examples), and 5 (alternatives)
 // are skipped — only schema validation and language detection run.
-function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[], inputType?: InputType): ValidationResult;
+// ValidateOptions drives validation from the output config — when a field is disabled
+// (e.g. includeExamples: false), the corresponding validation step is skipped.
+function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[], inputType?: InputType, options?: ValidateOptions): ValidationResult;
 
 // ── Wiktionary validators (Task 13) ──
 
@@ -124,6 +126,16 @@ type InputType = "word" | "phrase" | "sentence";
 
 /** Whether a translation is literal or an idiomatic equivalent */
 type ExpressionType = "literal" | "idiomatic_equivalent";
+
+/**
+ * Output configuration that controls which validation steps run.
+ * Mirrors the caller's TranslationOutputConfig — when a field is disabled,
+ * validation skips the corresponding check.
+ */
+interface ValidateOptions {
+  includeExamples?: boolean;      // When false, skip example validation
+  includeAlternatives?: boolean;  // When false, skip alternatives semantic validation
+}
 
 interface ValidationResult {
   valid: boolean;
