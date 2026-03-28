@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { getLanguageName } from "../../i18n/language-registry.js";
 import type { AnalyzeInput } from "../idiom-analysis.service.js";
 import { analyzeIdiom, analyzeIdiomBatch, needsIdiomReview } from "../idiom-analysis.service.js";
 import type { GenerateObjectFn, IdiomAnalysisResult } from "../types.js";
@@ -10,6 +11,7 @@ describe("analyzeIdiom", () => {
     translatedPhrase: "Zlom si nohu",
     targetLang: "cs",
     model: "test-model",
+    resolveLanguageName: getLanguageName,
   };
 
   const mockResult: IdiomAnalysisResult = {

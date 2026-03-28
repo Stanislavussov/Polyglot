@@ -4,7 +4,7 @@
  * Defines the public API types for topic management,
  * built-in datasets, cache status, and dependency injection.
  */
-import type { TranslateOutput, TranslationOutputConfig } from "../translation/types.js";
+import type { TranslationOutputConfig } from "../../shared/types.js";
 
 // ─────────────────────────────────────────────
 // Public types
@@ -52,6 +52,16 @@ export interface LanguageTranslationEntry {
   equivalentNote?: string;
   /** Up to 2 alternative translation variants, each with its own register and synonyms */
   alternatives?: TopicTranslationVariant[];
+}
+
+/**
+ * Result from the injected translateBatch — only the fields topics needs.
+ * Structurally compatible with TranslateOutput from the translation module,
+ * defined locally to avoid a forbidden cross-module import.
+ */
+export interface TopicTranslateResult {
+  original: string;
+  translations: Record<string, LanguageTranslationEntry>;
 }
 
 /** A full topic with metadata and translated words */
@@ -123,7 +133,7 @@ export interface TopicDeps {
     sourceLang: string,
     targetLangs: string[],
     outputConfig?: TranslationOutputConfig,
-  ) => Promise<TranslateOutput[]>;
+  ) => Promise<TopicTranslateResult[]>;
 
   /**
    * Translate a single word for one target language (for partial regeneration).

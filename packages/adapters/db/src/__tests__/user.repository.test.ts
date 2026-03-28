@@ -48,7 +48,7 @@ const mockDb = {
   update: updateFn,
 };
 
-vi.mock("../index.js", () => ({
+vi.mock("../connection.js", () => ({
   getDb: () => mockDb,
 }));
 

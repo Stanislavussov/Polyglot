@@ -4,6 +4,12 @@ import type { GenerateObjectFn, IdiomAnalysisInput, IdiomAnalysisResult } from "
 
 export interface AnalyzeInput extends IdiomAnalysisInput {
   model: string;
+  /**
+   * Converts ISO 639-1 code to human-readable name for the AI prompt.
+   * Inject `getLanguageName` from i18n at the call site.
+   * Defaults to identity (returns the code as-is).
+   */
+  resolveLanguageName?: (code: string) => string;
 }
 
 /**
@@ -13,7 +19,7 @@ export async function analyzeIdiom(
   input: AnalyzeInput,
   generateObjectFn: GenerateObjectFn,
 ): Promise<IdiomAnalysisResult> {
-  const prompt = buildIdiomAnalysisPrompt(input);
+  const prompt = buildIdiomAnalysisPrompt(input, input.resolveLanguageName);
   const result = await generateObjectFn(prompt, idiomAnalysisResultSchema, input.model);
   return result;
 }

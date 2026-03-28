@@ -1,5 +1,5 @@
 import { and, count, desc, eq, gte, inArray } from "drizzle-orm";
-import { getDb } from "../index.js";
+import { getDb } from "../connection.js";
 import { languages, translationRequests, translationRequestTargetLangs } from "../schema.js";
 
 /** DTO returned by getRecentRequests — uses language codes, not IDs. */

@@ -7,7 +7,7 @@ import type {
   Synonym,
   TranslationVariant,
 } from "@polyglot/core";
-import { getDb } from "../index.js";
+import { getDb } from "../connection.js";
 import { words } from "../schema.js";
 
 export type Word = typeof words.$inferSelect;

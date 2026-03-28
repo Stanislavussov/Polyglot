@@ -1,5 +1,5 @@
 import { and, eq, ilike, sql } from "drizzle-orm";
-import { getDb } from "../index.js";
+import { getDb } from "../connection.js";
 import { languages, wordContext } from "../schema.js";
 
 export type WordContext = typeof wordContext.$inferSelect;

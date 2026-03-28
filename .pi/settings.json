@@ -211,6 +211,22 @@
             ]
           },
           {
+            "name": "deps-validator",
+            "role": "Runs dependency-cruiser to validate module import direction. Ensures no circular or forbidden imports exist across the codebase. This is a pre-test quality gate in the pipeline.",
+            "rules": "Run `pnpm lint:deps` from the project root.\nIf exit code is 0 — report success with a summary of packages/modules checked.\nIf exit code is non-zero — read the violation output carefully.\nFor each violation: identify the source file, the forbidden import, and which rule it breaks.\nAttempt to fix violations by restructuring imports (extract shared types, use dependency injection, break cycles).\nAfter fixing, re-run `pnpm lint:deps` to verify — repeat until clean or max 3 attempts.\nIf violations remain after 3 attempts — report them clearly with file paths, rule names, and suggested fixes.\nNever disable or weaken dependency-cruiser rules — fix the code, not the config.",
+            "type": "coding",
+            "dependsOn": [
+              "bot",
+              "notifications",
+              "topics",
+              "translation",
+              "ai",
+              "validation",
+              "db",
+              "i18n"
+            ]
+          },
+          {
             "name": "test-runner",
             "role": "Runs full test suite, analyzes failures, fixes broken tests. Final quality gate.",
             "rules": "Run `pnpm test` from project root first. Fix only test files — never source code.\nRe-run after fixes — max 3 attempts. Never skip or delete failing tests.\nUse DB-exported constants in mocks, not hardcoded string literals.",
@@ -220,6 +236,7 @@
               ".pi/skills/db-sot"
             ],
             "dependsOn": [
+              "deps-validator",
               "bot",
               "notifications",
               "topics",

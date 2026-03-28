@@ -9,7 +9,7 @@
  *
  * Must call `loadLanguageCache()` at app startup (after DB is connected).
  */
-import { getDb } from "./index.js";
+import { getDb } from "./connection.js";
 import { languages } from "./schema.js";
 
 /* ------------------------------------------------------------------ */

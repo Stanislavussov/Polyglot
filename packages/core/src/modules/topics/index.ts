@@ -16,6 +16,7 @@ export type {
   TopicDeps,
   TopicExpressionType,
   TopicMeta,
+  TopicTranslateResult,
   TopicTranslationVariant,
   TopicWord,
 } from "./types.js";

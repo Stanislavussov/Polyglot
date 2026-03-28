@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { getDb } from "../index.js";
+import { getDb } from "../connection.js";
 import { userLanguageSettings, users } from "../schema.js";
 
 export type User = typeof users.$inferSelect;

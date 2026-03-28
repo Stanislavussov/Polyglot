@@ -1,4 +1,3 @@
-import { getLanguageName } from "../i18n/language-registry.js";
 import type { IdiomAnalysisInput } from "./types.js";
 
 /**
@@ -6,14 +5,22 @@ import type { IdiomAnalysisInput } from "./types.js";
  *
  * Accepts ISO 639-1 codes (e.g. "en", "cs") and converts to full English names
  * for the AI prompt (e.g. "English", "Czech").
+ *
+ * @param input - Analysis input with source/target phrases and language codes
+ * @param resolveLanguageName - Converts ISO 639-1 code to human-readable name.
+ *   Injected by the caller (typically `getLanguageName` from i18n).
+ *   Defaults to identity (returns the code as-is).
  */
-export function buildIdiomAnalysisPrompt(input: IdiomAnalysisInput): string {
+export function buildIdiomAnalysisPrompt(
+  input: IdiomAnalysisInput,
+  resolveLanguageName: (code: string) => string = (code) => code,
+): string {
   // Escape quotes in input to prevent prompt injection
   const sourcePhrase = input.sourcePhrase.replace(/"/g, '\\"');
   const translatedPhrase = input.translatedPhrase.replace(/"/g, '\\"');
   // Convert ISO 639-1 codes to full names for the AI prompt
-  const sourceLang = getLanguageName(input.sourceLang).replace(/"/g, '\\"');
-  const targetLang = getLanguageName(input.targetLang).replace(/"/g, '\\"');
+  const sourceLang = resolveLanguageName(input.sourceLang).replace(/"/g, '\\"');
+  const targetLang = resolveLanguageName(input.targetLang).replace(/"/g, '\\"');
 
   return `You are a linguistic expert analyzing translation quality between languages.
 

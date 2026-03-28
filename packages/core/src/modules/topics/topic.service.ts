@@ -11,7 +11,7 @@
  */
 
 import { createRequire } from "node:module";
-import { MINIMAL_OUTPUT } from "../translation/translation-output.presets.js";
+import { MINIMAL_OUTPUT } from "../../shared/translation-output.presets.js";
 import type {
   CacheStatus,
   LanguageTranslationEntry,

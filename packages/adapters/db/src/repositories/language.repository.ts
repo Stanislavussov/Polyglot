@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { getDb } from "../index.js";
+import { getDb } from "../connection.js";
 import { languages } from "../schema.js";
 
 export type Language = typeof languages.$inferSelect;

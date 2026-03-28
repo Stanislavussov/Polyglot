@@ -46,7 +46,7 @@ const mockDb = {
   })),
 };
 
-vi.mock("../index.js", () => ({
+vi.mock("../connection.js", () => ({
   getDb: () => mockDb,
 }));
 
