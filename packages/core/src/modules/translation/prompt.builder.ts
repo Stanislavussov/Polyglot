@@ -7,7 +7,7 @@
  */
 
 import { getLanguageName } from "../i18n/language-registry.js";
-import type { DictionaryContext, TranslationOutputConfig, TranslationRequest } from "./types.js";
+import type { DictionaryContext, InputType, TranslationOutputConfig, TranslationRequest } from "./types.js";
 
 /**
  * Resolve output config — all fields default to true when absent.
@@ -30,17 +30,22 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
  * The output format matches translationResultSchema — JSON, no markdown.
  */
 export function buildTranslationPrompt(request: TranslationRequest): string {
-  const { text, sourceLang, targetLangs, topic, dictionaryContext, outputConfig } = request;
+  const { text, sourceLang, targetLangs, topic, dictionaryContext, outputConfig, inputType } = request;
   const cfg = resolveConfig(outputConfig);
+  const isSentence = inputType === "sentence";
 
-  const topicHint = topic ? `\nThe word is used in the context of: "${topic}".` : "";
+  const topicHint = topic ? `\nThe ${isSentence ? "sentence" : "word"} is used in the context of: "${topic}".` : "";
 
   const dictionaryHint = dictionaryContext ? buildDictionaryHint(dictionaryContext) : "";
 
   const sourceLangName = getLanguageName(sourceLang);
   const targetLangNames = targetLangs.map((l) => getLanguageName(l)).join(", ");
 
-  return `Translate "${text}" from ${sourceLangName} to ${targetLangNames}.${dictionaryHint}${topicHint}
+  const intro = isSentence
+    ? `Translate the following sentence from ${sourceLangName} to ${targetLangNames}:\n"${text}"`
+    : `Translate "${text}" from ${sourceLangName} to ${targetLangNames}.`;
+
+  return `${intro}${dictionaryHint}${topicHint}
 
 Return ONLY valid JSON, no markdown, no explanation, no code fences.
 The JSON must have this exact structure:
@@ -111,7 +116,7 @@ Rules:${
 - Provide exactly 3 example sentences per language (formal, colloquial, professional).`
       : ""
   }
-- CEFR level should reflect the difficulty of the translated word in that language.${
+- CEFR level should reflect the ${isSentence ? "overall difficulty of the sentence" : "difficulty of the translated word in that language"}.${
     cfg.includeTranscription
       ? `
 - Transcription is required for non-Latin scripts; optional otherwise.`

@@ -108,6 +108,55 @@ export function renderTopicWord(word: TopicWord): string {
 }
 
 /**
+ * Render a compact sentence translation card for Telegram (HTML).
+ *
+ * Shows only: emoji, original sentence, and per-language translations
+ * with transcription. No CEFR, synonyms, examples, or alternatives.
+ */
+export function renderSentenceTranslation(output: TranslateOutput, interfaceLang?: string): string {
+  const lang = toLang(interfaceLang);
+  const lines: string[] = [];
+
+  lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
+  lines.push("");
+
+  for (const [code, translation] of Object.entries(output.translations)) {
+    lines.push(renderSentenceLangBlock(code, translation));
+    lines.push("");
+  }
+
+  if (output.needsReview) {
+    lines.push(esc(t("translationNeedsReview", lang)));
+  }
+
+  return lines.join("\n").trim();
+}
+
+/** Render a single language block for sentence translation (compact) */
+function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string {
+  const flag = getLangFlag(code) ?? "🔤";
+  const header = lt.transcription
+    ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]`
+    : `<b>${esc(lt.text)}</b>`;
+  return `${flag} ${esc(code.toUpperCase())}: ${header}`;
+}
+
+/**
+ * Build inline keyboard for sentence translations.
+ * Only regenerate buttons — no Save/Skip (sentences aren't saved to dictionary).
+ */
+export function buildSentenceKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard {
+  const lang = toLang(interfaceLang);
+  const kb = new InlineKeyboard();
+
+  for (const code of langCodes) {
+    kb.text(t("regenerateLang", lang, { lang: code.toUpperCase() }), `tr:regen:${code}`);
+  }
+
+  return kb;
+}
+
+/**
  * Build inline keyboard with per-language regenerate buttons + save/skip.
  * Each regenerate button has callback data "tr:regen:<langCode>".
  */

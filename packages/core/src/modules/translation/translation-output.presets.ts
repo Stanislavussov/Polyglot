@@ -36,3 +36,12 @@ export const NOTIFICATION_OUTPUT: TranslationOutputConfig = {
   includeAlternatives: false,
   includeEquivalentNote: false,
 };
+
+/** Sentence translation — just translation text + transcription, no learning metadata */
+export const SENTENCE_OUTPUT: TranslationOutputConfig = {
+  includeExamples: false,
+  includeTranscription: true,
+  includeSynonyms: false,
+  includeAlternatives: false,
+  includeEquivalentNote: false,
+};

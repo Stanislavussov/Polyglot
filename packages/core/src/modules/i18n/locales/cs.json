@@ -53,5 +53,6 @@
   "dictionaryContext": "📚 Slovníkový kontext",
   "detectedLang": "🔍 Rozpoznáno: {lang}",
   "nextTranslationFrom": "Další překlad z:",
-  "nextSourceSet": "🔤 Příště z: {lang}"
+  "nextSourceSet": "🔤 Příště z: {lang}",
+  "sentenceTranslation": "📝 Překlad věty"
 }

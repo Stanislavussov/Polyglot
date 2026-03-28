@@ -209,6 +209,23 @@ describe("i18n — t()", () => {
   it("falls back to English for nextSourceSet when locale has no file", () => {
     expect(t("nextSourceSet", "de", { lang: "Englisch" })).toBe("🔤 Next from: Englisch");
   });
+
+  // Sentence translation key (task 27)
+  it("returns sentenceTranslation in English", () => {
+    expect(t("sentenceTranslation", "en")).toBe("📝 Sentence translation");
+  });
+
+  it("returns sentenceTranslation in Russian", () => {
+    expect(t("sentenceTranslation", "ru")).toBe("📝 Перевод предложения");
+  });
+
+  it("returns sentenceTranslation in Czech", () => {
+    expect(t("sentenceTranslation", "cs")).toBe("📝 Překlad věty");
+  });
+
+  it("falls back to English for sentenceTranslation when locale has no file", () => {
+    expect(t("sentenceTranslation", "de")).toBe("📝 Sentence translation");
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -320,6 +337,7 @@ describe("i18n — locale consistency", () => {
       "detectedLang",
       "nextTranslationFrom",
       "nextSourceSet",
+      "sentenceTranslation",
     ];
 
     for (const key of enKeys) {

@@ -667,3 +667,209 @@ describe("validate — alternatives semantic validation", () => {
     expect(altError!.field).toBe("translations.de.alternatives[1].text");
   });
 });
+
+/**
+ * Sentence input type validation tests (Task 27 — Step 5).
+ *
+ * When inputType is 'sentence', semantic validation (translation ≠ original,
+ * hallucination patterns) and alternatives semantic validation are skipped.
+ * Schema validation still runs. Example/language checks run but are naturally
+ * skipped when those fields are empty arrays (SENTENCE_OUTPUT preset).
+ */
+describe("validate — sentence inputType (Task 27)", () => {
+  /** Minimal sentence schema — only text + cefr + register + transcription */
+  const sentenceSchema = z.object({
+    emoji: z.string(),
+    register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
+    translations: z.record(
+      z.string(),
+      z.object({
+        text: z.string(),
+        cefr: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
+        transcription: z.string().optional(),
+        register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
+        synonyms: z.array(z.unknown()).default([]),
+        examples: z.array(z.unknown()).default([]),
+      }),
+    ),
+  });
+
+  it("skips semantic validation when inputType is 'sentence' — translation equals original passes", () => {
+    const original = "Can you tell me where the nearest pharmacy is";
+    const raw = {
+      emoji: "💊",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: original, // same as original — would fail without sentence mode
+          cefr: "B1" as const,
+          register: "neutral" as const,
+          transcription: "",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = validate(raw, sentenceSchema, original, ["cs"], "sentence");
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("skips semantic validation when inputType is 'sentence' — hallucination pattern passes", () => {
+    const raw = {
+      emoji: "💊",
+      register: "neutral" as const,
+      translations: {
+        de: {
+          text: "N/A", // hallucination pattern — would fail without sentence mode
+          cefr: "A1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = validate(raw, sentenceSchema, "Where is the pharmacy?", ["de"], "sentence");
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("still runs schema validation for sentences", () => {
+    const raw = { emoji: "💊" }; // missing required fields
+    const result = validate(raw, sentenceSchema, "Where is the pharmacy?", ["de"], "sentence");
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "schema")).toBe(true);
+  });
+
+  it("still reports missing language translations for sentences", () => {
+    const raw = {
+      emoji: "💊",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "Kde je nejbližší lékárna?",
+          cefr: "B1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    // Expect "de" but only "cs" is present
+    const result = validate(raw, sentenceSchema, "Where is the pharmacy?", ["de"], "sentence");
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "schema" && e.message.includes("Missing translation"))).toBe(true);
+  });
+
+  it("skips alternatives semantic validation for sentences", () => {
+    const raw = {
+      emoji: "💊",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "Kde je nejbližší lékárna?",
+          cefr: "B1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [],
+          alternatives: [
+            {
+              text: "Where is the pharmacy?", // same as original — would fail without sentence mode
+              register: "neutral" as const,
+              synonyms: [],
+            },
+          ],
+        },
+      },
+    };
+    const result = validate(raw, sentenceSchema, "Where is the pharmacy?", ["cs"], "sentence");
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("runs full semantic validation when inputType is absent (backward compatible)", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "hello", // same as original — should fail
+          cefr: "A1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    // No inputType parameter — full validation
+    const result = validate(raw, sentenceSchema, "hello", ["cs"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
+  });
+
+  it("runs full semantic validation when inputType is 'word'", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "hello", // same as original — should fail
+          cefr: "A1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = validate(raw, sentenceSchema, "hello", ["cs"], "word");
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
+  });
+
+  it("runs full semantic validation when inputType is 'phrase'", () => {
+    const raw = {
+      emoji: "👋",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "good morning", // same as original — should fail
+          cefr: "A1" as const,
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = validate(raw, sentenceSchema, "good morning", ["cs"], "phrase");
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
+  });
+
+  it("passes valid sentence translation with multiple languages", () => {
+    const raw = {
+      emoji: "💊",
+      register: "neutral" as const,
+      translations: {
+        cs: {
+          text: "Kde je nejbližší lékárna?",
+          cefr: "B1" as const,
+          register: "neutral" as const,
+          transcription: "[ɡdɛ jɛ nɛjblɪʃiː leːkaːrna]",
+          synonyms: [],
+          examples: [],
+        },
+        de: {
+          text: "Wo ist die nächste Apotheke?",
+          cefr: "A2" as const,
+          register: "neutral" as const,
+          transcription: "[voː ɪst diː nɛːçstə apoˈteːkə]",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = validate(raw, sentenceSchema, "Where is the nearest pharmacy?", ["cs", "de"], "sentence");
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+});

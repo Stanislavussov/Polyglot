@@ -1,4 +1,4 @@
-export type { ValidateInput, ValidationError, ValidationResult } from "./types.js";
+export type { InputType, ValidateInput, ValidationError, ValidationResult } from "./types.js";
 export type { ExampleInput, ExpressionType } from "./validators/example.validator.js";
 export { validateExamples } from "./validators/example.validator.js";
 export { resolveToIso3, validateLanguage } from "./validators/language.validator.js";
@@ -18,7 +18,7 @@ export {
 } from "./validators/wiktionary.validator.js";
 
 import type { ZodSchema } from "zod";
-import type { ValidationError, ValidationResult } from "./types.js";
+import type { InputType, ValidationError, ValidationResult } from "./types.js";
 import type { ExpressionType } from "./validators/example.validator.js";
 import { validateExamples } from "./validators/example.validator.js";
 import { validateLanguage } from "./validators/language.validator.js";
@@ -34,11 +34,16 @@ import { validateSemantic } from "./validators/semantic.validator.js";
  * 4. Example quality — examples contain the translated word
  * 5. Alternatives semantic validation — alternatives ≠ original, no hallucinations
  *
+ * When `inputType` is `'sentence'`, semantic validation (steps 2 and 5) is
+ * skipped entirely. Sentence translations are naturally more similar to
+ * originals when source/target languages share vocabulary, and the
+ * "translation ≠ original" check is not meaningful for sentences.
+ *
  * Returns a merged ValidationResult with errors from all checks.
  *
  * Pure function — no side effects, no I/O.
  */
-export function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[]): ValidationResult {
+export function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[], inputType?: InputType): ValidationResult {
   const allErrors: ValidationError[] = [];
 
   // Step 1: Schema validation
@@ -58,6 +63,8 @@ export function validate(raw: unknown, schema: ZodSchema, original: string, expe
     return { valid: allErrors.length === 0, errors: allErrors };
   }
 
+  const isSentence = inputType === "sentence";
+
   // Step 2–4: Per-language checks
   for (const lang of expectedLangs) {
     const langData = translations[lang];
@@ -73,7 +80,9 @@ export function validate(raw: unknown, schema: ZodSchema, original: string, expe
     const translationText = langData.text as string | undefined;
 
     // Step 2: Semantic validation
-    if (translationText) {
+    // Skipped for sentences — sentence translations are naturally more similar
+    // to originals and the "translation ≠ original" check is not meaningful.
+    if (translationText && !isSentence) {
       const semanticResult = validateSemantic(original, translationText);
       for (const err of semanticResult.errors) {
         allErrors.push({
@@ -95,10 +104,12 @@ export function validate(raw: unknown, schema: ZodSchema, original: string, expe
     }
 
     // Step 4: Example validation
+    // Skipped for sentences — SENTENCE_OUTPUT produces empty examples arrays
+    // and example word-matching is not meaningful for sentence translations.
     const examples = langData.examples as Array<{ context: string; target: string; native: string }> | undefined;
     const expressionType = langData.expressionType as ExpressionType | undefined;
 
-    if (examples && Array.isArray(examples) && translationText) {
+    if (examples && Array.isArray(examples) && translationText && !isSentence) {
       const exampleResult = validateExamples(examples, translationText, expressionType);
       for (const err of exampleResult.errors) {
         allErrors.push({
@@ -109,9 +120,10 @@ export function validate(raw: unknown, schema: ZodSchema, original: string, expe
     }
 
     // Step 5: Alternatives semantic validation
+    // Skipped for sentences — sentence output has no alternatives.
     const alternatives = langData.alternatives as Array<{ text: string }> | undefined;
 
-    if (alternatives && Array.isArray(alternatives)) {
+    if (alternatives && Array.isArray(alternatives) && !isSentence) {
       for (let i = 0; i < alternatives.length; i++) {
         const alt = alternatives[i];
         if (alt && typeof alt.text === "string") {

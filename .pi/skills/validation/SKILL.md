@@ -38,10 +38,13 @@ AI Response
     │
     ├─ 1. validateSchema (Zod)           — structural JSON validation
     ├─ 2. validateSemantic               — translation ≠ original, no hallucinations
+    │                                       ⚠️ SKIPPED when inputType='sentence'
     ├─ 3. validateLanguage                — no-op (franc-min removed, see below)
     ├─ 4. validateExamples               — examples well-formed + word matching
     │                                       (relaxed for idiomatic equivalents)
+    │                                       ⚠️ SKIPPED when inputType='sentence'
     ├─ 5. validateAlternatives (semantic) — alternatives[].text ≠ original, no hallucinations
+    │                                       ⚠️ SKIPPED when inputType='sentence'
     │
     ├─ PASS → return valid result
     ├─ FAIL → retry with strict prompt (up to 2 retries)
@@ -87,7 +90,9 @@ function validateExamples(examples: ExampleInput[], word: string, expressionType
 // Reports missing translations for expected languages
 // Passes expressionType from language data to validateExamples()
 // Validates alternatives[].text semantically (≠ original, no hallucinations)
-function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[]): ValidationResult;
+// When inputType is 'sentence', steps 2 (semantic), 4 (examples), and 5 (alternatives)
+// are skipped — only schema validation and language detection run.
+function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[], inputType?: InputType): ValidationResult;
 
 // ── Wiktionary validators (Task 13) ──
 
@@ -114,6 +119,9 @@ const KNOWN_POS: readonly string[];
 ## Types
 
 ```typescript
+/** Detected input type — drives prompt, schema, and validation behavior */
+type InputType = "word" | "phrase" | "sentence";
+
 /** Whether a translation is literal or an idiomatic equivalent */
 type ExpressionType = "literal" | "idiomatic_equivalent";
 
@@ -133,6 +141,7 @@ interface ValidateInput {
   schema: ZodSchema;
   original: string;
   expectedLangs: string[];
+  inputType?: InputType;
 }
 
 interface ExampleInput {
@@ -182,7 +191,7 @@ packages/core/src/modules/validation/
     ├── language.validator.test.ts        # 6 tests (4 resolveToIso3 + 2 validateLanguage no-op)
     ├── example.validator.test.ts         # 7 tests
     ├── example.validator.idiomatic.test.ts  # 8 tests (Task 10 — expressionType)
-    ├── validate.test.ts                  # 25 tests (8 orchestrator + 6 partial regen + 5 idiomatic + 6 alternatives)
+    ├── validate.test.ts                  # 34 tests (8 orchestrator + 6 partial regen + 5 idiomatic + 6 alternatives + 9 sentence inputType)
     └── wiktionary.validator.test.ts      # 58 tests (21 entry + 19 wordContext + 8 glosses + 10 pos)
 ```
 
@@ -196,7 +205,8 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 
 ## Current State
 
-- 4 active validators + 1 no-op + 4 Wiktionary validators (126 tests total across 7 test files in validation module)
+- 4 active validators + 1 no-op + 4 Wiktionary validators (135 tests total across 7 test files in validation module)
+- **Task 27**: `validate()` accepts optional `inputType` parameter (`InputType = 'word' | 'phrase' | 'sentence'`). When `inputType === 'sentence'`, semantic validation (step 2), example validation (step 4), and alternatives semantic validation (step 5) are skipped — only schema validation and language detection run. `InputType` type exported from module. 9 sentence-specific tests in `validate.test.ts`.
 - **Task 16**: New `language-detect` module (`packages/core/src/modules/language-detect/`) with `detectLanguage()` (franc + script heuristics) and `resolveTranslationDirection()` (direction logic). 33 tests across 2 test files. `franc` added as dependency to `@polyglot/core`. Types `ResolveDirectionInput`, `TranslationDirection` exported.
 - **Task 17**: New `resolveDirectionFromSource()` in language-detect module — resolves translation direction from an explicit source language (no detection). Returns `null` if source lang is not in user's config (stale selection validation). 15 tests. Type `ResolveFromSourceInput` exported.
 - `validateLanguage()` is a no-op — `franc-min` removed due to unreliable trigram detection on short texts. Language correctness ensured by AI prompt + Zod schema + semantic validation.
@@ -271,3 +281,4 @@ packages/core/src/modules/language-detect/
 - Task: `docs/tasks/13-wiktionary-jsonl.md` (Wiktionary data integrity validation)
 - Task: `docs/tasks/16-auto-detect-input-language.md` (language detection + direction resolver)
 - Task: `docs/tasks/17-next-translation-language-menu.md` (explicit source lang direction resolver)
+- Task: `docs/tasks/27-input-type-detection-and-text-limits.md` (sentence inputType — skip semantic/example/alternatives validation)

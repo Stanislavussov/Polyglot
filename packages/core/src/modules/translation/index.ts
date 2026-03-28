@@ -34,6 +34,7 @@ export {
   FULL_OUTPUT,
   MINIMAL_OUTPUT,
   NOTIFICATION_OUTPUT,
+  SENTENCE_OUTPUT,
 } from "./translation-output.presets.js";
 // Types
 export type {
@@ -42,6 +43,7 @@ export type {
   Example,
   ExampleContext,
   ExpressionType,
+  InputType,
   LanguageTranslation,
   Register,
   Synonym,

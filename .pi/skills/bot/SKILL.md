@@ -51,10 +51,14 @@ Bot callers use centralized `TranslationOutputConfig` presets from `@polyglot/co
 
 | Caller | Preset | Rationale |
 |---|---|---|
-| `translate-mode.helper.ts` (`handleTranslateText`) | `FULL_OUTPUT` | Interactive translation — user expects rich cards |
-| `regen.helper.ts` (`handleRegenLoop`) | `FULL_OUTPUT` | Regeneration — same rich detail as interactive |
+| `translate-mode.helper.ts` (`handleTranslateText`, word/phrase) | `FULL_OUTPUT` | Interactive translation — user expects rich cards |
+| `translate-mode.helper.ts` (`handleTranslateText`, sentence) | `SENTENCE_OUTPUT` | Sentence translation — compact, no learning metadata |
+| `translate-mode.helper.ts` (`handleRegenCallback`, word/phrase) | `FULL_OUTPUT` | Regeneration — same rich detail as interactive |
+| `translate-mode.helper.ts` (`handleRegenCallback`, sentence) | `SENTENCE_OUTPUT` | Sentence regen — compact output |
+| `regen.helper.ts` (`handleRegenLoop`, word/phrase) | `FULL_OUTPUT` | Conversation-based regen — full detail |
+| `regen.helper.ts` (`handleRegenLoop`, sentence) | `SENTENCE_OUTPUT` | Conversation-based regen — compact |
 
-Both callers import `FULL_OUTPUT` from `@polyglot/core` and pass `outputConfig: FULL_OUTPUT` in their translation input. Rule: callers must always use a named preset — never construct `TranslationOutputConfig` inline.
+All callers import named presets from `@polyglot/core`. Rule: callers must always use a named preset — never construct `TranslationOutputConfig` inline.
 
 ### Persistent activeMode in Database (Task 20)
 
@@ -80,6 +84,25 @@ After Save/Skip in translate mode, an inline keyboard menu is shown with buttons
 - **Translation integration**: `handleTranslateText()` checks `nextSourceLang` first; if set, uses `resolveDirectionFromSource()` instead of auto-detect; validates against current config, resets if invalid
 - **Menu suppression**: Not shown when user has only 1 native + 1 learning language (auto-detect sufficient)
 - **i18n keys**: `nextTranslationFrom` (header), `nextSourceSet` (confirmation with `{lang}` param)
+
+### Input Type Classification & Sentence Translation (Task 27)
+
+The translate-mode helper now classifies user input as `word`, `phrase`, or `sentence` using `classifyInput()` from `apps/bot/src/utils/classify-input.ts`. Classification is based on word count (default thresholds: ≤2 → word, ≤6 → phrase, >6 → sentence). Punctuation is metadata only — NOT a hard classifier.
+
+**Sentence behavior** differs from word/phrase in every layer:
+- **Output preset:** `SENTENCE_OUTPUT` (no synonyms, alternatives, examples, equivalent note)
+- **Dictionary context:** Skipped (no Wiktionary lookup for sentences)
+- **Rendering:** `renderSentenceTranslation()` — compact card: emoji, original, per-language text + transcription only. No CEFR, synonyms, examples, alternatives.
+- **Keyboard:** `buildSentenceKeyboard()` — regen buttons only, no Save/Skip
+- **Session:** No `pendingTranslation` stored for sentences (nothing to save to dictionary)
+- **Regen:** Uses `SENTENCE_OUTPUT` preset and sentence keyboard. Reads `lastTranslation` + `lastInputType` from session.
+- **i18n:** `sentenceTranslation` label prepended to card
+
+**Session additions:**
+- `lastTranslation?: TranslateOutput` — last translation output (for regen, both words and sentences)
+- `lastInputType?: InputType` — input classification of last translation
+
+**Callback handler:** `handleRegenCallback()` registered for `tr:regen:*` pattern. Handles regeneration in persistent translate mode for both word/phrase and sentence inputs.
 
 ### Auto-Detect Input Language (Task 16)
 
@@ -129,6 +152,13 @@ function renderTopicWord(word: TopicWord): string;
 // Build inline keyboard with per-language regenerate buttons + save/skip
 function buildTranslationKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard;
 
+// Render a compact sentence translation card (Task 27)
+// No CEFR, synonyms, examples, alternatives — just text + transcription
+function renderSentenceTranslation(output: TranslateOutput, interfaceLang?: string): string;
+
+// Build inline keyboard for sentences — regen only, no Save/Skip (Task 27)
+function buildSentenceKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard;
+
 // Scene: 3-step onboarding (BUG-01 fix — BRD §5)
 async function onboarding(conversation, ctx): Promise<void>;
 
@@ -144,6 +174,9 @@ async function handleSaveCallback(ctx: BotContext): Promise<void>;
 // Callback: Skip translation (discard)
 async function handleSkipCallback(ctx: BotContext): Promise<void>;
 
+// Callback: Regeneration in persistent translate mode (Task 27)
+async function handleRegenCallback(ctx: BotContext): Promise<void>;
+
 // Callback: Source language selection (Task 17)
 async function handleSourceLangCallback(ctx: BotContext): Promise<void>;
 
@@ -154,8 +187,11 @@ function buildSourceLangKeyboard(langs: LangOption[], currentSelection: string |
 // Build language option list from user settings (Task 17)
 function buildLangOptions(nativeLang: string, learningLangs: string[], interfaceLang: SupportedLang): LangOption[];
 
-// Helper: regeneration loop (regen/save/skip callback handling)
-async function handleRegenLoop(conversation, ctx, output, lang, userId, cardMsgId): Promise<void>;
+// Helper: regeneration loop (regen/save/skip callback handling, sentence-aware)
+async function handleRegenLoop(conversation, ctx, output, lang, userId, cardMsgId, inputType?): Promise<void>;
+
+// Classify user input as word, phrase, or sentence (Task 27)
+function classifyInput(text: string, config?: Partial<InputClassifierConfig>): InputClassification;
 
 // Scene: dictionary browsing (not yet implemented)
 async function handleDictionary(conversation, ctx): Promise<void>;
@@ -179,13 +215,25 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
   │   ├─ If nextSourceLang set → use resolveDirectionFromSource() (explicit, no detection)
   │   ├─ If nextSourceLang invalid → reset to null, fall back to auto-detect
   │   └─ If nextSourceLang null → auto-detect via resolveTranslationDirection()
+  ├─ Classify input: classifyInput(word) → word / phrase / sentence (Task 27)
+  ├─ Select preset: sentence → SENTENCE_OUTPUT, else → FULL_OUTPUT
   ├─ Show "Translating..." indicator
-  ├─ Call translateWithContext() with resolved direction + createContextLookup() + generateObject
-  │   (context-enrichment layer handles dictionary lookup + fail-open internally)
-  ├─ Render translation card (HTML format)
-  ├─ Prepend "🔍 Detected: {lang}" when direction is reversed (detected ≠ native)
-  ├─ Show inline keyboard: Save/Skip buttons
-  └─ Store pendingTranslation in session for callback handling
+  ├─ Call translateWithContext() with resolved direction + generateObject
+  │   (sentences skip dictionary lookup via no-op lookupContext)
+  ├─ Store lastTranslation + lastInputType in session (for regen)
+  │
+  ├── word/phrase:
+  │   ├─ Render full card (HTML), prepend detected lang if reversed
+  │   ├─ Show Save/Skip/Regen keyboard
+  │   ├─ Store pendingTranslation for Save/Skip
+  │   └─ Show source language selection menu
+  │
+  └── sentence:
+      ├─ Render compact card via renderSentenceTranslation()
+      ├─ Prepend "📝 Sentence translation" label
+      ├─ Show Regen-only keyboard (no Save/Skip)
+      ├─ No pendingTranslation (nothing to save)
+      └─ Show source language selection menu
 
 [Save callback]
   ├─ Save to dictionary via wordRepository.create()
@@ -197,6 +245,14 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
   ├─ Remove keyboard from card
   ├─ Clear pending state
   └─ Show source language selection menu (or plain hint if ≤2 langs)
+
+[Regen callback (tr:regen:{code}) — Task 27]
+  ├─ Read lastTranslation + lastInputType from session
+  ├─ Select preset: sentence → SENTENCE_OUTPUT, else → FULL_OUTPUT
+  ├─ Call translateOneWithContext() with correct preset + inputType
+  ├─ Merge regenerated translation into lastTranslation
+  ├─ For word/phrase: also update pendingTranslation
+  └─ Re-render card with correct renderer + keyboard
 
 [Source language selection callback (tr:srclang:{code})]
   ├─ Set ctx.session.nextSourceLang = code
@@ -286,8 +342,11 @@ apps/bot/src/
 ├── commands/
 │   ├── start.ts                # /start command (restores translate mode, persists to DB)
 │   └── start.test.ts           # 4 tests (activeMode restore, DB persistence, onboarding entry, no user)
+├── utils/
+│   ├── classify-input.ts       # ✅ Input classifier: word/phrase/sentence (Task 27)
+│   └── classify-input.test.ts  # 18 tests (classification rules, boundaries, config)
 ├── renderers/
-│   ├── translation.renderer.ts # renderTranslation, renderTopicWord, buildTranslationKeyboard, buildSourceLangKeyboard
+│   ├── translation.renderer.ts # renderTranslation, renderSentenceTranslation, renderTopicWord, buildTranslationKeyboard, buildSentenceKeyboard, buildSourceLangKeyboard
 │   └── __tests__/
 │       └── source-lang-menu.test.ts     # 8 tests (keyboard rendering, ✓ marks, suppression)
 ├── scenes/
@@ -295,19 +354,19 @@ apps/bot/src/
 │   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation, persists to DB)
 │   ├── translate.scene.test.ts # 3 tests (mode activation, DB persistence, confirmation)
 │   ├── helpers/
-│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (uses translateWithContext + resolveDirectionFromSource/resolveTranslationDirection), handleSaveCallback, handleSkipCallback, handleSourceLangCallback
-│   │   ├── translate-mode.helper.test.ts # 4 tests (context enrichment wiring)
+│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (classifier + branching), handleRegenCallback, handleSaveCallback, handleSkipCallback, handleSourceLangCallback
+│   │   ├── translate-mode.helper.test.ts # 5 tests (context enrichment wiring)
 │   │   ├── __tests__/
 │   │   │   ├── translate-mode-detection.test.ts      # 8 tests (auto-detect language direction)
 │   │   │   ├── translate-mode-source-lang.test.ts    # 11 tests (explicit source lang override)
 │   │   │   └── source-lang-callback.test.ts          # 7 tests (callback handling)
-│   │   ├── regen.helper.ts           # ✅ regeneration loop helper (for onboarding)
-│   │   └── regen.helper.test.ts      # 9 tests
+│   │   ├── regen.helper.ts           # ✅ regeneration loop helper (sentence-aware, Task 27)
+│   │   └── regen.helper.test.ts      # 10 tests
 │   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 11 tests (mode system tests, idle fallback, DB persistence)
-    ├── translation.renderer.test.ts        # 50 tests (includes 7 alternatives tests)
+    ├── translation.renderer.test.ts        # 75 tests (includes 7 alternatives, 15 sentence renderer, 7 sentence keyboard)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
     └── onboarding.scene.test.ts            # 18 tests (3-step flow, back nav, interface lang inference, no Save/Skip)
 ```

@@ -91,6 +91,9 @@ export interface TranslationOutputConfig {
   includeEquivalentNote?: boolean;
 }
 
+/** Detected input type — drives prompt, schema, and validation behavior */
+export type InputType = "word" | "phrase" | "sentence";
+
 /** Input for a translation request */
 export interface TranslationRequest {
   text: string;
@@ -101,6 +104,8 @@ export interface TranslationRequest {
   dictionaryContext?: DictionaryContext;
   /** Optional output config to control which fields are requested from AI */
   outputConfig?: TranslationOutputConfig;
+  /** Classified input type — drives prompt, schema, and validation behavior */
+  inputType?: InputType;
 }
 
 /**
@@ -125,6 +130,8 @@ export interface TranslateInput {
   dictionaryContext?: DictionaryContext;
   /** Optional output config to control which fields are requested from AI */
   outputConfig?: TranslationOutputConfig;
+  /** Classified input type — drives prompt, schema, and validation behavior */
+  inputType?: InputType;
 }
 
 /** Output from translate() — enriched TranslationResult with metadata */

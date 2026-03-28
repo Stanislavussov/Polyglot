@@ -12,6 +12,8 @@
 | 22  | [Dependency Cruiser](./22-dependency-cruiser.md) | 🔲 To Do  |
 | 24  | [Token Usage Tracking](./24-token-usage-tracking.md) | 🔲 To Do  |
 | 26  | [Diacritics-Aware Translation](./26-diacritics-aware-translation.md) | 🔲 To Do  |
+| 27  | [Input Type Detection & Text Limits](./27-input-type-detection-and-text-limits.md) | 🟡 In Progress |
+| 29  | [Require Source Language Before Translation](./29-require-source-lang-before-translate.md) | 🔲 To Do  |
 
 ## Finished
 

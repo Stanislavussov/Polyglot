@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
 import { buildLanguageTranslationSchema, buildTranslationResultSchema } from "../schemas/translation.schema.js";
 import { translate } from "../translation.service.js";
-import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT } from "../translation-output.presets.js";
+import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT } from "../translation-output.presets.js";
 import type { TranslateInput, TranslationOutputConfig, TranslationRequest } from "../types.js";
 
 // ─── Helpers ──────────────────────────────────────────────
@@ -58,6 +58,16 @@ describe("presets", () => {
   it("NOTIFICATION_OUTPUT has includeExamples and includeTranscription true, others false", () => {
     expect(NOTIFICATION_OUTPUT).toEqual({
       includeExamples: true,
+      includeTranscription: true,
+      includeSynonyms: false,
+      includeAlternatives: false,
+      includeEquivalentNote: false,
+    });
+  });
+
+  it("SENTENCE_OUTPUT has only includeTranscription: true, all others false", () => {
+    expect(SENTENCE_OUTPUT).toEqual({
+      includeExamples: false,
       includeTranscription: true,
       includeSynonyms: false,
       includeAlternatives: false,
@@ -273,5 +283,91 @@ describe("translate() with outputConfig", () => {
     // Verify the schema accepted empty examples/synonyms (no validation error on them)
     expect(output.original).toBe("hello");
     expect(output.translations.cs.text).toBe("ahoj");
+  });
+});
+
+describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
+  it("passes inputType through to prompt builder and validation", async () => {
+    const mockResult = {
+      emoji: "🏥",
+      register: "neutral" as const,
+      translations: {
+        de: {
+          text: "Können Sie mir sagen, wo die nächste Apotheke ist?",
+          cefr: "B1" as const,
+          transcription: "/kœnən ziː miːɐ̯ zaːɡn̩ voː diː nɛːçstə apoˈteːkə ɪst/",
+          register: "neutral" as const,
+          synonyms: [],
+          examples: [],
+          expressionType: "literal" as const,
+        },
+      },
+    };
+
+    const mockGenerate = vi.fn().mockResolvedValue(mockResult);
+
+    const input: TranslateInput = {
+      word: "Can you tell me where the nearest pharmacy is?",
+      sourceLang: "en",
+      targetLangs: ["de"],
+      model: "openai/gpt-4o",
+      outputConfig: SENTENCE_OUTPUT,
+      inputType: "sentence",
+    };
+
+    const output = await translate(input, mockGenerate);
+
+    // Verify the prompt uses sentence-style intro
+    const prompt = mockGenerate.mock.calls[0][0] as string;
+    expect(prompt).toContain("Translate the following sentence");
+    expect(prompt).not.toContain('"synonyms"');
+    expect(prompt).not.toContain('"alternatives"');
+    expect(prompt).not.toContain('"examples"');
+
+    // Verify result is returned correctly
+    expect(output.original).toBe("Can you tell me where the nearest pharmacy is?");
+    expect(output.translations.de.text).toBe("Können Sie mir sagen, wo die nächste Apotheke ist?");
+    expect(output.translations.de.synonyms).toEqual([]);
+    expect(output.translations.de.examples).toEqual([]);
+  });
+
+  it("sentence translation strips disabled fields from AI response", async () => {
+    const mockResult = {
+      emoji: "🏥",
+      register: "neutral" as const,
+      translations: {
+        de: {
+          text: "Wo ist die Apotheke?",
+          cefr: "A2" as const,
+          register: "neutral" as const,
+          // AI may still return these even when not asked
+          synonyms: [{ text: "Drogerie", register: "neutral" as const }],
+          examples: [],
+          alternatives: [{ text: "Wo finde ich eine Apotheke?", register: "neutral" as const, synonyms: [] }],
+          equivalentNote: "should be stripped",
+          expressionType: "literal" as const,
+        },
+      },
+    };
+
+    const mockGenerate = vi.fn().mockResolvedValue(mockResult);
+
+    const input: TranslateInput = {
+      word: "Where is the pharmacy?",
+      sourceLang: "en",
+      targetLangs: ["de"],
+      model: "openai/gpt-4o",
+      outputConfig: SENTENCE_OUTPUT,
+      inputType: "sentence",
+    };
+
+    const output = await translate(input, mockGenerate);
+
+    // SENTENCE_OUTPUT disables synonyms, alternatives, equivalentNote
+    expect(output.translations.de.synonyms).toEqual([]);
+    expect(output.translations.de.alternatives).toBeUndefined();
+    expect(output.translations.de.equivalentNote).toBeUndefined();
+    expect(output.translations.de.expressionType).toBeUndefined();
+    // Transcription is still included (not disabled)
   });
 });

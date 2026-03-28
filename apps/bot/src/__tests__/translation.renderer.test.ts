@@ -1,6 +1,12 @@
 import type { TopicWord, TranslateOutput } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
-import { buildTranslationKeyboard, renderTopicWord, renderTranslation } from "../renderers/translation.renderer.js";
+import {
+  buildSentenceKeyboard,
+  buildTranslationKeyboard,
+  renderSentenceTranslation,
+  renderTopicWord,
+  renderTranslation,
+} from "../renderers/translation.renderer.js";
 
 // Mock getLangFlag from @polyglot/core
 vi.mock("@polyglot/core", async () => {
@@ -587,5 +593,183 @@ describe("renderTopicWord — idiomatic equivalents", () => {
     expect(result).toContain("<b>Ranní ptáče dál doskáče</b>");
     expect(result).not.toContain("idiomatic_equivalent");
     expect(result).not.toContain("equivalentNote");
+  });
+});
+
+// ── Task 27: Sentence translation rendering tests ────────────────
+
+const sentenceOutput: TranslateOutput = {
+  original: "Can you tell me where the nearest pharmacy is?",
+  sourceLang: "en",
+  emoji: "💊",
+  register: "neutral",
+  translations: {
+    cs: {
+      text: "Můžete mi říct, kde je nejbližší lékárna?",
+      cefr: "B1",
+      transcription: "ˈmuːʒɛtɛ mɪ ˈɾ̝iːt͡st kdɛ jɛ ˈnɛjblɪʃiː ˈlɛːkaːrna",
+      register: "neutral",
+      synonyms: [],
+      examples: [],
+    },
+    de: {
+      text: "Können Sie mir sagen, wo die nächste Apotheke ist?",
+      cefr: "B1",
+      register: "neutral",
+      synonyms: [],
+      examples: [],
+    },
+  },
+};
+
+describe("renderSentenceTranslation", () => {
+  it("renders emoji and original sentence as bold header", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).toContain("💊 <b>Can you tell me where the nearest pharmacy is?</b>");
+  });
+
+  it("renders translation text as bold per language", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).toContain("<b>Můžete mi říct, kde je nejbližší lékárna?</b>");
+    expect(result).toContain("<b>Können Sie mir sagen, wo die nächste Apotheke ist?</b>");
+  });
+
+  it("renders transcription in brackets when present", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).toContain("[ˈmuːʒɛtɛ");
+  });
+
+  it("renders without transcription brackets when absent", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    // DE has no transcription
+    const deLine = result.split("\n").find((l) => l.includes("DE:"));
+    expect(deLine).not.toContain("[");
+  });
+
+  it("renders language flags from DB", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).toContain("🇨🇿 CS:");
+    expect(result).toContain("🇩🇪 DE:");
+  });
+
+  it("does NOT render CEFR level", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).not.toContain("CEFR:");
+    expect(result).not.toContain("B1");
+  });
+
+  it("does NOT render synonyms", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).not.toContain("Synonyms:");
+  });
+
+  it("does NOT render examples", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).not.toContain("Examples:");
+    expect(result).not.toContain("📎");
+    expect(result).not.toContain("💬");
+    expect(result).not.toContain("💼");
+  });
+
+  it("does NOT render alternatives", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).not.toContain("∙");
+  });
+
+  it("does NOT render register line", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).not.toContain("Register:");
+  });
+
+  it("shows needsReview warning when true", () => {
+    const output = { ...sentenceOutput, needsReview: true };
+    const result = renderSentenceTranslation(output, "en");
+    expect(result).toContain("inaccuracies");
+  });
+
+  it("does not show needsReview when false", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en");
+    expect(result).not.toContain("inaccuracies");
+  });
+
+  it("escapes HTML special characters", () => {
+    const xss: TranslateOutput = {
+      ...sentenceOutput,
+      original: "<script>alert('xss')</script>",
+    };
+    const result = renderSentenceTranslation(xss, "en");
+    expect(result).not.toContain("<script>");
+    expect(result).toContain("&lt;script&gt;");
+  });
+
+  it("falls back to en for unknown interfaceLang", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "xx");
+    // Should not throw
+    expect(result).toContain("💊");
+  });
+
+  it("falls back to 🔤 when getLangFlag returns undefined", () => {
+    const unknownLang: TranslateOutput = {
+      ...sentenceOutput,
+      translations: {
+        xx: {
+          text: "test",
+          cefr: "A1",
+          register: "neutral",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+    const result = renderSentenceTranslation(unknownLang, "en");
+    expect(result).toContain("🔤 XX:");
+  });
+});
+
+describe("buildSentenceKeyboard", () => {
+  const cbData = (btn: unknown): string | undefined => (btn as { callback_data?: string }).callback_data;
+
+  it("creates regenerate buttons for each language code", () => {
+    const kb = buildSentenceKeyboard(["cs", "de", "fr"], "en");
+    const rows = kb.inline_keyboard;
+    // Only one row with regen buttons
+    expect(rows[0]).toHaveLength(3);
+  });
+
+  it("uses correct callback data format tr:regen:<code>", () => {
+    const kb = buildSentenceKeyboard(["cs", "de"], "en");
+    const regenRow = kb.inline_keyboard[0]!;
+    expect(cbData(regenRow[0])).toBe("tr:regen:cs");
+    expect(cbData(regenRow[1])).toBe("tr:regen:de");
+  });
+
+  it("does NOT include save/skip buttons", () => {
+    const kb = buildSentenceKeyboard(["cs", "de"], "en");
+    const allCallbacks = kb.inline_keyboard.flatMap((row) => row.map(cbData));
+    expect(allCallbacks).not.toContain("tr:save");
+    expect(allCallbacks).not.toContain("tr:skip");
+  });
+
+  it("has only one row (regen buttons only)", () => {
+    const kb = buildSentenceKeyboard(["cs", "de"], "en");
+    expect(kb.inline_keyboard).toHaveLength(1);
+  });
+
+  it("uses i18n regenerateLang key for button text", () => {
+    const kb = buildSentenceKeyboard(["cs"], "en");
+    const btn = kb.inline_keyboard[0]![0]!;
+    expect(btn.text).toBe("🔄 CS");
+  });
+
+  it("renders button text using Russian locale", () => {
+    const kb = buildSentenceKeyboard(["de"], "ru");
+    const btn = kb.inline_keyboard[0]![0]!;
+    expect(btn.text).toBe("🔄 DE");
+  });
+
+  it("works with single language code", () => {
+    const kb = buildSentenceKeyboard(["fr"], "en");
+    expect(kb.inline_keyboard[0]).toHaveLength(1);
+    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr");
   });
 });

@@ -1,6 +1,6 @@
 import { type ConversationFlavor } from "@grammyjs/conversations";
 import type { User } from "@polyglot/adapter-db";
-import type { TranslateOutput } from "@polyglot/core";
+import type { InputType, TranslateOutput } from "@polyglot/core";
 import { Context, SessionFlavor } from "grammy";
 
 /**
@@ -28,6 +28,16 @@ export interface SessionData {
    * Session-only — does not persist across bot restarts.
    */
   nextSourceLang?: string | null;
+  /**
+   * Last translation output — stored for regen (both words and sentences).
+   * Separate from pendingTranslation which is for Save/Skip only.
+   */
+  lastTranslation?: TranslateOutput;
+  /**
+   * Input type of the last translation — determines which preset/keyboard
+   * to use on regeneration. When 'sentence', uses SENTENCE_OUTPUT + regen-only keyboard.
+   */
+  lastInputType?: InputType;
 }
 
 /** Custom context properties injected by auth middleware */

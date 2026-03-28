@@ -53,5 +53,6 @@
   "dictionaryContext": "📚 Словарный контекст",
   "detectedLang": "🔍 Определён: {lang}",
   "nextTranslationFrom": "Следующий перевод с:",
-  "nextSourceSet": "🔤 Далее с: {lang}"
+  "nextSourceSet": "🔤 Далее с: {lang}",
+  "sentenceTranslation": "📝 Перевод предложения"
 }

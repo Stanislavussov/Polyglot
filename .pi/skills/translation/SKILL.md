@@ -25,6 +25,14 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 - **TranslationVariant & alternatives**: Each `LanguageTranslation` now has an optional `alternatives?: TranslationVariant[]` field (up to 2 additional translations beyond the main `text`). Each variant has its own `text`, `register`, and `synonyms`. The AI prompt requests exactly 2 alternatives per language. The Zod schema (`translationVariantSchema`) validates variant entries.
 - **Dictionary context multi-variant guidance**: When `dictionaryContext` has glosses, the prompt builder adds a hint to inform different translation variants — each alternative should capture a different sense or nuance if the word has multiple meanings.
 
+### Task 27: Input type detection & sentence-aware translation
+
+- **`InputType`**: New type `'word' | 'phrase' | 'sentence'` added to `types.ts`. Optional `inputType` field on both `TranslateInput` and `TranslationRequest`.
+- **`SENTENCE_OUTPUT` preset**: New preset in `translation-output.presets.ts` — disables examples, synonyms, alternatives, equivalentNote; keeps only transcription. Used for sentence translations to save tokens and avoid irrelevant metadata.
+- **Sentence-aware prompt builder**: When `inputType === 'sentence'`, the prompt uses `"Translate the following sentence from ... to ..."` intro (instead of `Translate "..."`) and CEFR rule says "overall difficulty of the sentence" (not "translated word"). Topic hint says "sentence" instead of "word".
+- **Sentence-aware validation**: `inputType` is passed through to `validate()` — when `'sentence'`, semantic validation (translation ≠ original) and alternatives/examples checks are skipped. Schema and language detection still run.
+- **Backward compatible**: All changes are additive — `inputType` is optional, absent means full word/phrase behavior.
+
 ## Boundary
 
 - **Mode:** role — when this skill is active, you ARE the translation agent. Only modify the translation module.
@@ -98,6 +106,9 @@ interface LanguageTranslation {
   alternatives?: TranslationVariant[]; // up to 2 alternative translations with own register & synonyms
 }
 
+/** Detected input type — drives prompt, schema, and validation behavior */
+type InputType = "word" | "phrase" | "sentence";
+
 interface TranslationRequest {
   text: string;
   sourceLang: string;
@@ -105,6 +116,7 @@ interface TranslationRequest {
   topic?: string;
   dictionaryContext?: DictionaryContext;  // optional Wiktionary enrichment
   outputConfig?: TranslationOutputConfig; // optional output config
+  inputType?: InputType;  // classified input type — drives prompt and validation
 }
 
 interface TranslationResult {
@@ -122,6 +134,7 @@ interface TranslateInput {
   userId?: number;
   dictionaryContext?: DictionaryContext;  // optional Wiktionary enrichment
   outputConfig?: TranslationOutputConfig; // optional output config
+  inputType?: InputType;  // classified input type — drives prompt and validation
 }
 
 interface TranslateOutput {
@@ -176,14 +189,15 @@ function parseResponse(raw: unknown): TranslationResult;
 Centralized named presets in `translation-output.presets.ts` — single source of truth. Callers must always import a preset, never construct `TranslationOutputConfig` inline.
 
 ```typescript
-import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT } from "@polyglot/core";
+import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT } from "@polyglot/core";
 ```
 
 | Preset | Examples | Transcription | Synonyms | Alternatives | EquivalentNote |
 |---|---|---|---|---|---|
-| `FULL_OUTPUT` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `FULL_OUTPUT` | ❌ | ✅ | ✅ | ✅ | ✅ |
 | `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ |
 | `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | ❌ |
+| `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ |
 
 **Caller → Preset mapping:**
 
@@ -191,15 +205,18 @@ import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT } from "@polyglot/core
 |---|---|---|
 | `translate-mode.helper.ts` (bot interactive) | `FULL_OUTPUT` | Rich cards with all details |
 | `regen.helper.ts` (regeneration) | `FULL_OUTPUT` | Same as interactive |
+| `translate-mode.helper.ts` (sentence) | `SENTENCE_OUTPUT` | Minimal output for sentences — no learning metadata |
+| `regen.helper.ts` (sentence regen) | `SENTENCE_OUTPUT` | Sentence regen uses same minimal preset |
 | `topic.service.ts` (bulk topic translation) | `MINIMAL_OUTPUT` | Token savings for batch jobs |
 | Notification word-of-the-day (future) | `NOTIFICATION_OUTPUT` | Compact push with examples |
 
 ## Translation Flow
 
 ```
-1. Build prompt (buildTranslationPrompt — includes dictionary context if available)
+0. Caller classifies input (input-classifier module → InputType)
+1. Build prompt (buildTranslationPrompt — sentence-aware intro when inputType='sentence')
 2. Call AI adapter (generateObjectFn with translationResultSchema)
-3. Validate response (validate from validation module)
+3. Validate response (validate from validation module, passes inputType to skip semantic for sentences)
 4. On PASS → return result (with dictionaryContext echoed back if provided)
 5. On FAIL → console.warn({ original, retryCount, failReason }), retry with strict prompt (up to 2 retries)
 6. On final FAIL → console.error({ original, retryCount, failReason }), return result with needsReview: true
@@ -229,20 +246,20 @@ When `dictionaryContext` is provided in `TranslateInput`:
 
 ```
 packages/core/src/modules/translation/
-├── index.ts                           # Re-exports: translate, translateOne, translateBatch, schemas, types, ExpressionType, DictionaryContext, TranslationVariant, TranslationOutputConfig, presets
-├── types.ts                           # TranslateInput, TranslateOutput, TranslationOutputConfig, ExpressionType, DictionaryContext, etc.
-├── translation.service.ts             # translate(), translateOne(), translateBatch(), parseResponse()
-├── translation-output.presets.ts      # FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT presets
-├── prompt.builder.ts                  # buildTranslationPrompt(), buildStrictPrompt(), buildDictionaryHint() — config-aware
+├── index.ts                           # Re-exports: translate, translateOne, translateBatch, schemas, types, ExpressionType, InputType, DictionaryContext, TranslationVariant, TranslationOutputConfig, presets (incl. SENTENCE_OUTPUT)
+├── types.ts                           # TranslateInput, TranslateOutput, TranslationOutputConfig, InputType, ExpressionType, DictionaryContext, etc.
+├── translation.service.ts             # translate(), translateOne(), translateBatch(), parseResponse() — passes inputType to validate()
+├── translation-output.presets.ts      # FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT presets
+├── prompt.builder.ts                  # buildTranslationPrompt(), buildStrictPrompt(), buildDictionaryHint() — config-aware, sentence-aware
 ├── schemas/
 │   └── translation.schema.ts          # Zod schemas for AI response, buildLanguageTranslationSchema(config?)
 └── __tests__/
     ├── translation.schema.test.ts     # 32 tests
-    ├── prompt.builder.test.ts         # 21 tests (incl. alternatives + variant guidance)
+    ├── prompt.builder.test.ts         # 33 tests (incl. alternatives + variant guidance + sentence-aware prompt)
     ├── translation.service.test.ts    # 27 tests (incl. translateOne + validation logging + alternatives + dictionary context passthrough)
     ├── idiomatic-equivalents.test.ts  # 18 tests (schema + prompt idiomatic features)
     ├── dictionary-context.test.ts     # 30 tests (prompt enrichment + passthrough + edge cases + multi-variant guidance)
-    └── output-config.test.ts          # 26 tests (presets, config-aware prompt builder, config-aware schema builder, service integration)
+    └── output-config.test.ts          # 29 tests (presets incl. SENTENCE_OUTPUT, config-aware prompt/schema builder, sentence service integration)
 ```
 
 ## Reference

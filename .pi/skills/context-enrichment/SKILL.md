@@ -109,6 +109,10 @@ packages/adapters/db/src/
     └── context-lookup.test.ts         # 9 tests
 ```
 
+## Sentence Input Skip (Task 27)
+
+The context-enrichment module itself is **not aware of input types** (word/phrase/sentence). Sentence-type inputs should **not** receive Wiktionary dictionary context (no learnable word to enrich). This skip is handled at the **caller level** — the bot's `translate-mode.helper.ts` passes a no-op `lookupContext` function (`async () => undefined`) when `classifyInput()` returns `type: 'sentence'`. The enrichment module processes it normally, receiving `undefined` from the no-op lookup, and translation proceeds without dictionary context. This approach keeps the enrichment layer simple and unaware of input classification.
+
 ## Reference
 
 - Architecture: `docs/tech-reqs/02-architecture.md`

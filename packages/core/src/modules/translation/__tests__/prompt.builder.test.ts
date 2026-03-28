@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
+import { SENTENCE_OUTPUT } from "../translation-output.presets.js";
 import type { TranslationRequest } from "../types.js";
 
 describe("buildTranslationPrompt", () => {
@@ -159,5 +160,114 @@ describe("buildStrictPrompt", () => {
     const prompt = buildStrictPrompt(baseRequest, ["error"]);
     expect(prompt).toContain("fix these issues");
     expect(prompt).toContain("Double-check");
+  });
+});
+
+// ─── Sentence-aware prompt Tests ──────────────────────────
+
+describe("buildTranslationPrompt with inputType=sentence", () => {
+  const sentenceRequest: TranslationRequest = {
+    text: "Can you tell me where the nearest pharmacy is?",
+    sourceLang: "en",
+    targetLangs: ["cs", "de"],
+    outputConfig: SENTENCE_OUTPUT,
+    inputType: "sentence",
+  };
+
+  it("uses 'Translate the following sentence' intro for sentences", () => {
+    const prompt = buildTranslationPrompt(sentenceRequest);
+    expect(prompt).toContain("Translate the following sentence from English to Czech, German:");
+    expect(prompt).toContain('"Can you tell me where the nearest pharmacy is?"');
+  });
+
+  it("does not use 'Translate \"...\"' format for sentences", () => {
+    const prompt = buildTranslationPrompt(sentenceRequest);
+    // The word-style format wraps text inline: Translate "text" from ...
+    // Sentence format puts text on the next line after a colon
+    expect(prompt).not.toMatch(/^Translate "Can you tell me/m);
+  });
+
+  it("CEFR rule says 'overall difficulty of the sentence' for sentences", () => {
+    const prompt = buildTranslationPrompt(sentenceRequest);
+    expect(prompt).toContain("overall difficulty of the sentence");
+    expect(prompt).not.toContain("difficulty of the translated word");
+  });
+
+  it("omits synonyms, alternatives, examples, equivalentNote (via SENTENCE_OUTPUT)", () => {
+    const prompt = buildTranslationPrompt(sentenceRequest);
+    expect(prompt).not.toContain('"synonyms"');
+    expect(prompt).not.toContain('"alternatives"');
+    expect(prompt).not.toContain('"examples"');
+    expect(prompt).not.toContain('"expressionType"');
+    expect(prompt).not.toContain("Idiomatic & Proverb Rule");
+  });
+
+  it("keeps transcription in sentence prompt (SENTENCE_OUTPUT has includeTranscription: true)", () => {
+    const prompt = buildTranslationPrompt(sentenceRequest);
+    expect(prompt).toContain('"transcription"');
+  });
+
+  it("topic hint says 'sentence' instead of 'word' for sentences", () => {
+    const prompt = buildTranslationPrompt({ ...sentenceRequest, topic: "travel" });
+    expect(prompt).toContain('The sentence is used in the context of: "travel"');
+    expect(prompt).not.toContain("The word is used");
+  });
+});
+
+describe("buildTranslationPrompt with inputType=word (backward compat)", () => {
+  const wordRequest: TranslationRequest = {
+    text: "hello",
+    sourceLang: "en",
+    targetLangs: ["cs"],
+    inputType: "word",
+  };
+
+  it("uses standard 'Translate \"...\"' format for words", () => {
+    const prompt = buildTranslationPrompt(wordRequest);
+    expect(prompt).toContain('Translate "hello" from English to Czech.');
+  });
+
+  it("CEFR rule says 'difficulty of the translated word' for words", () => {
+    const prompt = buildTranslationPrompt(wordRequest);
+    expect(prompt).toContain("difficulty of the translated word");
+  });
+});
+
+describe("buildTranslationPrompt with inputType absent (backward compat)", () => {
+  const noTypeRequest: TranslationRequest = {
+    text: "hello",
+    sourceLang: "en",
+    targetLangs: ["cs"],
+  };
+
+  it("uses standard 'Translate \"...\"' format when inputType is absent", () => {
+    const prompt = buildTranslationPrompt(noTypeRequest);
+    expect(prompt).toContain('Translate "hello" from English to Czech.');
+  });
+
+  it("CEFR rule says 'difficulty of the translated word' when inputType absent", () => {
+    const prompt = buildTranslationPrompt(noTypeRequest);
+    expect(prompt).toContain("difficulty of the translated word");
+  });
+});
+
+describe("buildStrictPrompt with inputType=sentence", () => {
+  const sentenceRequest: TranslationRequest = {
+    text: "Where is the train station?",
+    sourceLang: "en",
+    targetLangs: ["de"],
+    outputConfig: SENTENCE_OUTPUT,
+    inputType: "sentence",
+  };
+
+  it("strict prompt also uses sentence-style intro", () => {
+    const prompt = buildStrictPrompt(sentenceRequest, ["some error"]);
+    expect(prompt).toContain("Translate the following sentence from English to German:");
+  });
+
+  it("strict prompt includes error feedback for sentences", () => {
+    const prompt = buildStrictPrompt(sentenceRequest, ["[schema] missing text field"]);
+    expect(prompt).toContain("missing text field");
+    expect(prompt).toContain("previous response had validation errors");
   });
 });

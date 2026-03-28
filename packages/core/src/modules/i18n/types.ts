@@ -57,7 +57,8 @@ export type I18nKey =
   | "dictionaryContext"
   | "detectedLang"
   | "nextTranslationFrom"
-  | "nextSourceSet";
+  | "nextSourceSet"
+  | "sentenceTranslation";
 
 /**
  * Supported interface languages.

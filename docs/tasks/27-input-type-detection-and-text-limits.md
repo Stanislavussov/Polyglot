@@ -1,6 +1,6 @@
 # Task 27: Input Type Detection (Phrase vs Sentence) & Adaptive Translation Pipeline
 
-**Status:** 🔲 To Do
+**Status:** 🟡 In Progress
 
 ## Description
 
@@ -43,9 +43,11 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ## Subtasks
 
-### Step 1: Create an `InputClassifier` module in core
+### Step 1: Create an `InputClassifier` module ~~in core~~ (implemented in bot layer)
 
-- [ ] Create `packages/core/src/modules/input-classifier/`:
+> **Implementation note:** The classifier was implemented as `apps/bot/src/utils/classify-input.ts` in the bot layer instead of `packages/core/src/modules/input-classifier/`. The `InputType` type itself was added to `packages/core/src/modules/translation/types.ts` and `packages/core/src/modules/validation/types.ts` for cross-layer use. Functionality is identical to the spec below.
+
+- [ ] ~~Create `packages/core/src/modules/input-classifier/`:~~ (placed in `apps/bot/src/utils/classify-input.ts` instead)
   - `types.ts` — `InputType`, `InputClassification`, `InputClassifierConfig`
   - `input-classifier.ts` — pure, stateless classification
   - `index.ts` — re-export public surface
@@ -86,7 +88,7 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ### Step 2: Add `SENTENCE_OUTPUT` preset + `InputType` to `TranslateInput`
 
-- [ ] In `packages/core/src/modules/translation/translation-output.presets.ts`, add:
+- [x] In `packages/core/src/modules/translation/translation-output.presets.ts`, add:
   ```ts
   /** Sentence translation — just translation text + transcription, no learning metadata */
   export const SENTENCE_OUTPUT: TranslationOutputConfig = {
@@ -97,7 +99,7 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
     includeEquivalentNote: false,
   };
   ```
-- [ ] In `packages/core/src/modules/translation/types.ts`, add optional `inputType` field to `TranslateInput`:
+- [x] In `packages/core/src/modules/translation/types.ts`, add optional `inputType` field to `TranslateInput`:
   ```ts
   interface TranslateInput {
     // ... existing fields ...
@@ -105,16 +107,16 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
     inputType?: 'word' | 'phrase' | 'sentence';
   }
   ```
-- [ ] Re-export `SENTENCE_OUTPUT` from `packages/core/src/index.ts`
+- [x] Re-export `SENTENCE_OUTPUT` from `packages/core/src/index.ts` (via translation module index.ts wildcard re-export)
 
 ### Step 3: Adapt the prompt builder for sentences
 
-- [ ] In `packages/core/src/modules/translation/prompt.builder.ts`:
+- [x] In `packages/core/src/modules/translation/prompt.builder.ts`:
   - `buildTranslationPrompt()` already respects `outputConfig` — when `SENTENCE_OUTPUT` disables examples/synonyms/alternatives/equivalentNote, those sections are already omitted from the prompt template.
   - **However**, the prompt intro still says `Translate "<text>"` and the rules mention "word difficulty" and "translated word". Add `inputType` awareness:
     - When `request.inputType === 'sentence'`: change prompt intro to `Translate the following sentence from ... to ...` (instead of `Translate "<text>"`), remove the "word difficulty" phrasing from CEFR rule, simplify rules section.
     - When `request.inputType` is `'word'` / `'phrase'` or absent: keep current prompt (backward compatible).
-  - Add `inputType?: InputType` to `TranslationRequest` type.
+  - ✅ Added `inputType?: InputType` to `TranslationRequest` type.
   - Rough change to prompt builder:
     ```ts
     const isSentence = request.inputType === 'sentence';
@@ -126,13 +128,13 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ### Step 4: Adapt the Zod schema builder for sentences
 
-- [ ] In `packages/core/src/modules/translation/schemas/translation.schema.ts`:
+- [x] In `packages/core/src/modules/translation/schemas/translation.schema.ts`:
   - `buildLanguageTranslationSchema(config?)` already relaxes disabled fields (examples default to `[]`, synonyms default to `[]`). When `SENTENCE_OUTPUT` is passed, these fields are already relaxed. **No schema changes needed** — the existing config-aware builder handles it.
   - Verify: with `SENTENCE_OUTPUT`, the built schema should accept `{ text, cefr, register, transcription? }` with empty synonyms/examples and no alternatives/equivalentNote.
 
 ### Step 5: Adapt the validation pipeline for sentences
 
-- [ ] In `packages/core/src/modules/validation/index.ts`, the `validate()` function:
+- [x] In `packages/core/src/modules/validation/index.ts`, the `validate()` function:
   - Currently runs: schema → semantic → language → examples → alternatives (for every input).
   - For sentences, example validation and alternatives validation are meaningless (those fields are empty).
   - **The existing code already handles this gracefully**: example validation only runs when `examples && Array.isArray(examples) && translationText`, and alternatives validation only runs when `alternatives && Array.isArray(alternatives)`. With `SENTENCE_OUTPUT`, the AI returns empty arrays / undefined → those checks are skipped naturally.
@@ -143,11 +145,11 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
       function validate(raw, schema, original, expectedLangs, inputType?): ValidationResult
       ```
     - When `inputType === 'sentence'`, skip semantic validation entirely (sentence translations are naturally more similar to originals and the "translation ≠ original" check is not meaningful for sentences).
-  - Update the translation service to pass `inputType` through to `validate()`.
+  - ✅ Updated the translation service to pass `inputType` through to `validate()`.
 
 ### Step 6: Adapt the rendering layer for sentences
 
-- [ ] In `apps/bot/src/renderers/translation.renderer.ts`:
+- [x] In `apps/bot/src/renderers/translation.renderer.ts`:
   - Add `renderSentenceTranslation(output: TranslateOutput, interfaceLang?: string): string`:
     ```ts
     /**
@@ -173,7 +175,7 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ### Step 7: Adapt the translate-mode helper (main integration point)
 
-- [ ] In `apps/bot/src/scenes/helpers/translate-mode.helper.ts`, in `handleTranslateText()`:
+- [x] In `apps/bot/src/scenes/helpers/translate-mode.helper.ts`, in `handleTranslateText()`:
   1. After receiving `word`, call `classifyInput(word)` from `@polyglot/core`
   2. Select output preset: `classification.type === 'sentence' ? SENTENCE_OUTPUT : FULL_OUTPUT`
   3. For sentences, skip dictionary context lookup (no `lookupContext` call)
@@ -191,13 +193,13 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ### Step 8: Adapt the context-enrichment layer for sentences
 
-- [ ] In `packages/core/src/modules/context-enrichment/` (or wherever `translateWithContext` lives):
-  - When `input.inputType === 'sentence'`, skip the Wiktionary `lookupContext()` call entirely — dictionary context is per-word, not per-sentence.
-  - Pass `inputType` through to the underlying `translate()` call.
+> **Implementation note:** The context-enrichment module was NOT modified. Instead, the bot's `translate-mode.helper.ts` passes a no-op `lookupContext` function (`async () => undefined`) when the input is a sentence, achieving the same result at the caller level.
+
+- [ ] ~~In `packages/core/src/modules/context-enrichment/`~~: Sentence dictionary skip is handled at the bot layer (no-op `lookupContext`) instead of modifying the enrichment module. The `inputType` is passed through to `translate()` via `translateWithContext()` input.
 
 ### Step 9: Adapt the regen helper for sentences
 
-- [ ] In `apps/bot/src/scenes/helpers/regen.helper.ts`:
+- [x] In `apps/bot/src/scenes/helpers/regen.helper.ts`:
   - The regen helper currently uses `FULL_OUTPUT` and `buildTranslationKeyboard` (with Save/Skip).
   - It needs to know whether the current translation is a sentence to use the right preset and keyboard.
   - **Option A (simple)**: Store `inputType` in session alongside `pendingTranslation`. But sentences don't store `pendingTranslation`.
@@ -217,12 +219,12 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ### Step 10: Add i18n keys
 
-- [ ] In `packages/core/src/modules/i18n/locales/{en,ru,cs}.json`, add:
+- [x] In `packages/core/src/modules/i18n/locales/{en,ru,cs}.json`, add:
   ```json
   "sentenceTranslation": "📝 Sentence translation"
   ```
   This label is shown above the translation card for sentences to set user expectations (no save option).
-- [ ] Update `TranslationKey` union type in `packages/core/src/modules/i18n/types.ts`
+- [x] Update `TranslationKey` union type in `packages/core/src/modules/i18n/types.ts`
 
 ### Step 11: Add config env var (optional tuning)
 
@@ -234,8 +236,8 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ### Step 12: Write tests
 
-**Core — input classifier:**
-- [ ] `packages/core/src/modules/input-classifier/__tests__/input-classifier.test.ts`:
+**Core — input classifier:** (implemented in bot layer: `apps/bot/src/utils/classify-input.test.ts` — 18 tests ✅)
+- [x] ~~`packages/core/src/modules/input-classifier/__tests__/input-classifier.test.ts`~~:
   - `"hello"` → `{ type: 'word', wordCount: 1, hasSentencePunctuation: false }`
   - `"good morning"` → `{ type: 'word', wordCount: 2, hasSentencePunctuation: false }`
   - `"how are you doing"` → `{ type: 'phrase', wordCount: 4, hasSentencePunctuation: false }`
@@ -249,45 +251,45 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
   - Single long word → `{ type: 'word', wordCount: 1 }`
 
 **Core — prompt builder:**
-- [ ] In `packages/core/src/modules/translation/__tests__/prompt.builder.test.ts`, add:
+- [x] In `packages/core/src/modules/translation/__tests__/prompt.builder.test.ts`, add:
   - When `inputType === 'sentence'` → prompt contains "Translate the following sentence" (not `Translate "..."`)
   - When `inputType === 'sentence'` → no "synonyms", no "alternatives", no "example sentences" in prompt text
   - When `inputType === 'word'` or absent → current prompt format (backward compat)
 
 **Core — validation:**
-- [ ] In `packages/core/src/modules/validation/__tests__/validate.test.ts`, add:
+- [x] In `packages/core/src/modules/validation/__tests__/validate.test.ts`, add:
   - When `inputType === 'sentence'` → semantic validation is skipped
   - When `inputType` is absent → full validation runs (backward compat)
 
 **Core — preset:**
-- [ ] `SENTENCE_OUTPUT` has correct field values (all disabled except transcription)
+- [x] `SENTENCE_OUTPUT` has correct field values (all disabled except transcription)
 
 **Bot — renderer:**
-- [ ] `renderSentenceTranslation()` produces compact card (no CEFR, no synonyms, no examples)
-- [ ] `buildSentenceKeyboard()` returns keyboard with regen buttons only, no Save/Skip
+- [x] `renderSentenceTranslation()` produces compact card (no CEFR, no synonyms, no examples)
+- [x] `buildSentenceKeyboard()` returns keyboard with regen buttons only, no Save/Skip
 
 **Bot — i18n:**
-- [ ] `sentenceTranslation` key resolves in en/ru/cs
+- [x] `sentenceTranslation` key resolves in en/ru/cs (via i18n agent)
 
 **All:**
-- [ ] All existing tests continue to pass
+- [x] All existing tests continue to pass
 
 ### Step 13: Update docs
 
 - [ ] Update `docs/tech-reqs/13-env.md` — document `INPUT_MAX_PHRASE_WORDS`
-- [ ] Update `.pi/skills/translation/SKILL.md`:
+- [x] Update `.pi/skills/translation/SKILL.md`:
   - Add `SENTENCE_OUTPUT` to preset table
   - Add `inputType` to `TranslateInput` / `TranslationRequest` types
   - Update caller→preset mapping table
   - Update prompt builder section (sentence-aware)
   - Update translation flow diagram (classifier step)
-- [ ] Update `.pi/skills/validation/SKILL.md`:
+- [x] Update `.pi/skills/validation/SKILL.md`:
   - Add `inputType` parameter to `validate()` signature
   - Document sentence validation behavior (semantic skipped)
-- [ ] Update `.pi/skills/bot/SKILL.md`:
+- [x] Update `.pi/skills/bot/SKILL.md`:
   - Document `renderSentenceTranslation()`, `buildSentenceKeyboard()`
   - Document session changes (`lastTranslation`, `lastInputType`)
-- [ ] Update `.pi/skills/context-enrichment/SKILL.md`:
+- [x] Update `.pi/skills/context-enrichment/SKILL.md`:
   - Document sentence skip behavior (no Wiktionary lookup)
 
 ---
@@ -378,14 +380,14 @@ Plus: no validation retries triggered by irrelevant checks → further savings.
 
 | Package | Change scope | Notes |
 |---|---|---|
-| `packages/core/` | New `input-classifier` module (pure) | No bot or DB imports |
+| `apps/bot/` | New `utils/classify-input.ts` — input classifier | Placed in bot layer (not core) |
 | `packages/core/` | New `SENTENCE_OUTPUT` preset | One-line addition to presets file |
 | `packages/core/` | `translation/types.ts` — add `inputType` to `TranslateInput`, `TranslationRequest` | Type-only change |
 | `packages/core/` | `translation/prompt.builder.ts` — sentence-aware intro + rules | ~15 lines changed |
 | `packages/core/` | `validation/index.ts` — `inputType` param, skip semantic for sentences | ~5 lines changed |
 | `packages/core/` | `i18n` locales — 1 new key | Standard i18n update |
-| `packages/core/` | `context-enrichment/` — skip lookup for sentences | ~3 lines changed |
-| `packages/infra/` | `config.ts` — 1 env field | Optional tuning |
+| ~~`packages/core/`~~ | ~~`context-enrichment/` — skip lookup for sentences~~ | Handled at bot layer (no-op lookupContext) |
+| ~~`packages/infra/`~~ | ~~`config.ts` — 1 env field~~ | Not implemented |
 | `apps/bot/` | `translate-mode.helper.ts` — classifier + branching | ~25 lines changed |
 | `apps/bot/` | `translation.renderer.ts` — new render + keyboard functions | ~30 lines added |
 | `apps/bot/` | `regen.helper.ts` — sentence-aware preset + keyboard | ~10 lines changed |
@@ -396,10 +398,12 @@ Plus: no validation retries triggered by irrelevant checks → further savings.
 ## Files to Create / Modify
 
 **Create:**
-- `packages/core/src/modules/input-classifier/types.ts`
-- `packages/core/src/modules/input-classifier/input-classifier.ts`
-- `packages/core/src/modules/input-classifier/index.ts`
-- `packages/core/src/modules/input-classifier/__tests__/input-classifier.test.ts`
+- ~~`packages/core/src/modules/input-classifier/types.ts`~~ — not created in core; implemented in bot layer instead
+- ~~`packages/core/src/modules/input-classifier/input-classifier.ts`~~ — not created in core; implemented in bot layer instead
+- ~~`packages/core/src/modules/input-classifier/index.ts`~~ — not created in core; implemented in bot layer instead
+- ~~`packages/core/src/modules/input-classifier/__tests__/input-classifier.test.ts`~~ — not created in core; implemented in bot layer instead
+- `apps/bot/src/utils/classify-input.ts` ✅ (input classifier: types + classification function)
+- `apps/bot/src/utils/classify-input.test.ts` ✅ (18 tests)
 
 **Modify (core — translation):**
 - `packages/core/src/modules/translation/translation-output.presets.ts` — add `SENTENCE_OUTPUT`
@@ -413,7 +417,7 @@ Plus: no validation retries triggered by irrelevant checks → further savings.
 - `packages/core/src/modules/validation/__tests__/validate.test.ts` — sentence validation tests
 
 **Modify (core — context-enrichment):**
-- Context-enrichment module — skip Wiktionary lookup for sentences
+- ~~Context-enrichment module — skip Wiktionary lookup for sentences~~ — NOT modified; sentence skip handled at bot layer (no-op `lookupContext`)
 
 **Modify (core — i18n):**
 - `packages/core/src/modules/i18n/locales/en.json` — 1 new key
@@ -422,10 +426,10 @@ Plus: no validation retries triggered by irrelevant checks → further savings.
 - `packages/core/src/modules/i18n/types.ts` — extend `TranslationKey`
 
 **Modify (core — exports):**
-- `packages/core/src/index.ts` — re-export `input-classifier` + `SENTENCE_OUTPUT`
+- `packages/core/src/index.ts` — ~~re-export `input-classifier` +~~ `SENTENCE_OUTPUT` re-exported via `translation/index.ts` wildcard
 
 **Modify (infra):**
-- `packages/infra/src/config.ts` — add `INPUT_MAX_PHRASE_WORDS`
+- ~~`packages/infra/src/config.ts` — add `INPUT_MAX_PHRASE_WORDS`~~ — NOT implemented; classifier uses hardcoded defaults (maxWordTokens: 2, maxPhraseTokens: 6) with config override via function parameter
 
 **Modify (bot):**
 - `apps/bot/src/types.ts` — add `lastTranslation`, `lastInputType` to `SessionData`
@@ -434,11 +438,11 @@ Plus: no validation retries triggered by irrelevant checks → further savings.
 - `apps/bot/src/renderers/translation.renderer.ts` — add `renderSentenceTranslation()`, `buildSentenceKeyboard()`
 
 **Modify (docs):**
-- `docs/tech-reqs/13-env.md` — document `INPUT_MAX_PHRASE_WORDS`
-- `.pi/skills/translation/SKILL.md` — preset table, inputType, prompt, flow
-- `.pi/skills/validation/SKILL.md` — inputType param, sentence behavior
-- `.pi/skills/bot/SKILL.md` — new renderer/keyboard, session changes
-- `.pi/skills/context-enrichment/SKILL.md` — sentence skip
+- ~~`docs/tech-reqs/13-env.md` — document `INPUT_MAX_PHRASE_WORDS`~~ — NOT needed (env var not implemented)
+- `.pi/skills/translation/SKILL.md` — ✅ preset table, inputType, prompt, flow
+- `.pi/skills/validation/SKILL.md` — ✅ inputType param, sentence behavior
+- `.pi/skills/bot/SKILL.md` — ✅ new renderer/keyboard, session changes
+- `.pi/skills/context-enrichment/SKILL.md` — ✅ sentence skip (caller-level, not module-level)
 
 ---
 
@@ -470,26 +474,26 @@ Plus: no validation retries triggered by irrelevant checks → further savings.
 
 ## Acceptance Criteria
 
-- [ ] `classifyInput("hello")` returns `{ type: 'word' }`
-- [ ] `classifyInput("how are you doing")` returns `{ type: 'phrase' }`
-- [ ] `classifyInput("Can you tell me where the nearest pharmacy is?")` returns `{ type: 'sentence' }`
-- [ ] Sending a word in translate mode → full translation card with Save/Skip/Regen keyboard
-- [ ] Sending a phrase in translate mode → full translation card with Save/Skip/Regen keyboard
-- [ ] Sending a sentence (>6 words) in translate mode → compact card with Regen-only keyboard, `sentenceTranslation` label, no Save option
-- [ ] Sentence translations use `SENTENCE_OUTPUT` preset (no synonyms, no alternatives, no examples, no equivalent note)
-- [ ] Sentence translations skip Wiktionary dictionary context lookup
-- [ ] Sentence prompt says "Translate the following sentence" (not "Translate word")
-- [ ] Sentence validation skips semantic check (no false "translation = original" failures)
-- [ ] Sentence rendering shows only translation text + transcription (no CEFR, synonyms, examples, alternatives)
-- [ ] `buildSentenceKeyboard()` returns keyboard with regen buttons only (no Save/Skip)
-- [ ] Regen for sentences uses `SENTENCE_OUTPUT` preset and sentence keyboard
-- [ ] Word/phrase behavior is completely unchanged (backward compatible)
-- [ ] `SENTENCE_OUTPUT` preset exists and is re-exported from `@polyglot/core`
-- [ ] `sentenceTranslation` i18n key resolves in en/ru/cs
+- [x] `classifyInput("hello")` returns `{ type: 'word' }`
+- [x] `classifyInput("how are you doing")` returns `{ type: 'phrase' }`
+- [x] `classifyInput("Can you tell me where the nearest pharmacy is?")` returns `{ type: 'sentence' }`
+- [x] Sending a word in translate mode → full translation card with Save/Skip/Regen keyboard
+- [x] Sending a phrase in translate mode → full translation card with Save/Skip/Regen keyboard
+- [x] Sending a sentence (>6 words) in translate mode → compact card with Regen-only keyboard, `sentenceTranslation` label, no Save option
+- [x] Sentence translations use `SENTENCE_OUTPUT` preset (no synonyms, no alternatives, no examples, no equivalent note)
+- [x] Sentence translations skip Wiktionary dictionary context lookup
+- [x] Sentence prompt says "Translate the following sentence" (not "Translate word")
+- [x] Sentence validation skips semantic check (no false "translation = original" failures)
+- [x] Sentence rendering shows only translation text + transcription (no CEFR, synonyms, examples, alternatives)
+- [x] `buildSentenceKeyboard()` returns keyboard with regen buttons only (no Save/Skip)
+- [x] Regen for sentences uses `SENTENCE_OUTPUT` preset and sentence keyboard
+- [x] Word/phrase behavior is completely unchanged (backward compatible)
+- [x] `SENTENCE_OUTPUT` preset exists and is re-exported from `@polyglot/core`
+- [x] `sentenceTranslation` i18n key resolves in en/ru/cs
 - [ ] `INPUT_MAX_PHRASE_WORDS` env var has working default (6); missing value does not crash
-- [ ] All unit tests for `classifyInput` pass (≥11 cases)
-- [ ] Prompt builder tests cover sentence vs word/phrase prompt differences
-- [ ] Validation tests cover sentence-mode semantic skip
-- [ ] Renderer tests cover `renderSentenceTranslation` and `buildSentenceKeyboard`
-- [ ] All existing tests pass without modification
+- [x] All unit tests for `classifyInput` pass (≥11 cases)
+- [x] Prompt builder tests cover sentence vs word/phrase prompt differences
+- [x] Validation tests cover sentence-mode semantic skip
+- [x] Renderer tests cover `renderSentenceTranslation` and `buildSentenceKeyboard`
+- [x] All existing tests pass without modification
 - [ ] All packages build: `pnpm -r run build`

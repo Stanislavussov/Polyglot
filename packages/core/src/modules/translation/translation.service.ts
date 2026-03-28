@@ -56,6 +56,7 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
     topic: input.topic,
     dictionaryContext: input.dictionaryContext,
     outputConfig: input.outputConfig,
+    inputType: input.inputType,
   };
 
   console.log("[translation] starting translation request", {
@@ -104,7 +105,8 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
 
     // Step 3: Validate response (use the same config-aware schema
     // so disabled fields like examples don't trigger false failures)
-    const validation = validate(result, schema, input.word, input.targetLangs);
+    // Pass inputType so validation can skip semantic checks for sentences.
+    const validation = validate(result, schema, input.word, input.targetLangs, input.inputType);
 
     // Step 4: On PASS → return result
     if (validation.valid) {

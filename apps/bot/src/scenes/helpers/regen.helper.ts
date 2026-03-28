@@ -5,9 +5,22 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { generateObject } from "@polyglot/adapter-ai";
 import { wordRepository } from "@polyglot/adapter-db";
-import { FULL_OUTPUT, type SupportedLang, type TranslateOutput, t, translateOne } from "@polyglot/core";
+import {
+  FULL_OUTPUT,
+  type InputType,
+  SENTENCE_OUTPUT,
+  type SupportedLang,
+  type TranslateOutput,
+  t,
+  translateOne,
+} from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
-import { buildTranslationKeyboard, renderTranslation } from "../../renderers/translation.renderer.js";
+import {
+  buildSentenceKeyboard,
+  buildTranslationKeyboard,
+  renderSentenceTranslation,
+  renderTranslation,
+} from "../../renderers/translation.renderer.js";
 import type { BotContext, ConversationContext } from "../../types.js";
 
 type TranslateConversation = Conversation<BotContext, ConversationContext>;
@@ -20,14 +33,25 @@ export async function handleRegenLoop(
   lang: SupportedLang,
   userId: number,
   cardMsgId: number,
+  inputType?: InputType,
 ): Promise<void> {
+  const isSentence = inputType === "sentence";
   let current = output;
   const langCodes = Object.keys(current.translations);
-  let card = renderTranslation(current, lang);
-  let keyboard = buildTranslationKeyboard(langCodes, lang);
+  const renderCard = isSentence ? renderSentenceTranslation : renderTranslation;
+  const buildKeyboard = isSentence ? buildSentenceKeyboard : buildTranslationKeyboard;
+  const outputConfig = isSentence ? SENTENCE_OUTPUT : FULL_OUTPUT;
+
+  let card = renderCard(current, lang);
+  let keyboard = buildKeyboard(langCodes, lang);
+
+  // For sentences, only support regen — no save/skip
+  const callbackPattern = isSentence
+    ? /^tr:regen:.+$/
+    : /^tr:(save|skip|regen:.+)$/;
 
   while (true) {
-    const resp = await conversation.waitForCallbackQuery(/^tr:(save|skip|regen:.+)$/, {
+    const resp = await conversation.waitForCallbackQuery(callbackPattern, {
       otherwise: async (c) => {
         await c.reply(card, { reply_markup: keyboard, parse_mode: "HTML" });
       },
@@ -35,7 +59,7 @@ export async function handleRegenLoop(
     await resp.answerCallbackQuery();
     const data = resp.callbackQuery.data;
 
-    if (data === "tr:save") {
+    if (!isSentence && data === "tr:save") {
       await conversation.external(async () => {
         await wordRepository.create(userId, {
           original: current.original,
@@ -43,13 +67,13 @@ export async function handleRegenLoop(
           content: current,
         });
       });
-      const saved = `${renderTranslation(current, lang)}\n\n${t("savedToDict", lang)}`;
+      const saved = `${renderCard(current, lang)}\n\n${t("savedToDict", lang)}`;
       await resp.editMessageText(saved, { parse_mode: "HTML" });
       return;
     }
 
-    if (data === "tr:skip") {
-      await resp.editMessageText(renderTranslation(current, lang), {
+    if (!isSentence && data === "tr:skip") {
+      await resp.editMessageText(renderCard(current, lang), {
         parse_mode: "HTML",
       });
       return;
@@ -74,7 +98,8 @@ export async function handleRegenLoop(
             targetLang: regenLang,
             model: config.AI_MODEL,
             userId,
-            outputConfig: FULL_OUTPUT,
+            outputConfig,
+            inputType,
           },
           generateObject,
         );
@@ -89,8 +114,8 @@ export async function handleRegenLoop(
     }
 
     // Re-render card and keyboard
-    card = renderTranslation(current, lang);
-    keyboard = buildTranslationKeyboard(langCodes, lang);
+    card = renderCard(current, lang);
+    keyboard = buildKeyboard(langCodes, lang);
     await ctx.api.editMessageText(ctx.chat!.id, cardMsgId, card, {
       reply_markup: keyboard,
       parse_mode: "HTML",
