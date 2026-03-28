@@ -35,13 +35,15 @@ function validLangEntry(overrides?: Record<string, unknown>) {
 // ─── Preset Tests ─────────────────────────────────────────
 
 describe("presets", () => {
-  it("FULL_OUTPUT has all fields set to true except includeExamples", () => {
+  it("FULL_OUTPUT has all fields set to true except includeExamples, includeCefr, includeRegister", () => {
     expect(FULL_OUTPUT).toEqual({
       includeExamples: false,
       includeTranscription: true,
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
+      includeCefr: false,
+      includeRegister: false,
     });
   });
 
@@ -52,6 +54,8 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
+      includeCefr: false,
+      includeRegister: false,
     });
   });
 
@@ -62,6 +66,8 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
+      includeCefr: false,
+      includeRegister: false,
     });
   });
 
@@ -72,6 +78,8 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
+      includeCefr: false,
+      includeRegister: false,
     });
   });
 });
@@ -143,12 +151,12 @@ describe("buildTranslationPrompt with outputConfig", () => {
     expect(withUndefined).toBe(withoutConfig);
   });
 
-  it("MINIMAL_OUTPUT preset → prompt has text, cefr, register, transcription but not examples/synonyms/alternatives/expressionType", () => {
+  it("MINIMAL_OUTPUT preset → prompt has text, transcription but not cefr/register/examples/synonyms/alternatives/expressionType", () => {
     const prompt = promptWith(MINIMAL_OUTPUT);
     expect(prompt).toContain('"text"');
-    expect(prompt).toContain('"cefr"');
-    expect(prompt).toContain('"register"');
     expect(prompt).toContain('"transcription"');
+    expect(prompt).not.toContain('"cefr"');
+    expect(prompt).not.toContain('"register"');
     expect(prompt).not.toContain('"examples"');
     expect(prompt).not.toContain('"synonyms"');
     expect(prompt).not.toContain('"alternatives"');

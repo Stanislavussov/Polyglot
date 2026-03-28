@@ -114,6 +114,8 @@ describe("handleTranslateText — context enrichment", () => {
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
+      includeCefr: false,
+      includeRegister: false,
     });
   });
 

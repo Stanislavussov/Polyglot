@@ -187,10 +187,17 @@ describe("buildTranslationPrompt with inputType=sentence", () => {
     expect(prompt).not.toMatch(/^Translate "Can you tell me/m);
   });
 
-  it("CEFR rule says 'overall difficulty of the sentence' for sentences", () => {
-    const prompt = buildTranslationPrompt(sentenceRequest);
+  it("CEFR rule says 'overall difficulty of the sentence' for sentences when includeCefr is true", () => {
+    const requestWithCefr = { ...sentenceRequest, outputConfig: { ...SENTENCE_OUTPUT, includeCefr: true } };
+    const prompt = buildTranslationPrompt(requestWithCefr);
     expect(prompt).toContain("overall difficulty of the sentence");
     expect(prompt).not.toContain("difficulty of the translated word");
+  });
+
+  it("CEFR rule is omitted for sentences when includeCefr is false (default SENTENCE_OUTPUT)", () => {
+    const prompt = buildTranslationPrompt(sentenceRequest);
+    expect(prompt).not.toContain("overall difficulty of the sentence");
+    expect(prompt).not.toContain("CEFR level");
   });
 
   it("omits synonyms, alternatives, examples, equivalentNote (via SENTENCE_OUTPUT)", () => {

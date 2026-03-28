@@ -174,6 +174,8 @@ describe("handleRegenLoop", () => {
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
+      includeCefr: false,
+      includeRegister: false,
     });
   });
 

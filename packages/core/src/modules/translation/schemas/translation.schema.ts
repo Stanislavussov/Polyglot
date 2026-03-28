@@ -96,12 +96,14 @@ export const translationResultSchema = z.object({
 export function buildLanguageTranslationSchema(config?: TranslationOutputConfig) {
   const includeExamples = config?.includeExamples !== false;
   const includeSynonyms = config?.includeSynonyms !== false;
+  const includeCefr = config?.includeCefr !== false;
+  const includeRegister = config?.includeRegister !== false;
 
   return z.object({
     text: z.string().min(1, "Translation text is required"),
-    cefr: cefrEnum,
+    cefr: includeCefr ? cefrEnum : cefrEnum.optional().default("A1"),
     transcription: z.string().optional(),
-    register: registerEnum,
+    register: includeRegister ? registerEnum : registerEnum.optional().default("neutral"),
     synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema).default([]),
     examples: includeExamples
       ? z.array(exampleSchema).min(1, "At least one example is required")
@@ -125,6 +127,7 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig)
  * @returns Zod schema with explicit required language keys
  */
 export function buildTranslationResultSchema(targetLangs: string[], config?: TranslationOutputConfig) {
+  const includeRegister = config?.includeRegister !== false;
   const langSchema = buildLanguageTranslationSchema(config);
   const langEntries: Record<string, typeof langSchema> = {};
   for (const lang of targetLangs) {
@@ -133,7 +136,7 @@ export function buildTranslationResultSchema(targetLangs: string[], config?: Tra
 
   return z.object({
     emoji: z.string().min(1, "Emoji is required"),
-    register: registerEnum,
+    register: includeRegister ? registerEnum : registerEnum.optional().default("neutral"),
     translations: z.object(langEntries),
   });
 }

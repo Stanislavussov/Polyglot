@@ -20,6 +20,8 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
     includeSynonyms: config?.includeSynonyms !== false,
     includeAlternatives: config?.includeAlternatives !== false,
     includeEquivalentNote: config?.includeEquivalentNote !== false,
+    includeCefr: config?.includeCefr !== false,
+    includeRegister: config?.includeRegister !== false,
   };
 }
 
@@ -50,19 +52,23 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
 Return ONLY valid JSON, no markdown, no explanation, no code fences.
 The JSON must have this exact structure:
 {
-  "emoji": "<one relevant emoji>",
-  "register": "<overall register: slang | colloquial | neutral | literary | professional>",
+  "emoji": "<one relevant emoji>",${cfg.includeRegister ? `
+  "register": "<overall register: slang | colloquial | neutral | literary | professional>",` : ""}
   "translations": {
 ${targetLangs
   .map((lang) => {
     const lines: string[] = [
       `      "text": "<translation in ${getLanguageName(lang)}>"`,
-      `      "cefr": "<CEFR level: A1 | A2 | B1 | B2 | C1 | C2>"`,
     ];
+    if (cfg.includeCefr) {
+      lines.push(`      "cefr": "<CEFR level: A1 | A2 | B1 | B2 | C1 | C2>"`);
+    }
     if (cfg.includeTranscription) {
       lines.push(`      "transcription": "<IPA transcription if applicable, otherwise omit>"`);
     }
-    lines.push(`      "register": "<register: slang | colloquial | neutral | literary | professional>"`);
+    if (cfg.includeRegister) {
+      lines.push(`      "register": "<register: slang | colloquial | neutral | literary | professional>"`);
+    }
     if (cfg.includeEquivalentNote) {
       lines.push(
         `      "expressionType": "<literal | idiomatic_equivalent — omit or set to literal for direct translations>"`,
@@ -116,7 +122,8 @@ Rules:${
 - Provide exactly 3 example sentences per language (formal, colloquial, professional).`
       : ""
   }
-- CEFR level should reflect the ${isSentence ? "overall difficulty of the sentence" : "difficulty of the translated word in that language"}.${
+${cfg.includeCefr ? `
+- CEFR level should reflect the ${isSentence ? "overall difficulty of the sentence" : "difficulty of the translated word in that language"}.` : ""}${
     cfg.includeTranscription
       ? `
 - Transcription is required for non-Latin scripts; optional otherwise.`
@@ -160,8 +167,12 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   }
   checkItems.push("- Translations are actual translations, not the original word repeated");
   checkItems.push("- All required fields are present");
-  checkItems.push("- Register values are exactly one of: slang, colloquial, neutral, literary, professional");
-  checkItems.push("- CEFR values are exactly one of: A1, A2, B1, B2, C1, C2");
+  if (cfg.includeRegister) {
+    checkItems.push("- Register values are exactly one of: slang, colloquial, neutral, literary, professional");
+  }
+  if (cfg.includeCefr) {
+    checkItems.push("- CEFR values are exactly one of: A1, A2, B1, B2, C1, C2");
+  }
   if (cfg.includeEquivalentNote) {
     checkItems.push(`- For idiomatic expressions, set expressionType to "idiomatic_equivalent" with an equivalentNote`);
   }

@@ -60,9 +60,9 @@ describe("renderTranslation", () => {
     expect(result).toContain("👋 <b>hello</b>");
   });
 
-  it("renders register label", () => {
+  it("does not render register label (disabled to save tokens)", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("Register: neutral");
+    expect(result).not.toContain("Register:");
   });
 
   it("renders language code in uppercase with flag from DB", () => {
@@ -80,9 +80,9 @@ describe("renderTranslation", () => {
     expect(result).toContain("[ˈahoj]");
   });
 
-  it("renders CEFR level", () => {
+  it("does not render CEFR level (disabled to save tokens)", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("CEFR: A1");
+    expect(result).not.toContain("CEFR:");
   });
 
   it("renders synonyms", () => {
@@ -122,14 +122,15 @@ describe("renderTranslation", () => {
 
   it("renders in Russian when interfaceLang is ru", () => {
     const result = renderTranslation(sampleOutput, "ru");
-    expect(result).toContain("Регистр: neutral");
+    expect(result).not.toContain("Регистр:");
     expect(result).toContain("Синонимы:");
     expect(result).toContain("Примеры:");
   });
 
   it("falls back to en for unknown interfaceLang", () => {
     const result = renderTranslation(sampleOutput, "xx");
-    expect(result).toContain("Register: neutral");
+    // Register is no longer rendered, verify synonyms use English
+    expect(result).toContain("Synonyms:");
   });
 
   it("renders without transcription when absent", () => {
@@ -440,12 +441,12 @@ describe("renderTranslation — alternatives", () => {
     expect(staveniLine).toBe("   ∙ stavení (literary)");
   });
 
-  it("renders alternatives before CEFR line", () => {
+  it("renders alternatives after main translation header", () => {
     const result = renderTranslation(outputWithAlternatives, "en");
+    const headerIdx = result.indexOf("CS:");
     const altIdx = result.indexOf("∙ domov");
-    const cefrIdx = result.indexOf("CEFR: A1");
-    expect(altIdx).toBeGreaterThan(-1);
-    expect(cefrIdx).toBeGreaterThan(altIdx);
+    expect(headerIdx).toBeGreaterThan(-1);
+    expect(altIdx).toBeGreaterThan(headerIdx);
   });
 
   it("does not render alternatives section when not present", () => {

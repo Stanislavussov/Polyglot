@@ -92,6 +92,8 @@ interface TranslationOutputConfig {
   includeSynonyms?: boolean;       // Default: true — 2–3 synonyms
   includeAlternatives?: boolean;   // Default: true — 2 alternative variants
   includeEquivalentNote?: boolean; // Default: true — idiomatic expression info
+  includeCefr?: boolean;           // Default: true — CEFR level (A1–C2)
+  includeRegister?: boolean;       // Default: true — register (slang/colloquial/neutral/literary/professional)
 }
 
 interface LanguageTranslation {
@@ -192,12 +194,12 @@ Centralized named presets in `translation-output.presets.ts` — single source o
 import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT } from "@polyglot/core";
 ```
 
-| Preset | Examples | Transcription | Synonyms | Alternatives | EquivalentNote |
-|---|---|---|---|---|---|
-| `FULL_OUTPUT` | ❌ | ✅ | ✅ | ✅ | ✅ |
-| `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ |
-| `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | ❌ |
-| `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Preset | Examples | Transcription | Synonyms | Alternatives | EquivalentNote | CEFR | Register |
+|---|---|---|---|---|---|---|---|
+| `FULL_OUTPUT` | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 **Caller → Preset mapping:**
 

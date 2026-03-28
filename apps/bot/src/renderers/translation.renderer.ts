@@ -26,15 +26,14 @@ function toLang(lang?: string): SupportedLang {
 /**
  * Render a full AI translation card for Telegram (HTML).
  *
- * Shows emoji, original word, register, and per-language translations
- * with CEFR level, synonyms, and contextual examples.
+ * Shows emoji, original word, and per-language translations
+ * with synonyms and contextual examples.
  */
 export function renderTranslation(output: TranslateOutput, interfaceLang?: string): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
 
   lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
-  lines.push(esc(t("register", lang, { register: output.register })));
   lines.push("");
 
   for (const [code, translation] of Object.entries(output.translations)) {
@@ -67,8 +66,6 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
       lines.push(`   ∙ ${esc(alt.text)} (${esc(alt.register)})${altSyns ? ` — ${altSyns}` : ""}`);
     }
   }
-
-  lines.push(`${esc(t("cefr", lang, { level: lt.cefr }))} · ${esc(lt.register)}`);
 
   if (lt.synonyms.length > 0) {
     const synList = lt.synonyms.map((s) => `${esc(s.text)} (${esc(s.register)})`).join(", ");
