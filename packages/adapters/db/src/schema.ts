@@ -10,6 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { StoredWordContent } from "./repositories/word.repository.js";
 
 // ─────────────────────────────────────────────
 // Languages — single source of truth for all language metadata
@@ -103,13 +104,21 @@ export const words = pgTable(
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     original: text("original").notNull(),
-    sourceLang: text("source_lang").notNull(),
-    content: jsonb("content").notNull(),
+    /** @deprecated Use sourceLangId FK instead. Retained for backward compat; will be dropped in migration 0006. */
+    sourceLang: text("source_lang"),
+    sourceLangId: integer("source_lang_id")
+      .references(() => languages.id)
+      .notNull(),
+    inputType: text("input_type").$type<"word" | "phrase">().default("word").notNull(),
+    content: jsonb("content").$type<StoredWordContent>().notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [index("words_user_id_idx").on(t.userId)],
+  (t) => [
+    index("words_user_id_idx").on(t.userId),
+    uniqueIndex("words_user_original_sourcelangid_idx").on(t.userId, t.original, t.sourceLangId),
+  ],
 );
 
 // ─────────────────────────────────────────────

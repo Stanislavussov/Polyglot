@@ -54,5 +54,7 @@
   "detectedLang": "🔍 Detected: {lang}",
   "nextTranslationFrom": "Next translation from:",
   "nextSourceSet": "🔤 Next from: {lang}",
-  "sentenceTranslation": "📝 Sentence translation"
+  "sentenceTranslation": "📝 Sentence translation",
+  "saveWord": "💾 Save word",
+  "savePhrase": "💾 Save phrase"
 }

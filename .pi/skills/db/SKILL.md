@@ -22,7 +22,7 @@ Fully implemented. All tables, repositories, singleton connection, and context-l
 - `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `translationRequestRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
 - `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded
-- `repositories/word.repository.ts` — create, findByUser, findById, search, delete (soft), updateContent (partial regeneration)
+- `repositories/word.repository.ts` — create (CreateWordInput), findByOriginalAndSource (dedup detection), findByUser, findById, search, delete (soft), updateContent (StoredWordContent typed). Exports StoredWordContent, StoredLanguageTranslation, CreateWordInput types.
 - `repositories/topic.repository.ts` — getCached, setCached, markInvalid (topic translation caching)
 - `repositories/language.repository.ts` — findByCode, create, getOrCreate, findAll (normalized language codes)
 - `repositories/word-context.repository.ts` — findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById (offline dictionary data)
@@ -70,11 +70,12 @@ markOnboarded(userId: number): Promise<User>;
 ### WordRepository
 
 ```typescript
-create(userId: number, word: Omit<NewWord, "userId">): Promise<Word>;
+create(userId: number, input: CreateWordInput): Promise<Word>;
+findByOriginalAndSource(userId: number, original: string, sourceLangId: number): Promise<Word | null>;
 findByUser(userId: number): Promise<Word[]>;
 findById(wordId: number): Promise<Word | null>;
 search(userId: number, query: string): Promise<Word[]>;
-updateContent(wordId: number, content: Record<string, unknown>): Promise<Word>;
+updateContent(wordId: number, content: StoredWordContent): Promise<Word>;
 delete(wordId: number): Promise<void>;  // soft delete
 ```
 
@@ -135,27 +136,39 @@ This is the **single place** where DB → `DictionaryContext` transformation hap
 See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key tables:
 - `users` — id, telegramId, username, onboardingStep, onboarded, isActive, createdAt
 - `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode (default "translate"), isActive, updatedAt
-- `words` — userId, original, sourceLang, content (JSONB with translations per target lang), isActive, createdAt, updatedAt
+- `words` — userId, original, sourceLang (nullable, deprecated), sourceLangId (FK → languages.id, NOT NULL), inputType ('word'|'phrase', default 'word'), content (JSONB typed as StoredWordContent), isActive, createdAt, updatedAt; unique index on (userId, original, sourceLangId)
 - `translationRequests` — userId, original, sourceLangId (FK → languages.id, nullable), createdAt (for rate limiting)
 - `translationRequestTargetLangs` — requestId (FK → translationRequests.id), languageId (FK → languages.id); unique index on (requestId, languageId)
 - `topicTranslationCache` — topicId, original, sourceLang, targetLang, content (JSONB), isValid, invalidReason, createdAt, updatedAt; unique index on (topicId, original, sourceLang, targetLang)
 - `languages` — id, code (unique), name, createdAt; unique index on code. Normalized lookup for language codes (e.g. "ru" → "Russian")
 - `wordContext` — id, word, languageId (FK → languages.id), pos, formTags (text[]), glosses (text[]), createdAt; indexes on (word, languageId) and (languageId). Offline dictionary data from Wiktionary JSONL
 
-## Content JSONB Structure (words.content)
+## Content JSONB Structure (words.content — typed as StoredWordContent)
 
-```json
-{
-  "cs": {
-    "language": "Czech",
-    "cefr_level": "B1",
-    "translation": "...",
-    "emoji": "🩺",
-    "transcription": "[...]",
-    "register": "neutral",
-    "synonyms": [{ "word": "...", "register": "professional" }],
-    "examples": [{ "context": "formal", "target": "...", "native": "..." }]
-  }
+```typescript
+interface StoredWordContent {
+  emoji: string;
+  register: Register;
+  translations: Record<string, StoredLanguageTranslation>;
+}
+
+interface StoredLanguageTranslation {
+  text: string;
+  cefr: CefrLevel;
+  transcription?: string;
+  register: Register;
+  synonyms: Synonym[];
+  examples: Example[];
+  alternatives?: TranslationVariant[];
+  expressionType?: ExpressionType;
+  equivalentNote?: string;
+}
+
+interface CreateWordInput {
+  original: string;
+  sourceLangId: number;
+  inputType: 'word' | 'phrase';
+  content: StoredWordContent;
 }
 ```
 
@@ -186,6 +199,13 @@ type TranslationRequestDTO = {
 // WordContext types
 type WordContext = { id: number; word: string; languageId: number; pos: string; formTags: string[] | null; glosses: string[] | null; createdAt: Date | null };
 type NewWordContext = { word: string; languageId: number; pos: string; formTags?: string[]; glosses?: string[] };
+
+// StoredWordContent types (FEAT-30 — typed JSONB for words.content)
+// See word.repository.ts for full interface definitions
+// Imports CefrLevel, Example, ExpressionType, Register, Synonym, TranslationVariant from @polyglot/core
+type StoredWordContent = { emoji: string; register: Register; translations: Record<string, StoredLanguageTranslation> };
+type StoredLanguageTranslation = { text: string; cefr: CefrLevel; transcription?: string; register: Register; synonyms: Synonym[]; examples: Example[]; alternatives?: TranslationVariant[]; expressionType?: ExpressionType; equivalentNote?: string };
+type CreateWordInput = { original: string; sourceLangId: number; inputType: 'word' | 'phrase'; content: StoredWordContent };
 ```
 
 ## File Structure
@@ -207,7 +227,7 @@ packages/adapters/db/src/
     ├── getDb.test.ts                     # 1 test
     ├── user.repository.test.ts           # 18 tests (findByTelegramId, create, updateSettings incl. max-4 guard, getSettings, updateActiveMode, updateOnboardingStep, markOnboarded)
     ├── topic.repository.test.ts          # 4 tests
-    ├── word.repository.test.ts           # 12 tests
+    ├── word.repository.test.ts           # 17 tests (create with CreateWordInput, findByOriginalAndSource, findByUser, findById, search, updateContent with StoredWordContent, delete)
     ├── language.repository.test.ts       # 7 tests (findByCode, create, getOrCreate, findAll)
     ├── word-context.repository.test.ts   # 13 tests (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
     ├── translation-request.repository.test.ts # 11 tests (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)
@@ -223,6 +243,7 @@ packages/adapters/db/drizzle/
 ├── 0002_languages_metadata.sql           # Language metadata columns + seed data
 ├── 0003_active_mode.sql                  # Adds active_mode column to user_language_settings
 ├── 0004_link_translation_requests_languages.sql # Links translation_requests to languages via FK + junction table
+├── 0005_words_dictionary_improvements.sql # Adds source_lang_id FK, input_type column, dedup unique index; deprecates source_lang text
 └── meta/
     ├── _journal.json
     ├── 0000_snapshot.json

@@ -38,6 +38,13 @@ export interface SessionData {
    * to use on regeneration. When 'sentence', uses SENTENCE_OUTPUT + regen-only keyboard.
    */
   lastInputType?: InputType;
+  /**
+   * DB id of the word entry saved in this session.
+   * Set after a successful tr:save — enables regen handler to call
+   * updateContent() instead of silently ignoring the regen update.
+   * Cleared when a new translation is started.
+   */
+  savedWordId?: number;
 }
 
 /** Custom context properties injected by auth middleware */

@@ -18,9 +18,11 @@ vi.mock("@polyglot/adapter-db", () => ({
     getSettings: vi.fn(),
   },
   wordRepository: {
-    create: vi.fn(),
+    create: vi.fn().mockResolvedValue({ id: 1 }),
+    findByOriginalAndSource: vi.fn().mockResolvedValue(null),
   },
   createContextLookup: () => mockLookupContext,
+  getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -174,7 +176,7 @@ describe("handleTranslateText — nextSourceLang integration", () => {
   });
 });
 
-describe("handleSaveCallback — source lang menu", () => {
+describe("handleSaveCallback — FEAT-30 save flow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(userRepository.getSettings).mockResolvedValue({
@@ -184,33 +186,33 @@ describe("handleSaveCallback — source lang menu", () => {
     } as any);
   });
 
-  it("shows source language menu after save (3+ langs)", async () => {
+  it("edits card in place with savedToDict text and post-save keyboard", async () => {
     const ctx = createMockCtx(null);
     ctx.session.pendingTranslation = {
       original: "test",
       sourceLang: "ru",
       emoji: "🏠",
       register: "neutral",
-      translations: {},
+      translations: { cs: { text: "test", cefr: "A1", register: "neutral", synonyms: [], examples: [] } },
     } as any;
     ctx.session.pendingCardMsgId = 42;
 
     await handleSaveCallback(ctx);
 
-    // Should reply with keyboard (3 languages = menu shown)
-    const lastReply = vi.mocked(ctx.reply).mock.calls.at(-1);
-    expect(lastReply).toBeDefined();
-    expect(lastReply![0]).toContain("Next translation from:");
-    expect(lastReply![1]).toHaveProperty("reply_markup");
+    // Card edited in place with saved text
+    expect(ctx.editMessageText).toHaveBeenCalledTimes(1);
+    const [text, opts] = vi.mocked(ctx.editMessageText).mock.calls[0]!;
+    expect(text).toContain("Saved to dictionary");
+    // Post-save keyboard: regen-only, no Save/Skip
+    const allCallbacks = (opts as any).reply_markup.inline_keyboard.flatMap((row: any[]) =>
+      row.map((b: any) => b.callback_data),
+    );
+    expect(allCallbacks).toContain("tr:regen:cs");
+    expect(allCallbacks).not.toContain("tr:save");
+    expect(allCallbacks).not.toContain("tr:skip");
   });
 
-  it("shows plain hint after save when only 2 languages", async () => {
-    vi.mocked(userRepository.getSettings).mockResolvedValue({
-      interfaceLang: "en",
-      nativeLang: "ru",
-      learningLangs: ["en"],
-    } as any);
-
+  it("sets savedWordId in session after save", async () => {
     const ctx = createMockCtx(null);
     ctx.session.pendingTranslation = {
       original: "test",
@@ -223,12 +225,8 @@ describe("handleSaveCallback — source lang menu", () => {
 
     await handleSaveCallback(ctx);
 
-    const lastReply = vi.mocked(ctx.reply).mock.calls.at(-1);
-    expect(lastReply).toBeDefined();
-    // Should NOT contain the keyboard header
-    expect(lastReply![0]).not.toContain("Next translation from:");
-    // Should not have reply_markup
-    expect(lastReply![1]).toBeUndefined();
+    expect(ctx.session.savedWordId).toBe(1);
+    expect(ctx.session.pendingTranslation).toBeUndefined();
   });
 });
 

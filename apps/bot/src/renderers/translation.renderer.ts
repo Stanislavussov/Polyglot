@@ -159,8 +159,13 @@ export function buildSentenceKeyboard(langCodes: string[], interfaceLang?: strin
 /**
  * Build inline keyboard with per-language regenerate buttons + save/skip.
  * Each regenerate button has callback data "tr:regen:<langCode>".
+ * Save button label is contextual: "Save word" vs "Save phrase" based on inputType.
  */
-export function buildTranslationKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard {
+export function buildTranslationKeyboard(
+  langCodes: string[],
+  inputType: "word" | "phrase",
+  interfaceLang?: string,
+): InlineKeyboard {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
 
@@ -170,9 +175,25 @@ export function buildTranslationKeyboard(langCodes: string[], interfaceLang?: st
   }
   kb.row();
 
-  // Row 2: save / skip
-  kb.text(t("saveToDictionary", lang), "tr:save");
+  // Row 2: save / skip — contextual save label
+  const saveKey = inputType === "phrase" ? "savePhrase" : "saveWord";
+  kb.text(t(saveKey, lang), "tr:save");
   kb.text(t("no", lang), "tr:skip");
+
+  return kb;
+}
+
+/**
+ * Build inline keyboard for post-save state — regen buttons only, no Save/Skip.
+ * Used after a word/phrase has been saved to the dictionary.
+ */
+export function buildPostSaveKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard {
+  const lang = toLang(interfaceLang);
+  const kb = new InlineKeyboard();
+
+  for (const code of langCodes) {
+    kb.text(t("regenerateLang", lang, { lang: code.toUpperCase() }), `tr:regen:${code}`);
+  }
 
   return kb;
 }

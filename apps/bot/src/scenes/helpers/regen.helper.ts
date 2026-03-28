@@ -1,10 +1,11 @@
 /**
  * Regeneration loop helper for translate scene.
  * Handles per-language regeneration, save, and skip callbacks.
+ * FEAT-30: save path uses FK resolution, dedup detection, and content sanitization.
  */
 import type { Conversation } from "@grammyjs/conversations";
 import { generateObject } from "@polyglot/adapter-ai";
-import { wordRepository } from "@polyglot/adapter-db";
+import { getLang, wordRepository } from "@polyglot/adapter-db";
 import {
   FULL_OUTPUT,
   type InputType,
@@ -16,12 +17,14 @@ import {
 } from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
 import {
+  buildPostSaveKeyboard,
   buildSentenceKeyboard,
   buildTranslationKeyboard,
   renderSentenceTranslation,
   renderTranslation,
 } from "../../renderers/translation.renderer.js";
 import type { BotContext, ConversationContext } from "../../types.js";
+import { sanitizeForStorage } from "../../utils/sanitize-word-content.js";
 
 type TranslateConversation = Conversation<BotContext, ConversationContext>;
 
@@ -39,7 +42,9 @@ export async function handleRegenLoop(
   let current = output;
   const langCodes = Object.keys(current.translations);
   const renderCard = isSentence ? renderSentenceTranslation : renderTranslation;
-  const buildKeyboard = isSentence ? buildSentenceKeyboard : buildTranslationKeyboard;
+  const buildKeyboard = isSentence
+    ? buildSentenceKeyboard
+    : (codes: string[], l: SupportedLang) => buildTranslationKeyboard(codes, (inputType as "word" | "phrase") ?? "word", l);
   const outputConfig = isSentence ? SENTENCE_OUTPUT : FULL_OUTPUT;
 
   let card = renderCard(current, lang);
@@ -60,15 +65,41 @@ export async function handleRegenLoop(
     const data = resp.callbackQuery.data;
 
     if (!isSentence && data === "tr:save") {
+      // FEAT-30: FK resolution + dedup detection + sanitize
+      const sourceLangEntry = getLang(current.sourceLang);
+      const sourceLangId = sourceLangEntry?.id;
+
+      if (!sourceLangId) {
+        logger.error({ sourceLang: current.sourceLang }, "Source language not found in cache (regen loop)");
+        continue;
+      }
+
+      // Duplicate detection
+      const existing = await conversation.external(async () =>
+        wordRepository.findByOriginalAndSource(userId, current.original, sourceLangId),
+      );
+
+      if (existing) {
+        const alreadySavedMsg = t("alreadySaved", lang);
+        await resp.answerCallbackQuery({ text: alreadySavedMsg, show_alert: true });
+        continue;
+      }
+
+      // Sanitize + persist
+      const sanitized = sanitizeForStorage(current);
       await conversation.external(async () => {
         await wordRepository.create(userId, {
           original: current.original,
-          sourceLang: current.sourceLang,
-          content: current,
+          sourceLangId,
+          inputType: (inputType as "word" | "phrase") ?? "word",
+          content: sanitized,
         });
       });
+
+      // Post-save card with regen-only keyboard
       const saved = `${renderCard(current, lang)}\n\n${t("savedToDict", lang)}`;
-      await resp.editMessageText(saved, { parse_mode: "HTML" });
+      const postSaveKb = buildPostSaveKeyboard(langCodes, lang);
+      await resp.editMessageText(saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
       return;
     }
 

@@ -1,6 +1,6 @@
 # Task 30: Save to Dictionary (FEAT-30)
 
-**Status:** 🔲 To Do  
+**Status:** ✅ Done  
 **Tech design:** `docs/tech-reqs/30-save-to-dictionary.md`  
 **Upstream task:** `docs/tasks/27-input-type-detection-and-text-limits.md` (prerequisite — must be complete)
 
@@ -51,21 +51,21 @@ T10 is the final quality gate.
 - CREATE `packages/adapters/db/drizzle/0005_words_dictionary_improvements.sql`
 
 **Acceptance Criteria:**
-- [ ] File `0005_words_dictionary_improvements.sql` exists in `packages/adapters/db/drizzle/`
-- [ ] Step 1: `ALTER TABLE "words" ADD COLUMN IF NOT EXISTS "source_lang_id" INTEGER REFERENCES "languages"("id");` (nullable first)
-- [ ] Step 2: `ALTER TABLE "words" ADD COLUMN IF NOT EXISTS "input_type" TEXT NOT NULL DEFAULT 'word' CHECK (input_type IN ('word', 'phrase'));`
-- [ ] Step 3: Backfill `source_lang_id` from existing `source_lang` text by joining `languages.code`:
+- [x] File `0005_words_dictionary_improvements.sql` exists in `packages/adapters/db/drizzle/`
+- [x] Step 1: `ALTER TABLE "words" ADD COLUMN IF NOT EXISTS "source_lang_id" INTEGER REFERENCES "languages"("id");` (nullable first)
+- [x] Step 2: `ALTER TABLE "words" ADD COLUMN IF NOT EXISTS "input_type" TEXT NOT NULL DEFAULT 'word' CHECK (input_type IN ('word', 'phrase'));`
+- [x] Step 3: Backfill `source_lang_id` from existing `source_lang` text by joining `languages.code`:
   ```sql
   UPDATE "words" w SET "source_lang_id" = l."id" FROM "languages" l
   WHERE w."source_lang" = l."code" AND w."source_lang" IS NOT NULL AND w."source_lang_id" IS NULL;
   ```
-- [ ] Step 4 comment: instructs operator to verify no NULL `source_lang_id` rows before Step 5
-- [ ] Step 5: `ALTER TABLE "words" ALTER COLUMN "source_lang_id" SET NOT NULL;`
-- [ ] Step 6: `CREATE UNIQUE INDEX IF NOT EXISTS "words_user_original_sourcelangid_idx" ON "words" ("user_id", "original", "source_lang_id");`
-- [ ] Step 7: `ALTER TABLE "words" ALTER COLUMN "source_lang" DROP NOT NULL;` (deprecate, not drop)
-- [ ] Down migration block included as comments (drop index, drop columns, restore NOT NULL on `source_lang`)
-- [ ] Migration is idempotent: uses `IF NOT EXISTS` where applicable
-- [ ] `source_lang` column is NOT dropped (retained for future migration 0006)
+- [x] Step 4 comment: instructs operator to verify no NULL `source_lang_id` rows before Step 5
+- [x] Step 5: `ALTER TABLE "words" ALTER COLUMN "source_lang_id" SET NOT NULL;`
+- [x] Step 6: `CREATE UNIQUE INDEX IF NOT EXISTS "words_user_original_sourcelangid_idx" ON "words" ("user_id", "original", "source_lang_id");`
+- [x] Step 7: `ALTER TABLE "words" ALTER COLUMN "source_lang" DROP NOT NULL;` (deprecate, not drop)
+- [x] Down migration block included as comments (drop index, drop columns, restore NOT NULL on `source_lang`)
+- [x] Migration is idempotent: uses `IF NOT EXISTS` where applicable
+- [x] `source_lang` column is NOT dropped (retained for future migration 0006)
 
 **Effort estimate:** 1–2 hours
 
@@ -83,14 +83,14 @@ T10 is the final quality gate.
 **Depends on:** T1
 
 **Acceptance Criteria:**
-- [ ] `words` Drizzle table in `schema.ts` includes:
+- [x] `words` Drizzle table in `schema.ts` includes:
   - `sourceLangId: integer("source_lang_id").references(() => languages.id).notNull()`
   - `sourceLang: text("source_lang")` — nullable (was `notNull()`, now without `.notNull()`)
   - `inputType: text("input_type").$type<'word' | 'phrase'>().default('word').notNull()`
   - `uniqueIndex("words_user_original_sourcelangid_idx").on(t.userId, t.original, t.sourceLangId)`
-- [ ] Existing `index("words_user_id_idx")` is preserved unchanged
-- [ ] `content` column retains `jsonb("content").notNull()` — type will be updated in T3
-- [ ] `StoredWordContent` interface defined in `word.repository.ts`:
+- [x] Existing `index("words_user_id_idx")` is preserved unchanged
+- [x] `content` column retains `jsonb("content").notNull()` — type will be updated in T3
+- [x] `StoredWordContent` interface defined in `word.repository.ts`:
   ```typescript
   export interface StoredWordContent {
     emoji: string;
@@ -98,7 +98,7 @@ T10 is the final quality gate.
     translations: Record<string, StoredLanguageTranslation>;
   }
   ```
-- [ ] `StoredLanguageTranslation` interface defined in `word.repository.ts`:
+- [x] `StoredLanguageTranslation` interface defined in `word.repository.ts`:
   ```typescript
   export interface StoredLanguageTranslation {
     text: string;
@@ -113,8 +113,8 @@ T10 is the final quality gate.
   }
   ```
   (Imports: `CefrLevel`, `Example`, `ExpressionType`, `Register`, `Synonym`, `TranslationVariant` from `@polyglot/core`)
-- [ ] `StoredWordContent` and `StoredLanguageTranslation` are exported from `packages/adapters/db/src/index.ts`
-- [ ] TypeScript compiles without errors (`pnpm -r run build`)
+- [x] `StoredWordContent` and `StoredLanguageTranslation` are exported from `packages/adapters/db/src/index.ts`
+- [x] TypeScript compiles without errors (`pnpm -r run build`)
 
 **Effort estimate:** 2 hours
 
@@ -131,7 +131,7 @@ T10 is the final quality gate.
 **Depends on:** T2
 
 **Acceptance Criteria:**
-- [ ] `CreateWordInput` interface exported from `word.repository.ts`:
+- [x] `CreateWordInput` interface exported from `word.repository.ts`:
   ```typescript
   export interface CreateWordInput {
     original: string;
@@ -140,17 +140,17 @@ T10 is the final quality gate.
     content: StoredWordContent;
   }
   ```
-- [ ] `wordRepository.create(userId: number, input: CreateWordInput): Promise<Word>` — no longer accepts `sourceLang` text or raw `TranslateOutput` as content; uses `sourceLangId` and `inputType`
-- [ ] Old `create()` signature (`Omit<NewWord, "userId">`) is REPLACED, not overloaded
-- [ ] `wordRepository.findByOriginalAndSource(userId: number, original: string, sourceLangId: number): Promise<Word | null>`:
+- [x] `wordRepository.create(userId: number, input: CreateWordInput): Promise<Word>` — no longer accepts `sourceLang` text or raw `TranslateOutput` as content; uses `sourceLangId` and `inputType`
+- [x] Old `create()` signature (`Omit<NewWord, "userId">`) is REPLACED, not overloaded
+- [x] `wordRepository.findByOriginalAndSource(userId: number, original: string, sourceLangId: number): Promise<Word | null>`:
   - Query: `WHERE user_id = $userId AND original = $original AND source_lang_id = $sourceLangId LIMIT 1`
   - Returns `null` when no entry found (not `undefined`)
   - Uses the unique index for efficient lookup
-- [ ] `wordRepository.updateContent(wordId: number, content: StoredWordContent): Promise<Word>` — parameter type updated from `Record<string, unknown>` to `StoredWordContent`
-- [ ] `words` schema `content` column typed: `jsonb("content").$type<StoredWordContent>().notNull()`
-- [ ] `findByUser`, `findById`, `search`, `delete` methods — NO CHANGES
-- [ ] `CreateWordInput` exported from `packages/adapters/db/src/index.ts`
-- [ ] TypeScript compiles without errors
+- [x] `wordRepository.updateContent(wordId: number, content: StoredWordContent): Promise<Word>` — parameter type updated from `Record<string, unknown>` to `StoredWordContent`
+- [x] `words` schema `content` column typed: `jsonb("content").$type<StoredWordContent>().notNull()`
+- [x] `findByUser`, `findById`, `search`, `delete` methods — NO CHANGES
+- [x] `CreateWordInput` exported from `packages/adapters/db/src/index.ts`
+- [x] TypeScript compiles without errors
 
 **Effort estimate:** 2 hours
 
@@ -169,26 +169,26 @@ T10 is the final quality gate.
 **Depends on:** none (independent)
 
 **Acceptance Criteria:**
-- [ ] `en.json` contains:
+- [x] `en.json` contains:
   ```json
   "saveWord": "💾 Save word",
   "savePhrase": "💾 Save phrase"
   ```
-- [ ] `ru.json` contains:
+- [x] `ru.json` contains:
   ```json
   "saveWord": "💾 Сохранить слово",
   "savePhrase": "💾 Сохранить фразу"
   ```
-- [ ] `cs.json` contains:
+- [x] `cs.json` contains:
   ```json
   "saveWord": "💾 Uložit slovo",
   "savePhrase": "💾 Uložit frázi"
   ```
-- [ ] `TranslationKey` union type in `types.ts` includes `'saveWord'` and `'savePhrase'`
-- [ ] `t('saveWord', 'en')` returns `"💾 Save word"` at runtime
-- [ ] `t('savePhrase', 'ru')` returns `"💾 Сохранить фразу"` at runtime
-- [ ] `t('saveWord', 'cs')` returns `"💾 Uložit slovo"` at runtime
-- [ ] TypeScript compiles — no missing key errors in `t()` call sites
+- [x] `TranslationKey` union type in `types.ts` includes `'saveWord'` and `'savePhrase'`
+- [x] `t('saveWord', 'en')` returns `"💾 Save word"` at runtime
+- [x] `t('savePhrase', 'ru')` returns `"💾 Сохранить фразу"` at runtime
+- [x] `t('saveWord', 'cs')` returns `"💾 Uložit slovo"` at runtime
+- [x] TypeScript compiles — no missing key errors in `t()` call sites
 
 **Effort estimate:** 1 hour
 
@@ -205,18 +205,18 @@ T10 is the final quality gate.
 **Depends on:** T3 (needs `StoredWordContent` type from `@polyglot/adapter-db`)
 
 **Acceptance Criteria:**
-- [ ] `sanitize-word-content.ts` exports:
+- [x] `sanitize-word-content.ts` exports:
   ```typescript
   export function sanitizeForStorage(output: TranslateOutput): StoredWordContent
   ```
-- [ ] Implementation extracts only `{ emoji, register, translations }` from `TranslateOutput`
-- [ ] The following fields are NOT included in the returned object:
+- [x] Implementation extracts only `{ emoji, register, translations }` from `TranslateOutput`
+- [x] The following fields are NOT included in the returned object:
   - `needsReview` (transient validation signal)
   - `dictionaryContext` (Wiktionary enrichment for AI prompt only)
   - `original` (stored as `words.original` column — not duplicated in JSONB)
   - `sourceLang` (stored as `words.sourceLangId` FK — not duplicated in JSONB)
-- [ ] Return type annotation is `StoredWordContent` (not inferred)
-- [ ] `SessionData` interface in `apps/bot/src/types.ts` includes:
+- [x] Return type annotation is `StoredWordContent` (not inferred)
+- [x] `SessionData` interface in `apps/bot/src/types.ts` includes:
   ```typescript
   /**
    * DB id of the word entry saved in this session.
@@ -226,8 +226,8 @@ T10 is the final quality gate.
    */
   savedWordId?: number;
   ```
-- [ ] All other `SessionData` fields are unchanged
-- [ ] TypeScript compiles without errors
+- [x] All other `SessionData` fields are unchanged
+- [x] TypeScript compiles without errors
 
 **Effort estimate:** 1 hour
 
@@ -243,7 +243,7 @@ T10 is the final quality gate.
 **Depends on:** T4 (needs `saveWord` / `savePhrase` i18n keys)
 
 **Acceptance Criteria:**
-- [ ] `buildTranslationKeyboard` signature updated:
+- [x] `buildTranslationKeyboard` signature updated:
   ```typescript
   export function buildTranslationKeyboard(
     langCodes: string[],
@@ -256,7 +256,7 @@ T10 is the final quality gate.
   - Save button callback data stays `"tr:save"` (unchanged)
   - Skip button (`t('no', lang)`, callback `"tr:skip"`) is still present
   - Regen buttons row structure is unchanged
-- [ ] `buildPostSaveKeyboard` new function exported:
+- [x] `buildPostSaveKeyboard` new function exported:
   ```typescript
   export function buildPostSaveKeyboard(
     langCodes: string[],
@@ -266,12 +266,12 @@ T10 is the final quality gate.
   - Row 1: one regen button per lang — identical to `buildSentenceKeyboard`
   - No Row 2 (no Save/Skip)
   - Callback data format: `tr:regen:<code>` — identical to other regen buttons
-- [ ] All existing callers of `buildTranslationKeyboard` are updated to pass `inputType`
+- [x] All existing callers of `buildTranslationKeyboard` are updated to pass `inputType`
   - `translate-mode.helper.ts`: passes `classification.type as 'word' | 'phrase'`
   - `regen.helper.ts`: passes `ctx.session.lastInputType as 'word' | 'phrase'`
-- [ ] `buildSentenceKeyboard` — no changes
-- [ ] `renderTranslation`, `renderSentenceTranslation` — no changes
-- [ ] TypeScript compiles without errors
+- [x] `buildSentenceKeyboard` — no changes
+- [x] `renderTranslation`, `renderSentenceTranslation` — no changes
+- [x] TypeScript compiles without errors
 
 **Effort estimate:** 2 hours
 
@@ -287,26 +287,26 @@ T10 is the final quality gate.
 **Depends on:** T3 (wordRepository), T5 (sanitizeForStorage, savedWordId), T6 (buildPostSaveKeyboard)
 
 **Acceptance Criteria:**
-- [ ] `handleSaveCallback()` reads `pendingTranslation` and `lastInputType` from session
-- [ ] If `pendingTranslation` is undefined: calls `answerCallbackQuery()` and returns early
-- [ ] **Step 2 — FK resolution:** calls `getLang(output.sourceLang)` from language cache
+- [x] `handleSaveCallback()` reads `pendingTranslation` and `lastInputType` from session
+- [x] If `pendingTranslation` is undefined: calls `answerCallbackQuery()` and returns early
+- [x] **Step 2 — FK resolution:** calls `getLang(output.sourceLang)` from language cache
   - If `getLang` returns null: logs error, answers with `t('translationError', lang)` toast, returns
   - `sourceLangId = lang.id`
-- [ ] **Step 3 — Duplicate detection:** calls `wordRepository.findByOriginalAndSource(ctx.user.id, output.original, sourceLangId)`
+- [x] **Step 3 — Duplicate detection:** calls `wordRepository.findByOriginalAndSource(ctx.user.id, output.original, sourceLangId)`
   - If existing entry found: calls `answerCallbackQuery({ text: t('alreadySaved', lang), show_alert: true })` and returns — no new DB entry created
-- [ ] **Step 4 — Sanitize:** calls `sanitizeForStorage(output)` — strips `needsReview`, `dictionaryContext`, `original`, `sourceLang`
-- [ ] **Step 5 — Persist:** calls `wordRepository.create(ctx.user.id, { original: output.original, sourceLangId, inputType: inputType as 'word' | 'phrase', content })`
-- [ ] **Step 6 — Session update:**
+- [x] **Step 4 — Sanitize:** calls `sanitizeForStorage(output)` — strips `needsReview`, `dictionaryContext`, `original`, `sourceLang`
+- [x] **Step 5 — Persist:** calls `wordRepository.create(ctx.user.id, { original: output.original, sourceLangId, inputType: inputType as 'word' | 'phrase', content })`
+- [x] **Step 6 — Session update:**
   - `ctx.session.savedWordId = newEntry.id`
   - `ctx.session.pendingTranslation = undefined`
   - `ctx.session.pendingCardMsgId = undefined`
-- [ ] **Step 7 — Edit card in place:**
+- [x] **Step 7 — Edit card in place:**
   - Card text: `renderTranslation(output, lang) + "\n\n" + t('savedToDict', lang)`
   - Keyboard: `buildPostSaveKeyboard(Object.keys(output.translations), lang)` — regen-only, no Save/Skip
   - Uses `ctx.editMessageText(savedCard, { reply_markup: keyboard, parse_mode: 'HTML' })`
-- [ ] **Step 8:** calls `answerCallbackQuery()` at end
-- [ ] Errors from `editMessageText` (e.g. message too old) are caught and logged — save still succeeds
-- [ ] The `sendSourceLangMenu()` call is REMOVED after save (UX change: post-save card is already interactive via regen buttons)
+- [x] **Step 8:** calls `answerCallbackQuery()` at end
+- [x] Errors from `editMessageText` (e.g. message too old) are caught and logged — save still succeeds
+- [x] The `sendSourceLangMenu()` call is REMOVED after save (UX change: post-save card is already interactive via regen buttons)
 
 **Effort estimate:** 3 hours
 
@@ -322,21 +322,21 @@ T10 is the final quality gate.
 **Depends on:** T3 (wordRepository.updateContent), T5 (sanitizeForStorage, savedWordId), T6 (buildTranslationKeyboard with inputType)
 
 **Acceptance Criteria — handleRegenCallback():**
-- [ ] After regenerating and updating `ctx.session.lastTranslation`:
+- [x] After regenerating and updating `ctx.session.lastTranslation`:
   - Checks `ctx.session.savedWordId`
   - If set: calls `sanitizeForStorage(updated)` then `wordRepository.updateContent(savedWordId, sanitized)` — silently updates saved entry
   - DB update errors are caught and logged — regen still re-renders card
-- [ ] Card is re-rendered with:
+- [x] Card is re-rendered with:
   - If `savedWordId` is set (word is saved): uses `buildPostSaveKeyboard()` + appends `t('savedToDict', lang)` to card text
   - If `savedWordId` is not set (word not yet saved): uses `buildTranslationKeyboard(langCodes, inputType as 'word' | 'phrase', lang)` as before
-- [ ] `pendingTranslation` is NOT updated after regen when `savedWordId` is set (it was already cleared on save)
-- [ ] `savedWordId` remains set after regen — further regens continue updating the same entry
+- [x] `pendingTranslation` is NOT updated after regen when `savedWordId` is set (it was already cleared on save)
+- [x] `savedWordId` remains set after regen — further regens continue updating the same entry
 
 **Acceptance Criteria — handleTranslateText():**
-- [ ] Resets `ctx.session.savedWordId = undefined` at the start of every new translation
-- [ ] For word/phrase path: calls `buildTranslationKeyboard(langCodes, classification.type as 'word' | 'phrase', lang)` — passes `inputType` (was `buildTranslationKeyboard(langCodes, lang)`)
-- [ ] Sentence path is unchanged (no `buildTranslationKeyboard` call for sentences)
-- [ ] All other existing behavior unchanged
+- [x] Resets `ctx.session.savedWordId = undefined` at the start of every new translation
+- [x] For word/phrase path: calls `buildTranslationKeyboard(langCodes, classification.type as 'word' | 'phrase', lang)` — passes `inputType` (was `buildTranslationKeyboard(langCodes, lang)`)
+- [x] Sentence path is unchanged (no `buildTranslationKeyboard` call for sentences)
+- [x] All other existing behavior unchanged
 
 **Effort estimate:** 2 hours
 
@@ -354,25 +354,25 @@ T10 is the final quality gate.
 **Context:** `handleRegenLoop` is a grammY conversation-based handler invoked inside `conversation.waitForCallbackQuery`. All `wordRepository` calls must be wrapped in `conversation.external(async () => { ... })` as per grammY conventions (side-effect isolation).
 
 **Acceptance Criteria — tr:save path in handleRegenLoop:**
-- [ ] Duplicate detection: wraps `wordRepository.findByOriginalAndSource(userId, current.original, sourceLangId)` in `conversation.external()`
+- [x] Duplicate detection: wraps `wordRepository.findByOriginalAndSource(userId, current.original, sourceLangId)` in `conversation.external()`
   - Resolves `sourceLangId` via `getLang(current.sourceLang)?.id`
   - If duplicate found: calls `answerCallbackQuery({ text: alreadySavedMsg, show_alert: true })` and continues loop (does NOT return)
-- [ ] Content sanitization: calls `sanitizeForStorage(current)` before persisting
-- [ ] `wordRepository.create()` call uses new `CreateWordInput` shape: `{ original, sourceLangId, inputType: inputType ?? 'word', content: sanitized }`
-- [ ] After successful save: card shows `t('savedToDict', lang)` and keyboard switches to `buildPostSaveKeyboard(langCodes, lang)` (regen-only)
-- [ ] After successful save: `return` from the loop (existing behavior preserved)
+- [x] Content sanitization: calls `sanitizeForStorage(current)` before persisting
+- [x] `wordRepository.create()` call uses new `CreateWordInput` shape: `{ original, sourceLangId, inputType: inputType ?? 'word', content: sanitized }`
+- [x] After successful save: card shows `t('savedToDict', lang)` and keyboard switches to `buildPostSaveKeyboard(langCodes, lang)` (regen-only)
+- [x] After successful save: `return` from the loop (existing behavior preserved)
 
 **Acceptance Criteria — regen keyboard in handleRegenLoop:**
-- [ ] `buildKeyboard` selection: `isSentence ? buildSentenceKeyboard : (codes) => buildTranslationKeyboard(codes, inputType ?? 'word', lang)`
+- [x] `buildKeyboard` selection: `isSentence ? buildSentenceKeyboard : (codes) => buildTranslationKeyboard(codes, inputType ?? 'word', lang)`
   - `inputType` param comes from function parameter `inputType?: InputType`
-- [ ] All regen re-renders use the updated `buildKeyboard` (passes `inputType`)
+- [x] All regen re-renders use the updated `buildKeyboard` (passes `inputType`)
 
 **Acceptance Criteria — general:**
-- [ ] `handleRegenLoop` function signature: `inputType?: InputType` parameter unchanged (already present)
-- [ ] `sanitizeForStorage` imported from `../../utils/sanitize-word-content.js`
-- [ ] `getLang` imported from `@polyglot/adapter-db` (already used elsewhere)
-- [ ] `buildPostSaveKeyboard` imported from renderer
-- [ ] TypeScript compiles without errors
+- [x] `handleRegenLoop` function signature: `inputType?: InputType` parameter unchanged (already present)
+- [x] `sanitizeForStorage` imported from `../../utils/sanitize-word-content.js`
+- [x] `getLang` imported from `@polyglot/adapter-db` (already used elsewhere)
+- [x] `buildPostSaveKeyboard` imported from renderer
+- [x] TypeScript compiles without errors
 
 **Effort estimate:** 2 hours
 
@@ -390,34 +390,34 @@ T10 is the final quality gate.
 **Depends on:** T2, T3, T5, T6
 
 **Acceptance Criteria — sanitizeForStorage tests:**
-- [ ] Strips `needsReview` field — not present in output
-- [ ] Strips `dictionaryContext` field — not present in output
-- [ ] Strips `original` field — not present in output
-- [ ] Strips `sourceLang` field — not present in output
-- [ ] Retains `emoji`, `register`, `translations` — present and equal to input values
-- [ ] `translations` nested structure is preserved unchanged (deep equality)
-- [ ] Does not mutate the input `TranslateOutput` object
+- [x] Strips `needsReview` field — not present in output
+- [x] Strips `dictionaryContext` field — not present in output
+- [x] Strips `original` field — not present in output
+- [x] Strips `sourceLang` field — not present in output
+- [x] Retains `emoji`, `register`, `translations` — present and equal to input values
+- [x] `translations` nested structure is preserved unchanged (deep equality)
+- [x] Does not mutate the input `TranslateOutput` object
 
 **Acceptance Criteria — buildTranslationKeyboard tests:**
-- [ ] `buildTranslationKeyboard(['cs'], 'word', 'en')` — Save button text contains "Save word" (or configured i18n value)
-- [ ] `buildTranslationKeyboard(['cs'], 'phrase', 'en')` — Save button text contains "Save phrase"
-- [ ] Skip button still present in both cases
-- [ ] Regen button for 'cs' still present in both cases
+- [x] `buildTranslationKeyboard(['cs'], 'word', 'en')` — Save button text contains "Save word" (or configured i18n value)
+- [x] `buildTranslationKeyboard(['cs'], 'phrase', 'en')` — Save button text contains "Save phrase"
+- [x] Skip button still present in both cases
+- [x] Regen button for 'cs' still present in both cases
 
 **Acceptance Criteria — buildPostSaveKeyboard tests:**
-- [ ] Returns keyboard with regen button per language code
-- [ ] No Save/Skip buttons present
-- [ ] Regen button callback data is `tr:regen:<code>` format
+- [x] Returns keyboard with regen button per language code
+- [x] No Save/Skip buttons present
+- [x] Regen button callback data is `tr:regen:<code>` format
 
 **Acceptance Criteria — wordRepository.findByOriginalAndSource tests (mocked DB):**
-- [ ] Returns existing `Word` when `(userId, original, sourceLangId)` match
-- [ ] Returns `null` when no match found
-- [ ] Calls DB with correct WHERE conditions
+- [x] Returns existing `Word` when `(userId, original, sourceLangId)` match
+- [x] Returns `null` when no match found
+- [x] Calls DB with correct WHERE conditions
 
 **Acceptance Criteria — general:**
-- [ ] All new tests pass: `pnpm -r run test`
-- [ ] All pre-existing tests continue to pass (no regressions)
-- [ ] Test file naming follows project conventions (`*.test.ts`)
+- [x] All new tests pass: `pnpm -r run test`
+- [x] All pre-existing tests continue to pass (no regressions)
+- [x] Test file naming follows project conventions (`*.test.ts`)
 
 **Effort estimate:** 2–3 hours
 

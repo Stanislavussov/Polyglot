@@ -77,7 +77,13 @@ export type {
 } from "./repositories/user.repository.js";
 // Re-export repositories and types
 export { MAX_LEARNING_LANGS, userRepository } from "./repositories/user.repository.js";
-export type { NewWord, Word } from "./repositories/word.repository.js";
+export type {
+  CreateWordInput,
+  NewWord,
+  StoredLanguageTranslation,
+  StoredWordContent,
+  Word,
+} from "./repositories/word.repository.js";
 export { wordRepository } from "./repositories/word.repository.js";
 export type {
   NewWordContext,

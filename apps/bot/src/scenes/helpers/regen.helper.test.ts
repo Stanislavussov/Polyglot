@@ -7,8 +7,10 @@ vi.mock("@polyglot/adapter-ai", () => ({
 
 vi.mock("@polyglot/adapter-db", () => ({
   wordRepository: {
-    create: vi.fn().mockResolvedValue({ id: "w1" }),
+    create: vi.fn().mockResolvedValue({ id: 1 }),
+    findByOriginalAndSource: vi.fn().mockResolvedValue(null),
   },
+  getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -30,7 +32,7 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-import { wordRepository } from "@polyglot/adapter-db";
+import { getLang, wordRepository } from "@polyglot/adapter-db";
 import type { SupportedLang, TranslateOutput } from "@polyglot/core";
 import { translateOne } from "@polyglot/core";
 import { handleRegenLoop } from "./regen.helper.js";
@@ -95,7 +97,7 @@ describe("handleRegenLoop", () => {
     vi.clearAllMocks();
   });
 
-  it("saves to dictionary on tr:save", async () => {
+  it("saves to dictionary on tr:save with sanitized content", async () => {
     const { conversation } = createMockConversation(["tr:save"]);
     const ctx = createMockCtx();
 
@@ -103,20 +105,32 @@ describe("handleRegenLoop", () => {
 
     expect(wordRepository.create).toHaveBeenCalledWith(1, {
       original: "hello",
-      sourceLang: "en",
-      content: sampleOutput,
+      sourceLangId: 1,
+      inputType: "word",
+      content: {
+        emoji: "👋",
+        register: "neutral",
+        translations: sampleOutput.translations,
+      },
     });
   });
 
-  it("renders saved card with savedToDict text on save", async () => {
+  it("renders saved card with savedToDict text and post-save keyboard on save", async () => {
     const { conversation, editMessageText } = createMockConversation(["tr:save"]);
     const ctx = createMockCtx();
 
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(editMessageText).toHaveBeenCalledTimes(1);
-    const [text] = editMessageText.mock.calls[0]!;
+    const [text, opts] = editMessageText.mock.calls[0]!;
     expect(text).toContain("Saved to dictionary");
+    // Post-save keyboard: regen buttons only, no save/skip
+    const allCallbacks = opts.reply_markup.inline_keyboard.flatMap((row: any[]) =>
+      row.map((b: any) => b.callback_data),
+    );
+    expect(allCallbacks).toContain("tr:regen:cs");
+    expect(allCallbacks).not.toContain("tr:save");
+    expect(allCallbacks).not.toContain("tr:skip");
   });
 
   it("removes keyboard on tr:skip", async () => {
@@ -174,17 +188,17 @@ describe("handleRegenLoop", () => {
     expect(loadingText).toContain("Regenerating DE");
   });
 
-  it("merges regenerated translation into output", async () => {
+  it("merges regenerated translation into saved content", async () => {
     const { conversation } = createMockConversation(["tr:regen:cs", "tr:save"]);
     const ctx = createMockCtx();
 
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
-    // The saved content should have the regenerated CS translation
-    const savedContent = vi.mocked(wordRepository.create).mock.calls[0]![1]!.content as TranslateOutput;
-    expect(savedContent.translations.cs.text).toBe("regenerated");
+    // The saved content should have the regenerated CS translation (sanitized)
+    const savedInput = vi.mocked(wordRepository.create).mock.calls[0]![1]!;
+    expect(savedInput.content.translations.cs.text).toBe("regenerated");
     // DE should remain unchanged
-    expect(savedContent.translations.de.text).toBe("hallo");
+    expect(savedInput.content.translations.de.text).toBe("hallo");
   });
 
   it("handles regeneration error gracefully and continues", async () => {
@@ -217,5 +231,49 @@ describe("handleRegenLoop", () => {
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(answerCallbackQuery).toHaveBeenCalledTimes(1);
+  });
+
+  it("detects duplicates and shows alreadySaved toast", async () => {
+    vi.mocked(wordRepository.findByOriginalAndSource).mockResolvedValueOnce({ id: 99 } as any);
+    const { conversation, answerCallbackQuery } = createMockConversation(["tr:save", "tr:skip"]);
+    const ctx = createMockCtx();
+
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
+
+    // First save attempt should show "already saved" and continue loop
+    expect(answerCallbackQuery).toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringContaining("already"), show_alert: true }),
+    );
+    // No new entry should be created
+    expect(wordRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("resolves sourceLangId via getLang for save", async () => {
+    const { conversation } = createMockConversation(["tr:save"]);
+    const ctx = createMockCtx();
+
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
+
+    expect(getLang).toHaveBeenCalledWith("en");
+    expect(wordRepository.create).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        sourceLangId: 1,
+      }),
+    );
+  });
+
+  it("passes inputType to wordRepository.create", async () => {
+    const { conversation } = createMockConversation(["tr:save"]);
+    const ctx = createMockCtx();
+
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42, "phrase");
+
+    expect(wordRepository.create).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        inputType: "phrase",
+      }),
+    );
   });
 });

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { StoredWordContent } from "../repositories/word.repository.js";
 
 // ── Mock Drizzle query builder ──────────────────────────────────
 
@@ -67,15 +68,32 @@ beforeEach(() => {
 
 // ── Helpers ──────────────────────────────────────────────────────
 
+function makeStoredContent(overrides: Partial<StoredWordContent> = {}): StoredWordContent {
+  return {
+    emoji: "🩺",
+    register: "neutral",
+    translations: {
+      cs: {
+        text: "ahoj",
+        cefr: "B1",
+        register: "neutral",
+        synonyms: [{ text: "nazdar", register: "colloquial" }],
+        examples: [{ context: "formal", target: "Ahoj!", native: "Hello!" }],
+      },
+    },
+    ...overrides,
+  };
+}
+
 function makeWord(overrides: Record<string, unknown> = {}) {
   return {
     id: 1,
     userId: 42,
     original: "hello",
     sourceLang: "en",
-    content: {
-      cs: { translation: "ahoj", language: "Czech" },
-    },
+    sourceLangId: 5,
+    inputType: "word",
+    content: makeStoredContent(),
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -87,14 +105,15 @@ function makeWord(overrides: Record<string, unknown> = {}) {
 
 describe("wordRepository", () => {
   describe("create", () => {
-    it("inserts a new word with userId", async () => {
+    it("inserts a new word with userId and CreateWordInput fields", async () => {
       const word = makeWord();
       mockRows.push(word);
 
       const result = await wordRepository.create(42, {
         original: "hello",
-        sourceLang: "en",
-        content: { cs: { translation: "ahoj" } },
+        sourceLangId: 5,
+        inputType: "word",
+        content: makeStoredContent(),
       });
 
       expect(result).toEqual(word);
@@ -102,7 +121,24 @@ describe("wordRepository", () => {
       expect(lastInsertValues).toMatchObject({
         userId: 42,
         original: "hello",
-        sourceLang: "en",
+        sourceLangId: 5,
+        inputType: "word",
+      });
+    });
+
+    it("stores phrase input type correctly", async () => {
+      const word = makeWord({ inputType: "phrase" });
+      mockRows.push(word);
+
+      await wordRepository.create(42, {
+        original: "good morning",
+        sourceLangId: 5,
+        inputType: "phrase",
+        content: makeStoredContent(),
+      });
+
+      expect(lastInsertValues).toMatchObject({
+        inputType: "phrase",
       });
     });
 
@@ -112,12 +148,42 @@ describe("wordRepository", () => {
 
       const result = await wordRepository.create(1, {
         original: "test",
-        sourceLang: "en",
-        content: {},
+        sourceLangId: 3,
+        inputType: "word",
+        content: makeStoredContent(),
       });
 
       expect(result.id).toBe(99);
       expect(returningFn).toHaveBeenCalled();
+    });
+  });
+
+  describe("findByOriginalAndSource", () => {
+    it("returns existing Word when (userId, original, sourceLangId) match", async () => {
+      const word = makeWord({ id: 7, original: "hello", sourceLangId: 5 });
+      mockRows.push(word);
+
+      const result = await wordRepository.findByOriginalAndSource(42, "hello", 5);
+
+      expect(result).toEqual(word);
+      expect(selectFn).toHaveBeenCalledOnce();
+      expect(limitFn).toHaveBeenCalledWith(1);
+    });
+
+    it("returns null when no match found", async () => {
+      // mockRows is empty — no rows returned
+      const result = await wordRepository.findByOriginalAndSource(42, "nonexistent", 5);
+
+      expect(result).toBeNull();
+    });
+
+    it("calls DB with correct WHERE conditions", async () => {
+      await wordRepository.findByOriginalAndSource(99, "world", 12);
+
+      expect(selectFn).toHaveBeenCalledOnce();
+      expect(selectFromFn).toHaveBeenCalledOnce();
+      expect(selectWhereFn).toHaveBeenCalledOnce();
+      expect(limitFn).toHaveBeenCalledWith(1);
     });
   });
 
@@ -178,10 +244,24 @@ describe("wordRepository", () => {
 
   describe("updateContent", () => {
     it("updates content JSONB and returns the updated word", async () => {
-      const mergedContent = {
-        cs: { translation: "ahoj", language: "Czech" },
-        de: { translation: "hallo", language: "German" },
-      };
+      const mergedContent = makeStoredContent({
+        translations: {
+          cs: {
+            text: "ahoj",
+            cefr: "B1",
+            register: "neutral",
+            synonyms: [],
+            examples: [],
+          },
+          de: {
+            text: "hallo",
+            cefr: "A2",
+            register: "neutral",
+            synonyms: [],
+            examples: [],
+          },
+        },
+      });
       const updatedWord = makeWord({ content: mergedContent });
       updateReturningFn.mockResolvedValueOnce([updatedWord]);
 
@@ -197,7 +277,7 @@ describe("wordRepository", () => {
       const word = makeWord();
       updateReturningFn.mockResolvedValueOnce([word]);
 
-      await wordRepository.updateContent(1, { cs: {} });
+      await wordRepository.updateContent(1, makeStoredContent());
 
       const after = new Date();
       const updatedAt = (lastUpdateSet as Record<string, unknown>).updatedAt as Date;
@@ -210,12 +290,34 @@ describe("wordRepository", () => {
       const word = makeWord();
       updateReturningFn.mockResolvedValueOnce([word]);
 
-      await wordRepository.updateContent(5, { fr: { translation: "bonjour" } });
+      await wordRepository.updateContent(5, makeStoredContent());
 
       const setKeys = Object.keys(lastUpdateSet as object);
       expect(setKeys).toContain("content");
       expect(setKeys).toContain("updatedAt");
       expect(setKeys).toHaveLength(2);
+    });
+
+    it("accepts StoredWordContent typed parameter", async () => {
+      const content: StoredWordContent = {
+        emoji: "🔥",
+        register: "colloquial",
+        translations: {
+          en: {
+            text: "fire",
+            cefr: "A1",
+            register: "neutral",
+            synonyms: [],
+            examples: [{ context: "formal", target: "Fire!", native: "Огонь!" }],
+          },
+        },
+      };
+      const word = makeWord({ content });
+      updateReturningFn.mockResolvedValueOnce([word]);
+
+      const result = await wordRepository.updateContent(1, content);
+
+      expect(result.content).toEqual(content);
     });
   });
 

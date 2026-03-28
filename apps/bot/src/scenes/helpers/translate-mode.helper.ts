@@ -3,7 +3,7 @@
  * Called by the mode router when user is in translate mode.
  */
 import { generateObject } from "@polyglot/adapter-ai";
-import { createContextLookup, userRepository, wordRepository } from "@polyglot/adapter-db";
+import { createContextLookup, getLang, userRepository, wordRepository } from "@polyglot/adapter-db";
 import {
   FULL_OUTPUT,
   getLangDisplay,
@@ -19,6 +19,7 @@ import {
 } from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
 import {
+  buildPostSaveKeyboard,
   buildSentenceKeyboard,
   buildSourceLangKeyboard,
   buildTranslationKeyboard,
@@ -28,6 +29,7 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { classifyInput } from "../../utils/classify-input.js";
+import { sanitizeForStorage } from "../../utils/sanitize-word-content.js";
 
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
@@ -134,6 +136,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     // Delete loading message
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 
+    // Reset savedWordId on every new translation
+    ctx.session.savedWordId = undefined;
+
     // Store last translation + input type for regen
     ctx.session.lastTranslation = output;
     ctx.session.lastInputType = classification.type;
@@ -171,7 +176,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         card = `${t("detectedLang", lang, { lang: displayName })}\n${card}`;
       }
 
-      const keyboard = buildTranslationKeyboard(langCodes, lang);
+      const keyboard = buildTranslationKeyboard(langCodes, classification.type as "word" | "phrase", lang);
       const cardMsg = await ctx.reply(card, {
         reply_markup: keyboard,
         parse_mode: "HTML",
@@ -191,10 +196,12 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 }
 
 /**
- * Handles Save callback in translate mode.
+ * Handles Save callback in translate mode — full FEAT-30 flow.
+ * FK resolution → duplicate detection → sanitize → persist → edit card.
  */
 export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const output = ctx.session.pendingTranslation;
+  const inputType = ctx.session.lastInputType;
   if (!output) {
     await ctx.answerCallbackQuery();
     return;
@@ -204,25 +211,50 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
-  // Save to dictionary
-  await wordRepository.create(ctx.user.id, {
+  // Step 2 — FK resolution
+  const sourceLangEntry = getLang(output.sourceLang);
+  if (!sourceLangEntry) {
+    logger.error({ sourceLang: output.sourceLang }, "Source language not found in cache");
+    await ctx.answerCallbackQuery({ text: t("translationError", lang) });
+    return;
+  }
+  const sourceLangId = sourceLangEntry.id;
+
+  // Step 3 — Duplicate detection
+  const existing = await wordRepository.findByOriginalAndSource(ctx.user.id, output.original, sourceLangId);
+  if (existing) {
+    await ctx.answerCallbackQuery({ text: t("alreadySaved", lang), show_alert: true });
+    return;
+  }
+
+  // Step 4 — Sanitize
+  const content = sanitizeForStorage(output);
+
+  // Step 5 — Persist
+  const newEntry = await wordRepository.create(ctx.user.id, {
     original: output.original,
-    sourceLang: output.sourceLang,
-    content: output,
+    sourceLangId,
+    inputType: (inputType as "word" | "phrase") ?? "word",
+    content,
   });
 
-  // Update message with saved confirmation
-  const saved = `${renderTranslation(output, lang)}\n\n${t("savedToDict", lang)}`;
-  await ctx.editMessageText(saved, { parse_mode: "HTML" });
-
-  // Clear pending state
+  // Step 6 — Session update
+  ctx.session.savedWordId = newEntry.id;
   ctx.session.pendingTranslation = undefined;
   ctx.session.pendingCardMsgId = undefined;
 
-  await ctx.answerCallbackQuery();
+  // Step 7 — Edit card in place
+  const langCodes = Object.keys(output.translations);
+  const savedCard = `${renderTranslation(output, lang)}\n\n${t("savedToDict", lang)}`;
+  const keyboard = buildPostSaveKeyboard(langCodes, lang);
+  try {
+    await ctx.editMessageText(savedCard, { reply_markup: keyboard, parse_mode: "HTML" });
+  } catch (err) {
+    logger.error({ err }, "Failed to edit message after save — save still succeeded");
+  }
 
-  // Show hint + source language selection menu
-  await sendSourceLangMenu(ctx, settings, lang);
+  // Step 8
+  await ctx.answerCallbackQuery();
 }
 
 /**
@@ -297,6 +329,7 @@ async function sendSourceLangMenu(
  * Handles regeneration callback in persistent translate mode (tr:regen:{code}).
  * Reads lastTranslation and lastInputType from session to select the
  * correct preset, renderer, and keyboard.
+ * When savedWordId is set, auto-updates the stored DB entry after regen.
  */
 export async function handleRegenCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data;
@@ -316,6 +349,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const isSentence = ctx.session.lastInputType === "sentence";
+  const inputType = ctx.session.lastInputType;
 
   // Show regenerating indicator
   await ctx.answerCallbackQuery({
@@ -340,7 +374,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
         model: config.AI_MODEL,
         userId: ctx.user.id,
         outputConfig,
-        inputType: ctx.session.lastInputType,
+        inputType,
       },
       { lookupContext: lookupContextFn, generateObjectFn: generateObject },
     );
@@ -352,21 +386,39 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     };
     ctx.session.lastTranslation = updated;
 
+    // Auto-update saved DB entry when savedWordId is set
+    if (ctx.session.savedWordId) {
+      try {
+        const sanitized = sanitizeForStorage(updated);
+        await wordRepository.updateContent(ctx.session.savedWordId, sanitized);
+      } catch (err) {
+        logger.error({ err, savedWordId: ctx.session.savedWordId }, "Failed to update saved word after regen");
+      }
+    }
+
     // Also update pendingTranslation for word/phrase (Save/Skip still works)
-    if (!isSentence) {
+    // Only when word is NOT yet saved (pendingTranslation was cleared on save)
+    if (!isSentence && !ctx.session.savedWordId) {
       ctx.session.pendingTranslation = updated;
     }
 
     // Re-render card with correct renderer and keyboard
     const langCodes = Object.keys(updated.translations);
-    const card = isSentence
-      ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang)}`
-      : renderTranslation(updated, lang);
-    const keyboard = isSentence
-      ? buildSentenceKeyboard(langCodes, lang)
-      : buildTranslationKeyboard(langCodes, lang);
 
-    await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
+    if (isSentence) {
+      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang)}`;
+      const keyboard = buildSentenceKeyboard(langCodes, lang);
+      await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
+    } else if (ctx.session.savedWordId) {
+      // Post-save: regen-only keyboard + saved indicator
+      const card = `${renderTranslation(updated, lang)}\n\n${t("savedToDict", lang)}`;
+      const keyboard = buildPostSaveKeyboard(langCodes, lang);
+      await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
+    } else {
+      const card = renderTranslation(updated, lang);
+      const keyboard = buildTranslationKeyboard(langCodes, (inputType as "word" | "phrase") ?? "word", lang);
+      await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
+    }
   } catch (err) {
     logger.error({ err, word: lastOutput.original, regenLang }, "Regeneration failed");
   }

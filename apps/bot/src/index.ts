@@ -34,6 +34,7 @@ bot.use(
       nextSourceLang: null,
       lastTranslation: undefined,
       lastInputType: undefined,
+      savedWordId: undefined,
     }),
   }),
 );

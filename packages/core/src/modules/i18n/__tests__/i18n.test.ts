@@ -226,6 +226,39 @@ describe("i18n — t()", () => {
   it("falls back to English for sentenceTranslation when locale has no file", () => {
     expect(t("sentenceTranslation", "de")).toBe("📝 Sentence translation");
   });
+
+  // Save word/phrase keys (task 30)
+  it("returns saveWord in English", () => {
+    expect(t("saveWord", "en")).toBe("💾 Save word");
+  });
+
+  it("returns savePhrase in English", () => {
+    expect(t("savePhrase", "en")).toBe("💾 Save phrase");
+  });
+
+  it("returns saveWord in Russian", () => {
+    expect(t("saveWord", "ru")).toBe("💾 Сохранить слово");
+  });
+
+  it("returns savePhrase in Russian", () => {
+    expect(t("savePhrase", "ru")).toBe("💾 Сохранить фразу");
+  });
+
+  it("returns saveWord in Czech", () => {
+    expect(t("saveWord", "cs")).toBe("💾 Uložit slovo");
+  });
+
+  it("returns savePhrase in Czech", () => {
+    expect(t("savePhrase", "cs")).toBe("💾 Uložit frázi");
+  });
+
+  it("falls back to English for saveWord when locale has no file", () => {
+    expect(t("saveWord", "de")).toBe("💾 Save word");
+  });
+
+  it("falls back to English for savePhrase when locale has no file", () => {
+    expect(t("savePhrase", "de")).toBe("💾 Save phrase");
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -338,6 +371,8 @@ describe("i18n — locale consistency", () => {
       "nextTranslationFrom",
       "nextSourceSet",
       "sentenceTranslation",
+      "saveWord",
+      "savePhrase",
     ];
 
     for (const key of enKeys) {

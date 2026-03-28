@@ -54,5 +54,7 @@
   "detectedLang": "🔍 Rozpoznáno: {lang}",
   "nextTranslationFrom": "Další překlad z:",
   "nextSourceSet": "🔤 Příště z: {lang}",
-  "sentenceTranslation": "📝 Překlad věty"
+  "sentenceTranslation": "📝 Překlad věty",
+  "saveWord": "💾 Uložit slovo",
+  "savePhrase": "💾 Uložit frázi"
 }

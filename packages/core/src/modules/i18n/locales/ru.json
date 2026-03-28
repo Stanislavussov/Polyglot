@@ -54,5 +54,7 @@
   "detectedLang": "🔍 Определён: {lang}",
   "nextTranslationFrom": "Следующий перевод с:",
   "nextSourceSet": "🔤 Далее с: {lang}",
-  "sentenceTranslation": "📝 Перевод предложения"
+  "sentenceTranslation": "📝 Перевод предложения",
+  "saveWord": "💾 Сохранить слово",
+  "savePhrase": "💾 Сохранить фразу"
 }

@@ -1,6 +1,7 @@
 import type { TopicWord, TranslateOutput } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import {
+  buildPostSaveKeyboard,
   buildSentenceKeyboard,
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -311,14 +312,14 @@ describe("buildTranslationKeyboard", () => {
   const cbData = (btn: unknown): string | undefined => (btn as { callback_data?: string }).callback_data;
 
   it("creates regenerate buttons for each language code", () => {
-    const kb = buildTranslationKeyboard(["cs", "de", "fr"], "en");
+    const kb = buildTranslationKeyboard(["cs", "de", "fr"], "word", "en");
     const rows = kb.inline_keyboard;
     // First row: regen buttons
     expect(rows[0]).toHaveLength(3);
   });
 
   it("uses correct callback data format tr:regen:<code>", () => {
-    const kb = buildTranslationKeyboard(["cs", "de"], "en");
+    const kb = buildTranslationKeyboard(["cs", "de"], "word", "en");
     const regenRow = kb.inline_keyboard[0]!;
     expect(cbData(regenRow[0])).toBe("tr:regen:cs");
     expect(cbData(regenRow[1])).toBe("tr:regen:de");
@@ -326,14 +327,14 @@ describe("buildTranslationKeyboard", () => {
 
   it("includes all language codes as buttons", () => {
     const codes = ["cs", "de", "fr", "es"];
-    const kb = buildTranslationKeyboard(codes, "en");
+    const kb = buildTranslationKeyboard(codes, "word", "en");
     const regenRow = kb.inline_keyboard[0]!;
     const callbackDatas = regenRow.map(cbData);
     expect(callbackDatas).toEqual(codes.map((c) => `tr:regen:${c}`));
   });
 
   it("has save and skip buttons in second row", () => {
-    const kb = buildTranslationKeyboard(["cs"], "en");
+    const kb = buildTranslationKeyboard(["cs"], "word", "en");
     const saveRow = kb.inline_keyboard[1]!;
     expect(saveRow).toHaveLength(2);
     expect(cbData(saveRow[0])).toBe("tr:save");
@@ -341,25 +342,31 @@ describe("buildTranslationKeyboard", () => {
   });
 
   it("uses i18n regenerateLang key for button text", () => {
-    const kb = buildTranslationKeyboard(["cs"], "en");
+    const kb = buildTranslationKeyboard(["cs"], "word", "en");
     const regenBtn = kb.inline_keyboard[0]![0]!;
     expect(regenBtn.text).toBe("🔄 CS");
   });
 
-  it("uses i18n saveToDictionary key for save button", () => {
-    const kb = buildTranslationKeyboard(["cs"], "en");
+  it("uses saveWord label for word input type", () => {
+    const kb = buildTranslationKeyboard(["cs"], "word", "en");
     const saveBtn = kb.inline_keyboard[1]![0]!;
-    expect(saveBtn.text).toContain("Save to dictionary");
+    expect(saveBtn.text).toContain("Save word");
+  });
+
+  it("uses savePhrase label for phrase input type", () => {
+    const kb = buildTranslationKeyboard(["cs"], "phrase", "en");
+    const saveBtn = kb.inline_keyboard[1]![0]!;
+    expect(saveBtn.text).toContain("Save phrase");
   });
 
   it("uses i18n no key for skip button", () => {
-    const kb = buildTranslationKeyboard(["cs"], "en");
+    const kb = buildTranslationKeyboard(["cs"], "word", "en");
     const skipBtn = kb.inline_keyboard[1]![1]!;
     expect(skipBtn.text).toContain("No");
   });
 
   it("renders button text using Russian locale", () => {
-    const kb = buildTranslationKeyboard(["de"], "ru");
+    const kb = buildTranslationKeyboard(["de"], "word", "ru");
     const regenBtn = kb.inline_keyboard[0]![0]!;
     expect(regenBtn.text).toBe("🔄 DE");
     const skipBtn = kb.inline_keyboard[1]![1]!;
@@ -367,19 +374,19 @@ describe("buildTranslationKeyboard", () => {
   });
 
   it("falls back to en for unknown interface language", () => {
-    const kb = buildTranslationKeyboard(["cs"], "xx");
+    const kb = buildTranslationKeyboard(["cs"], "word", "xx");
     const saveBtn = kb.inline_keyboard[1]![0]!;
-    expect(saveBtn.text).toContain("Save to dictionary");
+    expect(saveBtn.text).toContain("Save word");
   });
 
   it("works with single language code", () => {
-    const kb = buildTranslationKeyboard(["fr"], "en");
+    const kb = buildTranslationKeyboard(["fr"], "word", "en");
     expect(kb.inline_keyboard[0]).toHaveLength(1);
     expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr");
   });
 
   it("uppercases language codes in button labels", () => {
-    const kb = buildTranslationKeyboard(["cs", "de"], "en");
+    const kb = buildTranslationKeyboard(["cs", "de"], "word", "en");
     const labels = kb.inline_keyboard[0]!.map((b) => b.text);
     expect(labels).toEqual(["🔄 CS", "🔄 DE"]);
   });
@@ -771,5 +778,42 @@ describe("buildSentenceKeyboard", () => {
     const kb = buildSentenceKeyboard(["fr"], "en");
     expect(kb.inline_keyboard[0]).toHaveLength(1);
     expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr");
+  });
+});
+
+// ── buildPostSaveKeyboard tests ──────────────────────────────────
+
+describe("buildPostSaveKeyboard", () => {
+  const cbData = (btn: unknown): string | undefined => (btn as { callback_data?: string }).callback_data;
+
+  it("returns keyboard with regen button per language code", () => {
+    const kb = buildPostSaveKeyboard(["cs", "de"], "en");
+    const regenRow = kb.inline_keyboard[0]!;
+    expect(regenRow).toHaveLength(2);
+    expect(cbData(regenRow[0])).toBe("tr:regen:cs");
+    expect(cbData(regenRow[1])).toBe("tr:regen:de");
+  });
+
+  it("has no Save/Skip buttons", () => {
+    const kb = buildPostSaveKeyboard(["cs", "de"], "en");
+    const allCallbacks = kb.inline_keyboard.flatMap((row) => row.map(cbData));
+    expect(allCallbacks).not.toContain("tr:save");
+    expect(allCallbacks).not.toContain("tr:skip");
+  });
+
+  it("uses tr:regen:<code> callback data format", () => {
+    const kb = buildPostSaveKeyboard(["fr"], "en");
+    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr");
+  });
+
+  it("has only one row (regen buttons only)", () => {
+    const kb = buildPostSaveKeyboard(["cs", "de", "fr"], "en");
+    expect(kb.inline_keyboard).toHaveLength(1);
+  });
+
+  it("uses i18n regenerateLang key for button text", () => {
+    const kb = buildPostSaveKeyboard(["cs"], "en");
+    const btn = kb.inline_keyboard[0]![0]!;
+    expect(btn.text).toBe("🔄 CS");
   });
 });

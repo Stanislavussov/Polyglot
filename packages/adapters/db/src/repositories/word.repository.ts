@@ -1,19 +1,98 @@
 import { and, desc, eq, ilike } from "drizzle-orm";
+import type {
+  CefrLevel,
+  Example,
+  ExpressionType,
+  Register,
+  Synonym,
+  TranslationVariant,
+} from "@polyglot/core";
 import { getDb } from "../index.js";
 import { words } from "../schema.js";
 
 export type Word = typeof words.$inferSelect;
 export type NewWord = typeof words.$inferInsert;
 
+/* ------------------------------------------------------------------ */
+/*  StoredWordContent — typed JSONB shape for words.content            */
+/* ------------------------------------------------------------------ */
+
+/** Translation data for a single target language, as stored in the DB. */
+export interface StoredLanguageTranslation {
+  text: string;
+  cefr: CefrLevel;
+  transcription?: string;
+  register: Register;
+  synonyms: Synonym[];
+  examples: Example[];
+  alternatives?: TranslationVariant[];
+  expressionType?: ExpressionType;
+  equivalentNote?: string;
+}
+
+/** JSONB content for words.content — emoji + register + per-language translations. */
+export interface StoredWordContent {
+  emoji: string;
+  register: Register;
+  translations: Record<string, StoredLanguageTranslation>;
+}
+
+/* ------------------------------------------------------------------ */
+/*  CreateWordInput — typed input for wordRepository.create()          */
+/* ------------------------------------------------------------------ */
+
+export interface CreateWordInput {
+  original: string;
+  sourceLangId: number;
+  inputType: "word" | "phrase";
+  content: StoredWordContent;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Repository                                                         */
+/* ------------------------------------------------------------------ */
+
 export const wordRepository = {
   /** Create a new word in the dictionary. */
-  async create(userId: number, word: Omit<NewWord, "userId">): Promise<Word> {
+  async create(userId: number, input: CreateWordInput): Promise<Word> {
     const db = getDb();
     const rows = await db
       .insert(words)
-      .values({ ...word, userId })
+      .values({
+        userId,
+        original: input.original,
+        sourceLangId: input.sourceLangId,
+        inputType: input.inputType,
+        content: input.content,
+      })
       .returning();
     return rows[0]!;
+  },
+
+  /**
+   * Find a word by (userId, original, sourceLangId) — duplicate detection.
+   * Uses the unique index for efficient lookup.
+   * Returns null when no entry found.
+   */
+  async findByOriginalAndSource(
+    userId: number,
+    original: string,
+    sourceLangId: number,
+  ): Promise<Word | null> {
+    const db = getDb();
+    const rows = await db
+      .select()
+      .from(words)
+      .where(
+        and(
+          eq(words.userId, userId),
+          eq(words.original, original),
+          eq(words.sourceLangId, sourceLangId),
+          eq(words.isActive, true),
+        ),
+      )
+      .limit(1);
+    return rows[0] ?? null;
   },
 
   /** Find all words for a given user. */
@@ -48,7 +127,7 @@ export const wordRepository = {
    * Used after partial regeneration — caller merges the single-language
    * result into the existing content object before calling this method.
    */
-  async updateContent(wordId: number, content: Record<string, unknown>): Promise<Word> {
+  async updateContent(wordId: number, content: StoredWordContent): Promise<Word> {
     const db = getDb();
     const rows = await db.update(words).set({ content, updatedAt: new Date() }).where(eq(words.id, wordId)).returning();
     return rows[0]!;
