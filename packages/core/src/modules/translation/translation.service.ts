@@ -13,8 +13,10 @@
  * Knows nothing about the user — works only with text and languages.
  */
 import type {
+  LanguageTranslation,
   TranslateInput,
   TranslateOutput,
+  TranslationOutputConfig,
   TranslationRequest,
   TranslationResult,
 } from "./types.js";
@@ -108,10 +110,11 @@ export async function translate(
       continue;
     }
 
-    // Step 3: Validate response
+    // Step 3: Validate response (use the same config-aware schema
+    // so disabled fields like examples don't trigger false failures)
     const validation = validate(
       result,
-      translationResultSchema,
+      schema,
       input.word,
       input.targetLangs,
     );
@@ -238,12 +241,16 @@ function toOutput(
   result: TranslationResult,
   needsReview: boolean,
 ): TranslateOutput {
+  // Strip disabled fields from AI response — the model may still return them
+  // even when the prompt doesn't ask for them (JSON schema leaks structure).
+  const translations = stripDisabledFields(result.translations, input.outputConfig);
+
   const output: TranslateOutput = {
     original: input.word,
     sourceLang: input.sourceLang,
     emoji: result.emoji,
     register: result.register,
-    translations: result.translations,
+    translations,
   };
 
   if (needsReview) {
@@ -255,4 +262,34 @@ function toOutput(
   }
 
   return output;
+}
+
+/**
+ * Strip fields that were disabled via TranslationOutputConfig.
+ *
+ * The AI model may return optional fields even when not asked —
+ * the Zod schema describes their structure (for `.default([])`),
+ * and Vercel AI SDK exposes that to the model. This function
+ * enforces the caller's intent by zeroing out disabled sections.
+ */
+function stripDisabledFields(
+  translations: Record<string, LanguageTranslation>,
+  config?: TranslationOutputConfig,
+): Record<string, LanguageTranslation> {
+  if (!config) return translations;
+
+  const stripped: Record<string, import("./types.js").LanguageTranslation> = {};
+
+  for (const [lang, lt] of Object.entries(translations)) {
+    stripped[lang] = {
+      ...lt,
+      ...(config.includeExamples === false && { examples: [] }),
+      ...(config.includeSynonyms === false && { synonyms: [] }),
+      ...(config.includeAlternatives === false && { alternatives: undefined }),
+      ...(config.includeTranscription === false && { transcription: undefined }),
+      ...(config.includeEquivalentNote === false && { expressionType: undefined, equivalentNote: undefined }),
+    };
+  }
+
+  return stripped;
 }
