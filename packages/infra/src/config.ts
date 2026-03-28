@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { config as dotenvConfig } from "dotenv";
 import { z } from "zod";
+import { logger } from "./logger.js";
 
 const envSchema = z.object({
   BOT_TOKEN: z.string().min(1, "BOT_TOKEN is required"),
@@ -40,7 +41,7 @@ export function loadConfig(): Env {
 
   if (!result.success) {
     const formatted = z.treeifyError(result.error);
-    console.error("❌ Invalid environment variables:", formatted);
+    logger.error({ formatted }, "Invalid environment variables");
     process.exit(1);
   }
 

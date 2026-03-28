@@ -1,3 +1,7 @@
+// Logger
+export { getLogger, setLogger } from "./logger.js";
+export type { Logger } from "./logger.js";
+
 // Modules
 
 export * from "./modules/context-enrichment/index.js";

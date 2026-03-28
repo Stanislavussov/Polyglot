@@ -1,6 +1,6 @@
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
-import { initLanguageRegistry } from "@polyglot/core";
+import { initLanguageRegistry, setLogger } from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
 import { Bot, session } from "grammy";
 import { startCommand } from "./commands/start.js";
@@ -18,6 +18,9 @@ import type { BotContext, SessionData } from "./types.js";
 
 // ── Load & validate environment ──
 const config = loadConfig();
+
+// ── Inject pino logger into core (clean-arch bridge) ──
+setLogger(logger);
 
 // ── Create bot instance ──
 const bot = new Bot<BotContext>(config.BOT_TOKEN);

@@ -1,6 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { setLogger } from "../../../logger.js";
+import type { Logger } from "../../../logger.js";
 import { parseResponse, translate, translateBatch, translateOne } from "../translation.service.js";
 import type { TranslateInput, TranslationResult } from "../types.js";
+
+/** Shared mock logger for validation logging tests */
+const mockLogger: Logger = {
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
+};
 
 /** A valid AI response matching translationResultSchema */
 function makeValidResult(overrides?: Partial<TranslationResult>): TranslationResult {
@@ -376,10 +386,15 @@ describe("translateBatch", () => {
 });
 
 describe("validation logging", () => {
-  it("calls console.warn on each failed validation attempt", async () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  beforeEach(() => {
+    vi.mocked(mockLogger.info).mockClear();
+    vi.mocked(mockLogger.warn).mockClear();
+    vi.mocked(mockLogger.error).mockClear();
+    vi.mocked(mockLogger.debug).mockClear();
+    setLogger(mockLogger);
+  });
 
+  it("calls logger.warn on each failed validation attempt", async () => {
     // Every call returns bad result (translation = original → semantic fail)
     const badResult = makeValidResult({
       translations: {
@@ -403,30 +418,24 @@ describe("validation logging", () => {
 
     await translate(defaultInput, mockGenerate);
 
-    // 3 attempts (0, 1, 2) → 3 console.warn calls
-    expect(warnSpy).toHaveBeenCalledTimes(3);
+    // 3 attempts (0, 1, 2) → 3 logger.warn calls
+    expect(mockLogger.warn).toHaveBeenCalledTimes(3);
 
     // Each call should have the correct structure
     for (let i = 0; i < 3; i++) {
-      expect(warnSpy).toHaveBeenNthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         i + 1,
-        "[translation] validation failed",
         expect.objectContaining({
           original: "hello",
           retryCount: i,
           failReason: expect.any(String),
         }),
+        "translation validation failed",
       );
     }
-
-    warnSpy.mockRestore();
-    errorSpy.mockRestore();
   });
 
-  it("calls console.error after all retries exhausted", async () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
+  it("calls logger.error after all retries exhausted", async () => {
     const badResult = makeValidResult({
       translations: {
         cs: {
@@ -449,39 +458,27 @@ describe("validation logging", () => {
 
     await translate(defaultInput, mockGenerate);
 
-    expect(errorSpy).toHaveBeenCalledTimes(1);
-    expect(errorSpy).toHaveBeenCalledWith(
-      "[translation] validation failed after all retries — returning needsReview",
+    expect(mockLogger.error).toHaveBeenCalledTimes(1);
+    expect(mockLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
         original: "hello",
         retryCount: 2,
         failReason: expect.any(String),
       }),
+      "translation validation failed after all retries — returning needsReview",
     );
-
-    warnSpy.mockRestore();
-    errorSpy.mockRestore();
   });
 
   it("does not log when validation passes on first attempt", async () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
     const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
 
     await translate(defaultInput, mockGenerate);
 
-    expect(warnSpy).not.toHaveBeenCalled();
-    expect(errorSpy).not.toHaveBeenCalled();
-
-    warnSpy.mockRestore();
-    errorSpy.mockRestore();
+    expect(mockLogger.warn).not.toHaveBeenCalled();
+    expect(mockLogger.error).not.toHaveBeenCalled();
   });
 
   it("logs warn but not error when retry succeeds", async () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
     const badResult = makeValidResult({
       translations: {
         cs: {
@@ -505,27 +502,21 @@ describe("validation logging", () => {
     await translate(defaultInput, mockGenerate);
 
     // One warn for the first failed attempt
-    expect(warnSpy).toHaveBeenCalledTimes(1);
-    expect(warnSpy).toHaveBeenCalledWith(
-      "[translation] validation failed",
+    expect(mockLogger.warn).toHaveBeenCalledTimes(1);
+    expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
         original: "hello",
         retryCount: 0,
         failReason: expect.stringContaining("semantic"),
       }),
+      "translation validation failed",
     );
 
     // No error since retry succeeded
-    expect(errorSpy).not.toHaveBeenCalled();
-
-    warnSpy.mockRestore();
-    errorSpy.mockRestore();
+    expect(mockLogger.error).not.toHaveBeenCalled();
   });
 
   it("includes failReason with validation error details", async () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
     const badResult = makeValidResult({
       translations: {
         cs: {
@@ -549,13 +540,10 @@ describe("validation logging", () => {
     await translate(defaultInput, mockGenerate);
 
     // The failReason should describe the semantic error
-    const firstWarnArgs = warnSpy.mock.calls[0];
-    const logObj = firstWarnArgs[1] as { failReason: string };
+    const firstWarnArgs = (mockLogger.warn as ReturnType<typeof vi.fn>).mock.calls[0];
+    const logObj = firstWarnArgs[0] as { failReason: string };
     expect(logObj.failReason).toContain("hello");
     expect(logObj.failReason).toContain("identical");
-
-    warnSpy.mockRestore();
-    errorSpy.mockRestore();
   });
 });
 

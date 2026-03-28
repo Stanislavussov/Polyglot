@@ -24,7 +24,8 @@
         "useImportType": "off"
       },
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noConsole": "error"
       },
       "complexity": {
         "noForEach": "off"

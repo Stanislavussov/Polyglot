@@ -13,6 +13,7 @@
  * Knows nothing about the user — works only with text and languages.
  */
 
+import { getLogger } from "../../logger.js";
 import { validate } from "../validation/index.js";
 import { buildStrictPrompt, buildTranslationPrompt } from "./prompt.builder.js";
 import { buildTranslationResultSchema, translationResultSchema } from "./schemas/translation.schema.js";
@@ -59,13 +60,13 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
     inputType: input.inputType,
   };
 
-  console.log("[translation] starting translation request", {
+  getLogger().info({
     original: input.word,
     sourceLang: input.sourceLang,
     targetLangs: input.targetLangs,
     topic: input.topic,
     model: input.model,
-  });
+  }, "translation request started");
 
   // Step 1: Build prompt and call AI
   // Use dynamic schema with required language keys so AI SDK enforces their presence
@@ -86,11 +87,11 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
     } catch (generationError) {
       const errorMsg = generationError instanceof Error ? generationError.message : String(generationError);
 
-      console.warn("[translation] AI generation failed", {
+      getLogger().warn({
         original: input.word,
         retryCount: attempt,
         failReason: errorMsg,
-      });
+      }, "AI generation failed");
 
       // On last attempt, rethrow
       if (attempt === MAX_RETRIES) {
@@ -117,23 +118,22 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
     // Step 5: On FAIL → retry with strict prompt
     lastErrors = validation.errors.map((e) => `[${e.rule}] ${e.field ? `${e.field}: ` : ""}${e.message}`);
 
-    // Log validation failure (console — core has no logger dep)
-    console.warn("[translation] validation failed", {
+    getLogger().warn({
       original: input.word,
       retryCount: attempt,
       failReason: lastErrors.join(" | "),
-    });
+    }, "translation validation failed");
 
     // Build strict prompt for next retry
     prompt = buildStrictPrompt(request, lastErrors);
   }
 
   // Step 6: On final FAIL → return with needsReview: true
-  console.error("[translation] validation failed after all retries — returning needsReview", {
+  getLogger().error({
     original: input.word,
     retryCount: MAX_RETRIES,
     failReason: lastErrors.join(" | "),
-  });
+  }, "translation validation failed after all retries — returning needsReview");
   return toOutput(input, result!, true);
 }
 

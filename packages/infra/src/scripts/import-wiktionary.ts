@@ -24,6 +24,7 @@ import {
   wordContextRepository,
 } from "@polyglot/adapter-db";
 import { loadConfig } from "../config.js";
+import { logger } from "../logger.js";
 
 // ─────────────────────────────────────────────
 // Types
@@ -127,12 +128,7 @@ async function importWiktionary(
     throw new Error(`File not found: ${filePath}`);
   }
 
-  console.log(`📖 Importing from: ${filePath}`);
-  console.log(`📦 Batch size: ${options.batchSize}`);
-  if (options.langFilter) {
-    console.log(`🌍 Language filter: ${options.langFilter}`);
-  }
-  console.log("");
+  logger.info({ filePath, batchSize: options.batchSize, langFilter: options.langFilter }, "Starting Wiktionary import");
 
   for await (const entry of parseJsonl(filePath)) {
     stats.total++;
@@ -178,14 +174,13 @@ async function importWiktionary(
 
   stats.duration = Date.now() - startTime;
 
-  console.log(`\r✅ Complete!                                        `);
-  console.log("");
-  console.log(`📊 Stats:`);
-  console.log(`   Total entries:  ${stats.total.toLocaleString()}`);
-  console.log(`   Inserted:       ${stats.inserted.toLocaleString()}`);
-  console.log(`   Skipped:        ${stats.skipped.toLocaleString()}`);
-  console.log(`   Errors:         ${stats.errors.toLocaleString()}`);
-  console.log(`   Duration:       ${(stats.duration / 1000).toFixed(2)}s`);
+  logger.info({
+    total: stats.total,
+    inserted: stats.inserted,
+    skipped: stats.skipped,
+    errors: stats.errors,
+    durationSec: +(stats.duration / 1000).toFixed(2),
+  }, "Wiktionary import complete");
 
   return stats;
 }
@@ -204,19 +199,7 @@ async function main() {
   });
 
   if (values.help || positionals.length === 0) {
-    console.log(`
-Usage: pnpm import:wiktionary <jsonl-file> [options]
-
-Options:
-  --batch-size=N   Insert batch size (default: 1000)
-  --lang=CODE      Filter by language code (e.g., ru, en, de)
-  -h, --help       Show this help message
-
-Examples:
-  pnpm import:wiktionary /path/to/kaikki.org-dictionary-Russian.jsonl
-  pnpm import:wiktionary /path/to/russian.jsonl --batch-size=5000
-  pnpm import:wiktionary /path/to/russian.jsonl --lang=ru
-`);
+    logger.info({}, `Usage: pnpm import:wiktionary <jsonl-file> [options]\n\nOptions:\n  --batch-size=N   Insert batch size (default: 1000)\n  --lang=CODE      Filter by language code (e.g., ru, en, de)\n  -h, --help       Show this help message`);
     process.exit(0);
   }
 
@@ -232,7 +215,7 @@ Examples:
     await loadLanguageCache();
     await importWiktionary(filePath, { batchSize, langFilter });
   } catch (err) {
-    console.error("❌ Import failed:", err);
+    logger.error({ err }, "Import failed");
     process.exit(1);
   } finally {
     await closeDb();
