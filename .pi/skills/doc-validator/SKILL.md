@@ -39,12 +39,14 @@ For task files in `docs/tasks/`:
 6. **Subtask checkboxes** — check boxes for work that's actually done (files exist, functions implemented)
 7. **Files created/modified** — lists match actual created/modified files
 8. **Status in `docs/tasks/README.md`** — mark tasks as ✅ Done when all acceptance criteria are met
+9. **Move finished tasks** — any task marked ✅ Done must be moved from `docs/tasks/` to `docs/tasks/finished/` (`mv docs/tasks/<file>.md docs/tasks/finished/`). Update links in `docs/tasks/README.md` to point to `./finished/<file>.md` and move the row from the Active table to the Finished table.
 
 ## Additional Rules
 
 - Fix all mismatches directly in the doc files
 - Never modify source code — only docs
 - Report a summary of all fixes made
+- When moving finished tasks, verify the `finished/` directory exists (create with `mkdir -p` if not)
 
 ## Checklist
 
@@ -60,6 +62,7 @@ For each task doc:
   □ Subtask checkboxes reflect reality?
   □ Files listed actually exist?
   □ README.md status up to date?
+  □ Finished tasks moved to docs/tasks/finished/?
 ```
 
 ## Reference

@@ -296,7 +296,7 @@
           {
             "name": "doc-validator",
             "role": "Validates all documentation against current code state. Final pipeline gate.",
-            "rules": "Verify SKILL.md files: Current State, File Structure, Public API, Types, Schema.\nVerify task files: checkboxes, file lists, README status.\nFlag hardcoded language/mode unions in docs — must reference DB cache.\nFix docs only — never source code.",
+            "rules": "Verify SKILL.md files: Current State, File Structure, Public API, Types, Schema.\nVerify task files: checkboxes, file lists, README status. Move ✅ Done tasks to docs/tasks/finished/.\nFlag hardcoded language/mode unions in docs — must reference DB cache.\nFix docs only — never source code.",
             "type": "coding",
             "skills": [
               ".pi/skills/doc-validator",
