@@ -6,23 +6,17 @@
  * need core fields + transcription — no examples, synonyms, alternatives,
  * or equivalent notes — to save tokens during bulk translation.
  */
-import { describe, it, expect, vi } from "vitest";
-import { createTopicService, getDataset } from "../topic.service.js";
-import type {
-  TopicDeps,
-  LanguageTranslationEntry,
-} from "../types.js";
-import type { TranslateOutput } from "../../translation/types.js";
+import { describe, expect, it, vi } from "vitest";
 import { MINIMAL_OUTPUT } from "../../translation/translation-output.presets.js";
+import type { TranslateOutput } from "../../translation/types.js";
+import { createTopicService, getDataset } from "../topic.service.js";
+import type { LanguageTranslationEntry, TopicDeps } from "../types.js";
 
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
 
-function makeTranslateOutput(
-  original: string,
-  targetLangs: string[],
-): TranslateOutput {
+function makeTranslateOutput(original: string, targetLangs: string[]): TranslateOutput {
   const translations: Record<string, unknown> = {};
   for (const lang of targetLangs) {
     translations[lang] = {
@@ -74,9 +68,7 @@ describe("MINIMAL_OUTPUT preset used by topics", () => {
 describe("getTopicWords passes MINIMAL_OUTPUT to translateBatch", () => {
   it("passes MINIMAL_OUTPUT as 4th argument to translateBatch", async () => {
     const dataset = getDataset("food")!;
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-    );
+    const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeTranslateOutput(w, ["cs"])));
 
     const deps = createMockDeps({ translateBatch });
     const service = createTopicService(deps);
@@ -90,27 +82,23 @@ describe("getTopicWords passes MINIMAL_OUTPUT to translateBatch", () => {
 
   it("passes MINIMAL_OUTPUT with multiple target languages", async () => {
     const dataset = getDataset("food")!;
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["cs", "de", "es"])),
-    );
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue(dataset.words.map((w) => makeTranslateOutput(w, ["cs", "de", "es"])));
 
     const deps = createMockDeps({ translateBatch });
     const service = createTopicService(deps);
 
     await service.getTopicWords("food", "en", ["cs", "de", "es"]);
 
-    expect(translateBatch).toHaveBeenCalledWith(
-      dataset.words,
-      "en",
-      ["cs", "de", "es"],
-      MINIMAL_OUTPUT,
-    );
+    expect(translateBatch).toHaveBeenCalledWith(dataset.words, "en", ["cs", "de", "es"], MINIMAL_OUTPUT);
   });
 
   it("does not pass outputConfig when all words are cached (no translateBatch call)", async () => {
-    const dataset = getDataset("food")!;
-    const getCached = vi.fn().mockImplementation(
-      (topicId: string, original: string, sourceLang: string, targetLang: string) =>
+    const _dataset = getDataset("food")!;
+    const getCached = vi
+      .fn()
+      .mockImplementation((topicId: string, original: string, sourceLang: string, targetLang: string) =>
         Promise.resolve({
           id: 1,
           topicId,
@@ -129,7 +117,7 @@ describe("getTopicWords passes MINIMAL_OUTPUT to translateBatch", () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         }),
-    );
+      );
 
     const translateBatch = vi.fn();
     const deps = createMockDeps({ getCached, translateBatch });
@@ -143,9 +131,7 @@ describe("getTopicWords passes MINIMAL_OUTPUT to translateBatch", () => {
 
   it("passes MINIMAL_OUTPUT for different topic IDs", async () => {
     const dataset = getDataset("travel")!;
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["de"])),
-    );
+    const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeTranslateOutput(w, ["de"])));
 
     const deps = createMockDeps({ translateBatch });
     const service = createTopicService(deps);
@@ -169,23 +155,20 @@ describe("generateCustomTopic passes MINIMAL_OUTPUT to translateBatch", () => {
       words: ["red", "blue", "green"],
     });
 
-    const translateBatch = vi.fn().mockResolvedValue([
-      makeTranslateOutput("red", ["cs"]),
-      makeTranslateOutput("blue", ["cs"]),
-      makeTranslateOutput("green", ["cs"]),
-    ]);
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue([
+        makeTranslateOutput("red", ["cs"]),
+        makeTranslateOutput("blue", ["cs"]),
+        makeTranslateOutput("green", ["cs"]),
+      ]);
 
     const deps = createMockDeps({ generateWords, translateBatch });
     const service = createTopicService(deps);
 
     await service.generateCustomTopic("colors", "en", ["cs"]);
 
-    expect(translateBatch).toHaveBeenCalledWith(
-      ["red", "blue", "green"],
-      "en",
-      ["cs"],
-      MINIMAL_OUTPUT,
-    );
+    expect(translateBatch).toHaveBeenCalledWith(["red", "blue", "green"], "en", ["cs"], MINIMAL_OUTPUT);
   });
 });
 
@@ -251,17 +234,13 @@ describe("regenerateTopicWord passes MINIMAL_OUTPUT to translateOne", () => {
 describe("TopicDeps accepts outputConfig parameter", () => {
   it("translateBatch accepts optional 4th outputConfig argument", async () => {
     const dataset = getDataset("food")!;
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-    );
+    const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeTranslateOutput(w, ["cs"])));
 
     const deps = createMockDeps({ translateBatch });
     const service = createTopicService(deps);
 
     // Should not throw — the 4th argument is valid
-    await expect(
-      service.getTopicWords("food", "en", ["cs"]),
-    ).resolves.toBeDefined();
+    await expect(service.getTopicWords("food", "en", ["cs"])).resolves.toBeDefined();
 
     // Verify the mock received 4 arguments
     expect(translateBatch.mock.calls[0]).toHaveLength(4);
@@ -283,9 +262,7 @@ describe("TopicDeps accepts outputConfig parameter", () => {
     const service = createTopicService(deps);
 
     // Should not throw — the 4th argument is valid
-    await expect(
-      service.regenerateTopicWord("food", word, "en", "cs"),
-    ).resolves.toBeDefined();
+    await expect(service.regenerateTopicWord("food", word, "en", "cs")).resolves.toBeDefined();
 
     // Verify the mock received 4 arguments
     expect(translateOne.mock.calls[0]).toHaveLength(4);

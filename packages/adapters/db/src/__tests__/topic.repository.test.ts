@@ -1,19 +1,19 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock Drizzle query builder ──────────────────────────────────
 // We mock getDb() to return a chainable query builder that records calls.
 
 const mockRows: unknown[] = [];
-let lastInsertValues: unknown = null;
+let _lastInsertValues: unknown = null;
 let lastUpdateSet: unknown = null;
-let lastWhereArgs: unknown = null;
+let _lastWhereArgs: unknown = null;
 
 const returningFn = vi.fn(() => Promise.resolve(mockRows));
 
 const onConflictDoUpdateFn = vi.fn(() => ({ returning: returningFn }));
 
 const insertValuesFn = vi.fn((values: unknown) => {
-  lastInsertValues = values;
+  _lastInsertValues = values;
   return { onConflictDoUpdate: onConflictDoUpdateFn, returning: returningFn };
 });
 
@@ -22,7 +22,7 @@ const insertFn = vi.fn(() => ({ values: insertValuesFn }));
 const limitFn = vi.fn(() => Promise.resolve(mockRows));
 
 const selectWhereFn = vi.fn((args: unknown) => {
-  lastWhereArgs = args;
+  _lastWhereArgs = args;
   return { limit: limitFn };
 });
 
@@ -50,15 +50,13 @@ vi.mock("../index.js", () => ({
 }));
 
 // Import after mock is set up
-const { topicRepository } = await import(
-  "../repositories/topic.repository.js"
-);
+const { topicRepository } = await import("../repositories/topic.repository.js");
 
 beforeEach(() => {
   mockRows.length = 0;
-  lastInsertValues = null;
+  _lastInsertValues = null;
   lastUpdateSet = null;
-  lastWhereArgs = null;
+  _lastWhereArgs = null;
   vi.clearAllMocks();
 });
 
@@ -79,12 +77,7 @@ describe("topicRepository", () => {
       };
       mockRows.push(cached);
 
-      const result = await topicRepository.getCached(
-        "food",
-        "apple",
-        "en",
-        "cs",
-      );
+      const result = await topicRepository.getCached("food", "apple", "en", "cs");
 
       expect(result).toBe(cached);
       expect(selectFn).toHaveBeenCalledOnce();
@@ -92,12 +85,7 @@ describe("topicRepository", () => {
 
     it("returns null when not found", async () => {
       // mockRows is empty
-      const result = await topicRepository.getCached(
-        "food",
-        "nonexistent",
-        "en",
-        "cs",
-      );
+      const result = await topicRepository.getCached("food", "nonexistent", "en", "cs");
 
       expect(result).toBeNull();
     });

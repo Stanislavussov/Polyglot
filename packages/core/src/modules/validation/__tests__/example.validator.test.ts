@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { validateExamples } from "../validators/example.validator.js";
 
 describe("validateExamples", () => {
@@ -25,25 +25,15 @@ describe("validateExamples", () => {
   });
 
   it("fails for empty target text", () => {
-    const result = validateExamples(
-      [{ context: "formal", target: "", native: "Some native text" }],
-      "word",
-    );
+    const result = validateExamples([{ context: "formal", target: "", native: "Some native text" }], "word");
     expect(result.valid).toBe(false);
-    expect(
-      result.errors.some((e) => e.field?.includes("target")),
-    ).toBe(true);
+    expect(result.errors.some((e) => e.field?.includes("target"))).toBe(true);
   });
 
   it("fails for empty native text", () => {
-    const result = validateExamples(
-      [{ context: "formal", target: "Some target text with word", native: "" }],
-      "word",
-    );
+    const result = validateExamples([{ context: "formal", target: "Some target text with word", native: "" }], "word");
     expect(result.valid).toBe(false);
-    expect(
-      result.errors.some((e) => e.field?.includes("native")),
-    ).toBe(true);
+    expect(result.errors.some((e) => e.field?.includes("native"))).toBe(true);
   });
 
   it("passes when target text does not contain the word (no word containment check)", () => {

@@ -2,7 +2,7 @@
  * Tests for auto-detect input language integration in translate-mode helper.
  * Covers resolveTranslationDirection wiring and detected language display.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock external modules before imports
 vi.mock("@polyglot/adapter-ai", () => ({
@@ -25,9 +25,7 @@ vi.mock("@polyglot/adapter-db", () => ({
 }));
 
 vi.mock("@polyglot/core", async () => {
-  const actual = await vi.importActual<typeof import("@polyglot/core")>(
-    "@polyglot/core",
-  );
+  const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   // Initialize registry since vi.importActual gets a fresh module copy
   actual.initLanguageRegistry([
     { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", iso3Code: "eng", isSupported: true },
@@ -66,10 +64,10 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { handleTranslateText } from "../translate-mode.helper.js";
 import { userRepository } from "@polyglot/adapter-db";
 import { translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../../types.js";
+import { handleTranslateText } from "../translate-mode.helper.js";
 
 function createMockCtx(): BotContext {
   const session: SessionData = {
@@ -147,9 +145,7 @@ describe("handleTranslateText — auto-detect language direction", () => {
     await handleTranslateText(ctx, "hello");
 
     // Card should include the detected language indicator (🔍 Detected: English)
-    const replyCall = vi.mocked(ctx.reply).mock.calls.find(
-      (call) => call[1] && (call[1] as any).parse_mode === "HTML",
-    );
+    const replyCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1] && (call[1] as any).parse_mode === "HTML");
     expect(replyCall).toBeDefined();
     // i18n key 'detectedLang' → "🔍 Detected: {lang}" with lang=English
     expect(replyCall![0]).toContain("English");
@@ -160,9 +156,7 @@ describe("handleTranslateText — auto-detect language direction", () => {
     await handleTranslateText(ctx, "привет");
 
     // Card should NOT have the detected lang prefix
-    const replyCall = vi.mocked(ctx.reply).mock.calls.find(
-      (call) => call[1] && (call[1] as any).parse_mode === "HTML",
-    );
+    const replyCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1] && (call[1] as any).parse_mode === "HTML");
     expect(replyCall).toBeDefined();
     expect(replyCall![0]).not.toContain("Detected:");
   });

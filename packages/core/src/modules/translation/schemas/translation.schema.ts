@@ -8,13 +8,7 @@ import { z } from "zod";
 import type { TranslationOutputConfig } from "../types.js";
 
 /** Valid register values */
-const registerEnum = z.enum([
-  "slang",
-  "colloquial",
-  "neutral",
-  "literary",
-  "professional",
-]);
+const registerEnum = z.enum(["slang", "colloquial", "neutral", "literary", "professional"]);
 
 /** Valid CEFR levels */
 const cefrEnum = z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]);
@@ -108,9 +102,7 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig)
     cefr: cefrEnum,
     transcription: z.string().optional(),
     register: registerEnum,
-    synonyms: includeSynonyms
-      ? z.array(synonymSchema)
-      : z.array(synonymSchema).default([]),
+    synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema).default([]),
     examples: includeExamples
       ? z.array(exampleSchema).min(1, "At least one example is required")
       : z.array(exampleSchema).default([]),
@@ -149,9 +141,7 @@ export function buildTranslationResultSchema(targetLangs: string[], config?: Tra
 /** Inferred types from schemas for runtime validation */
 export type TranslationRequestInput = z.infer<typeof translationRequestSchema>;
 export type TranslationResultInput = z.infer<typeof translationResultSchema>;
-export type LanguageTranslationInput = z.infer<
-  typeof languageTranslationSchema
->;
+export type LanguageTranslationInput = z.infer<typeof languageTranslationSchema>;
 export type SynonymInput = z.infer<typeof synonymSchema>;
 export type TranslationExampleInput = z.infer<typeof exampleSchema>;
 export type TranslationVariantInput = z.infer<typeof translationVariantSchema>;

@@ -5,13 +5,10 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { generateObject } from "@polyglot/adapter-ai";
 import { wordRepository } from "@polyglot/adapter-db";
-import { translateOne, FULL_OUTPUT, t, type TranslateOutput, type SupportedLang } from "@polyglot/core";
+import { FULL_OUTPUT, type SupportedLang, type TranslateOutput, t, translateOne } from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
+import { buildTranslationKeyboard, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext, ConversationContext } from "../../types.js";
-import {
-  renderTranslation,
-  buildTranslationKeyboard,
-} from "../../renderers/translation.renderer.js";
 
 type TranslateConversation = Conversation<BotContext, ConversationContext>;
 
@@ -30,14 +27,11 @@ export async function handleRegenLoop(
   let keyboard = buildTranslationKeyboard(langCodes, lang);
 
   while (true) {
-    const resp = await conversation.waitForCallbackQuery(
-      /^tr:(save|skip|regen:.+)$/,
-      {
-        otherwise: async (c) => {
-          await c.reply(card, { reply_markup: keyboard, parse_mode: "HTML" });
-        },
+    const resp = await conversation.waitForCallbackQuery(/^tr:(save|skip|regen:.+)$/, {
+      otherwise: async (c) => {
+        await c.reply(card, { reply_markup: keyboard, parse_mode: "HTML" });
       },
-    );
+    });
     await resp.answerCallbackQuery();
     const data = resp.callbackQuery.data;
 
@@ -49,7 +43,7 @@ export async function handleRegenLoop(
           content: current,
         });
       });
-      const saved = renderTranslation(current, lang) + "\n\n" + t("savedToDict", lang);
+      const saved = `${renderTranslation(current, lang)}\n\n${t("savedToDict", lang)}`;
       await resp.editMessageText(saved, { parse_mode: "HTML" });
       return;
     }
@@ -65,10 +59,9 @@ export async function handleRegenLoop(
     const regenLang = data.replace("tr:regen:", "");
 
     // Show loading state
-    await resp.editMessageText(
-      card + "\n\n" + t("regenerating", lang, { lang: regenLang.toUpperCase() }),
-      { parse_mode: "HTML" },
-    );
+    await resp.editMessageText(`${card}\n\n${t("regenerating", lang, { lang: regenLang.toUpperCase() })}`, {
+      parse_mode: "HTML",
+    });
 
     try {
       const newTranslation = await conversation.external(async () => {

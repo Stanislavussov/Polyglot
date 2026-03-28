@@ -1,9 +1,9 @@
 /**
  * Tests for /translate command handler — mode activation + DB persistence.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { handleTranslateCommand } from "./translate.scene.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { BotContext, SessionData } from "../types.js";
+import { handleTranslateCommand } from "./translate.scene.js";
 
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { validateExamples } from "../validators/example.validator.js";
 
 /**
@@ -29,11 +29,7 @@ describe("validateExamples — expressionType parameter", () => {
   });
 
   it("accepts expressionType 'idiomatic_equivalent' — validates normally", () => {
-    const result = validateExamples(
-      validExamples,
-      "Having your cake and eating it too",
-      "idiomatic_equivalent",
-    );
+    const result = validateExamples(validExamples, "Having your cake and eating it too", "idiomatic_equivalent");
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -85,11 +81,7 @@ describe("validateExamples — expressionType parameter", () => {
         native: "Podařilo se jí mít obojí.",
       },
     ];
-    const result = validateExamples(
-      idiomaticExamples,
-      "Having your cake and eating it too",
-      "idiomatic_equivalent",
-    );
+    const result = validateExamples(idiomaticExamples, "Having your cake and eating it too", "idiomatic_equivalent");
     expect(result.valid).toBe(true);
   });
 

@@ -2,7 +2,7 @@
  * Tests for nextSourceLang integration in translate-mode helper.
  * Covers explicit source language override (Task 17) and fallback to auto-detect.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock external modules before imports
 vi.mock("@polyglot/adapter-ai", () => ({
@@ -24,9 +24,7 @@ vi.mock("@polyglot/adapter-db", () => ({
 }));
 
 vi.mock("@polyglot/core", async () => {
-  const actual = await vi.importActual<typeof import("@polyglot/core")>(
-    "@polyglot/core",
-  );
+  const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   actual.initLanguageRegistry([
     { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", iso3Code: "eng", isSupported: true },
     { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", iso3Code: "rus", isSupported: true },
@@ -52,10 +50,10 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { handleTranslateText, handleSaveCallback, handleSkipCallback } from "../translate-mode.helper.js";
 import { userRepository } from "@polyglot/adapter-db";
 import { translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../../types.js";
+import { handleSaveCallback, handleSkipCallback, handleTranslateText } from "../translate-mode.helper.js";
 
 function createMockCtx(nextSourceLang?: string | null): BotContext {
   const session: SessionData = {
@@ -156,9 +154,7 @@ describe("handleTranslateText — nextSourceLang integration", () => {
     await handleTranslateText(ctx, "dům");
 
     // Card should NOT have the detected lang prefix
-    const replyCall = vi.mocked(ctx.reply).mock.calls.find(
-      (call) => call[1] && (call[1] as any).parse_mode === "HTML",
-    );
+    const replyCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1] && (call[1] as any).parse_mode === "HTML");
     expect(replyCall).toBeDefined();
     expect(replyCall![0]).not.toContain("Detected:");
   });

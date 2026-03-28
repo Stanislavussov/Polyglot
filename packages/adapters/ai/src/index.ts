@@ -6,17 +6,14 @@
  *
  * Exports: generateObject, generateText, getAvailableModels, estimateCost
  */
-export { getAvailableModels, estimateCost } from "./models.js";
+export { estimateCost, getAvailableModels } from "./models.js";
 export type { AIModel, AIRequestLog, GenerateOptions } from "./types.js";
 
-import {
-  generateObject as aiGenerateObject,
-  generateText as aiGenerateText,
-} from "ai";
+import { generateObject as aiGenerateObject, generateText as aiGenerateText } from "ai";
 import type { ZodSchema } from "zod";
 import { getModel } from "./client.js";
-import { calculateCost } from "./models.js";
 import { logRequest } from "./logger.js";
+import { calculateCost } from "./models.js";
 import type { GenerateOptions } from "./types.js";
 
 const DEFAULT_MAX_RETRIES = 2;
@@ -88,11 +85,7 @@ export async function generateObject<T>(
  * @param options - Optional: { maxRetries, userId }
  * @returns The generated text
  */
-export async function generateText(
-  prompt: string,
-  model: string,
-  options?: GenerateOptions,
-): Promise<string> {
+export async function generateText(prompt: string, model: string, options?: GenerateOptions): Promise<string> {
   const maxRetries = options?.maxRetries ?? DEFAULT_MAX_RETRIES;
   const start = Date.now();
 

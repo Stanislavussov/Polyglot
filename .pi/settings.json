@@ -160,7 +160,7 @@
           {
             "name": "i18n",
             "role": "Internationalization of all bot texts. Works in packages/core/src.",
-            "rules": "Only `t(key, lang)` — no direct locale file imports from other modules.\nOn missing key — fallback to `en`, never throw.\nKeys are a strict TypeScript enum.\nLanguage lists from DB cache, not hardcoded arrays or union types.\nAfter all changes, run `pnpm lint` and fix any errors before finishing.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "rules": "Only `t(key, lang)` — no direct locale file imports from other modules.\nOn missing key — fallback to `en`, never throw.\nKeys are a strict TypeScript enum.\nLanguage lists from DB cache, not hardcoded arrays or union types.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
             "skills": [
               ".pi/skills/i18n",
@@ -171,7 +171,7 @@
           {
             "name": "validation",
             "role": "Checks AI response quality with pure deterministic functions. Works in packages/core/src.",
-            "rules": "Pure functions only — no side effects, no I/O, no AI calls.\nEach rule is a separate `validate*` function with failure reason.\nLanguage validation via DB language-cache, not hardcoded ISO maps.\nAfter all changes, run `pnpm lint` and fix any errors before finishing.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "rules": "Pure functions only — no side effects, no I/O, no AI calls.\nEach rule is a separate `validate*` function with failure reason.\nLanguage validation via DB language-cache, not hardcoded ISO maps.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
             "skills": [
               ".pi/skills/validation",
@@ -185,7 +185,7 @@
           {
             "name": "db",
             "role": "The only module that knows Drizzle/PostgreSQL. All other agents get data through repositories. Works in packages/adapters/db/src.",
-            "rules": "No business logic — CRUD only. All queries via Drizzle — no raw SQL.\nSingleton `getDb()`. Each repository in a separate file.\nThis module is the ONLY source of truth for languages, modes, and domain constants. Export named constants for schema defaults (DEFAULT_ACTIVE_MODE, DEFAULT_TIMEZONE, MAX_LEARNING_LANGS).\nAfter all changes, run `pnpm lint` and fix any errors before finishing.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "rules": "No business logic — CRUD only. All queries via Drizzle — no raw SQL.\nSingleton `getDb()`. Each repository in a separate file.\nThis module is the ONLY source of truth for languages, modes, and domain constants. Export named constants for schema defaults (DEFAULT_ACTIVE_MODE, DEFAULT_TIMEZONE, MAX_LEARNING_LANGS).\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
             "skills": [
               ".pi/skills/db",
@@ -200,7 +200,7 @@
           {
             "name": "ai",
             "role": "The only module that knows OpenRouter/Vercel AI SDK. Works in packages/adapters/ai/src.",
-            "rules": "No domain logic — only sends requests and returns responses.\nAll requests logged: model, tokens, cost_usd, duration_ms.\nModel is always a parameter, never hardcoded. maxRetries configurable.\nAfter all changes, run `pnpm lint` and fix any errors before finishing.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "rules": "No domain logic — only sends requests and returns responses.\nAll requests logged: model, tokens, cost_usd, duration_ms.\nModel is always a parameter, never hardcoded. maxRetries configurable.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
             "skills": [
               ".pi/skills/ai",
@@ -213,7 +213,7 @@
           {
             "name": "translation",
             "role": "Translates words/phrases via AI. Knows prompts and response structure. Works in packages/core/src.",
-            "rules": "Single entry point: `translate()`. Does not save results.\nKnows nothing about the user — text and languages only.\nAlways validates before returning.\nLanguage names in prompts from DB cache (`getLangName()`), not hardcoded maps.\nAfter all changes, run `pnpm lint` and fix any errors before finishing.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "rules": "Single entry point: `translate()`. Does not save results.\nKnows nothing about the user — text and languages only.\nAlways validates before returning.\nLanguage names in prompts from DB cache (`getLangName()`), not hardcoded maps.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
             "skills": [
               ".pi/skills/translation",
@@ -228,7 +228,7 @@
           {
             "name": "topics",
             "role": "Manages topics and caching of dataset translations. Works in packages/core/src.",
-            "rules": "Cache-first — always check before calling translation.\nBatch-only translation calls. Knows nothing about the user.\nLanguage codes from callers (DB settings), never hardcoded.\nAfter all changes, run `pnpm lint` and fix any errors before finishing.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "rules": "Cache-first — always check before calling translation.\nBatch-only translation calls. Knows nothing about the user.\nLanguage codes from callers (DB settings), never hardcoded.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
             "skills": [
               ".pi/skills/topics",
@@ -243,7 +243,7 @@
           {
             "name": "notifications",
             "role": "Notification scheduling and delivery, isolated from bot via injection. Works in packages/adapters/notifications/src.",
-            "rules": "Receives `sendFn` — never imports bot. One cron job for all users.\nLog and continue on send errors. Respect user timezone.\nTimezone and language defaults from DB constants, not hardcoded.\nAfter all changes, run `pnpm lint` and fix any errors before finishing.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "rules": "Receives `sendFn` — never imports bot. One cron job for all users.\nLog and continue on send errors. Respect user timezone.\nTimezone and language defaults from DB constants, not hardcoded.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
             "skills": [
               ".pi/skills/notifications",
@@ -258,7 +258,7 @@
           {
             "name": "bot",
             "role": "All user interaction via Telegram (grammY). Works in apps/bot/src.",
-            "rules": "No business logic — only calls other agents.\nNo direct DB access — only through db agent.\nAll texts via i18n — no hardcoded strings.\nModes and languages from DB constants and cache, not hardcoded unions or string literals.\nEach scene in a separate file, max 100 lines.\nAfter all changes, run `pnpm lint` and fix any errors before finishing.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "rules": "No business logic — only calls other agents.\nNo direct DB access — only through db agent.\nAll texts via i18n — no hardcoded strings.\nModes and languages from DB constants and cache, not hardcoded unions or string literals.\nEach scene in a separate file, max 100 lines.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
             "skills": [
               ".pi/skills/bot",
@@ -276,7 +276,7 @@
           {
             "name": "test-runner",
             "role": "Runs full test suite, analyzes failures, fixes broken tests. Final quality gate.",
-            "rules": "Run `pnpm lint` first — fix any lint errors before running tests.\nRun `pnpm test`. Fix only test files — never source code.\nRe-run after fixes — max 3 attempts. Never skip or delete failing tests.\nUse DB-exported constants in mocks, not hardcoded string literals.",
+            "rules": "Run `pnpm test` from project root first. Fix only test files — never source code.\nRe-run after fixes — max 3 attempts. Never skip or delete failing tests.\nUse DB-exported constants in mocks, not hardcoded string literals.",
             "type": "coding",
             "skills": [
               ".pi/skills/test-runner",

@@ -1,18 +1,13 @@
-import type { ZodSchema } from 'zod';
+import type { ZodSchema } from "zod";
 
 /** Classification result for translation quality */
 export type IdiomClassification =
-  | 'CORRECT_IDIOMATIC_TRANSLATION' // Natural, commonly used expression
-  | 'LITERAL_BUT_UNNATURAL' // Word-for-word, sounds artificial
-  | 'INCORRECT_MEANING'; // Translation doesn't convey same meaning
+  | "CORRECT_IDIOMATIC_TRANSLATION" // Natural, commonly used expression
+  | "LITERAL_BUT_UNNATURAL" // Word-for-word, sounds artificial
+  | "INCORRECT_MEANING"; // Translation doesn't convey same meaning
 
 /** Type of idiomatic expression */
-export type SourceExpressionType =
-  | 'idiom'
-  | 'proverb'
-  | 'slang'
-  | 'figurative'
-  | 'fixed_expression';
+export type SourceExpressionType = "idiom" | "proverb" | "slang" | "figurative" | "fixed_expression";
 
 /** Input for idiom analysis */
 export interface IdiomAnalysisInput {
@@ -55,8 +50,4 @@ export interface IdiomAnalysisResult {
 }
 
 /** Generate function signature (injected dependency) */
-export type GenerateObjectFn = <T>(
-  prompt: string,
-  schema: ZodSchema<T>,
-  model: string
-) => Promise<T>;
+export type GenerateObjectFn = <T>(prompt: string, schema: ZodSchema<T>, model: string) => Promise<T>;

@@ -1,25 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  getBuiltinTopics,
-  getDataset,
-  createTopicService,
-} from "../topic.service.js";
-import type {
-  TopicDeps,
-  CachedTranslation,
-  LanguageTranslationEntry,
-} from "../types.js";
-import type { TranslateOutput } from "../../translation/types.js";
+import { describe, expect, it, vi } from "vitest";
 import { MINIMAL_OUTPUT } from "../../translation/translation-output.presets.js";
+import type { TranslateOutput } from "../../translation/types.js";
+import { createTopicService, getBuiltinTopics, getDataset } from "../topic.service.js";
+import type { CachedTranslation, LanguageTranslationEntry, TopicDeps } from "../types.js";
 
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
 
-function makeTranslateOutput(
-  original: string,
-  targetLangs: string[],
-): TranslateOutput {
+function makeTranslateOutput(original: string, targetLangs: string[]): TranslateOutput {
   const translations: Record<string, unknown> = {};
   for (const lang of targetLangs) {
     translations[lang] = {
@@ -95,9 +84,7 @@ describe("getBuiltinTopics", () => {
     const topics = getBuiltinTopics();
 
     expect(topics).toHaveLength(3);
-    expect(topics.map((t) => t.id)).toEqual(
-      expect.arrayContaining(["food", "travel", "it-terms"]),
-    );
+    expect(topics.map((t) => t.id)).toEqual(expect.arrayContaining(["food", "travel", "it-terms"]));
   });
 
   it("each topic has id, name, emoji, and wordCount", () => {
@@ -194,18 +181,16 @@ describe("createTopicService", () => {
       const deps = createMockDeps();
       const service = createTopicService(deps);
 
-      await expect(
-        service.getTopicWords("nonexistent", "en", ["cs"]),
-      ).rejects.toThrow('Topic not found: "nonexistent"');
+      await expect(service.getTopicWords("nonexistent", "en", ["cs"])).rejects.toThrow(
+        'Topic not found: "nonexistent"',
+      );
     });
 
     it("checks cache before calling translateBatch", async () => {
       const getCached = vi.fn().mockResolvedValue(null);
       const translateBatch = vi.fn().mockResolvedValue(
         // Return TranslateOutput for each word in food dataset
-        Array.from({ length: 25 }, (_, i) =>
-          makeTranslateOutput(`word_${i}`, ["cs"]),
-        ),
+        Array.from({ length: 25 }, (_, i) => makeTranslateOutput(`word_${i}`, ["cs"])),
       );
 
       const deps = createMockDeps({ getCached, translateBatch });
@@ -213,9 +198,7 @@ describe("createTopicService", () => {
 
       // Mock translateBatch to return proper results for actual words
       const dataset = getDataset("food")!;
-      translateBatch.mockResolvedValue(
-        dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-      );
+      translateBatch.mockResolvedValue(dataset.words.map((w) => makeTranslateOutput(w, ["cs"])));
 
       await service.getTopicWords("food", "en", ["cs"]);
 
@@ -227,12 +210,11 @@ describe("createTopicService", () => {
 
     it("uses cached translations when all langs are cached", async () => {
       const dataset = getDataset("food")!;
-      const getCached = vi.fn().mockImplementation(
-        (topicId: string, original: string, sourceLang: string, targetLang: string) =>
-          Promise.resolve(
-            makeCachedTranslation(topicId, original, sourceLang, targetLang),
-          ),
-      );
+      const getCached = vi
+        .fn()
+        .mockImplementation((topicId: string, original: string, sourceLang: string, targetLang: string) =>
+          Promise.resolve(makeCachedTranslation(topicId, original, sourceLang, targetLang)),
+        );
 
       const translateBatch = vi.fn();
       const deps = createMockDeps({ getCached, translateBatch });
@@ -251,21 +233,17 @@ describe("createTopicService", () => {
 
       // Cache first 5 words only
       const cachedWords = new Set(dataset.words.slice(0, 5));
-      const getCached = vi.fn().mockImplementation(
-        (topicId: string, original: string, sourceLang: string, targetLang: string) => {
+      const getCached = vi
+        .fn()
+        .mockImplementation((topicId: string, original: string, sourceLang: string, targetLang: string) => {
           if (cachedWords.has(original)) {
-            return Promise.resolve(
-              makeCachedTranslation(topicId, original, sourceLang, targetLang),
-            );
+            return Promise.resolve(makeCachedTranslation(topicId, original, sourceLang, targetLang));
           }
           return Promise.resolve(null);
-        },
-      );
+        });
 
       const uncachedWords = dataset.words.filter((w) => !cachedWords.has(w));
-      const translateBatch = vi.fn().mockResolvedValue(
-        uncachedWords.map((w) => makeTranslateOutput(w, ["cs"])),
-      );
+      const translateBatch = vi.fn().mockResolvedValue(uncachedWords.map((w) => makeTranslateOutput(w, ["cs"])));
 
       const setCached = vi.fn().mockResolvedValue(undefined);
       const deps = createMockDeps({ getCached, translateBatch, setCached });
@@ -278,12 +256,7 @@ describe("createTopicService", () => {
 
       // translateBatch called with only uncached words + MINIMAL_OUTPUT
       expect(translateBatch).toHaveBeenCalledTimes(1);
-      expect(translateBatch).toHaveBeenCalledWith(
-        uncachedWords,
-        "en",
-        ["cs"],
-        MINIMAL_OUTPUT,
-      );
+      expect(translateBatch).toHaveBeenCalledWith(uncachedWords, "en", ["cs"], MINIMAL_OUTPUT);
 
       // setCached called for each translated word × each target lang
       expect(setCached).toHaveBeenCalledTimes(uncachedWords.length);
@@ -295,9 +268,7 @@ describe("createTopicService", () => {
       const setCached = vi.fn().mockResolvedValue(undefined);
 
       const dataset = getDataset("food")!;
-      const translateBatch = vi.fn().mockResolvedValue(
-        dataset.words.map((w) => makeTranslateOutput(w, ["cs", "de"])),
-      );
+      const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeTranslateOutput(w, ["cs", "de"])));
 
       const deps = createMockDeps({ getCached, translateBatch, setCached });
       const service = createTopicService(deps);
@@ -321,9 +292,7 @@ describe("createTopicService", () => {
 
       // All uncached
       const getCached = vi.fn().mockResolvedValue(null);
-      const translateBatch = vi.fn().mockResolvedValue(
-        dataset.words.map((w) => makeTranslateOutput(w, ["cs"])),
-      );
+      const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeTranslateOutput(w, ["cs"])));
 
       const deps = createMockDeps({ getCached, translateBatch });
       const service = createTopicService(deps);
@@ -338,9 +307,7 @@ describe("createTopicService", () => {
 
       const dataset = getDataset("food")!;
       const targetLangs = ["cs", "de", "es"];
-      const translateBatch = vi.fn().mockResolvedValue(
-        dataset.words.map((w) => makeTranslateOutput(w, targetLangs)),
-      );
+      const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeTranslateOutput(w, targetLangs)));
 
       const deps = createMockDeps({ getCached, translateBatch });
       const service = createTopicService(deps);
@@ -356,20 +323,16 @@ describe("createTopicService", () => {
       const dataset = getDataset("food")!;
 
       // Cache only "cs" for the first word, "de" is missing
-      const getCached = vi.fn().mockImplementation(
-        (_topicId: string, original: string, _sourceLang: string, targetLang: string) => {
+      const getCached = vi
+        .fn()
+        .mockImplementation((_topicId: string, original: string, _sourceLang: string, targetLang: string) => {
           if (original === dataset.words[0] && targetLang === "cs") {
-            return Promise.resolve(
-              makeCachedTranslation("food", original, "en", "cs"),
-            );
+            return Promise.resolve(makeCachedTranslation("food", original, "en", "cs"));
           }
           return Promise.resolve(null);
-        },
-      );
+        });
 
-      const translateBatch = vi.fn().mockResolvedValue(
-        dataset.words.map((w) => makeTranslateOutput(w, ["cs", "de"])),
-      );
+      const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeTranslateOutput(w, ["cs", "de"])));
 
       const deps = createMockDeps({ getCached, translateBatch });
       const service = createTopicService(deps);
@@ -395,9 +358,9 @@ describe("createTopicService", () => {
       delete deps.generateWords;
       const service = createTopicService(deps);
 
-      await expect(
-        service.generateCustomTopic("sport words", "en", ["cs"]),
-      ).rejects.toThrow("generateWords dependency is required");
+      await expect(service.generateCustomTopic("sport words", "en", ["cs"])).rejects.toThrow(
+        "generateWords dependency is required",
+      );
     });
 
     it("generates a custom topic with AI-generated words", async () => {
@@ -407,11 +370,13 @@ describe("createTopicService", () => {
         words: ["football", "basketball", "tennis"],
       });
 
-      const translateBatch = vi.fn().mockResolvedValue([
-        makeTranslateOutput("football", ["cs"]),
-        makeTranslateOutput("basketball", ["cs"]),
-        makeTranslateOutput("tennis", ["cs"]),
-      ]);
+      const translateBatch = vi
+        .fn()
+        .mockResolvedValue([
+          makeTranslateOutput("football", ["cs"]),
+          makeTranslateOutput("basketball", ["cs"]),
+          makeTranslateOutput("tennis", ["cs"]),
+        ]);
 
       const deps = createMockDeps({ generateWords, translateBatch });
       const service = createTopicService(deps);
@@ -433,22 +398,16 @@ describe("createTopicService", () => {
         words: ["dog", "cat"],
       });
 
-      const translateBatch = vi.fn().mockResolvedValue([
-        makeTranslateOutput("dog", ["cs", "de"]),
-        makeTranslateOutput("cat", ["cs", "de"]),
-      ]);
+      const translateBatch = vi
+        .fn()
+        .mockResolvedValue([makeTranslateOutput("dog", ["cs", "de"]), makeTranslateOutput("cat", ["cs", "de"])]);
 
       const deps = createMockDeps({ generateWords, translateBatch });
       const service = createTopicService(deps);
 
       await service.generateCustomTopic("animals", "en", ["cs", "de"]);
 
-      expect(translateBatch).toHaveBeenCalledWith(
-        ["dog", "cat"],
-        "en",
-        ["cs", "de"],
-        MINIMAL_OUTPUT,
-      );
+      expect(translateBatch).toHaveBeenCalledWith(["dog", "cat"], "en", ["cs", "de"], MINIMAL_OUTPUT);
     });
 
     it("passes prompt to generateWords", async () => {
@@ -458,9 +417,7 @@ describe("createTopicService", () => {
         words: ["test"],
       });
 
-      const translateBatch = vi.fn().mockResolvedValue([
-        makeTranslateOutput("test", ["cs"]),
-      ]);
+      const translateBatch = vi.fn().mockResolvedValue([makeTranslateOutput("test", ["cs"])]);
 
       const deps = createMockDeps({ generateWords, translateBatch });
       const service = createTopicService(deps);
@@ -480,9 +437,9 @@ describe("createTopicService", () => {
       const deps = createMockDeps();
       const service = createTopicService(deps);
 
-      await expect(
-        service.getCacheStatus("nonexistent", "en", ["cs"]),
-      ).rejects.toThrow('Topic not found: "nonexistent"');
+      await expect(service.getCacheStatus("nonexistent", "en", ["cs"])).rejects.toThrow(
+        'Topic not found: "nonexistent"',
+      );
     });
 
     it("returns 'miss' when nothing is cached", async () => {
@@ -499,12 +456,11 @@ describe("createTopicService", () => {
     });
 
     it("returns 'hit' when everything is cached", async () => {
-      const getCached = vi.fn().mockImplementation(
-        (topicId: string, original: string, sourceLang: string, targetLang: string) =>
-          Promise.resolve(
-            makeCachedTranslation(topicId, original, sourceLang, targetLang),
-          ),
-      );
+      const getCached = vi
+        .fn()
+        .mockImplementation((topicId: string, original: string, sourceLang: string, targetLang: string) =>
+          Promise.resolve(makeCachedTranslation(topicId, original, sourceLang, targetLang)),
+        );
 
       const deps = createMockDeps({ getCached });
       const service = createTopicService(deps);
@@ -521,16 +477,14 @@ describe("createTopicService", () => {
       const dataset = getDataset("food")!;
       const cachedWords = new Set(dataset.words.slice(0, 10));
 
-      const getCached = vi.fn().mockImplementation(
-        (topicId: string, original: string, sourceLang: string, targetLang: string) => {
+      const getCached = vi
+        .fn()
+        .mockImplementation((topicId: string, original: string, sourceLang: string, targetLang: string) => {
           if (cachedWords.has(original)) {
-            return Promise.resolve(
-              makeCachedTranslation(topicId, original, sourceLang, targetLang),
-            );
+            return Promise.resolve(makeCachedTranslation(topicId, original, sourceLang, targetLang));
           }
           return Promise.resolve(null);
-        },
-      );
+        });
 
       const deps = createMockDeps({ getCached });
       const service = createTopicService(deps);
@@ -547,16 +501,14 @@ describe("createTopicService", () => {
       const dataset = getDataset("food")!;
 
       // Cache "cs" for first word, but not "de"
-      const getCached = vi.fn().mockImplementation(
-        (_topicId: string, original: string, _sourceLang: string, targetLang: string) => {
+      const getCached = vi
+        .fn()
+        .mockImplementation((_topicId: string, original: string, _sourceLang: string, targetLang: string) => {
           if (original === dataset.words[0] && targetLang === "cs") {
-            return Promise.resolve(
-              makeCachedTranslation("food", original, "en", "cs"),
-            );
+            return Promise.resolve(makeCachedTranslation("food", original, "en", "cs"));
           }
           return Promise.resolve(null);
-        },
-      );
+        });
 
       const deps = createMockDeps({ getCached });
       const service = createTopicService(deps);
@@ -573,16 +525,14 @@ describe("createTopicService", () => {
 
       // Cache both langs for first 5 words
       const cachedWords = new Set(dataset.words.slice(0, 5));
-      const getCached = vi.fn().mockImplementation(
-        (topicId: string, original: string, sourceLang: string, targetLang: string) => {
+      const getCached = vi
+        .fn()
+        .mockImplementation((topicId: string, original: string, sourceLang: string, targetLang: string) => {
           if (cachedWords.has(original)) {
-            return Promise.resolve(
-              makeCachedTranslation(topicId, original, sourceLang, targetLang),
-            );
+            return Promise.resolve(makeCachedTranslation(topicId, original, sourceLang, targetLang));
           }
           return Promise.resolve(null);
-        },
-      );
+        });
 
       const deps = createMockDeps({ getCached });
       const service = createTopicService(deps);
@@ -618,18 +568,18 @@ describe("createTopicService", () => {
       const deps = createMockDeps();
       const service = createTopicService(deps);
 
-      await expect(
-        service.regenerateTopicWord("nonexistent", "apple", "en", "cs"),
-      ).rejects.toThrow('Topic not found: "nonexistent"');
+      await expect(service.regenerateTopicWord("nonexistent", "apple", "en", "cs")).rejects.toThrow(
+        'Topic not found: "nonexistent"',
+      );
     });
 
     it("throws when word is not in the dataset", async () => {
       const deps = createMockDeps();
       const service = createTopicService(deps);
 
-      await expect(
-        service.regenerateTopicWord("food", "quantum", "en", "cs"),
-      ).rejects.toThrow('Word "quantum" not found in topic "food"');
+      await expect(service.regenerateTopicWord("food", "quantum", "en", "cs")).rejects.toThrow(
+        'Word "quantum" not found in topic "food"',
+      );
     });
 
     it("throws when translateOne dependency is not provided", async () => {
@@ -640,9 +590,7 @@ describe("createTopicService", () => {
       const dataset = getDataset("food")!;
       const word = dataset.words[0];
 
-      await expect(
-        service.regenerateTopicWord("food", word, "en", "cs"),
-      ).rejects.toThrow(
+      await expect(service.regenerateTopicWord("food", word, "en", "cs")).rejects.toThrow(
         "translateOne dependency is required for partial regeneration",
       );
     });
@@ -698,24 +646,18 @@ describe("createTopicService", () => {
     });
 
     it("propagates errors from translateOne", async () => {
-      const translateOne = vi
-        .fn()
-        .mockRejectedValue(new Error("AI provider timeout"));
+      const translateOne = vi.fn().mockRejectedValue(new Error("AI provider timeout"));
       const deps = createMockDeps({ translateOne });
       const service = createTopicService(deps);
 
       const dataset = getDataset("food")!;
       const word = dataset.words[0];
 
-      await expect(
-        service.regenerateTopicWord("food", word, "en", "cs"),
-      ).rejects.toThrow("AI provider timeout");
+      await expect(service.regenerateTopicWord("food", word, "en", "cs")).rejects.toThrow("AI provider timeout");
     });
 
     it("does not call setCached when translateOne fails", async () => {
-      const translateOne = vi
-        .fn()
-        .mockRejectedValue(new Error("AI error"));
+      const translateOne = vi.fn().mockRejectedValue(new Error("AI error"));
       const setCached = vi.fn().mockResolvedValue(undefined);
       const deps = createMockDeps({ translateOne, setCached });
       const service = createTopicService(deps);
@@ -723,9 +665,7 @@ describe("createTopicService", () => {
       const dataset = getDataset("food")!;
       const word = dataset.words[0];
 
-      await expect(
-        service.regenerateTopicWord("food", word, "en", "cs"),
-      ).rejects.toThrow();
+      await expect(service.regenerateTopicWord("food", word, "en", "cs")).rejects.toThrow();
 
       expect(setCached).not.toHaveBeenCalled();
     });

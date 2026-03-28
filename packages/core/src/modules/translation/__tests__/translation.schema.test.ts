@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  translationRequestSchema,
-  translationResultSchema,
   buildTranslationResultSchema,
+  exampleSchema,
   languageTranslationSchema,
   synonymSchema,
-  exampleSchema,
+  translationRequestSchema,
+  translationResultSchema,
 } from "../schemas/translation.schema.js";
 
 describe("translationRequestSchema", () => {
@@ -115,13 +115,7 @@ describe("synonymSchema", () => {
   });
 
   it("accepts all valid register values", () => {
-    for (const register of [
-      "slang",
-      "colloquial",
-      "neutral",
-      "literary",
-      "professional",
-    ]) {
+    for (const register of ["slang", "colloquial", "neutral", "literary", "professional"]) {
       const result = synonymSchema.safeParse({ text: "word", register });
       expect(result.success).toBe(true);
     }
@@ -318,9 +312,7 @@ describe("buildTranslationResultSchema", () => {
     cefr: "A1",
     register: "colloquial",
     synonyms: [{ text: "čau", register: "slang" }],
-    examples: [
-      { context: "formal", target: "Ahoj, jak se máš?", native: "Hello, how are you?" },
-    ],
+    examples: [{ context: "formal", target: "Ahoj, jak se máš?", native: "Hello, how are you?" }],
   };
 
   it("requires specified language keys", () => {

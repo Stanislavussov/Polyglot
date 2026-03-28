@@ -1,7 +1,7 @@
 export { detectLanguage } from "./detect-language.js";
 export {
-  resolveTranslationDirection,
   resolveDirectionFromSource,
+  resolveTranslationDirection,
 } from "./resolve-direction.js";
 export type {
   ResolveDirectionInput,

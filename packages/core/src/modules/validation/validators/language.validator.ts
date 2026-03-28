@@ -1,5 +1,5 @@
-import type { ValidationResult } from "../types.js";
 import { resolveToIso3 } from "../../i18n/language-registry.js";
+import type { ValidationResult } from "../types.js";
 
 export { resolveToIso3 };
 
@@ -18,9 +18,6 @@ export { resolveToIso3 };
  * This function is retained for API compatibility. It can be replaced
  * with a more accurate detection library in the future if needed.
  */
-export function validateLanguage(
-  _text: string,
-  _expectedLang: string,
-): ValidationResult {
+export function validateLanguage(_text: string, _expectedLang: string): ValidationResult {
   return { valid: true, errors: [] };
 }

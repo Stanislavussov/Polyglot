@@ -1,29 +1,29 @@
+export type { ValidateInput, ValidationError, ValidationResult } from "./types.js";
+export type { ExampleInput, ExpressionType } from "./validators/example.validator.js";
+export { validateExamples } from "./validators/example.validator.js";
+export { resolveToIso3, validateLanguage } from "./validators/language.validator.js";
 export { validateSchema } from "./validators/schema.validator.js";
 export { validateSemantic } from "./validators/semantic.validator.js";
-export { validateLanguage, resolveToIso3 } from "./validators/language.validator.js";
-export { validateExamples } from "./validators/example.validator.js";
-export type { ExampleInput, ExpressionType } from "./validators/example.validator.js";
-export type { ValidationResult, ValidationError, ValidateInput } from "./types.js";
-export {
-  validateWiktionaryEntry,
-  validateWordContext,
-  validateGlosses,
-  validatePos,
-  KNOWN_POS,
-} from "./validators/wiktionary.validator.js";
 export type {
   KnownPos,
   WiktionaryEntryInput,
   WordContextInput,
 } from "./validators/wiktionary.validator.js";
+export {
+  KNOWN_POS,
+  validateGlosses,
+  validatePos,
+  validateWiktionaryEntry,
+  validateWordContext,
+} from "./validators/wiktionary.validator.js";
 
 import type { ZodSchema } from "zod";
-import type { ValidationResult, ValidationError } from "./types.js";
+import type { ValidationError, ValidationResult } from "./types.js";
+import type { ExpressionType } from "./validators/example.validator.js";
+import { validateExamples } from "./validators/example.validator.js";
+import { validateLanguage } from "./validators/language.validator.js";
 import { validateSchema } from "./validators/schema.validator.js";
 import { validateSemantic } from "./validators/semantic.validator.js";
-import { validateLanguage } from "./validators/language.validator.js";
-import { validateExamples } from "./validators/example.validator.js";
-import type { ExpressionType } from "./validators/example.validator.js";
 
 /**
  * Orchestrated validation: runs all validators in sequence.
@@ -38,12 +38,7 @@ import type { ExpressionType } from "./validators/example.validator.js";
  *
  * Pure function — no side effects, no I/O.
  */
-export function validate(
-  raw: unknown,
-  schema: ZodSchema,
-  original: string,
-  expectedLangs: string[],
-): ValidationResult {
+export function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[]): ValidationResult {
   const allErrors: ValidationError[] = [];
 
   // Step 1: Schema validation
@@ -57,9 +52,7 @@ export function validate(
 
   // At this point raw is valid per schema — cast to inspectable shape
   const parsed = raw as Record<string, unknown>;
-  const translations = parsed["translations"] as
-    | Record<string, Record<string, unknown>>
-    | undefined;
+  const translations = parsed.translations as Record<string, Record<string, unknown>> | undefined;
 
   if (!translations || typeof translations !== "object") {
     return { valid: allErrors.length === 0, errors: allErrors };
@@ -77,7 +70,7 @@ export function validate(
       continue;
     }
 
-    const translationText = langData["text"] as string | undefined;
+    const translationText = langData.text as string | undefined;
 
     // Step 2: Semantic validation
     if (translationText) {
@@ -102,12 +95,8 @@ export function validate(
     }
 
     // Step 4: Example validation
-    const examples = langData["examples"] as
-      | Array<{ context: string; target: string; native: string }>
-      | undefined;
-    const expressionType = langData["expressionType"] as
-      | ExpressionType
-      | undefined;
+    const examples = langData.examples as Array<{ context: string; target: string; native: string }> | undefined;
+    const expressionType = langData.expressionType as ExpressionType | undefined;
 
     if (examples && Array.isArray(examples) && translationText) {
       const exampleResult = validateExamples(examples, translationText, expressionType);
@@ -120,9 +109,7 @@ export function validate(
     }
 
     // Step 5: Alternatives semantic validation
-    const alternatives = langData["alternatives"] as
-      | Array<{ text: string }>
-      | undefined;
+    const alternatives = langData.alternatives as Array<{ text: string }> | undefined;
 
     if (alternatives && Array.isArray(alternatives)) {
       for (let i = 0; i < alternatives.length; i++) {

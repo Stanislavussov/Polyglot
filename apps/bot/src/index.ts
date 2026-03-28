@@ -1,15 +1,18 @@
-import { Bot, session } from "grammy";
 import { conversations, createConversation } from "@grammyjs/conversations";
-import { loadConfig } from "@polyglot/infra";
-import { logger } from "@polyglot/infra";
-import { closeDb, loadLanguageCache, getAllLangs } from "@polyglot/adapter-db";
+import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
 import { initLanguageRegistry } from "@polyglot/core";
+import { loadConfig, logger } from "@polyglot/infra";
+import { Bot, session } from "grammy";
+import { startCommand } from "./commands/start.js";
 import { authMiddleware } from "./middlewares/auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
+import {
+  handleSaveCallback,
+  handleSkipCallback,
+  handleSourceLangCallback,
+} from "./scenes/helpers/translate-mode.helper.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
-import { handleSaveCallback, handleSkipCallback, handleSourceLangCallback } from "./scenes/helpers/translate-mode.helper.js";
-import { startCommand } from "./commands/start.js";
 import type { BotContext, SessionData } from "./types.js";
 
 // ── Load & validate environment ──
@@ -87,8 +90,7 @@ bot.catch((err) => {
   const command = ctx.message?.text?.split(" ")[0] ?? "unknown";
   logger.error(
     {
-      error:
-        err.error instanceof Error ? err.error.message : String(err.error),
+      error: err.error instanceof Error ? err.error.message : String(err.error),
       userId,
       command,
     },
@@ -111,10 +113,7 @@ async function main(): Promise<void> {
   logger.info("Starting bot in long-polling mode...");
   bot.start({
     onStart: (botInfo) => {
-      logger.info(
-        { username: botInfo.username, id: botInfo.id },
-        "Bot started",
-      );
+      logger.info({ username: botInfo.username, id: botInfo.id }, "Bot started");
     },
   });
 }

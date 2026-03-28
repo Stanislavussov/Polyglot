@@ -26,10 +26,7 @@ const HALLUCINATION_PATTERNS = [
  *
  * Pure function — no side effects.
  */
-export function validateSemantic(
-  original: string,
-  translation: string,
-): ValidationResult {
+export function validateSemantic(original: string, translation: string): ValidationResult {
   const errors: ValidationResult["errors"] = [];
 
   // Check empty translation
@@ -68,10 +65,7 @@ export function validateSemantic(
 
   // Check for hallucination as substring (for longer texts)
   for (const pattern of HALLUCINATION_PATTERNS) {
-    if (
-      pattern.length > 3 &&
-      trimmedTranslation.includes(pattern.toLowerCase())
-    ) {
+    if (pattern.length > 3 && trimmedTranslation.includes(pattern.toLowerCase())) {
       errors.push({
         rule: "semantic",
         message: `Translation contains hallucination pattern: "${pattern}"`,

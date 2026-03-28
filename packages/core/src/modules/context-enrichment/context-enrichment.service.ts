@@ -13,8 +13,9 @@
  * Fail-open: lookup errors are caught and swallowed — the translation
  * proceeds without dictionary context.
  */
-import type { LanguageTranslation, TranslateOutput } from "../translation/types.js";
+
 import { translate, translateOne } from "../translation/translation.service.js";
+import type { LanguageTranslation, TranslateOutput } from "../translation/types.js";
 import type { ContextEnrichmentDeps, EnrichedTranslateInput } from "./types.js";
 
 /**
@@ -34,16 +35,9 @@ export async function translateWithContext(
   input: EnrichedTranslateInput,
   deps: ContextEnrichmentDeps,
 ): Promise<TranslateOutput> {
-  const dictionaryContext = await safeLookup(
-    deps.lookupContext,
-    input.word,
-    input.sourceLang,
-  );
+  const dictionaryContext = await safeLookup(deps.lookupContext, input.word, input.sourceLang);
 
-  return translate(
-    { ...input, dictionaryContext },
-    deps.generateObjectFn,
-  );
+  return translate({ ...input, dictionaryContext }, deps.generateObjectFn);
 }
 
 /**
@@ -59,16 +53,9 @@ export async function translateOneWithContext(
   input: EnrichedTranslateInput & { targetLang: string },
   deps: ContextEnrichmentDeps,
 ): Promise<LanguageTranslation> {
-  const dictionaryContext = await safeLookup(
-    deps.lookupContext,
-    input.word,
-    input.sourceLang,
-  );
+  const dictionaryContext = await safeLookup(deps.lookupContext, input.word, input.sourceLang);
 
-  return translateOne(
-    { ...input, dictionaryContext },
-    deps.generateObjectFn,
-  );
+  return translateOne({ ...input, dictionaryContext }, deps.generateObjectFn);
 }
 
 /**
@@ -98,10 +85,7 @@ export async function translateBatchWithContext(
   const results: TranslateOutput[] = [];
 
   for (const word of words) {
-    const output = await translateWithContext(
-      { word, sourceLang, targetLangs, model },
-      deps,
-    );
+    const output = await translateWithContext({ word, sourceLang, targetLangs, model }, deps);
     results.push(output);
   }
 

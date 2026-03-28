@@ -1,21 +1,21 @@
 // Topic service — public API
 export {
+  createTopicService,
   getBuiltinTopics,
   getDataset,
-  createTopicService,
 } from "./topic.service.js";
 
 // Types
 export type {
-  TopicMeta,
-  TopicWord,
-  Topic,
+  CachedTranslation,
   CacheStatus,
+  LanguageTranslationEntry,
+  NewCachedTranslation,
+  Topic,
   TopicDataset,
   TopicDeps,
   TopicExpressionType,
+  TopicMeta,
   TopicTranslationVariant,
-  LanguageTranslationEntry,
-  CachedTranslation,
-  NewCachedTranslation,
+  TopicWord,
 } from "./types.js";

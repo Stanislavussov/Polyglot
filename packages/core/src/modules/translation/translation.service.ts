@@ -12,6 +12,10 @@
  * Does NOT save results — only returns them.
  * Knows nothing about the user — works only with text and languages.
  */
+
+import { validate } from "../validation/index.js";
+import { buildStrictPrompt, buildTranslationPrompt } from "./prompt.builder.js";
+import { buildTranslationResultSchema, translationResultSchema } from "./schemas/translation.schema.js";
 import type {
   LanguageTranslation,
   TranslateInput,
@@ -20,12 +24,6 @@ import type {
   TranslationRequest,
   TranslationResult,
 } from "./types.js";
-import { buildTranslationPrompt, buildStrictPrompt } from "./prompt.builder.js";
-import {
-  translationResultSchema,
-  buildTranslationResultSchema,
-} from "./schemas/translation.schema.js";
-import { validate } from "../validation/index.js";
 
 /** Maximum number of validation retries before returning with needsReview */
 const MAX_RETRIES = 2;
@@ -50,10 +48,7 @@ export type GenerateObjectFn = <T>(
  * @param generateObjectFn - AI generation function (injected)
  * @returns TranslateOutput with translations for all requested languages
  */
-export async function translate(
-  input: TranslateInput,
-  generateObjectFn: GenerateObjectFn,
-): Promise<TranslateOutput> {
+export async function translate(input: TranslateInput, generateObjectFn: GenerateObjectFn): Promise<TranslateOutput> {
   const request: TranslationRequest = {
     text: input.word,
     sourceLang: input.sourceLang,
@@ -88,10 +83,7 @@ export async function translate(
         ...(input.userId !== undefined ? [{ userId: input.userId }] : []),
       );
     } catch (generationError) {
-      const errorMsg =
-        generationError instanceof Error
-          ? generationError.message
-          : String(generationError);
+      const errorMsg = generationError instanceof Error ? generationError.message : String(generationError);
 
       console.warn("[translation] AI generation failed", {
         original: input.word,
@@ -112,12 +104,7 @@ export async function translate(
 
     // Step 3: Validate response (use the same config-aware schema
     // so disabled fields like examples don't trigger false failures)
-    const validation = validate(
-      result,
-      schema,
-      input.word,
-      input.targetLangs,
-    );
+    const validation = validate(result, schema, input.word, input.targetLangs);
 
     // Step 4: On PASS → return result
     if (validation.valid) {
@@ -125,9 +112,7 @@ export async function translate(
     }
 
     // Step 5: On FAIL → retry with strict prompt
-    lastErrors = validation.errors.map(
-      (e) => `[${e.rule}] ${e.field ? `${e.field}: ` : ""}${e.message}`,
-    );
+    lastErrors = validation.errors.map((e) => `[${e.rule}] ${e.field ? `${e.field}: ` : ""}${e.message}`);
 
     // Log validation failure (console — core has no logger dep)
     console.warn("[translation] validation failed", {
@@ -141,14 +126,11 @@ export async function translate(
   }
 
   // Step 6: On final FAIL → return with needsReview: true
-  console.error(
-    "[translation] validation failed after all retries — returning needsReview",
-    {
-      original: input.word,
-      retryCount: MAX_RETRIES,
-      failReason: lastErrors.join(" | "),
-    },
-  );
+  console.error("[translation] validation failed after all retries — returning needsReview", {
+    original: input.word,
+    retryCount: MAX_RETRIES,
+    failReason: lastErrors.join(" | "),
+  });
   return toOutput(input, result!, true);
 }
 
@@ -208,10 +190,7 @@ export async function translateBatch(
   const results: TranslateOutput[] = [];
 
   for (const word of words) {
-    const output = await translate(
-      { word, sourceLang, targetLangs, model },
-      generateObjectFn,
-    );
+    const output = await translate({ word, sourceLang, targetLangs, model }, generateObjectFn);
     results.push(output);
   }
 
@@ -236,11 +215,7 @@ export function parseResponse(raw: unknown): TranslationResult {
 export { buildTranslationPrompt as buildPrompt } from "./prompt.builder.js";
 
 /** Convert AI result to the public TranslateOutput format */
-function toOutput(
-  input: TranslateInput,
-  result: TranslationResult,
-  needsReview: boolean,
-): TranslateOutput {
+function toOutput(input: TranslateInput, result: TranslationResult, needsReview: boolean): TranslateOutput {
   // Strip disabled fields from AI response — the model may still return them
   // even when the prompt doesn't ask for them (JSON schema leaks structure).
   const translations = stripDisabledFields(result.translations, input.outputConfig);

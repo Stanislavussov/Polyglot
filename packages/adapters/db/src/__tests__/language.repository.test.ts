@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock Drizzle query builder ──────────────────────────────────
 
@@ -36,9 +36,7 @@ vi.mock("../index.js", () => ({
   getDb: () => mockDb,
 }));
 
-const { languageRepository } = await import(
-  "../repositories/language.repository.js"
-);
+const { languageRepository } = await import("../repositories/language.repository.js");
 
 beforeEach(() => {
   mockRows.length = 0;

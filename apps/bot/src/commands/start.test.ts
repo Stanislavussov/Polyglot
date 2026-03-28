@@ -1,9 +1,9 @@
 /**
  * Tests for /start command handler.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { startCommand } from "./start.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { BotContext, SessionData } from "../types.js";
+import { startCommand } from "./start.js";
 
 // Mock dependencies
 vi.mock("@polyglot/adapter-db", () => ({
@@ -31,10 +31,7 @@ import { userRepository } from "@polyglot/adapter-db";
 
 const repo = vi.mocked(userRepository);
 
-function createMockCtx(overrides: {
-  onboarded?: boolean;
-  userId?: number;
-} = {}): BotContext {
+function createMockCtx(overrides: { onboarded?: boolean; userId?: number } = {}): BotContext {
   const session: SessionData = {
     activeMode: "idle",
     pendingTranslation: undefined,

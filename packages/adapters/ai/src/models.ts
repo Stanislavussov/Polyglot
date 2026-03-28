@@ -100,17 +100,10 @@ export function estimateCost(tokens: number, model: string): number {
 /**
  * Calculate actual cost from known input and output token counts.
  */
-export function calculateCost(
-  inputTokens: number,
-  outputTokens: number,
-  model: string,
-): number {
+export function calculateCost(inputTokens: number, outputTokens: number, model: string): number {
   const entry = findModel(model);
   if (!entry) {
     return ((inputTokens + outputTokens) / 1000) * DEFAULT_COST_PER_1K;
   }
-  return (
-    (inputTokens / 1000) * entry.costPer1kInput +
-    (outputTokens / 1000) * entry.costPer1kOutput
-  );
+  return (inputTokens / 1000) * entry.costPer1kInput + (outputTokens / 1000) * entry.costPer1kOutput;
 }

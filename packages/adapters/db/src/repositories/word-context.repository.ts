@@ -1,33 +1,22 @@
-import { eq, and, ilike, sql } from "drizzle-orm";
+import { and, eq, ilike, sql } from "drizzle-orm";
 import { getDb } from "../index.js";
-import { wordContext, languages } from "../schema.js";
+import { languages, wordContext } from "../schema.js";
 
 export type WordContext = typeof wordContext.$inferSelect;
 export type NewWordContext = typeof wordContext.$inferInsert;
 
 export const wordContextRepository = {
   /** Look up word context entries by word and language ID. */
-  async findByWordAndLang(
-    word: string,
-    languageId: number,
-  ): Promise<WordContext[]> {
+  async findByWordAndLang(word: string, languageId: number): Promise<WordContext[]> {
     const db = getDb();
     return db
       .select()
       .from(wordContext)
-      .where(
-        and(
-          eq(wordContext.word, word),
-          eq(wordContext.languageId, languageId),
-        ),
-      );
+      .where(and(eq(wordContext.word, word), eq(wordContext.languageId, languageId)));
   },
 
   /** Look up word context entries by word and language code (joins languages). */
-  async findByWordAndLangCode(
-    word: string,
-    langCode: string,
-  ): Promise<WordContext[]> {
+  async findByWordAndLangCode(word: string, langCode: string): Promise<WordContext[]> {
     const db = getDb();
     return db
       .select({
@@ -41,30 +30,19 @@ export const wordContextRepository = {
       })
       .from(wordContext)
       .innerJoin(languages, eq(wordContext.languageId, languages.id))
-      .where(
-        and(eq(wordContext.word, word), eq(languages.code, langCode)),
-      );
+      .where(and(eq(wordContext.word, word), eq(languages.code, langCode)));
   },
 
   /**
    * Search word context entries by partial word match (case-insensitive).
    * Searches within a specific language by ID.
    */
-  async search(
-    query: string,
-    languageId: number,
-    limit: number = 20,
-  ): Promise<WordContext[]> {
+  async search(query: string, languageId: number, limit: number = 20): Promise<WordContext[]> {
     const db = getDb();
     return db
       .select()
       .from(wordContext)
-      .where(
-        and(
-          ilike(wordContext.word, `%${query}%`),
-          eq(wordContext.languageId, languageId),
-        ),
-      )
+      .where(and(ilike(wordContext.word, `%${query}%`), eq(wordContext.languageId, languageId)))
       .limit(limit);
   },
 
@@ -72,10 +50,7 @@ export const wordContextRepository = {
   async createBatch(entries: NewWordContext[]): Promise<number> {
     if (entries.length === 0) return 0;
     const db = getDb();
-    const result = await db
-      .insert(wordContext)
-      .values(entries)
-      .returning();
+    const result = await db.insert(wordContext).values(entries).returning();
     return result.length;
   },
 
@@ -93,11 +68,7 @@ export const wordContextRepository = {
   /** Find a single entry by its ID. */
   async findById(id: number): Promise<WordContext | null> {
     const db = getDb();
-    const rows = await db
-      .select()
-      .from(wordContext)
-      .where(eq(wordContext.id, id))
-      .limit(1);
+    const rows = await db.select().from(wordContext).where(eq(wordContext.id, id)).limit(1);
     return rows[0] ?? null;
   },
 };

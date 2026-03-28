@@ -1,4 +1,4 @@
-import type { ValidationResult, ValidationError } from "../types.js";
+import type { ValidationError, ValidationResult } from "../types.js";
 
 /** Expression type — literal or idiomatic equivalent */
 export type ExpressionType = "literal" | "idiomatic_equivalent";
@@ -24,8 +24,8 @@ export interface ExampleInput {
  */
 export function validateExamples(
   examples: ExampleInput[],
-  word: string,
-  expressionType?: ExpressionType,
+  _word: string,
+  _expressionType?: ExpressionType,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 

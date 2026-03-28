@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "../index.js";
-import { users, userLanguageSettings } from "../schema.js";
+import { userLanguageSettings, users } from "../schema.js";
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -14,11 +14,7 @@ export const userRepository = {
   /** Find a user by their Telegram ID. */
   async findByTelegramId(telegramId: number): Promise<User | null> {
     const db = getDb();
-    const rows = await db
-      .select()
-      .from(users)
-      .where(eq(users.telegramId, telegramId))
-      .limit(1);
+    const rows = await db.select().from(users).where(eq(users.telegramId, telegramId)).limit(1);
     return rows[0] ?? null;
   },
 
@@ -34,13 +30,8 @@ export const userRepository = {
     userId: number,
     settings: Omit<NewUserLanguageSettings, "userId">,
   ): Promise<UserLanguageSettings> {
-    if (
-      settings.learningLangs &&
-      settings.learningLangs.length > MAX_LEARNING_LANGS
-    ) {
-      throw new Error(
-        `Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got ${settings.learningLangs.length}`,
-      );
+    if (settings.learningLangs && settings.learningLangs.length > MAX_LEARNING_LANGS) {
+      throw new Error(`Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got ${settings.learningLangs.length}`);
     }
     const db = getDb();
     const rows = await db
@@ -62,10 +53,7 @@ export const userRepository = {
   },
 
   /** Update user's active mode (translate, mentor, quiz, etc.). */
-  async updateActiveMode(
-    userId: number,
-    mode: string,
-  ): Promise<UserLanguageSettings | null> {
+  async updateActiveMode(userId: number, mode: string): Promise<UserLanguageSettings | null> {
     const db = getDb();
     const rows = await db
       .update(userLanguageSettings)
@@ -78,25 +66,14 @@ export const userRepository = {
   /** Get user language settings by user ID. */
   async getSettings(userId: number): Promise<UserLanguageSettings | null> {
     const db = getDb();
-    const rows = await db
-      .select()
-      .from(userLanguageSettings)
-      .where(eq(userLanguageSettings.userId, userId))
-      .limit(1);
+    const rows = await db.select().from(userLanguageSettings).where(eq(userLanguageSettings.userId, userId)).limit(1);
     return rows[0] ?? null;
   },
 
   /** Update user's onboarding step. */
-  async updateOnboardingStep(
-    userId: number,
-    step: number,
-  ): Promise<User> {
+  async updateOnboardingStep(userId: number, step: number): Promise<User> {
     const db = getDb();
-    const rows = await db
-      .update(users)
-      .set({ onboardingStep: step })
-      .where(eq(users.id, userId))
-      .returning();
+    const rows = await db.update(users).set({ onboardingStep: step }).where(eq(users.id, userId)).returning();
     return rows[0]!;
   },
 

@@ -1,93 +1,93 @@
-import { describe, it, expect } from 'vitest';
-import { buildIdiomAnalysisPrompt } from '../prompt.builder.js';
-import type { IdiomAnalysisInput } from '../types.js';
+import { describe, expect, it } from "vitest";
+import { buildIdiomAnalysisPrompt } from "../prompt.builder.js";
+import type { IdiomAnalysisInput } from "../types.js";
 
-describe('buildIdiomAnalysisPrompt', () => {
+describe("buildIdiomAnalysisPrompt", () => {
   const sampleInput: IdiomAnalysisInput = {
-    sourcePhrase: 'Break a leg',
-    sourceLang: 'en',
-    translatedPhrase: 'Zlom si nohu',
-    targetLang: 'cs',
+    sourcePhrase: "Break a leg",
+    sourceLang: "en",
+    translatedPhrase: "Zlom si nohu",
+    targetLang: "cs",
   };
 
-  it('includes source phrase and language', () => {
+  it("includes source phrase and language", () => {
     const prompt = buildIdiomAnalysisPrompt(sampleInput);
     expect(prompt).toContain('Source phrase: "Break a leg"');
-    expect(prompt).toContain('Source language: English');
+    expect(prompt).toContain("Source language: English");
   });
 
-  it('includes translated phrase and target language', () => {
+  it("includes translated phrase and target language", () => {
     const prompt = buildIdiomAnalysisPrompt(sampleInput);
     expect(prompt).toContain('Translated phrase: "Zlom si nohu"');
-    expect(prompt).toContain('Target language: Czech');
+    expect(prompt).toContain("Target language: Czech");
   });
 
-  it('contains analysis instructions', () => {
+  it("contains analysis instructions", () => {
     const prompt = buildIdiomAnalysisPrompt(sampleInput);
-    expect(prompt).toContain('Identify Source Expression Type');
-    expect(prompt).toContain('Evaluate Translation Quality');
-    expect(prompt).toContain('Compare Semantic Meaning');
-    expect(prompt).toContain('Provide Alternative');
+    expect(prompt).toContain("Identify Source Expression Type");
+    expect(prompt).toContain("Evaluate Translation Quality");
+    expect(prompt).toContain("Compare Semantic Meaning");
+    expect(prompt).toContain("Provide Alternative");
   });
 
-  it('contains all classification values', () => {
+  it("contains all classification values", () => {
     const prompt = buildIdiomAnalysisPrompt(sampleInput);
-    expect(prompt).toContain('CORRECT_IDIOMATIC_TRANSLATION');
-    expect(prompt).toContain('LITERAL_BUT_UNNATURAL');
-    expect(prompt).toContain('INCORRECT_MEANING');
+    expect(prompt).toContain("CORRECT_IDIOMATIC_TRANSLATION");
+    expect(prompt).toContain("LITERAL_BUT_UNNATURAL");
+    expect(prompt).toContain("INCORRECT_MEANING");
   });
 
-  it('escapes quotes in source phrase', () => {
+  it("escapes quotes in source phrase", () => {
     const inputWithQuotes: IdiomAnalysisInput = {
       sourcePhrase: 'He said "hello"',
-      sourceLang: 'en',
+      sourceLang: "en",
       translatedPhrase: 'Řekl "ahoj"',
-      targetLang: 'cs',
+      targetLang: "cs",
     };
     const prompt = buildIdiomAnalysisPrompt(inputWithQuotes);
     expect(prompt).toContain('He said \\"hello\\"');
     expect(prompt).toContain('Řekl \\"ahoj\\"');
   });
 
-  it('converts ISO codes to full language names', () => {
+  it("converts ISO codes to full language names", () => {
     const input: IdiomAnalysisInput = {
-      sourcePhrase: 'Test',
-      sourceLang: 'de',
-      translatedPhrase: 'Test',
-      targetLang: 'fr',
+      sourcePhrase: "Test",
+      sourceLang: "de",
+      translatedPhrase: "Test",
+      targetLang: "fr",
     };
     const prompt = buildIdiomAnalysisPrompt(input);
-    expect(prompt).toContain('Source language: German');
-    expect(prompt).toContain('Target language: French');
+    expect(prompt).toContain("Source language: German");
+    expect(prompt).toContain("Target language: French");
   });
 
-  it('contains important rules section', () => {
+  it("contains important rules section", () => {
     const prompt = buildIdiomAnalysisPrompt(sampleInput);
-    expect(prompt).toContain('Important Rules');
-    expect(prompt).toContain('native speakers');
-    expect(prompt).toContain('cultural context');
-    expect(prompt).toContain('confidence');
+    expect(prompt).toContain("Important Rules");
+    expect(prompt).toContain("native speakers");
+    expect(prompt).toContain("cultural context");
+    expect(prompt).toContain("confidence");
   });
 
-  it('contains guidance for phraseologisms without direct equivalents', () => {
+  it("contains guidance for phraseologisms without direct equivalents", () => {
     const prompt = buildIdiomAnalysisPrompt(sampleInput);
-    expect(prompt).toContain('phraseologisms without a direct equivalent');
-    expect(prompt).toContain('contextually appropriate translation');
+    expect(prompt).toContain("phraseologisms without a direct equivalent");
+    expect(prompt).toContain("contextually appropriate translation");
   });
 
-  it('mentions expression types', () => {
+  it("mentions expression types", () => {
     const prompt = buildIdiomAnalysisPrompt(sampleInput);
-    expect(prompt).toContain('idiom');
-    expect(prompt).toContain('proverb');
-    expect(prompt).toContain('slang');
-    expect(prompt).toContain('figurative');
-    expect(prompt).toContain('fixed expression');
+    expect(prompt).toContain("idiom");
+    expect(prompt).toContain("proverb");
+    expect(prompt).toContain("slang");
+    expect(prompt).toContain("figurative");
+    expect(prompt).toContain("fixed expression");
   });
 
-  it('mentions tone and intensity analysis', () => {
+  it("mentions tone and intensity analysis", () => {
     const prompt = buildIdiomAnalysisPrompt(sampleInput);
-    expect(prompt).toContain('emotional tone');
-    expect(prompt).toContain('intensity');
-    expect(prompt).toContain('emphasis');
+    expect(prompt).toContain("emotional tone");
+    expect(prompt).toContain("intensity");
+    expect(prompt).toContain("emphasis");
   });
 });

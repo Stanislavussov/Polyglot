@@ -1,6 +1,5 @@
-import type { SupportedLang, LocaleMessages } from "./types.js";
-
 import { createRequire } from "node:module";
+import type { LocaleMessages, SupportedLang } from "./types.js";
 
 const require = createRequire(import.meta.url);
 
@@ -38,11 +37,7 @@ export class I18nService {
   /** Translate a key to the current locale, with fallback to English */
   t(key: string): string {
     const localeDict = messages[this.locale];
-    return (
-      localeDict?.[key as keyof LocaleMessages] ??
-      enMessages[key as keyof LocaleMessages] ??
-      key
-    );
+    return localeDict?.[key as keyof LocaleMessages] ?? enMessages[key as keyof LocaleMessages] ?? key;
   }
 
   /** Get all available locales */

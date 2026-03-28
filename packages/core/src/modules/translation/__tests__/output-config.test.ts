@@ -1,16 +1,9 @@
-import { describe, it, expect, vi } from "vitest";
-import { buildTranslationPrompt, buildStrictPrompt } from "../prompt.builder.js";
-import {
-  buildTranslationResultSchema,
-  buildLanguageTranslationSchema,
-} from "../schemas/translation.schema.js";
+import { describe, expect, it, vi } from "vitest";
+import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
+import { buildLanguageTranslationSchema, buildTranslationResultSchema } from "../schemas/translation.schema.js";
 import { translate } from "../translation.service.js";
-import {
-  FULL_OUTPUT,
-  MINIMAL_OUTPUT,
-  NOTIFICATION_OUTPUT,
-} from "../translation-output.presets.js";
-import type { TranslationRequest, TranslateInput, TranslationOutputConfig } from "../types.js";
+import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT } from "../translation-output.presets.js";
+import type { TranslateInput, TranslationOutputConfig, TranslationRequest } from "../types.js";
 
 // ─── Helpers ──────────────────────────────────────────────
 
@@ -157,18 +150,14 @@ describe("buildTranslationPrompt with outputConfig", () => {
 
 describe("buildStrictPrompt with outputConfig", () => {
   it("includeExamples: false → strict prompt omits example variety check", () => {
-    const prompt = buildStrictPrompt(
-      { ...baseRequest, outputConfig: { includeExamples: false } },
-      ["some error"],
-    );
+    const prompt = buildStrictPrompt({ ...baseRequest, outputConfig: { includeExamples: false } }, ["some error"]);
     expect(prompt).not.toContain("3 examples uses a DIFFERENT word");
   });
 
   it("includeEquivalentNote: false → strict prompt omits idiomatic expression check", () => {
-    const prompt = buildStrictPrompt(
-      { ...baseRequest, outputConfig: { includeEquivalentNote: false } },
-      ["some error"],
-    );
+    const prompt = buildStrictPrompt({ ...baseRequest, outputConfig: { includeEquivalentNote: false } }, [
+      "some error",
+    ]);
     expect(prompt).not.toContain("idiomatic_equivalent");
   });
 });

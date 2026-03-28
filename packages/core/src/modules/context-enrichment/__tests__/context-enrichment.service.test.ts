@@ -4,13 +4,9 @@
  * All dependencies (lookupContext, generateObjectFn) are mocked.
  * No real DB or AI calls.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DictionaryContext, LanguageTranslation, TranslateOutput } from "../../translation/types.js";
 import type { ContextEnrichmentDeps, EnrichedTranslateInput } from "../types.js";
-import type {
-  TranslateOutput,
-  DictionaryContext,
-  LanguageTranslation,
-} from "../../translation/types.js";
 
 // Mock the translation service
 vi.mock("../../translation/translation.service.js", () => ({
@@ -18,21 +14,18 @@ vi.mock("../../translation/translation.service.js", () => ({
   translateOne: vi.fn(),
 }));
 
-import {
-  translateWithContext,
-  translateOneWithContext,
-  translateBatchWithContext,
-} from "../context-enrichment.service.js";
 import { translate, translateOne } from "../../translation/translation.service.js";
+import {
+  translateBatchWithContext,
+  translateOneWithContext,
+  translateWithContext,
+} from "../context-enrichment.service.js";
 
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
 
-function makeDictionaryContext(
-  word: string,
-  langCode: string = "en",
-): DictionaryContext {
+function makeDictionaryContext(word: string, langCode: string = "en"): DictionaryContext {
   return {
     word,
     pos: "noun",
@@ -77,13 +70,8 @@ function makeLangTranslation(word: string, lang: string): LanguageTranslation {
   };
 }
 
-function createMockDeps(
-  lookupResult?: DictionaryContext | undefined,
-  lookupError?: Error,
-): ContextEnrichmentDeps {
-  const lookupContext = lookupError
-    ? vi.fn().mockRejectedValue(lookupError)
-    : vi.fn().mockResolvedValue(lookupResult);
+function createMockDeps(lookupResult?: DictionaryContext | undefined, lookupError?: Error): ContextEnrichmentDeps {
+  const lookupContext = lookupError ? vi.fn().mockRejectedValue(lookupError) : vi.fn().mockResolvedValue(lookupResult);
 
   return {
     lookupContext,
@@ -109,9 +97,7 @@ describe("translateWithContext", () => {
 
   it("calls lookupContext with word and sourceLang", async () => {
     const deps = createMockDeps(undefined);
-    vi.mocked(translate).mockResolvedValue(
-      makeTranslateOutput("apple", ["cs", "de"]),
-    );
+    vi.mocked(translate).mockResolvedValue(makeTranslateOutput("apple", ["cs", "de"]));
 
     await translateWithContext(baseInput, deps);
 
@@ -122,9 +108,7 @@ describe("translateWithContext", () => {
   it("merges dictionary context into translate input when found", async () => {
     const ctx = makeDictionaryContext("apple");
     const deps = createMockDeps(ctx);
-    vi.mocked(translate).mockResolvedValue(
-      makeTranslateOutput("apple", ["cs", "de"], ctx),
-    );
+    vi.mocked(translate).mockResolvedValue(makeTranslateOutput("apple", ["cs", "de"], ctx));
 
     await translateWithContext(baseInput, deps);
 
@@ -142,9 +126,7 @@ describe("translateWithContext", () => {
 
   it("calls translate without dictionaryContext when lookup returns undefined", async () => {
     const deps = createMockDeps(undefined);
-    vi.mocked(translate).mockResolvedValue(
-      makeTranslateOutput("apple", ["cs", "de"]),
-    );
+    vi.mocked(translate).mockResolvedValue(makeTranslateOutput("apple", ["cs", "de"]));
 
     await translateWithContext(baseInput, deps);
 
@@ -159,9 +141,7 @@ describe("translateWithContext", () => {
 
   it("calls translate without dictionaryContext when lookup throws (fail-open)", async () => {
     const deps = createMockDeps(undefined, new Error("DB connection failed"));
-    vi.mocked(translate).mockResolvedValue(
-      makeTranslateOutput("apple", ["cs", "de"]),
-    );
+    vi.mocked(translate).mockResolvedValue(makeTranslateOutput("apple", ["cs", "de"]));
 
     await translateWithContext(baseInput, deps);
 
@@ -186,16 +166,11 @@ describe("translateWithContext", () => {
 
   it("passes generateObjectFn to translate()", async () => {
     const deps = createMockDeps(undefined);
-    vi.mocked(translate).mockResolvedValue(
-      makeTranslateOutput("apple", ["cs", "de"]),
-    );
+    vi.mocked(translate).mockResolvedValue(makeTranslateOutput("apple", ["cs", "de"]));
 
     await translateWithContext(baseInput, deps);
 
-    expect(translate).toHaveBeenCalledWith(
-      expect.anything(),
-      deps.generateObjectFn,
-    );
+    expect(translate).toHaveBeenCalledWith(expect.anything(), deps.generateObjectFn);
   });
 
   it("preserves all input fields (topic, userId) in translate call", async () => {
@@ -205,9 +180,7 @@ describe("translateWithContext", () => {
       userId: 42,
     };
     const deps = createMockDeps(undefined);
-    vi.mocked(translate).mockResolvedValue(
-      makeTranslateOutput("apple", ["cs", "de"]),
-    );
+    vi.mocked(translate).mockResolvedValue(makeTranslateOutput("apple", ["cs", "de"]));
 
     await translateWithContext(inputWithExtras, deps);
 
@@ -225,9 +198,7 @@ describe("translateWithContext", () => {
     const deps = createMockDeps(undefined);
     vi.mocked(translate).mockRejectedValue(new Error("AI generation failed"));
 
-    await expect(translateWithContext(baseInput, deps)).rejects.toThrow(
-      "AI generation failed",
-    );
+    await expect(translateWithContext(baseInput, deps)).rejects.toThrow("AI generation failed");
   });
 });
 
@@ -244,9 +215,7 @@ describe("translateOneWithContext", () => {
 
   it("calls lookupContext with word and sourceLang", async () => {
     const deps = createMockDeps(undefined);
-    vi.mocked(translateOne).mockResolvedValue(
-      makeLangTranslation("apple", "cs"),
-    );
+    vi.mocked(translateOne).mockResolvedValue(makeLangTranslation("apple", "cs"));
 
     await translateOneWithContext(oneInput, deps);
 
@@ -256,9 +225,7 @@ describe("translateOneWithContext", () => {
   it("passes dictionaryContext to translateOne when found", async () => {
     const ctx = makeDictionaryContext("apple");
     const deps = createMockDeps(ctx);
-    vi.mocked(translateOne).mockResolvedValue(
-      makeLangTranslation("apple", "cs"),
-    );
+    vi.mocked(translateOne).mockResolvedValue(makeLangTranslation("apple", "cs"));
 
     await translateOneWithContext(oneInput, deps);
 
@@ -274,9 +241,7 @@ describe("translateOneWithContext", () => {
 
   it("calls translateOne without dictionaryContext when lookup returns undefined", async () => {
     const deps = createMockDeps(undefined);
-    vi.mocked(translateOne).mockResolvedValue(
-      makeLangTranslation("apple", "cs"),
-    );
+    vi.mocked(translateOne).mockResolvedValue(makeLangTranslation("apple", "cs"));
 
     await translateOneWithContext(oneInput, deps);
 
@@ -290,9 +255,7 @@ describe("translateOneWithContext", () => {
 
   it("handles lookup errors gracefully (fail-open)", async () => {
     const deps = createMockDeps(undefined, new Error("DB error"));
-    vi.mocked(translateOne).mockResolvedValue(
-      makeLangTranslation("apple", "cs"),
-    );
+    vi.mocked(translateOne).mockResolvedValue(makeLangTranslation("apple", "cs"));
 
     await translateOneWithContext(oneInput, deps);
 
@@ -326,17 +289,9 @@ describe("translateBatchWithContext", () => {
 
   it("calls lookupContext for each word in the batch", async () => {
     const deps = createMockDeps(undefined);
-    vi.mocked(translate).mockImplementation(async (input) =>
-      makeTranslateOutput(input.word, input.targetLangs),
-    );
+    vi.mocked(translate).mockImplementation(async (input) => makeTranslateOutput(input.word, input.targetLangs));
 
-    await translateBatchWithContext(
-      ["apple", "banana", "cherry"],
-      "en",
-      ["cs"],
-      "test-model",
-      deps,
-    );
+    await translateBatchWithContext(["apple", "banana", "cherry"], "en", ["cs"], "test-model", deps);
 
     expect(deps.lookupContext).toHaveBeenCalledTimes(3);
     expect(deps.lookupContext).toHaveBeenCalledWith("apple", "en");
@@ -352,30 +307,16 @@ describe("translateBatchWithContext", () => {
       return makeTranslateOutput(input.word, input.targetLangs);
     });
 
-    await translateBatchWithContext(
-      ["first", "second", "third"],
-      "en",
-      ["cs"],
-      "test-model",
-      deps,
-    );
+    await translateBatchWithContext(["first", "second", "third"], "en", ["cs"], "test-model", deps);
 
     expect(callOrder).toEqual(["first", "second", "third"]);
   });
 
   it("returns TranslateOutput for each word", async () => {
     const deps = createMockDeps(undefined);
-    vi.mocked(translate).mockImplementation(async (input) =>
-      makeTranslateOutput(input.word, input.targetLangs),
-    );
+    vi.mocked(translate).mockImplementation(async (input) => makeTranslateOutput(input.word, input.targetLangs));
 
-    const results = await translateBatchWithContext(
-      ["apple", "banana"],
-      "en",
-      ["cs", "de"],
-      "test-model",
-      deps,
-    );
+    const results = await translateBatchWithContext(["apple", "banana"], "en", ["cs", "de"], "test-model", deps);
 
     expect(results).toHaveLength(2);
     expect(results[0]!.original).toBe("apple");
@@ -385,24 +326,16 @@ describe("translateBatchWithContext", () => {
   it("enriches each word with its own dictionary context", async () => {
     const appleCtx = makeDictionaryContext("apple");
     const deps: ContextEnrichmentDeps = {
-      lookupContext: vi.fn().mockImplementation((word: string) =>
-        Promise.resolve(
-          word === "apple" ? appleCtx : undefined,
-        ),
-      ),
+      lookupContext: vi
+        .fn()
+        .mockImplementation((word: string) => Promise.resolve(word === "apple" ? appleCtx : undefined)),
       generateObjectFn: vi.fn(),
     };
     vi.mocked(translate).mockImplementation(async (input) =>
       makeTranslateOutput(input.word, input.targetLangs, input.dictionaryContext),
     );
 
-    await translateBatchWithContext(
-      ["apple", "banana"],
-      "en",
-      ["cs"],
-      "test-model",
-      deps,
-    );
+    await translateBatchWithContext(["apple", "banana"], "en", ["cs"], "test-model", deps);
 
     // First call should have apple's context
     expect(vi.mocked(translate).mock.calls[0]![0]).toMatchObject({
@@ -420,13 +353,7 @@ describe("translateBatchWithContext", () => {
   it("returns empty array for empty word list", async () => {
     const deps = createMockDeps(undefined);
 
-    const results = await translateBatchWithContext(
-      [],
-      "en",
-      ["cs"],
-      "test-model",
-      deps,
-    );
+    const results = await translateBatchWithContext([], "en", ["cs"], "test-model", deps);
 
     expect(results).toEqual([]);
     expect(deps.lookupContext).not.toHaveBeenCalled();
@@ -443,17 +370,9 @@ describe("translateBatchWithContext", () => {
       }),
       generateObjectFn: vi.fn(),
     };
-    vi.mocked(translate).mockImplementation(async (input) =>
-      makeTranslateOutput(input.word, input.targetLangs),
-    );
+    vi.mocked(translate).mockImplementation(async (input) => makeTranslateOutput(input.word, input.targetLangs));
 
-    const results = await translateBatchWithContext(
-      ["apple", "banana", "cherry"],
-      "en",
-      ["cs"],
-      "test-model",
-      deps,
-    );
+    const results = await translateBatchWithContext(["apple", "banana", "cherry"], "en", ["cs"], "test-model", deps);
 
     // All 3 words should still be translated
     expect(results).toHaveLength(3);
@@ -471,14 +390,9 @@ describe("context enrichment — general", () => {
 
   it("uses sourceLang for dictionary lookup, not targetLang", async () => {
     const deps = createMockDeps(undefined);
-    vi.mocked(translate).mockResolvedValue(
-      makeTranslateOutput("привет", ["cs"]),
-    );
+    vi.mocked(translate).mockResolvedValue(makeTranslateOutput("привет", ["cs"]));
 
-    await translateWithContext(
-      { word: "привет", sourceLang: "ru", targetLangs: ["cs"], model: "m" },
-      deps,
-    );
+    await translateWithContext({ word: "привет", sourceLang: "ru", targetLangs: ["cs"], model: "m" }, deps);
 
     expect(deps.lookupContext).toHaveBeenCalledWith("привет", "ru");
   });

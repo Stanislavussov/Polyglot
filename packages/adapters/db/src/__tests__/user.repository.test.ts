@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock Drizzle query builder ──────────────────────────────────
 
@@ -52,9 +52,7 @@ vi.mock("../index.js", () => ({
   getDb: () => mockDb,
 }));
 
-const { userRepository, MAX_LEARNING_LANGS } = await import(
-  "../repositories/user.repository.js"
-);
+const { userRepository, MAX_LEARNING_LANGS } = await import("../repositories/user.repository.js");
 
 beforeEach(() => {
   mockRows.length = 0;
@@ -172,11 +170,8 @@ describe("userRepository", () => {
       });
 
       // Verify onConflictDoUpdate was called with activeMode in the set
-      const conflictCall = onConflictDoUpdateFn.mock.calls[0]![0] as Record<
-        string,
-        unknown
-      >;
-      const setObj = conflictCall["set"] as Record<string, unknown>;
+      const conflictCall = onConflictDoUpdateFn.mock.calls[0]![0] as Record<string, unknown>;
+      const setObj = conflictCall.set as Record<string, unknown>;
       expect(setObj).toHaveProperty("activeMode", "mentor");
       expect(setObj).toHaveProperty("interfaceLang", "en");
       expect(setObj).toHaveProperty("updatedAt");
@@ -222,9 +217,7 @@ describe("userRepository", () => {
           nativeLang: "ru",
           learningLangs: ["cs", "de", "fr", "es", "it"],
         }),
-      ).rejects.toThrow(
-        `Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got 5`,
-      );
+      ).rejects.toThrow(`Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got 5`);
 
       // Should NOT have called the DB
       expect(insertFn).not.toHaveBeenCalled();
@@ -296,9 +289,7 @@ describe("userRepository", () => {
       await userRepository.updateActiveMode(1, "translate");
 
       const after = new Date();
-      const updatedAt = (lastUpdateSet as Record<string, unknown>)[
-        "updatedAt"
-      ] as Date;
+      const updatedAt = (lastUpdateSet as Record<string, unknown>).updatedAt as Date;
       expect(updatedAt).toBeInstanceOf(Date);
       expect(updatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
       expect(updatedAt.getTime()).toBeLessThanOrEqual(after.getTime());

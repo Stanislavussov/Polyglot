@@ -5,9 +5,10 @@
  * the AI prompt via the context-enrichment layer. It must never appear
  * in the Telegram translation card.
  */
-import { describe, it, expect } from "vitest";
-import { renderTranslation } from "../renderers/translation.renderer.js";
+
 import type { TranslateOutput } from "@polyglot/core";
+import { describe, expect, it } from "vitest";
+import { renderTranslation } from "../renderers/translation.renderer.js";
 
 const baseOutput: TranslateOutput = {
   original: "hello",

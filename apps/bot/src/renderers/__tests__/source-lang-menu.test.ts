@@ -1,11 +1,8 @@
 /**
  * Tests for buildSourceLangKeyboard — post-translation source language selection menu.
  */
-import { describe, it, expect } from "vitest";
-import {
-  buildSourceLangKeyboard,
-  type LangOption,
-} from "../translation.renderer.js";
+import { describe, expect, it } from "vitest";
+import { buildSourceLangKeyboard, type LangOption } from "../translation.renderer.js";
 
 const threeLangs: LangOption[] = [
   { code: "ru", name: "🇷🇺 Русский" },
@@ -34,9 +31,7 @@ describe("buildSourceLangKeyboard", () => {
     const rows = (kb as any).inline_keyboard;
     const buttons = rows[0];
 
-    const csBtn = buttons.find(
-      (b: any) => b.callback_data === "tr:srclang:cs",
-    );
+    const csBtn = buttons.find((b: any) => b.callback_data === "tr:srclang:cs");
     expect(csBtn.text).toBe("✓ 🇨🇿 Čeština");
   });
 
@@ -55,15 +50,9 @@ describe("buildSourceLangKeyboard", () => {
     const rows = (kb as any).inline_keyboard;
     const buttons = rows[0];
 
-    const enBtn = buttons.find(
-      (b: any) => b.callback_data === "tr:srclang:en",
-    );
-    const ruBtn = buttons.find(
-      (b: any) => b.callback_data === "tr:srclang:ru",
-    );
-    const csBtn = buttons.find(
-      (b: any) => b.callback_data === "tr:srclang:cs",
-    );
+    const enBtn = buttons.find((b: any) => b.callback_data === "tr:srclang:en");
+    const ruBtn = buttons.find((b: any) => b.callback_data === "tr:srclang:ru");
+    const csBtn = buttons.find((b: any) => b.callback_data === "tr:srclang:cs");
 
     expect(enBtn.text).toBe("✓ 🇬🇧 English");
     expect(ruBtn.text).toBe("🇷🇺 Русский");
@@ -76,10 +65,7 @@ describe("buildSourceLangKeyboard", () => {
   });
 
   it("returns null for single language", () => {
-    const kb = buildSourceLangKeyboard(
-      [{ code: "en", name: "🇬🇧 English" }],
-      null,
-    );
+    const kb = buildSourceLangKeyboard([{ code: "en", name: "🇬🇧 English" }], null);
     expect(kb).toBeNull();
   });
 

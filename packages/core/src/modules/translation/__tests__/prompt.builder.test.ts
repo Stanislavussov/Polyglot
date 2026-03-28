@@ -1,8 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  buildTranslationPrompt,
-  buildStrictPrompt,
-} from "../prompt.builder.js";
+import { describe, expect, it } from "vitest";
+import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
 import type { TranslationRequest } from "../types.js";
 
 describe("buildTranslationPrompt", () => {
@@ -50,9 +47,7 @@ describe("buildTranslationPrompt", () => {
 
   it("specifies register values", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain(
-      "slang | colloquial | neutral | literary | professional",
-    );
+    expect(prompt).toContain("slang | colloquial | neutral | literary | professional");
   });
 
   it("requests example contexts: formal, colloquial, professional", () => {
@@ -127,9 +122,7 @@ describe("buildTranslationPrompt", () => {
 
   it("includes rule about 2 alternative translations", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain(
-      "Provide exactly 2 alternative translations per language",
-    );
+    expect(prompt).toContain("Provide exactly 2 alternative translations per language");
   });
 });
 

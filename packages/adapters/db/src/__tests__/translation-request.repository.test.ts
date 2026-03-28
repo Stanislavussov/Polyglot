@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Configurable mock DB ────────────────────────────────────────
 
@@ -28,6 +28,7 @@ function chainable(): unknown {
   self.orderBy = vi.fn(() => self);
   self.limit = vi.fn(() => terminal());
   // If the chain ends without .limit (e.g. innerJoin().where() returns directly)
+  // biome-ignore lint/suspicious/noThenProperty: mock needs .then for async chain resolution
   self.then = (resolve: (v: unknown) => void) => terminal().then(resolve);
 
   return self;
@@ -49,9 +50,7 @@ vi.mock("../index.js", () => ({
   getDb: () => mockDb,
 }));
 
-const { translationRequestRepository } = await import(
-  "../repositories/translation-request.repository.js"
-);
+const { translationRequestRepository } = await import("../repositories/translation-request.repository.js");
 
 beforeEach(() => {
   queryResults = [];
@@ -86,13 +85,7 @@ describe("translationRequestRepository", () => {
         [],
       ];
 
-      const result =
-        await translationRequestRepository.logTranslationRequest(
-          1,
-          "hello",
-          "en",
-          ["ru", "cs"],
-        );
+      const result = await translationRequestRepository.logTranslationRequest(1, "hello", "en", ["ru", "cs"]);
 
       expect(result).toBe(42);
       expect(mockDb.select).toHaveBeenCalled();
@@ -111,13 +104,7 @@ describe("translationRequestRepository", () => {
         [],
       ];
 
-      const result =
-        await translationRequestRepository.logTranslationRequest(
-          1,
-          "bonjour",
-          null,
-          ["en"],
-        );
+      const result = await translationRequestRepository.logTranslationRequest(1, "bonjour", null, ["en"]);
 
       expect(result).toBe(7);
       // No select for source lang
@@ -133,13 +120,7 @@ describe("translationRequestRepository", () => {
         // No target lang queries
       ];
 
-      const result =
-        await translationRequestRepository.logTranslationRequest(
-          1,
-          "test",
-          "en",
-          [],
-        );
+      const result = await translationRequestRepository.logTranslationRequest(1, "test", "en", []);
 
       expect(result).toBe(5);
       // Only one insert (the request itself)
@@ -154,13 +135,7 @@ describe("translationRequestRepository", () => {
         [{ id: 3 }],
       ];
 
-      const result =
-        await translationRequestRepository.logTranslationRequest(
-          1,
-          "test",
-          "xx",
-          [],
-        );
+      const result = await translationRequestRepository.logTranslationRequest(1, "test", "xx", []);
 
       expect(result).toBe(3);
     });
@@ -173,13 +148,7 @@ describe("translationRequestRepository", () => {
         [],
       ];
 
-      const result =
-        await translationRequestRepository.logTranslationRequest(
-          1,
-          "test",
-          null,
-          ["zz"],
-        );
+      const result = await translationRequestRepository.logTranslationRequest(1, "test", null, ["zz"]);
 
       expect(result).toBe(9);
       // Only one insert: the request
@@ -189,44 +158,26 @@ describe("translationRequestRepository", () => {
 
   describe("getUserRequestsInWindow", () => {
     it("returns count of requests since window start", async () => {
-      queryResults = [
-        [{ value: 5 }],
-      ];
+      queryResults = [[{ value: 5 }]];
 
-      const result =
-        await translationRequestRepository.getUserRequestsInWindow(
-          1,
-          new Date("2025-01-01"),
-        );
+      const result = await translationRequestRepository.getUserRequestsInWindow(1, new Date("2025-01-01"));
 
       expect(result).toBe(5);
       expect(mockDb.select).toHaveBeenCalledOnce();
     });
 
     it("returns 0 when no requests found", async () => {
-      queryResults = [
-        [{ value: 0 }],
-      ];
+      queryResults = [[{ value: 0 }]];
 
-      const result =
-        await translationRequestRepository.getUserRequestsInWindow(
-          1,
-          new Date("2025-01-01"),
-        );
+      const result = await translationRequestRepository.getUserRequestsInWindow(1, new Date("2025-01-01"));
 
       expect(result).toBe(0);
     });
 
     it("returns 0 when query returns empty array", async () => {
-      queryResults = [
-        [],
-      ];
+      queryResults = [[]];
 
-      const result =
-        await translationRequestRepository.getUserRequestsInWindow(
-          1,
-          new Date("2025-01-01"),
-        );
+      const result = await translationRequestRepository.getUserRequestsInWindow(1, new Date("2025-01-01"));
 
       expect(result).toBe(0);
     });
@@ -250,8 +201,7 @@ describe("translationRequestRepository", () => {
         ],
       ];
 
-      const result =
-        await translationRequestRepository.getRecentRequests(10, 5);
+      const result = await translationRequestRepository.getRecentRequests(10, 5);
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
@@ -278,8 +228,7 @@ describe("translationRequestRepository", () => {
         [],
       ];
 
-      const result =
-        await translationRequestRepository.getRecentRequests(99, 10);
+      const result = await translationRequestRepository.getRecentRequests(99, 10);
 
       expect(result).toEqual([]);
       // Should not make a second query for target langs
@@ -296,8 +245,7 @@ describe("translationRequestRepository", () => {
         [],
       ];
 
-      const result =
-        await translationRequestRepository.getRecentRequests(10, 5);
+      const result = await translationRequestRepository.getRecentRequests(10, 5);
 
       expect(result).toHaveLength(1);
       expect(result[0]!.targetLangCodes).toEqual([]);

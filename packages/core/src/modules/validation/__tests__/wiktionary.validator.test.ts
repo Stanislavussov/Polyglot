@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  validateWiktionaryEntry,
-  validateWordContext,
+  KNOWN_POS,
   validateGlosses,
   validatePos,
-  KNOWN_POS,
+  validateWiktionaryEntry,
+  validateWordContext,
 } from "../validators/wiktionary.validator.js";
 
 // ─────────────────────────────────────────────

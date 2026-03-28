@@ -1,13 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
 import {
+  buildTranslationResultSchema,
   languageTranslationSchema,
   translationResultSchema,
-  buildTranslationResultSchema,
 } from "../schemas/translation.schema.js";
-import {
-  buildTranslationPrompt,
-  buildStrictPrompt,
-} from "../prompt.builder.js";
 import type { TranslationRequest } from "../types.js";
 
 /**
@@ -79,9 +76,7 @@ describe("Schema — expressionType and equivalentNote", () => {
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.equivalentNote).toBe(
-        "No direct equivalent; closest English idiom used",
-      );
+      expect(result.data.equivalentNote).toBe("No direct equivalent; closest English idiom used");
     }
   });
 
@@ -107,12 +102,8 @@ describe("Schema — expressionType and equivalentNote", () => {
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.translations.en.expressionType).toBe(
-        "idiomatic_equivalent",
-      );
-      expect(result.data.translations.en.equivalentNote).toBe(
-        "Closest English idiom for the Czech proverb",
-      );
+      expect(result.data.translations.en.expressionType).toBe("idiomatic_equivalent");
+      expect(result.data.translations.en.equivalentNote).toBe("Closest English idiom for the Czech proverb");
     }
   });
 
@@ -151,9 +142,7 @@ describe("Schema — expressionType and equivalentNote", () => {
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.translations.en.expressionType).toBe(
-        "idiomatic_equivalent",
-      );
+      expect(result.data.translations.en.expressionType).toBe("idiomatic_equivalent");
       expect(result.data.translations.de.expressionType).toBe("literal");
     }
   });
@@ -227,8 +216,6 @@ describe("Prompt — idiomatic rule", () => {
 
   it("strict prompt mentions expressionType in correction guidance", () => {
     const prompt = buildStrictPrompt(baseRequest, ["some error"]);
-    expect(prompt).toContain(
-      'set expressionType to "idiomatic_equivalent" with an equivalentNote',
-    );
+    expect(prompt).toContain('set expressionType to "idiomatic_equivalent" with an equivalentNote');
   });
 });

@@ -1,18 +1,12 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const idiomClassificationSchema = z.enum([
-  'CORRECT_IDIOMATIC_TRANSLATION',
-  'LITERAL_BUT_UNNATURAL',
-  'INCORRECT_MEANING',
+  "CORRECT_IDIOMATIC_TRANSLATION",
+  "LITERAL_BUT_UNNATURAL",
+  "INCORRECT_MEANING",
 ]);
 
-export const sourceExpressionTypeSchema = z.enum([
-  'idiom',
-  'proverb',
-  'slang',
-  'figurative',
-  'fixed_expression',
-]);
+export const sourceExpressionTypeSchema = z.enum(["idiom", "proverb", "slang", "figurative", "fixed_expression"]);
 
 export const idiomAnalysisResultSchema = z.object({
   sourceIsIdiomatic: z.boolean(),

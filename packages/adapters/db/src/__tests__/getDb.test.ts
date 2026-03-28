@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("getDb", () => {
   it("should throw if DATABASE_URL is not set", async () => {
     // Ensure DATABASE_URL is not set for this test
-    const original = process.env["DATABASE_URL"];
-    delete process.env["DATABASE_URL"];
+    const original = process.env.DATABASE_URL;
+    delete process.env.DATABASE_URL;
 
     try {
       // Dynamic import to avoid module-level side effects
@@ -18,7 +18,7 @@ describe("getDb", () => {
       expect(() => getDb()).toThrow("DATABASE_URL environment variable is not set");
     } finally {
       if (original !== undefined) {
-        process.env["DATABASE_URL"] = original;
+        process.env.DATABASE_URL = original;
       }
     }
   });

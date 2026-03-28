@@ -1,10 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  renderTranslation,
-  renderTopicWord,
-  buildTranslationKeyboard,
-} from "../renderers/translation.renderer.js";
-import type { TranslateOutput, TopicWord } from "@polyglot/core";
+import type { TopicWord, TranslateOutput } from "@polyglot/core";
+import { describe, expect, it, vi } from "vitest";
+import { buildTranslationKeyboard, renderTopicWord, renderTranslation } from "../renderers/translation.renderer.js";
 
 // Mock getLangFlag from @polyglot/core
 vi.mock("@polyglot/core", async () => {
@@ -134,7 +130,7 @@ describe("renderTranslation", () => {
       ...sampleOutput,
       translations: {
         cs: {
-          ...sampleOutput.translations["cs"]!,
+          ...sampleOutput.translations.cs!,
           transcription: undefined,
         },
       },
@@ -149,7 +145,7 @@ describe("renderTranslation", () => {
       ...sampleOutput,
       translations: {
         cs: {
-          ...sampleOutput.translations["cs"]!,
+          ...sampleOutput.translations.cs!,
           synonyms: [],
         },
       },
@@ -163,7 +159,7 @@ describe("renderTranslation", () => {
       ...sampleOutput,
       translations: {
         cs: {
-          ...sampleOutput.translations["cs"]!,
+          ...sampleOutput.translations.cs!,
           examples: [],
         },
       },
@@ -186,7 +182,7 @@ describe("renderTranslation", () => {
     const multiLang: TranslateOutput = {
       ...sampleOutput,
       translations: {
-        cs: sampleOutput.translations["cs"]!,
+        cs: sampleOutput.translations.cs!,
         de: {
           text: "hallo",
           cefr: "A1",
@@ -306,8 +302,7 @@ describe("renderTopicWord", () => {
 
 describe("buildTranslationKeyboard", () => {
   /** Extract callback_data from an inline keyboard button (union type). */
-  const cbData = (btn: unknown): string | undefined =>
-    (btn as { callback_data?: string }).callback_data;
+  const cbData = (btn: unknown): string | undefined => (btn as { callback_data?: string }).callback_data;
 
   it("creates regenerate buttons for each language code", () => {
     const kb = buildTranslationKeyboard(["cs", "de", "fr"], "en");
@@ -398,9 +393,7 @@ describe("renderTranslation — alternatives", () => {
         cefr: "A1",
         register: "neutral",
         synonyms: [],
-        examples: [
-          { context: "formal", target: "Dům je velký.", native: "The house is big." },
-        ],
+        examples: [{ context: "formal", target: "Dům je velký.", native: "The house is big." }],
         alternatives: [
           {
             text: "domov",
@@ -452,7 +445,7 @@ describe("renderTranslation — alternatives", () => {
       ...sampleOutput,
       translations: {
         cs: {
-          ...sampleOutput.translations["cs"]!,
+          ...sampleOutput.translations.cs!,
           alternatives: [],
         },
       },
@@ -466,7 +459,7 @@ describe("renderTranslation — alternatives", () => {
       ...sampleOutput,
       translations: {
         cs: {
-          ...sampleOutput.translations["cs"]!,
+          ...sampleOutput.translations.cs!,
           alternatives: [
             {
               text: "<b>bad</b>",
@@ -498,8 +491,7 @@ describe("renderTranslation — idiomatic equivalents", () => {
         cefr: "B1",
         register: "colloquial",
         expressionType: "idiomatic_equivalent",
-        equivalentNote:
-          "Closest English proverb conveying the same meaning",
+        equivalentNote: "Closest English proverb conveying the same meaning",
         synonyms: [],
         examples: [
           {
@@ -541,12 +533,8 @@ describe("renderTranslation — idiomatic equivalents", () => {
 
   it("renders examples from idiomatic translations normally", () => {
     const result = renderTranslation(idiomaticOutput, "en");
-    expect(result).toContain(
-      "<i>No pain, no gain — you have to work for it.</i>",
-    );
-    expect(result).toContain(
-      "→ Bez práce nejsou koláče — musíš pro to pracovat.",
-    );
+    expect(result).toContain("<i>No pain, no gain — you have to work for it.</i>");
+    expect(result).toContain("→ Bez práce nejsou koláče — musíš pro to pracovat.");
   });
 
   it("handles mix of literal and idiomatic translations", () => {
@@ -595,9 +583,7 @@ describe("renderTopicWord — idiomatic equivalents", () => {
       },
     };
     const result = renderTopicWord(idiomaticWord);
-    expect(result).toContain(
-      "<b>The early bird catches the worm</b>",
-    );
+    expect(result).toContain("<b>The early bird catches the worm</b>");
     expect(result).toContain("<b>Ranní ptáče dál doskáče</b>");
     expect(result).not.toContain("idiomatic_equivalent");
     expect(result).not.toContain("equivalentNote");

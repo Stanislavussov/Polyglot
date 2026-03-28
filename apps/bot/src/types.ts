@@ -1,7 +1,7 @@
-import { Context, SessionFlavor } from "grammy";
 import { type ConversationFlavor } from "@grammyjs/conversations";
 import type { User } from "@polyglot/adapter-db";
 import type { TranslateOutput } from "@polyglot/core";
+import { Context, SessionFlavor } from "grammy";
 
 /**
  * Active mode for the bot — determines how plain text messages are routed.
@@ -36,12 +36,7 @@ export interface CustomContextProps {
 }
 
 /** Context type used in the outside middleware tree (has ConversationFlavor + Session) */
-export type BotContext = Context &
-  ConversationFlavor<Context> &
-  SessionFlavor<SessionData> &
-  CustomContextProps;
+export type BotContext = Context & ConversationFlavor<Context> & SessionFlavor<SessionData> & CustomContextProps;
 
 /** Context type used inside conversations (no ConversationFlavor, but has Session) */
-export type ConversationContext = Context &
-  SessionFlavor<SessionData> &
-  CustomContextProps;
+export type ConversationContext = Context & SessionFlavor<SessionData> & CustomContextProps;

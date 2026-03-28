@@ -1,10 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  getAvailableModels,
-  findModel,
-  estimateCost,
-  calculateCost,
-} from "../models.js";
+import { describe, expect, it } from "vitest";
+import { calculateCost, estimateCost, findModel, getAvailableModels } from "../models.js";
 
 describe("models", () => {
   describe("getAvailableModels", () => {
@@ -71,9 +66,7 @@ describe("models", () => {
     it("calculates cost for known model with input/output split", () => {
       const model = findModel("openai/gpt-4o")!;
       const cost = calculateCost(1000, 500, "openai/gpt-4o");
-      const expected =
-        (1000 / 1000) * model.costPer1kInput +
-        (500 / 1000) * model.costPer1kOutput;
+      const expected = (1000 / 1000) * model.costPer1kInput + (500 / 1000) * model.costPer1kOutput;
       expect(cost).toBeCloseTo(expected);
     });
 

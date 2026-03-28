@@ -1,9 +1,9 @@
 /**
  * Tests for auth middleware — user resolution + activeMode hydration from DB.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { authMiddleware } from "./auth.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { BotContext, SessionData } from "../types.js";
+import { authMiddleware } from "./auth.js";
 
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: {
@@ -26,10 +26,7 @@ import { userRepository } from "@polyglot/adapter-db";
 
 const repo = vi.mocked(userRepository);
 
-function createMockCtx(overrides: {
-  telegramId?: number;
-  sessionActiveMode?: string;
-} = {}): BotContext {
+function createMockCtx(overrides: { telegramId?: number; sessionActiveMode?: string } = {}): BotContext {
   const session: SessionData = {
     activeMode: (overrides.sessionActiveMode as any) ?? "translate",
     pendingTranslation: undefined,
@@ -38,9 +35,7 @@ function createMockCtx(overrides: {
   };
 
   return {
-    from: overrides.telegramId !== undefined
-      ? { id: overrides.telegramId, username: "testuser" }
-      : undefined,
+    from: overrides.telegramId !== undefined ? { id: overrides.telegramId, username: "testuser" } : undefined,
     session,
     user: undefined as any,
   } as unknown as BotContext;

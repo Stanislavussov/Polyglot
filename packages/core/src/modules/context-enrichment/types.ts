@@ -12,11 +12,9 @@
  *
  * Core never calls the DB directly — lookup is injected.
  */
-import type {
-  DictionaryContext,
-  TranslateInput,
-} from "../translation/types.js";
+
 import type { GenerateObjectFn } from "../translation/translation.service.js";
+import type { DictionaryContext, TranslateInput } from "../translation/types.js";
 
 /**
  * Lookup function that retrieves dictionary context for a word.
@@ -26,10 +24,7 @@ import type { GenerateObjectFn } from "../translation/translation.service.js";
  * @param langCode - ISO 639-1 language code (e.g., "ru", "en")
  * @returns DictionaryContext if found, undefined otherwise
  */
-export type ContextLookupFn = (
-  word: string,
-  langCode: string,
-) => Promise<DictionaryContext | undefined>;
+export type ContextLookupFn = (word: string, langCode: string) => Promise<DictionaryContext | undefined>;
 
 /**
  * Dependencies injected into the context enrichment service.

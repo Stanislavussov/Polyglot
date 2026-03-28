@@ -3,10 +3,9 @@
  * Sets active mode to "translate" and confirms to user.
  * Persists mode to DB so it survives bot restarts.
  */
-import { userRepository } from "@polyglot/adapter-db";
-import { t, isSupported, type SupportedLang } from "@polyglot/core";
+import { getLangDisplay, userRepository } from "@polyglot/adapter-db";
+import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
-import { getLangDisplay } from "@polyglot/adapter-db";
 
 /**
  * Handles /translate command — activates translate mode.

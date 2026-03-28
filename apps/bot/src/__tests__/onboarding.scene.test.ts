@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { onboarding } from "../scenes/onboarding.scene.js";
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
@@ -25,9 +25,15 @@ vi.mock("@polyglot/adapter-db", () => ({
   ],
   getLangDisplay: (code: string) => {
     const map: Record<string, string> = {
-      ru: "🇷🇺 Русский", en: "🇬🇧 English", cs: "🇨🇿 Čeština",
-      de: "🇩🇪 Deutsch", fr: "🇫🇷 Français", es: "🇪🇸 Español",
-      it: "🇮🇹 Italiano", pt: "🇵🇹 Português", uk: "🇺🇦 Українська",
+      ru: "🇷🇺 Русский",
+      en: "🇬🇧 English",
+      cs: "🇨🇿 Čeština",
+      de: "🇩🇪 Deutsch",
+      fr: "🇫🇷 Français",
+      es: "🇪🇸 Español",
+      it: "🇮🇹 Italiano",
+      pt: "🇵🇹 Português",
+      uk: "🇺🇦 Українська",
       pl: "🇵🇱 Polski",
     };
     return map[code] ?? code;
@@ -45,9 +51,7 @@ const repo = vi.mocked(userRepository);
 
 // ── Test helpers ─────────────────────────────────────────────────────────────
 
-type UserAction =
-  | { type: "callback"; data: string }
-  | { type: "text"; text: string };
+type UserAction = { type: "callback"; data: string } | { type: "text"; text: string };
 
 /** Shorthand: callback query action */
 const cb = (data: string): UserAction => ({ type: "callback", data });
@@ -69,11 +73,7 @@ const FAKE_USER = {
  * Build mock conversation + context that replays a scripted sequence.
  * Both waitForCallbackQuery and waitUntil pull from the same ordered queue.
  */
-function setup(
-  actions: UserAction[],
-  user: typeof FAKE_USER | null = FAKE_USER,
-  telegramLocale?: string,
-) {
+function setup(actions: UserAction[], user: typeof FAKE_USER | null = FAKE_USER, telegramLocale?: string) {
   let idx = 0;
 
   repo.findByTelegramId.mockResolvedValue(user);
@@ -87,8 +87,7 @@ function setup(
     }
     const action = actions[idx++];
     return {
-      callbackQuery:
-        action.type === "callback" ? { data: action.data } : undefined,
+      callbackQuery: action.type === "callback" ? { data: action.data } : undefined,
       message: action.type === "text" ? { text: action.text } : undefined,
       answerCallbackQuery: vi.fn(),
       editMessageText: vi.fn(),
@@ -125,9 +124,7 @@ function getKeyboard(ctx: any, callIndex: number): any[][] {
 
 /** True if any button in the keyboard has the given callback_data. */
 function hasButton(keyboard: any[][], callbackData: string): boolean {
-  return keyboard.some((row: any[]) =>
-    row.some((btn: any) => btn.callback_data === callbackData),
-  );
+  return keyboard.some((row: any[]) => row.some((btn: any) => btn.callback_data === callbackData));
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -161,12 +158,7 @@ describe("onboarding", () => {
     });
 
     it("sets activeMode to 'translate' after completion", async () => {
-      const { conversation, ctx } = setup([
-        cb("lang:ru"),
-        cb("learn:cs"),
-        cb("learn:done"),
-        txt("hello"),
-      ]);
+      const { conversation, ctx } = setup([cb("lang:ru"), cb("learn:cs"), cb("learn:done"), txt("hello")]);
 
       expect(ctx.session.activeMode).toBe("idle"); // before
       await onboarding(conversation, ctx);
@@ -174,12 +166,7 @@ describe("onboarding", () => {
     });
 
     it("persists activeMode to DB after completion", async () => {
-      const { conversation, ctx } = setup([
-        cb("lang:ru"),
-        cb("learn:cs"),
-        cb("learn:done"),
-        txt("hello"),
-      ]);
+      const { conversation, ctx } = setup([cb("lang:ru"), cb("learn:cs"), cb("learn:done"), txt("hello")]);
 
       await onboarding(conversation, ctx);
 
@@ -187,12 +174,7 @@ describe("onboarding", () => {
     });
 
     it("demo step shows result immediately without Save/Skip prompt", async () => {
-      const { conversation, ctx } = setup([
-        cb("lang:en"),
-        cb("learn:cs"),
-        cb("learn:done"),
-        txt("hello"),
-      ]);
+      const { conversation, ctx } = setup([cb("lang:en"), cb("learn:cs"), cb("learn:done"), txt("hello")]);
 
       await onboarding(conversation, ctx);
 
@@ -201,9 +183,7 @@ describe("onboarding", () => {
       // No Save/Skip keyboard should be shown.
       const replyCalls = ctx.reply.mock.calls;
       // Find the demo result call — it has parse_mode: "Markdown"
-      const demoCall = replyCalls.find(
-        (call: any[]) => call[1]?.parse_mode === "Markdown",
-      );
+      const demoCall = replyCalls.find((call: any[]) => call[1]?.parse_mode === "Markdown");
       expect(demoCall).toBeDefined();
       // Should NOT have reply_markup (no Save/Skip buttons)
       expect(demoCall[1]?.reply_markup).toBeUndefined();
@@ -262,9 +242,7 @@ describe("onboarding", () => {
 
       await onboarding(conversation, ctx);
 
-      expect(ctx.reply).toHaveBeenCalledWith(
-        "Something went wrong. Please try /start again.",
-      );
+      expect(ctx.reply).toHaveBeenCalledWith("Something went wrong. Please try /start again.");
       expect(repo.markOnboarded).not.toHaveBeenCalled();
       expect(repo.updateOnboardingStep).not.toHaveBeenCalled();
     });
@@ -433,12 +411,7 @@ describe("onboarding", () => {
 
   describe("back button presence in keyboards", () => {
     async function runFullFlow() {
-      const harness = setup([
-        cb("lang:ru"),
-        cb("learn:cs"),
-        cb("learn:done"),
-        txt("hello"),
-      ]);
+      const harness = setup([cb("lang:ru"), cb("learn:cs"), cb("learn:done"), txt("hello")]);
       await onboarding(harness.conversation, harness.ctx);
       return harness.ctx;
     }

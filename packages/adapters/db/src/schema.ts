@@ -1,13 +1,13 @@
 import {
+  bigint,
+  boolean,
+  index,
+  integer,
+  jsonb,
   pgTable,
   serial,
-  bigint,
   text,
-  boolean,
-  integer,
   timestamp,
-  jsonb,
-  index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
@@ -173,12 +173,7 @@ export const topicTranslationCache = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (t) => [
-    uniqueIndex("topic_cache_unique_idx").on(
-      t.topicId,
-      t.original,
-      t.sourceLang,
-      t.targetLang,
-    ),
+    uniqueIndex("topic_cache_unique_idx").on(t.topicId, t.original, t.sourceLang, t.targetLang),
     index("topic_cache_lookup_idx").on(t.topicId, t.sourceLang, t.targetLang),
   ],
 );

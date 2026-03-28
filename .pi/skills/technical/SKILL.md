@@ -39,8 +39,10 @@ Wave 7: Application
 └── bot — Telegram bot (grammY)
     (depends on: i18n, db, translation, topics, notifications)
 
+── Each implementation agent (Waves 1–N) runs `pnpm lint` after finishing its changes ──
+
 Wave 8: Quality gate
-└── test-runner — run tests, fix failures
+└── test-runner — run lint + tests, fix failures
     (depends on: all implementation agents)
 
 Wave 9: Documentation gate
@@ -50,12 +52,12 @@ Wave 9: Documentation gate
 
 ## Architecture Layers
 
-| Layer | Package | Agents |
-|-------|---------|--------|
-| Core | `packages/core/src/` | i18n, validation, translation, topics |
-| Adapters | `packages/adapters/*/src/` | db, ai, notifications |
-| App | `apps/bot/src/` | bot |
-| Quality | — | test-runner, doc-validator |
+| Layer    | Package                    | Agents                                |
+| -------- | -------------------------- | ------------------------------------- |
+| Core     | `packages/core/src/`       | i18n, validation, translation, topics |
+| Adapters | `packages/adapters/*/src/` | db, ai, notifications                 |
+| App      | `apps/bot/src/`            | bot                                   |
+| Quality  | —                          | test-runner, doc-validator            |
 
 ## Boundary
 
@@ -78,6 +80,7 @@ Wave 9: Documentation gate
 ## Relationship with Business Pipeline
 
 The business pipeline produces artifacts in `docs/`:
+
 - `docs/tasks/` — task specs (consumed by all implementation agents)
 - `docs/tech-reqs/` — technical design docs (consumed by implementation agents)
 - `docs/BRD.md` — business requirements (reference only)

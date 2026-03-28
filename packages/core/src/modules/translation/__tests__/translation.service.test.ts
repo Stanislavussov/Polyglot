@@ -1,10 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-import {
-  translate,
-  translateOne,
-  translateBatch,
-  parseResponse,
-} from "../translation.service.js";
+import { describe, expect, it, vi } from "vitest";
+import { parseResponse, translate, translateBatch, translateOne } from "../translation.service.js";
 import type { TranslateInput, TranslationResult } from "../types.js";
 
 /** A valid AI response matching translationResultSchema */
@@ -91,10 +86,7 @@ describe("translate", () => {
       },
     });
 
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValueOnce(badResult)
-      .mockResolvedValueOnce(makeValidResult());
+    const mockGenerate = vi.fn().mockResolvedValueOnce(badResult).mockResolvedValueOnce(makeValidResult());
 
     const result = await translate(defaultInput, mockGenerate);
 
@@ -204,13 +196,9 @@ describe("translate", () => {
   });
 
   it("propagates AI adapter errors", async () => {
-    const mockGenerate = vi
-      .fn()
-      .mockRejectedValue(new Error("API rate limit exceeded"));
+    const mockGenerate = vi.fn().mockRejectedValue(new Error("API rate limit exceeded"));
 
-    await expect(translate(defaultInput, mockGenerate)).rejects.toThrow(
-      "API rate limit exceeded",
-    );
+    await expect(translate(defaultInput, mockGenerate)).rejects.toThrow("API rate limit exceeded");
   });
 });
 
@@ -245,9 +233,7 @@ describe("translateOne", () => {
   });
 
   it("propagates errors from translate()", async () => {
-    const mockGenerate = vi
-      .fn()
-      .mockRejectedValue(new Error("API rate limit exceeded"));
+    const mockGenerate = vi.fn().mockRejectedValue(new Error("API rate limit exceeded"));
 
     await expect(
       translateOne(
@@ -261,7 +247,14 @@ describe("translateOne", () => {
     const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
 
     await translateOne(
-      { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o", topic: "travel" },
+      {
+        word: "hello",
+        sourceLang: "en",
+        targetLangs: ["cs"],
+        targetLang: "cs",
+        model: "openai/gpt-4o",
+        topic: "travel",
+      },
       mockGenerate,
     );
 
@@ -278,12 +271,7 @@ describe("translateOne", () => {
     );
 
     // userId is passed as 4th arg options
-    expect(mockGenerate).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.anything(),
-      "openai/gpt-4o",
-      { userId: 42 },
-    );
+    expect(mockGenerate).toHaveBeenCalledWith(expect.any(String), expect.anything(), "openai/gpt-4o", { userId: 42 });
   });
 
   it("works with needsReview results (validation exhausted)", async () => {
@@ -350,13 +338,7 @@ describe("translateBatch", () => {
         }),
       );
 
-    const results = await translateBatch(
-      ["hello", "world"],
-      "en",
-      ["cs"],
-      "openai/gpt-4o",
-      mockGenerate,
-    );
+    const results = await translateBatch(["hello", "world"], "en", ["cs"], "openai/gpt-4o", mockGenerate);
 
     expect(results).toHaveLength(2);
     expect(results[0].original).toBe("hello");
@@ -368,13 +350,7 @@ describe("translateBatch", () => {
   it("returns empty array for empty input", async () => {
     const mockGenerate = vi.fn();
 
-    const results = await translateBatch(
-      [],
-      "en",
-      ["cs"],
-      "openai/gpt-4o",
-      mockGenerate,
-    );
+    const results = await translateBatch([], "en", ["cs"], "openai/gpt-4o", mockGenerate);
 
     expect(results).toHaveLength(0);
     expect(mockGenerate).not.toHaveBeenCalled();
@@ -393,13 +369,7 @@ describe("translateBatch", () => {
       });
     });
 
-    await translateBatch(
-      ["a", "b", "c"],
-      "en",
-      ["cs"],
-      "openai/gpt-4o",
-      mockGenerate,
-    );
+    await translateBatch(["a", "b", "c"], "en", ["cs"], "openai/gpt-4o", mockGenerate);
 
     expect(callOrder).toEqual([1, 2, 3]);
   });
@@ -530,10 +500,7 @@ describe("validation logging", () => {
       },
     });
 
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValueOnce(badResult)
-      .mockResolvedValueOnce(makeValidResult());
+    const mockGenerate = vi.fn().mockResolvedValueOnce(badResult).mockResolvedValueOnce(makeValidResult());
 
     await translate(defaultInput, mockGenerate);
 

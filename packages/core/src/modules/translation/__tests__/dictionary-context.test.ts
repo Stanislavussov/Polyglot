@@ -7,18 +7,10 @@
  * - Phrase/idiom detection hints
  * - Edge cases: empty glosses, missing formTags, long gloss lists
  */
-import { describe, it, expect, vi } from "vitest";
-import {
-  buildTranslationPrompt,
-  buildStrictPrompt,
-} from "../prompt.builder.js";
+import { describe, expect, it, vi } from "vitest";
+import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
 import { translate, translateOne } from "../translation.service.js";
-import type {
-  TranslationRequest,
-  TranslateInput,
-  TranslationResult,
-  DictionaryContext,
-} from "../types.js";
+import type { DictionaryContext, TranslateInput, TranslationRequest, TranslationResult } from "../types.js";
 
 // ─────────────────────────────────────────────
 // Test fixtures
@@ -27,9 +19,7 @@ import type {
 const sampleDictionaryContext: DictionaryContext = {
   word: "что ли",
   pos: "phrase",
-  glosses: [
-    "or something, perhaps, maybe, as if (or something like that - usually used in a question)",
-  ],
+  glosses: ["or something, perhaps, maybe, as if (or something like that - usually used in a question)"],
   formTags: ["canonical"],
   langCode: "ru",
 };
@@ -49,9 +39,7 @@ const nounDictionaryContext: DictionaryContext = {
   langCode: "ru",
 };
 
-function makeValidResult(
-  overrides?: Partial<TranslationResult>,
-): TranslationResult {
+function makeValidResult(overrides?: Partial<TranslationResult>): TranslationResult {
   return {
     emoji: "❓",
     register: "colloquial",
@@ -149,9 +137,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain(
-      "You MUST use these definitions as the PRIMARY basis for your translation",
-    );
+    expect(prompt).toContain("You MUST use these definitions as the PRIMARY basis for your translation");
   });
 
   it("includes instruction to reflect meanings in alternatives and synonyms", () => {
@@ -159,9 +145,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain(
-      "each alternative should capture a different sense",
-    );
+    expect(prompt).toContain("each alternative should capture a different sense");
   });
 
   it("does NOT include MUST-use instruction when glosses are empty", () => {
@@ -176,9 +160,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
         langCode: "en",
       },
     });
-    expect(prompt).not.toContain(
-      "You MUST use these definitions",
-    );
+    expect(prompt).not.toContain("You MUST use these definitions");
   });
 
   it("includes fixed expression hint for pos=phrase", () => {
@@ -186,9 +168,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain(
-      "This is a fixed expression — translate the meaning, not word-by-word.",
-    );
+    expect(prompt).toContain("This is a fixed expression — translate the meaning, not word-by-word.");
   });
 
   it("includes fixed expression hint for pos=idiom", () => {
@@ -197,9 +177,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       text: "сорока на хвосте принесла",
       dictionaryContext: idiomDictionaryContext,
     });
-    expect(prompt).toContain(
-      "This is a fixed expression — translate the meaning, not word-by-word.",
-    );
+    expect(prompt).toContain("This is a fixed expression — translate the meaning, not word-by-word.");
   });
 
   it("does NOT include fixed expression hint for pos=noun", () => {
@@ -208,9 +186,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       text: "стол",
       dictionaryContext: nounDictionaryContext,
     });
-    expect(prompt).not.toContain(
-      "This is a fixed expression — translate the meaning, not word-by-word.",
-    );
+    expect(prompt).not.toContain("This is a fixed expression — translate the meaning, not word-by-word.");
   });
 
   it("does NOT include dictionary context section when not provided", () => {
@@ -418,10 +394,7 @@ describe("translate — dictionary context passthrough", () => {
       },
     });
 
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValueOnce(badResult)
-      .mockResolvedValueOnce(makeValidResult());
+    const mockGenerate = vi.fn().mockResolvedValueOnce(badResult).mockResolvedValueOnce(makeValidResult());
 
     const input: TranslateInput = {
       ...defaultInput,

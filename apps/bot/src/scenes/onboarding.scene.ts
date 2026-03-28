@@ -1,11 +1,10 @@
-import { InlineKeyboard } from "grammy";
 import type { Conversation } from "@grammyjs/conversations";
-import { userRepository } from "@polyglot/adapter-db";
-import { t, isSupported, type I18nKey, type SupportedLang } from "@polyglot/core";
-import type { BotContext, ConversationContext } from "../types.js";
-import { MAX_LEARNING_LANGS } from "../constants.js";
-import { getSupportedLangs, getLangDisplay } from "@polyglot/adapter-db";
+import { getLangDisplay, getSupportedLangs, userRepository } from "@polyglot/adapter-db";
+import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import { logger } from "@polyglot/infra";
+import { InlineKeyboard } from "grammy";
+import { MAX_LEARNING_LANGS } from "../constants.js";
+import type { BotContext, ConversationContext } from "../types.js";
 
 type OnboardingConversation = Conversation<BotContext, ConversationContext>;
 
@@ -17,10 +16,7 @@ type BackAction = typeof BACK;
  * Infer the interface language from native language or Telegram locale.
  * Falls back to "en" if neither is a supported UI language.
  */
-function inferInterfaceLang(
-  nativeLang: SupportedLang,
-  telegramLocale?: string,
-): SupportedLang {
+function inferInterfaceLang(nativeLang: SupportedLang, telegramLocale?: string): SupportedLang {
   // Native language is always a SupportedLang, use it first
   if (isSupported(nativeLang)) return nativeLang;
   // Try Telegram locale (e.g. "ru", "en-US" → "en")
@@ -40,10 +36,7 @@ function inferInterfaceLang(
  *
  * Interface language is inferred from native language selection.
  */
-export async function onboarding(
-  conversation: OnboardingConversation,
-  ctx: ConversationContext,
-): Promise<void> {
+export async function onboarding(conversation: OnboardingConversation, ctx: ConversationContext): Promise<void> {
   const telegramId = ctx.from!.id;
   const telegramLocale = ctx.from?.language_code;
   const user = await conversation.external(async () => {
@@ -65,27 +58,22 @@ export async function onboarding(
   while (step <= 3) {
     switch (step) {
       case 1: {
-        const result = await stepChooseNativeLang(
-          conversation, ctx, interfaceLang,
-        );
+        const result = await stepChooseNativeLang(conversation, ctx, interfaceLang);
         // Step 1 has no back — always moves forward
         nativeLang = result;
         interfaceLang = inferInterfaceLang(nativeLang, telegramLocale);
-        await conversation.external(() =>
-          userRepository.updateOnboardingStep(userId, 1),
-        );
+        await conversation.external(() => userRepository.updateOnboardingStep(userId, 1));
         step = 2;
         break;
       }
       case 2: {
-        const result = await stepChooseLearningLangs(
-          conversation, ctx, interfaceLang, nativeLang,
-        );
-        if (result === BACK) { step = 1; break; }
+        const result = await stepChooseLearningLangs(conversation, ctx, interfaceLang, nativeLang);
+        if (result === BACK) {
+          step = 1;
+          break;
+        }
         learningLangs = result;
-        await conversation.external(() =>
-          userRepository.updateOnboardingStep(userId, 2),
-        );
+        await conversation.external(() => userRepository.updateOnboardingStep(userId, 2));
         await conversation.external(() =>
           userRepository.updateSettings(userId, {
             interfaceLang,
@@ -97,10 +85,11 @@ export async function onboarding(
         break;
       }
       case 3: {
-        const result = await stepDemoTranslation(
-          conversation, ctx, interfaceLang,
-        );
-        if (result === BACK) { step = 2; break; }
+        const result = await stepDemoTranslation(conversation, ctx, interfaceLang);
+        if (result === BACK) {
+          step = 2;
+          break;
+        }
         step = 4; // exit loop
         break;
       }
@@ -111,9 +100,7 @@ export async function onboarding(
 
   // Activate translate mode and persist to DB so it survives restarts
   ctx.session.activeMode = "translate";
-  await conversation.external(() =>
-    userRepository.updateActiveMode(userId, "translate"),
-  );
+  await conversation.external(() => userRepository.updateActiveMode(userId, "translate"));
   logger.info({ userId }, "User completed onboarding");
 }
 
@@ -141,9 +128,7 @@ async function stepChooseNativeLang(
   const selectedCode = response.callbackQuery.data.replace("lang:", "");
   await response.answerCallbackQuery();
 
-  await response.editMessageText(
-    `${t("chooseNativeLang", lang)}\n\n✅ ${getLangDisplay(selectedCode)}`,
-  );
+  await response.editMessageText(`${t("chooseNativeLang", lang)}\n\n✅ ${getLangDisplay(selectedCode)}`);
 
   return isSupported(selectedCode) ? selectedCode : "en";
 }
@@ -166,16 +151,12 @@ async function stepChooseLearningLangs(
       if (l.code === nativeLang) continue;
       const isSelected = selected.includes(l.code);
       const prefix = isSelected ? "✅ " : "";
-      keyboard
-        .text(`${prefix}${getLangDisplay(l.code)}`, `learn:${l.code}`)
-        .row();
+      keyboard.text(`${prefix}${getLangDisplay(l.code)}`, `learn:${l.code}`).row();
     }
     if (selected.length > 0) {
       keyboard.text(t("done", interfaceLang), "learn:done").row();
     }
-    keyboard
-      .text(`⬅️ ${t("back", interfaceLang)}`, "learn:back")
-      .row();
+    keyboard.text(`⬅️ ${t("back", interfaceLang)}`, "learn:back").row();
     return keyboard;
   }
 
@@ -246,10 +227,8 @@ async function stepDemoTranslation(
   conversation: OnboardingConversation,
   ctx: ConversationContext,
   interfaceLang: SupportedLang,
-): Promise<void | BackAction> {
-  const backKeyboard = new InlineKeyboard()
-    .text(`⬅️ ${t("back", interfaceLang)}`, "onb:back")
-    .row();
+): Promise<undefined | BackAction> {
+  const backKeyboard = new InlineKeyboard().text(`⬅️ ${t("back", interfaceLang)}`, "onb:back").row();
 
   await ctx.reply(t("enterWord", interfaceLang), {
     reply_markup: backKeyboard,

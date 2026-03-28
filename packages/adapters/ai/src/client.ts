@@ -17,9 +17,7 @@ export function getClient(): ReturnType<typeof createOpenRouter> {
   if (!_client) {
     const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      throw new Error(
-        "OPENROUTER_API_KEY is not set. Configure it in your .env file.",
-      );
+      throw new Error("OPENROUTER_API_KEY is not set. Configure it in your .env file.");
     }
     _client = createOpenRouter({ apiKey });
   }

@@ -1,45 +1,24 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { validate } from "../index.js";
 
 /** Minimal schema matching the BRD translation result structure */
 const translationResultSchema = z.object({
   emoji: z.string(),
-  register: z.enum([
-    "slang",
-    "colloquial",
-    "neutral",
-    "literary",
-    "professional",
-  ]),
+  register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
   translations: z.record(
     z.string(),
     z.object({
       text: z.string(),
       cefr: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
       transcription: z.string().optional(),
-      register: z.enum([
-        "slang",
-        "colloquial",
-        "neutral",
-        "literary",
-        "professional",
-      ]),
-      expressionType: z
-        .enum(["literal", "idiomatic_equivalent"])
-        .optional()
-        .default("literal"),
+      register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
+      expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
       equivalentNote: z.string().optional(),
       synonyms: z.array(
         z.object({
           text: z.string(),
-          register: z.enum([
-            "slang",
-            "colloquial",
-            "neutral",
-            "literary",
-            "professional",
-          ]),
+          register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
         }),
       ),
       examples: z.array(
@@ -124,17 +103,9 @@ describe("validate (orchestrator)", () => {
   it("reports missing translations for expected languages", () => {
     const raw = makeValidResponse("hello");
     // Expect both cs and en but only cs provided
-    const result = validate(raw, translationResultSchema, "hello", [
-      "cs",
-      "en",
-    ]);
+    const result = validate(raw, translationResultSchema, "hello", ["cs", "en"]);
     expect(result.valid).toBe(false);
-    expect(
-      result.errors.some(
-        (e) =>
-          e.rule === "schema" && e.message.includes("Missing translation"),
-      ),
-    ).toBe(true);
+    expect(result.errors.some((e) => e.rule === "schema" && e.message.includes("Missing translation"))).toBe(true);
   });
 
   it("stops after schema failure and does not run other validators", () => {
@@ -217,9 +188,7 @@ describe("validate (orchestrator)", () => {
     };
     const result = validate(raw, translationResultSchema, "hello", ["cs"]);
     expect(result.valid).toBe(false);
-    expect(
-      result.errors.some((e) => e.field?.startsWith("translations.cs.")),
-    ).toBe(true);
+    expect(result.errors.some((e) => e.field?.startsWith("translations.cs."))).toBe(true);
   });
 });
 
@@ -405,27 +374,19 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
           cefr: "B2" as const,
           register: "colloquial" as const,
           expressionType: "idiomatic_equivalent" as const,
-          equivalentNote:
-            "Closest Czech equivalent of the English idiom about having both options.",
+          equivalentNote: "Closest Czech equivalent of the English idiom about having both options.",
           synonyms: [],
           examples: [
             {
               context: "colloquial" as const,
-              target:
-                "Podařilo se mu dosáhnout obou cílů současně, vlk se nažral a koza zůstala celá.",
-              native:
-                "He managed to achieve both goals at once, having his cake and eating it too.",
+              target: "Podařilo se mu dosáhnout obou cílů současně, vlk se nažral a koza zůstala celá.",
+              native: "He managed to achieve both goals at once, having his cake and eating it too.",
             },
           ],
         },
       },
     };
-    const result = validate(
-      raw,
-      translationResultSchema,
-      "Having your cake and eating it too",
-      ["cs"],
-    );
+    const result = validate(raw, translationResultSchema, "Having your cake and eating it too", ["cs"]);
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -452,12 +413,7 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
         },
       },
     };
-    const result = validate(
-      raw,
-      translationResultSchema,
-      "The early bird catches the worm",
-      ["cs"],
-    );
+    const result = validate(raw, translationResultSchema, "The early bird catches the worm", ["cs"]);
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -492,12 +448,7 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
         },
       },
     };
-    const result = validate(
-      raw,
-      translationResultSchema,
-      "Having your cake and eating it too",
-      ["cs"],
-    );
+    const result = validate(raw, translationResultSchema, "Having your cake and eating it too", ["cs"]);
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
   });
@@ -641,11 +592,7 @@ describe("validate — alternatives semantic validation", () => {
     const result = validate(raw, translationResultSchema, "hello", ["cs"]);
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
-    expect(
-      result.errors.some((e) =>
-        e.field?.includes("alternatives[1]"),
-      ),
-    ).toBe(true);
+    expect(result.errors.some((e) => e.field?.includes("alternatives[1]"))).toBe(true);
   });
 
   it("fails when alternative contains hallucination pattern", () => {
@@ -678,11 +625,7 @@ describe("validate — alternatives semantic validation", () => {
     const result = validate(raw, translationResultSchema, "hello", ["cs"]);
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
-    expect(
-      result.errors.some((e) =>
-        e.field?.includes("alternatives[0]"),
-      ),
-    ).toBe(true);
+    expect(result.errors.some((e) => e.field?.includes("alternatives[0]"))).toBe(true);
   });
 
   it("reports correct field path for alternative errors", () => {
@@ -719,9 +662,7 @@ describe("validate — alternatives semantic validation", () => {
     };
     const result = validate(raw, translationResultSchema, "hello", ["de"]);
     expect(result.valid).toBe(false);
-    const altError = result.errors.find((e) =>
-      e.field?.includes("alternatives"),
-    );
+    const altError = result.errors.find((e) => e.field?.includes("alternatives"));
     expect(altError).toBeDefined();
     expect(altError!.field).toBe("translations.de.alternatives[1].text");
   });

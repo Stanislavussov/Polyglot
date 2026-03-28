@@ -12,18 +12,18 @@
  */
 
 import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
 import { createInterface } from "node:readline";
 import { parseArgs } from "node:util";
-import { stat } from "node:fs/promises";
-import { loadConfig } from "../config.js";
 import {
   closeDb,
+  getLangName,
   languageRepository,
-  wordContextRepository,
   loadLanguageCache,
   normalizeToIso1,
-  getLangName,
+  wordContextRepository,
 } from "@polyglot/adapter-db";
+import { loadConfig } from "../config.js";
 
 // ─────────────────────────────────────────────
 // Types
@@ -78,10 +78,7 @@ async function* parseJsonl(filePath: string): AsyncGenerator<ParsedEntry> {
         formTags: entry.forms?.[0]?.tags ?? [],
         glosses: entry.senses?.flatMap((s: any) => s.glosses ?? []) ?? [],
       };
-    } catch {
-      // Skip malformed JSON lines
-      continue;
-    }
+    } catch {}
   }
 }
 
@@ -90,10 +87,7 @@ async function* parseJsonl(filePath: string): AsyncGenerator<ParsedEntry> {
 // ─────────────────────────────────────────────
 const languageCache = new Map<string, number>();
 
-async function getOrCreateLanguageId(
-  code: string,
-  name: string,
-): Promise<number> {
+async function getOrCreateLanguageId(code: string, name: string): Promise<number> {
   const cached = languageCache.get(code);
   if (cached !== undefined) return cached;
 
@@ -150,10 +144,7 @@ async function importWiktionary(
     }
 
     try {
-      const languageId = await getOrCreateLanguageId(
-        entry.langCode,
-        entry.langName,
-      );
+      const languageId = await getOrCreateLanguageId(entry.langCode, entry.langName);
 
       batch.push({
         word: entry.word,

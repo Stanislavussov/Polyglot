@@ -1,30 +1,25 @@
-import { describe, it, expect } from "vitest";
-import {
-  getIso1ToIso3Map,
-  getIso3ToIso1Map,
-  resolveToIso3,
-  normalizeToIso1,
-} from "../language-registry.js";
+import { describe, expect, it } from "vitest";
+import { getIso1ToIso3Map, getIso3ToIso1Map, normalizeToIso1, resolveToIso3 } from "../language-registry.js";
 
 // Registry is initialized by test-setup.ts (vitest setupFiles)
 
 describe("getIso1ToIso3Map", () => {
   it("maps common ISO 639-1 codes to ISO 639-3", () => {
     const map = getIso1ToIso3Map();
-    expect(map["en"]).toBe("eng");
-    expect(map["ru"]).toBe("rus");
-    expect(map["cs"]).toBe("ces");
-    expect(map["de"]).toBe("deu");
+    expect(map.en).toBe("eng");
+    expect(map.ru).toBe("rus");
+    expect(map.cs).toBe("ces");
+    expect(map.de).toBe("deu");
   });
 });
 
 describe("getIso3ToIso1Map", () => {
   it("maps ISO 639-3 codes back to ISO 639-1", () => {
     const map = getIso3ToIso1Map();
-    expect(map["eng"]).toBe("en");
-    expect(map["rus"]).toBe("ru");
-    expect(map["ces"]).toBe("cs");
-    expect(map["deu"]).toBe("de");
+    expect(map.eng).toBe("en");
+    expect(map.rus).toBe("ru");
+    expect(map.ces).toBe("cs");
+    expect(map.deu).toBe("de");
   });
 
   it("is the exact inverse of getIso1ToIso3Map", () => {

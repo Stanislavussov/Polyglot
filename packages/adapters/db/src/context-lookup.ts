@@ -23,10 +23,7 @@ import { wordContextRepository } from "./repositories/word-context.repository.js
 export function createContextLookup(): ContextLookupFn {
   return async (word, langCode) => {
     try {
-      const results = await wordContextRepository.findByWordAndLangCode(
-        word,
-        langCode,
-      );
+      const results = await wordContextRepository.findByWordAndLangCode(word, langCode);
 
       if (results.length === 0) return undefined;
 

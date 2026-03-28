@@ -1,10 +1,6 @@
-import { eq, and, gte, desc, count, inArray } from "drizzle-orm";
+import { and, count, desc, eq, gte, inArray } from "drizzle-orm";
 import { getDb } from "../index.js";
-import {
-  translationRequests,
-  translationRequestTargetLangs,
-  languages,
-} from "../schema.js";
+import { languages, translationRequests, translationRequestTargetLangs } from "../schema.js";
 
 /** DTO returned by getRecentRequests — uses language codes, not IDs. */
 export interface TranslationRequestDTO {
@@ -62,9 +58,7 @@ export const translationRequestRepository = {
       }));
 
       if (junctionValues.length > 0) {
-        await db
-          .insert(translationRequestTargetLangs)
-          .values(junctionValues);
+        await db.insert(translationRequestTargetLangs).values(junctionValues);
       }
     }
 
@@ -75,20 +69,12 @@ export const translationRequestRepository = {
    * Count how many translation requests a user has made since `windowStart`.
    * Used for rate limiting.
    */
-  async getUserRequestsInWindow(
-    userId: number,
-    windowStart: Date,
-  ): Promise<number> {
+  async getUserRequestsInWindow(userId: number, windowStart: Date): Promise<number> {
     const db = getDb();
     const rows = await db
       .select({ value: count() })
       .from(translationRequests)
-      .where(
-        and(
-          eq(translationRequests.userId, userId),
-          gte(translationRequests.createdAt, windowStart),
-        ),
-      );
+      .where(and(eq(translationRequests.userId, userId), gte(translationRequests.createdAt, windowStart)));
     return rows[0]?.value ?? 0;
   },
 
@@ -96,10 +82,7 @@ export const translationRequestRepository = {
    * Get recent translation requests for a user, with language codes resolved.
    * Returns DTOs with language codes (strings), never IDs.
    */
-  async getRecentRequests(
-    userId: number,
-    limit: number,
-  ): Promise<TranslationRequestDTO[]> {
+  async getRecentRequests(userId: number, limit: number): Promise<TranslationRequestDTO[]> {
     const db = getDb();
 
     // Fetch requests with source language join
@@ -128,10 +111,7 @@ export const translationRequestRepository = {
         code: languages.code,
       })
       .from(translationRequestTargetLangs)
-      .innerJoin(
-        languages,
-        eq(translationRequestTargetLangs.languageId, languages.id),
-      )
+      .innerJoin(languages, eq(translationRequestTargetLangs.languageId, languages.id))
       .where(inArray(translationRequestTargetLangs.requestId, requestIds));
 
     // Group target lang codes by request ID

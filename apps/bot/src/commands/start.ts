@@ -1,7 +1,7 @@
-import type { BotContext } from "../types.js";
-import { t, isSupported, type SupportedLang } from "@polyglot/core";
 import { userRepository } from "@polyglot/adapter-db";
+import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import { logger } from "@polyglot/infra";
+import type { BotContext } from "../types.js";
 
 /**
  * /start command handler.

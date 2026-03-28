@@ -1,4 +1,4 @@
-import { eq, and, ilike, desc } from "drizzle-orm";
+import { and, desc, eq, ilike } from "drizzle-orm";
 import { getDb } from "../index.js";
 import { words } from "../schema.js";
 
@@ -29,11 +29,7 @@ export const wordRepository = {
   /** Find a word by its ID. */
   async findById(wordId: number): Promise<Word | null> {
     const db = getDb();
-    const rows = await db
-      .select()
-      .from(words)
-      .where(eq(words.id, wordId))
-      .limit(1);
+    const rows = await db.select().from(words).where(eq(words.id, wordId)).limit(1);
     return rows[0] ?? null;
   },
 
@@ -43,13 +39,7 @@ export const wordRepository = {
     return db
       .select()
       .from(words)
-      .where(
-        and(
-          eq(words.userId, userId),
-          eq(words.isActive, true),
-          ilike(words.original, `%${query}%`),
-        ),
-      )
+      .where(and(eq(words.userId, userId), eq(words.isActive, true), ilike(words.original, `%${query}%`)))
       .orderBy(desc(words.createdAt));
   },
 
@@ -58,25 +48,15 @@ export const wordRepository = {
    * Used after partial regeneration — caller merges the single-language
    * result into the existing content object before calling this method.
    */
-  async updateContent(
-    wordId: number,
-    content: Record<string, unknown>,
-  ): Promise<Word> {
+  async updateContent(wordId: number, content: Record<string, unknown>): Promise<Word> {
     const db = getDb();
-    const rows = await db
-      .update(words)
-      .set({ content, updatedAt: new Date() })
-      .where(eq(words.id, wordId))
-      .returning();
+    const rows = await db.update(words).set({ content, updatedAt: new Date() }).where(eq(words.id, wordId)).returning();
     return rows[0]!;
   },
 
   /** Soft-delete a word by setting isActive to false. */
   async delete(wordId: number): Promise<void> {
     const db = getDb();
-    await db
-      .update(words)
-      .set({ isActive: false, updatedAt: new Date() })
-      .where(eq(words.id, wordId));
+    await db.update(words).set({ isActive: false, updatedAt: new Date() }).where(eq(words.id, wordId));
   },
 };

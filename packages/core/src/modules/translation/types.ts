@@ -29,12 +29,7 @@ export interface DictionaryContext {
 }
 
 /** Word register — formality level of a word or phrase */
-export type Register =
-  | "slang"
-  | "colloquial"
-  | "neutral"
-  | "literary"
-  | "professional";
+export type Register = "slang" | "colloquial" | "neutral" | "literary" | "professional";
 
 /** CEFR language proficiency level */
 export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";

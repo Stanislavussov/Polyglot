@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getClient, getModel, resetClient } from "../client.js";
 
 // Mock the OpenRouter provider
@@ -54,7 +54,7 @@ describe("client", () => {
   describe("resetClient", () => {
     it("resets the singleton so next getClient creates a new one", () => {
       vi.stubEnv("OPENROUTER_API_KEY", "key-1");
-      const a = getClient();
+      const _a = getClient();
       resetClient();
       vi.stubEnv("OPENROUTER_API_KEY", "key-2");
       const b = getClient();

@@ -8,11 +8,7 @@
  * 4. Uses partial regeneration when a topic word is missing a language
  */
 import { logger } from "@polyglot/infra";
-import type {
-  NotificationServiceDeps,
-  SuggestedWord,
-  UserForNotification,
-} from "./types.js";
+import type { NotificationServiceDeps, SuggestedWord } from "./types.js";
 
 /**
  * Create a notification service with injected dependencies.
@@ -36,9 +32,7 @@ export function createNotificationService(deps: NotificationServiceDeps) {
    * @param userId — internal user ID
    * @returns SuggestedWord or null if no word could be picked
    */
-  async function pickSuggestedWord(
-    userId: number,
-  ): Promise<SuggestedWord | null> {
+  async function pickSuggestedWord(userId: number): Promise<SuggestedWord | null> {
     // Step 1: Fetch user settings
     const user = await deps.getUserSettings(userId);
     if (!user || user.learningLangs.length === 0) {
@@ -56,13 +50,9 @@ export function createNotificationService(deps: NotificationServiceDeps) {
     const topic = topics[Math.floor(Math.random() * topics.length)]!;
 
     // Step 3: Get topic words (cache-first)
-    let words;
+    let words: Awaited<ReturnType<typeof deps.getTopicWords>> | undefined;
     try {
-      words = await deps.getTopicWords(
-        topic.id,
-        user.nativeLang,
-        user.learningLangs,
-      );
+      words = await deps.getTopicWords(topic.id, user.nativeLang, user.learningLangs);
     } catch (err) {
       logger.error({ err, topicId: topic.id, userId }, "Failed to get topic words");
       return null;
@@ -97,12 +87,7 @@ export function createNotificationService(deps: NotificationServiceDeps) {
       }
 
       try {
-        const regenerated = await deps.regenerateTopicWord(
-          topic.id,
-          word.original,
-          user.nativeLang,
-          lang,
-        );
+        const regenerated = await deps.regenerateTopicWord(topic.id, word.original, user.nativeLang, lang);
         translations[lang] = regenerated.text;
         logger.info(
           { original: word.original, lang, topicId: topic.id },
@@ -119,10 +104,7 @@ export function createNotificationService(deps: NotificationServiceDeps) {
 
     // If no translations were resolved, return null
     if (Object.keys(translations).length === 0) {
-      logger.warn(
-        { original: word.original, userId },
-        "No translations available for any learning lang",
-      );
+      logger.warn({ original: word.original, userId }, "No translations available for any learning lang");
       return null;
     }
 

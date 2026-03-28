@@ -12,10 +12,7 @@ export class AppError extends Error {
 /** Thrown when a requested resource is not found */
 export class NotFoundError extends AppError {
   constructor(resource: string, id?: string) {
-    super(
-      "NOT_FOUND",
-      id ? `${resource} with id "${id}" not found` : `${resource} not found`,
-    );
+    super("NOT_FOUND", id ? `${resource} with id "${id}" not found` : `${resource} not found`);
     this.name = "NotFoundError";
   }
 }

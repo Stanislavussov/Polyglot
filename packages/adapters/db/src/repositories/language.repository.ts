@@ -9,11 +9,7 @@ export const languageRepository = {
   /** Find a language by its ISO code (e.g. "ru", "en"). */
   async findByCode(code: string): Promise<Language | null> {
     const db = getDb();
-    const rows = await db
-      .select()
-      .from(languages)
-      .where(eq(languages.code, code))
-      .limit(1);
+    const rows = await db.select().from(languages).where(eq(languages.code, code)).limit(1);
     return rows[0] ?? null;
   },
 
@@ -38,11 +34,7 @@ export const languageRepository = {
     if (inserted) return inserted;
 
     // Already existed — fetch it
-    const rows = await db
-      .select()
-      .from(languages)
-      .where(eq(languages.code, code))
-      .limit(1);
+    const rows = await db.select().from(languages).where(eq(languages.code, code)).limit(1);
     return rows[0]!;
   },
 

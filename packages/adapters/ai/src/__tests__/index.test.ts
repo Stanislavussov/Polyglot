@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 // Mock dependencies
@@ -63,9 +63,7 @@ describe("generateObject", () => {
 
     await generateObject("test prompt", schema, "openai/gpt-4o");
 
-    expect(mockAiGenerateObject).toHaveBeenCalledWith(
-      expect.objectContaining({ maxRetries: 2 }),
-    );
+    expect(mockAiGenerateObject).toHaveBeenCalledWith(expect.objectContaining({ maxRetries: 2 }));
   });
 
   it("logs successful request", async () => {
@@ -89,9 +87,7 @@ describe("generateObject", () => {
     const error = new Error("API Error");
     mockAiGenerateObject.mockRejectedValueOnce(error);
 
-    await expect(
-      generateObject("test", schema, "openai/gpt-4o"),
-    ).rejects.toThrow("API Error");
+    await expect(generateObject("test", schema, "openai/gpt-4o")).rejects.toThrow("API Error");
 
     expect(mockLogRequest).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -140,9 +136,7 @@ describe("generateObject", () => {
   it("threads userId through to logRequest on failure", async () => {
     mockAiGenerateObject.mockRejectedValueOnce(new Error("fail"));
 
-    await expect(
-      generateObject("test", schema, "openai/gpt-4o", { userId: 42 }),
-    ).rejects.toThrow("fail");
+    await expect(generateObject("test", schema, "openai/gpt-4o", { userId: 42 })).rejects.toThrow("fail");
 
     expect(mockLogRequest).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -206,9 +200,7 @@ describe("generateText", () => {
 
     await generateText("test prompt", "openai/gpt-4o");
 
-    expect(mockAiGenerateText).toHaveBeenCalledWith(
-      expect.objectContaining({ maxRetries: 2 }),
-    );
+    expect(mockAiGenerateText).toHaveBeenCalledWith(expect.objectContaining({ maxRetries: 2 }));
   });
 
   it("logs successful request", async () => {
@@ -232,9 +224,7 @@ describe("generateText", () => {
     const error = new Error("Timeout");
     mockAiGenerateText.mockRejectedValueOnce(error);
 
-    await expect(generateText("test", "openai/gpt-4o")).rejects.toThrow(
-      "Timeout",
-    );
+    await expect(generateText("test", "openai/gpt-4o")).rejects.toThrow("Timeout");
 
     expect(mockLogRequest).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -280,9 +270,7 @@ describe("generateText", () => {
   it("threads userId through to logRequest on failure", async () => {
     mockAiGenerateText.mockRejectedValueOnce(new Error("oops"));
 
-    await expect(
-      generateText("test", "openai/gpt-4o", { userId: 77 }),
-    ).rejects.toThrow("oops");
+    await expect(generateText("test", "openai/gpt-4o", { userId: 77 })).rejects.toThrow("oops");
 
     expect(mockLogRequest).toHaveBeenCalledWith(
       expect.objectContaining({

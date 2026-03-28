@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock Drizzle query builder ──────────────────────────────────
 
@@ -56,9 +56,7 @@ vi.mock("../index.js", () => ({
   getDb: () => mockDb,
 }));
 
-const { wordRepository } = await import(
-  "../repositories/word.repository.js"
-);
+const { wordRepository } = await import("../repositories/word.repository.js");
 
 beforeEach(() => {
   mockRows.length = 0;
@@ -202,9 +200,7 @@ describe("wordRepository", () => {
       await wordRepository.updateContent(1, { cs: {} });
 
       const after = new Date();
-      const updatedAt = (lastUpdateSet as Record<string, unknown>)[
-        "updatedAt"
-      ] as Date;
+      const updatedAt = (lastUpdateSet as Record<string, unknown>).updatedAt as Date;
       expect(updatedAt).toBeInstanceOf(Date);
       expect(updatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
       expect(updatedAt.getTime()).toBeLessThanOrEqual(after.getTime());

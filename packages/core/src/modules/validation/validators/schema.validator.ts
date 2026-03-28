@@ -7,10 +7,7 @@ import type { ValidationResult } from "../types.js";
  *
  * Pure function — no side effects.
  */
-export function validateSchema(
-  raw: unknown,
-  schema: ZodSchema,
-): ValidationResult {
+export function validateSchema(raw: unknown, schema: ZodSchema): ValidationResult {
   const result = schema.safeParse(raw);
 
   if (result.success) {

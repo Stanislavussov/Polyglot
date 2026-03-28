@@ -11,7 +11,7 @@ let db: Db | null = null;
 let client: postgres.Sql | null = null;
 
 function createDb() {
-  const databaseUrl = process.env["DATABASE_URL"];
+  const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
     throw new Error("DATABASE_URL environment variable is not set");
   }
@@ -37,51 +37,50 @@ export async function closeDb(): Promise<void> {
   }
 }
 
-// Re-export repositories and types
-export { userRepository, MAX_LEARNING_LANGS } from "./repositories/user.repository.js";
-export type {
-  User,
-  NewUser,
-  UserLanguageSettings,
-  NewUserLanguageSettings,
-} from "./repositories/user.repository.js";
-export { wordRepository } from "./repositories/word.repository.js";
-export type { Word, NewWord } from "./repositories/word.repository.js";
-export { topicRepository } from "./repositories/topic.repository.js";
-export type {
-  TopicTranslation,
-  NewTopicTranslation,
-} from "./repositories/topic.repository.js";
-export { languageRepository } from "./repositories/language.repository.js";
+export { createContextLookup } from "./context-lookup.js";
+export type { CachedLanguage } from "./language-cache.js";
+// Language cache — loaded from DB, serves all language metadata
+export {
+  getAllLangs,
+  getIso1FromIso3,
+  getIso1ToIso3Map,
+  getIso3,
+  getIso3ToIso1Map,
+  getLang,
+  getLangDisplay,
+  getLangFlag,
+  getLangName,
+  getLangNativeName,
+  getSupportedLangs,
+  isKnownLang,
+  isLanguageCacheLoaded,
+  loadLanguageCache,
+  normalizeToIso1,
+} from "./language-cache.js";
 export type {
   Language,
   NewLanguage,
 } from "./repositories/language.repository.js";
-export { wordContextRepository } from "./repositories/word-context.repository.js";
+export { languageRepository } from "./repositories/language.repository.js";
 export type {
-  WordContext,
-  NewWordContext,
-} from "./repositories/word-context.repository.js";
-export { translationRequestRepository } from "./repositories/translation-request.repository.js";
+  NewTopicTranslation,
+  TopicTranslation,
+} from "./repositories/topic.repository.js";
+export { topicRepository } from "./repositories/topic.repository.js";
 export type { TranslationRequestDTO } from "./repositories/translation-request.repository.js";
-export { createContextLookup } from "./context-lookup.js";
-
-// Language cache — loaded from DB, serves all language metadata
-export {
-  loadLanguageCache,
-  isLanguageCacheLoaded,
-  getLang,
-  getAllLangs,
-  getSupportedLangs,
-  getLangName,
-  getLangNativeName,
-  getLangFlag,
-  getLangDisplay,
-  getIso3,
-  getIso1FromIso3,
-  isKnownLang,
-  getIso1ToIso3Map,
-  getIso3ToIso1Map,
-  normalizeToIso1,
-} from "./language-cache.js";
-export type { CachedLanguage } from "./language-cache.js";
+export { translationRequestRepository } from "./repositories/translation-request.repository.js";
+export type {
+  NewUser,
+  NewUserLanguageSettings,
+  User,
+  UserLanguageSettings,
+} from "./repositories/user.repository.js";
+// Re-export repositories and types
+export { MAX_LEARNING_LANGS, userRepository } from "./repositories/user.repository.js";
+export type { NewWord, Word } from "./repositories/word.repository.js";
+export { wordRepository } from "./repositories/word.repository.js";
+export type {
+  NewWordContext,
+  WordContext,
+} from "./repositories/word-context.repository.js";
+export { wordContextRepository } from "./repositories/word-context.repository.js";

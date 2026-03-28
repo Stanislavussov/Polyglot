@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDb } from "../index.js";
 import { topicTranslationCache } from "../schema.js";
 

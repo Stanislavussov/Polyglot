@@ -1,9 +1,5 @@
 import { detectLanguage } from "./detect-language.js";
-import type {
-  ResolveDirectionInput,
-  ResolveFromSourceInput,
-  TranslationDirection,
-} from "./types.js";
+import type { ResolveDirectionInput, ResolveFromSourceInput, TranslationDirection } from "./types.js";
 
 /**
  * Determine the translation direction based on detected input language.
@@ -19,9 +15,7 @@ import type {
  *
  * Pure function — no side effects.
  */
-export function resolveTranslationDirection(
-  input: ResolveDirectionInput,
-): TranslationDirection {
+export function resolveTranslationDirection(input: ResolveDirectionInput): TranslationDirection {
   const { text, nativeLang, learningLangs } = input;
 
   const candidates = [nativeLang, ...learningLangs];
@@ -71,9 +65,7 @@ export function resolveTranslationDirection(
  *
  * Pure function — no side effects, no I/O.
  */
-export function resolveDirectionFromSource(
-  input: ResolveFromSourceInput,
-): TranslationDirection | null {
+export function resolveDirectionFromSource(input: ResolveFromSourceInput): TranslationDirection | null {
   const { sourceLang, nativeLang, learningLangs } = input;
 
   // Source is native language → standard direction

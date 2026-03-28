@@ -5,23 +5,16 @@
  * the topic service correctly — via cache reads, batch translations,
  * and partial regeneration.
  */
-import { describe, it, expect, vi } from "vitest";
-import { createTopicService, getDataset } from "../topic.service.js";
-import type {
-  TopicDeps,
-  CachedTranslation,
-  LanguageTranslationEntry,
-} from "../types.js";
+import { describe, expect, it, vi } from "vitest";
 import type { TranslateOutput } from "../../translation/types.js";
+import { createTopicService, getDataset } from "../topic.service.js";
+import type { CachedTranslation, LanguageTranslationEntry, TopicDeps } from "../types.js";
 
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
 
-function makeIdiomaticTranslateOutput(
-  original: string,
-  targetLangs: string[],
-): TranslateOutput {
+function makeIdiomaticTranslateOutput(original: string, targetLangs: string[]): TranslateOutput {
   const translations: Record<string, unknown> = {};
   for (const lang of targetLangs) {
     translations[lang] = {
@@ -49,10 +42,7 @@ function makeIdiomaticTranslateOutput(
   };
 }
 
-function makeLiteralTranslateOutput(
-  original: string,
-  targetLangs: string[],
-): TranslateOutput {
+function makeLiteralTranslateOutput(original: string, targetLangs: string[]): TranslateOutput {
   const translations: Record<string, unknown> = {};
   for (const lang of targetLangs) {
     translations[lang] = {
@@ -139,9 +129,7 @@ describe("LanguageTranslationEntry idiomatic fields", () => {
     };
 
     expect(entry.expressionType).toBe("idiomatic_equivalent");
-    expect(entry.equivalentNote).toBe(
-      "Closest English idiom for the Czech proverb",
-    );
+    expect(entry.equivalentNote).toBe("Closest English idiom for the Czech proverb");
   });
 
   it("allows omitting expressionType and equivalentNote (backward compatible)", () => {
@@ -179,9 +167,7 @@ describe("getTopicWords with idiomatic translations", () => {
   it("preserves expressionType and equivalentNote from translateBatch output", async () => {
     const dataset = getDataset("food")!;
     const getCached = vi.fn().mockResolvedValue(null);
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeIdiomaticTranslateOutput(w, ["cs"])),
-    );
+    const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeIdiomaticTranslateOutput(w, ["cs"])));
 
     const deps = createMockDeps({ getCached, translateBatch });
     const service = createTopicService(deps);
@@ -189,21 +175,15 @@ describe("getTopicWords with idiomatic translations", () => {
     const words = await service.getTopicWords("food", "en", ["cs"]);
 
     const firstWord = words[0];
-    expect(firstWord.translations["cs"].expressionType).toBe(
-      "idiomatic_equivalent",
-    );
-    expect(firstWord.translations["cs"].equivalentNote).toContain(
-      "No direct equivalent",
-    );
+    expect(firstWord.translations.cs.expressionType).toBe("idiomatic_equivalent");
+    expect(firstWord.translations.cs.equivalentNote).toContain("No direct equivalent");
   });
 
   it("stores idiomatic fields in cache via setCached", async () => {
     const dataset = getDataset("food")!;
     const getCached = vi.fn().mockResolvedValue(null);
     const setCached = vi.fn().mockResolvedValue(undefined);
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeIdiomaticTranslateOutput(w, ["cs"])),
-    );
+    const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeIdiomaticTranslateOutput(w, ["cs"])));
 
     const deps = createMockDeps({ getCached, translateBatch, setCached });
     const service = createTopicService(deps);
@@ -218,13 +198,12 @@ describe("getTopicWords with idiomatic translations", () => {
   });
 
   it("retrieves idiomatic fields from cache", async () => {
-    const dataset = getDataset("food")!;
-    const getCached = vi.fn().mockImplementation(
-      (topicId: string, original: string, sourceLang: string, targetLang: string) =>
-        Promise.resolve(
-          makeIdiomaticCachedTranslation(topicId, original, sourceLang, targetLang),
-        ),
-    );
+    const _dataset = getDataset("food")!;
+    const getCached = vi
+      .fn()
+      .mockImplementation((topicId: string, original: string, sourceLang: string, targetLang: string) =>
+        Promise.resolve(makeIdiomaticCachedTranslation(topicId, original, sourceLang, targetLang)),
+      );
 
     const translateBatch = vi.fn();
     const deps = createMockDeps({ getCached, translateBatch });
@@ -234,10 +213,8 @@ describe("getTopicWords with idiomatic translations", () => {
 
     // All words should come from cache with idiomatic fields intact
     const firstWord = words[0];
-    expect(firstWord.translations["cs"].expressionType).toBe(
-      "idiomatic_equivalent",
-    );
-    expect(firstWord.translations["cs"].equivalentNote).toContain("Cached:");
+    expect(firstWord.translations.cs.expressionType).toBe("idiomatic_equivalent");
+    expect(firstWord.translations.cs.equivalentNote).toContain("Cached:");
     // translateBatch should NOT be called
     expect(translateBatch).not.toHaveBeenCalled();
   });
@@ -247,13 +224,13 @@ describe("getTopicWords with idiomatic translations", () => {
     const getCached = vi.fn().mockResolvedValue(null);
 
     // First word is idiomatic, rest are literal
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w, i) =>
-        i === 0
-          ? makeIdiomaticTranslateOutput(w, ["cs"])
-          : makeLiteralTranslateOutput(w, ["cs"]),
-      ),
-    );
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue(
+        dataset.words.map((w, i) =>
+          i === 0 ? makeIdiomaticTranslateOutput(w, ["cs"]) : makeLiteralTranslateOutput(w, ["cs"]),
+        ),
+      );
 
     const deps = createMockDeps({ getCached, translateBatch });
     const service = createTopicService(deps);
@@ -261,14 +238,12 @@ describe("getTopicWords with idiomatic translations", () => {
     const words = await service.getTopicWords("food", "en", ["cs"]);
 
     // First word is idiomatic
-    expect(words[0].translations["cs"].expressionType).toBe(
-      "idiomatic_equivalent",
-    );
-    expect(words[0].translations["cs"].equivalentNote).toBeDefined();
+    expect(words[0].translations.cs.expressionType).toBe("idiomatic_equivalent");
+    expect(words[0].translations.cs.equivalentNote).toBeDefined();
 
     // Second word is literal (no expressionType set)
-    expect(words[1].translations["cs"].expressionType).toBeUndefined();
-    expect(words[1].translations["cs"].equivalentNote).toBeUndefined();
+    expect(words[1].translations.cs.expressionType).toBeUndefined();
+    expect(words[1].translations.cs.equivalentNote).toBeUndefined();
   });
 });
 
@@ -304,9 +279,7 @@ describe("regenerateTopicWord with idiomatic translations", () => {
     const result = await service.regenerateTopicWord("food", word, "en", "fr");
 
     expect(result.expressionType).toBe("idiomatic_equivalent");
-    expect(result.equivalentNote).toBe(
-      "French equivalent of 'having your cake and eating it too'",
-    );
+    expect(result.equivalentNote).toBe("French equivalent of 'having your cake and eating it too'");
   });
 
   it("caches idiomatic fields after regeneration", async () => {
@@ -322,9 +295,7 @@ describe("regenerateTopicWord with idiomatic translations", () => {
 
     const cachedContent = setCached.mock.calls[0][0].content as LanguageTranslationEntry;
     expect(cachedContent.expressionType).toBe("idiomatic_equivalent");
-    expect(cachedContent.equivalentNote).toBe(
-      "French equivalent of 'having your cake and eating it too'",
-    );
+    expect(cachedContent.equivalentNote).toBe("French equivalent of 'having your cake and eating it too'");
   });
 });
 
@@ -340,18 +311,16 @@ describe("generateCustomTopic with idiomatic translations", () => {
       words: ["the early bird catches the worm"],
     });
 
-    const translateBatch = vi.fn().mockResolvedValue([
-      makeIdiomaticTranslateOutput("the early bird catches the worm", ["cs"]),
-    ]);
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue([makeIdiomaticTranslateOutput("the early bird catches the worm", ["cs"])]);
 
     const deps = createMockDeps({ generateWords, translateBatch });
     const service = createTopicService(deps);
 
     const topic = await service.generateCustomTopic("proverbs", "en", ["cs"]);
 
-    expect(topic.words[0].translations["cs"].expressionType).toBe(
-      "idiomatic_equivalent",
-    );
-    expect(topic.words[0].translations["cs"].equivalentNote).toBeDefined();
+    expect(topic.words[0].translations.cs.expressionType).toBe("idiomatic_equivalent");
+    expect(topic.words[0].translations.cs.equivalentNote).toBeDefined();
   });
 });

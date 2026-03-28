@@ -1,5 +1,5 @@
 import { franc } from "franc";
-import { getIso1ToIso3Map, getIso3ToIso1Map } from "../i18n/language-registry.js";
+import { getIso1ToIso3Map } from "../i18n/language-registry.js";
 
 /**
  * Unicode script ranges for heuristic detection of short texts.
@@ -15,8 +15,9 @@ function classifyCodePoint(cp: number): ScriptId | undefined {
     (cp >= 0x0041 && cp <= 0x024f) ||
     (cp >= 0x1e00 && cp <= 0x1eff) ||
     (cp >= 0x0100 && cp <= 0x017f) || // Extended-A (diacritics like ř, ž, č)
-    (cp >= 0x0180 && cp <= 0x024f)    // Extended-B
-  ) return "latin";
+    (cp >= 0x0180 && cp <= 0x024f) // Extended-B
+  )
+    return "latin";
   // CJK Unified Ideographs
   if (cp >= 0x4e00 && cp <= 0x9fff) return "cjk";
   // Arabic
@@ -35,7 +36,30 @@ function classifyCodePoint(cp: number): ScriptId | undefined {
 /** Map scripts to the languages that use them (ISO 639-1) */
 const SCRIPT_TO_LANGS: Record<ScriptId, string[]> = {
   cyrillic: ["ru", "uk", "bg", "sr"],
-  latin: ["en", "cs", "de", "fr", "es", "it", "pt", "pl", "nl", "sv", "da", "no", "fi", "tr", "hu", "ro", "hr", "sk", "sl", "lt", "lv", "et"],
+  latin: [
+    "en",
+    "cs",
+    "de",
+    "fr",
+    "es",
+    "it",
+    "pt",
+    "pl",
+    "nl",
+    "sv",
+    "da",
+    "no",
+    "fi",
+    "tr",
+    "hu",
+    "ro",
+    "hr",
+    "sk",
+    "sl",
+    "lt",
+    "lv",
+    "et",
+  ],
   cjk: ["zh", "ja"],
   arabic: ["ar"],
   devanagari: ["hi"],

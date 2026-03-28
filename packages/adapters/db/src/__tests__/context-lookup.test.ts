@@ -9,7 +9,7 @@
  * - Null glosses/formTags handled gracefully
  * - Uses first result when multiple entries returned
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock the word-context repository ──────────────────────────
 
@@ -84,9 +84,7 @@ describe("createContextLookup", () => {
   });
 
   it("returns undefined when repository throws (fail-open)", async () => {
-    mockFindByWordAndLangCode.mockRejectedValue(
-      new Error("DB connection failed"),
-    );
+    mockFindByWordAndLangCode.mockRejectedValue(new Error("DB connection failed"));
 
     const lookup = createContextLookup();
     const result = await lookup("hello", "en");

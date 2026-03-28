@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { validateSchema } from "../validators/schema.validator.js";
 
@@ -16,10 +16,7 @@ describe("validateSchema", () => {
   });
 
   it("returns valid with optional fields present", () => {
-    const result = validateSchema(
-      { name: "Alice", age: 30, email: "alice@example.com" },
-      testSchema,
-    );
+    const result = validateSchema({ name: "Alice", age: 30, email: "alice@example.com" }, testSchema);
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -39,10 +36,7 @@ describe("validateSchema", () => {
   });
 
   it("returns errors for invalid email format", () => {
-    const result = validateSchema(
-      { name: "Alice", age: 30, email: "not-an-email" },
-      testSchema,
-    );
+    const result = validateSchema({ name: "Alice", age: 30, email: "not-an-email" }, testSchema);
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.field === "email")).toBe(true);
   });
@@ -68,13 +62,8 @@ describe("validateSchema", () => {
       }),
     });
 
-    const result = validateSchema(
-      { translations: { en: { text: 42 } } },
-      nestedSchema,
-    );
+    const result = validateSchema({ translations: { en: { text: 42 } } }, nestedSchema);
     expect(result.valid).toBe(false);
-    expect(
-      result.errors.some((e) => e.field?.includes("translations")),
-    ).toBe(true);
+    expect(result.errors.some((e) => e.field?.includes("translations"))).toBe(true);
   });
 });

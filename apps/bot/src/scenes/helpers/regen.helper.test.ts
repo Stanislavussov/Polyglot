@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock external modules before imports
 vi.mock("@polyglot/adapter-ai", () => ({
@@ -30,10 +30,10 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-import { handleRegenLoop } from "./regen.helper.js";
 import { wordRepository } from "@polyglot/adapter-db";
+import type { SupportedLang, TranslateOutput } from "@polyglot/core";
 import { translateOne } from "@polyglot/core";
-import type { TranslateOutput, SupportedLang } from "@polyglot/core";
+import { handleRegenLoop } from "./regen.helper.js";
 
 const sampleOutput: TranslateOutput = {
   original: "hello",
@@ -99,14 +99,7 @@ describe("handleRegenLoop", () => {
     const { conversation } = createMockConversation(["tr:save"]);
     const ctx = createMockCtx();
 
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(wordRepository.create).toHaveBeenCalledWith(1, {
       original: "hello",
@@ -119,14 +112,7 @@ describe("handleRegenLoop", () => {
     const { conversation, editMessageText } = createMockConversation(["tr:save"]);
     const ctx = createMockCtx();
 
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(editMessageText).toHaveBeenCalledTimes(1);
     const [text] = editMessageText.mock.calls[0]!;
@@ -137,34 +123,17 @@ describe("handleRegenLoop", () => {
     const { conversation, editMessageText } = createMockConversation(["tr:skip"]);
     const ctx = createMockCtx();
 
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(editMessageText).toHaveBeenCalledTimes(1);
     expect(wordRepository.create).not.toHaveBeenCalled();
   });
 
   it("calls translateOne on regen and re-renders card", async () => {
-    const { conversation, editMessageText } = createMockConversation([
-      "tr:regen:cs",
-      "tr:skip",
-    ]);
+    const { conversation } = createMockConversation(["tr:regen:cs", "tr:skip"]);
     const ctx = createMockCtx();
 
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(translateOne).toHaveBeenCalledTimes(1);
     const call = vi.mocked(translateOne).mock.calls[0]!;
@@ -179,20 +148,10 @@ describe("handleRegenLoop", () => {
   });
 
   it("passes FULL_OUTPUT preset as outputConfig to translateOne", async () => {
-    const { conversation } = createMockConversation([
-      "tr:regen:cs",
-      "tr:skip",
-    ]);
+    const { conversation } = createMockConversation(["tr:regen:cs", "tr:skip"]);
     const ctx = createMockCtx();
 
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     const call = vi.mocked(translateOne).mock.calls[0]!;
     expect(call[0].outputConfig).toEqual({
@@ -205,20 +164,10 @@ describe("handleRegenLoop", () => {
   });
 
   it("shows loading message during regeneration", async () => {
-    const { conversation, editMessageText } = createMockConversation([
-      "tr:regen:de",
-      "tr:skip",
-    ]);
+    const { conversation, editMessageText } = createMockConversation(["tr:regen:de", "tr:skip"]);
     const ctx = createMockCtx();
 
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     // First editMessageText call is the loading state
     const [loadingText] = editMessageText.mock.calls[0]!;
@@ -226,20 +175,10 @@ describe("handleRegenLoop", () => {
   });
 
   it("merges regenerated translation into output", async () => {
-    const { conversation } = createMockConversation([
-      "tr:regen:cs",
-      "tr:save",
-    ]);
+    const { conversation } = createMockConversation(["tr:regen:cs", "tr:save"]);
     const ctx = createMockCtx();
 
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     // The saved content should have the regenerated CS translation
     const savedContent = vi.mocked(wordRepository.create).mock.calls[0]![1]!.content as TranslateOutput;
@@ -251,42 +190,21 @@ describe("handleRegenLoop", () => {
   it("handles regeneration error gracefully and continues", async () => {
     vi.mocked(translateOne).mockRejectedValueOnce(new Error("AI down"));
 
-    const { conversation } = createMockConversation([
-      "tr:regen:cs",
-      "tr:skip",
-    ]);
+    const { conversation } = createMockConversation(["tr:regen:cs", "tr:skip"]);
     const ctx = createMockCtx();
 
     // Should not throw
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     // Card is still re-rendered (with original translation since regen failed)
     expect(ctx.api.editMessageText).toHaveBeenCalled();
   });
 
   it("supports multiple regenerations before save", async () => {
-    const { conversation } = createMockConversation([
-      "tr:regen:cs",
-      "tr:regen:de",
-      "tr:save",
-    ]);
+    const { conversation } = createMockConversation(["tr:regen:cs", "tr:regen:de", "tr:save"]);
     const ctx = createMockCtx();
 
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(translateOne).toHaveBeenCalledTimes(2);
     expect(wordRepository.create).toHaveBeenCalledTimes(1);
@@ -296,14 +214,7 @@ describe("handleRegenLoop", () => {
     const { conversation, answerCallbackQuery } = createMockConversation(["tr:skip"]);
     const ctx = createMockCtx();
 
-    await handleRegenLoop(
-      conversation as any,
-      ctx as any,
-      sampleOutput,
-      "en" as SupportedLang,
-      1,
-      42,
-    );
+    await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(answerCallbackQuery).toHaveBeenCalledTimes(1);
   });

@@ -1,13 +1,13 @@
 // Context Enrichment — public API
 export {
-  translateWithContext,
-  translateOneWithContext,
   translateBatchWithContext,
+  translateOneWithContext,
+  translateWithContext,
 } from "./context-enrichment.service.js";
 
 // Types
 export type {
-  ContextLookupFn,
   ContextEnrichmentDeps,
+  ContextLookupFn,
   EnrichedTranslateInput,
 } from "./types.js";

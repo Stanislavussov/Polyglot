@@ -1,14 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock Drizzle query builder ──────────────────────────────────
 
 const mockRows: unknown[] = [];
-let lastInsertValues: unknown = null;
+let _lastInsertValues: unknown = null;
 
 const returningFn = vi.fn(() => Promise.resolve([...mockRows]));
 
 const insertValuesFn = vi.fn((values: unknown) => {
-  lastInsertValues = values;
+  _lastInsertValues = values;
   return { returning: returningFn };
 });
 
@@ -40,12 +40,11 @@ vi.mock("../index.js", () => ({
   getDb: () => mockDb,
 }));
 
-const { wordContextRepository } =
-  await import("../repositories/word-context.repository.js");
+const { wordContextRepository } = await import("../repositories/word-context.repository.js");
 
 beforeEach(() => {
   mockRows.length = 0;
-  lastInsertValues = null;
+  _lastInsertValues = null;
   vi.clearAllMocks();
 });
 
@@ -82,10 +81,7 @@ describe("wordContextRepository", () => {
     it("returns empty array when no match", async () => {
       selectWhereFn.mockResolvedValueOnce([]);
 
-      const result = await wordContextRepository.findByWordAndLang(
-        "nonexistent",
-        1,
-      );
+      const result = await wordContextRepository.findByWordAndLang("nonexistent", 1);
 
       expect(result).toEqual([]);
     });
@@ -96,10 +92,7 @@ describe("wordContextRepository", () => {
       const entry = makeEntry();
       selectWhereFn.mockResolvedValueOnce([entry]);
 
-      const result = await wordContextRepository.findByWordAndLangCode(
-        "что ли",
-        "ru",
-      );
+      const result = await wordContextRepository.findByWordAndLangCode("что ли", "ru");
 
       expect(result).toEqual([entry]);
       expect(innerJoinFn).toHaveBeenCalledOnce();
@@ -108,10 +101,7 @@ describe("wordContextRepository", () => {
     it("returns empty array when no match by lang code", async () => {
       selectWhereFn.mockResolvedValueOnce([]);
 
-      const result = await wordContextRepository.findByWordAndLangCode(
-        "что ли",
-        "en",
-      );
+      const result = await wordContextRepository.findByWordAndLangCode("что ли", "en");
 
       expect(result).toEqual([]);
     });
@@ -143,10 +133,7 @@ describe("wordContextRepository", () => {
 
   describe("createBatch", () => {
     it("inserts a batch and returns count", async () => {
-      const entries = [
-        makeEntry({ id: 1 }),
-        makeEntry({ id: 2, word: "само собой" }),
-      ];
+      const entries = [makeEntry({ id: 1 }), makeEntry({ id: 2, word: "само собой" })];
       returningFn.mockResolvedValueOnce(entries);
 
       const count = await wordContextRepository.createBatch([

@@ -3,26 +3,26 @@
  * Called by the mode router when user is in translate mode.
  */
 import { generateObject } from "@polyglot/adapter-ai";
-import { userRepository, wordRepository, createContextLookup } from "@polyglot/adapter-db";
+import { createContextLookup, userRepository, wordRepository } from "@polyglot/adapter-db";
 import {
-  translateWithContext,
-  resolveTranslationDirection,
-  resolveDirectionFromSource,
   FULL_OUTPUT,
-  t,
-  getLanguageName,
   getLangDisplay,
+  getLanguageName,
   isSupported,
+  resolveDirectionFromSource,
+  resolveTranslationDirection,
   type SupportedLang,
+  t,
+  translateWithContext,
 } from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
-import type { BotContext } from "../../types.js";
 import {
-  renderTranslation,
-  buildTranslationKeyboard,
   buildSourceLangKeyboard,
+  buildTranslationKeyboard,
   type LangOption,
+  renderTranslation,
 } from "../../renderers/translation.renderer.js";
+import type { BotContext } from "../../types.js";
 
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
@@ -31,10 +31,7 @@ const lookupContext = createContextLookup();
  * Handles a text message in translate mode.
  * Translates the text and shows the result with Save/Skip buttons.
  */
-export async function handleTranslateText(
-  ctx: BotContext,
-  word: string,
-): Promise<void> {
+export async function handleTranslateText(ctx: BotContext, word: string): Promise<void> {
   const telegramId = ctx.from!.id;
 
   // Get user settings
@@ -129,7 +126,7 @@ export async function handleTranslateText(
     // Show detected language when it differs from native (i.e., reversed direction)
     if (detectedLang && detectedLang !== nativeLang) {
       const displayName = getLanguageName(detectedLang, lang);
-      card = t("detectedLang", lang, { lang: displayName }) + "\n" + card;
+      card = `${t("detectedLang", lang, { lang: displayName })}\n${card}`;
     }
 
     const keyboard = buildTranslationKeyboard(langCodes, lang);
@@ -172,7 +169,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   });
 
   // Update message with saved confirmation
-  const saved = renderTranslation(output, lang) + "\n\n" + t("savedToDict", lang);
+  const saved = `${renderTranslation(output, lang)}\n\n${t("savedToDict", lang)}`;
   await ctx.editMessageText(saved, { parse_mode: "HTML" });
 
   // Clear pending state
@@ -220,7 +217,7 @@ export async function handleSkipCallback(ctx: BotContext): Promise<void> {
 export function buildLangOptions(
   nativeLang: string,
   learningLangs: string[],
-  interfaceLang: SupportedLang,
+  _interfaceLang: SupportedLang,
 ): LangOption[] {
   const allLangs = [nativeLang, ...learningLangs];
   return allLangs.map((code) => ({
@@ -243,14 +240,10 @@ async function sendSourceLangMenu(
   const learningLangs = settings?.learningLangs ?? [];
 
   const langOptions = buildLangOptions(nativeLang, learningLangs, lang);
-  const keyboard = buildSourceLangKeyboard(
-    langOptions,
-    ctx.session.nextSourceLang ?? null,
-  );
+  const keyboard = buildSourceLangKeyboard(langOptions, ctx.session.nextSourceLang ?? null);
 
   if (keyboard) {
-    const text =
-      t("translateModeHint", lang) + "\n\n" + t("nextTranslationFrom", lang);
+    const text = `${t("translateModeHint", lang)}\n\n${t("nextTranslationFrom", lang)}`;
     await ctx.reply(text, { reply_markup: keyboard });
   } else {
     await ctx.reply(t("translateModeHint", lang));
@@ -261,9 +254,7 @@ async function sendSourceLangMenu(
  * Handles source language selection callback (tr:srclang:{code}).
  * Sets nextSourceLang in session, answers with confirmation, updates keyboard.
  */
-export async function handleSourceLangCallback(
-  ctx: BotContext,
-): Promise<void> {
+export async function handleSourceLangCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data;
   if (!data) {
     await ctx.answerCallbackQuery();
@@ -293,8 +284,7 @@ export async function handleSourceLangCallback(
   const keyboard = buildSourceLangKeyboard(langOptions, code);
 
   if (keyboard) {
-    const text =
-      t("translateModeHint", lang) + "\n\n" + t("nextTranslationFrom", lang);
+    const text = `${t("translateModeHint", lang)}\n\n${t("nextTranslationFrom", lang)}`;
     await ctx.editMessageText(text, { reply_markup: keyboard });
   }
 }

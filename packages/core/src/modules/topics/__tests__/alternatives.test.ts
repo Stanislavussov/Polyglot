@@ -5,15 +5,10 @@
  * entries per language) flows through the topic service correctly — via cache
  * reads, batch translations, partial regeneration, and custom topic generation.
  */
-import { describe, it, expect, vi } from "vitest";
-import { createTopicService, getDataset } from "../topic.service.js";
-import type {
-  TopicDeps,
-  CachedTranslation,
-  LanguageTranslationEntry,
-  TopicTranslationVariant,
-} from "../types.js";
+import { describe, expect, it, vi } from "vitest";
 import type { TranslateOutput } from "../../translation/types.js";
+import { createTopicService, getDataset } from "../topic.service.js";
+import type { CachedTranslation, LanguageTranslationEntry, TopicDeps, TopicTranslationVariant } from "../types.js";
 
 // ─────────────────────────────────────────────
 // Helpers
@@ -32,10 +27,7 @@ const sampleAlternatives: TopicTranslationVariant[] = [
   },
 ];
 
-function makeTranslateOutputWithAlternatives(
-  original: string,
-  targetLangs: string[],
-): TranslateOutput {
+function makeTranslateOutputWithAlternatives(original: string, targetLangs: string[]): TranslateOutput {
   const translations: Record<string, unknown> = {};
   for (const lang of targetLangs) {
     translations[lang] = {
@@ -73,10 +65,7 @@ function makeTranslateOutputWithAlternatives(
   };
 }
 
-function makeTranslateOutputWithoutAlternatives(
-  original: string,
-  targetLangs: string[],
-): TranslateOutput {
+function makeTranslateOutputWithoutAlternatives(original: string, targetLangs: string[]): TranslateOutput {
   const translations: Record<string, unknown> = {};
   for (const lang of targetLangs) {
     translations[lang] = {
@@ -211,9 +200,9 @@ describe("getTopicWords with alternatives", () => {
   it("preserves alternatives from translateBatch output", async () => {
     const dataset = getDataset("food")!;
     const getCached = vi.fn().mockResolvedValue(null);
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutputWithAlternatives(w, ["cs"])),
-    );
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue(dataset.words.map((w) => makeTranslateOutputWithAlternatives(w, ["cs"])));
 
     const deps = createMockDeps({ getCached, translateBatch });
     const service = createTopicService(deps);
@@ -221,7 +210,7 @@ describe("getTopicWords with alternatives", () => {
     const words = await service.getTopicWords("food", "en", ["cs"]);
 
     const firstWord = words[0];
-    const csTranslation = firstWord.translations["cs"];
+    const csTranslation = firstWord.translations.cs;
     expect(csTranslation.alternatives).toHaveLength(2);
     expect(csTranslation.alternatives![0].text).toContain("_alt1_cs");
     expect(csTranslation.alternatives![1].text).toContain("_alt2_cs");
@@ -231,9 +220,9 @@ describe("getTopicWords with alternatives", () => {
     const dataset = getDataset("food")!;
     const getCached = vi.fn().mockResolvedValue(null);
     const setCached = vi.fn().mockResolvedValue(undefined);
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w) => makeTranslateOutputWithAlternatives(w, ["cs"])),
-    );
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue(dataset.words.map((w) => makeTranslateOutputWithAlternatives(w, ["cs"])));
 
     const deps = createMockDeps({ getCached, translateBatch, setCached });
     const service = createTopicService(deps);
@@ -247,13 +236,12 @@ describe("getTopicWords with alternatives", () => {
   });
 
   it("retrieves alternatives from cache", async () => {
-    const dataset = getDataset("food")!;
-    const getCached = vi.fn().mockImplementation(
-      (topicId: string, original: string, sourceLang: string, targetLang: string) =>
-        Promise.resolve(
-          makeCachedTranslationWithAlternatives(topicId, original, sourceLang, targetLang),
-        ),
-    );
+    const _dataset = getDataset("food")!;
+    const getCached = vi
+      .fn()
+      .mockImplementation((topicId: string, original: string, sourceLang: string, targetLang: string) =>
+        Promise.resolve(makeCachedTranslationWithAlternatives(topicId, original, sourceLang, targetLang)),
+      );
 
     const translateBatch = vi.fn();
     const deps = createMockDeps({ getCached, translateBatch });
@@ -262,9 +250,9 @@ describe("getTopicWords with alternatives", () => {
     const words = await service.getTopicWords("food", "en", ["cs"]);
 
     const firstWord = words[0];
-    expect(firstWord.translations["cs"].alternatives).toHaveLength(2);
-    expect(firstWord.translations["cs"].alternatives![0].text).toContain("_alt1_cs_cached");
-    expect(firstWord.translations["cs"].alternatives![1].text).toContain("_alt2_cs_cached");
+    expect(firstWord.translations.cs.alternatives).toHaveLength(2);
+    expect(firstWord.translations.cs.alternatives![0].text).toContain("_alt1_cs_cached");
+    expect(firstWord.translations.cs.alternatives![1].text).toContain("_alt2_cs_cached");
     expect(translateBatch).not.toHaveBeenCalled();
   });
 
@@ -272,13 +260,13 @@ describe("getTopicWords with alternatives", () => {
     const dataset = getDataset("food")!;
     const getCached = vi.fn().mockResolvedValue(null);
 
-    const translateBatch = vi.fn().mockResolvedValue(
-      dataset.words.map((w, i) =>
-        i === 0
-          ? makeTranslateOutputWithAlternatives(w, ["cs"])
-          : makeTranslateOutputWithoutAlternatives(w, ["cs"]),
-      ),
-    );
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue(
+        dataset.words.map((w, i) =>
+          i === 0 ? makeTranslateOutputWithAlternatives(w, ["cs"]) : makeTranslateOutputWithoutAlternatives(w, ["cs"]),
+        ),
+      );
 
     const deps = createMockDeps({ getCached, translateBatch });
     const service = createTopicService(deps);
@@ -286,9 +274,9 @@ describe("getTopicWords with alternatives", () => {
     const words = await service.getTopicWords("food", "en", ["cs"]);
 
     // First word has alternatives
-    expect(words[0].translations["cs"].alternatives).toHaveLength(2);
+    expect(words[0].translations.cs.alternatives).toHaveLength(2);
     // Second word has no alternatives
-    expect(words[1].translations["cs"].alternatives).toBeUndefined();
+    expect(words[1].translations.cs.alternatives).toBeUndefined();
   });
 });
 
@@ -366,17 +354,19 @@ describe("generateCustomTopic with alternatives", () => {
       words: ["apple", "banana"],
     });
 
-    const translateBatch = vi.fn().mockResolvedValue([
-      makeTranslateOutputWithAlternatives("apple", ["cs"]),
-      makeTranslateOutputWithAlternatives("banana", ["cs"]),
-    ]);
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue([
+        makeTranslateOutputWithAlternatives("apple", ["cs"]),
+        makeTranslateOutputWithAlternatives("banana", ["cs"]),
+      ]);
 
     const deps = createMockDeps({ generateWords, translateBatch });
     const service = createTopicService(deps);
 
     const topic = await service.generateCustomTopic("fruits", "en", ["cs"]);
 
-    expect(topic.words[0].translations["cs"].alternatives).toHaveLength(2);
-    expect(topic.words[1].translations["cs"].alternatives).toHaveLength(2);
+    expect(topic.words[0].translations.cs.alternatives).toHaveLength(2);
+    expect(topic.words[1].translations.cs.alternatives).toHaveLength(2);
   });
 });

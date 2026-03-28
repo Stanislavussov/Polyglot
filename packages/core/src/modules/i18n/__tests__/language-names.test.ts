@@ -1,10 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  getLanguageName,
-  getLanguageNativeName,
-  getAllLanguageNames,
-  isKnownLanguage,
-} from "../language-registry.js";
+import { describe, expect, it } from "vitest";
+import { getAllLanguageNames, getLanguageName, getLanguageNativeName, isKnownLanguage } from "../language-registry.js";
 
 // Registry is initialized by test-setup.ts (vitest setupFiles)
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Must use vi.hoisted to avoid the TDZ issue with vi.mock hoisting
 const { mockInfo, mockError } = vi.hoisted(() => ({

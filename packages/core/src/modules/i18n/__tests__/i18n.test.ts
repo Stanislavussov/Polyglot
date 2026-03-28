@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { t, getSupportedLangs, isSupported } from "../i18n.js";
+import { describe, expect, it } from "vitest";
+import { getSupportedLangs, isSupported, t } from "../i18n.js";
 import type { I18nKey, SupportedLang } from "../types.js";
 
 describe("i18n — t()", () => {
@@ -62,9 +62,7 @@ describe("i18n — t()", () => {
 
   it("returns CEFR and register keys with interpolation", () => {
     expect(t("cefr", "en", { level: "B2" })).toBe("CEFR: B2");
-    expect(t("register", "en", { register: "neutral" })).toBe(
-      "Register: neutral",
-    );
+    expect(t("register", "en", { register: "neutral" })).toBe("Register: neutral");
   });
 
   // Regeneration keys (task 07)
@@ -73,81 +71,51 @@ describe("i18n — t()", () => {
   });
 
   it("returns regenerating with {lang} interpolation in English", () => {
-    expect(t("regenerating", "en", { lang: "DE" })).toBe(
-      "⏳ Regenerating DE...",
-    );
+    expect(t("regenerating", "en", { lang: "DE" })).toBe("⏳ Regenerating DE...");
   });
 
   it("returns regenerated with {lang} interpolation in English", () => {
-    expect(t("regenerated", "en", { lang: "FR" })).toBe(
-      "✅ FR translation updated",
-    );
+    expect(t("regenerated", "en", { lang: "FR" })).toBe("✅ FR translation updated");
   });
 
   it("returns regeneration keys in Russian with interpolation", () => {
     expect(t("regenerateLang", "ru", { lang: "CS" })).toBe("🔄 CS");
-    expect(t("regenerating", "ru", { lang: "CS" })).toBe(
-      "⏳ Обновляю CS...",
-    );
-    expect(t("regenerated", "ru", { lang: "CS" })).toBe(
-      "✅ Перевод на CS обновлён",
-    );
+    expect(t("regenerating", "ru", { lang: "CS" })).toBe("⏳ Обновляю CS...");
+    expect(t("regenerated", "ru", { lang: "CS" })).toBe("✅ Перевод на CS обновлён");
   });
 
   it("returns regeneration keys in Czech with interpolation", () => {
     expect(t("regenerateLang", "cs", { lang: "DE" })).toBe("🔄 DE");
-    expect(t("regenerating", "cs", { lang: "DE" })).toBe(
-      "⏳ Aktualizuji DE...",
-    );
-    expect(t("regenerated", "cs", { lang: "DE" })).toBe(
-      "✅ Překlad pro DE aktualizován",
-    );
+    expect(t("regenerating", "cs", { lang: "DE" })).toBe("⏳ Aktualizuji DE...");
+    expect(t("regenerated", "cs", { lang: "DE" })).toBe("✅ Překlad pro DE aktualizován");
   });
 
   it("falls back to English for regeneration keys when locale has no file", () => {
-    expect(t("regenerating", "de", { lang: "FR" })).toBe(
-      "⏳ Regenerating FR...",
-    );
+    expect(t("regenerating", "de", { lang: "FR" })).toBe("⏳ Regenerating FR...");
   });
 
   // Translate mode keys (task 09)
   it("returns translateModeOn with parameters in English", () => {
-    expect(t("translateModeOn", "en", { fromLang: "English", toLangs: "Czech" })).toBe(
-      "🔤 English → Czech",
-    );
+    expect(t("translateModeOn", "en", { fromLang: "English", toLangs: "Czech" })).toBe("🔤 English → Czech");
   });
 
   it("returns translateModeHint in English", () => {
-    expect(t("translateModeHint", "en")).toBe(
-      "Send the next word or phrase.",
-    );
+    expect(t("translateModeHint", "en")).toBe("Send the next word or phrase.");
   });
 
   it("returns translate mode keys in Russian", () => {
-    expect(t("translateModeOn", "ru", { fromLang: "Русский", toLangs: "Čeština" })).toBe(
-      "🔤 Русский → Čeština",
-    );
-    expect(t("translateModeHint", "ru")).toBe(
-      "Отправьте следующее слово или фразу.",
-    );
+    expect(t("translateModeOn", "ru", { fromLang: "Русский", toLangs: "Čeština" })).toBe("🔤 Русский → Čeština");
+    expect(t("translateModeHint", "ru")).toBe("Отправьте следующее слово или фразу.");
   });
 
   it("returns translate mode keys in Czech", () => {
-    expect(t("translateModeOn", "cs", { fromLang: "English", toLangs: "Čeština" })).toBe(
-      "🔤 English → Čeština",
-    );
-    expect(t("translateModeHint", "cs")).toBe(
-      "Pošli další slovo nebo frázi.",
-    );
+    expect(t("translateModeOn", "cs", { fromLang: "English", toLangs: "Čeština" })).toBe("🔤 English → Čeština");
+    expect(t("translateModeHint", "cs")).toBe("Pošli další slovo nebo frázi.");
   });
 
   it("falls back to English for translate mode keys when locale has no file", () => {
-    expect(t("translateModeOn", "de", { fromLang: "Deutsch", toLangs: "English" })).toBe(
-      "🔤 Deutsch → English",
-    );
-    expect(t("translateModeHint", "de")).toBe(
-      "Send the next word or phrase.",
-    );
+    expect(t("translateModeOn", "de", { fromLang: "Deutsch", toLangs: "English" })).toBe("🔤 Deutsch → English");
+    expect(t("translateModeHint", "de")).toBe("Send the next word or phrase.");
   });
 
   // Wiktionary / dictionary context keys (task 13)
@@ -160,15 +128,11 @@ describe("i18n — t()", () => {
   });
 
   it("returns partOfSpeech with interpolation", () => {
-    expect(t("partOfSpeech", "en", { pos: "phrase" })).toBe(
-      "Part of speech: phrase",
-    );
+    expect(t("partOfSpeech", "en", { pos: "phrase" })).toBe("Part of speech: phrase");
   });
 
   it("returns expressionDetected with interpolation", () => {
-    expect(t("expressionDetected", "en", { expression: "что ли" })).toBe(
-      "💬 Expression detected: что ли",
-    );
+    expect(t("expressionDetected", "en", { expression: "что ли" })).toBe("💬 Expression detected: что ли");
   });
 
   it("returns dictionaryContext in English", () => {
@@ -179,9 +143,7 @@ describe("i18n — t()", () => {
     expect(t("wiktionaryDefinition", "ru")).toBe("📖 Определение из Викисловаря");
     expect(t("wiktionarySource", "ru")).toBe("Источник: Викисловарь");
     expect(t("partOfSpeech", "ru", { pos: "фраза" })).toBe("Часть речи: фраза");
-    expect(t("expressionDetected", "ru", { expression: "что ли" })).toBe(
-      "💬 Обнаружено выражение: что ли",
-    );
+    expect(t("expressionDetected", "ru", { expression: "что ли" })).toBe("💬 Обнаружено выражение: что ли");
     expect(t("dictionaryContext", "ru")).toBe("📚 Словарный контекст");
   });
 
@@ -189,9 +151,7 @@ describe("i18n — t()", () => {
     expect(t("wiktionaryDefinition", "cs")).toBe("📖 Definice z Wikislovníku");
     expect(t("wiktionarySource", "cs")).toBe("Zdroj: Wikislovník");
     expect(t("partOfSpeech", "cs", { pos: "fráze" })).toBe("Slovní druh: fráze");
-    expect(t("expressionDetected", "cs", { expression: "jak se máte" })).toBe(
-      "💬 Detekován výraz: jak se máte",
-    );
+    expect(t("expressionDetected", "cs", { expression: "jak se máte" })).toBe("💬 Detekován výraz: jak se máte");
     expect(t("dictionaryContext", "cs")).toBe("📚 Slovníkový kontext");
   });
 
@@ -202,27 +162,19 @@ describe("i18n — t()", () => {
 
   // Detected language key (task 16)
   it("returns detectedLang with {lang} interpolation in English", () => {
-    expect(t("detectedLang", "en", { lang: "English" })).toBe(
-      "🔍 Detected: English",
-    );
+    expect(t("detectedLang", "en", { lang: "English" })).toBe("🔍 Detected: English");
   });
 
   it("returns detectedLang with {lang} interpolation in Russian", () => {
-    expect(t("detectedLang", "ru", { lang: "Английский" })).toBe(
-      "🔍 Определён: Английский",
-    );
+    expect(t("detectedLang", "ru", { lang: "Английский" })).toBe("🔍 Определён: Английский");
   });
 
   it("returns detectedLang with {lang} interpolation in Czech", () => {
-    expect(t("detectedLang", "cs", { lang: "Angličtina" })).toBe(
-      "🔍 Rozpoznáno: Angličtina",
-    );
+    expect(t("detectedLang", "cs", { lang: "Angličtina" })).toBe("🔍 Rozpoznáno: Angličtina");
   });
 
   it("falls back to English for detectedLang when locale has no file", () => {
-    expect(t("detectedLang", "de", { lang: "Englisch" })).toBe(
-      "🔍 Detected: Englisch",
-    );
+    expect(t("detectedLang", "de", { lang: "Englisch" })).toBe("🔍 Detected: Englisch");
   });
 
   // Next source language selection keys (task 17)
@@ -231,9 +183,7 @@ describe("i18n — t()", () => {
   });
 
   it("returns nextSourceSet with {lang} interpolation in English", () => {
-    expect(t("nextSourceSet", "en", { lang: "Czech" })).toBe(
-      "🔤 Next from: Czech",
-    );
+    expect(t("nextSourceSet", "en", { lang: "Czech" })).toBe("🔤 Next from: Czech");
   });
 
   it("returns nextTranslationFrom in Russian", () => {
@@ -241,9 +191,7 @@ describe("i18n — t()", () => {
   });
 
   it("returns nextSourceSet with {lang} interpolation in Russian", () => {
-    expect(t("nextSourceSet", "ru", { lang: "Чешский" })).toBe(
-      "🔤 Далее с: Чешский",
-    );
+    expect(t("nextSourceSet", "ru", { lang: "Чешский" })).toBe("🔤 Далее с: Чешский");
   });
 
   it("returns nextTranslationFrom in Czech", () => {
@@ -251,9 +199,7 @@ describe("i18n — t()", () => {
   });
 
   it("returns nextSourceSet with {lang} interpolation in Czech", () => {
-    expect(t("nextSourceSet", "cs", { lang: "Angličtina" })).toBe(
-      "🔤 Příště z: Angličtina",
-    );
+    expect(t("nextSourceSet", "cs", { lang: "Angličtina" })).toBe("🔤 Příště z: Angličtina");
   });
 
   it("falls back to English for nextTranslationFrom when locale has no file", () => {
@@ -261,9 +207,7 @@ describe("i18n — t()", () => {
   });
 
   it("falls back to English for nextSourceSet when locale has no file", () => {
-    expect(t("nextSourceSet", "de", { lang: "Englisch" })).toBe(
-      "🔤 Next from: Englisch",
-    );
+    expect(t("nextSourceSet", "de", { lang: "Englisch" })).toBe("🔤 Next from: Englisch");
   });
 });
 

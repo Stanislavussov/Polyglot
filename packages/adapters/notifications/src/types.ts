@@ -4,12 +4,7 @@
  * Defines public types for notification scheduling, delivery,
  * and word suggestion payloads.
  */
-import type {
-  DictionaryContext,
-  LanguageTranslationEntry,
-  TopicMeta,
-  TopicWord,
-} from "@polyglot/core";
+import type { DictionaryContext, LanguageTranslationEntry, TopicMeta, TopicWord } from "@polyglot/core";
 
 // ─────────────────────────────────────────────
 // Public types
@@ -23,10 +18,7 @@ import type {
 export type NotificationType = "suggested" | "srs";
 
 /** Injected send function — the notifications module never imports the bot. */
-export type SendFn = (
-  telegramId: number,
-  payload: NotificationPayload,
-) => Promise<void>;
+export type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
 
 /** User data needed for notification scheduling and delivery. */
 export interface UserForNotification {
@@ -63,11 +55,7 @@ export interface SuggestedWord {
  */
 export interface NotificationServiceDeps {
   /** Get words for a builtin topic (cache-first, then AI batch). */
-  getTopicWords: (
-    topicId: string,
-    sourceLang: string,
-    targetLangs: string[],
-  ) => Promise<TopicWord[]>;
+  getTopicWords: (topicId: string, sourceLang: string, targetLangs: string[]) => Promise<TopicWord[]>;
 
   /**
    * Regenerate a single language translation for a topic word.
@@ -86,5 +74,4 @@ export interface NotificationServiceDeps {
 
   /** Get user's language settings for building the suggested word. */
   getUserSettings: (userId: number) => Promise<UserForNotification | null>;
-
 }

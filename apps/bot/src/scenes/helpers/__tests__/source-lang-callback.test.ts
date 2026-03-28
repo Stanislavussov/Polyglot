@@ -1,7 +1,7 @@
 /**
  * Tests for handleSourceLangCallback — source language selection via inline keyboard.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock external modules before imports
 vi.mock("@polyglot/adapter-ai", () => ({
@@ -19,9 +19,7 @@ vi.mock("@polyglot/adapter-db", () => ({
 }));
 
 vi.mock("@polyglot/core", async () => {
-  const actual = await vi.importActual<typeof import("@polyglot/core")>(
-    "@polyglot/core",
-  );
+  const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   actual.initLanguageRegistry([
     { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", iso3Code: "eng", isSupported: true },
     { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", iso3Code: "rus", isSupported: true },
@@ -35,9 +33,9 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { handleSourceLangCallback } from "../translate-mode.helper.js";
 import { userRepository } from "@polyglot/adapter-db";
 import type { BotContext, SessionData } from "../../../types.js";
+import { handleSourceLangCallback } from "../translate-mode.helper.js";
 
 function createMockCtx(callbackData: string): BotContext {
   const session: SessionData = {

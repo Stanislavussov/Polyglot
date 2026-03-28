@@ -1,9 +1,9 @@
 /**
  * Tests for the persistent translate mode system.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { BotContext, SessionData, UserMode } from "../types.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { modeRouterMiddleware } from "../middlewares/mode-router.js";
+import type { BotContext, SessionData, UserMode } from "../types.js";
 
 // Mock dependencies
 vi.mock("@polyglot/adapter-ai", () => ({
@@ -43,18 +43,13 @@ vi.mock("../scenes/helpers/translate-mode.helper.js", () => ({
   handleTranslateText: vi.fn(),
 }));
 
-import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
 import { userRepository } from "@polyglot/adapter-db";
+import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
 
 const repo = vi.mocked(userRepository);
 
 function createMockContext(
-  overrides: {
-    text?: string;
-    activeMode?: UserMode;
-    onboarded?: boolean;
-    userId?: number;
-  } = {},
+  overrides: { text?: string; activeMode?: UserMode; onboarded?: boolean; userId?: number } = {},
 ): BotContext {
   const session: SessionData = {
     activeMode: overrides.activeMode ?? "translate",

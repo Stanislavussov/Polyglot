@@ -5,8 +5,9 @@
  * translationResultSchema exactly. Requests emoji, register,
  * CEFR level, transcription, synonyms, and example sentences.
  */
-import type { TranslationRequest, TranslationOutputConfig, DictionaryContext } from "./types.js";
+
 import { getLanguageName } from "../i18n/language-registry.js";
+import type { DictionaryContext, TranslationOutputConfig, TranslationRequest } from "./types.js";
 
 /**
  * Resolve output config — all fields default to true when absent.
@@ -32,13 +33,9 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   const { text, sourceLang, targetLangs, topic, dictionaryContext, outputConfig } = request;
   const cfg = resolveConfig(outputConfig);
 
-  const topicHint = topic
-    ? `\nThe word is used in the context of: "${topic}".`
-    : "";
+  const topicHint = topic ? `\nThe word is used in the context of: "${topic}".` : "";
 
-  const dictionaryHint = dictionaryContext
-    ? buildDictionaryHint(dictionaryContext)
-    : "";
+  const dictionaryHint = dictionaryContext ? buildDictionaryHint(dictionaryContext) : "";
 
   const sourceLangName = getLanguageName(sourceLang);
   const targetLangNames = targetLangs.map((l) => getLanguageName(l)).join(", ");
@@ -52,51 +49,77 @@ The JSON must have this exact structure:
   "register": "<overall register: slang | colloquial | neutral | literary | professional>",
   "translations": {
 ${targetLangs
-  .map(
-    (lang) => {
-      const lines: string[] = [
-        `      "text": "<translation in ${getLanguageName(lang)}>"`,
-        `      "cefr": "<CEFR level: A1 | A2 | B1 | B2 | C1 | C2>"`,
-      ];
-      if (cfg.includeTranscription) {
-        lines.push(`      "transcription": "<IPA transcription if applicable, otherwise omit>"`);
-      }
-      lines.push(`      "register": "<register: slang | colloquial | neutral | literary | professional>"`);
-      if (cfg.includeEquivalentNote) {
-        lines.push(`      "expressionType": "<literal | idiomatic_equivalent — omit or set to literal for direct translations>"`);
-        lines.push(`      "equivalentNote": "<brief note explaining why an idiomatic equivalent was chosen — omit for literal>"`);
-      }
-      if (cfg.includeSynonyms) {
-        lines.push(`      "synonyms": [\n        { "text": "<synonym>", "register": "<register>" }\n      ]`);
-      }
-      if (cfg.includeAlternatives) {
-        const synPart = cfg.includeSynonyms
-          ? `, "synonyms": [{ "text": "<syn>", "register": "<reg>" }]`
-          : "";
-        lines.push(`      "alternatives": [\n        { "text": "<alternative translation 1>", "register": "<register>"${synPart} },\n        { "text": "<alternative translation 2>", "register": "<register>"${synPart} }\n      ]`);
-      }
-      if (cfg.includeExamples) {
-        lines.push(`      "examples": [\n        { "context": "formal", "target": "<formal example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" },\n        { "context": "colloquial", "target": "<casual example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" },\n        { "context": "professional", "target": "<professional example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" }\n      ]`);
-      }
-      return `    "${lang}": {\n${lines.join(",\n")}\n    }`;
-    },
-  )
+  .map((lang) => {
+    const lines: string[] = [
+      `      "text": "<translation in ${getLanguageName(lang)}>"`,
+      `      "cefr": "<CEFR level: A1 | A2 | B1 | B2 | C1 | C2>"`,
+    ];
+    if (cfg.includeTranscription) {
+      lines.push(`      "transcription": "<IPA transcription if applicable, otherwise omit>"`);
+    }
+    lines.push(`      "register": "<register: slang | colloquial | neutral | literary | professional>"`);
+    if (cfg.includeEquivalentNote) {
+      lines.push(
+        `      "expressionType": "<literal | idiomatic_equivalent — omit or set to literal for direct translations>"`,
+      );
+      lines.push(
+        `      "equivalentNote": "<brief note explaining why an idiomatic equivalent was chosen — omit for literal>"`,
+      );
+    }
+    if (cfg.includeSynonyms) {
+      lines.push(`      "synonyms": [\n        { "text": "<synonym>", "register": "<register>" }\n      ]`);
+    }
+    if (cfg.includeAlternatives) {
+      const synPart = cfg.includeSynonyms ? `, "synonyms": [{ "text": "<syn>", "register": "<reg>" }]` : "";
+      lines.push(
+        `      "alternatives": [\n        { "text": "<alternative translation 1>", "register": "<register>"${synPart} },\n        { "text": "<alternative translation 2>", "register": "<register>"${synPart} }\n      ]`,
+      );
+    }
+    if (cfg.includeExamples) {
+      lines.push(
+        `      "examples": [\n        { "context": "formal", "target": "<formal example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" },\n        { "context": "colloquial", "target": "<casual example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" },\n        { "context": "professional", "target": "<professional example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" }\n      ]`,
+      );
+    }
+    return `    "${lang}": {\n${lines.join(",\n")}\n    }`;
+  })
   .join(",\n")}
   }
 }
 
-Rules:${cfg.includeExamples ? `
+Rules:${
+    cfg.includeExamples
+      ? `
 - VARIETY IN EXAMPLES IS MANDATORY: Each of the 3 example sentences MUST use a DIFFERENT word or expression. Specifically:
   * Example 1 (formal): use the main translation ("text" field).
   * Example 2 (colloquial): use the first alternative translation or a synonym — NOT the main translation.
   * Example 3 (professional): use the second alternative translation or a different synonym — NOT the main translation and NOT the same as example 2.
-  This applies to BOTH the "target" AND "native" sentences. NEVER repeat the same word/phrase across all 3 examples.` : ""}${cfg.includeSynonyms ? `
-- Provide 2–3 synonyms per language with their register.` : ""}${cfg.includeAlternatives ? `
-- Provide exactly 2 alternative translations per language in the \`alternatives\` array. Each alternative should be a different valid translation with its own register and 1–2 synonyms.` : ""}${cfg.includeExamples ? `
-- Provide exactly 3 example sentences per language (formal, colloquial, professional).` : ""}
-- CEFR level should reflect the difficulty of the translated word in that language.${cfg.includeTranscription ? `
-- Transcription is required for non-Latin scripts; optional otherwise.` : ""}
-- Return ONLY the JSON object. No additional text before or after.${cfg.includeEquivalentNote ? `
+  This applies to BOTH the "target" AND "native" sentences. NEVER repeat the same word/phrase across all 3 examples.`
+      : ""
+  }${
+    cfg.includeSynonyms
+      ? `
+- Provide 2–3 synonyms per language with their register.`
+      : ""
+  }${
+    cfg.includeAlternatives
+      ? `
+- Provide exactly 2 alternative translations per language in the \`alternatives\` array. Each alternative should be a different valid translation with its own register and 1–2 synonyms.`
+      : ""
+  }${
+    cfg.includeExamples
+      ? `
+- Provide exactly 3 example sentences per language (formal, colloquial, professional).`
+      : ""
+  }
+- CEFR level should reflect the difficulty of the translated word in that language.${
+    cfg.includeTranscription
+      ? `
+- Transcription is required for non-Latin scripts; optional otherwise.`
+      : ""
+  }
+- Return ONLY the JSON object. No additional text before or after.${
+    cfg.includeEquivalentNote
+      ? `
 
 Idiomatic & Proverb Rule:
 - If the input is a proverb, idiom, fixed expression, or culturally-bound phrase
@@ -108,7 +131,9 @@ Idiomatic & Proverb Rule:
 - If a direct translation exists and is natural, set expressionType to "literal"
   (or omit it).
 - NEVER return a meaningless word-for-word rendering of an idiomatic expression
-  when a functional equivalent exists.` : ""}`;
+  when a functional equivalent exists.`
+      : ""
+  }`;
 }
 
 /**
@@ -116,10 +141,7 @@ Idiomatic & Proverb Rule:
  *
  * Includes explicit error feedback so the AI can correct its output.
  */
-export function buildStrictPrompt(
-  request: TranslationRequest,
-  errors: string[],
-): string {
+export function buildStrictPrompt(request: TranslationRequest, errors: string[]): string {
   const base = buildTranslationPrompt(request);
   const cfg = resolveConfig(request.outputConfig);
 
@@ -127,7 +149,9 @@ export function buildStrictPrompt(
 
   const checkItems: string[] = [];
   if (cfg.includeExamples) {
-    checkItems.push("- Each of the 3 examples uses a DIFFERENT word: example 1 uses the main translation, example 2 uses an alternative/synonym, example 3 uses another alternative/synonym — in both target and native sentences");
+    checkItems.push(
+      "- Each of the 3 examples uses a DIFFERENT word: example 1 uses the main translation, example 2 uses an alternative/synonym, example 3 uses another alternative/synonym — in both target and native sentences",
+    );
   }
   checkItems.push("- Translations are actual translations, not the original word repeated");
   checkItems.push("- All required fields are present");
@@ -181,10 +205,8 @@ function buildDictionaryHint(ctx: DictionaryContext): string {
   }
 
   if (ctx.pos === "phrase" || ctx.pos === "idiom") {
-    lines.push(
-      "This is a fixed expression — translate the meaning, not word-by-word.",
-    );
+    lines.push("This is a fixed expression — translate the meaning, not word-by-word.");
   }
 
-  return "\n" + lines.join("\n");
+  return `\n${lines.join("\n")}`;
 }

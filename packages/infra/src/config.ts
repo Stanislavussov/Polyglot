@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { config as dotenvConfig } from "dotenv";
 import { z } from "zod";
 
@@ -9,9 +9,7 @@ const envSchema = z.object({
   OPENROUTER_API_KEY: z.string().optional(),
   AI_MODEL: z.string().default("openai/gpt-5-nano"),
   BETTERSTACK_TOKEN: z.string().optional(),
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .default("development"),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 
 export type Env = z.infer<typeof envSchema>;

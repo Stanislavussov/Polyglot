@@ -1,7 +1,7 @@
 import { userRepository } from "@polyglot/adapter-db";
+import { logger } from "@polyglot/infra";
 import type { NextFunction } from "grammy";
 import type { BotContext, UserMode } from "../types.js";
-import { logger } from "@polyglot/infra";
 
 /** Modes that are valid for the session (matches UserMode type). */
 const VALID_MODES = new Set<string>(["idle", "translate"]);
@@ -12,10 +12,7 @@ const VALID_MODES = new Set<string>(["idle", "translate"]);
  * Attaches the user to `ctx.user`.
  * Hydrates `ctx.session.activeMode` from DB settings on first load.
  */
-export async function authMiddleware(
-  ctx: BotContext,
-  next: NextFunction,
-): Promise<void> {
+export async function authMiddleware(ctx: BotContext, next: NextFunction): Promise<void> {
   const telegramId = ctx.from?.id;
   if (!telegramId) {
     // No user info in this update (e.g. channel posts) — skip
@@ -40,13 +37,8 @@ export async function authMiddleware(
     const settings = await userRepository.getSettings(user.id);
     if (settings?.activeMode) {
       const dbMode = settings.activeMode;
-      ctx.session.activeMode = VALID_MODES.has(dbMode)
-        ? (dbMode as UserMode)
-        : "translate";
-      logger.debug(
-        { userId: user.id, activeMode: ctx.session.activeMode },
-        "Hydrated activeMode from DB",
-      );
+      ctx.session.activeMode = VALID_MODES.has(dbMode) ? (dbMode as UserMode) : "translate";
+      logger.debug({ userId: user.id, activeMode: ctx.session.activeMode }, "Hydrated activeMode from DB");
     }
   }
 

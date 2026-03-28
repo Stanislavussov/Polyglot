@@ -1,4 +1,4 @@
-import type { ValidationResult, ValidationError } from "../types.js";
+import type { ValidationError, ValidationResult } from "../types.js";
 
 // ─────────────────────────────────────────────
 // Types
@@ -78,9 +78,7 @@ const ISO_639_1_RE = /^[a-z]{2,3}$/;
  *
  * Pure function — no side effects, no I/O.
  */
-export function validateWiktionaryEntry(
-  entry: WiktionaryEntryInput,
-): ValidationResult {
+export function validateWiktionaryEntry(entry: WiktionaryEntryInput): ValidationResult {
   const errors: ValidationError[] = [];
 
   // Null/undefined guard
@@ -181,9 +179,7 @@ export function validateWiktionaryEntry(
  *
  * Pure function — no side effects, no I/O.
  */
-export function validateWordContext(
-  record: WordContextInput,
-): ValidationResult {
+export function validateWordContext(record: WordContextInput): ValidationResult {
   const errors: ValidationError[] = [];
 
   // Null/undefined guard
@@ -205,11 +201,7 @@ export function validateWordContext(
   }
 
   // Required: languageId
-  if (
-    typeof record.languageId !== "number" ||
-    !Number.isInteger(record.languageId) ||
-    record.languageId <= 0
-  ) {
+  if (typeof record.languageId !== "number" || !Number.isInteger(record.languageId) || record.languageId <= 0) {
     errors.push({
       rule: "wordContext",
       message: "Record missing required field: languageId (must be positive integer)",

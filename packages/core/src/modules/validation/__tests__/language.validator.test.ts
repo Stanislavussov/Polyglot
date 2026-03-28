@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { validateLanguage, resolveToIso3 } from "../validators/language.validator.js";
+import { describe, expect, it } from "vitest";
+import { resolveToIso3, validateLanguage } from "../validators/language.validator.js";
 
 describe("resolveToIso3", () => {
   it("resolves ISO 639-1 codes", () => {
@@ -31,10 +31,7 @@ describe("validateLanguage", () => {
     // Previously franc-min produced false positives for short texts:
     // Czech detected as German, Spanish, Somali, etc.
     // Language correctness is ensured by AI prompt + Zod schema.
-    const result = validateLanguage(
-      "nechat si narůst vousy",
-      "cs",
-    );
+    const result = validateLanguage("nechat si narůst vousy", "cs");
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });

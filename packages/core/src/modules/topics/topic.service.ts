@@ -9,17 +9,18 @@
  *
  * Dependencies (db, ai) are injected via TopicDeps — core stays platform-independent.
  */
+
+import { createRequire } from "node:module";
+import { MINIMAL_OUTPUT } from "../translation/translation-output.presets.js";
 import type {
-  TopicMeta,
-  TopicWord,
-  Topic,
   CacheStatus,
+  LanguageTranslationEntry,
+  Topic,
   TopicDataset,
   TopicDeps,
-  LanguageTranslationEntry,
+  TopicMeta,
+  TopicWord,
 } from "./types.js";
-import { MINIMAL_OUTPUT } from "../translation/translation-output.presets.js";
-import { createRequire } from "node:module";
 
 // ─────────────────────────────────────────────
 // Load built-in datasets once at startup
@@ -86,11 +87,7 @@ export function createTopicService(deps: TopicDeps) {
    * @returns Array of TopicWord with translations per language
    * @throws Error if topicId not found
    */
-  async function getTopicWords(
-    topicId: string,
-    sourceLang: string,
-    targetLangs: string[],
-  ): Promise<TopicWord[]> {
+  async function getTopicWords(topicId: string, sourceLang: string, targetLangs: string[]): Promise<TopicWord[]> {
     const dataset = getDataset(topicId);
     if (!dataset) {
       throw new Error(`Topic not found: "${topicId}"`);
@@ -126,12 +123,7 @@ export function createTopicService(deps: TopicDeps) {
     // Uses MINIMAL_OUTPUT preset — topics only need core fields + transcription.
     let translatedWords: TopicWord[] = [];
     if (uncachedOriginals.length > 0) {
-      const outputs = await deps.translateBatch(
-        uncachedOriginals,
-        sourceLang,
-        targetLangs,
-        MINIMAL_OUTPUT,
-      );
+      const outputs = await deps.translateBatch(uncachedOriginals, sourceLang, targetLangs, MINIMAL_OUTPUT);
 
       translatedWords = await Promise.all(
         outputs.map(async (output) => {
@@ -151,10 +143,7 @@ export function createTopicService(deps: TopicDeps) {
 
           return {
             original: output.original,
-            translations: output.translations as Record<
-              string,
-              LanguageTranslationEntry
-            >,
+            translations: output.translations as Record<string, LanguageTranslationEntry>,
           };
         }),
       );
@@ -165,9 +154,7 @@ export function createTopicService(deps: TopicDeps) {
     for (const w of cachedWords) wordMap.set(w.original, w);
     for (const w of translatedWords) wordMap.set(w.original, w);
 
-    return dataset.words
-      .map((word) => wordMap.get(word))
-      .filter((w): w is TopicWord => w !== undefined);
+    return dataset.words.map((word) => wordMap.get(word)).filter((w): w is TopicWord => w !== undefined);
   }
 
   /**
@@ -184,15 +171,9 @@ export function createTopicService(deps: TopicDeps) {
    * @returns A complete Topic with translations
    * @throws Error if generateWords dependency is not provided
    */
-  async function generateCustomTopic(
-    prompt: string,
-    sourceLang: string,
-    targetLangs: string[],
-  ): Promise<Topic> {
+  async function generateCustomTopic(prompt: string, sourceLang: string, targetLangs: string[]): Promise<Topic> {
     if (!deps.generateWords) {
-      throw new Error(
-        "generateWords dependency is required for custom topic generation",
-      );
+      throw new Error("generateWords dependency is required for custom topic generation");
     }
 
     // Step 1: Generate word list via AI
@@ -201,20 +182,12 @@ export function createTopicService(deps: TopicDeps) {
     // Step 2: Batch translate all words
     // Context enrichment is handled by the injected translateBatch function.
     // Uses MINIMAL_OUTPUT preset — topics only need core fields + transcription.
-    const outputs = await deps.translateBatch(
-      generated.words,
-      sourceLang,
-      targetLangs,
-      MINIMAL_OUTPUT,
-    );
+    const outputs = await deps.translateBatch(generated.words, sourceLang, targetLangs, MINIMAL_OUTPUT);
 
     // Step 3: Build Topic
     const words: TopicWord[] = outputs.map((output) => ({
       original: output.original,
-      translations: output.translations as Record<
-        string,
-        LanguageTranslationEntry
-      >,
+      translations: output.translations as Record<string, LanguageTranslationEntry>,
     }));
 
     return {
@@ -239,11 +212,7 @@ export function createTopicService(deps: TopicDeps) {
    * @returns CacheStatus with total, cached, missing counts and status label
    * @throws Error if topicId not found
    */
-  async function getCacheStatus(
-    topicId: string,
-    sourceLang: string,
-    targetLangs: string[],
-  ): Promise<CacheStatus> {
+  async function getCacheStatus(topicId: string, sourceLang: string, targetLangs: string[]): Promise<CacheStatus> {
     const dataset = getDataset(topicId);
     if (!dataset) {
       throw new Error(`Topic not found: "${topicId}"`);
@@ -312,15 +281,11 @@ export function createTopicService(deps: TopicDeps) {
     }
 
     if (!dataset.words.includes(original)) {
-      throw new Error(
-        `Word "${original}" not found in topic "${topicId}"`,
-      );
+      throw new Error(`Word "${original}" not found in topic "${topicId}"`);
     }
 
     if (!deps.translateOne) {
-      throw new Error(
-        "translateOne dependency is required for partial regeneration",
-      );
+      throw new Error("translateOne dependency is required for partial regeneration");
     }
 
     // Re-translate for the single target language.

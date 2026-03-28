@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { TopicMeta, TopicWord, LanguageTranslationEntry } from "@polyglot/core";
+import type { LanguageTranslationEntry, TopicMeta, TopicWord } from "@polyglot/core";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { NotificationServiceDeps, UserForNotification } from "./types.js";
 
 // ─────────────────────────────────────────────
@@ -164,12 +164,7 @@ describe("createNotificationService", () => {
 
       await service.pickSuggestedWord(1);
 
-      expect(deps.regenerateTopicWord).toHaveBeenCalledWith(
-        "food",
-        "bread",
-        "en",
-        "de",
-      );
+      expect(deps.regenerateTopicWord).toHaveBeenCalledWith("food", "bread", "en", "de");
     });
 
     it("does not call regenerateTopicWord when all langs present", async () => {

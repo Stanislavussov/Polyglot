@@ -155,5 +155,4 @@ export interface TopicDeps {
     emoji: string;
     words: string[];
   }>;
-
 }

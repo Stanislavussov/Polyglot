@@ -9,8 +9,9 @@
  * - NotificationServiceDeps no longer has lookupDictionaryContext
  * - Existing functionality still works without lookupDictionaryContext dep
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { TopicMeta, TopicWord, LanguageTranslationEntry } from "@polyglot/core";
+
+import type { LanguageTranslationEntry, TopicMeta, TopicWord } from "@polyglot/core";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { NotificationServiceDeps, UserForNotification } from "./types.js";
 
 // ─────────────────────────────────────────────

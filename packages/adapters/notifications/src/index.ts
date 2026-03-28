@@ -9,11 +9,7 @@ import type { NotificationType } from "./types.js";
  * - 'suggested': AI-suggested word based on user's saved topics
  * - 'srs': Word from dictionary due for SRS review
  */
-export function logNotificationSent(params: {
-  userId: number;
-  type: NotificationType;
-  wordId: number;
-}): void {
+export function logNotificationSent(params: { userId: number; type: NotificationType; wordId: number }): void {
   logger.info(params, "Notification sent");
 }
 
@@ -22,10 +18,10 @@ export { createNotificationService } from "./notification.service.js";
 
 // Types
 export type {
+  NotificationPayload,
+  NotificationServiceDeps,
   NotificationType,
   SendFn,
-  UserForNotification,
-  NotificationPayload,
   SuggestedWord,
-  NotificationServiceDeps,
+  UserForNotification,
 } from "./types.js";

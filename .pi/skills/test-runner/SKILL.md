@@ -26,7 +26,8 @@ Runs the full test suite, analyzes failures, and fixes broken tests. This is the
 
 ## Rules
 
-- Run `pnpm test` from the project root first
+- Run `pnpm lint` first — fix any lint/formatting errors with `pnpm lint:fix`, then verify with `pnpm lint`
+- Run `pnpm test` from the project root
 - If all tests pass — report success summary with test count and coverage
 - If tests fail — read the failing test files AND the source files they test
 - Fix only test files — never modify source code
@@ -38,7 +39,10 @@ Runs the full test suite, analyzes failures, and fixes broken tests. This is the
 ## Workflow
 
 ```
-1. pnpm test
+1. pnpm lint
+   ├── ✅ Clean → continue
+   └── ❌ Errors → pnpm lint:fix → verify with pnpm lint
+2. pnpm test
    ├── ✅ All pass → report summary
    └── ❌ Failures → analyze
         ├── Read failing test file
