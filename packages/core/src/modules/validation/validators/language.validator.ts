@@ -1,7 +1,4 @@
-import { resolveToIso3 } from "../../i18n/language-registry.js";
 import type { ValidationResult } from "../types.js";
-
-export { resolveToIso3 };
 
 /**
  * Language validation — currently a no-op (always passes).

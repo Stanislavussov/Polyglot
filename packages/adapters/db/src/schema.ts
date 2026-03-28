@@ -27,8 +27,6 @@ export const languages = pgTable(
     nativeName: text("native_name"),
     /** Emoji flag: "🇬🇧", "🇷🇺", "🇨🇿" */
     flag: text("flag"),
-    /** ISO 639-3 code for franc detection: "eng", "rus", "ces" */
-    iso3Code: text("iso3_code"),
     /** Available in bot UI as interface/learning language */
     isSupported: boolean("is_supported").default(false).notNull(),
     /** Localized names: {"ru": "Английский", "cs": "Angličtina"} */

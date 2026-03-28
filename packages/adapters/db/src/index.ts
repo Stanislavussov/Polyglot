@@ -42,10 +42,6 @@ export type { CachedLanguage } from "./language-cache.js";
 // Language cache — loaded from DB, serves all language metadata
 export {
   getAllLangs,
-  getIso1FromIso3,
-  getIso1ToIso3Map,
-  getIso3,
-  getIso3ToIso1Map,
   getLang,
   getLangDisplay,
   getLangFlag,

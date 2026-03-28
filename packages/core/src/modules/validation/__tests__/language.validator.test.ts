@@ -1,30 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { resolveToIso3, validateLanguage } from "../validators/language.validator.js";
+import { validateLanguage } from "../validators/language.validator.js";
 
-describe("resolveToIso3", () => {
-  it("resolves ISO 639-1 codes", () => {
-    expect(resolveToIso3("en")).toBe("eng");
-    expect(resolveToIso3("cs")).toBe("ces");
-    expect(resolveToIso3("ru")).toBe("rus");
-    expect(resolveToIso3("de")).toBe("deu");
-  });
-
-  it("resolves full language names", () => {
-    expect(resolveToIso3("english")).toBe("eng");
-    expect(resolveToIso3("Czech")).toBe("ces");
-    expect(resolveToIso3("Russian")).toBe("rus");
-  });
-
-  it("resolves ISO 639-3 pass-through", () => {
-    expect(resolveToIso3("eng")).toBe("eng");
-    expect(resolveToIso3("ces")).toBe("ces");
-  });
-
-  it("returns undefined for unknown languages", () => {
-    expect(resolveToIso3("xyz")).toBeUndefined();
-    expect(resolveToIso3("klingon")).toBeUndefined();
-  });
-});
+// NOTE: resolveToIso3 has been removed. ISO 639-3 codes are now a private
+// implementation detail of detect-language.ts.
 
 describe("validateLanguage", () => {
   it("always returns valid (no-op — franc-min removed due to unreliability)", () => {

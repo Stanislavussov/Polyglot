@@ -5,8 +5,11 @@
  * At app startup, the caller loads languages from DB and calls
  * `initLanguageRegistry()` to populate this registry.
  *
- * All language lookups (getLanguageName, getIso3, etc.) read from here.
+ * All language lookups (getLanguageName, etc.) read from here.
  * Core never touches the DB directly — data is injected.
+ *
+ * The registry works exclusively with ISO 639-1 codes.
+ * ISO 639-3 codes are a private implementation detail of detect-language.ts.
  */
 
 /* ------------------------------------------------------------------ */
@@ -18,7 +21,6 @@ export interface LanguageEntry {
   name: string;
   nativeName?: string | null;
   flag?: string | null;
-  iso3Code?: string | null;
   isSupported: boolean;
   localizedNames?: Record<string, string> | null;
 }
@@ -28,7 +30,6 @@ export interface LanguageEntry {
 /* ------------------------------------------------------------------ */
 
 const byCode = new Map<string, LanguageEntry>();
-const byIso3 = new Map<string, string>(); // iso3 → iso1
 
 /* ------------------------------------------------------------------ */
 /*  Initialization                                                     */
@@ -44,12 +45,8 @@ const byIso3 = new Map<string, string>(); // iso3 → iso1
  */
 export function initLanguageRegistry(entries: LanguageEntry[]): void {
   byCode.clear();
-  byIso3.clear();
   for (const entry of entries) {
     byCode.set(entry.code, entry);
-    if (entry.iso3Code) {
-      byIso3.set(entry.iso3Code, entry.code);
-    }
   }
 }
 
@@ -106,54 +103,12 @@ export function isKnownLanguage(code: string): boolean {
 }
 
 /* ------------------------------------------------------------------ */
-/*  ISO code lookups                                                   */
+/*  Normalization                                                      */
 /* ------------------------------------------------------------------ */
-
-/** ISO 639-1 → ISO 639-3 mapping from registry. */
-export function getIso1ToIso3Map(): Record<string, string> {
-  const map: Record<string, string> = {};
-  for (const entry of byCode.values()) {
-    if (entry.iso3Code) {
-      map[entry.code] = entry.iso3Code;
-    }
-  }
-  return map;
-}
-
-/** ISO 639-3 → ISO 639-1 mapping from registry. */
-export function getIso3ToIso1Map(): Record<string, string> {
-  const map: Record<string, string> = {};
-  for (const entry of byCode.values()) {
-    if (entry.iso3Code) {
-      map[entry.iso3Code] = entry.code;
-    }
-  }
-  return map;
-}
-
-/**
- * Resolve any language identifier to ISO 639-3 code.
- */
-export function resolveToIso3(lang: string): string | undefined {
-  const lower = lang.toLowerCase();
-
-  // ISO 639-1 → ISO 639-3
-  const entry = byCode.get(lower);
-  if (entry?.iso3Code) return entry.iso3Code;
-
-  // ISO 639-3 passthrough
-  if (byIso3.has(lower)) return lower;
-
-  // English name
-  for (const e of byCode.values()) {
-    if (e.name.toLowerCase() === lower) return e.iso3Code ?? undefined;
-  }
-
-  return undefined;
-}
 
 /**
  * Normalize any recognized language identifier to ISO 639-1.
+ * Accepts ISO 639-1 (passthrough) or English names (case-insensitive).
  */
 export function normalizeToIso1(lang: string): string | undefined {
   const lower = lang.toLowerCase();
@@ -161,11 +116,7 @@ export function normalizeToIso1(lang: string): string | undefined {
   // Already ISO 639-1
   if (byCode.has(lower)) return lower;
 
-  // ISO 639-3 → ISO 639-1
-  const fromIso3 = byIso3.get(lower);
-  if (fromIso3) return fromIso3;
-
-  // English name
+  // English name (case-insensitive search)
   for (const entry of byCode.values()) {
     if (entry.name.toLowerCase() === lower) return entry.code;
   }

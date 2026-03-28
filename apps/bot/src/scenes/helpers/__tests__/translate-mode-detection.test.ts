@@ -30,9 +30,9 @@ vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   // Initialize registry since vi.importActual gets a fresh module copy
   actual.initLanguageRegistry([
-    { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", iso3Code: "eng", isSupported: true },
-    { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", iso3Code: "rus", isSupported: true },
-    { code: "cs", name: "Czech", nativeName: "Čeština", flag: "🇨🇿", iso3Code: "ces", isSupported: true },
+    { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", isSupported: true },
+    { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", isSupported: true },
+    { code: "cs", name: "Czech", nativeName: "Čeština", flag: "🇨🇿", isSupported: true },
   ]);
   return {
     ...actual,

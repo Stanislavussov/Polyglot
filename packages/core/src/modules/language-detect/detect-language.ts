@@ -1,5 +1,60 @@
 import { franc } from "franc";
-import { getIso1ToIso3Map } from "../i18n/language-registry.js";
+
+/**
+ * Static ISO 639-1 → ISO 639-3 mapping for franc language detection.
+ *
+ * This is the **only** place in the codebase that needs ISO 639-3 codes.
+ * The mapping is a universal standard — no need to store it in the DB.
+ * Covers all languages the app may encounter for detection purposes.
+ */
+export const ISO1_TO_ISO3: Readonly<Record<string, string>> = Object.freeze({
+  // Supported bot languages
+  en: "eng",
+  ru: "rus",
+  cs: "ces",
+  de: "deu",
+  fr: "fra",
+  es: "spa",
+  it: "ita",
+  pt: "por",
+  uk: "ukr",
+  pl: "pol",
+  // Detection-only languages
+  ja: "jpn",
+  zh: "cmn",
+  ko: "kor",
+  ar: "arb",
+  hi: "hin",
+  tr: "tur",
+  nl: "nld",
+  sv: "swe",
+  da: "dan",
+  no: "nob",
+  fi: "fin",
+  el: "ell",
+  hu: "hun",
+  ro: "ron",
+  bg: "bul",
+  hr: "hrv",
+  sk: "slk",
+  sl: "slv",
+  sr: "srp",
+  lt: "lit",
+  lv: "lav",
+  et: "est",
+  he: "heb",
+  th: "tha",
+  vi: "vie",
+  ka: "kat",
+  id: "ind",
+  af: "afr",
+  ca: "cat",
+  sq: "sqi",
+  mk: "mkd",
+  be: "bel",
+  fa: "fas",
+  sw: "swa",
+});
 
 /**
  * Unicode script ranges for heuristic detection of short texts.
@@ -174,12 +229,11 @@ function detectByScript(text: string, candidates: string[]): string | undefined 
  */
 function detectByFranc(text: string, candidates: string[]): string | undefined {
   // Convert candidates from ISO 639-1 to ISO 639-3 for franc
-  const iso1ToIso3 = getIso1ToIso3Map();
   const iso3Candidates: string[] = [];
   const iso3ToCandidate: Record<string, string> = {};
 
   for (const c of candidates) {
-    const iso3 = iso1ToIso3[c];
+    const iso3 = ISO1_TO_ISO3[c];
     if (iso3) {
       iso3Candidates.push(iso3);
       iso3ToCandidate[iso3] = c;
