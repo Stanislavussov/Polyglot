@@ -9,8 +9,8 @@
       {
         "name": "business",
         "standalone": true,
-        "role": "Business analysis pipeline. All output to docs/ — never touch source code.",
-        "rules": "Artifacts flow: research → BRD → scope → architecture → tasks → validation. Languages/modes in requirements must reference DB tables.\nBe concise in all output — write core information with nuances, no filler, no repetition, no boilerplate. Every sentence must carry signal. Tables over prose when possible.",
+        "role": "Business analysis pipeline. Produces ONE SINGLE task file in docs/tasks/. All intermediate work is temporary.",
+        "rules": "Pipeline produces exactly ONE artifact: a single comprehensive task file in docs/tasks/.\nAll intermediate agents write to .pi/tmp/business/ — these are temp working files, NOT permanent artifacts.\nNever modify docs/BRD.md, docs/roadmap.md, docs/mvp-scope.md, docs/requirements/, docs/tech-reqs/, docs/reviews/, docs/research/.\nThe final task-finalizer agent reads all temp artifacts and produces the ONE output file.\nBe concise — core information with nuances, no filler, no repetition. Tables over prose.",
         "model": "anthropic/claude-sonnet-4-6",
         "skills": [
           ".pi/skills/business"
@@ -23,65 +23,72 @@
         "subAgents": [
           {
             "name": "product",
-            "role": "Competitor intelligence → docs/research/competitors.md",
-            "rules": "See skill for details. Score by impact × effort. Write only to docs/research/.\nBe dense — competitor table + short rationale per proposal, no essays.",
+            "role": "Competitor intelligence → .pi/tmp/business/research/competitors.md (TEMP)",
+            "rules": "See skill for details. Score by impact × effort.\nALL output goes to .pi/tmp/business/research/ — NEVER write to docs/.\nBe dense — competitor table + short rationale per proposal, no essays.",
             "enabledTools": ["read", "bash", "write"],
             "skills": [".pi/skills/product"]
           },
           {
             "name": "researcher",
-            "role": "Stress-tests hypotheses and tech decisions → docs/research/evaluation.md",
-            "rules": "See skill for details. Always end with a verdict. Write only to docs/research/.\nKeep evaluations tight — evidence bullets + risk table + verdict. No padding.",
+            "role": "Stress-tests hypotheses and tech decisions → .pi/tmp/business/research/evaluation.md (TEMP)",
+            "rules": "See skill for details. Always end with a verdict.\nALL output goes to .pi/tmp/business/research/ — NEVER write to docs/.\nKeep evaluations tight — evidence bullets + risk table + verdict. No padding.",
             "enabledTools": ["read", "bash", "write"],
             "skills": [".pi/skills/research"]
           },
           {
             "name": "business-analyst",
-            "role": "Synthesizes research into BRD and requirements → docs/BRD.md, docs/requirements/",
-            "rules": "See skill for details. Never prioritize — PO's job.\nCompact requirements — ID, one-liner, acceptance criteria bullets. No narratives.",
+            "role": "Synthesizes research into requirements → .pi/tmp/business/requirements/ (TEMP)",
+            "rules": "See skill for details. Never prioritize — PO's job.\nALL output goes to .pi/tmp/business/ (e.g. .pi/tmp/business/brd.md, .pi/tmp/business/requirements/) — NEVER write to docs/.\nCompact requirements — ID, one-liner, acceptance criteria bullets. No narratives.",
             "enabledTools": ["read", "bash", "write"],
             "skills": [".pi/skills/business-analyst"],
             "dependsOn": ["product", "researcher"]
           },
           {
             "name": "product-owner",
-            "role": "Prioritizes scope, defines MVP → docs/roadmap.md, docs/mvp-scope.md",
-            "rules": "See skill for details. MoSCoW method. Never modify BRD.\nRoadmap as tables, not paragraphs. One-line rationale per item.",
+            "role": "Prioritizes scope, defines MVP → .pi/tmp/business/scope/ (TEMP)",
+            "rules": "See skill for details. MoSCoW method. Never modify BRD.\nALL output goes to .pi/tmp/business/scope/ (e.g. .pi/tmp/business/scope/roadmap.md, .pi/tmp/business/scope/mvp-scope.md) — NEVER write to docs/.\nRoadmap as tables, not paragraphs. One-line rationale per item.",
             "enabledTools": ["read", "bash", "write"],
             "skills": [".pi/skills/product-owner"],
             "dependsOn": ["business-analyst"]
           },
           {
             "name": "architect",
-            "role": "Technical design: components, APIs, data models → docs/tech-reqs/",
-            "rules": "See skill for details. Align with monorepo structure. DB-SOT for domain values.\nDesign docs: boundaries + TS interfaces + decision table. No prose introductions.",
+            "role": "Technical design: components, APIs, data models → .pi/tmp/business/tech-reqs/ (TEMP)",
+            "rules": "See skill for details. Align with monorepo structure. DB-SOT for domain values.\nALL output goes to .pi/tmp/business/tech-reqs/ — NEVER write to docs/.\nDesign docs: boundaries + TS interfaces + decision table. No prose introductions.",
             "enabledTools": ["read", "bash", "write"],
             "skills": [".pi/skills/architect", ".pi/skills/db-sot"],
             "dependsOn": ["product-owner"]
           },
           {
             "name": "task-creator",
-            "role": "Breaks designs into dev tasks → docs/tasks/",
-            "rules": "See skill for details. Small tasks, clear acceptance criteria, dependency order.\nTask = title + goal (1 line) + criteria (checkboxes) + deps + files. Nothing else.",
+            "role": "Creates ONE comprehensive draft task → .pi/tmp/business/draft-task.md (TEMP)",
+            "rules": "Read all upstream temp artifacts from .pi/tmp/business/.\nProduce ONE SINGLE comprehensive task file — NOT multiple tasks.\nThe task must be self-contained: goal, architecture overview, all subtasks/steps, types, acceptance criteria, edge cases, files to create/modify.\nWrite draft to .pi/tmp/business/draft-task.md — NEVER write to docs/.\nTask = title + goal + architecture + steps (with code examples) + acceptance criteria + edge cases + effort estimate.",
             "enabledTools": ["read", "bash", "write"],
             "skills": [".pi/skills/task-creator"],
             "dependsOn": ["architect"]
           },
           {
             "name": "brd-grooming",
-            "role": "BRD vs tasks contradiction check → docs/reviews/brd-grooming.md",
-            "rules": "See skill for details. Don't rewrite BRD or tasks.\nOne block per contradiction — quote + conflict + severity + fix. No preambles.",
+            "role": "BRD vs draft task contradiction check → .pi/tmp/business/reviews/brd-grooming.md (TEMP)",
+            "rules": "Compare docs/BRD.md against the draft task at .pi/tmp/business/draft-task.md.\nALL output goes to .pi/tmp/business/reviews/ — NEVER write to docs/.\nOne block per contradiction — quote + conflict + severity + fix. No preambles.\nDon't rewrite BRD or the draft task.",
             "enabledTools": ["read", "bash", "write"],
             "skills": [".pi/skills/brd-grooming"],
             "dependsOn": ["task-creator"]
           },
           {
             "name": "integrator",
-            "role": "Cross-cutting consistency check → docs/reviews/integration-review.md",
-            "rules": "See skill for details. Flag hardcoded language/mode lists — must be DB-driven.\nIssue table + traceability matrix. Skip summaries and conclusions — findings speak for themselves.",
+            "role": "Cross-cutting consistency check → .pi/tmp/business/reviews/integration-review.md (TEMP)",
+            "rules": "Review all temp artifacts in .pi/tmp/business/ plus live source code for consistency.\nALL output goes to .pi/tmp/business/reviews/ — NEVER write to docs/.\nFlag hardcoded language/mode lists — must be DB-driven.\nIssue table + traceability matrix. No summaries — findings speak for themselves.",
             "enabledTools": ["read", "bash", "write"],
             "skills": [".pi/skills/integrator", ".pi/skills/db-sot"],
             "dependsOn": ["task-creator"]
+          },
+          {
+            "name": "task-finalizer",
+            "role": "Merges draft task + review feedback into ONE FINAL task file → docs/tasks/",
+            "rules": "Read the draft task from .pi/tmp/business/draft-task.md.\nRead review findings from .pi/tmp/business/reviews/ (brd-grooming.md, integration-review.md).\nIncorporate all Critical and Major review findings directly into the task — fix contradictions, add missing items, correct inconsistencies.\nMinor findings: incorporate if easy, otherwise note in an 'Open Questions' section.\nWrite exactly ONE file to docs/tasks/<NN>-<slug>.md where NN is the next available task number.\nThis is the ONLY file the entire business pipeline writes to docs/.\nAfter writing the final task, clean up: delete .pi/tmp/business/ directory.\nThe task must be fully self-contained — a developer must be able to implement it without reading any other document.",
+            "enabledTools": ["read", "bash", "write"],
+            "dependsOn": ["brd-grooming", "integrator"]
           }
         ]
       },
