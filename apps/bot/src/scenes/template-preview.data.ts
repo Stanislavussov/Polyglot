@@ -31,7 +31,7 @@ export const MOCK_PREVIEW_OUTPUT: TranslateOutput = {
           synonyms: [{ text: "плод", register: "literary" }],
         },
       ],
-      connotationWarning: undefined,
+      connotationWarning: "In slang, can mean a tech company",
     },
   },
 };
