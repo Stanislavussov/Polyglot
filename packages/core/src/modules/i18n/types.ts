@@ -82,7 +82,12 @@ export type I18nKey =
   | "templateFieldEquivalentNote"
   | "templateFieldConnotationWarning"
   | "templatePreviewHeader"
-  | "templateSessionExpired";
+  | "templateSessionExpired"
+  | "cmdDescStart"
+  | "cmdDescTranslate"
+  | "cmdDescDictionary"
+  | "cmdDescTemplate"
+  | "cmdDescSettings";
 
 /**
  * Supported interface languages.

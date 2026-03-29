@@ -3,6 +3,7 @@ import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
 import { initLanguageRegistry, setLogger } from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
 import { Bot, session } from "grammy";
+import { setBotCommands } from "./commands/commands.js";
 import { startCommand } from "./commands/start.js";
 import { authMiddleware } from "./middlewares/auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
@@ -87,17 +88,8 @@ bot.callbackQuery("tpl:back", handleBackCallback);
 // Must be after commands so commands take priority
 bot.use(modeRouterMiddleware);
 
-// ── Set bot commands list ──
-async function setBotCommands(): Promise<void> {
-  await bot.api.setMyCommands([
-    { command: "start", description: "Onboarding or main menu" },
-    { command: "translate", description: "Translate a word or phrase" },
-    { command: "dictionary", description: "Personal dictionary" },
-    { command: "template", description: "Customize translation output" },
-    { command: "settings", description: "Language, notifications, timezone" },
-  ]);
-  logger.info("Bot commands list set");
-}
+// ── Set bot commands list (localized per-language + default fallback) ──
+// Extracted to apps/bot/src/commands/commands.ts
 
 // ── Graceful shutdown ──
 function setupGracefulShutdown(): void {
@@ -138,7 +130,7 @@ async function main(): Promise<void> {
   initLanguageRegistry(allLangs);
   logger.info({ count: allLangs.length }, "Language registry loaded from DB");
 
-  await setBotCommands();
+  await setBotCommands(bot.api);
 
   logger.info("Starting bot in long-polling mode...");
   bot.start({

@@ -406,6 +406,51 @@ describe("i18n — t()", () => {
     expect(t("templateFieldTranscription", "de")).toBe("Transcription [IPA]");
     expect(t("templateSessionExpired", "de")).toContain("Session expired");
   });
+
+  // Bot command description keys (task 35)
+  it("returns cmdDescStart in English", () => {
+    expect(t("cmdDescStart", "en")).toBe("Start the bot / restart onboarding");
+  });
+
+  it("returns cmdDescTranslate in English", () => {
+    expect(t("cmdDescTranslate", "en")).toBe("Translate a word or phrase");
+  });
+
+  it("returns cmdDescDictionary in English", () => {
+    expect(t("cmdDescDictionary", "en")).toBe("Open your personal dictionary");
+  });
+
+  it("returns cmdDescTemplate in English", () => {
+    expect(t("cmdDescTemplate", "en")).toBe("Customize translation template");
+  });
+
+  it("returns cmdDescSettings in English", () => {
+    expect(t("cmdDescSettings", "en")).toBe("Language & notification settings");
+  });
+
+  it("returns command description keys in Russian", () => {
+    expect(t("cmdDescStart", "ru")).toBe("Запустить бота / перезапустить онбординг");
+    expect(t("cmdDescTranslate", "ru")).toBe("Перевести слово или фразу");
+    expect(t("cmdDescDictionary", "ru")).toBe("Открыть личный словарь");
+    expect(t("cmdDescTemplate", "ru")).toBe("Настроить шаблон перевода");
+    expect(t("cmdDescSettings", "ru")).toBe("Настройки языков и уведомлений");
+  });
+
+  it("returns command description keys in Czech", () => {
+    expect(t("cmdDescStart", "cs")).toBe("Spustit bota / restartovat onboarding");
+    expect(t("cmdDescTranslate", "cs")).toBe("Přeložit slovo nebo frázi");
+    expect(t("cmdDescDictionary", "cs")).toBe("Otevřít osobní slovník");
+    expect(t("cmdDescTemplate", "cs")).toBe("Přizpůsobit šablonu překladu");
+    expect(t("cmdDescSettings", "cs")).toBe("Nastavení jazyků a notifikací");
+  });
+
+  it("falls back to English for command description keys when locale has no file", () => {
+    expect(t("cmdDescStart", "de")).toBe("Start the bot / restart onboarding");
+    expect(t("cmdDescTranslate", "de")).toBe("Translate a word or phrase");
+    expect(t("cmdDescDictionary", "de")).toBe("Open your personal dictionary");
+    expect(t("cmdDescTemplate", "de")).toBe("Customize translation template");
+    expect(t("cmdDescSettings", "de")).toBe("Language & notification settings");
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -542,6 +587,11 @@ describe("i18n — locale consistency", () => {
       "templateFieldConnotationWarning",
       "templatePreviewHeader",
       "templateSessionExpired",
+      "cmdDescStart",
+      "cmdDescTranslate",
+      "cmdDescDictionary",
+      "cmdDescTemplate",
+      "cmdDescSettings",
     ];
 
     for (const key of enKeys) {

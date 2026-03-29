@@ -78,5 +78,10 @@
   "templateFieldEquivalentNote": "Тип выражения",
   "templateFieldConnotationWarning": "Предупреждения о коннотации",
   "templatePreviewHeader": "📋 Предпросмотр с вашим шаблоном:",
-  "templateSessionExpired": "Сессия истекла. Используйте /template для перезапуска."
+  "templateSessionExpired": "Сессия истекла. Используйте /template для перезапуска.",
+  "cmdDescStart": "Запустить бота / перезапустить онбординг",
+  "cmdDescTranslate": "Перевести слово или фразу",
+  "cmdDescDictionary": "Открыть личный словарь",
+  "cmdDescTemplate": "Настроить шаблон перевода",
+  "cmdDescSettings": "Настройки языков и уведомлений"
 }

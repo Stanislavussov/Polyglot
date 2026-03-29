@@ -78,5 +78,10 @@
   "templateFieldEquivalentNote": "Expression type notes",
   "templateFieldConnotationWarning": "Connotation warnings",
   "templatePreviewHeader": "📋 Preview with your template:",
-  "templateSessionExpired": "Session expired. Use /template to restart."
+  "templateSessionExpired": "Session expired. Use /template to restart.",
+  "cmdDescStart": "Start the bot / restart onboarding",
+  "cmdDescTranslate": "Translate a word or phrase",
+  "cmdDescDictionary": "Open your personal dictionary",
+  "cmdDescTemplate": "Customize translation template",
+  "cmdDescSettings": "Language & notification settings"
 }

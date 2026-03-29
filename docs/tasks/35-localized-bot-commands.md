@@ -21,13 +21,13 @@ Telegram Bot API `setMyCommands` accepts an optional `language_code` (IETF) + `s
 
 ## Acceptance Criteria
 
-- [ ] **i18n keys added** — New keys `cmdDescStart`, `cmdDescTranslate`, `cmdDescDictionary`, `cmdDescTemplate`, `cmdDescSettings` added to `I18nKey` type and all 3 locale files (`en.json`, `ru.json`, `cs.json`)
-- [ ] **Startup: per-language commands** — `setBotCommands()` iterates over all locales that have a file (en, ru, cs) and calls `bot.api.setMyCommands(commands, { language_code })` for each. Default (no `language_code`) set to English as fallback for unsupported locales.
-- [ ] **Per-user: after onboarding** — After onboarding completes and `interfaceLang` is determined, call `bot.api.setMyCommands(commands, { scope: { type: "chat", chat_id }, language_code })` for the user with their chosen interface language.
-- [ ] **Per-user: on language change** — When user changes interface language in settings, update their personal commands via the same `BotCommandScopeChat` mechanism.
-- [ ] **Helper function** — Extract a reusable `getLocalizedCommands(lang: SupportedLang): BotCommand[]` that returns the 5 commands with descriptions from i18n.
-- [ ] **Error resilience** — `setMyCommands` failures (network, rate-limit) are logged but do not crash the bot or block startup.
-- [ ] **Tests** — Unit test for `getLocalizedCommands()` verifying correct i18n resolution for en/ru/cs. Integration test (or existing test update) verifying `setMyCommands` is called with correct scope/language_code parameters.
+- [x] **i18n keys added** — New keys `cmdDescStart`, `cmdDescTranslate`, `cmdDescDictionary`, `cmdDescTemplate`, `cmdDescSettings` added to `I18nKey` type and all 3 locale files (`en.json`, `ru.json`, `cs.json`)
+- [x] **Startup: per-language commands** — `setBotCommands()` iterates over all locales that have a file (en, ru, cs) and calls `bot.api.setMyCommands(commands, { language_code })` for each. Default (no `language_code`) set to English as fallback for unsupported locales.
+- [x] **Per-user: after onboarding** — After onboarding completes and `interfaceLang` is determined, call `bot.api.setMyCommands(commands, { scope: { type: "chat", chat_id }, language_code })` for the user with their chosen interface language.
+- [ ] **Per-user: on language change** — When user changes interface language in settings, update their personal commands via the same `BotCommandScopeChat` mechanism. _(TODO: wire up when settings scene is built — `setUserCommands()` helper is ready)_
+- [x] **Helper function** — Extract a reusable `getLocalizedCommands(lang: SupportedLang): BotCommand[]` that returns the 5 commands with descriptions from i18n.
+- [x] **Error resilience** — `setMyCommands` failures (network, rate-limit) are logged but do not crash the bot or block startup.
+- [x] **Tests** — Unit test for `getLocalizedCommands()` verifying correct i18n resolution for en/ru/cs. Integration test (or existing test update) verifying `setMyCommands` is called with correct scope/language_code parameters.
 
 ## Dependencies
 

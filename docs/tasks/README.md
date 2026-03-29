@@ -9,11 +9,11 @@
 | 11  | [Input Message Limits & Validation Config](./11-input-limits-config.md) | 🔲 To Do  |
 | 14  | [Refactor Language Usage to `languages` Table](./14-language-table-refactor.md) | 🔲 To Do  |
 | 18  | [Language Buttons Native Display](./18-language-buttons-native-display.md) | 🔲 To Do  |
-| 22  | [Dependency Cruiser](./22-dependency-cruiser.md) | 🔲 To Do  |
 | 24  | [Token Usage Tracking](./24-token-usage-tracking.md) | 🔲 To Do  |
 | 26  | [Diacritics-Aware Translation](./26-diacritics-aware-translation.md) | 🔲 To Do  |
-| 27  | [Input Type Detection & Text Limits](./27-input-type-detection-and-text-limits.md) | 🟡 In Progress |
 | 29  | [Require Source Language Before Translation](./29-require-source-lang-before-translate.md) | 🔲 To Do  |
+| 33  | [Config-Driven Dictionary Word Pipeline + Flash Cards](./33-dictionary-word-pipeline-and-flashcards.md) | 🔲 To Do  |
+| 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 In Progress |
 
 ## Finished
 
@@ -41,3 +41,5 @@
 | 28  | [Validation Respects Output Config](./finished/28-validation-respects-output-config.md) |
 | 31  | [Redesign Translation Card](./finished/31-redesign-translation-card.md) |
 | 32  | [User Translation Template](./finished/32-user-translation-template.md) |
+| 22  | [Dependency Cruiser](./finished/22-dependency-cruiser.md) |
+| 27  | [Input Type Detection & Text Limits](./finished/27-input-type-detection-and-text-limits.md) |

@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && cp -r src/modules/i18n/locales dist/modules/i18n/locales",
+    "build": "tsc && rm -rf dist/modules/i18n/locales && cp -r src/modules/i18n/locales dist/modules/i18n/locales",
     "dev": "tsc --watch"
   },
   "dependencies": {

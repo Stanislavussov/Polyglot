@@ -37,6 +37,17 @@ Still needed:
 - `scenes/dictionary.scene.ts` — dictionary browsing
 - `scenes/settings.scene.ts` — user settings
 
+### Localized Bot Command Descriptions (Task 35)
+
+The bot's `/` command menu now shows descriptions in the user's language:
+
+1. **At startup** — `setBotCommands(api)` calls `setMyCommands` for each locale with a file (en, ru, cs) using the `language_code` parameter, plus a default English fallback for unsupported locales.
+2. **Per-user override** — `setUserCommands(api, chatId, lang)` calls `setMyCommands` with `BotCommandScopeChat` to override the command menu for a specific user. Called after onboarding completes.
+3. **On language change** — When settings scene is implemented, `setUserCommands()` should be called after the user changes their interface language.
+4. **Error resilience** — All `setMyCommands` calls are wrapped in try/catch; failures are logged but never crash the bot or block startup.
+
+**Helper:** `getLocalizedCommands(lang)` returns the 5 commands with descriptions from i18n keys (`cmdDescStart`, `cmdDescTranslate`, `cmdDescDictionary`, `cmdDescTemplate`, `cmdDescSettings`).
+
 ### Always-On Translation (Task 19)
 
 Translation is always active for onboarded users. Multiple layers ensure no text message is silently dropped:
@@ -193,6 +204,17 @@ Users can customize which fields appear in their translation output via `/templa
 ## Skills (Public API / Key Functions)
 
 ```typescript
+// Get 5 bot commands with localized descriptions (Task 35)
+function getLocalizedCommands(lang: SupportedLang): BotCommand[];
+
+// Set bot commands for all available locales at startup (Task 35)
+// Sets default English fallback + per-locale commands for en, ru, cs
+async function setBotCommands(api: Api<RawApi>): Promise<void>;
+
+// Set commands for a specific user chat using BotCommandScopeChat (Task 35)
+// Called after onboarding or when user changes interface language
+async function setUserCommands(api: Api<RawApi>, chatId: number, lang: SupportedLang): Promise<void>;
+
 // Render a full translation card for Telegram (HTML)
 // Dictionary context (if present) is NOT rendered — used only for AI prompt enrichment
 // Optional templateFields controls which sections are rendered (Task 32)
@@ -424,6 +446,8 @@ apps/bot/src/
 │   ├── auth.test.ts            # 7 tests (user resolution, activeMode hydration, fallback)
 │   └── mode-router.ts          # ✅ Routes plain text to active mode handler (idle→translate fallback, DB persist)
 ├── commands/
+│   ├── commands.ts             # ✅ getLocalizedCommands(), setBotCommands(), setUserCommands() (Task 35)
+│   ├── commands.test.ts        # 10 tests (localized commands, startup locale iteration, per-user scope, error resilience)
 │   ├── start.ts                # /start command (restores translate mode, persists to DB)
 │   └── start.test.ts           # 4 tests (activeMode restore, DB persistence, onboarding entry, no user)
 ├── utils/

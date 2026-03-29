@@ -3,6 +3,7 @@ import { getLangDisplay, getSupportedLangs, userRepository } from "@polyglot/ada
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import { logger } from "@polyglot/infra";
 import { InlineKeyboard } from "grammy";
+import { setUserCommands } from "../commands/commands.js";
 import { MAX_LEARNING_LANGS } from "../constants.js";
 import type { BotContext, ConversationContext } from "../types.js";
 
@@ -101,6 +102,11 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
   // Activate translate mode and persist to DB so it survives restarts
   ctx.session.activeMode = "translate";
   await conversation.external(() => userRepository.updateActiveMode(userId, "translate"));
+
+  // Set user-specific bot commands in their chosen interface language
+  const chatId = ctx.from!.id;
+  await conversation.external(() => setUserCommands(ctx.api, chatId, interfaceLang));
+
   logger.info({ userId }, "User completed onboarding");
 }
 

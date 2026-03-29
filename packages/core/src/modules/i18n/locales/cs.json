@@ -78,5 +78,10 @@
   "templateFieldEquivalentNote": "Typ výrazu",
   "templateFieldConnotationWarning": "Upozornění na konotaci",
   "templatePreviewHeader": "📋 Náhled s vaší šablonou:",
-  "templateSessionExpired": "Relace vypršela. Použijte /template pro restart."
+  "templateSessionExpired": "Relace vypršela. Použijte /template pro restart.",
+  "cmdDescStart": "Spustit bota / restartovat onboarding",
+  "cmdDescTranslate": "Přeložit slovo nebo frázi",
+  "cmdDescDictionary": "Otevřít osobní slovník",
+  "cmdDescTemplate": "Přizpůsobit šablonu překladu",
+  "cmdDescSettings": "Nastavení jazyků a notifikací"
 }
