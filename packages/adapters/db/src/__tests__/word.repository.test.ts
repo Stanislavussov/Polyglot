@@ -330,4 +330,85 @@ describe("wordRepository", () => {
       expect(lastUpdateSet).toHaveProperty("updatedAt");
     });
   });
+
+  describe("connotationWarning support", () => {
+    it("stores content with connotationWarning field", async () => {
+      const content: StoredWordContent = {
+        emoji: "⚡",
+        register: "neutral",
+        translations: {
+          en: {
+            text: "to excite",
+            cefr: "B1",
+            register: "neutral",
+            synonyms: [],
+            examples: [],
+            connotationWarning: "to arouse — sexual connotation",
+          },
+        },
+      };
+      const word = makeWord({ content });
+      mockRows.push(word);
+
+      const result = await wordRepository.create(42, {
+        original: "возбуждать",
+        sourceLangId: 1,
+        inputType: "word",
+        content,
+      });
+
+      expect(result.content).toEqual(content);
+      expect((result.content as StoredWordContent).translations.en.connotationWarning).toBe(
+        "to arouse — sexual connotation",
+      );
+    });
+
+    it("stores content without connotationWarning (optional)", async () => {
+      const content = makeStoredContent();
+      const word = makeWord({ content });
+      mockRows.push(word);
+
+      const result = await wordRepository.create(42, {
+        original: "hello",
+        sourceLangId: 5,
+        inputType: "word",
+        content,
+      });
+
+      expect((result.content as StoredWordContent).translations.cs.connotationWarning).toBeUndefined();
+    });
+
+    it("updates content with connotationWarning via updateContent", async () => {
+      const mergedContent: StoredWordContent = {
+        emoji: "⚡",
+        register: "neutral",
+        translations: {
+          en: {
+            text: "to excite",
+            cefr: "B1",
+            register: "neutral",
+            synonyms: [],
+            examples: [],
+            connotationWarning: "to arouse — sexual connotation",
+          },
+          cs: {
+            text: "vzrušit",
+            cefr: "B2",
+            register: "neutral",
+            synonyms: [],
+            examples: [],
+          },
+        },
+      };
+      const updatedWord = makeWord({ content: mergedContent });
+      updateReturningFn.mockResolvedValueOnce([updatedWord]);
+
+      const result = await wordRepository.updateContent(1, mergedContent);
+
+      expect((result.content as StoredWordContent).translations.en.connotationWarning).toBe(
+        "to arouse — sexual connotation",
+      );
+      expect((result.content as StoredWordContent).translations.cs.connotationWarning).toBeUndefined();
+    });
+  });
 });

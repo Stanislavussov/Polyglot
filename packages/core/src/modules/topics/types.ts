@@ -45,13 +45,15 @@ export interface LanguageTranslationEntry {
   transcription?: string;
   register: string;
   synonyms: Array<{ text: string; register: string }>;
-  examples: Array<{ context: string; target: string; native: string }>;
+  examples: Array<{ context: string; target: string; register: string }>;
   /** Signals whether the translation is literal or an idiomatic equivalent */
   expressionType?: TopicExpressionType;
   /** Short note in the source language explaining why an equivalent was chosen */
   equivalentNote?: string;
   /** Up to 2 alternative translation variants, each with its own register and synonyms */
   alternatives?: TopicTranslationVariant[];
+  /** Optional warning about dangerous or misleading connotations */
+  connotationWarning?: string;
 }
 
 /**

@@ -28,6 +28,8 @@ export interface StoredLanguageTranslation {
   alternatives?: TranslationVariant[];
   expressionType?: ExpressionType;
   equivalentNote?: string;
+  /** Optional connotation warning for dangerous/misleading meanings (Task 31). */
+  connotationWarning?: string;
 }
 
 /** JSONB content for words.content — emoji + register + per-language translations. */

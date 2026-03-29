@@ -24,9 +24,9 @@ function validLangEntry(overrides?: Record<string, unknown>) {
     register: "colloquial",
     synonyms: [{ text: "čau", register: "slang" }],
     examples: [
-      { context: "formal", target: "Ahoj, jak se máš?", native: "Hello, how are you?" },
-      { context: "colloquial", target: "Čau, co je?", native: "Hey, what's up?" },
-      { context: "professional", target: "Dobrý den, vítejte.", native: "Good day, welcome." },
+      { context: "neutral", target: "Ahoj, jak se máš?", register: "нейтральный" },
+      { context: "colloquial", target: "Čau, co je?", register: "разговорный" },
+      { context: "professional", target: "Dobrý den, vítejte.", register: "профессиональный" },
     ],
     ...overrides,
   };
@@ -35,15 +35,16 @@ function validLangEntry(overrides?: Record<string, unknown>) {
 // ─── Preset Tests ─────────────────────────────────────────
 
 describe("presets", () => {
-  it("FULL_OUTPUT has all fields set to true except includeExamples, includeCefr, includeRegister", () => {
+  it("FULL_OUTPUT has examples and connotation warnings enabled", () => {
     expect(FULL_OUTPUT).toEqual({
-      includeExamples: false,
+      includeExamples: true,
       includeTranscription: true,
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
       includeCefr: false,
       includeRegister: false,
+      includeConnotationWarning: true,
     });
   });
 
@@ -56,6 +57,7 @@ describe("presets", () => {
       includeEquivalentNote: false,
       includeCefr: false,
       includeRegister: false,
+      includeConnotationWarning: false,
     });
   });
 
@@ -68,6 +70,7 @@ describe("presets", () => {
       includeEquivalentNote: false,
       includeCefr: false,
       includeRegister: false,
+      includeConnotationWarning: false,
     });
   });
 
@@ -80,6 +83,7 @@ describe("presets", () => {
       includeEquivalentNote: false,
       includeCefr: false,
       includeRegister: false,
+      includeConnotationWarning: false,
     });
   });
 });
@@ -151,7 +155,7 @@ describe("buildTranslationPrompt with outputConfig", () => {
     expect(withUndefined).toBe(withoutConfig);
   });
 
-  it("MINIMAL_OUTPUT preset → prompt has text, transcription but not cefr/register/examples/synonyms/alternatives/expressionType", () => {
+  it("MINIMAL_OUTPUT preset → prompt has text, transcription but not cefr/register/examples/synonyms/alternatives/expressionType/connotationWarning", () => {
     const prompt = promptWith(MINIMAL_OUTPUT);
     expect(prompt).toContain('"text"');
     expect(prompt).toContain('"transcription"');
@@ -161,6 +165,31 @@ describe("buildTranslationPrompt with outputConfig", () => {
     expect(prompt).not.toContain('"synonyms"');
     expect(prompt).not.toContain('"alternatives"');
     expect(prompt).not.toContain('"expressionType"');
+    expect(prompt).not.toContain('"connotationWarning"');
+  });
+
+  it("FULL_OUTPUT preset → prompt includes examples, connotationWarning, and all enabled sections", () => {
+    const prompt = promptWith(FULL_OUTPUT);
+    expect(prompt).toContain('"text"');
+    expect(prompt).toContain('"transcription"');
+    expect(prompt).toContain('"synonyms"');
+    expect(prompt).toContain('"alternatives"');
+    expect(prompt).toContain('"examples"');
+    expect(prompt).toContain('"connotationWarning"');
+    expect(prompt).toContain("VARIETY IN EXAMPLES IS MANDATORY");
+    expect(prompt).toContain("dangerous or misleading connotations");
+  });
+
+  it("includeConnotationWarning: false → prompt has no 'connotationWarning' field", () => {
+    const prompt = promptWith({ includeConnotationWarning: false });
+    expect(prompt).not.toContain('"connotationWarning"');
+    expect(prompt).not.toContain("dangerous or misleading connotations");
+  });
+
+  it("includeConnotationWarning: true → prompt has 'connotationWarning' field and warning rule", () => {
+    const prompt = promptWith({ includeConnotationWarning: true });
+    expect(prompt).toContain('"connotationWarning"');
+    expect(prompt).toContain("Warn about dangerous or misleading connotations ONLY if they exist");
   });
 });
 
@@ -177,6 +206,20 @@ describe("buildStrictPrompt with outputConfig", () => {
       "some error",
     ]);
     expect(prompt).not.toContain("idiomatic_equivalent");
+  });
+
+  it("includeConnotationWarning: false → strict prompt omits connotation warning check", () => {
+    const prompt = buildStrictPrompt({ ...baseRequest, outputConfig: { includeConnotationWarning: false } }, [
+      "some error",
+    ]);
+    expect(prompt).not.toContain("connotationWarning is present ONLY");
+  });
+
+  it("includeConnotationWarning: true → strict prompt includes connotation warning check", () => {
+    const prompt = buildStrictPrompt({ ...baseRequest, outputConfig: { includeConnotationWarning: true } }, [
+      "some error",
+    ]);
+    expect(prompt).toContain("connotationWarning is present ONLY for words with genuinely dangerous");
   });
 });
 
@@ -249,6 +292,14 @@ describe("buildLanguageTranslationSchema", () => {
     const schema = buildLanguageTranslationSchema({ includeSynonyms: false });
     const result = schema.safeParse(validLangEntry({ synonyms: [] }));
     expect(result.success).toBe(true);
+  });
+
+  it("connotationWarning is optional in schema (always)", () => {
+    const schema = buildLanguageTranslationSchema();
+    const resultWithWarning = schema.safeParse(validLangEntry({ connotationWarning: "to arouse — sexual connotation" }));
+    const resultWithout = schema.safeParse(validLangEntry());
+    expect(resultWithWarning.success).toBe(true);
+    expect(resultWithout.success).toBe(true);
   });
 });
 

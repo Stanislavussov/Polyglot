@@ -15,13 +15,14 @@ import type { TranslationOutputConfig } from "./types.js";
 
 /** All sections enabled — default for interactive translation & regeneration */
 export const FULL_OUTPUT: TranslationOutputConfig = {
-  includeExamples: false,
+  includeExamples: true,
   includeTranscription: true,
   includeSynonyms: true,
   includeAlternatives: true,
   includeEquivalentNote: true,
   includeCefr: false,
   includeRegister: false,
+  includeConnotationWarning: true,
 };
 
 /** Lightweight — for bulk topic translation, caching pipelines */
@@ -33,6 +34,7 @@ export const MINIMAL_OUTPUT: TranslationOutputConfig = {
   includeEquivalentNote: false,
   includeCefr: false,
   includeRegister: false,
+  includeConnotationWarning: false,
 };
 
 /** Notification word-of-the-day — compact but still useful */
@@ -44,6 +46,7 @@ export const NOTIFICATION_OUTPUT: TranslationOutputConfig = {
   includeEquivalentNote: false,
   includeCefr: false,
   includeRegister: false,
+  includeConnotationWarning: false,
 };
 
 /** Sentence translation — just translation text + transcription, no learning metadata */
@@ -55,4 +58,5 @@ export const SENTENCE_OUTPUT: TranslationOutputConfig = {
   includeEquivalentNote: false,
   includeCefr: false,
   includeRegister: false,
+  includeConnotationWarning: false,
 };

@@ -57,8 +57,12 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
 
   const header = lt.transcription ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]` : `<b>${esc(lt.text)}</b>`;
 
+  // Inline synonyms: (syn1, syn2) — text only, no register
+  const synInline =
+    lt.synonyms.length > 0 ? ` (${lt.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
+
   const flag = getLangFlag(code) ?? "🔤";
-  lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}`);
+  lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}${synInline}`);
 
   if (lt.alternatives && lt.alternatives.length > 0) {
     for (const alt of lt.alternatives) {
@@ -67,18 +71,18 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
     }
   }
 
-  if (lt.synonyms.length > 0) {
-    const synList = lt.synonyms.map((s) => `${esc(s.text)} (${esc(s.register)})`).join(", ");
-    lines.push(`${esc(t("synonyms", lang))}: ${synList}`);
+  // Examples: all 💬, register label inline, no native sentence
+  if (lt.examples.length > 0) {
+    for (const ex of lt.examples) {
+      // Guard for old data that may lack register field
+      const registerLabel = ex.register ? `  → ${esc(ex.register)}` : "";
+      lines.push(`💬 <i>${esc(ex.target)}</i>${registerLabel}`);
+    }
   }
 
-  if (lt.examples.length > 0) {
-    lines.push(`${esc(t("examples", lang))}:`);
-    for (const ex of lt.examples) {
-      const icon = ex.context === "formal" ? "📎" : ex.context === "professional" ? "💼" : "💬";
-      lines.push(`  ${icon} <i>${esc(ex.target)}</i>`);
-      lines.push(`  → ${esc(ex.native)}`);
-    }
+  // Connotation warning (optional)
+  if (lt.connotationWarning) {
+    lines.push(t("connotationWarning", lang, { warning: esc(lt.connotationWarning) }));
   }
 
   return lines.join("\n");
@@ -172,9 +176,8 @@ export function buildTranslationKeyboard(
   }
   kb.row();
 
-  // Row 2: save / skip — contextual save label
-  const saveKey = inputType === "phrase" ? "savePhrase" : "saveWord";
-  kb.text(t(saveKey, lang), "tr:save");
+  // Row 2: save / skip
+  kb.text(t("save", lang), "tr:save");
   kb.text(t("no", lang), "tr:skip");
 
   return kb;

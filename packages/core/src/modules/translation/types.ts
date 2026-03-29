@@ -35,7 +35,7 @@ export type Register = "slang" | "colloquial" | "neutral" | "literary" | "profes
 export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
 /** Example sentence context type */
-export type ExampleContext = "formal" | "colloquial" | "professional";
+export type ExampleContext = "neutral" | "colloquial" | "professional";
 
 /** A synonym with its register */
 export interface Synonym {
@@ -43,11 +43,11 @@ export interface Synonym {
   register: Register;
 }
 
-/** An example sentence with context, target language, and native translation */
+/** An example sentence with context, target language, and register label */
 export interface Example {
   context: ExampleContext;
   target: string;
-  native: string;
+  register: string;
 }
 
 /** A single translation variant with its own register and synonyms */
@@ -71,6 +71,8 @@ export interface LanguageTranslation {
   equivalentNote?: string;
   /** Up to 2 alternative translation variants, each with its own register and synonyms */
   alternatives?: TranslationVariant[];
+  /** Optional warning about dangerous or misleading connotations */
+  connotationWarning?: string;
 }
 
 // TranslationOutputConfig lives in shared/ so leaf modules (topics, etc.)

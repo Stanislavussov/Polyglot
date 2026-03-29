@@ -268,6 +268,7 @@ function stripDisabledFields(
       ...(config.includeEquivalentNote === false && { expressionType: undefined, equivalentNote: undefined }),
       ...(config.includeCefr === false && { cefr: "A1" as const }),
       ...(config.includeRegister === false && { register: "neutral" as const }),
+      ...(config.includeConnotationWarning === false && { connotationWarning: undefined }),
     };
   }
 

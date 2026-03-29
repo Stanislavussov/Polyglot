@@ -17,7 +17,7 @@ description: Internationalization of all bot texts. Provides typed t(key, lang, 
 
 ## Current State
 
-Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) in `language-registry.ts` for Wiktionary integration and bot UI. Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 91 tests passing (63 i18n + 17 language names + 11 language codes). Task 07 regeneration keys added. Task 09 translate mode keys added. Task 13 Wiktionary dictionary context keys (`wiktionaryDefinition`, `wiktionarySource`, `partOfSpeech`, `expressionDetected`, `dictionaryContext`) and language name registry added. `phraseDetected` and `idiomDetected` unified into `expressionDetected` with `{ expression: string }` params. Task 16 auto-detect input language key added: `detectedLang` with `{ lang: string }` params for displaying detected source language in translation cards. Task 17 post-translation source language selection keys added: `nextTranslationFrom` (header text) and `nextSourceSet` with `{ lang: string }` params for confirmation when user selects source language. Task 27 sentence translation label key added: `sentenceTranslation` (no params) for labeling compact sentence translation cards. Task 30 save-to-dictionary button labels added: `saveWord` (no params) and `savePhrase` (no params) for contextual Save button labels based on input type.
+Fully implemented. Functional API (`t`, `getSupportedLangs`, `isSupported`) in `i18n.ts` with interpolation support (`{param}` placeholders). Language name registry (`getLanguageName`, `getLanguageNativeName`, `getAllLanguageNames`, `isKnownLanguage`) in `language-registry.ts` for Wiktionary integration and bot UI. Legacy class-based `I18nService` in `i18n.service.ts` kept for backward compatibility. 3 locale files (en, ru, cs). 88 tests passing (67 i18n + 17 language names + 4 language codes). Task 07 regeneration keys added. Task 09 translate mode keys added. Task 13 Wiktionary dictionary context keys (`wiktionaryDefinition`, `wiktionarySource`, `partOfSpeech`, `expressionDetected`, `dictionaryContext`) and language name registry added. `phraseDetected` and `idiomDetected` unified into `expressionDetected` with `{ expression: string }` params. Task 16 auto-detect input language key added: `detectedLang` with `{ lang: string }` params for displaying detected source language in translation cards. Task 17 post-translation source language selection keys added: `nextTranslationFrom` (header text) and `nextSourceSet` with `{ lang: string }` params for confirmation when user selects source language. Task 27 sentence translation label key added: `sentenceTranslation` (no params) for labeling compact sentence translation cards. Task 30 save-to-dictionary button labels added: `saveWord` (no params) and `savePhrase` (no params) for contextual Save button labels based on input type. Task 31 connotation warning key added: `connotationWarning` with `{ warning: string }` params for rendering `⚠️` connotation warnings on translation cards.
 
 **BUG-01 fix applied:** Removed `chooseInterfaceLang` and `onboardingCompleteNoSave` keys (interface language step removed from onboarding, Save/Skip prompt removed from demo step). Updated `demoResult` to show result immediately without save prompt. Onboarding now 3 steps: native lang → learning langs → demo translation.
 
@@ -90,7 +90,8 @@ type I18nKey =
   | "detectedLang"
   | "nextTranslationFrom" | "nextSourceSet"
   | "sentenceTranslation"
-  | "saveWord" | "savePhrase";
+  | "saveWord" | "savePhrase"
+  | "connotationWarning";
 
 // Supported languages
 type SupportedLang = "en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl";
@@ -115,6 +116,7 @@ interface I18nParams {
   expressionDetected: { expression: string };
   detectedLang: { lang: string };
   nextSourceSet: { lang: string };
+  connotationWarning: { warning: string };
 }
 
 // Deprecated alias for SupportedLang
@@ -135,9 +137,9 @@ packages/core/src/modules/i18n/
 │   ├── ru.json
 │   └── cs.json
 └── __tests__/
-    ├── i18n.test.ts           # 51 tests (t(), getSupportedLangs, isSupported, locale consistency)
+    ├── i18n.test.ts           # 67 tests (t(), getSupportedLangs, isSupported, locale consistency)
     ├── language-names.test.ts # 17 tests (getLanguageName, getLanguageNativeName, getAllLanguageNames, isKnownLanguage)
-    └── language-codes.test.ts # 11 tests (resolveToIso3, normalizeToIso1, getIso1ToIso3Map, getIso3ToIso1Map)
+    └── language-codes.test.ts # 4 tests (resolveToIso3, normalizeToIso1, getIso1ToIso3Map, getIso3ToIso1Map)
 ```
 
 ## Reference

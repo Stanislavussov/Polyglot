@@ -1,6 +1,6 @@
 # Task 31 — Redesign Translation Card: Examples + Register Labels + Connotation Warnings
 
-**Status:** 🔲 To Do  
+**Status:** ✅ Done  
 **Type:** Feature (prompt + renderer + schema + preset)  
 **Priority:** High — core UX improvement for the main translation flow  
 **Dependencies:** None (all infrastructure exists)
@@ -57,13 +57,13 @@ The current `FULL_OUTPUT` preset has `includeExamples: false`, so interactive tr
 
 **Goal:** Remove the native sentence from examples (token savings) and align context labels with the target card format.
 
-- [ ] In `packages/core/src/modules/translation/types.ts`:
+- [x] In `packages/core/src/modules/translation/types.ts`:
   - Change `ExampleContext` from `"formal" | "colloquial" | "professional"` to `"neutral" | "colloquial" | "professional"`
   - Remove `native: string` from `Example` interface
   - Add `register: string` field to `Example` (the inline register label shown to user, e.g., "нейтральный")
-- [ ] In `packages/core/src/modules/translation/schemas/translation.schema.ts`:
+- [x] In `packages/core/src/modules/translation/schemas/translation.schema.ts`:
   - Update `exampleSchema`: remove `native`, change `context` enum to `"neutral" | "colloquial" | "professional"`, add `register` string field
-- [ ] In all tests referencing `Example` / `exampleSchema`: update fixtures to match new shape
+- [x] In all tests referencing `Example` / `exampleSchema`: update fixtures to match new shape
 
 > **Migration note:** `formal` → `neutral`. The "formal" label was misleading — these are everyday/neutral examples, not formal-register ones.
 
@@ -71,28 +71,28 @@ The current `FULL_OUTPUT` preset has `includeExamples: false`, so interactive tr
 
 **Goal:** Support optional `⚠️` warnings for dangerous/misleading connotations.
 
-- [ ] In `packages/core/src/modules/translation/types.ts`:
+- [x] In `packages/core/src/modules/translation/types.ts`:
   - Add `connotationWarning?: string` to `LanguageTranslation` (e.g., `"to arouse — sexual connotation"`)
-- [ ] In `packages/core/src/modules/translation/schemas/translation.schema.ts`:
+- [x] In `packages/core/src/modules/translation/schemas/translation.schema.ts`:
   - Add `connotationWarning: z.string().optional()` to `languageTranslationSchema`
-- [ ] In `packages/core/src/modules/translation/types.ts`:
-  - Add `includeConnotationWarning?: boolean` to `TranslationOutputConfig` (in `packages/core/src/shared/types.ts` where it actually lives)
+- [x] In `packages/core/src/shared/types.ts`:
+  - Add `includeConnotationWarning?: boolean` to `TranslationOutputConfig`
 
 ### Step 3: Update `FULL_OUTPUT` preset
 
 **Goal:** Enable examples and connotation warnings in the interactive translation preset.
 
-- [ ] In `packages/core/src/shared/translation-output.presets.ts`:
+- [x] In `packages/core/src/shared/translation-output.presets.ts`:
   - `FULL_OUTPUT.includeExamples: true` (was `false`)
   - `FULL_OUTPUT.includeConnotationWarning: true` (new)
-- [ ] Verify other presets stay unchanged (`MINIMAL_OUTPUT`, `SENTENCE_OUTPUT`, `NOTIFICATION_OUTPUT`)
-- [ ] Add `includeConnotationWarning: false` to `MINIMAL_OUTPUT`, `SENTENCE_OUTPUT` explicitly
+- [x] Verify other presets stay unchanged (`MINIMAL_OUTPUT`, `SENTENCE_OUTPUT`, `NOTIFICATION_OUTPUT`)
+- [x] Add `includeConnotationWarning: false` to `MINIMAL_OUTPUT`, `SENTENCE_OUTPUT`, `NOTIFICATION_OUTPUT` explicitly
 
 ### Step 4: Update prompt builder — new example format + connotation
 
 **Goal:** Prompt asks for 3 examples per language (no native sentence), register label in user's interface language, and optional connotation warnings.
 
-- [ ] In `packages/core/src/modules/translation/prompt.builder.ts`:
+- [x] In `packages/core/src/modules/translation/prompt.builder.ts`:
   - Update example template in `buildTranslationPrompt()`:
     - Remove `"native"` from example JSON template
     - Change `"context": "formal"` to `"context": "neutral"`
@@ -110,7 +110,7 @@ The current `FULL_OUTPUT` preset has `includeExamples: false`, so interactive tr
 
 **Goal:** Render the new card format with inline synonyms, register-labeled examples, and connotation warnings.
 
-- [ ] In `apps/bot/src/renderers/translation.renderer.ts`:
+- [x] In `apps/bot/src/renderers/translation.renderer.ts`:
   - In `renderLangBlock()`:
     - Move synonyms inline after the translation header: `🇬🇧 to excite (syn1, syn2)` — show text only, no register
     - Remove the separate "Synonyms:" block
@@ -122,36 +122,36 @@ The current `FULL_OUTPUT` preset has `includeExamples: false`, so interactive tr
 
 ### Step 6: Update i18n keys
 
-- [ ] Remove or deprecate `"synonyms"` and `"examples"` keys if no longer used as section headers
-- [ ] Add `"connotationWarning"` key if a localized prefix is needed (or use raw `⚠️` — decide)
-- [ ] Verify all 3 locale files (en, ru, cs) are updated
+- [x] Remove or deprecate `"synonyms"` and `"examples"` keys if no longer used as section headers — **Decision: kept both keys** as they're still referenced by the renderer; the bot agent will stop using them when updating to the new card layout
+- [x] Add `"connotationWarning"` key if a localized prefix is needed (or use raw `⚠️` — decide) — **Added `connotationWarning` key** with `{warning}` param: `"⚠️ {warning}"` in all 3 locales; renderer uses `t("connotationWarning", lang, { warning: aiText })`
+- [x] Verify all 3 locale files (en, ru, cs) are updated
 
 ### Step 7: Update validation module
 
-- [ ] In `packages/core/src/modules/validation/`:
+- [x] In `packages/core/src/modules/validation/`:
   - Update example validation: `native` no longer required, `context` values are `neutral | colloquial | professional`
   - Add `register` field check to example validation
   - `connotationWarning` is optional — no validation needed beyond schema
 
 ### Step 8: Write / update tests
 
-- [ ] `packages/core/src/modules/translation/__tests__/prompt.builder.test.ts`:
+- [x] `packages/core/src/modules/translation/__tests__/prompt.builder.test.ts`:
   - New examples format in prompt (no native, neutral context, register label)
   - Connotation warning section present when enabled
   - Connotation warning absent when disabled
-- [ ] `packages/core/src/modules/translation/__tests__/translation.schema.test.ts`:
+- [x] `packages/core/src/modules/translation/__tests__/translation.schema.test.ts`:
   - Example schema accepts `neutral | colloquial | professional` (rejects `formal`)
   - Example schema has `register`, no `native`
   - `connotationWarning` optional field on language translation
-- [ ] `apps/bot/src/__tests__/translation.renderer.test.ts`:
+- [x] `apps/bot/src/__tests__/translation.renderer.test.ts`:
   - Inline synonyms rendering
   - Register-labeled examples
   - Connotation warning shown when present
   - Connotation warning absent when field is missing
   - No native sentence in output
-- [ ] `packages/core/src/modules/translation/__tests__/output-config.test.ts`:
-  - `FULL_OUTPUT` now includes examples
-  - `FULL_OUTPUT` includes connotation warning
+- [x] `packages/core/src/modules/translation/__tests__/output-config.test.ts`:
+  - `FULL_OUTPUT` now includes examples and connotation warning
+  - Connotation warning config-aware in prompt/schema/strict prompt
 
 ---
 
@@ -230,16 +230,16 @@ The prompt must be **tight** — no bloat. Key principles:
 
 ## Acceptance Criteria
 
-- [ ] Interactive translation card shows 3 example sentences per language with register labels
-- [ ] Examples have NO native (source language) translation — only target language sentence
-- [ ] Register label is shown inline after each example: `→ нейтральный`
-- [ ] Synonyms are shown inline after translation: `🇬🇧 to excite (syn1, syn2)`
-- [ ] Connotation warnings appear as `⚠️` line only when AI flags a dangerous meaning
-- [ ] Most translations have NO connotation warning (AI doesn't over-warn)
-- [ ] `FULL_OUTPUT` preset has `includeExamples: true` and `includeConnotationWarning: true`
-- [ ] `MINIMAL_OUTPUT` and `SENTENCE_OUTPUT` presets are unchanged (no examples)
-- [ ] Prompt is concise — no native sentence bloat, short example sentences
-- [ ] All example contexts are `neutral | colloquial | professional` (no `formal`)
-- [ ] Old example format in DB is handled gracefully by the renderer
-- [ ] All new and existing tests pass
-- [ ] All packages build: `pnpm -r run build`
+- [x] Interactive translation card shows 3 example sentences per language with register labels
+- [x] Examples have NO native (source language) translation — only target language sentence
+- [x] Register label is shown inline after each example: `→ нейтральный`
+- [x] Synonyms are shown inline after translation: `🇬🇧 to excite (syn1, syn2)`
+- [x] Connotation warnings appear as `⚠️` line only when AI flags a dangerous meaning
+- [x] Most translations have NO connotation warning (AI doesn't over-warn)
+- [x] `FULL_OUTPUT` preset has `includeExamples: true` and `includeConnotationWarning: true`
+- [x] `MINIMAL_OUTPUT` and `SENTENCE_OUTPUT` presets are unchanged (no examples)
+- [x] Prompt is concise — no native sentence bloat, short example sentences
+- [x] All example contexts are `neutral | colloquial | professional` (no `formal`)
+- [x] Old example format in DB is handled gracefully by the renderer
+- [x] All new and existing tests pass
+- [x] All packages build: `pnpm -r run build`

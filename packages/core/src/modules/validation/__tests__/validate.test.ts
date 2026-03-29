@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { validate } from "../index.js";
 
-/** Minimal schema matching the BRD translation result structure */
+/** Minimal schema matching the BRD translation result structure (Task 31: updated examples) */
 const translationResultSchema = z.object({
   emoji: z.string(),
   register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
@@ -15,6 +15,7 @@ const translationResultSchema = z.object({
       register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
       expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
       equivalentNote: z.string().optional(),
+      connotationWarning: z.string().optional(),
       synonyms: z.array(
         z.object({
           text: z.string(),
@@ -23,9 +24,9 @@ const translationResultSchema = z.object({
       ),
       examples: z.array(
         z.object({
-          context: z.enum(["formal", "colloquial", "professional"]),
+          context: z.enum(["neutral", "colloquial", "professional"]),
           target: z.string(),
-          native: z.string(),
+          register: z.string(),
         }),
       ),
     }),
@@ -45,14 +46,14 @@ function makeValidResponse(original: string) {
         synonyms: [{ text: "nazdar", register: "colloquial" as const }],
         examples: [
           {
-            context: "formal" as const,
+            context: "neutral" as const,
             target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-            native: `He said ${original} to his colleague at the office meeting.`,
+            register: "нейтральный",
           },
           {
             context: "colloquial" as const,
             target: "Ahoj, jak se máš dneska odpoledne kamaráde?",
-            native: `${original}, how are you doing this afternoon?`,
+            register: "разговорный",
           },
         ],
       },
@@ -87,9 +88,9 @@ describe("validate (orchestrator)", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Hello there, how are you doing today?",
-              native: "Ahoj, jak se máš dneska?",
+              register: "нейтральный",
             },
           ],
         },
@@ -128,9 +129,9 @@ describe("validate (orchestrator)", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Completely unrelated sentence without the word",
-              native: "Zcela nesouvisející věta bez slova",
+              register: "нейтральный",
             },
           ],
         },
@@ -153,9 +154,9 @@ describe("validate (orchestrator)", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "N/A in this sentence",
-              native: "Some native text",
+              register: "нейтральный",
             },
           ],
         },
@@ -178,9 +179,9 @@ describe("validate (orchestrator)", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Hello sentence for testing here today",
-              native: "Testovací věta pro dnešek tady",
+              register: "нейтральный",
             },
           ],
         },
@@ -219,9 +220,9 @@ describe("validate — single-language (partial regeneration)", () => {
           synonyms: [{ text: "nazdar", register: "colloquial" as const }],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              native: "He said hello to his colleague at the office meeting.",
+              register: "нейтральный",
             },
           ],
         },
@@ -232,9 +233,9 @@ describe("validate — single-language (partial regeneration)", () => {
           synonyms: [{ text: "guten Tag", register: "neutral" as const }],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Er sagte hallo zu seinem Kollegen bei dem Treffen.",
-              native: "He said hello to his colleague at the meeting.",
+              register: "neutral",
             },
           ],
         },
@@ -258,9 +259,9 @@ describe("validate — single-language (partial regeneration)", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Er sagte hello zu seinem Kollegen im Büro heute.",
-              native: "He said hello to his colleague at the office today.",
+              register: "neutral",
             },
           ],
         },
@@ -285,9 +286,9 @@ describe("validate — single-language (partial regeneration)", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Une phrase en français pour tester la validation.",
-              native: "A sentence in French to test the validation.",
+              register: "neutre",
             },
           ],
         },
@@ -311,9 +312,9 @@ describe("validate — single-language (partial regeneration)", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              native: "He said hello to his colleague at the office meeting.",
+              register: "нейтральный",
             },
           ],
         },
@@ -341,9 +342,9 @@ describe("validate — single-language (partial regeneration)", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "", // empty target — examples validation error
-              native: "He said hello to his colleague.",
+              register: "нейтральный",
             },
           ],
         },
@@ -380,7 +381,7 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
             {
               context: "colloquial" as const,
               target: "Podařilo se mu dosáhnout obou cílů současně, vlk se nažral a koza zůstala celá.",
-              native: "He managed to achieve both goals at once, having his cake and eating it too.",
+              register: "разговорный",
             },
           ],
         },
@@ -405,9 +406,9 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Vstával brzy, a tak měl vždy náskok před ostatními.",
-              native: "He woke up early and always had a head start over others.",
+              register: "нейтральный",
             },
           ],
         },
@@ -442,7 +443,7 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
             {
               context: "colloquial" as const,
               target: "", // empty target — should still fail
-              native: "He had his cake and ate it too.",
+              register: "разговорный",
             },
           ],
         },
@@ -466,9 +467,9 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
           synonyms: [{ text: "nazdar", register: "colloquial" as const }],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              native: "He said hello to his colleague at the office meeting.",
+              register: "нейтральный",
             },
           ],
         },
@@ -499,9 +500,9 @@ describe("validate — alternatives semantic validation", () => {
           synonyms: [{ text: "nazdar", register: "colloquial" as const }],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              native: "He said hello to his colleague at the office meeting.",
+              register: "нейтральный",
             },
           ],
           alternatives: [
@@ -543,9 +544,9 @@ describe("validate — alternatives semantic validation", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              native: "He said hello to his colleague at the office meeting.",
+              register: "нейтральный",
             },
           ],
           alternatives: [],
@@ -569,9 +570,9 @@ describe("validate — alternatives semantic validation", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              native: "He said hello to his colleague at the office meeting.",
+              register: "нейтральный",
             },
           ],
           alternatives: [
@@ -607,9 +608,9 @@ describe("validate — alternatives semantic validation", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              native: "He said hello to his colleague at the office meeting.",
+              register: "нейтральный",
             },
           ],
           alternatives: [
@@ -640,9 +641,9 @@ describe("validate — alternatives semantic validation", () => {
           synonyms: [],
           examples: [
             {
-              context: "formal" as const,
+              context: "neutral" as const,
               target: "Er sagte hallo zu seinem Kollegen im Büro heute.",
-              native: "He said hello to his colleague at the office today.",
+              register: "neutral",
             },
           ],
           alternatives: [
@@ -888,7 +889,7 @@ describe("validate with ValidateOptions", () => {
         cefr: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
         register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
         synonyms: z.array(z.object({ text: z.string(), register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]) })),
-        examples: z.array(z.object({ context: z.string(), target: z.string(), native: z.string() })).default([]),
+        examples: z.array(z.object({ context: z.string(), target: z.string(), register: z.string() })).default([]),
         expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
         alternatives: z.array(z.object({ text: z.string(), register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]), synonyms: z.array(z.object({ text: z.string(), register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]) })) })).optional(),
       }),
@@ -950,7 +951,7 @@ describe("validate with ValidateOptions", () => {
           cefr: "B1" as const,
           register: "colloquial" as const,
           synonyms: [],
-          examples: [{ context: "colloquial", target: "What a beast!", native: "Ну и зверюга!" }],
+          examples: [{ context: "colloquial", target: "What a beast!", register: "colloquial" }],
           // alternatives with hallucinated text — should be ignored when disabled
           alternatives: [{ text: "зверюга", register: "neutral", synonyms: [] }],
         },
@@ -971,7 +972,7 @@ describe("validate with ValidateOptions", () => {
           cefr: "B1" as const,
           register: "colloquial" as const,
           synonyms: [],
-          examples: [{ context: "colloquial", target: "What a beast!", native: "Ну и зверюга!" }],
+          examples: [{ context: "colloquial", target: "What a beast!", register: "colloquial" }],
           alternatives: [{ text: "зверюга", register: "neutral", synonyms: [] }], // same as original — should fail
         },
       },

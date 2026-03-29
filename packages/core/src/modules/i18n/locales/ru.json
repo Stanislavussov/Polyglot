@@ -55,6 +55,6 @@
   "nextTranslationFrom": "Следующий перевод с:",
   "nextSourceSet": "🔤 Далее с: {lang}",
   "sentenceTranslation": "📝 Перевод предложения",
-  "saveWord": "💾 Сохранить слово",
-  "savePhrase": "💾 Сохранить фразу"
+  "save": "💾 Сохранить",
+  "connotationWarning": "⚠️ {warning}"
 }

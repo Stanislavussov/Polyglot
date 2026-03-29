@@ -23,9 +23,9 @@ describe("Schema — expressionType and equivalentNote", () => {
     synonyms: [{ text: "best of both worlds", register: "neutral" as const }],
     examples: [
       {
-        context: "formal" as const,
+        context: "neutral" as const,
         target: "You can't have your cake and eat it too.",
-        native: "Vlk se nažral a koza zůstala celá.",
+        register: "neutral",
       },
     ],
   };
@@ -147,21 +147,21 @@ describe("Schema — expressionType and equivalentNote", () => {
     }
   });
 
-  it("preserves backward compatibility — old data without new fields parses fine", () => {
-    const oldData = {
+  it("preserves backward compatibility — data without idiomatic fields parses fine", () => {
+    const data = {
       text: "ahoj",
       cefr: "A1",
       register: "colloquial",
       synonyms: [{ text: "čau", register: "slang" }],
       examples: [
         {
-          context: "formal",
+          context: "neutral",
           target: "Ahoj, jak se máš?",
-          native: "Hello, how are you?",
+          register: "нейтральный",
         },
       ],
     };
-    const result = languageTranslationSchema.safeParse(oldData);
+    const result = languageTranslationSchema.safeParse(data);
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.expressionType).toBe("literal");

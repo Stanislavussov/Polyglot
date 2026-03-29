@@ -22,6 +22,7 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
     includeEquivalentNote: config?.includeEquivalentNote !== false,
     includeCefr: config?.includeCefr !== false,
     includeRegister: config?.includeRegister !== false,
+    includeConnotationWarning: config?.includeConnotationWarning !== false,
   };
 }
 
@@ -88,7 +89,12 @@ ${targetLangs
     }
     if (cfg.includeExamples) {
       lines.push(
-        `      "examples": [\n        { "context": "formal", "target": "<formal example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" },\n        { "context": "colloquial", "target": "<casual example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" },\n        { "context": "professional", "target": "<professional example sentence in ${getLanguageName(lang)}>", "native": "<same sentence in ${sourceLangName}>" }\n      ]`,
+        `      "examples": [\n        { "context": "neutral", "target": "<neutral example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" },\n        { "context": "colloquial", "target": "<casual example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" },\n        { "context": "professional", "target": "<professional example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" }\n      ]`,
+      );
+    }
+    if (cfg.includeConnotationWarning) {
+      lines.push(
+        `      "connotationWarning": "<optional: warn about dangerous/misleading meanings, e.g. 'to arouse — sexual connotation'>"`,
       );
     }
     return `    "${lang}": {\n${lines.join(",\n")}\n    }`;
@@ -101,10 +107,11 @@ Rules:${
     cfg.includeExamples
       ? `
 - VARIETY IN EXAMPLES IS MANDATORY: Each of the 3 example sentences MUST use a DIFFERENT word or expression. Specifically:
-  * Example 1 (formal): use the main translation ("text" field).
+  * Example 1 (neutral): use the main translation ("text" field).
   * Example 2 (colloquial): use the first alternative translation or a synonym — NOT the main translation.
   * Example 3 (professional): use the second alternative translation or a different synonym — NOT the main translation and NOT the same as example 2.
-  This applies to BOTH the "target" AND "native" sentences. NEVER repeat the same word/phrase across all 3 examples.`
+  This applies to the "target" sentences. NEVER repeat the same word/phrase across all 3 examples.
+- The "register" field in each example is a ONE-WORD label in ${sourceLangName} describing the register of that example (e.g. neutral, colloquial, professional — in ${sourceLangName}).`
       : ""
   }${
     cfg.includeSynonyms
@@ -119,7 +126,12 @@ Rules:${
   }${
     cfg.includeExamples
       ? `
-- Provide exactly 3 example sentences per language (formal, colloquial, professional).`
+- Provide exactly 3 example sentences per language (neutral, colloquial, professional). Keep each sentence SHORT — one sentence only.`
+      : ""
+  }${
+    cfg.includeConnotationWarning
+      ? `
+- Warn about dangerous or misleading connotations ONLY if they exist. Most words should NOT have a warning. Omit the "connotationWarning" field entirely if the word has no dangerous connotations.`
       : ""
   }
 ${cfg.includeCefr ? `
@@ -162,7 +174,10 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   const checkItems: string[] = [];
   if (cfg.includeExamples) {
     checkItems.push(
-      "- Each of the 3 examples uses a DIFFERENT word: example 1 uses the main translation, example 2 uses an alternative/synonym, example 3 uses another alternative/synonym — in both target and native sentences",
+      "- Each of the 3 examples uses a DIFFERENT word: example 1 uses the main translation, example 2 uses an alternative/synonym, example 3 uses another alternative/synonym — in target sentences",
+    );
+    checkItems.push(
+      "- Each example has a one-word register label in the source language",
     );
   }
   checkItems.push("- Translations are actual translations, not the original word repeated");
@@ -175,6 +190,9 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   }
   if (cfg.includeEquivalentNote) {
     checkItems.push(`- For idiomatic expressions, set expressionType to "idiomatic_equivalent" with an equivalentNote`);
+  }
+  if (cfg.includeConnotationWarning) {
+    checkItems.push("- connotationWarning is present ONLY for words with genuinely dangerous/misleading meanings — omit for most words");
   }
 
   return `${base}

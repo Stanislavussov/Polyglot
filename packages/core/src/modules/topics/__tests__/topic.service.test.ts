@@ -18,9 +18,9 @@ function makeTranslateOutput(original: string, targetLangs: string[]): Translate
       synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
       examples: [
         {
-          context: "formal",
+          context: "neutral",
           target: `Example of ${original} in ${lang}.`,
-          native: `Example of ${original} in native.`,
+          register: "neutral",
         },
       ],
     };
@@ -53,9 +53,9 @@ function makeCachedTranslation(
       synonyms: [],
       examples: [
         {
-          context: "formal",
+          context: "neutral",
           target: `Cached ${original} in ${targetLang}.`,
-          native: `Cached ${original} in native.`,
+          register: "neutral",
         },
       ],
     },
@@ -557,9 +557,9 @@ describe("createTopicService", () => {
       synonyms: [{ text: "jablíčko", register: "colloquial" }],
       examples: [
         {
-          context: "formal",
+          context: "neutral",
           target: "Podej mi jablko.",
-          native: "Give me an apple.",
+          register: "neutrální",
         },
       ],
     };

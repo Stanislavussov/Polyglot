@@ -59,6 +59,7 @@ describe("MINIMAL_OUTPUT preset used by topics", () => {
       includeEquivalentNote: false,
       includeCefr: false,
       includeRegister: false,
+      includeConnotationWarning: false,
     });
   });
 });

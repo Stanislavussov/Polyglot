@@ -14,7 +14,7 @@ const registerEnum = z.enum(["slang", "colloquial", "neutral", "literary", "prof
 const cefrEnum = z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]);
 
 /** Valid example context types */
-const exampleContextEnum = z.enum(["formal", "colloquial", "professional"]);
+const exampleContextEnum = z.enum(["neutral", "colloquial", "professional"]);
 
 /** Valid expression type values */
 const expressionTypeEnum = z.enum(["literal", "idiomatic_equivalent"]);
@@ -29,7 +29,7 @@ export const synonymSchema = z.object({
 export const exampleSchema = z.object({
   context: exampleContextEnum,
   target: z.string().min(1, "Example target sentence is required"),
-  native: z.string().min(1, "Example native sentence is required"),
+  register: z.string().min(1, "Example register label is required"),
 });
 
 /** Zod schema for a translation variant (alternative translation) */
@@ -50,6 +50,7 @@ export const languageTranslationSchema = z.object({
   expressionType: expressionTypeEnum.optional().default("literal"),
   equivalentNote: z.string().optional(),
   alternatives: z.array(translationVariantSchema).optional(),
+  connotationWarning: z.string().optional(),
 });
 
 /** Zod schema for validating a translation request */
@@ -111,6 +112,7 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig)
     expressionType: expressionTypeEnum.optional().default("literal"),
     equivalentNote: z.string().optional(),
     alternatives: z.array(translationVariantSchema).optional(),
+    connotationWarning: z.string().optional(),
   });
 }
 

@@ -55,6 +55,6 @@
   "nextTranslationFrom": "Next translation from:",
   "nextSourceSet": "🔤 Next from: {lang}",
   "sentenceTranslation": "📝 Sentence translation",
-  "saveWord": "💾 Save word",
-  "savePhrase": "💾 Save phrase"
+  "save": "💾 Save",
+  "connotationWarning": "⚠️ {warning}"
 }

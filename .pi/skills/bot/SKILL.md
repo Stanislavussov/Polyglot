@@ -350,18 +350,28 @@ The translation card and topic word card now display emoji flags from the DB lan
 
 ### Translation Alternatives (Task 15)
 
-When `LanguageTranslation.alternatives` is present and non-empty, `renderLangBlock()` renders each alternative after the main translation header and before the CEFR line:
+When `LanguageTranslation.alternatives` is present and non-empty, `renderLangBlock()` renders each alternative after the main translation header and before examples:
 ```
-🔤 CS: <b>dům</b>
+🇨🇿 CS: <b>dům</b> (domov, obydlí)
    ∙ domov (neutral) — bydliště (neutral)
    ∙ stavení (literary)
-CEFR: A1 · neutral
+💬 <i>Dům je velký.</i>  → neutrální
 ```
 Each alternative shows its text, register, and optional synonyms inline. The `alternatives` field is optional — existing translations without it render unchanged.
 
 ### Idiomatic Equivalent Support (Task 10)
 
 The renderer is **transparent** to idiomatic equivalent metadata. When upstream translation types include `expressionType` and `equivalentNote` fields (added in Task 10), the renderer continues to display the `text` field as before. These metadata fields are not rendered in the Telegram output — they flow through the data model without any bot-layer changes. Compatibility is verified by dedicated transparency tests.
+
+### Redesigned Translation Card (Task 31)
+
+The translation card was redesigned for better usability:
+
+- **Inline synonyms**: Synonyms are shown compactly after the translation header: `🇬🇧 EN: <b>to excite</b> (syn1, syn2)` — text only, no register in parenthetical. No separate "Synonyms:" section block.
+- **Register-labeled examples**: All examples use `💬` icon (no per-context icons). Each example shows the target sentence in italic with an inline register label: `💬 <i>sentence</i>  → register`. No native (source language) translation rendered — only target language.
+- **Connotation warnings**: Optional `⚠️` line rendered after examples when `LanguageTranslation.connotationWarning` is present. Uses i18n key `connotationWarning` with `{warning}` param.
+- **Backward compatibility**: Renderer gracefully handles old example format from DB — examples without `register` field render without the `→ label` suffix; `native` field is silently ignored.
+- **Card layout order**: flag + lang code + translation (+ inline synonyms) → alternatives → examples (💬 + register) → connotation warning (⚠️).
 
 ## File Structure
 
@@ -403,7 +413,7 @@ apps/bot/src/
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 11 tests (mode system tests, idle fallback, DB persistence)
-    ├── translation.renderer.test.ts        # 78 tests (includes 7 alternatives, 15 sentence renderer, 7 sentence keyboard, 5 post-save keyboard)
+    ├── translation.renderer.test.ts        # 97 tests (includes 7 alternatives, 5 connotation warnings, 2 backward compat, 4 inline synonyms, 15 sentence renderer, 7 sentence keyboard, 5 post-save keyboard)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
     └── onboarding.scene.test.ts            # 18 tests (3-step flow, back nav, interface lang inference, no Save/Skip)
 ```

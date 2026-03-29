@@ -59,8 +59,8 @@ export type I18nKey =
   | "nextTranslationFrom"
   | "nextSourceSet"
   | "sentenceTranslation"
-  | "saveWord"
-  | "savePhrase";
+  | "save"
+  | "connotationWarning";
 
 /**
  * Supported interface languages.
@@ -94,6 +94,7 @@ export interface I18nParams {
   expressionDetected: { expression: string };
   detectedLang: { lang: string };
   nextSourceSet: { lang: string };
+  connotationWarning: { warning: string };
 }
 
 /**

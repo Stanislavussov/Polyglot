@@ -1,6 +1,6 @@
 export type { InputType, ValidateInput, ValidateOptions, ValidationError, ValidationResult } from "./types.js";
-export type { ExampleInput, ExpressionType } from "./validators/example.validator.js";
-export { validateExamples } from "./validators/example.validator.js";
+export type { ExampleContext, ExampleInput, ExpressionType } from "./validators/example.validator.js";
+export { VALID_EXAMPLE_CONTEXTS, validateExamples } from "./validators/example.validator.js";
 export { validateLanguage } from "./validators/language.validator.js";
 export { validateSchema } from "./validators/schema.validator.js";
 export { validateSemantic } from "./validators/semantic.validator.js";
@@ -111,7 +111,7 @@ export function validate(raw: unknown, schema: ZodSchema, original: string, expe
     // Skipped when: inputType='sentence', or outputConfig disabled examples.
     // The entire pipeline (prompt → schema → validation) respects the config —
     // no point validating fields the AI was never asked to produce.
-    const examples = langData.examples as Array<{ context: string; target: string; native: string }> | undefined;
+    const examples = langData.examples as Array<{ context: string; target: string; register: string }> | undefined;
     const expressionType = langData.expressionType as ExpressionType | undefined;
     const skipExamples = isSentence || options?.includeExamples === false;
 

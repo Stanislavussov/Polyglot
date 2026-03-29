@@ -37,9 +37,9 @@ function makeTranslateOutputWithAlternatives(original: string, targetLangs: stri
       synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
       examples: [
         {
-          context: "formal",
+          context: "neutral",
           target: `Example of ${original} in ${lang}.`,
-          native: `Example of ${original} in native.`,
+          register: "neutral",
         },
       ],
       alternatives: [
@@ -75,9 +75,9 @@ function makeTranslateOutputWithoutAlternatives(original: string, targetLangs: s
       synonyms: [],
       examples: [
         {
-          context: "formal",
+          context: "neutral",
           target: `Example of ${original} in ${lang}.`,
-          native: `Example of ${original} in native.`,
+          register: "neutral",
         },
       ],
     };
@@ -110,9 +110,9 @@ function makeCachedTranslationWithAlternatives(
       synonyms: [],
       examples: [
         {
-          context: "formal",
+          context: "neutral",
           target: `Cached ${original} in ${targetLang}.`,
-          native: `Cached ${original} in native.`,
+          register: "neutral",
         },
       ],
       alternatives: [
@@ -292,9 +292,9 @@ describe("regenerateTopicWord with alternatives", () => {
     synonyms: [{ text: "jablíčko", register: "colloquial" }],
     examples: [
       {
-        context: "formal",
+        context: "neutral",
         target: "Podej mi jablko.",
-        native: "Give me an apple.",
+        register: "neutrální",
       },
     ],
     alternatives: [

@@ -46,9 +46,9 @@ const sampleOutput: TranslateOutput = {
         { text: "nazdar", register: "colloquial" },
       ],
       examples: [
-        { context: "formal", target: "Dobrý den, pane!", native: "Hello, sir!" },
-        { context: "colloquial", target: "Ahoj, jak se máš?", native: "Hello, how are you?" },
-        { context: "professional", target: "Dobrý den, kolegové.", native: "Hello, colleagues." },
+        { context: "neutral", target: "Dobrý den, pane!", register: "neutrální" },
+        { context: "colloquial", target: "Ahoj, jak se máš?", register: "hovorový" },
+        { context: "professional", target: "Dobrý den, kolegové.", register: "profesionální" },
       ],
     },
   },
@@ -85,18 +85,21 @@ describe("renderTranslation", () => {
     expect(result).not.toContain("CEFR:");
   });
 
-  it("renders synonyms", () => {
+  it("renders synonyms inline after translation header", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("Synonyms:");
-    expect(result).toContain("dobrý den (neutral)");
-    expect(result).toContain("nazdar (colloquial)");
+    // Synonyms are inline: text only, no register, no separate block
+    expect(result).not.toContain("Synonyms:");
+    expect(result).toContain("(dobrý den, nazdar)");
   });
 
-  it("renders examples with context icons", () => {
+  it("renders examples with 💬 icon and register labels", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("📎"); // formal
-    expect(result).toContain("💬"); // colloquial
-    expect(result).toContain("💼"); // professional
+    // All examples use 💬 icon, no per-context icons
+    expect(result).not.toContain("📎");
+    expect(result).not.toContain("💼");
+    expect(result).toContain("💬 <i>Dobrý den, pane!</i>  → neutrální");
+    expect(result).toContain("💬 <i>Ahoj, jak se máš?</i>  → hovorový");
+    expect(result).toContain("💬 <i>Dobrý den, kolegové.</i>  → profesionální");
   });
 
   it("renders example sentences in italic", () => {
@@ -104,9 +107,11 @@ describe("renderTranslation", () => {
     expect(result).toContain("<i>Dobrý den, pane!</i>");
   });
 
-  it("renders native translation after arrow", () => {
+  it("does NOT render native translation — only target language", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("→ Hello, sir!");
+    expect(result).not.toContain("Hello, sir!");
+    expect(result).not.toContain("Hello, how are you?");
+    expect(result).not.toContain("Hello, colleagues.");
   });
 
   it("does not show needsReview when false", () => {
@@ -123,14 +128,17 @@ describe("renderTranslation", () => {
   it("renders in Russian when interfaceLang is ru", () => {
     const result = renderTranslation(sampleOutput, "ru");
     expect(result).not.toContain("Регистр:");
-    expect(result).toContain("Синонимы:");
-    expect(result).toContain("Примеры:");
+    // Synonyms are inline, no section headers
+    expect(result).not.toContain("Синонимы:");
+    expect(result).not.toContain("Примеры:");
+    // Inline synonyms still present
+    expect(result).toContain("(dobrý den, nazdar)");
   });
 
   it("falls back to en for unknown interfaceLang", () => {
     const result = renderTranslation(sampleOutput, "xx");
-    // Register is no longer rendered, verify synonyms use English
-    expect(result).toContain("Synonyms:");
+    // Inline synonyms still work with fallback
+    expect(result).toContain("(dobrý den, nazdar)");
   });
 
   it("renders without transcription when absent", () => {
@@ -148,7 +156,7 @@ describe("renderTranslation", () => {
     expect(result).not.toContain("[");
   });
 
-  it("renders without synonyms when empty", () => {
+  it("renders without inline synonyms when empty", () => {
     const noSynonyms: TranslateOutput = {
       ...sampleOutput,
       translations: {
@@ -159,7 +167,9 @@ describe("renderTranslation", () => {
       },
     };
     const result = renderTranslation(noSynonyms, "en");
-    expect(result).not.toContain("Synonyms:");
+    // No parenthetical after translation
+    const csLine = result.split("\n").find((l) => l.includes("CS:"));
+    expect(csLine).not.toContain("(");
   });
 
   it("renders without examples when empty", () => {
@@ -173,7 +183,7 @@ describe("renderTranslation", () => {
       },
     };
     const result = renderTranslation(noExamples, "en");
-    expect(result).not.toContain("Examples:");
+    expect(result).not.toContain("💬");
   });
 
   it("escapes HTML special characters", () => {
@@ -348,16 +358,14 @@ describe("buildTranslationKeyboard", () => {
     expect(regenBtn.text).toBe("🔄 CS");
   });
 
-  it("uses saveWord label for word input type", () => {
-    const kb = buildTranslationKeyboard(["cs"], "word", "en");
-    const saveBtn = kb.inline_keyboard[1]![0]!;
-    expect(saveBtn.text).toContain("Save word");
-  });
-
-  it("uses savePhrase label for phrase input type", () => {
-    const kb = buildTranslationKeyboard(["cs"], "phrase", "en");
-    const saveBtn = kb.inline_keyboard[1]![0]!;
-    expect(saveBtn.text).toContain("Save phrase");
+  it("uses generic save label regardless of input type", () => {
+    const kbWord = buildTranslationKeyboard(["cs"], "word", "en");
+    const kbPhrase = buildTranslationKeyboard(["cs"], "phrase", "en");
+    const saveBtnWord = kbWord.inline_keyboard[1]![0]!;
+    const saveBtnPhrase = kbPhrase.inline_keyboard[1]![0]!;
+    expect(saveBtnWord.text).toContain("Save");
+    expect(saveBtnPhrase.text).toContain("Save");
+    expect(saveBtnWord.text).toBe(saveBtnPhrase.text);
   });
 
   it("uses i18n no key for skip button", () => {
@@ -377,7 +385,7 @@ describe("buildTranslationKeyboard", () => {
   it("falls back to en for unknown interface language", () => {
     const kb = buildTranslationKeyboard(["cs"], "word", "xx");
     const saveBtn = kb.inline_keyboard[1]![0]!;
-    expect(saveBtn.text).toContain("Save word");
+    expect(saveBtn.text).toContain("Save");
   });
 
   it("works with single language code", () => {
@@ -407,7 +415,7 @@ describe("renderTranslation — alternatives", () => {
         cefr: "A1",
         register: "neutral",
         synonyms: [],
-        examples: [{ context: "formal", target: "Dům je velký.", native: "The house is big." }],
+        examples: [{ context: "neutral", target: "Dům je velký.", register: "neutrální" }],
         alternatives: [
           {
             text: "domov",
@@ -511,7 +519,7 @@ describe("renderTranslation — idiomatic equivalents", () => {
           {
             context: "colloquial",
             target: "No pain, no gain — you have to work for it.",
-            native: "Bez práce nejsou koláče — musíš pro to pracovat.",
+            register: "colloquial",
           },
         ],
       },
@@ -545,10 +553,11 @@ describe("renderTranslation — idiomatic equivalents", () => {
     expect(result).not.toContain("expressionType");
   });
 
-  it("renders examples from idiomatic translations normally", () => {
+  it("renders examples from idiomatic translations with register label", () => {
     const result = renderTranslation(idiomaticOutput, "en");
-    expect(result).toContain("<i>No pain, no gain — you have to work for it.</i>");
-    expect(result).toContain("→ Bez práce nejsou koláče — musíš pro to pracovat.");
+    expect(result).toContain("💬 <i>No pain, no gain — you have to work for it.</i>  → colloquial");
+    // No native sentence rendered
+    expect(result).not.toContain("Bez práce nejsou koláče — musíš pro to pracovat.");
   });
 
   it("handles mix of literal and idiomatic translations", () => {
@@ -601,6 +610,176 @@ describe("renderTopicWord — idiomatic equivalents", () => {
     expect(result).toContain("<b>Ranní ptáče dál doskáče</b>");
     expect(result).not.toContain("idiomatic_equivalent");
     expect(result).not.toContain("equivalentNote");
+  });
+});
+
+// ── Task 31: Connotation warning tests ──────────────────────────
+
+describe("renderTranslation — connotation warnings", () => {
+  it("renders connotation warning when present", () => {
+    const output: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          connotationWarning: "to arouse — sexual connotation",
+        },
+      },
+    };
+    const result = renderTranslation(output, "en");
+    expect(result).toContain("⚠️ to arouse — sexual connotation");
+  });
+
+  it("does not render connotation warning when absent", () => {
+    const result = renderTranslation(sampleOutput, "en");
+    expect(result).not.toContain("⚠️");
+  });
+
+  it("does not render connotation warning when field is undefined", () => {
+    const output: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          connotationWarning: undefined,
+        },
+      },
+    };
+    const result = renderTranslation(output, "en");
+    expect(result).not.toContain("⚠️");
+  });
+
+  it("renders connotation warning after examples", () => {
+    const output: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          connotationWarning: "potentially offensive",
+        },
+      },
+    };
+    const result = renderTranslation(output, "en");
+    const lastExampleIdx = result.lastIndexOf("💬");
+    const warningIdx = result.indexOf("⚠️");
+    expect(warningIdx).toBeGreaterThan(lastExampleIdx);
+  });
+
+  it("escapes HTML in connotation warning text", () => {
+    const output: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          connotationWarning: "danger <b>bold</b> & special",
+        },
+      },
+    };
+    const result = renderTranslation(output, "en");
+    expect(result).toContain("⚠️ danger &lt;b&gt;bold&lt;/b&gt; &amp; special");
+  });
+
+  it("uses i18n connotationWarning key with locale", () => {
+    const output: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          connotationWarning: "warning text",
+        },
+      },
+    };
+    // All locales use same format "⚠️ {warning}"
+    const resultEn = renderTranslation(output, "en");
+    const resultRu = renderTranslation(output, "ru");
+    expect(resultEn).toContain("⚠️ warning text");
+    expect(resultRu).toContain("⚠️ warning text");
+  });
+});
+
+// ── Task 31: Backward compatibility with old Example format ─────
+
+describe("renderTranslation — backward compat with old examples", () => {
+  it("gracefully handles old examples without register field", () => {
+    const oldFormatOutput: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          // Simulate old data from DB that has no register field
+          examples: [
+            { context: "neutral", target: "Old example sentence." } as any,
+          ],
+        },
+      },
+    };
+    const result = renderTranslation(oldFormatOutput, "en");
+    // Should render without register label, no crash
+    expect(result).toContain("💬 <i>Old example sentence.</i>");
+    expect(result).not.toContain("→");
+  });
+
+  it("ignores native field from old examples (not rendered)", () => {
+    const oldFormatOutput: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          examples: [
+            { context: "neutral", target: "Dobrý den!", native: "Good day!", register: "neutral" } as any,
+          ],
+        },
+      },
+    };
+    const result = renderTranslation(oldFormatOutput, "en");
+    expect(result).toContain("💬 <i>Dobrý den!</i>");
+    // Native sentence must NOT appear
+    expect(result).not.toContain("Good day!");
+  });
+});
+
+// ── Task 31: Inline synonyms rendering tests ────────────────────
+
+describe("renderTranslation — inline synonyms", () => {
+  it("shows synonyms inline after translation text", () => {
+    const result = renderTranslation(sampleOutput, "en");
+    // Header line should contain inline synonyms
+    const csLine = result.split("\n").find((l) => l.includes("CS:"));
+    expect(csLine).toContain("<b>ahoj</b> [ˈahoj] (dobrý den, nazdar)");
+  });
+
+  it("shows synonym text only — no register in parenthetical", () => {
+    const result = renderTranslation(sampleOutput, "en");
+    // Should NOT show register in inline synonyms
+    expect(result).not.toContain("(neutral)");
+    expect(result).not.toContain("(colloquial)");
+  });
+
+  it("shows no parenthetical when zero synonyms", () => {
+    const noSyn: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: { ...sampleOutput.translations.cs!, synonyms: [] },
+      },
+    };
+    const result = renderTranslation(noSyn, "en");
+    const csLine = result.split("\n").find((l) => l.includes("CS:"));
+    expect(csLine).toMatch(/\[ˈahoj\]$/);
+  });
+
+  it("shows single synonym in parenthetical", () => {
+    const oneSyn: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          synonyms: [{ text: "dobrý den", register: "neutral" }],
+        },
+      },
+    };
+    const result = renderTranslation(oneSyn, "en");
+    const csLine = result.split("\n").find((l) => l.includes("CS:"));
+    expect(csLine).toContain("(dobrý den)");
   });
 });
 

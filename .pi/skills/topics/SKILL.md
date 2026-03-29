@@ -18,7 +18,7 @@ description: Topic management with built-in datasets, cache-first translation, a
 
 ## Current State
 
-Fully implemented with partial regeneration, idiomatic equivalent passthrough, and translation alternatives support. After Task 15 (context-enrichment layer), dictionary context lookup was removed from `TopicDeps` — the `lookupDictionaryContext` dep and internal `lookupContextsBatch` helper are gone. Callers should now inject context-enriched `translateBatch`/`translateOne` functions (e.g., wrapping `translateBatchWithContext`/`translateOneWithContext` from the context-enrichment module). The `LanguageTranslationEntry` type includes optional `expressionType`, `equivalentNote`, and `alternatives` fields. The `TopicTranslationVariant` type mirrors the translation module's `TranslationVariant` for decoupled alternative translation storage.
+Fully implemented with partial regeneration, idiomatic equivalent passthrough, translation alternatives support, and connotation warning passthrough. After Task 15 (context-enrichment layer), dictionary context lookup was removed from `TopicDeps` — the `lookupDictionaryContext` dep and internal `lookupContextsBatch` helper are gone. Callers should now inject context-enriched `translateBatch`/`translateOne` functions (e.g., wrapping `translateBatchWithContext`/`translateOneWithContext` from the context-enrichment module). The `LanguageTranslationEntry` type includes optional `expressionType`, `equivalentNote`, `alternatives`, and `connotationWarning` fields. The `TopicTranslationVariant` type mirrors the translation module's `TranslationVariant` for decoupled alternative translation storage. After Task 31, examples use `register` instead of `native` (no source-language sentence), and context values are `neutral | colloquial | professional` (no `formal`).
 
 **Task 21:** Added `TranslationOutputConfig` support via the `MINIMAL_OUTPUT` preset. The `TopicDeps` interface now accepts an optional `outputConfig` parameter on `translateBatch` and `translateOne`. The topic service always passes `MINIMAL_OUTPUT` (only transcription, no examples/synonyms/alternatives/equivalentNote) to save tokens during bulk and single-word topic translation. This is backward-compatible — the parameter is optional in the interface.
 
@@ -148,13 +148,15 @@ interface LanguageTranslationEntry {
   transcription?: string;
   register: string;
   synonyms: Array<{ text: string; register: string }>;
-  examples: Array<{ context: string; target: string; native: string }>;
+  examples: Array<{ context: string; target: string; register: string }>;
   /** Signals whether the translation is literal or an idiomatic equivalent */
   expressionType?: TopicExpressionType;
   /** Short note in the source language explaining why an equivalent was chosen */
   equivalentNote?: string;
   /** Up to 2 alternative translation variants, each with its own register and synonyms */
   alternatives?: TopicTranslationVariant[];
+  /** Optional warning about dangerous or misleading connotations */
+  connotationWarning?: string;
 }
 
 interface TopicWord {
@@ -235,7 +237,8 @@ packages/core/src/modules/topics/
     ├── idiomatic-equivalents.test.ts  # 10 tests for idiomatic field passthrough
     ├── dictionary-context.test.ts  # 8 tests for post-context-enrichment translation integration
     ├── alternatives.test.ts        # 10 tests for translation alternatives passthrough
-    └── output-config.test.ts       # 11 tests for MINIMAL_OUTPUT preset passthrough
+    ├── output-config.test.ts       # 11 tests for MINIMAL_OUTPUT preset passthrough
+    └── connotation-warning.test.ts # 9 tests for connotationWarning field passthrough
 ```
 
 ## Usage Example

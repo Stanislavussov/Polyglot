@@ -79,10 +79,15 @@ function validateLanguage(text: string, expectedLang: string): ValidationResult;
 // Helper to resolve language identifiers to ISO 639-3 codes
 function resolveToIso3(lang: string): string | undefined;
 
-// Example quality: examples must have target + native text
+// Example quality: examples must have target text and register label
+// Context must be neutral | colloquial | professional (Task 31: "formal" → "neutral")
 // Accepts optional expressionType parameter — when "idiomatic_equivalent",
 // word-matching is relaxed (examples may not repeat the idiom verbatim)
 function validateExamples(examples: ExampleInput[], word: string, expressionType?: ExpressionType): ValidationResult;
+
+// Valid example context values (Task 31)
+const VALID_EXAMPLE_CONTEXTS: readonly ["neutral", "colloquial", "professional"];
+type ExampleContext = "neutral" | "colloquial" | "professional";
 
 // Orchestrated: runs all validators in sequence against full translation result
 // Steps: 1) schema → 2) per-language: semantic, language, examples, alternatives semantic
@@ -159,7 +164,7 @@ interface ValidateInput {
 interface ExampleInput {
   context: string;
   target: string;
-  native: string;
+  register: string;
 }
 
 /** Raw Wiktionary JSONL entry shape (subset of fields we validate) */
@@ -200,10 +205,10 @@ packages/core/src/modules/validation/
 └── __tests__/
     ├── schema.validator.test.ts          # 8 tests
     ├── semantic.validator.test.ts        # 14 tests
-    ├── language.validator.test.ts        # 6 tests (4 resolveToIso3 + 2 validateLanguage no-op)
-    ├── example.validator.test.ts         # 7 tests
+    ├── language.validator.test.ts        # 2 tests (validateLanguage no-op)
+    ├── example.validator.test.ts         # 9 tests
     ├── example.validator.idiomatic.test.ts  # 8 tests (Task 10 — expressionType)
-    ├── validate.test.ts                  # 34 tests (8 orchestrator + 6 partial regen + 5 idiomatic + 6 alternatives + 9 sentence inputType)
+    ├── validate.test.ts                  # 40 tests (8 orchestrator + 6 partial regen + 5 idiomatic + 6 alternatives + 9 sentence inputType + 6 output-config-aware)
     └── wiktionary.validator.test.ts      # 58 tests (21 entry + 19 wordContext + 8 glosses + 10 pos)
 ```
 
@@ -217,7 +222,8 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 
 ## Current State
 
-- 4 active validators + 1 no-op + 4 Wiktionary validators (135 tests total across 7 test files in validation module)
+- 4 active validators + 1 no-op + 4 Wiktionary validators (139 tests total across 7 test files in validation module)
+- **Task 31**: `ExampleInput.native` removed, `ExampleInput.register` added (inline register label). `ExampleContext` changed from `formal | colloquial | professional` to `neutral | colloquial | professional`. `validateExamples()` validates register is non-empty and context is a valid value. `VALID_EXAMPLE_CONTEXTS` constant and `ExampleContext` type exported. `connotationWarning` is optional — no validation needed beyond Zod schema.
 - **Task 27**: `validate()` accepts optional `inputType` parameter (`InputType = 'word' | 'phrase' | 'sentence'`). When `inputType === 'sentence'`, semantic validation (step 2), example validation (step 4), and alternatives semantic validation (step 5) are skipped — only schema validation and language detection run. `InputType` type exported from module. 9 sentence-specific tests in `validate.test.ts`.
 - **Task 16**: New `language-detect` module (`packages/core/src/modules/language-detect/`) with `detectLanguage()` (franc + script heuristics) and `resolveTranslationDirection()` (direction logic). 33 tests across 2 test files. `franc` added as dependency to `@polyglot/core`. Types `ResolveDirectionInput`, `TranslationDirection` exported.
 - **Task 17**: New `resolveDirectionFromSource()` in language-detect module — resolves translation direction from an explicit source language (no detection). Returns `null` if source lang is not in user's config (stale selection validation). 15 tests. Type `ResolveFromSourceInput` exported.

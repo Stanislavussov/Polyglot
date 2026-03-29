@@ -14,7 +14,7 @@ const sampleOutput: TranslateOutput = {
       transcription: "ˈahoj",
       register: "colloquial",
       synonyms: [{ text: "nazdar", register: "colloquial" }],
-      examples: [{ context: "colloquial", target: "Ahoj!", native: "Hello!" }],
+      examples: [{ context: "colloquial", target: "Ahoj!", register: "hovorový" }],
       alternatives: [{ text: "dobrý den", register: "neutral", synonyms: [] }],
       expressionType: "literal",
       equivalentNote: "Standard greeting",

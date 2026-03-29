@@ -25,19 +25,19 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
         synonyms: [{ text: "čau", register: "slang" }],
         examples: [
           {
-            context: "formal",
+            context: "neutral",
             target: "Řekl ahoj svému kolegovi.",
-            native: "He said hello to his colleague.",
+            register: "нейтральный",
           },
           {
             context: "colloquial",
             target: "Ahoj, jak se máš?",
-            native: "Hello, how are you?",
+            register: "разговорный",
           },
           {
             context: "professional",
             target: "Ahoj, vítejte na schůzce.",
-            native: "Hello, welcome to the meeting.",
+            register: "профессиональный",
           },
         ],
       },
@@ -87,9 +87,9 @@ describe("translate", () => {
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Hello, jak se máš?",
-              native: "Hello, how are you?",
+              register: "нейтральный",
             },
           ],
         },
@@ -116,9 +116,9 @@ describe("translate", () => {
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Hello world in Czech.",
-              native: "Hello world in English.",
+              register: "нейтральный",
             },
           ],
         },
@@ -168,9 +168,9 @@ describe("translate", () => {
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Řekl ahoj kolegovi.",
-              native: "He said hello to a colleague.",
+              register: "нейтральный",
             },
           ],
         },
@@ -181,9 +181,9 @@ describe("translate", () => {
           synonyms: [{ text: "hi", register: "colloquial" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Er sagte hallo zum Kollegen.",
-              native: "He said hello to a colleague.",
+              register: "нейтральный",
             },
           ],
         },
@@ -297,9 +297,9 @@ describe("translateOne", () => {
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Hello world in Czech.",
-              native: "Hello world in English.",
+              register: "нейтральный",
             },
           ],
         },
@@ -338,9 +338,9 @@ describe("translateBatch", () => {
               synonyms: [{ text: "země", register: "neutral" }],
               examples: [
                 {
-                  context: "formal",
+                  context: "neutral",
                   target: "Svět je krásné místo.",
-                  native: "The world is a beautiful place.",
+                  register: "нейтральный",
                 },
               ],
             },
@@ -405,9 +405,9 @@ describe("validation logging", () => {
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Hello world in Czech.",
-              native: "Hello world in English.",
+              register: "нейтральный",
             },
           ],
         },
@@ -445,9 +445,9 @@ describe("validation logging", () => {
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Hello world in Czech.",
-              native: "Hello world in English.",
+              register: "нейтральный",
             },
           ],
         },
@@ -488,9 +488,9 @@ describe("validation logging", () => {
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Hello world in Czech.",
-              native: "Hello world in English.",
+              register: "нейтральный",
             },
           ],
         },
@@ -526,9 +526,9 @@ describe("validation logging", () => {
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "Hello world in Czech.",
-              native: "Hello world in English.",
+              register: "нейтральный",
             },
           ],
         },

@@ -51,9 +51,9 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("slang | colloquial | neutral | literary | professional");
   });
 
-  it("requests example contexts: formal, colloquial, professional", () => {
+  it("requests example contexts: neutral, colloquial, professional", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain('"formal"');
+    expect(prompt).toContain('"neutral"');
     expect(prompt).toContain('"colloquial"');
     expect(prompt).toContain('"professional"');
   });
@@ -109,9 +109,16 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("second alternative translation or a different synonym");
   });
 
-  it("requests native sentence in source language (full name)", () => {
+  it("includes register label instruction for examples in source language", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("in English");
+    expect(prompt).toContain("register label in English, one word");
+    expect(prompt).toContain("ONE-WORD label in English");
+  });
+
+  it("does not request native sentence in examples (removed for token savings)", () => {
+    const prompt = buildTranslationPrompt(baseRequest);
+    // The old format had: "native": "<same sentence in English>"
+    expect(prompt).not.toContain('"native"');
   });
 
   it("includes alternatives structure in JSON template", () => {
@@ -124,6 +131,26 @@ describe("buildTranslationPrompt", () => {
   it("includes rule about 2 alternative translations", () => {
     const prompt = buildTranslationPrompt(baseRequest);
     expect(prompt).toContain("Provide exactly 2 alternative translations per language");
+  });
+
+  it("includes connotation warning field in JSON template (default config)", () => {
+    const prompt = buildTranslationPrompt(baseRequest);
+    expect(prompt).toContain('"connotationWarning"');
+  });
+
+  it("includes connotation warning rule about dangerous meanings", () => {
+    const prompt = buildTranslationPrompt(baseRequest);
+    expect(prompt).toContain("Warn about dangerous or misleading connotations ONLY if they exist");
+    expect(prompt).toContain("Most words should NOT have a warning");
+  });
+
+  it("omits connotation warning when includeConnotationWarning is false", () => {
+    const prompt = buildTranslationPrompt({
+      ...baseRequest,
+      outputConfig: { includeConnotationWarning: false },
+    });
+    expect(prompt).not.toContain('"connotationWarning"');
+    expect(prompt).not.toContain("dangerous or misleading connotations");
   });
 });
 
@@ -160,6 +187,16 @@ describe("buildStrictPrompt", () => {
     const prompt = buildStrictPrompt(baseRequest, ["error"]);
     expect(prompt).toContain("fix these issues");
     expect(prompt).toContain("Double-check");
+  });
+
+  it("includes register label check for examples", () => {
+    const prompt = buildStrictPrompt(baseRequest, ["error"]);
+    expect(prompt).toContain("one-word register label");
+  });
+
+  it("includes connotation warning check in strict prompt", () => {
+    const prompt = buildStrictPrompt(baseRequest, ["error"]);
+    expect(prompt).toContain("connotationWarning is present ONLY for words with genuinely dangerous");
   });
 });
 

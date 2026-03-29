@@ -55,6 +55,6 @@
   "nextTranslationFrom": "Další překlad z:",
   "nextSourceSet": "🔤 Příště z: {lang}",
   "sentenceTranslation": "📝 Překlad věty",
-  "saveWord": "💾 Uložit slovo",
-  "savePhrase": "💾 Uložit frázi"
+  "save": "💾 Uložit",
+  "connotationWarning": "⚠️ {warning}"
 }

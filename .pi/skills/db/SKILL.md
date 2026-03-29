@@ -162,6 +162,7 @@ interface StoredLanguageTranslation {
   alternatives?: TranslationVariant[];
   expressionType?: ExpressionType;
   equivalentNote?: string;
+  connotationWarning?: string;  // Task 31: optional warning for dangerous/misleading meanings
 }
 
 interface CreateWordInput {
@@ -204,7 +205,7 @@ type NewWordContext = { word: string; languageId: number; pos: string; formTags?
 // See word.repository.ts for full interface definitions
 // Imports CefrLevel, Example, ExpressionType, Register, Synonym, TranslationVariant from @polyglot/core
 type StoredWordContent = { emoji: string; register: Register; translations: Record<string, StoredLanguageTranslation> };
-type StoredLanguageTranslation = { text: string; cefr: CefrLevel; transcription?: string; register: Register; synonyms: Synonym[]; examples: Example[]; alternatives?: TranslationVariant[]; expressionType?: ExpressionType; equivalentNote?: string };
+type StoredLanguageTranslation = { text: string; cefr: CefrLevel; transcription?: string; register: Register; synonyms: Synonym[]; examples: Example[]; alternatives?: TranslationVariant[]; expressionType?: ExpressionType; equivalentNote?: string; connotationWarning?: string };
 type CreateWordInput = { original: string; sourceLangId: number; inputType: 'word' | 'phrase'; content: StoredWordContent };
 ```
 
@@ -227,7 +228,7 @@ packages/adapters/db/src/
     ├── getDb.test.ts                     # 1 test
     ├── user.repository.test.ts           # 18 tests (findByTelegramId, create, updateSettings incl. max-4 guard, getSettings, updateActiveMode, updateOnboardingStep, markOnboarded)
     ├── topic.repository.test.ts          # 4 tests
-    ├── word.repository.test.ts           # 17 tests (create with CreateWordInput, findByOriginalAndSource, findByUser, findById, search, updateContent with StoredWordContent, delete)
+    ├── word.repository.test.ts           # 20 tests (create with CreateWordInput, findByOriginalAndSource, findByUser, findById, search, updateContent with StoredWordContent, delete, connotationWarning support)
     ├── language.repository.test.ts       # 7 tests (findByCode, create, getOrCreate, findAll)
     ├── word-context.repository.test.ts   # 13 tests (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
     ├── translation-request.repository.test.ts # 11 tests (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)

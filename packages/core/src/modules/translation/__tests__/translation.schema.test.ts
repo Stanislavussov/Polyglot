@@ -125,27 +125,27 @@ describe("synonymSchema", () => {
 describe("exampleSchema", () => {
   it("validates a correct example", () => {
     const result = exampleSchema.safeParse({
-      context: "formal",
-      target: "This is a formal sentence.",
-      native: "Toto je formální věta.",
+      context: "neutral",
+      target: "This is a neutral sentence.",
+      register: "neutral",
     });
     expect(result.success).toBe(true);
   });
 
   it("rejects empty target", () => {
     const result = exampleSchema.safeParse({
-      context: "formal",
+      context: "neutral",
       target: "",
-      native: "Some native text.",
+      register: "neutral",
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects empty native", () => {
+  it("rejects empty register", () => {
     const result = exampleSchema.safeParse({
-      context: "formal",
+      context: "neutral",
       target: "Some target text.",
-      native: "",
+      register: "",
     });
     expect(result.success).toBe(false);
   });
@@ -154,20 +154,38 @@ describe("exampleSchema", () => {
     const result = exampleSchema.safeParse({
       context: "casual",
       target: "text",
-      native: "text",
+      register: "neutral",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects formal context (replaced by neutral)", () => {
+    const result = exampleSchema.safeParse({
+      context: "formal",
+      target: "text",
+      register: "neutral",
     });
     expect(result.success).toBe(false);
   });
 
   it("accepts all valid context values", () => {
-    for (const context of ["formal", "colloquial", "professional"]) {
+    for (const context of ["neutral", "colloquial", "professional"]) {
       const result = exampleSchema.safeParse({
         context,
         target: "text",
-        native: "text",
+        register: "нейтральный",
       });
       expect(result.success).toBe(true);
     }
+  });
+
+  it("does not require native field (removed)", () => {
+    const result = exampleSchema.safeParse({
+      context: "neutral",
+      target: "text",
+      register: "neutral",
+    });
+    expect(result.success).toBe(true);
   });
 });
 
@@ -179,9 +197,9 @@ describe("languageTranslationSchema", () => {
     synonyms: [{ text: "čau", register: "slang" }],
     examples: [
       {
-        context: "formal",
+        context: "neutral",
         target: "Ahoj, jak se máš?",
-        native: "Hello, how are you?",
+        register: "нейтральный",
       },
     ],
   };
@@ -224,6 +242,25 @@ describe("languageTranslationSchema", () => {
       expect(result.success).toBe(true);
     }
   });
+
+  it("accepts optional connotationWarning field", () => {
+    const result = languageTranslationSchema.safeParse({
+      ...validTranslation,
+      connotationWarning: "to arouse — sexual connotation",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.connotationWarning).toBe("to arouse — sexual connotation");
+    }
+  });
+
+  it("allows connotationWarning to be omitted", () => {
+    const result = languageTranslationSchema.safeParse(validTranslation);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.connotationWarning).toBeUndefined();
+    }
+  });
 });
 
 describe("translationResultSchema", () => {
@@ -238,9 +275,9 @@ describe("translationResultSchema", () => {
         synonyms: [{ text: "čau", register: "slang" }],
         examples: [
           {
-            context: "formal",
+            context: "neutral",
             target: "Ahoj, jak se máš?",
-            native: "Hello, how are you?",
+            register: "нейтральный",
           },
         ],
       },
@@ -251,9 +288,9 @@ describe("translationResultSchema", () => {
         synonyms: [{ text: "hi", register: "colloquial" }],
         examples: [
           {
-            context: "formal",
+            context: "neutral",
             target: "Hallo, wie geht es Ihnen?",
-            native: "Hello, how are you?",
+            register: "neutral",
           },
         ],
       },
@@ -312,7 +349,7 @@ describe("buildTranslationResultSchema", () => {
     cefr: "A1",
     register: "colloquial",
     synonyms: [{ text: "čau", register: "slang" }],
-    examples: [{ context: "formal", target: "Ahoj, jak se máš?", native: "Hello, how are you?" }],
+    examples: [{ context: "neutral", target: "Ahoj, jak se máš?", register: "нейтральный" }],
   };
 
   it("requires specified language keys", () => {

@@ -56,7 +56,7 @@ const makeLangEntry = (text: string): LanguageTranslationEntry => ({
   cefr: "B1",
   register: "neutral",
   synonyms: [{ text: `${text}-syn`, register: "neutral" }],
-  examples: [{ context: "formal", target: text, native: "example" }],
+  examples: [{ context: "neutral", target: text, register: "neutral" }],
 });
 
 const mockTopicWord: TopicWord = {

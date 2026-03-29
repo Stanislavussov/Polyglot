@@ -3,6 +3,7 @@ import { validateExamples } from "../validators/example.validator.js";
 
 /**
  * Tests for Task 10: Example validator with expressionType parameter.
+ * Updated for Task 31: Examples use `register` instead of `native`, `neutral` instead of `formal`.
  *
  * Verifies that the validator accepts the expressionType parameter
  * and behaves correctly for both literal and idiomatic_equivalent.
@@ -11,14 +12,14 @@ import { validateExamples } from "../validators/example.validator.js";
 describe("validateExamples — expressionType parameter", () => {
   const validExamples = [
     {
-      context: "formal",
+      context: "neutral" as const,
       target: "You can't have your cake and eat it too in this situation.",
-      native: "V této situaci nemůžete mít obojí.",
+      register: "neutral",
     },
     {
-      context: "colloquial",
+      context: "colloquial" as const,
       target: "That's like having your cake and eating it too.",
-      native: "To je jako mít obojí.",
+      register: "colloquial",
     },
   ];
 
@@ -48,7 +49,7 @@ describe("validateExamples — expressionType parameter", () => {
 
   it("still fails for empty target with idiomatic_equivalent", () => {
     const result = validateExamples(
-      [{ context: "formal", target: "", native: "Some native text." }],
+      [{ context: "neutral", target: "", register: "нейтральный" }],
       "idiom",
       "idiomatic_equivalent",
     );
@@ -56,14 +57,14 @@ describe("validateExamples — expressionType parameter", () => {
     expect(result.errors.some((e) => e.field?.includes("target"))).toBe(true);
   });
 
-  it("still fails for empty native with idiomatic_equivalent", () => {
+  it("still fails for empty register with idiomatic_equivalent", () => {
     const result = validateExamples(
-      [{ context: "formal", target: "Some target text.", native: "" }],
+      [{ context: "neutral", target: "Some target text.", register: "" }],
       "idiom",
       "idiomatic_equivalent",
     );
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.field?.includes("native"))).toBe(true);
+    expect(result.errors.some((e) => e.field?.includes("register"))).toBe(true);
   });
 
   it("idiomatic examples that don't repeat the phrase verbatim still pass", () => {
@@ -71,14 +72,14 @@ describe("validateExamples — expressionType parameter", () => {
     // may not repeat the full idiom verbatim
     const idiomaticExamples = [
       {
-        context: "formal",
+        context: "neutral" as const,
         target: "In this negotiation, everyone got what they wanted.",
-        native: "V tomto vyjednávání každý dostal, co chtěl.",
+        register: "нейтральный",
       },
       {
-        context: "colloquial",
+        context: "colloquial" as const,
         target: "She managed to get the best of both worlds.",
-        native: "Podařilo se jí mít obojí.",
+        register: "разговорный",
       },
     ];
     const result = validateExamples(idiomaticExamples, "Having your cake and eating it too", "idiomatic_equivalent");
@@ -89,9 +90,9 @@ describe("validateExamples — expressionType parameter", () => {
     // Word containment was already removed for all expression types
     const examples = [
       {
-        context: "formal",
+        context: "neutral" as const,
         target: "This is a completely different sentence.",
-        native: "Toto je úplně jiná věta.",
+        register: "нейтральный",
       },
     ];
     const result = validateExamples(examples, "hello", "literal");

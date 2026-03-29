@@ -6,9 +6,9 @@ describe("validateExamples", () => {
     const result = validateExamples(
       [
         {
-          context: "formal",
+          context: "neutral",
           target: "Hippokratova přísaha obsahuje důležitá slova.",
-          native: "The Hippocratic Oath contains important words.",
+          register: "нейтральный",
         },
       ],
       "slova",
@@ -25,24 +25,58 @@ describe("validateExamples", () => {
   });
 
   it("fails for empty target text", () => {
-    const result = validateExamples([{ context: "formal", target: "", native: "Some native text" }], "word");
+    const result = validateExamples(
+      [{ context: "neutral", target: "", register: "neutral" }],
+      "word",
+    );
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.field?.includes("target"))).toBe(true);
   });
 
-  it("fails for empty native text", () => {
-    const result = validateExamples([{ context: "formal", target: "Some target text with word", native: "" }], "word");
+  it("fails for empty register label", () => {
+    const result = validateExamples(
+      [{ context: "neutral", target: "Some target text with word", register: "" }],
+      "word",
+    );
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.field?.includes("native"))).toBe(true);
+    expect(result.errors.some((e) => e.field?.includes("register"))).toBe(true);
+  });
+
+  it("fails for invalid context value", () => {
+    const result = validateExamples(
+      [
+        {
+          context: "formal", // old value — no longer valid
+          target: "Some target text.",
+          register: "formal",
+        },
+      ],
+      "word",
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.field?.includes("context"))).toBe(true);
+    expect(result.errors[0].message).toContain("formal");
+    expect(result.errors[0].message).toContain("neutral");
+  });
+
+  it("accepts all valid context values", () => {
+    const contexts = ["neutral", "colloquial", "professional"] as const;
+    for (const context of contexts) {
+      const result = validateExamples(
+        [{ context, target: "Some target text.", register: "label" }],
+        "word",
+      );
+      expect(result.valid).toBe(true);
+    }
   });
 
   it("passes when target text does not contain the word (no word containment check)", () => {
     const result = validateExamples(
       [
         {
-          context: "formal",
+          context: "neutral",
           target: "Completely unrelated sentence here.",
-          native: "Some native text.",
+          register: "нейтральный",
         },
       ],
       "ahoj",
@@ -54,20 +88,20 @@ describe("validateExamples", () => {
     const result = validateExamples(
       [
         {
-          context: "formal",
+          context: "neutral",
           target: "Good example with word hello",
-          native: "Dobrý příklad s slovem ahoj",
+          register: "нейтральный",
         },
         {
           context: "colloquial",
           target: "",
-          native: "",
+          register: "",
         },
       ],
       "hello",
     );
     expect(result.valid).toBe(false);
-    // Empty target + empty native for example 1
+    // Empty target + empty register for example 1
     expect(result.errors.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -75,9 +109,9 @@ describe("validateExamples", () => {
     const result = validateExamples(
       [
         {
-          context: "formal",
+          context: "neutral",
           target: "",
-          native: "Also unrelated",
+          register: "нейтральный",
         },
       ],
       "specific_word",

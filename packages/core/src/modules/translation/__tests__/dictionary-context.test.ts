@@ -51,19 +51,19 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
         synonyms: [{ text: "perhaps", register: "neutral" }],
         examples: [
           {
-            context: "formal",
+            context: "neutral",
             target: "Is this or something you wanted?",
-            native: "Это что ли то, что ты хотел?",
+            register: "нейтральный",
           },
           {
             context: "colloquial",
             target: "Are you tired or something?",
-            native: "Ты устал что ли?",
+            register: "разговорный",
           },
           {
             context: "professional",
             target: "Should we proceed or something else?",
-            native: "Нам продолжить что ли?",
+            register: "профессиональный",
           },
         ],
       },
@@ -385,9 +385,9 @@ describe("translate — dictionary context passthrough", () => {
           synonyms: [{ text: "perhaps", register: "neutral" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "что ли sentence.",
-              native: "что ли предложение.",
+              register: "нейтральный",
             },
           ],
         },
@@ -428,9 +428,9 @@ describe("translate — dictionary context passthrough", () => {
           synonyms: [{ text: "perhaps", register: "neutral" }],
           examples: [
             {
-              context: "formal",
+              context: "neutral",
               target: "что ли sentence.",
-              native: "что ли предложение.",
+              register: "нейтральный",
             },
           ],
         },

@@ -25,4 +25,6 @@ export interface TranslationOutputConfig {
   includeCefr?: boolean;
   /** Include register (slang/colloquial/neutral/literary/professional) at top and per-language level. Default: true */
   includeRegister?: boolean;
+  /** Include optional connotation warnings for dangerous/misleading meanings. Default: true */
+  includeConnotationWarning?: boolean;
 }

@@ -1,9 +1,9 @@
 /**
- * Tests for idiomatic equivalent support in the topics layer.
+ * Tests for connotationWarning support in the topics layer.
  *
- * Verifies that expressionType and equivalentNote fields flow through
+ * Verifies that the optional connotationWarning field flows through
  * the topic service correctly — via cache reads, batch translations,
- * and partial regeneration.
+ * partial regeneration, and custom topic generation.
  */
 import { describe, expect, it, vi } from "vitest";
 import type { TranslateOutput } from "../../translation/types.js";
@@ -14,35 +14,34 @@ import type { CachedTranslation, LanguageTranslationEntry, TopicDeps } from "../
 // Helpers
 // ─────────────────────────────────────────────
 
-function makeIdiomaticTranslateOutput(original: string, targetLangs: string[]): TranslateOutput {
+function makeTranslateOutputWithWarning(original: string, targetLangs: string[]): TranslateOutput {
   const translations: Record<string, unknown> = {};
   for (const lang of targetLangs) {
     translations[lang] = {
-      text: `${original}_equivalent_${lang}`,
-      cefr: "B2",
-      register: "colloquial",
+      text: `${original}_${lang}`,
+      cefr: "B1",
+      register: "neutral",
       synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
       examples: [
         {
-          context: "colloquial",
-          target: `Idiomatic example of ${original} in ${lang}.`,
-          register: "colloquial",
+          context: "neutral",
+          target: `Example of ${original} in ${lang}.`,
+          register: "neutral",
         },
       ],
-      expressionType: "idiomatic_equivalent" as const,
-      equivalentNote: `No direct equivalent in ${lang}; closest idiom used`,
+      connotationWarning: `to arouse — sexual connotation in ${lang}`,
     };
   }
   return {
     original,
     sourceLang: "en",
-    emoji: "🗣️",
-    register: "colloquial",
+    emoji: "⚡",
+    register: "neutral",
     translations: translations as TranslateOutput["translations"],
   };
 }
 
-function makeLiteralTranslateOutput(original: string, targetLangs: string[]): TranslateOutput {
+function makeTranslateOutputWithoutWarning(original: string, targetLangs: string[]): TranslateOutput {
   const translations: Record<string, unknown> = {};
   for (const lang of targetLangs) {
     translations[lang] = {
@@ -57,7 +56,6 @@ function makeLiteralTranslateOutput(original: string, targetLangs: string[]): Tr
           register: "neutral",
         },
       ],
-      // expressionType defaults to 'literal' or is omitted
     };
   }
   return {
@@ -69,7 +67,7 @@ function makeLiteralTranslateOutput(original: string, targetLangs: string[]): Tr
   };
 }
 
-function makeIdiomaticCachedTranslation(
+function makeCachedTranslationWithWarning(
   topicId: string,
   original: string,
   sourceLang: string,
@@ -82,19 +80,18 @@ function makeIdiomaticCachedTranslation(
     sourceLang,
     targetLang,
     content: {
-      text: `${original}_equivalent_${targetLang}_cached`,
-      cefr: "B2",
-      register: "colloquial",
+      text: `${original}_${targetLang}_cached`,
+      cefr: "B1",
+      register: "neutral",
       synonyms: [],
       examples: [
         {
-          context: "colloquial",
-          target: `Cached idiomatic ${original} in ${targetLang}.`,
-          register: "colloquial",
+          context: "neutral",
+          target: `Cached ${original} in ${targetLang}.`,
+          register: "neutral",
         },
       ],
-      expressionType: "idiomatic_equivalent",
-      equivalentNote: `Cached: no direct equivalent in ${targetLang}`,
+      connotationWarning: `Cached warning for ${original} in ${targetLang}`,
     },
     isValid: true,
     invalidReason: null,
@@ -116,23 +113,21 @@ function createMockDeps(overrides?: Partial<TopicDeps>): TopicDeps {
 // LanguageTranslationEntry type tests
 // ─────────────────────────────────────────────
 
-describe("LanguageTranslationEntry idiomatic fields", () => {
-  it("accepts expressionType and equivalentNote as optional fields", () => {
+describe("LanguageTranslationEntry connotationWarning field", () => {
+  it("accepts connotationWarning as an optional field", () => {
     const entry: LanguageTranslationEntry = {
-      text: "Having your cake and eating it too",
-      cefr: "B2",
-      register: "colloquial",
+      text: "to excite",
+      cefr: "B1",
+      register: "neutral",
       synonyms: [],
       examples: [],
-      expressionType: "idiomatic_equivalent",
-      equivalentNote: "Closest English idiom for the Czech proverb",
+      connotationWarning: "to arouse — sexual connotation",
     };
 
-    expect(entry.expressionType).toBe("idiomatic_equivalent");
-    expect(entry.equivalentNote).toBe("Closest English idiom for the Czech proverb");
+    expect(entry.connotationWarning).toBe("to arouse — sexual connotation");
   });
 
-  it("allows omitting expressionType and equivalentNote (backward compatible)", () => {
+  it("allows omitting connotationWarning (backward compatible)", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
       cefr: "A1",
@@ -141,33 +136,21 @@ describe("LanguageTranslationEntry idiomatic fields", () => {
       examples: [],
     };
 
-    expect(entry.expressionType).toBeUndefined();
-    expect(entry.equivalentNote).toBeUndefined();
-  });
-
-  it("accepts literal as expressionType", () => {
-    const entry: LanguageTranslationEntry = {
-      text: "apple",
-      cefr: "A1",
-      register: "neutral",
-      synonyms: [],
-      examples: [],
-      expressionType: "literal",
-    };
-
-    expect(entry.expressionType).toBe("literal");
+    expect(entry.connotationWarning).toBeUndefined();
   });
 });
 
 // ─────────────────────────────────────────────
-// getTopicWords — idiomatic translations via batch
+// getTopicWords — connotationWarning via batch
 // ─────────────────────────────────────────────
 
-describe("getTopicWords with idiomatic translations", () => {
-  it("preserves expressionType and equivalentNote from translateBatch output", async () => {
+describe("getTopicWords with connotationWarning", () => {
+  it("preserves connotationWarning from translateBatch output", async () => {
     const dataset = getDataset("food")!;
     const getCached = vi.fn().mockResolvedValue(null);
-    const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeIdiomaticTranslateOutput(w, ["cs"])));
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue(dataset.words.map((w) => makeTranslateOutputWithWarning(w, ["cs"])));
 
     const deps = createMockDeps({ getCached, translateBatch });
     const service = createTopicService(deps);
@@ -175,34 +158,34 @@ describe("getTopicWords with idiomatic translations", () => {
     const words = await service.getTopicWords("food", "en", ["cs"]);
 
     const firstWord = words[0];
-    expect(firstWord.translations.cs.expressionType).toBe("idiomatic_equivalent");
-    expect(firstWord.translations.cs.equivalentNote).toContain("No direct equivalent");
+    expect(firstWord.translations.cs.connotationWarning).toContain("sexual connotation");
   });
 
-  it("stores idiomatic fields in cache via setCached", async () => {
+  it("stores connotationWarning in cache via setCached", async () => {
     const dataset = getDataset("food")!;
     const getCached = vi.fn().mockResolvedValue(null);
     const setCached = vi.fn().mockResolvedValue(undefined);
-    const translateBatch = vi.fn().mockResolvedValue(dataset.words.map((w) => makeIdiomaticTranslateOutput(w, ["cs"])));
+    const translateBatch = vi
+      .fn()
+      .mockResolvedValue(dataset.words.map((w) => makeTranslateOutputWithWarning(w, ["cs"])));
 
     const deps = createMockDeps({ getCached, translateBatch, setCached });
     const service = createTopicService(deps);
 
     await service.getTopicWords("food", "en", ["cs"]);
 
-    // Verify that the content passed to setCached contains idiomatic fields
     const firstCacheCall = setCached.mock.calls[0][0];
     const cachedContent = firstCacheCall.content as LanguageTranslationEntry;
-    expect(cachedContent.expressionType).toBe("idiomatic_equivalent");
-    expect(cachedContent.equivalentNote).toBeDefined();
+    expect(cachedContent.connotationWarning).toBeDefined();
+    expect(cachedContent.connotationWarning).toContain("sexual connotation");
   });
 
-  it("retrieves idiomatic fields from cache", async () => {
+  it("retrieves connotationWarning from cache", async () => {
     const _dataset = getDataset("food")!;
     const getCached = vi
       .fn()
       .mockImplementation((topicId: string, original: string, sourceLang: string, targetLang: string) =>
-        Promise.resolve(makeIdiomaticCachedTranslation(topicId, original, sourceLang, targetLang)),
+        Promise.resolve(makeCachedTranslationWithWarning(topicId, original, sourceLang, targetLang)),
       );
 
     const translateBatch = vi.fn();
@@ -211,24 +194,20 @@ describe("getTopicWords with idiomatic translations", () => {
 
     const words = await service.getTopicWords("food", "en", ["cs"]);
 
-    // All words should come from cache with idiomatic fields intact
     const firstWord = words[0];
-    expect(firstWord.translations.cs.expressionType).toBe("idiomatic_equivalent");
-    expect(firstWord.translations.cs.equivalentNote).toContain("Cached:");
-    // translateBatch should NOT be called
+    expect(firstWord.translations.cs.connotationWarning).toContain("Cached warning");
     expect(translateBatch).not.toHaveBeenCalled();
   });
 
-  it("handles mixed literal and idiomatic translations", async () => {
+  it("handles mixed words with and without connotationWarning", async () => {
     const dataset = getDataset("food")!;
     const getCached = vi.fn().mockResolvedValue(null);
 
-    // First word is idiomatic, rest are literal
     const translateBatch = vi
       .fn()
       .mockResolvedValue(
         dataset.words.map((w, i) =>
-          i === 0 ? makeIdiomaticTranslateOutput(w, ["cs"]) : makeLiteralTranslateOutput(w, ["cs"]),
+          i === 0 ? makeTranslateOutputWithWarning(w, ["cs"]) : makeTranslateOutputWithoutWarning(w, ["cs"]),
         ),
       );
 
@@ -237,53 +216,48 @@ describe("getTopicWords with idiomatic translations", () => {
 
     const words = await service.getTopicWords("food", "en", ["cs"]);
 
-    // First word is idiomatic
-    expect(words[0].translations.cs.expressionType).toBe("idiomatic_equivalent");
-    expect(words[0].translations.cs.equivalentNote).toBeDefined();
-
-    // Second word is literal (no expressionType set)
-    expect(words[1].translations.cs.expressionType).toBeUndefined();
-    expect(words[1].translations.cs.equivalentNote).toBeUndefined();
+    // First word has connotation warning
+    expect(words[0].translations.cs.connotationWarning).toBeDefined();
+    // Second word has no connotation warning
+    expect(words[1].translations.cs.connotationWarning).toBeUndefined();
   });
 });
 
 // ─────────────────────────────────────────────
-// regenerateTopicWord — idiomatic fields
+// regenerateTopicWord — connotationWarning
 // ─────────────────────────────────────────────
 
-describe("regenerateTopicWord with idiomatic translations", () => {
-  const idiomaticEntry: LanguageTranslationEntry = {
-    text: "Avoir le beurre et l'argent du beurre",
-    cefr: "B2",
-    register: "colloquial",
-    synonyms: [{ text: "tout avoir", register: "colloquial" }],
+describe("regenerateTopicWord with connotationWarning", () => {
+  const entryWithWarning: LanguageTranslationEntry = {
+    text: "vzrušit",
+    cefr: "B1",
+    register: "neutral",
+    synonyms: [{ text: "podnítit", register: "literary" }],
     examples: [
       {
-        context: "colloquial",
-        target: "Il veut avoir le beurre et l'argent du beurre.",
-        register: "familier",
+        context: "neutral",
+        target: "Zpráva vzrušila veřejnost.",
+        register: "neutrální",
       },
     ],
-    expressionType: "idiomatic_equivalent",
-    equivalentNote: "French equivalent of 'having your cake and eating it too'",
+    connotationWarning: "vzrušit — sexual connotation in some contexts",
   };
 
-  it("returns idiomatic fields from translateOne", async () => {
-    const translateOne = vi.fn().mockResolvedValue(idiomaticEntry);
+  it("returns connotationWarning from translateOne", async () => {
+    const translateOne = vi.fn().mockResolvedValue(entryWithWarning);
     const deps = createMockDeps({ translateOne });
     const service = createTopicService(deps);
 
     const dataset = getDataset("food")!;
     const word = dataset.words[0];
 
-    const result = await service.regenerateTopicWord("food", word, "en", "fr");
+    const result = await service.regenerateTopicWord("food", word, "en", "cs");
 
-    expect(result.expressionType).toBe("idiomatic_equivalent");
-    expect(result.equivalentNote).toBe("French equivalent of 'having your cake and eating it too'");
+    expect(result.connotationWarning).toBe("vzrušit — sexual connotation in some contexts");
   });
 
-  it("caches idiomatic fields after regeneration", async () => {
-    const translateOne = vi.fn().mockResolvedValue(idiomaticEntry);
+  it("caches connotationWarning after regeneration", async () => {
+    const translateOne = vi.fn().mockResolvedValue(entryWithWarning);
     const setCached = vi.fn().mockResolvedValue(undefined);
     const deps = createMockDeps({ translateOne, setCached });
     const service = createTopicService(deps);
@@ -291,36 +265,38 @@ describe("regenerateTopicWord with idiomatic translations", () => {
     const dataset = getDataset("food")!;
     const word = dataset.words[0];
 
-    await service.regenerateTopicWord("food", word, "en", "fr");
+    await service.regenerateTopicWord("food", word, "en", "cs");
 
     const cachedContent = setCached.mock.calls[0][0].content as LanguageTranslationEntry;
-    expect(cachedContent.expressionType).toBe("idiomatic_equivalent");
-    expect(cachedContent.equivalentNote).toBe("French equivalent of 'having your cake and eating it too'");
+    expect(cachedContent.connotationWarning).toBe("vzrušit — sexual connotation in some contexts");
   });
 });
 
 // ─────────────────────────────────────────────
-// generateCustomTopic — idiomatic fields
+// generateCustomTopic — connotationWarning
 // ─────────────────────────────────────────────
 
-describe("generateCustomTopic with idiomatic translations", () => {
-  it("preserves idiomatic fields in custom topic words", async () => {
+describe("generateCustomTopic with connotationWarning", () => {
+  it("preserves connotationWarning in custom topic words", async () => {
     const generateWords = vi.fn().mockResolvedValue({
-      name: "Proverbs",
-      emoji: "📜",
-      words: ["the early bird catches the worm"],
+      name: "Emotions",
+      emoji: "💡",
+      words: ["excite", "arouse"],
     });
 
     const translateBatch = vi
       .fn()
-      .mockResolvedValue([makeIdiomaticTranslateOutput("the early bird catches the worm", ["cs"])]);
+      .mockResolvedValue([
+        makeTranslateOutputWithWarning("excite", ["cs"]),
+        makeTranslateOutputWithWarning("arouse", ["cs"]),
+      ]);
 
     const deps = createMockDeps({ generateWords, translateBatch });
     const service = createTopicService(deps);
 
-    const topic = await service.generateCustomTopic("proverbs", "en", ["cs"]);
+    const topic = await service.generateCustomTopic("emotions", "en", ["cs"]);
 
-    expect(topic.words[0].translations.cs.expressionType).toBe("idiomatic_equivalent");
-    expect(topic.words[0].translations.cs.equivalentNote).toBeDefined();
+    expect(topic.words[0].translations.cs.connotationWarning).toBeDefined();
+    expect(topic.words[1].translations.cs.connotationWarning).toBeDefined();
   });
 });

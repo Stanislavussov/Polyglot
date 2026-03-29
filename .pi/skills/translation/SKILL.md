@@ -33,6 +33,18 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 - **Sentence-aware validation**: `inputType` is passed through to `validate()` — when `'sentence'`, semantic validation (translation ≠ original) and alternatives/examples checks are skipped. Schema and language detection still run.
 - **Backward compatible**: All changes are additive — `inputType` is optional, absent means full word/phrase behavior.
 
+### Task 31: Redesign translation card — examples + register labels + connotation warnings
+
+- **`ExampleContext`**: Changed from `"formal" | "colloquial" | "professional"` to `"neutral" | "colloquial" | "professional"`. The "formal" label was misleading — these are everyday/neutral examples.
+- **`Example` type**: Removed `native: string` field (saves ~30% example tokens). Added `register: string` field — a one-word label in the source language describing the register of the example.
+- **`LanguageTranslation.connotationWarning`**: New optional string field for dangerous/misleading meaning warnings (e.g., "to arouse — sexual connotation").
+- **`TranslationOutputConfig.includeConnotationWarning`**: New optional boolean to control connotation warnings in AI prompt and schema.
+- **`FULL_OUTPUT` preset**: `includeExamples` changed from `false` to `true`; `includeConnotationWarning: true` added. Interactive translations now show 3 example sentences per language.
+- **Other presets**: `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT`, `SENTENCE_OUTPUT` all gained `includeConnotationWarning: false`.
+- **Prompt builder**: Example template now requests `neutral/colloquial/professional` contexts with one-word register labels in the source language; no native sentence. Connotation warning field added to JSON template when enabled. Rules updated to specify register label format and warning behavior.
+- **Schema**: `exampleSchema` updated — `native` removed, `register` string added, `context` enum changed. `languageTranslationSchema` and `buildLanguageTranslationSchema` gained optional `connotationWarning` field.
+- **Service**: `stripDisabledFields` handles `connotationWarning` stripping when `includeConnotationWarning: false`.
+
 ## Boundary
 
 - **Mode:** role — when this skill is active, you ARE the translation agent. Only modify the translation module.
@@ -58,10 +70,10 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 type ExpressionType = "literal" | "idiomatic_equivalent";
 type Register = "slang" | "colloquial" | "neutral" | "literary" | "professional";
 type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
-type ExampleContext = "formal" | "colloquial" | "professional";
+type ExampleContext = "neutral" | "colloquial" | "professional";
 
 interface Synonym { text: string; register: Register; }
-interface Example { context: ExampleContext; target: string; native: string; }
+interface Example { context: ExampleContext; target: string; register: string; }
 
 /** A single alternative translation variant with its own register and synonyms */
 interface TranslationVariant {
@@ -94,6 +106,7 @@ interface TranslationOutputConfig {
   includeEquivalentNote?: boolean; // Default: true — idiomatic expression info
   includeCefr?: boolean;           // Default: true — CEFR level (A1–C2)
   includeRegister?: boolean;       // Default: true — register (slang/colloquial/neutral/literary/professional)
+  includeConnotationWarning?: boolean; // Default: true — optional connotation warnings
 }
 
 interface LanguageTranslation {
@@ -106,6 +119,7 @@ interface LanguageTranslation {
   expressionType?: ExpressionType;   // defaults to 'literal'
   equivalentNote?: string;            // explanation for idiomatic equivalents
   alternatives?: TranslationVariant[]; // up to 2 alternative translations with own register & synonyms
+  connotationWarning?: string;          // optional warning about dangerous/misleading connotations
 }
 
 /** Detected input type — drives prompt, schema, and validation behavior */
@@ -194,12 +208,12 @@ Centralized named presets in `translation-output.presets.ts` — single source o
 import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT } from "@polyglot/core";
 ```
 
-| Preset | Examples | Transcription | Synonyms | Alternatives | EquivalentNote | CEFR | Register |
-|---|---|---|---|---|---|---|---|
-| `FULL_OUTPUT` | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Preset | Examples | Transcription | Synonyms | Alternatives | EquivalentNote | CEFR | Register | ConnotationWarning |
+|---|---|---|---|---|---|---|---|---|
+| `FULL_OUTPUT` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
+| `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 **Caller → Preset mapping:**
 
@@ -242,7 +256,7 @@ When `dictionaryContext` is provided in `TranslateInput`:
 - `languageTranslationSchema` — validates per-language translation entry (includes optional `expressionType` defaulting to `'literal'`, optional `equivalentNote`, optional `alternatives`)
 - `translationVariantSchema` — validates alternative translation variant { text, register, synonyms }
 - `synonymSchema` — validates synonym { text, register }
-- `exampleSchema` — validates example { context, target, native }
+- `exampleSchema` — validates example { context, target, register }
 
 ## File Structure
 
@@ -256,12 +270,12 @@ packages/core/src/modules/translation/
 ├── schemas/
 │   └── translation.schema.ts          # Zod schemas for AI response, buildLanguageTranslationSchema(config?)
 └── __tests__/
-    ├── translation.schema.test.ts     # 32 tests
-    ├── prompt.builder.test.ts         # 33 tests (incl. alternatives + variant guidance + sentence-aware prompt)
+    ├── translation.schema.test.ts     # 36 tests (incl. new example shape + connotationWarning)
+    ├── prompt.builder.test.ts         # 40 tests (incl. alternatives + variant guidance + sentence-aware prompt + connotation warning + register label)
     ├── translation.service.test.ts    # 27 tests (incl. translateOne + validation logging + alternatives + dictionary context passthrough)
     ├── idiomatic-equivalents.test.ts  # 18 tests (schema + prompt idiomatic features)
     ├── dictionary-context.test.ts     # 30 tests (prompt enrichment + passthrough + edge cases + multi-variant guidance)
-    └── output-config.test.ts          # 29 tests (presets incl. SENTENCE_OUTPUT, config-aware prompt/schema builder, sentence service integration)
+    └── output-config.test.ts          # 35 tests (presets incl. SENTENCE_OUTPUT + connotationWarning, config-aware prompt/schema builder, sentence service integration)
 ```
 
 ## Reference
