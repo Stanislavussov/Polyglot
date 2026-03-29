@@ -38,4 +38,5 @@
 | 23  | [Link translation_requests to languages](./finished/23-link-translation-requests-to-languages.md) |
 | 25  | [Language Emoji Flag in Translation Card](./finished/25-language-flag-in-translation-card.md) |
 | 30  | [Save to Dictionary](./finished/30-save-to-dictionary.md) |
+| 28  | [Validation Respects Output Config](./finished/28-validation-respects-output-config.md) |
 | 31  | [Redesign Translation Card](./finished/31-redesign-translation-card.md) |

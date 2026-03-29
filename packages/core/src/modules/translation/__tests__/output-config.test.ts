@@ -296,7 +296,9 @@ describe("buildLanguageTranslationSchema", () => {
 
   it("connotationWarning is optional in schema (always)", () => {
     const schema = buildLanguageTranslationSchema();
-    const resultWithWarning = schema.safeParse(validLangEntry({ connotationWarning: "to arouse — sexual connotation" }));
+    const resultWithWarning = schema.safeParse(
+      validLangEntry({ connotationWarning: "to arouse — sexual connotation" }),
+    );
     const resultWithout = schema.safeParse(validLangEntry());
     expect(resultWithWarning.success).toBe(true);
     expect(resultWithout.success).toBe(true);

@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { setLogger } from "../../../logger.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Logger } from "../../../logger.js";
+import { setLogger } from "../../../logger.js";
 import { parseResponse, translate, translateBatch, translateOne } from "../translation.service.js";
 import type { TranslateInput, TranslationResult } from "../types.js";
 

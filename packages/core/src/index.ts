@@ -1,6 +1,7 @@
 // Logger
-export { getLogger, setLogger } from "./logger.js";
+
 export type { Logger } from "./logger.js";
+export { getLogger, setLogger } from "./logger.js";
 
 // Modules
 

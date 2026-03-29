@@ -68,10 +68,7 @@ export function validateExamples(
     }
 
     // Check context is a valid value
-    if (
-      example.context &&
-      !VALID_EXAMPLE_CONTEXTS.includes(example.context as ExampleContext)
-    ) {
+    if (example.context && !VALID_EXAMPLE_CONTEXTS.includes(example.context as ExampleContext)) {
       errors.push({
         rule: "examples",
         message: `Example ${i} has invalid context "${example.context}" — expected one of: ${VALID_EXAMPLE_CONTEXTS.join(", ")}`,

@@ -1,12 +1,5 @@
+import type { CefrLevel, Example, ExpressionType, Register, Synonym, TranslationVariant } from "@polyglot/core";
 import { and, desc, eq, ilike } from "drizzle-orm";
-import type {
-  CefrLevel,
-  Example,
-  ExpressionType,
-  Register,
-  Synonym,
-  TranslationVariant,
-} from "@polyglot/core";
 import { getDb } from "../connection.js";
 import { words } from "../schema.js";
 
@@ -76,11 +69,7 @@ export const wordRepository = {
    * Uses the unique index for efficient lookup.
    * Returns null when no entry found.
    */
-  async findByOriginalAndSource(
-    userId: number,
-    original: string,
-    sourceLangId: number,
-  ): Promise<Word | null> {
+  async findByOriginalAndSource(userId: number, original: string, sourceLangId: number): Promise<Word | null> {
     const db = getDb();
     const rows = await db
       .select()

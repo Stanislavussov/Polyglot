@@ -102,7 +102,15 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const isSentence = classification.type === "sentence";
 
   logger.debug(
-    { word, detectedLang, sourceLang, targetLangs, nextSourceLang: nextSource ?? null, inputType: classification.type, wordCount: classification.wordCount },
+    {
+      word,
+      detectedLang,
+      sourceLang,
+      targetLangs,
+      nextSourceLang: nextSource ?? null,
+      inputType: classification.type,
+      wordCount: classification.wordCount,
+    },
     "Resolved translation direction",
   );
 
@@ -116,9 +124,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     const outputConfig = isSentence ? SENTENCE_OUTPUT : FULL_OUTPUT;
 
     // For sentences, skip dictionary context lookup (no learnable word to enrich)
-    const lookupContextFn = isSentence
-      ? async () => undefined
-      : lookupContext;
+    const lookupContextFn = isSentence ? async () => undefined : lookupContext;
 
     const output = await translateWithContext(
       {
@@ -362,9 +368,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     const outputConfig = isSentence ? SENTENCE_OUTPUT : FULL_OUTPUT;
 
     // For sentences, skip dictionary context lookup
-    const lookupContextFn = isSentence
-      ? async () => undefined
-      : lookupContext;
+    const lookupContextFn = isSentence ? async () => undefined : lookupContext;
 
     const newTranslation = await translateOneWithContext(
       {

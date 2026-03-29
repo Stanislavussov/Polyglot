@@ -52,16 +52,16 @@ Validation skips checks for fields that are disabled in `TranslationOutputConfig
 
 ## Acceptance Criteria
 
-- [ ] `validate()` orchestrator accepts an optional `TranslationOutputConfig` parameter
-- [ ] When `includeExamples: false`, Step 4 (example validation) is skipped entirely
-- [ ] When `includeSynonyms: false`, synonym-related validation (if any) is skipped
-- [ ] When `includeAlternatives: false`, Step 5 (alternatives semantic validation) is skipped
-- [ ] `translation.service.ts` passes `input.outputConfig` to `validate()`
-- [ ] Existing tests still pass — no regression in full-output validation
-- [ ] New tests: `validate()` with `includeExamples: false` does NOT fail on empty examples
-- [ ] New tests: `validate()` with `includeAlternatives: false` does NOT fail on missing alternatives
-- [ ] Decide on `FULL_OUTPUT` preset: if examples should be enabled for interactive use, fix the value; if intentionally disabled, fix the comment
-- [ ] SKILL.md for validation updated with new `validate()` signature
+- [x] `validate()` orchestrator accepts an optional `ValidateOptions` parameter (mirrors `TranslationOutputConfig`)
+- [x] When `includeExamples: false`, Step 4 (example validation) is skipped entirely
+- [x] When `includeSynonyms: false`, synonym-related validation (if any) is skipped — N/A, no synonym validation exists
+- [x] When `includeAlternatives: false`, Step 5 (alternatives semantic validation) is skipped
+- [x] `translation.service.ts` passes `input.outputConfig` to `validate()`
+- [x] Existing tests still pass — no regression in full-output validation (973 tests pass)
+- [x] New tests: `validate()` with `includeExamples: false` does NOT fail on empty examples
+- [x] New tests: `validate()` with `includeAlternatives: false` does NOT fail on missing alternatives
+- [x] Decide on `FULL_OUTPUT` preset: fixed value to `includeExamples: true` (examples enabled for interactive use)
+- [x] SKILL.md for validation updated with new `validate()` signature and `ValidateOptions` type
 
 ## Dependencies
 

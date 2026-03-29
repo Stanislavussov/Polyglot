@@ -53,14 +53,16 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
 Return ONLY valid JSON, no markdown, no explanation, no code fences.
 The JSON must have this exact structure:
 {
-  "emoji": "<one relevant emoji>",${cfg.includeRegister ? `
-  "register": "<overall register: slang | colloquial | neutral | literary | professional>",` : ""}
+  "emoji": "<one relevant emoji>",${
+    cfg.includeRegister
+      ? `
+  "register": "<overall register: slang | colloquial | neutral | literary | professional>",`
+      : ""
+  }
   "translations": {
 ${targetLangs
   .map((lang) => {
-    const lines: string[] = [
-      `      "text": "<translation in ${getLanguageName(lang)}>"`,
-    ];
+    const lines: string[] = [`      "text": "<translation in ${getLanguageName(lang)}>"`];
     if (cfg.includeCefr) {
       lines.push(`      "cefr": "<CEFR level: A1 | A2 | B1 | B2 | C1 | C2>"`);
     }
@@ -134,13 +136,17 @@ Rules:${
 - Warn about dangerous or misleading connotations ONLY if they exist. Most words should NOT have a warning. Omit the "connotationWarning" field entirely if the word has no dangerous connotations.`
       : ""
   }
-${cfg.includeCefr ? `
-- CEFR level should reflect the ${isSentence ? "overall difficulty of the sentence" : "difficulty of the translated word in that language"}.` : ""}${
-    cfg.includeTranscription
-      ? `
+${
+  cfg.includeCefr
+    ? `
+- CEFR level should reflect the ${isSentence ? "overall difficulty of the sentence" : "difficulty of the translated word in that language"}.`
+    : ""
+}${
+  cfg.includeTranscription
+    ? `
 - Transcription is required for non-Latin scripts; optional otherwise.`
-      : ""
-  }
+    : ""
+}
 - Return ONLY the JSON object. No additional text before or after.${
     cfg.includeEquivalentNote
       ? `
@@ -176,9 +182,7 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
     checkItems.push(
       "- Each of the 3 examples uses a DIFFERENT word: example 1 uses the main translation, example 2 uses an alternative/synonym, example 3 uses another alternative/synonym — in target sentences",
     );
-    checkItems.push(
-      "- Each example has a one-word register label in the source language",
-    );
+    checkItems.push("- Each example has a one-word register label in the source language");
   }
   checkItems.push("- Translations are actual translations, not the original word repeated");
   checkItems.push("- All required fields are present");
@@ -192,7 +196,9 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
     checkItems.push(`- For idiomatic expressions, set expressionType to "idiomatic_equivalent" with an equivalentNote`);
   }
   if (cfg.includeConnotationWarning) {
-    checkItems.push("- connotationWarning is present ONLY for words with genuinely dangerous/misleading meanings — omit for most words");
+    checkItems.push(
+      "- connotationWarning is present ONLY for words with genuinely dangerous/misleading meanings — omit for most words",
+    );
   }
 
   return `${base}

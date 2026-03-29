@@ -25,10 +25,7 @@ describe("validateExamples", () => {
   });
 
   it("fails for empty target text", () => {
-    const result = validateExamples(
-      [{ context: "neutral", target: "", register: "neutral" }],
-      "word",
-    );
+    const result = validateExamples([{ context: "neutral", target: "", register: "neutral" }], "word");
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.field?.includes("target"))).toBe(true);
   });
@@ -62,10 +59,7 @@ describe("validateExamples", () => {
   it("accepts all valid context values", () => {
     const contexts = ["neutral", "colloquial", "professional"] as const;
     for (const context of contexts) {
-      const result = validateExamples(
-        [{ context, target: "Some target text.", register: "label" }],
-        "word",
-      );
+      const result = validateExamples([{ context, target: "Some target text.", register: "label" }], "word");
       expect(result.valid).toBe(true);
     }
   });

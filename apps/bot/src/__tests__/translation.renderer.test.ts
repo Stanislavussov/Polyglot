@@ -707,9 +707,7 @@ describe("renderTranslation — backward compat with old examples", () => {
         cs: {
           ...sampleOutput.translations.cs!,
           // Simulate old data from DB that has no register field
-          examples: [
-            { context: "neutral", target: "Old example sentence." } as any,
-          ],
+          examples: [{ context: "neutral", target: "Old example sentence." } as any],
         },
       },
     };
@@ -725,9 +723,7 @@ describe("renderTranslation — backward compat with old examples", () => {
       translations: {
         cs: {
           ...sampleOutput.translations.cs!,
-          examples: [
-            { context: "neutral", target: "Dobrý den!", native: "Good day!", register: "neutral" } as any,
-          ],
+          examples: [{ context: "neutral", target: "Dobrý den!", native: "Good day!", register: "neutral" } as any],
         },
       },
     };

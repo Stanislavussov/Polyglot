@@ -48,10 +48,7 @@ const SENTENCE_PUNCTUATION = /[.!?。？！]$/;
  * 4. wordCount <= maxPhraseTokens → 'phrase'
  * 5. wordCount > maxPhraseTokens → 'sentence'
  */
-export function classifyInput(
-  text: string,
-  config?: Partial<InputClassifierConfig>,
-): InputClassification {
+export function classifyInput(text: string, config?: Partial<InputClassifierConfig>): InputClassification {
   const cfg = { ...DEFAULT_CONFIG, ...config };
   const trimmed = text.trim();
   const tokens = trimmed.length === 0 ? [] : trimmed.split(/\s+/);

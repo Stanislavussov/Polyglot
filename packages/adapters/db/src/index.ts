@@ -1,12 +1,8 @@
 import * as schema from "./schema.js";
 
-export * from "./schema.js";
-export { schema };
-
 // Database connection — extracted to connection.ts to avoid circular deps
 export type { Db } from "./connection.js";
 export { closeDb, getDb } from "./connection.js";
-
 export { createContextLookup } from "./context-lookup.js";
 export type { CachedLanguage } from "./language-cache.js";
 // Language cache — loaded from DB, serves all language metadata
@@ -56,3 +52,5 @@ export type {
   WordContext,
 } from "./repositories/word-context.repository.js";
 export { wordContextRepository } from "./repositories/word-context.repository.js";
+export * from "./schema.js";
+export { schema };

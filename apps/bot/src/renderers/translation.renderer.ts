@@ -58,8 +58,7 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
   const header = lt.transcription ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]` : `<b>${esc(lt.text)}</b>`;
 
   // Inline synonyms: (syn1, syn2) — text only, no register
-  const synInline =
-    lt.synonyms.length > 0 ? ` (${lt.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
+  const synInline = lt.synonyms.length > 0 ? ` (${lt.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
 
   const flag = getLangFlag(code) ?? "🔤";
   lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}${synInline}`);
@@ -136,9 +135,7 @@ export function renderSentenceTranslation(output: TranslateOutput, interfaceLang
 /** Render a single language block for sentence translation (compact) */
 function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string {
   const flag = getLangFlag(code) ?? "🔤";
-  const header = lt.transcription
-    ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]`
-    : `<b>${esc(lt.text)}</b>`;
+  const header = lt.transcription ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]` : `<b>${esc(lt.text)}</b>`;
   return `${flag} ${esc(code.toUpperCase())}: ${header}`;
 }
 

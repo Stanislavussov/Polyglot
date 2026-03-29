@@ -235,6 +235,7 @@ Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean
 - 8 idiomatic tests in `example.validator.idiomatic.test.ts` + 5 orchestrator idiomatic tests in `validate.test.ts`
 - **Task 13**: 4 new Wiktionary validators (`validateWiktionaryEntry`, `validateWordContext`, `validateGlosses`, `validatePos`) with 58 tests. `KNOWN_POS` constant exported for POS filtering. Types `WiktionaryEntryInput`, `WordContextInput`, `KnownPos` exported.
 - `validate()` orchestrator validates `alternatives[].text` semantically — catches hallucinations and identity translations in alternative variants (6 tests in `validate.test.ts`)
+- **Task 28**: `validate()` accepts optional `ValidateOptions` parameter (`{ includeExamples?: boolean; includeAlternatives?: boolean }`). When `includeExamples: false`, example validation (step 4) is skipped. When `includeAlternatives: false`, alternatives semantic validation (step 5) is skipped. `translation.service.ts` passes `input.outputConfig` to `validate()`. `FULL_OUTPUT` preset fixed to `includeExamples: true`. 6 output-config-aware tests in `validate.test.ts`.
 
 ## Language Detection Module (Task 16)
 
@@ -300,3 +301,4 @@ packages/core/src/modules/language-detect/
 - Task: `docs/tasks/16-auto-detect-input-language.md` (language detection + direction resolver)
 - Task: `docs/tasks/17-next-translation-language-menu.md` (explicit source lang direction resolver)
 - Task: `docs/tasks/27-input-type-detection-and-text-limits.md` (sentence inputType — skip semantic/example/alternatives validation)
+- Task: `docs/tasks/finished/28-validation-respects-output-config.md` (ValidateOptions — skip validation for disabled output fields)

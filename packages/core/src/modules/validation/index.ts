@@ -47,7 +47,14 @@ import { validateSemantic } from "./validators/semantic.validator.js";
  *
  * Pure function — no side effects, no I/O.
  */
-export function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[], inputType?: InputType, options?: ValidateOptions): ValidationResult {
+export function validate(
+  raw: unknown,
+  schema: ZodSchema,
+  original: string,
+  expectedLangs: string[],
+  inputType?: InputType,
+  options?: ValidateOptions,
+): ValidationResult {
   const allErrors: ValidationError[] = [];
 
   // Step 1: Schema validation

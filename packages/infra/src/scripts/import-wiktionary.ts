@@ -174,13 +174,16 @@ async function importWiktionary(
 
   stats.duration = Date.now() - startTime;
 
-  logger.info({
-    total: stats.total,
-    inserted: stats.inserted,
-    skipped: stats.skipped,
-    errors: stats.errors,
-    durationSec: +(stats.duration / 1000).toFixed(2),
-  }, "Wiktionary import complete");
+  logger.info(
+    {
+      total: stats.total,
+      inserted: stats.inserted,
+      skipped: stats.skipped,
+      errors: stats.errors,
+      durationSec: +(stats.duration / 1000).toFixed(2),
+    },
+    "Wiktionary import complete",
+  );
 
   return stats;
 }
@@ -199,7 +202,10 @@ async function main() {
   });
 
   if (values.help || positionals.length === 0) {
-    logger.info({}, `Usage: pnpm import:wiktionary <jsonl-file> [options]\n\nOptions:\n  --batch-size=N   Insert batch size (default: 1000)\n  --lang=CODE      Filter by language code (e.g., ru, en, de)\n  -h, --help       Show this help message`);
+    logger.info(
+      {},
+      `Usage: pnpm import:wiktionary <jsonl-file> [options]\n\nOptions:\n  --batch-size=N   Insert batch size (default: 1000)\n  --lang=CODE      Filter by language code (e.g., ru, en, de)\n  -h, --help       Show this help message`,
+    );
     process.exit(0);
   }
 

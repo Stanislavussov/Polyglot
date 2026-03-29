@@ -888,10 +888,28 @@ describe("validate with ValidateOptions", () => {
         text: z.string(),
         cefr: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
         register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
-        synonyms: z.array(z.object({ text: z.string(), register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]) })),
+        synonyms: z.array(
+          z.object({
+            text: z.string(),
+            register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
+          }),
+        ),
         examples: z.array(z.object({ context: z.string(), target: z.string(), register: z.string() })).default([]),
         expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
-        alternatives: z.array(z.object({ text: z.string(), register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]), synonyms: z.array(z.object({ text: z.string(), register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]) })) })).optional(),
+        alternatives: z
+          .array(
+            z.object({
+              text: z.string(),
+              register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
+              synonyms: z.array(
+                z.object({
+                  text: z.string(),
+                  register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
+                }),
+              ),
+            }),
+          )
+          .optional(),
       }),
     ),
   });
@@ -997,7 +1015,10 @@ describe("validate with ValidateOptions", () => {
         },
       },
     };
-    const result = validate(raw, noExamplesSchema, "зверюга", ["en"], undefined, { includeExamples: false, includeAlternatives: false });
+    const result = validate(raw, noExamplesSchema, "зверюга", ["en"], undefined, {
+      includeExamples: false,
+      includeAlternatives: false,
+    });
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -1016,7 +1037,10 @@ describe("validate with ValidateOptions", () => {
         },
       },
     };
-    const result = validate(raw, noExamplesSchema, "зверюга", ["en"], undefined, { includeExamples: false, includeAlternatives: false });
+    const result = validate(raw, noExamplesSchema, "зверюга", ["en"], undefined, {
+      includeExamples: false,
+      includeAlternatives: false,
+    });
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
   });

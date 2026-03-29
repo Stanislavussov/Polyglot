@@ -78,6 +78,7 @@ export interface LanguageTranslation {
 // TranslationOutputConfig lives in shared/ so leaf modules (topics, etc.)
 // can use it without creating forbidden cross-module imports.
 import type { TranslationOutputConfig } from "../../shared/types.js";
+
 export type { TranslationOutputConfig } from "../../shared/types.js";
 
 /** Detected input type — drives prompt, schema, and validation behavior */

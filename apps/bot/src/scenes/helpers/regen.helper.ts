@@ -44,16 +44,15 @@ export async function handleRegenLoop(
   const renderCard = isSentence ? renderSentenceTranslation : renderTranslation;
   const buildKeyboard = isSentence
     ? buildSentenceKeyboard
-    : (codes: string[], l: SupportedLang) => buildTranslationKeyboard(codes, (inputType as "word" | "phrase") ?? "word", l);
+    : (codes: string[], l: SupportedLang) =>
+        buildTranslationKeyboard(codes, (inputType as "word" | "phrase") ?? "word", l);
   const outputConfig = isSentence ? SENTENCE_OUTPUT : FULL_OUTPUT;
 
   let card = renderCard(current, lang);
   let keyboard = buildKeyboard(langCodes, lang);
 
   // For sentences, only support regen — no save/skip
-  const callbackPattern = isSentence
-    ? /^tr:regen:.+$/
-    : /^tr:(save|skip|regen:.+)$/;
+  const callbackPattern = isSentence ? /^tr:regen:.+$/ : /^tr:(save|skip|regen:.+)$/;
 
   while (true) {
     const resp = await conversation.waitForCallbackQuery(callbackPattern, {
