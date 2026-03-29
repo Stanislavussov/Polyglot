@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Logger } from "../../../logger.js";
 import { setLogger } from "../../../logger.js";
-import { parseResponse, translate, translateBatch, translateOne } from "../translation.service.js";
+import { parseResponse, sanitizeEmoji, translate, translateBatch, translateOne } from "../translation.service.js";
 import type { TranslateInput, TranslationResult } from "../types.js";
 
 /** Shared mock logger for validation logging tests */
@@ -209,6 +209,28 @@ describe("translate", () => {
     const mockGenerate = vi.fn().mockRejectedValue(new Error("API rate limit exceeded"));
 
     await expect(translate(defaultInput, mockGenerate)).rejects.toThrow("API rate limit exceeded");
+  });
+
+  it("sanitizes non-emoji string in emoji field to fallback", async () => {
+    setLogger(mockLogger);
+    const badEmojiResult = makeValidResult({ emoji: "brittle" });
+    const mockGenerate = vi.fn().mockResolvedValue(badEmojiResult);
+
+    const result = await translate(defaultInput, mockGenerate);
+
+    expect(result.emoji).toBe("🔤");
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ rawEmoji: "brittle", sanitized: "🔤" }),
+      expect.stringContaining("non-emoji"),
+    );
+  });
+
+  it("preserves valid emoji from AI response", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult({ emoji: "💎" }));
+
+    const result = await translate(defaultInput, mockGenerate);
+
+    expect(result.emoji).toBe("💎");
   });
 });
 
@@ -581,5 +603,31 @@ describe("parseResponse", () => {
     const raw = makeValidResult({ translations: {} });
     const result = parseResponse(raw);
     expect(result.translations).toEqual({});
+  });
+});
+
+describe("sanitizeEmoji", () => {
+  it("passes through valid single emoji", () => {
+    expect(sanitizeEmoji("👋")).toBe("👋");
+    expect(sanitizeEmoji("🔥")).toBe("🔥");
+    expect(sanitizeEmoji("💎")).toBe("💎");
+  });
+
+  it("passes through ZWJ sequences", () => {
+    expect(sanitizeEmoji("👨‍👩‍👧‍👦")).toBe("👨‍👩‍👧‍👦");
+  });
+
+  it("passes through flag emoji", () => {
+    expect(sanitizeEmoji("🇷🇺")).toBe("🇷🇺");
+  });
+
+  it("replaces plain words with fallback", () => {
+    expect(sanitizeEmoji("brittle")).toBe("🔤");
+    expect(sanitizeEmoji("fragile")).toBe("🔤");
+    expect(sanitizeEmoji("hello world")).toBe("🔤");
+  });
+
+  it("replaces empty-looking strings with fallback", () => {
+    expect(sanitizeEmoji("abc")).toBe("🔤");
   });
 });

@@ -229,16 +229,43 @@ export function parseResponse(raw: unknown): TranslationResult {
  */
 export { buildTranslationPrompt as buildPrompt } from "./prompt.builder.js";
 
+/** Default fallback emoji when AI returns a non-emoji string */
+const DEFAULT_EMOJI = "🔤";
+
+/**
+ * Check whether a string looks like an emoji (not a plain-text word).
+ *
+ * The AI's typical failure mode is returning a synonym ("brittle", "fragile")
+ * instead of an emoji. All such words contain ASCII letters, while real emoji
+ * characters (including flags 🇷🇺, ZWJ sequences 👨‍👩‍👧, keycaps 1️⃣) do not.
+ */
+function looksLikeEmoji(value: string): boolean {
+  return value.length > 0 && !/[a-zA-Z]/.test(value);
+}
+
+/** Ensure a value is a valid emoji, falling back to a default */
+export function sanitizeEmoji(value: string): string {
+  return looksLikeEmoji(value) ? value : DEFAULT_EMOJI;
+}
+
 /** Convert AI result to the public TranslateOutput format */
 function toOutput(input: TranslateInput, result: TranslationResult, needsReview: boolean): TranslateOutput {
   // Strip disabled fields from AI response — the model may still return them
   // even when the prompt doesn't ask for them (JSON schema leaks structure).
   const translations = stripDisabledFields(result.translations, input.outputConfig);
 
+  const emoji = sanitizeEmoji(result.emoji);
+  if (emoji !== result.emoji) {
+    getLogger().warn(
+      { original: input.word, rawEmoji: result.emoji, sanitized: emoji },
+      "AI returned non-emoji string in emoji field, replaced with fallback",
+    );
+  }
+
   const output: TranslateOutput = {
     original: input.word,
     sourceLang: input.sourceLang,
-    emoji: result.emoji,
+    emoji,
     register: result.register,
     translations,
   };
