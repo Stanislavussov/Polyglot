@@ -268,6 +268,144 @@ describe("i18n — t()", () => {
       "⚠️ erregen — sexuelle Konnotation",
     );
   });
+
+  // Template wizard keys (task 32)
+  it("returns templateTitle in English", () => {
+    expect(t("templateTitle", "en")).toBe("⚙️ Translation Template");
+  });
+
+  it("returns templateTitle in Russian", () => {
+    expect(t("templateTitle", "ru")).toBe("⚙️ Шаблон перевода");
+  });
+
+  it("returns templateTitle in Czech", () => {
+    expect(t("templateTitle", "cs")).toBe("⚙️ Šablona překladu");
+  });
+
+  it("returns templateCurrent with {name} interpolation in English", () => {
+    expect(t("templateCurrent", "en", { name: "My Template" })).toBe("Current template: <b>My Template</b>");
+  });
+
+  it("returns templateCurrent with {name} interpolation in Russian", () => {
+    expect(t("templateCurrent", "ru", { name: "Мой шаблон" })).toBe("Текущий шаблон: <b>Мой шаблон</b>");
+  });
+
+  it("returns templateCurrent with {name} interpolation in Czech", () => {
+    expect(t("templateCurrent", "cs", { name: "Moje šablona" })).toBe("Aktuální šablona: <b>Moje šablona</b>");
+  });
+
+  it("returns templateDefault in English", () => {
+    expect(t("templateDefault", "en")).toContain("default template");
+  });
+
+  it("returns templateCustom in English", () => {
+    expect(t("templateCustom", "en")).toContain("custom template");
+  });
+
+  it("returns template button labels in English", () => {
+    expect(t("templateCustomize", "en")).toBe("📝 Customize");
+    expect(t("templateReset", "en")).toBe("🔄 Reset to Default");
+    expect(t("templatePreview", "en")).toBe("👁 Preview");
+    expect(t("templateSave", "en")).toBe("💾 Save");
+    expect(t("templateCancel", "en")).toBe("✕ Cancel");
+    expect(t("templateBack", "en")).toBe("← Back");
+  });
+
+  it("returns template button labels in Russian", () => {
+    expect(t("templateCustomize", "ru")).toBe("📝 Настроить");
+    expect(t("templateReset", "ru")).toBe("🔄 Сбросить");
+    expect(t("templatePreview", "ru")).toBe("👁 Просмотр");
+    expect(t("templateSave", "ru")).toBe("💾 Сохранить");
+    expect(t("templateCancel", "ru")).toBe("✕ Отмена");
+    expect(t("templateBack", "ru")).toBe("← Назад");
+  });
+
+  it("returns template button labels in Czech", () => {
+    expect(t("templateCustomize", "cs")).toBe("📝 Upravit");
+    expect(t("templateReset", "cs")).toBe("🔄 Obnovit výchozí");
+    expect(t("templatePreview", "cs")).toBe("👁 Náhled");
+    expect(t("templateSave", "cs")).toBe("💾 Uložit");
+    expect(t("templateCancel", "cs")).toBe("✕ Zrušit");
+    expect(t("templateBack", "cs")).toBe("← Zpět");
+  });
+
+  it("returns templateConstructor in English", () => {
+    expect(t("templateConstructor", "en")).toContain("Template Constructor");
+    expect(t("templateConstructor", "en")).toContain("Toggle sections");
+  });
+
+  it("returns templateConstructor in Russian", () => {
+    expect(t("templateConstructor", "ru")).toContain("Конструктор шаблона");
+  });
+
+  it("returns templateConstructor in Czech", () => {
+    expect(t("templateConstructor", "cs")).toContain("Konstruktor šablony");
+  });
+
+  it("returns templateSaved confirmation in all locales", () => {
+    expect(t("templateSaved", "en")).toContain("Template saved");
+    expect(t("templateSaved", "ru")).toContain("Шаблон сохранён");
+    expect(t("templateSaved", "cs")).toContain("Šablona uložena");
+  });
+
+  it("returns templateResetDone confirmation in all locales", () => {
+    expect(t("templateResetDone", "en")).toContain("reset to default");
+    expect(t("templateResetDone", "ru")).toContain("сброшен");
+    expect(t("templateResetDone", "cs")).toContain("obnovena");
+  });
+
+  it("returns templateCancelled in all locales", () => {
+    expect(t("templateCancelled", "en")).toContain("cancelled");
+    expect(t("templateCancelled", "ru")).toContain("отменено");
+    expect(t("templateCancelled", "cs")).toContain("zrušena");
+  });
+
+  it("returns template field labels in English", () => {
+    expect(t("templateFieldTranscription", "en")).toBe("Transcription [IPA]");
+    expect(t("templateFieldSynonyms", "en")).toBe("Synonyms");
+    expect(t("templateFieldExamples", "en")).toBe("Examples (3 sentences)");
+    expect(t("templateFieldAlternatives", "en")).toBe("Alternative translations");
+    expect(t("templateFieldEquivalentNote", "en")).toBe("Expression type notes");
+    expect(t("templateFieldConnotationWarning", "en")).toBe("Connotation warnings");
+  });
+
+  it("returns template field labels in Russian", () => {
+    expect(t("templateFieldTranscription", "ru")).toBe("Транскрипция [IPA]");
+    expect(t("templateFieldSynonyms", "ru")).toBe("Синонимы");
+    expect(t("templateFieldExamples", "ru")).toBe("Примеры (3 предложения)");
+    expect(t("templateFieldAlternatives", "ru")).toBe("Альтернативные переводы");
+    expect(t("templateFieldEquivalentNote", "ru")).toBe("Тип выражения");
+    expect(t("templateFieldConnotationWarning", "ru")).toBe("Предупреждения о коннотации");
+  });
+
+  it("returns template field labels in Czech", () => {
+    expect(t("templateFieldTranscription", "cs")).toBe("Transkripce [IPA]");
+    expect(t("templateFieldSynonyms", "cs")).toBe("Synonyma");
+    expect(t("templateFieldExamples", "cs")).toBe("Příklady (3 věty)");
+    expect(t("templateFieldAlternatives", "cs")).toBe("Alternativní překlady");
+    expect(t("templateFieldEquivalentNote", "cs")).toBe("Typ výrazu");
+    expect(t("templateFieldConnotationWarning", "cs")).toBe("Upozornění na konotaci");
+  });
+
+  it("returns templatePreviewHeader in all locales", () => {
+    expect(t("templatePreviewHeader", "en")).toBe("📋 Preview with your template:");
+    expect(t("templatePreviewHeader", "ru")).toBe("📋 Предпросмотр с вашим шаблоном:");
+    expect(t("templatePreviewHeader", "cs")).toBe("📋 Náhled s vaší šablonou:");
+  });
+
+  it("returns templateSessionExpired in all locales", () => {
+    expect(t("templateSessionExpired", "en")).toContain("Session expired");
+    expect(t("templateSessionExpired", "ru")).toContain("Сессия истекла");
+    expect(t("templateSessionExpired", "cs")).toContain("Relace vypršela");
+  });
+
+  it("falls back to English for template keys when locale has no file", () => {
+    expect(t("templateTitle", "de")).toBe("⚙️ Translation Template");
+    expect(t("templateCurrent", "de", { name: "Test" })).toBe("Current template: <b>Test</b>");
+    expect(t("templateCustomize", "de")).toBe("📝 Customize");
+    expect(t("templateFieldTranscription", "de")).toBe("Transcription [IPA]");
+    expect(t("templateSessionExpired", "de")).toContain("Session expired");
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -382,6 +520,28 @@ describe("i18n — locale consistency", () => {
       "sentenceTranslation",
       "save",
       "connotationWarning",
+      "templateTitle",
+      "templateCurrent",
+      "templateDefault",
+      "templateCustom",
+      "templateCustomize",
+      "templateReset",
+      "templateConstructor",
+      "templatePreview",
+      "templateSave",
+      "templateCancel",
+      "templateBack",
+      "templateSaved",
+      "templateResetDone",
+      "templateCancelled",
+      "templateFieldTranscription",
+      "templateFieldSynonyms",
+      "templateFieldExamples",
+      "templateFieldAlternatives",
+      "templateFieldEquivalentNote",
+      "templateFieldConnotationWarning",
+      "templatePreviewHeader",
+      "templateSessionExpired",
     ];
 
     for (const key of enKeys) {

@@ -7,12 +7,22 @@ import { startCommand } from "./commands/start.js";
 import { authMiddleware } from "./middlewares/auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import {
+  handleBackCallback,
+  handleCancelCallback,
+  handleCustomizeCallback,
+  handlePreviewCallback,
+  handleResetCallback,
+  handleSaveTemplateCallback,
+  handleToggleCallback,
+} from "./scenes/helpers/template.helper.js";
+import {
   handleRegenCallback,
   handleSaveCallback,
   handleSkipCallback,
   handleSourceLangCallback,
 } from "./scenes/helpers/translate-mode.helper.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
+import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, SessionData } from "./types.js";
 
@@ -38,6 +48,7 @@ bot.use(
       lastTranslation: undefined,
       lastInputType: undefined,
       savedWordId: undefined,
+      templateWizard: undefined,
     }),
   }),
 );
@@ -55,12 +66,22 @@ bot.use(createConversation(onboarding));
 // ── Register commands ──
 bot.command("start", startCommand);
 bot.command("translate", handleTranslateCommand);
+bot.command("template", handleTemplateCommand);
 
 // ── Register callback handlers for translate mode ──
 bot.callbackQuery("tr:save", handleSaveCallback);
 bot.callbackQuery("tr:skip", handleSkipCallback);
 bot.callbackQuery(/^tr:regen:/, handleRegenCallback);
 bot.callbackQuery(/^tr:srclang:/, handleSourceLangCallback);
+
+// ── Register callback handlers for template wizard (Task 32) ──
+bot.callbackQuery("tpl:customize", handleCustomizeCallback);
+bot.callbackQuery(/^tpl:toggle:/, handleToggleCallback);
+bot.callbackQuery("tpl:preview", handlePreviewCallback);
+bot.callbackQuery("tpl:save", handleSaveTemplateCallback);
+bot.callbackQuery("tpl:cancel", handleCancelCallback);
+bot.callbackQuery("tpl:reset", handleResetCallback);
+bot.callbackQuery("tpl:back", handleBackCallback);
 
 // ── Mode router — processes plain text based on active mode ──
 // Must be after commands so commands take priority
@@ -72,6 +93,7 @@ async function setBotCommands(): Promise<void> {
     { command: "start", description: "Onboarding or main menu" },
     { command: "translate", description: "Translate a word or phrase" },
     { command: "dictionary", description: "Personal dictionary" },
+    { command: "template", description: "Customize translation output" },
     { command: "settings", description: "Language, notifications, timezone" },
   ]);
   logger.info("Bot commands list set");

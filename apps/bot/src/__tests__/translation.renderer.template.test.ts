@@ -1,0 +1,163 @@
+/**
+ * Tests for template-aware rendering in renderTranslation().
+ * Verifies that TemplateFields controls which sections appear in the card.
+ */
+import type { TemplateFields, TranslateOutput } from "@polyglot/core";
+import { describe, expect, it, vi } from "vitest";
+import { renderTranslation } from "../renderers/translation.renderer.js";
+
+// Mock getLangFlag from @polyglot/core
+vi.mock("@polyglot/core", async () => {
+  const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
+  const flagMap: Record<string, string> = {
+    en: "🇬🇧",
+    cs: "🇨🇿",
+    de: "🇩🇪",
+    ru: "🇷🇺",
+  };
+  return {
+    ...actual,
+    getLangFlag: vi.fn((code: string) => flagMap[code]),
+  };
+});
+
+const sampleOutput: TranslateOutput = {
+  original: "hello",
+  sourceLang: "en",
+  emoji: "👋",
+  register: "neutral",
+  translations: {
+    cs: {
+      text: "ahoj",
+      cefr: "A1",
+      transcription: "ˈahoj",
+      register: "colloquial",
+      synonyms: [
+        { text: "dobrý den", register: "neutral" },
+        { text: "nazdar", register: "colloquial" },
+      ],
+      examples: [
+        { context: "neutral", target: "Dobrý den, pane!", register: "neutrální" },
+        { context: "colloquial", target: "Ahoj, jak se máš?", register: "hovorový" },
+      ],
+      alternatives: [
+        {
+          text: "zdravím",
+          register: "literary",
+          synonyms: [],
+        },
+      ],
+      connotationWarning: "informal in professional settings",
+    },
+  },
+};
+
+/** All fields enabled (default behavior) */
+const allTrue: TemplateFields = {
+  transcription: true,
+  synonyms: true,
+  examples: true,
+  alternatives: true,
+  equivalentNote: true,
+  connotationWarning: true,
+};
+
+/** All fields disabled */
+const allFalse: TemplateFields = {
+  transcription: false,
+  synonyms: false,
+  examples: false,
+  alternatives: false,
+  equivalentNote: false,
+  connotationWarning: false,
+};
+
+describe("renderTranslation — template-aware (Task 32)", () => {
+  it("renders all sections when templateFields is undefined (backward compat)", () => {
+    const result = renderTranslation(sampleOutput, "en");
+    expect(result).toContain("[ˈahoj]");
+    expect(result).toContain("(dobrý den, nazdar)");
+    expect(result).toContain("💬");
+    expect(result).toContain("∙ zdravím (literary)");
+    expect(result).toContain("⚠️");
+  });
+
+  it("renders all sections when all fields are true", () => {
+    const result = renderTranslation(sampleOutput, "en", allTrue);
+    expect(result).toContain("[ˈahoj]");
+    expect(result).toContain("(dobrý den, nazdar)");
+    expect(result).toContain("💬");
+    expect(result).toContain("∙ zdravím (literary)");
+    expect(result).toContain("⚠️");
+  });
+
+  it("omits transcription when transcription is false", () => {
+    const fields: TemplateFields = { ...allTrue, transcription: false };
+    const result = renderTranslation(sampleOutput, "en", fields);
+    expect(result).not.toContain("[ˈahoj]");
+    expect(result).toContain("<b>ahoj</b>");
+  });
+
+  it("omits inline synonyms when synonyms is false", () => {
+    const fields: TemplateFields = { ...allTrue, synonyms: false };
+    const result = renderTranslation(sampleOutput, "en", fields);
+    expect(result).not.toContain("(dobrý den, nazdar)");
+    // Translation text is still shown
+    expect(result).toContain("<b>ahoj</b>");
+  });
+
+  it("omits examples when examples is false", () => {
+    const fields: TemplateFields = { ...allTrue, examples: false };
+    const result = renderTranslation(sampleOutput, "en", fields);
+    expect(result).not.toContain("💬");
+    expect(result).not.toContain("Dobrý den, pane!");
+  });
+
+  it("omits alternatives when alternatives is false", () => {
+    const fields: TemplateFields = { ...allTrue, alternatives: false };
+    const result = renderTranslation(sampleOutput, "en", fields);
+    expect(result).not.toContain("∙ zdravím (literary)");
+  });
+
+  it("omits connotation warning when connotationWarning is false", () => {
+    const fields: TemplateFields = { ...allTrue, connotationWarning: false };
+    const result = renderTranslation(sampleOutput, "en", fields);
+    expect(result).not.toContain("⚠️");
+    expect(result).not.toContain("informal in professional settings");
+  });
+
+  it("renders only emoji, word, and bare translation when all fields false", () => {
+    const result = renderTranslation(sampleOutput, "en", allFalse);
+    expect(result).toContain("👋 <b>hello</b>");
+    expect(result).toContain("🇨🇿 CS: <b>ahoj</b>");
+    // No optional sections
+    expect(result).not.toContain("[ˈahoj]");
+    expect(result).not.toContain("(dobrý den");
+    expect(result).not.toContain("💬");
+    expect(result).not.toContain("∙");
+    expect(result).not.toContain("⚠️");
+  });
+
+  it("still renders needsReview regardless of template fields", () => {
+    const output = { ...sampleOutput, needsReview: true };
+    const result = renderTranslation(output, "en", allFalse);
+    expect(result).toContain("inaccuracies");
+  });
+
+  it("allows mixing enabled and disabled fields", () => {
+    const fields: TemplateFields = {
+      transcription: true,
+      synonyms: false,
+      examples: true,
+      alternatives: false,
+      equivalentNote: true,
+      connotationWarning: false,
+    };
+    const result = renderTranslation(sampleOutput, "en", fields);
+    expect(result).toContain("[ˈahoj]");
+    expect(result).not.toContain("(dobrý den");
+    expect(result).toContain("💬");
+    expect(result).not.toContain("∙ zdravím (literary)");
+    expect(result).not.toContain("⚠️");
+  });
+});

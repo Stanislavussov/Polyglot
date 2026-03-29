@@ -31,6 +31,8 @@ export type {
 export { topicRepository } from "./repositories/topic.repository.js";
 export type { TranslationRequestDTO } from "./repositories/translation-request.repository.js";
 export { translationRequestRepository } from "./repositories/translation-request.repository.js";
+export type { SavedTranslationTemplate } from "./repositories/translation-template.repository.js";
+export { translationTemplateRepository } from "./repositories/translation-template.repository.js";
 export type {
   NewUser,
   NewUserLanguageSettings,

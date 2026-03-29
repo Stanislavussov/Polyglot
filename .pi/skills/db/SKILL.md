@@ -18,7 +18,7 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 ## Current State
 
 Fully implemented. All tables, repositories, singleton connection, and context-lookup factory in place.
-- `schema.ts` — tables: `users`, `userLanguageSettings`, `words`, `translationRequests`, `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`
+- `schema.ts` — tables: `users`, `userLanguageSettings`, `words`, `translationRequests`, `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
 - `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `translationRequestRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
 - `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded
@@ -115,6 +115,18 @@ countByLanguage(languageId: number): Promise<number>;
 findById(id: number): Promise<WordContext | null>;
 ```
 
+### TranslationTemplateRepository
+
+```typescript
+getByUserId(userId: number): Promise<SavedTranslationTemplate | null>;
+  // Returns null if user has no custom template → caller falls back to DEFAULT_TEMPLATE
+upsert(userId: number, name: string, fields: TemplateFields): Promise<SavedTranslationTemplate>;
+  // Creates or updates the user's template. Validates all 6 TemplateFields are booleans.
+  // Throws if fields have invalid types or missing keys.
+deleteByUserId(userId: number): Promise<void>;
+  // Deletes user's custom template (reset to default)
+```
+
 ### Context Lookup Factory
 
 ```typescript
@@ -142,6 +154,7 @@ See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key
 - `topicTranslationCache` — topicId, original, sourceLang, targetLang, content (JSONB), isValid, invalidReason, createdAt, updatedAt; unique index on (topicId, original, sourceLang, targetLang)
 - `languages` — id, code (unique), name, createdAt; unique index on code. Normalized lookup for language codes (e.g. "ru" → "Russian")
 - `wordContext` — id, word, languageId (FK → languages.id), pos, formTags (text[]), glosses (text[]), createdAt; indexes on (word, languageId) and (languageId). Offline dictionary data from Wiktionary JSONL
+- `userTranslationTemplates` — id, userId (FK → users.id, unique, cascade), name (text, default 'Custom'), transcription (bool, default true), synonyms (bool, default true), examples (bool, default true), alternatives (bool, default true), equivalentNote (bool, default true), connotationWarning (bool, default true), createdAt, updatedAt; unique index on userId. 1-to-1 with users — customizable output template. Individual columns (not JSONB) for type safety and schema evolution.
 
 ## Content JSONB Structure (words.content — typed as StoredWordContent)
 
@@ -201,6 +214,10 @@ type TranslationRequestDTO = {
 type WordContext = { id: number; word: string; languageId: number; pos: string; formTags: string[] | null; glosses: string[] | null; createdAt: Date | null };
 type NewWordContext = { word: string; languageId: number; pos: string; formTags?: string[]; glosses?: string[] };
 
+// TemplateFields — imported from @polyglot/core (Task 32). DB stores as individual boolean columns, not JSONB.
+// TemplateFields = { transcription: boolean; synonyms: boolean; examples: boolean; alternatives: boolean; equivalentNote: boolean; connotationWarning: boolean };
+type SavedTranslationTemplate = { id: number; userId: number; name: string; fields: TemplateFields; createdAt: Date; updatedAt: Date };
+
 // StoredWordContent types (FEAT-30 — typed JSONB for words.content)
 // See word.repository.ts for full interface definitions
 // Imports CefrLevel, Example, ExpressionType, Register, Synonym, TranslationVariant from @polyglot/core
@@ -223,6 +240,7 @@ packages/adapters/db/src/
 │   ├── topic.repository.ts               # ✅ implemented
 │   ├── language.repository.ts            # ✅ implemented (findByCode, create, getOrCreate, findAll)
 │   ├── translation-request.repository.ts  # ✅ implemented (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)
+│   ├── translation-template.repository.ts # ✅ implemented (getByUserId, upsert, deleteByUserId — Task 32)
 │   └── word-context.repository.ts        # ✅ implemented (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
 └── __tests__/
     ├── getDb.test.ts                     # 1 test
@@ -232,6 +250,7 @@ packages/adapters/db/src/
     ├── language.repository.test.ts       # 7 tests (findByCode, create, getOrCreate, findAll)
     ├── word-context.repository.test.ts   # 13 tests (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
     ├── translation-request.repository.test.ts # 11 tests (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)
+    ├── translation-template.repository.test.ts # 12 tests (getByUserId, upsert, deleteByUserId, field normalization, validation — Task 32)
     └── context-lookup.test.ts            # 9 tests (factory returns fn, transforms result, no results→undefined, error→undefined, null glosses/formTags, multiple entries, langCode from arg)
 ```
 
@@ -245,6 +264,9 @@ packages/adapters/db/drizzle/
 ├── 0003_active_mode.sql                  # Adds active_mode column to user_language_settings
 ├── 0004_link_translation_requests_languages.sql # Links translation_requests to languages via FK + junction table
 ├── 0005_words_dictionary_improvements.sql # Adds source_lang_id FK, input_type column, dedup unique index; deprecates source_lang text
+├── 0006_drop_words_source_lang.sql       # Drops deprecated source_lang text column from words
+├── 0007_drop_iso3_code.sql               # Drops iso3_code column from languages
+├── 0008_user_translation_templates.sql   # Adds user_translation_templates table (Task 32)
 └── meta/
     ├── _journal.json
     ├── 0000_snapshot.json

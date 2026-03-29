@@ -1,6 +1,6 @@
 import { type ConversationFlavor } from "@grammyjs/conversations";
 import type { User } from "@polyglot/adapter-db";
-import type { InputType, TranslateOutput } from "@polyglot/core";
+import type { InputType, TemplateFields, TranslateOutput } from "@polyglot/core";
 import { Context, SessionFlavor } from "grammy";
 
 /**
@@ -45,6 +45,17 @@ export interface SessionData {
    * Cleared when a new translation is started.
    */
   savedWordId?: number;
+  /**
+   * Template constructor wizard state (Task 32).
+   * Set when user enters the template customization flow.
+   * Cleared on save, cancel, or session loss.
+   */
+  templateWizard?: {
+    /** Working copy of template fields being edited */
+    fields: TemplateFields;
+    /** Message ID of the wizard message (for in-place editing) */
+    wizardMsgId?: number;
+  };
 }
 
 /** Custom context properties injected by auth middleware */

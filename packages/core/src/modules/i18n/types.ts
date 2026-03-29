@@ -60,7 +60,29 @@ export type I18nKey =
   | "nextSourceSet"
   | "sentenceTranslation"
   | "save"
-  | "connotationWarning";
+  | "connotationWarning"
+  | "templateTitle"
+  | "templateCurrent"
+  | "templateDefault"
+  | "templateCustom"
+  | "templateCustomize"
+  | "templateReset"
+  | "templateConstructor"
+  | "templatePreview"
+  | "templateSave"
+  | "templateCancel"
+  | "templateBack"
+  | "templateSaved"
+  | "templateResetDone"
+  | "templateCancelled"
+  | "templateFieldTranscription"
+  | "templateFieldSynonyms"
+  | "templateFieldExamples"
+  | "templateFieldAlternatives"
+  | "templateFieldEquivalentNote"
+  | "templateFieldConnotationWarning"
+  | "templatePreviewHeader"
+  | "templateSessionExpired";
 
 /**
  * Supported interface languages.
@@ -95,6 +117,7 @@ export interface I18nParams {
   detectedLang: { lang: string };
   nextSourceSet: { lang: string };
   connotationWarning: { warning: string };
+  templateCurrent: { name: string };
 }
 
 /**

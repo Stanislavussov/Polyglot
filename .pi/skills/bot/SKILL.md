@@ -28,7 +28,10 @@ Already implemented:
 - `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation (persisted to DB)
 - `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks with FEAT-30 flow (FK resolution, dedup detection, sanitization); uses `translateWithContext()` from context-enrichment layer (dictionary context lookup delegated to `createContextLookup()` from DB adapter)
 - `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, FEAT-30 save with dedup/sanitize, skip)
-- `renderers/translation.renderer.ts` — renderTranslation (HTML), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with inputType-aware save labels), buildPostSaveKeyboard (regen-only post-save keyboard), buildSourceLangKeyboard (source language selection keyboard)
+- `renderers/translation.renderer.ts` — renderTranslation (HTML, template-aware), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with inputType-aware save labels), buildPostSaveKeyboard (regen-only post-save keyboard), buildSourceLangKeyboard (source language selection keyboard)
+- `scenes/template.scene.ts` — /template command handler (shows current template status with Customize/Reset buttons)
+- `scenes/helpers/template.helper.ts` — Template wizard callback handlers (customize, toggle, preview, save, cancel, reset)
+- `scenes/template-preview.data.ts` — Mock translation output for wizard preview
 
 Still needed:
 - `scenes/dictionary.scene.ts` — dictionary browsing
@@ -43,22 +46,22 @@ Translation is always active for onboarded users. Multiple layers ensure no text
 4. **Idle mode fallback** in mode router: onboarded users get translated (with warn log), non-onboarded users get `/start` hint
 5. **Debug logging** in mode router: logs `{ mode, text, userId }` on every routed message
 
-### Translation Output Config Presets (Task 21)
+### Translation Output Config Presets (Task 21, updated by Task 32)
 
-Bot callers use centralized `TranslationOutputConfig` presets from `@polyglot/core` to control which sections appear in AI translation responses. This reduces token usage for use cases that don't need full verbosity.
+Bot callers use `resolveOutputConfig()` from `@polyglot/core` to determine which sections appear in AI translation responses. For words/phrases, the user's custom template (from DB) is used when available; for sentences, `SENTENCE_OUTPUT` is always used regardless of template.
 
 **Caller → preset mapping:**
 
 | Caller | Preset | Rationale |
 |---|---|---|
-| `translate-mode.helper.ts` (`handleTranslateText`, word/phrase) | `FULL_OUTPUT` | Interactive translation — user expects rich cards |
-| `translate-mode.helper.ts` (`handleTranslateText`, sentence) | `SENTENCE_OUTPUT` | Sentence translation — compact, no learning metadata |
-| `translate-mode.helper.ts` (`handleRegenCallback`, word/phrase) | `FULL_OUTPUT` | Regeneration — same rich detail as interactive |
-| `translate-mode.helper.ts` (`handleRegenCallback`, sentence) | `SENTENCE_OUTPUT` | Sentence regen — compact output |
-| `regen.helper.ts` (`handleRegenLoop`, word/phrase) | `FULL_OUTPUT` | Conversation-based regen — full detail |
-| `regen.helper.ts` (`handleRegenLoop`, sentence) | `SENTENCE_OUTPUT` | Conversation-based regen — compact |
+| `translate-mode.helper.ts` (`handleTranslateText`, word/phrase) | User template (via `resolveOutputConfig`) | Interactive translation — user-customized cards |
+| `translate-mode.helper.ts` (`handleTranslateText`, sentence) | `SENTENCE_OUTPUT` (via `resolveOutputConfig`) | Sentence translation — compact, no learning metadata |
+| `translate-mode.helper.ts` (`handleRegenCallback`, word/phrase) | User template (via `resolveOutputConfig`) | Regeneration — user-customized detail |
+| `translate-mode.helper.ts` (`handleRegenCallback`, sentence) | `SENTENCE_OUTPUT` (via `resolveOutputConfig`) | Sentence regen — compact output |
+| `regen.helper.ts` (`handleRegenLoop`, word/phrase) | User template (via `resolveOutputConfig`) | Conversation-based regen — user-customized |
+| `regen.helper.ts` (`handleRegenLoop`, sentence) | `SENTENCE_OUTPUT` (via `resolveOutputConfig`) | Conversation-based regen — compact |
 
-All callers import named presets from `@polyglot/core`. Rule: callers must always use a named preset — never construct `TranslationOutputConfig` inline.
+All callers use `resolveOutputConfig()` from `@polyglot/core` (Task 32) instead of importing named presets directly. This routes through the user's custom template when one is saved. Sentences always use `SENTENCE_OUTPUT` regardless of user template.
 
 ### Persistent activeMode in Database (Task 20)
 
@@ -138,6 +141,28 @@ The translate-mode helper now uses `resolveTranslationDirection()` from `@polygl
 
 When the detected language differs from the native language (reversed direction), a `🔍 Detected: {lang}` indicator is prepended to the translation card using `getLanguageName()` for localized display names and the `detectedLang` i18n key.
 
+### User Translation Template Constructor (Task 32)
+
+Users can customize which fields appear in their translation output via `/template` command. The wizard uses inline keyboard toggles for 6 fields: transcription, synonyms, examples, alternatives, equivalentNote, connotationWarning.
+
+**Session state**: `SessionData.templateWizard?: { fields: TemplateFields; wizardMsgId?: number }` — working copy during editing
+
+**Command & callbacks:**
+- `/template` → shows current template status (Default or Custom) with [📝 Customize] [🔄 Reset] buttons
+- `tpl:customize` → initializes wizard with current fields, shows toggle keyboard
+- `tpl:toggle:<key>` → toggles the field ✅↔❌, re-renders keyboard
+- `tpl:preview` → renders mock translation card respecting current field toggles
+- `tpl:save` → persists to DB via `translationTemplateRepository.upsert()`, clears wizard
+- `tpl:cancel` → discards changes, clears wizard
+- `tpl:reset` → deletes custom template from DB, restores default
+- `tpl:back` → returns from preview to constructor
+
+**Template-aware rendering**: `renderTranslation(output, lang, templateFields?)` accepts optional `TemplateFields`. When provided, disabled fields are omitted from the card. When undefined, all sections render (backward compat).
+
+**Pipeline integration**: `handleTranslateText()` and `handleRegenCallback()` load the user's template via `translationTemplateRepository.getByUserId()`, then use `resolveOutputConfig()` (sentences → SENTENCE_OUTPUT, words/phrases → user template or default) and pass `effectiveTemplate.fields` to the renderer.
+
+**i18n keys**: `templateTitle`, `templateCurrent` (with `{name}`), `templateDefault`, `templateCustom`, `templateCustomize`, `templateReset`, `templateConstructor`, `templatePreview`, `templateSave`, `templateCancel`, `templateBack`, `templateSaved`, `templateResetDone`, `templateCancelled`, `templateField*` (6 field labels), `templatePreviewHeader`, `templateSessionExpired`.
+
 ## Boundary
 
 - **Mode:** role — when this skill is active, you ARE the bot agent. Only modify the Telegram bot layer.
@@ -161,6 +186,7 @@ When the detected language differs from the native language (reversed direction)
 | ------------- | --------------------------------- |
 | `/start`      | Onboarding or main menu           |
 | `/translate`  | Translate a word or phrase        |
+| `/template`   | Customize translation output      |
 | `/dictionary` | Personal dictionary               |
 | `/settings`   | Language, notifications, timezone |
 
@@ -169,7 +195,8 @@ When the detected language differs from the native language (reversed direction)
 ```typescript
 // Render a full translation card for Telegram (HTML)
 // Dictionary context (if present) is NOT rendered — used only for AI prompt enrichment
-function renderTranslation(output: TranslateOutput, interfaceLang?: string): string;
+// Optional templateFields controls which sections are rendered (Task 32)
+function renderTranslation(output: TranslateOutput, interfaceLang?: string, templateFields?: TemplateFields): string;
 
 // Render a single topic word card (HTML)
 function renderTopicWord(word: TopicWord): string;
@@ -223,6 +250,18 @@ async function handleRegenLoop(conversation, ctx, output, lang, userId, cardMsgI
 
 // Classify user input as word, phrase, or sentence (Task 27)
 function classifyInput(text: string, config?: Partial<InputClassifierConfig>): InputClassification;
+
+// Command: /template — shows template status with Customize/Reset buttons (Task 32)
+async function handleTemplateCommand(ctx: BotContext): Promise<void>;
+
+// Template wizard callbacks (Task 32)
+async function handleCustomizeCallback(ctx: BotContext): Promise<void>;
+async function handleToggleCallback(ctx: BotContext): Promise<void>;
+async function handlePreviewCallback(ctx: BotContext): Promise<void>;
+async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>;
+async function handleCancelCallback(ctx: BotContext): Promise<void>;
+async function handleResetCallback(ctx: BotContext): Promise<void>;
+async function handleBackCallback(ctx: BotContext): Promise<void>;
 
 // Scene: dictionary browsing (not yet implemented)
 async function handleDictionary(conversation, ctx): Promise<void>;
@@ -400,20 +439,25 @@ apps/bot/src/
 │   ├── onboarding.scene.ts     # ✅ 3-step onboarding (BRD §5, BUG-01 fix, infers interface lang)
 │   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation, persists to DB)
 │   ├── translate.scene.test.ts # 3 tests (mode activation, DB persistence, confirmation)
+│   ├── template.scene.ts       # ✅ /template command handler (Task 32)
+│   ├── template-preview.data.ts # ✅ Mock translation output for wizard preview (Task 32)
 │   ├── helpers/
-│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (classifier + branching), handleRegenCallback, handleSaveCallback, handleSkipCallback, handleSourceLangCallback
+│   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (classifier + branching + template-aware), handleRegenCallback, handleSaveCallback, handleSkipCallback, handleSourceLangCallback
 │   │   ├── translate-mode.helper.test.ts # 5 tests (context enrichment wiring)
 │   │   ├── __tests__/
 │   │   │   ├── translate-mode-detection.test.ts      # 8 tests (auto-detect language direction)
 │   │   │   ├── translate-mode-source-lang.test.ts    # 11 tests (explicit source lang override)
 │   │   │   └── source-lang-callback.test.ts          # 7 tests (callback handling)
-│   │   ├── regen.helper.ts           # ✅ regeneration loop helper (sentence-aware, FEAT-30 save flow)
+│   │   ├── template.helper.ts        # ✅ Template wizard callbacks: customize, toggle, preview, save, cancel, reset, back (Task 32)
+│   │   ├── regen.helper.ts           # ✅ regeneration loop helper (sentence-aware, FEAT-30 save flow, template-aware)
 │   │   └── regen.helper.test.ts      # 13 tests (includes dedup, FK resolution, inputType)
 │   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 11 tests (mode system tests, idle fallback, DB persistence)
-    ├── translation.renderer.test.ts        # 97 tests (includes 7 alternatives, 5 connotation warnings, 2 backward compat, 4 inline synonyms, 15 sentence renderer, 7 sentence keyboard, 5 post-save keyboard)
+    ├── translation.renderer.test.ts        # 89 tests (includes 7 alternatives, 5 connotation warnings, 2 backward compat, 4 inline synonyms, 15 sentence renderer, 7 sentence keyboard, 5 post-save keyboard)
+    ├── translation.renderer.template.test.ts # ✅ 10 tests (template-aware rendering: field toggle, backward compat, mixed fields)
+    ├── template.scene.test.ts              # ✅ 15 tests (command, customize, toggle, save, cancel, reset, preview, back)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
     └── onboarding.scene.test.ts            # 18 tests (3-step flow, back nav, interface lang inference, no Save/Skip)
 ```

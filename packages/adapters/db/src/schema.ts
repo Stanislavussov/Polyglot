@@ -182,3 +182,36 @@ export const topicTranslationCache = pgTable(
     index("topic_cache_lookup_idx").on(t.topicId, t.sourceLang, t.targetLang),
   ],
 );
+
+// ─────────────────────────────────────────────
+// User translation templates — customizable output fields
+// 1-to-1 with users. Controls which sections appear
+// in translation output (transcription, synonyms, etc.)
+// ─────────────────────────────────────────────
+export const userTranslationTemplates = pgTable(
+  "user_translation_templates",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .unique()
+      .notNull(),
+    /** User-given name for this template */
+    name: text("name").notNull().default("Custom"),
+    /** IPA transcription toggle */
+    transcription: boolean("transcription").notNull().default(true),
+    /** 2-3 synonyms per language toggle */
+    synonyms: boolean("synonyms").notNull().default(true),
+    /** 3 contextual example sentences toggle */
+    examples: boolean("examples").notNull().default(true),
+    /** Up to 2 alternative translation variants toggle */
+    alternatives: boolean("alternatives").notNull().default(true),
+    /** Idiomatic expression type + equivalent note toggle */
+    equivalentNote: boolean("equivalent_note").notNull().default(true),
+    /** Connotation warnings for dangerous meanings toggle */
+    connotationWarning: boolean("connotation_warning").notNull().default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("user_translation_templates_user_id_idx").on(t.userId)],
+);

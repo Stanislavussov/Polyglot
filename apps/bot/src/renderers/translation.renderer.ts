@@ -7,6 +7,7 @@ import type {
   LanguageTranslation,
   LanguageTranslationEntry,
   SupportedLang,
+  TemplateFields,
   TopicWord,
   TranslateOutput,
 } from "@polyglot/core";
@@ -28,8 +29,16 @@ function toLang(lang?: string): SupportedLang {
  *
  * Shows emoji, original word, and per-language translations
  * with synonyms and contextual examples.
+ *
+ * @param templateFields - Optional field visibility overrides.
+ *   When provided, disabled fields are omitted from the card.
+ *   When undefined, ALL sections are rendered (backward compat).
  */
-export function renderTranslation(output: TranslateOutput, interfaceLang?: string): string {
+export function renderTranslation(
+  output: TranslateOutput,
+  interfaceLang?: string,
+  templateFields?: TemplateFields,
+): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
 
@@ -37,7 +46,7 @@ export function renderTranslation(output: TranslateOutput, interfaceLang?: strin
   lines.push("");
 
   for (const [code, translation] of Object.entries(output.translations)) {
-    lines.push(renderLangBlock(code, translation, lang));
+    lines.push(renderLangBlock(code, translation, lang, templateFields));
     lines.push("");
   }
 
@@ -52,26 +61,34 @@ export function renderTranslation(output: TranslateOutput, interfaceLang?: strin
 }
 
 /** Render a single language translation block */
-function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedLang): string {
+function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedLang, fields?: TemplateFields): string {
   const lines: string[] = [];
 
-  const header = lt.transcription ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]` : `<b>${esc(lt.text)}</b>`;
+  // Transcription: omit when fields?.transcription === false
+  const showTranscription = fields?.transcription !== false;
+  const header =
+    lt.transcription && showTranscription
+      ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]`
+      : `<b>${esc(lt.text)}</b>`;
 
-  // Inline synonyms: (syn1, syn2) — text only, no register
-  const synInline = lt.synonyms.length > 0 ? ` (${lt.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
+  // Inline synonyms: omit when fields?.synonyms === false
+  const showSynonyms = fields?.synonyms !== false;
+  const synInline =
+    showSynonyms && lt.synonyms.length > 0 ? ` (${lt.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
 
   const flag = getLangFlag(code) ?? "🔤";
   lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}${synInline}`);
 
-  if (lt.alternatives && lt.alternatives.length > 0) {
+  // Alternatives: omit when fields?.alternatives === false
+  if (fields?.alternatives !== false && lt.alternatives && lt.alternatives.length > 0) {
     for (const alt of lt.alternatives) {
       const altSyns = alt.synonyms.map((s) => `${esc(s.text)} (${esc(s.register)})`).join(", ");
       lines.push(`   ∙ ${esc(alt.text)} (${esc(alt.register)})${altSyns ? ` — ${altSyns}` : ""}`);
     }
   }
 
-  // Examples: all 💬, register label inline, no native sentence
-  if (lt.examples.length > 0) {
+  // Examples: omit when fields?.examples === false
+  if (fields?.examples !== false && lt.examples.length > 0) {
     for (const ex of lt.examples) {
       // Guard for old data that may lack register field
       const registerLabel = ex.register ? `  → ${esc(ex.register)}` : "";
@@ -79,8 +96,8 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
     }
   }
 
-  // Connotation warning (optional)
-  if (lt.connotationWarning) {
+  // Connotation warning: omit when fields?.connotationWarning === false
+  if (fields?.connotationWarning !== false && lt.connotationWarning) {
     lines.push(t("connotationWarning", lang, { warning: esc(lt.connotationWarning) }));
   }
 

@@ -1,6 +1,6 @@
 # Task 32 — User Translation Template (Customizable Output)
 
-**Status:** 🔲 To Do  
+**Status:** ✅ Done  
 **Type:** Feature (new DB table + core types + bot scene + wiring)  
 **Priority:** High — foundational config for all output-consuming features  
 **Dependencies:** None (standalone)  
@@ -160,7 +160,7 @@ User saves template
 
 **Goal:** Define the user-facing template type and a function to convert it to `TranslationOutputConfig`.
 
-- [ ] Create `translation-template.types.ts`:
+- [x] Create `translation-template.types.ts`:
 
 ```typescript
 import type { TranslationOutputConfig } from './types.js';
@@ -250,7 +250,7 @@ export const TEMPLATE_FIELD_KEYS: Array<keyof TemplateFields> = [
 ];
 ```
 
-- [ ] Export from `packages/core/src/shared/` barrel (if one exists) or add to `packages/core/src/index.ts`:
+- [x] Export from `packages/core/src/shared/` barrel (if one exists) or add to `packages/core/src/index.ts`:
   ```typescript
   export * from './shared/translation-template.types.js';
   ```
@@ -268,7 +268,7 @@ export const TEMPLATE_FIELD_KEYS: Array<keyof TemplateFields> = [
 
 #### 2a — Schema addition
 
-- [ ] Add to `schema.ts`:
+- [x] Add to `schema.ts`:
 
 ```typescript
 export const userTranslationTemplates = pgTable('user_translation_templates', {
@@ -288,7 +288,7 @@ export const userTranslationTemplates = pgTable('user_translation_templates', {
 
 #### 2b — Migration
 
-- [ ] Write `0008_user_translation_templates.sql`:
+- [x] Write `0008_user_translation_templates.sql`:
 
 ```sql
 CREATE TABLE IF NOT EXISTS "user_translation_templates" (
@@ -308,7 +308,7 @@ CREATE UNIQUE INDEX "user_translation_templates_user_id_idx"
 
 #### 2c — Repository
 
-- [ ] Create `translation-template.repository.ts`:
+- [x] Create `translation-template.repository.ts`:
 
 ```typescript
 export interface SavedTranslationTemplate {
@@ -342,7 +342,7 @@ export const translationTemplateRepository = {
 
 #### 2d — Export from DB adapter
 
-- [ ] Add to `packages/adapters/db/src/index.ts`:
+- [x] Add to `packages/adapters/db/src/index.ts`:
   ```typescript
   export type { SavedTranslationTemplate } from './repositories/translation-template.repository.js';
   export { translationTemplateRepository } from './repositories/translation-template.repository.js';
@@ -356,7 +356,7 @@ export const translationTemplateRepository = {
 
 **Goal:** Pure function that resolves "which template to use" for a given context. Keeps the resolution logic centralized instead of scattered across consumers.
 
-- [ ] Create `translation-template.service.ts`:
+- [x] Create `translation-template.service.ts`:
 
 ```typescript
 import type { TranslationOutputConfig } from './types.js';
@@ -403,7 +403,7 @@ export function resolveTemplate(
 }
 ```
 
-- [ ] Export from `packages/core/src/index.ts`:
+- [x] Export from `packages/core/src/index.ts`:
   ```typescript
   export { resolveOutputConfig, resolveTemplate } from './shared/translation-template.service.js';
   export type { InputContext } from './shared/translation-template.service.js';
@@ -417,7 +417,7 @@ export function resolveTemplate(
 
 **Goal:** Make the existing renderer respect the user's template for display-level filtering. Currently, `renderTranslation()` always shows everything the AI returned. With this change, it checks `TemplateFields` to conditionally omit sections even if the AI included them (backward compatibility for stored translations with full data).
 
-- [ ] Add an optional `TemplateFields` parameter to `renderTranslation()`:
+- [x] Add an optional `TemplateFields` parameter to `renderTranslation()`:
 
 ```typescript
 export function renderTranslation(
@@ -431,7 +431,7 @@ export function renderTranslation(
 - If `templateFields` is provided, pass it to `renderLangBlock()`
 - No breaking change: when `templateFields` is undefined, behavior is identical to current
 
-- [ ] Update `renderLangBlock()` to accept and use `TemplateFields`:
+- [x] Update `renderLangBlock()` to accept and use `TemplateFields`:
 
 ```typescript
 function renderLangBlock(
@@ -462,7 +462,7 @@ function renderLangBlock(
 
 #### Session state addition
 
-- [ ] Extend `SessionData` in `apps/bot/src/types.ts`:
+- [x] Extend `SessionData` in `apps/bot/src/types.ts`:
 
 ```typescript
 /** Template constructor wizard state */
@@ -476,7 +476,7 @@ templateWizard?: {
 
 #### `/template` command handler
 
-- [ ] Register `/template` command:
+- [x] Register `/template` command:
 
 ```
 1. Load user's template: translationTemplateRepository.getByUserId(userId)
@@ -533,7 +533,7 @@ The mock data should be realistic enough for the user to see what each toggled-o
 
 **Goal:** Replace the hardcoded `FULL_OUTPUT` / `SENTENCE_OUTPUT` selection with template-aware resolution.
 
-- [ ] In `handleTranslateText()`:
+- [x] In `handleTranslateText()`:
 
 **Before (current):**
 ```typescript
@@ -552,7 +552,7 @@ const userTpl = userTemplate
 const outputConfig = resolveOutputConfig(userTpl, classification.type);
 ```
 
-- [ ] Pass template fields to the renderer:
+- [x] Pass template fields to the renderer:
 
 **Before:**
 ```typescript
@@ -565,7 +565,7 @@ const effectiveTemplate = resolveTemplate(userTpl);
 let card = renderTranslation(output, lang, effectiveTemplate.fields);
 ```
 
-- [ ] Apply the same pattern in `apps/bot/src/scenes/helpers/regen.helper.ts`:
+- [x] Apply the same pattern in `apps/bot/src/scenes/helpers/regen.helper.ts`:
   - Load user template
   - Use `resolveOutputConfig()` instead of hardcoded preset
   - Pass template fields to renderer
@@ -576,7 +576,7 @@ let card = renderTranslation(output, lang, effectiveTemplate.fields);
 
 **Goal:** Add all template wizard UI strings to all 3 locale files.
 
-- [ ] Add to `packages/core/src/modules/i18n/locales/en.json`:
+- [x] Add to `packages/core/src/modules/i18n/locales/en.json`:
 
 ```json
 {
@@ -604,8 +604,8 @@ let card = renderTranslation(output, lang, effectiveTemplate.fields);
 }
 ```
 
-- [ ] Add equivalent keys to `ru.json` (Russian translations)
-- [ ] Add equivalent keys to `cs.json` (Czech translations)
+- [x] Add equivalent keys to `ru.json` (Russian translations)
+- [x] Add equivalent keys to `cs.json` (Czech translations)
 
 ---
 
@@ -615,7 +615,7 @@ let card = renderTranslation(output, lang, effectiveTemplate.fields);
 
 **Goal:** Document the integration so Task 33 implementers know to use the user template.
 
-- [ ] Add a note in Task 33's "Architecture Constraints" section:
+- [x] Add a note in Task 33's "Architecture Constraints" section:
 
 > **User Template Integration (Task 32):**
 > - `DictionaryWordConfig.presentation.fields` should be derived from the user's saved `UserTranslationTemplate` when available
@@ -623,7 +623,7 @@ let card = renderTranslation(output, lang, effectiveTemplate.fields);
 > - Flash-card-specific config (`frontSide`) is orthogonal and stays in `FlashCardPresentationConfig`
 > - When building display data, use `resolveTemplate(userTemplate)` to get the effective field visibility
 
-- [ ] In Task 33's `PresentationFields`, note the relationship:
+- [x] In Task 33's `PresentationFields`, note the relationship:
 
 ```
 showTranscription  ← TemplateFields.transcription
@@ -642,27 +642,27 @@ showRegister       ← system-controlled (not in TemplateFields)
 
 **Location:** `packages/core/src/shared/__tests__/translation-template.test.ts`
 
-- [ ] `templateToOutputConfig()`:
+- [x] `templateToOutputConfig()`:
   - Default template → matches `FULL_OUTPUT` (minus `includeCefr`/`includeRegister` which are system-controlled)
   - Template with `examples: false` → `includeExamples: false`
   - Template with all fields false → all `include*` are false (except `includeCefr`/`includeRegister`)
   - System flags (`includeCefr`, `includeRegister`) are always false regardless of template
 
-- [ ] `resolveOutputConfig()`:
+- [x] `resolveOutputConfig()`:
   - `inputContext: 'sentence'` → returns `SENTENCE_OUTPUT` regardless of user template
   - `inputContext: 'word'` with null template → returns default config
   - `inputContext: 'word'` with custom template → returns config from template
   - `inputContext: 'phrase'` behaves same as `'word'`
 
-- [ ] `resolveTemplate()`:
+- [x] `resolveTemplate()`:
   - null input → returns `DEFAULT_TEMPLATE`
   - custom template → returns as-is
 
-- [ ] `DEFAULT_TEMPLATE`:
+- [x] `DEFAULT_TEMPLATE`:
   - All fields are `true`
   - Name is `'Default'`
 
-- [ ] `TEMPLATE_FIELD_KEYS`:
+- [x] `TEMPLATE_FIELD_KEYS`:
   - Contains all 6 field keys
   - Order matches expected wizard display order
 
@@ -670,23 +670,23 @@ showRegister       ← system-controlled (not in TemplateFields)
 
 **Location:** `packages/adapters/db/src/__tests__/translation-template.repository.test.ts`
 
-- [ ] `getByUserId()` for user with no template → returns `null`
-- [ ] `upsert()` creates a new template → returns saved template with correct fields
-- [ ] `upsert()` updates existing template → fields are updated, `updatedAt` changes
-- [ ] `deleteByUserId()` removes the template → subsequent `getByUserId()` returns `null`
-- [ ] `getByUserId()` returns correct `TemplateFields` shape from JSONB
+- [x] `getByUserId()` for user with no template → returns `null`
+- [x] `upsert()` creates a new template → returns saved template with correct fields
+- [x] `upsert()` updates existing template → fields are updated, `updatedAt` changes
+- [x] `deleteByUserId()` removes the template → subsequent `getByUserId()` returns `null`
+- [x] `getByUserId()` returns correct `TemplateFields` shape from JSONB
 
 #### Unit Tests — Renderer with Template
 
 **Location:** `apps/bot/src/__tests__/translation.renderer.template.test.ts`
 
-- [ ] `renderTranslation()` without `templateFields` → renders all sections (backward compat)
-- [ ] `renderTranslation()` with `transcription: false` → no `[IPA]` in output
-- [ ] `renderTranslation()` with `synonyms: false` → no `(syn1, syn2)` inline
-- [ ] `renderTranslation()` with `examples: false` → no `💬` lines
-- [ ] `renderTranslation()` with `alternatives: false` → no `∙ alternative` lines
-- [ ] `renderTranslation()` with `connotationWarning: false` → no warning line
-- [ ] `renderTranslation()` with all fields false → only shows emoji, word, and bare translations
+- [x] `renderTranslation()` without `templateFields` → renders all sections (backward compat)
+- [x] `renderTranslation()` with `transcription: false` → no `[IPA]` in output
+- [x] `renderTranslation()` with `synonyms: false` → no `(syn1, syn2)` inline
+- [x] `renderTranslation()` with `examples: false` → no `💬` lines
+- [x] `renderTranslation()` with `alternatives: false` → no `∙ alternative` lines
+- [x] `renderTranslation()` with `connotationWarning: false` → no warning line
+- [x] `renderTranslation()` with all fields false → only shows emoji, word, and bare translations
 
 ---
 
@@ -759,28 +759,28 @@ showRegister       ← system-controlled (not in TemplateFields)
 
 ## Acceptance Criteria
 
-- [ ] `UserTranslationTemplate` and `TemplateFields` types exported from `@polyglot/core`
-- [ ] `templateToOutputConfig()` correctly converts template fields to `TranslationOutputConfig`
-- [ ] `resolveOutputConfig()` returns `SENTENCE_OUTPUT` for sentences, user template config for words/phrases
-- [ ] `DEFAULT_TEMPLATE` has all 6 fields set to `true`
-- [ ] `user_translation_templates` table exists in DB with migration
-- [ ] `translationTemplateRepository.getByUserId()` returns null for users without custom template
-- [ ] `translationTemplateRepository.upsert()` creates/updates the template
-- [ ] `translationTemplateRepository.deleteByUserId()` removes the template
-- [ ] `/template` command shows current template status with Customize/Reset buttons
-- [ ] Template wizard shows toggle keyboard with all 6 fields
-- [ ] Tapping a field toggles it ON/OFF with visual indicator (✅/❌)
-- [ ] Preview shows a sample translation card respecting current toggle state
-- [ ] Save persists the template to DB and confirms to user
-- [ ] Reset deletes custom template and confirms default is restored
-- [ ] Interactive translation (`handleTranslateText()`) uses user's template instead of hardcoded `FULL_OUTPUT`
-- [ ] Regen handler uses user's template
-- [ ] `renderTranslation()` respects `TemplateFields` — disabled sections are not rendered
-- [ ] `renderTranslation()` without `templateFields` renders everything (backward compat)
-- [ ] All 3 locale files (en, ru, cs) have `template*` keys
-- [ ] Session loss mid-wizard shows "Session expired" message
-- [ ] All new tests pass: `pnpm -r run test`
-- [ ] All packages build: `pnpm -r run build`
+- [x] `UserTranslationTemplate` and `TemplateFields` types exported from `@polyglot/core`
+- [x] `templateToOutputConfig()` correctly converts template fields to `TranslationOutputConfig`
+- [x] `resolveOutputConfig()` returns `SENTENCE_OUTPUT` for sentences, user template config for words/phrases
+- [x] `DEFAULT_TEMPLATE` has all 6 fields set to `true`
+- [x] `user_translation_templates` table exists in DB with migration
+- [x] `translationTemplateRepository.getByUserId()` returns null for users without custom template
+- [x] `translationTemplateRepository.upsert()` creates/updates the template
+- [x] `translationTemplateRepository.deleteByUserId()` removes the template
+- [x] `/template` command shows current template status with Customize/Reset buttons
+- [x] Template wizard shows toggle keyboard with all 6 fields
+- [x] Tapping a field toggles it ON/OFF with visual indicator (✅/❌)
+- [x] Preview shows a sample translation card respecting current toggle state
+- [x] Save persists the template to DB and confirms to user
+- [x] Reset deletes custom template and confirms default is restored
+- [x] Interactive translation (`handleTranslateText()`) uses user's template instead of hardcoded `FULL_OUTPUT`
+- [x] Regen handler uses user's template
+- [x] `renderTranslation()` respects `TemplateFields` — disabled sections are not rendered
+- [x] `renderTranslation()` without `templateFields` renders everything (backward compat)
+- [x] All 3 locale files (en, ru, cs) have `template*` keys
+- [x] Session loss mid-wizard shows "Session expired" message
+- [x] All new tests pass: `pnpm -r run test`
+- [x] All packages build: `pnpm -r run build`
 
 ---
 

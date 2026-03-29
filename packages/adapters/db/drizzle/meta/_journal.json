@@ -57,6 +57,13 @@
       "when": 1774900000000,
       "tag": "0007_drop_iso3_code",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1775000000000,
+      "tag": "0008_user_translation_templates",
+      "breakpoints": true
     }
   ]
 }

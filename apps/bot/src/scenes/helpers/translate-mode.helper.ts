@@ -3,15 +3,21 @@
  * Called by the mode router when user is in translate mode.
  */
 import { generateObject } from "@polyglot/adapter-ai";
-import { createContextLookup, getLang, userRepository, wordRepository } from "@polyglot/adapter-db";
 import {
-  FULL_OUTPUT,
+  createContextLookup,
+  getLang,
+  translationTemplateRepository,
+  userRepository,
+  wordRepository,
+} from "@polyglot/adapter-db";
+import {
   getLangDisplay,
   getLanguageName,
   isSupported,
   resolveDirectionFromSource,
+  resolveOutputConfig,
+  resolveTemplate,
   resolveTranslationDirection,
-  SENTENCE_OUTPUT,
   type SupportedLang,
   t,
   translateOneWithContext,
@@ -120,8 +126,11 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   try {
     const config = loadConfig();
 
-    // Select output preset based on input type
-    const outputConfig = isSentence ? SENTENCE_OUTPUT : FULL_OUTPUT;
+    // Load user's template for template-aware output resolution (Task 32)
+    const savedTemplate = await translationTemplateRepository.getByUserId(ctx.user.id);
+    const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
+    const outputConfig = resolveOutputConfig(userTpl, classification.type);
+    const effectiveTemplate = resolveTemplate(userTpl);
 
     // For sentences, skip dictionary context lookup (no learnable word to enrich)
     const lookupContextFn = isSentence ? async () => undefined : lookupContext;
@@ -174,7 +183,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       // Word/phrase: full card with Save/Skip/Regen keyboard
       ctx.session.pendingTranslation = output;
 
-      let card = renderTranslation(output, lang);
+      let card = renderTranslation(output, lang, effectiveTemplate.fields);
 
       // Show detected language when it differs from native (i.e., reversed direction)
       if (detectedLang && detectedLang !== nativeLang) {
@@ -365,7 +374,12 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
 
   try {
     const config = loadConfig();
-    const outputConfig = isSentence ? SENTENCE_OUTPUT : FULL_OUTPUT;
+
+    // Load user's template for template-aware output resolution (Task 32)
+    const savedTpl = await translationTemplateRepository.getByUserId(ctx.user.id);
+    const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
+    const outputConfig = resolveOutputConfig(userTpl, isSentence ? "sentence" : (inputType ?? "word"));
+    const effectiveTemplate = resolveTemplate(userTpl);
 
     // For sentences, skip dictionary context lookup
     const lookupContextFn = isSentence ? async () => undefined : lookupContext;
@@ -416,11 +430,11 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
       await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
     } else if (ctx.session.savedWordId) {
       // Post-save: regen-only keyboard + saved indicator
-      const card = `${renderTranslation(updated, lang)}\n\n${t("savedToDict", lang)}`;
+      const card = `${renderTranslation(updated, lang, effectiveTemplate.fields)}\n\n${t("savedToDict", lang)}`;
       const keyboard = buildPostSaveKeyboard(langCodes, lang);
       await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
     } else {
-      const card = renderTranslation(updated, lang);
+      const card = renderTranslation(updated, lang, effectiveTemplate.fields);
       const keyboard = buildTranslationKeyboard(langCodes, (inputType as "word" | "phrase") ?? "word", lang);
       await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
     }

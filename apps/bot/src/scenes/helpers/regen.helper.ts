@@ -5,11 +5,11 @@
  */
 import type { Conversation } from "@grammyjs/conversations";
 import { generateObject } from "@polyglot/adapter-ai";
-import { getLang, wordRepository } from "@polyglot/adapter-db";
+import { getLang, translationTemplateRepository, wordRepository } from "@polyglot/adapter-db";
 import {
-  FULL_OUTPUT,
   type InputType,
-  SENTENCE_OUTPUT,
+  resolveOutputConfig,
+  resolveTemplate,
   type SupportedLang,
   type TranslateOutput,
   t,
@@ -41,12 +41,20 @@ export async function handleRegenLoop(
   const isSentence = inputType === "sentence";
   let current = output;
   const langCodes = Object.keys(current.translations);
-  const renderCard = isSentence ? renderSentenceTranslation : renderTranslation;
+
+  // Load user's template for template-aware output resolution (Task 32)
+  const savedTpl = await conversation.external(async () => translationTemplateRepository.getByUserId(userId));
+  const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
+  const effectiveTemplate = resolveTemplate(userTpl);
+  const outputConfig = resolveOutputConfig(userTpl, isSentence ? "sentence" : (inputType ?? "word"));
+
+  const renderCard = isSentence
+    ? renderSentenceTranslation
+    : (o: TranslateOutput, l: SupportedLang) => renderTranslation(o, l, effectiveTemplate.fields);
   const buildKeyboard = isSentence
     ? buildSentenceKeyboard
     : (codes: string[], l: SupportedLang) =>
         buildTranslationKeyboard(codes, (inputType as "word" | "phrase") ?? "word", l);
-  const outputConfig = isSentence ? SENTENCE_OUTPUT : FULL_OUTPUT;
 
   let card = renderCard(current, lang);
   let keyboard = buildKeyboard(langCodes, lang);

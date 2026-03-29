@@ -40,3 +40,4 @@
 | 30  | [Save to Dictionary](./finished/30-save-to-dictionary.md) |
 | 28  | [Validation Respects Output Config](./finished/28-validation-respects-output-config.md) |
 | 31  | [Redesign Translation Card](./finished/31-redesign-translation-card.md) |
+| 32  | [User Translation Template](./finished/32-user-translation-template.md) |
