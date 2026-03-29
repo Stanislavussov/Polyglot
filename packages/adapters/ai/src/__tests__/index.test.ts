@@ -52,6 +52,8 @@ describe("generateObject", () => {
       prompt: "test prompt",
       maxRetries: 5,
       maxTokens: 4096,
+      temperature: 0.3,
+      frequencyPenalty: 0.5,
     });
   });
 

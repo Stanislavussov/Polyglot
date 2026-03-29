@@ -43,7 +43,7 @@ export const translationVariantSchema = z.object({
 export const languageTranslationSchema = z.object({
   text: z.string().min(1, "Translation text is required"),
   cefr: cefrEnum,
-  transcription: z.string().optional(),
+  transcription: z.string().max(100, "Transcription too long — possible repetition loop").optional(),
   register: registerEnum,
   synonyms: z.array(synonymSchema),
   examples: z.array(exampleSchema).min(1, "At least one example is required"),
@@ -103,7 +103,7 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig)
   return z.object({
     text: z.string().min(1, "Translation text is required"),
     cefr: includeCefr ? cefrEnum : cefrEnum.optional().default("A1"),
-    transcription: z.string().optional(),
+    transcription: z.string().max(100, "Transcription too long — possible repetition loop").optional(),
     register: includeRegister ? registerEnum : registerEnum.optional().default("neutral"),
     synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema).default([]),
     examples: includeExamples

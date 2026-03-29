@@ -144,7 +144,7 @@ ${
 }${
   cfg.includeTranscription
     ? `
-- Transcription is required for non-Latin scripts; optional otherwise.`
+- Transcription: provide IPA for non-Latin scripts (e.g. Russian: [prʲɪˈmʲernɨj], Chinese: [tɕʰýntsɯ̀]). Keep it SHORT — one bracketed transcription only, never repeat. Optional for Latin scripts.`
     : ""
 }
 - Return ONLY the JSON object. No additional text before or after.${
