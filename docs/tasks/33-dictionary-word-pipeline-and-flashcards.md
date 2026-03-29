@@ -1,9 +1,11 @@
-# Task 32 — Config-Driven Dictionary Word Pipeline + Flash Cards
+# Task 33 — Config-Driven Dictionary Word Pipeline + Flash Cards
 
 **Status:** 🔲 To Do  
 **Type:** Feature (new core module + DB + bot scene)  
 **Priority:** High — first active use of the personal dictionary; enables SRS, quizzes, notifications  
-**Dependencies:** Task 30/FEAT-30 (Save to Dictionary must be live — words must exist in the `words` table with `sourceLangId` and `inputType`)
+**Dependencies:**
+- Task 30/FEAT-30 (Save to Dictionary must be live — words must exist in the `words` table with `sourceLangId` and `inputType`)
+- Task 32 (User Translation Template — provides `TemplateFields` for field visibility instead of a local `PresentationFields` type)
 
 ---
 
@@ -102,6 +104,7 @@ Bot: 🎉 Done! Reviewed 10 words.
 
 ```typescript
 import type { CefrLevel, Example, ExpressionType, Register, Synonym, TranslationVariant } from '../translation/types.js';
+import type { TemplateFields } from '../../shared/translation-template.types.js';
 
 /** Strategy for selecting words from the dictionary */
 export type WordSelectionStrategy =
@@ -133,15 +136,28 @@ export interface WordSelectionConfig {
   filter?: WordFilter;
 }
 
-/** Which fields to include when presenting a word */
-export interface PresentationFields {
-  showTranscription: boolean;
-  showSynonyms: boolean;
-  showExamples: boolean;
-  showAlternatives: boolean;
-  showCefr: boolean;
-  showRegister: boolean;
-}
+/**
+ * Which fields to include when presenting a word.
+ *
+ * ⚠️ Task 32 Integration:
+ * DO NOT define a local PresentationFields type.
+ * Import TemplateFields from @polyglot/core (Task 32) instead.
+ * The pipeline reads the user's saved template via
+ * translationTemplateRepository.getByUserId() and uses TemplateFields
+ * directly for field visibility.
+ *
+ * Mapping:
+ *   TemplateFields.transcription      → show/hide transcription
+ *   TemplateFields.synonyms           → show/hide synonyms
+ *   TemplateFields.examples           → show/hide examples
+ *   TemplateFields.alternatives       → show/hide alternatives
+ *   TemplateFields.equivalentNote     → show/hide expression notes
+ *   TemplateFields.connotationWarning → show/hide connotation warnings
+ *
+ * CEFR and register are system-controlled (not in TemplateFields):
+ *   showCefr     → hardcoded per preset (true in flash cards)
+ *   showRegister → hardcoded per preset (true in flash cards)
+ */
 
 /** Flash-card-specific presentation config */
 export interface FlashCardPresentationConfig {
@@ -153,7 +169,14 @@ export interface FlashCardPresentationConfig {
 export interface PresentationConfig {
   /** Which target language translations to include. null = all stored langs */
   targetLangs?: string[];
-  fields: PresentationFields;
+  /**
+   * Field visibility — loaded from the user's saved template (Task 32).
+   * Use resolveTemplate(userTemplate).fields to get TemplateFields.
+   */
+  fields: TemplateFields;
+  /** System-controlled flags not in TemplateFields */
+  showCefr: boolean;
+  showRegister: boolean;
   flashcard?: FlashCardPresentationConfig;
 }
 
