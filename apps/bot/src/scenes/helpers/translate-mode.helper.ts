@@ -259,9 +259,13 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   ctx.session.pendingTranslation = undefined;
   ctx.session.pendingCardMsgId = undefined;
 
-  // Step 7 — Edit card in place
+  // Step 7 — Edit card in place (template-aware rendering)
+  const savedTemplate = await translationTemplateRepository.getByUserId(ctx.user.id);
+  const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
+  const effectiveTemplate = resolveTemplate(userTpl);
+
   const langCodes = Object.keys(output.translations);
-  const savedCard = `${renderTranslation(output, lang)}\n\n${t("savedToDict", lang)}`;
+  const savedCard = `${renderTranslation(output, lang, effectiveTemplate.fields)}\n\n${t("savedToDict", lang)}`;
   const keyboard = buildPostSaveKeyboard(langCodes, lang);
   try {
     await ctx.editMessageText(savedCard, { reply_markup: keyboard, parse_mode: "HTML" });
@@ -287,8 +291,12 @@ export async function handleSkipCallback(ctx: BotContext): Promise<void> {
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
-  // Remove keyboard, keep the card
-  await ctx.editMessageText(renderTranslation(output, lang), {
+  // Remove keyboard, keep the card (template-aware rendering)
+  const savedTemplate = await translationTemplateRepository.getByUserId(ctx.user.id);
+  const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
+  const effectiveTemplate = resolveTemplate(userTpl);
+
+  await ctx.editMessageText(renderTranslation(output, lang, effectiveTemplate.fields), {
     parse_mode: "HTML",
   });
 

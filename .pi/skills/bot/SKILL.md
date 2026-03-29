@@ -308,7 +308,9 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
   │   ├─ If nextSourceLang invalid → reset to null, fall back to auto-detect
   │   └─ If nextSourceLang null → auto-detect via resolveTranslationDirection()
   ├─ Classify input: classifyInput(word) → word / phrase / sentence (Task 27)
-  ├─ Select preset: sentence → SENTENCE_OUTPUT, else → FULL_OUTPUT
+  ├─ Load user template: translationTemplateRepository.getByUserId() (Task 32)
+  ├─ Resolve output config: resolveOutputConfig(userTpl, classification.type)
+  │   (sentences → SENTENCE_OUTPUT, words/phrases → user template or DEFAULT_TEMPLATE)
   ├─ Show "Translating..." indicator
   ├─ Call translateWithContext() with resolved direction + generateObject
   │   (sentences skip dictionary lookup via no-op lookupContext)
@@ -343,7 +345,9 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
 
 [Regen callback (tr:regen:{code}) — Task 27 + FEAT-30]
   ├─ Read lastTranslation + lastInputType from session
-  ├─ Select preset: sentence → SENTENCE_OUTPUT, else → FULL_OUTPUT
+  ├─ Load user template: translationTemplateRepository.getByUserId() (Task 32)
+  ├─ Resolve output config: resolveOutputConfig(userTpl, inputType)
+  │   (sentences → SENTENCE_OUTPUT, words/phrases → user template or default)
   ├─ Call translateOneWithContext() with correct preset + inputType
   ├─ Merge regenerated translation into lastTranslation
   ├─ If savedWordId set: auto-update DB entry via wordRepository.updateContent()
