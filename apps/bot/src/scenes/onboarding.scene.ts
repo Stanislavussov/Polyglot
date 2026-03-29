@@ -80,6 +80,7 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
             interfaceLang,
             nativeLang,
             learningLangs,
+            lastSourceLang: null, // Clear on re-onboard (Task 36)
           }),
         );
         step = 3;
@@ -101,6 +102,7 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
 
   // Activate translate mode and persist to DB so it survives restarts
   ctx.session.activeMode = "translate";
+  ctx.session.nextSourceLang = null; // Clear on re-onboard (Task 36)
   await conversation.external(() => userRepository.updateActiveMode(userId, "translate"));
 
   // Set user-specific bot commands in their chosen interface language

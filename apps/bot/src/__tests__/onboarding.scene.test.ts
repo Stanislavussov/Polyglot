@@ -153,6 +153,7 @@ describe("onboarding", () => {
         interfaceLang: "ru", // inferred from native language
         nativeLang: "ru",
         learningLangs: ["cs"],
+        lastSourceLang: null,
       });
       expect(repo.markOnboarded).toHaveBeenCalledWith(1);
     });
@@ -209,6 +210,7 @@ describe("onboarding", () => {
         interfaceLang: "ru", // inferred from native
         nativeLang: "ru",
         learningLangs: ["en"],
+        lastSourceLang: null,
       });
     });
 
@@ -230,6 +232,7 @@ describe("onboarding", () => {
         interfaceLang: "cs", // uses native, not Telegram locale
         nativeLang: "cs",
         learningLangs: ["en"],
+        lastSourceLang: null,
       });
     });
   });
@@ -268,6 +271,7 @@ describe("onboarding", () => {
         interfaceLang: "en", // changed — inferred from new native
         nativeLang: "en",
         learningLangs: ["cs"],
+        lastSourceLang: null,
       });
     });
 
@@ -290,6 +294,7 @@ describe("onboarding", () => {
         interfaceLang: "ru",
         nativeLang: "ru",
         learningLangs: ["de"], // changed on second pass
+        lastSourceLang: null,
       });
     });
 
@@ -313,6 +318,7 @@ describe("onboarding", () => {
         interfaceLang: "cs",
         nativeLang: "cs",
         learningLangs: ["en"],
+        lastSourceLang: null,
       });
     });
 
@@ -334,6 +340,7 @@ describe("onboarding", () => {
         interfaceLang: "ru",
         nativeLang: "ru",
         learningLangs: ["fr"], // previous cs+de selection was discarded
+        lastSourceLang: null,
       });
     });
   });
@@ -379,11 +386,13 @@ describe("onboarding", () => {
         interfaceLang: "en",
         nativeLang: "en",
         learningLangs: ["cs"],
+        lastSourceLang: null,
       });
       expect(repo.updateSettings).toHaveBeenNthCalledWith(2, 1, {
         interfaceLang: "en",
         nativeLang: "en",
         learningLangs: ["de"],
+        lastSourceLang: null,
       });
     });
 

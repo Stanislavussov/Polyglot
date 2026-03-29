@@ -46,6 +46,14 @@ export interface SessionData {
    */
   savedWordId?: number;
   /**
+   * Flag indicating the user should see a non-blocking source-language
+   * reminder menu on their next text message in translate mode (Task 36).
+   * Set to true after commands that leave translate flow (/start, /template, etc.).
+   * Defaults to true on fresh session (after restart → first msg shows menu).
+   * Cleared after the reminder is shown once.
+   */
+  needsTranslateReminder?: boolean;
+  /**
    * Template constructor wizard state (Task 32).
    * Set when user enters the template customization flow.
    * Cleared on save, cancel, or session loss.

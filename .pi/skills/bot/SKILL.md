@@ -19,7 +19,7 @@ description: Telegram bot using grammY with conversations plugin. Manages scenes
 
 Already implemented:
 - `index.ts` — grammY bot setup, session middleware (default mode: "translate"), mode router, callback handlers, graceful shutdown
-- `types.ts` — BotContext, ConversationContext, UserMode, SessionData (with activeMode field, DB-persisted)
+- `types.ts` — BotContext, ConversationContext, UserMode, SessionData (with activeMode field, DB-persisted; needsTranslateReminder flag — Task 36)
 - `constants.ts` — LANGUAGES display data, langDisplay() (no business text — all i18n via core)
 - `middlewares/auth.ts` — resolves/creates user, attaches to ctx.user; hydrates session activeMode from DB for onboarded users (Task 20)
 - `middlewares/mode-router.ts` — routes plain text to active mode handler; idle mode falls back to translate for onboarded users (persisted to DB), shows /start hint for non-onboarded; debug logging for mode routing
@@ -87,6 +87,24 @@ The user's `activeMode` is now persisted in the `userLanguageSettings.activeMode
 - Mode router idle→translate fallback → `updateActiveMode(userId, "translate")`
 
 **Forward compatibility:** The `VALID_MODES` set in auth.ts and the `UserMode` type will be extended when "mentor" and "quiz" modes are implemented. Unknown DB values gracefully fall back to "translate".
+
+### Persist Source Language & Re-entry Reminder (Task 36)
+
+Source language selection is now persisted to DB and hydrated on bot restart. A non-blocking reminder menu is shown when returning to translate mode.
+
+**Persistence (fire-and-forget):** When user taps a source language button (`tr:srclang:{code}`), `handleSourceLangCallback()` writes to both `ctx.session.nextSourceLang` AND `userRepository.updateLastSourceLang(userId, code)` (fire-and-forget with `.catch()` error logging). Only explicit user selections are persisted — auto-detected languages are NOT saved.
+
+**Lazy hydration:** In `handleTranslateText()`, when `ctx.session.nextSourceLang` is null, the function checks `settings.lastSourceLang` from DB. If valid (passes `resolveDirectionFromSource()`), it's hydrated into the session. If invalid (language removed from config), both session and DB are cleared.
+
+**Re-entry reminder:** `SessionData.needsTranslateReminder?: boolean` — set to `true` on fresh session (init), `/start`, and `/template`. When `true` and `nextSourceLang` is set, `handleTranslateText()` shows `sendSourceLangMenu()` before translating (non-blocking — translation proceeds immediately). Cleared after showing once. `/translate` command always shows the menu and clears the flag.
+
+**Onboarding:** `updateSettings()` is called with `lastSourceLang: null` on step 2 completion, clearing any previously stored source lang. Session `nextSourceLang` is also cleared.
+
+**Session additions:**
+- `needsTranslateReminder?: boolean` — ephemeral flag, defaults to `true` in session init
+
+**Exported function:**
+- `sendSourceLangMenu(ctx, settings, lang)` — now exported from `translate-mode.helper.ts` for use by `translate.scene.ts`
 
 ### Post-Translation Source Language Selection Menu (Task 17)
 
@@ -263,6 +281,10 @@ async function handleSourceLangCallback(ctx: BotContext): Promise<void>;
 // Build source language selection keyboard (Task 17)
 // Returns null when user has ≤2 languages (auto-detect sufficient)
 function buildSourceLangKeyboard(langs: LangOption[], currentSelection: string | null): InlineKeyboard | null;
+
+// Send source language selection menu — hint text + keyboard (Task 36)
+// Exported for use by /translate command. Falls back to plain hint when ≤2 languages.
+async function sendSourceLangMenu(ctx: BotContext, settings: UserSettings | null, lang: SupportedLang): Promise<void>;
 
 // Build language option list from user settings (Task 17)
 function buildLangOptions(nativeLang: string, learningLangs: string[], interfaceLang: SupportedLang): LangOption[];
@@ -466,7 +488,7 @@ apps/bot/src/
 ├── scenes/
 │   ├── onboarding.scene.ts     # ✅ 3-step onboarding (BRD §5, BUG-01 fix, infers interface lang)
 │   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation, persists to DB)
-│   ├── translate.scene.test.ts # 3 tests (mode activation, DB persistence, confirmation)
+│   ├── translate.scene.test.ts # 5 tests (mode activation, DB persistence, confirmation, source lang menu, reminder flag)
 │   ├── template.scene.ts       # ✅ /template command handler (Task 32)
 │   ├── template-preview.data.ts # ✅ Mock translation output for wizard preview (Task 32)
 │   ├── helpers/
@@ -475,6 +497,8 @@ apps/bot/src/
 │   │   ├── __tests__/
 │   │   │   ├── translate-mode-detection.test.ts      # 8 tests (auto-detect language direction)
 │   │   │   ├── translate-mode-source-lang.test.ts    # 11 tests (explicit source lang override)
+│   │   │   ├── translate-mode-persist-source.test.ts # 7 tests (DB hydration, invalid clearing, fire-and-forget sync — Task 36)
+│   │   │   ├── translate-mode-reminder.test.ts       # 6 tests (non-blocking reminder menu — Task 36)
 │   │   │   └── source-lang-callback.test.ts          # 7 tests (callback handling)
 │   │   ├── template.helper.ts        # ✅ Template wizard callbacks: customize, toggle, preview, save, cancel, reset, back (Task 32)
 │   │   ├── regen.helper.ts           # ✅ regeneration loop helper (sentence-aware, FEAT-30 save flow, template-aware)

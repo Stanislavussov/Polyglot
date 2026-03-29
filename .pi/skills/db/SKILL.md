@@ -60,8 +60,11 @@ findByTelegramId(telegramId: number): Promise<User | null>;
 create(data: NewUser): Promise<User>;
 updateSettings(userId: number, settings: Omit<NewUserLanguageSettings, "userId">): Promise<UserLanguageSettings>;
   // Throws Error if settings.learningLangs.length > MAX_LEARNING_LANGS (4)
+  // Does NOT overwrite lastSourceLang unless explicitly provided in settings
 getSettings(userId: number): Promise<UserLanguageSettings | null>;
 updateActiveMode(userId: number, mode: string): Promise<UserLanguageSettings | null>;
+updateLastSourceLang(userId: number, lang: string | null): Promise<void>;
+  // Updates only lastSourceLang + updatedAt. Fire-and-forget friendly. Pass null to clear.
 updateOnboardingStep(userId: number, step: number): Promise<User>;
 markOnboarded(userId: number): Promise<User>;
   // Sets onboardingStep to 3 (BRD §5 — 3-step onboarding)
@@ -147,7 +150,7 @@ This is the **single place** where DB → `DictionaryContext` transformation hap
 
 See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key tables:
 - `users` — id, telegramId, username, onboardingStep, onboarded, isActive, createdAt
-- `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode (default "translate"), isActive, updatedAt
+- `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode (default "translate"), lastSourceLang (nullable text — last explicitly selected source lang, survives restarts), isActive, updatedAt
 - `words` — userId, original, sourceLang (nullable, deprecated), sourceLangId (FK → languages.id, NOT NULL), inputType ('word'|'phrase', default 'word'), content (JSONB typed as StoredWordContent), isActive, createdAt, updatedAt; unique index on (userId, original, sourceLangId)
 - `translationRequests` — userId, original, sourceLangId (FK → languages.id, nullable), createdAt (for rate limiting)
 - `translationRequestTargetLangs` — requestId (FK → translationRequests.id), languageId (FK → languages.id); unique index on (requestId, languageId)
@@ -244,7 +247,7 @@ packages/adapters/db/src/
 │   └── word-context.repository.ts        # ✅ implemented (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
 └── __tests__/
     ├── getDb.test.ts                     # 1 test
-    ├── user.repository.test.ts           # 18 tests (findByTelegramId, create, updateSettings incl. max-4 guard, getSettings, updateActiveMode, updateOnboardingStep, markOnboarded)
+    ├── user.repository.test.ts           # 28 tests (findByTelegramId, create, updateSettings incl. max-4 guard + lastSourceLang protection, getSettings + lastSourceLang, updateActiveMode, updateLastSourceLang, updateOnboardingStep, markOnboarded)
     ├── topic.repository.test.ts          # 4 tests
     ├── word.repository.test.ts           # 20 tests (create with CreateWordInput, findByOriginalAndSource, findByUser, findById, search, updateContent with StoredWordContent, delete, connotationWarning support)
     ├── language.repository.test.ts       # 7 tests (findByCode, create, getOrCreate, findAll)
@@ -267,6 +270,7 @@ packages/adapters/db/drizzle/
 ├── 0006_drop_words_source_lang.sql       # Drops deprecated source_lang text column from words
 ├── 0007_drop_iso3_code.sql               # Drops iso3_code column from languages
 ├── 0008_user_translation_templates.sql   # Adds user_translation_templates table (Task 32)
+├── 0009_persist_last_source_lang.sql     # Adds last_source_lang column to user_language_settings (Task 36)
 └── meta/
     ├── _journal.json
     ├── 0000_snapshot.json

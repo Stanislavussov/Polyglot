@@ -25,7 +25,8 @@ export const userRepository = {
     return rows[0]!;
   },
 
-  /** Update user language settings (upsert). Throws if learningLangs exceeds MAX_LEARNING_LANGS. */
+  /** Update user language settings (upsert). Throws if learningLangs exceeds MAX_LEARNING_LANGS.
+   *  NOTE: Does NOT overwrite `lastSourceLang` unless explicitly provided — prevents accidental erasure. */
   async updateSettings(
     userId: number,
     settings: Omit<NewUserLanguageSettings, "userId">,
@@ -34,22 +35,40 @@ export const userRepository = {
       throw new Error(`Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got ${settings.learningLangs.length}`);
     }
     const db = getDb();
+
+    const set: Record<string, unknown> = {
+      interfaceLang: settings.interfaceLang,
+      nativeLang: settings.nativeLang,
+      learningLangs: settings.learningLangs,
+      timezone: settings.timezone,
+      activeMode: settings.activeMode,
+      updatedAt: new Date(),
+    };
+
+    // Only overwrite lastSourceLang when explicitly provided (including null to clear it)
+    if ("lastSourceLang" in settings) {
+      set.lastSourceLang = settings.lastSourceLang;
+    }
+
     const rows = await db
       .insert(userLanguageSettings)
       .values({ ...settings, userId })
       .onConflictDoUpdate({
         target: userLanguageSettings.userId,
-        set: {
-          interfaceLang: settings.interfaceLang,
-          nativeLang: settings.nativeLang,
-          learningLangs: settings.learningLangs,
-          timezone: settings.timezone,
-          activeMode: settings.activeMode,
-          updatedAt: new Date(),
-        },
+        set,
       })
       .returning();
     return rows[0]!;
+  },
+
+  /** Update only the last explicitly selected source language (fire-and-forget friendly).
+   *  Pass null to clear (e.g. on re-onboarding or when language becomes invalid). */
+  async updateLastSourceLang(userId: number, lang: string | null): Promise<void> {
+    const db = getDb();
+    await db
+      .update(userLanguageSettings)
+      .set({ lastSourceLang: lang, updatedAt: new Date() })
+      .where(eq(userLanguageSettings.userId, userId));
   },
 
   /** Update user's active mode (translate, mentor, quiz, etc.). */

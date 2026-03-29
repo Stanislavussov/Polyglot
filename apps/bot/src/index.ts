@@ -49,6 +49,7 @@ bot.use(
       lastTranslation: undefined,
       lastInputType: undefined,
       savedWordId: undefined,
+      needsTranslateReminder: true,
       templateWizard: undefined,
     }),
   }),

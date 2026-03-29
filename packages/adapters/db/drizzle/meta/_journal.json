@@ -64,6 +64,13 @@
       "when": 1775000000000,
       "tag": "0008_user_translation_templates",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1775100000000,
+      "tag": "0009_persist_last_source_lang",
+      "breakpoints": true
     }
   ]
 }

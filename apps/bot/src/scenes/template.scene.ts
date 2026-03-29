@@ -9,6 +9,7 @@ import type { BotContext } from "../types.js";
 
 /** /template command handler */
 export async function handleTemplateCommand(ctx: BotContext): Promise<void> {
+  ctx.session.needsTranslateReminder = true;
   const settings = await userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;

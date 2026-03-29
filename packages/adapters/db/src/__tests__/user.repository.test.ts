@@ -31,9 +31,12 @@ const selectFn = vi.fn(() => ({ from: selectFromFn }));
 
 const updateReturningFn = vi.fn(() => Promise.resolve([...mockRows]));
 
-const updateWhereFn = vi.fn(() => ({
-  returning: updateReturningFn,
-}));
+const updateWhereFn = vi.fn(() => {
+  // Must be both thenable (for queries without .returning()) and have .returning()
+  const result = Promise.resolve([...mockRows]);
+  (result as unknown as Record<string, unknown>).returning = updateReturningFn;
+  return result;
+});
 
 const updateSetFn = vi.fn((set: unknown) => {
   lastUpdateSet = set;
@@ -170,7 +173,7 @@ describe("userRepository", () => {
       });
 
       // Verify onConflictDoUpdate was called with activeMode in the set
-      const conflictCall = onConflictDoUpdateFn.mock.calls[0]![0] as Record<string, unknown>;
+      const conflictCall = (onConflictDoUpdateFn.mock.calls as unknown as Array<[Record<string, unknown>]>)[0]![0];
       const setObj = conflictCall.set as Record<string, unknown>;
       expect(setObj).toHaveProperty("activeMode", "mentor");
       expect(setObj).toHaveProperty("interfaceLang", "en");
@@ -247,6 +250,53 @@ describe("userRepository", () => {
       });
 
       expect(result).toEqual(settings);
+    });
+
+    it("does NOT include lastSourceLang in conflict set when not provided", async () => {
+      const settings = makeSettings();
+      mockRows.push(settings);
+
+      await userRepository.updateSettings(1, {
+        interfaceLang: "en",
+        nativeLang: "ru",
+        learningLangs: ["cs"],
+      });
+
+      const conflictCall = (onConflictDoUpdateFn.mock.calls as unknown as Array<[Record<string, unknown>]>)[0]![0];
+      const setObj = conflictCall.set as Record<string, unknown>;
+      expect(setObj).not.toHaveProperty("lastSourceLang");
+    });
+
+    it("includes lastSourceLang in conflict set when explicitly provided", async () => {
+      const settings = makeSettings({ lastSourceLang: "cs" });
+      mockRows.push(settings);
+
+      await userRepository.updateSettings(1, {
+        interfaceLang: "en",
+        nativeLang: "ru",
+        learningLangs: ["cs"],
+        lastSourceLang: "cs",
+      } as Parameters<typeof userRepository.updateSettings>[1]);
+
+      const conflictCall = (onConflictDoUpdateFn.mock.calls as unknown as Array<[Record<string, unknown>]>)[0]![0];
+      const setObj = conflictCall.set as Record<string, unknown>;
+      expect(setObj).toHaveProperty("lastSourceLang", "cs");
+    });
+
+    it("includes lastSourceLang=null in conflict set when explicitly set to null", async () => {
+      const settings = makeSettings({ lastSourceLang: null });
+      mockRows.push(settings);
+
+      await userRepository.updateSettings(1, {
+        interfaceLang: "en",
+        nativeLang: "ru",
+        learningLangs: ["cs"],
+        lastSourceLang: null,
+      } as Parameters<typeof userRepository.updateSettings>[1]);
+
+      const conflictCall = (onConflictDoUpdateFn.mock.calls as unknown as Array<[Record<string, unknown>]>)[0]![0];
+      const setObj = conflictCall.set as Record<string, unknown>;
+      expect(setObj).toHaveProperty("lastSourceLang", null);
     });
   });
 
@@ -340,6 +390,72 @@ describe("userRepository", () => {
         onboarded: true,
         onboardingStep: 3,
       });
+    });
+  });
+
+  describe("updateLastSourceLang", () => {
+    it("persists a source language code", async () => {
+      await userRepository.updateLastSourceLang(1, "cs");
+
+      expect(updateFn).toHaveBeenCalledOnce();
+      expect(lastUpdateSet).toMatchObject({ lastSourceLang: "cs" });
+      expect(lastUpdateSet).toHaveProperty("updatedAt");
+    });
+
+    it("clears lastSourceLang when called with null", async () => {
+      await userRepository.updateLastSourceLang(1, null);
+
+      expect(updateFn).toHaveBeenCalledOnce();
+      expect(lastUpdateSet).toMatchObject({ lastSourceLang: null });
+      expect(lastUpdateSet).toHaveProperty("updatedAt");
+    });
+
+    it("returns void (no returning clause)", async () => {
+      const result = await userRepository.updateLastSourceLang(1, "en");
+
+      expect(result).toBeUndefined();
+    });
+
+    it("only sets lastSourceLang and updatedAt — no other fields", async () => {
+      await userRepository.updateLastSourceLang(1, "de");
+
+      const setKeys = Object.keys(lastUpdateSet as object);
+      expect(setKeys).toContain("lastSourceLang");
+      expect(setKeys).toContain("updatedAt");
+      expect(setKeys).toHaveLength(2);
+    });
+
+    it("sets updatedAt to current timestamp", async () => {
+      const before = new Date();
+
+      await userRepository.updateLastSourceLang(1, "fr");
+
+      const after = new Date();
+      const updatedAt = (lastUpdateSet as Record<string, unknown>).updatedAt as Date;
+      expect(updatedAt).toBeInstanceOf(Date);
+      expect(updatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(updatedAt.getTime()).toBeLessThanOrEqual(after.getTime());
+    });
+  });
+
+  describe("getSettings returns lastSourceLang", () => {
+    it("returns lastSourceLang when present in settings", async () => {
+      const settings = makeSettings({ lastSourceLang: "cs" });
+      mockRows.push(settings);
+
+      const result = await userRepository.getSettings(1);
+
+      expect(result).toEqual(settings);
+      expect(result!.lastSourceLang).toBe("cs");
+    });
+
+    it("returns lastSourceLang as null when not set", async () => {
+      const settings = makeSettings({ lastSourceLang: null });
+      mockRows.push(settings);
+
+      const result = await userRepository.getSettings(1);
+
+      expect(result!.lastSourceLang).toBeNull();
     });
   });
 });

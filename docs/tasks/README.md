@@ -43,3 +43,4 @@
 | 32  | [User Translation Template](./finished/32-user-translation-template.md) |
 | 22  | [Dependency Cruiser](./finished/22-dependency-cruiser.md) |
 | 27  | [Input Type Detection & Text Limits](./finished/27-input-type-detection-and-text-limits.md) |
+| 36  | [Persist Source Language & Re-entry Reminder](./finished/36-persist-source-lang-and-reentry-reminder.md) |

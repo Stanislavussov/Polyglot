@@ -11,6 +11,7 @@ vi.mock("@polyglot/adapter-ai", () => ({
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: {
     getSettings: vi.fn(),
+    updateLastSourceLang: vi.fn().mockResolvedValue(undefined),
   },
   wordRepository: {
     create: vi.fn().mockResolvedValue({ id: 1 }),
@@ -18,6 +19,9 @@ vi.mock("@polyglot/adapter-db", () => ({
   },
   createContextLookup: () => vi.fn(),
   getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
+  translationTemplateRepository: {
+    getByUserId: vi.fn().mockResolvedValue(null),
+  },
 }));
 
 vi.mock("@polyglot/core", async () => {

@@ -16,6 +16,7 @@ const { mockLookupContext } = vi.hoisted(() => ({
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: {
     getSettings: vi.fn(),
+    updateLastSourceLang: vi.fn().mockResolvedValue(undefined),
   },
   wordRepository: {
     create: vi.fn().mockResolvedValue({ id: 1 }),

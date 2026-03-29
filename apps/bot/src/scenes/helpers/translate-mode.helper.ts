@@ -61,12 +61,50 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
   // Resolve translation direction:
   // 1. If nextSourceLang is set → use explicit source (Task 17)
-  // 2. Otherwise → auto-detect input language (Task 16)
+  // 2. Try hydrating from DB lastSourceLang (Task 36)
+  // 3. Otherwise → auto-detect input language (Task 16)
   let sourceLang: string;
   let targetLangs: string[];
   let detectedLang: string | undefined;
 
-  const nextSource = ctx.session.nextSourceLang;
+  let nextSource = ctx.session.nextSourceLang;
+
+  // Step 4 (Task 36): Lazy hydration — if session is empty, try DB fallback
+  if (!nextSource && settings?.lastSourceLang) {
+    const hydrated = settings.lastSourceLang;
+    const hydrateDirection = resolveDirectionFromSource({
+      sourceLang: hydrated,
+      nativeLang,
+      learningLangs,
+    });
+
+    if (hydrateDirection) {
+      // Valid — hydrate into session
+      ctx.session.nextSourceLang = hydrated;
+      nextSource = hydrated;
+      // Mark reminder so user knows which source is active
+      if (ctx.session.needsTranslateReminder === undefined) {
+        ctx.session.needsTranslateReminder = true;
+      }
+    } else {
+      // Step 5 (Task 36): Invalid lastSourceLang — clear both session + DB
+      ctx.session.nextSourceLang = null;
+      userRepository.updateLastSourceLang(ctx.user.id, null).catch((err) => {
+        logger.error({ err, userId: ctx.user.id }, "Failed to clear invalid lastSourceLang from DB");
+      });
+    }
+  }
+
+  // Step 8 (Task 36): Non-blocking reminder after commands
+  if (ctx.session.needsTranslateReminder) {
+    ctx.session.needsTranslateReminder = false;
+    if (nextSource) {
+      // Show reminder menu (non-blocking — translation still proceeds)
+      await sendSourceLangMenu(ctx, settings, lang);
+    }
+    // If nextSource is null, no reminder needed — auto-detect handles it
+  }
+
   if (nextSource) {
     // Explicit source language from user selection
     const direction = resolveDirectionFromSource({
@@ -82,6 +120,10 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     } else {
       // Selected source lang no longer in config — reset and fall back
       ctx.session.nextSourceLang = null;
+      // Step 5 (Task 36): Clear from DB too
+      userRepository.updateLastSourceLang(ctx.user.id, null).catch((err) => {
+        logger.error({ err, userId: ctx.user.id }, "Failed to clear invalid nextSourceLang from DB");
+      });
       const fallback = resolveTranslationDirection({
         text: word,
         nativeLang,
@@ -326,11 +368,11 @@ export function buildLangOptions(
 }
 
 /**
- * Send the source language selection menu after Save/Skip.
+ * Send the source language selection menu after Save/Skip or as a reminder.
  * Includes the hint text + nextTranslationFrom header + inline keyboard.
  * Falls back to plain hint when user has only 2 languages.
  */
-async function sendSourceLangMenu(
+export async function sendSourceLangMenu(
   ctx: BotContext,
   settings: { nativeLang?: string; learningLangs?: string[]; interfaceLang?: string } | null,
   lang: SupportedLang,
@@ -453,7 +495,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
 
 /**
  * Handles source language selection callback (tr:srclang:{code}).
- * Sets nextSourceLang in session, answers with confirmation, updates keyboard.
+ * Sets nextSourceLang in session, persists to DB (fire-and-forget), answers with confirmation, updates keyboard.
  */
 export async function handleSourceLangCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data;
@@ -466,6 +508,11 @@ export async function handleSourceLangCallback(ctx: BotContext): Promise<void> {
 
   // Set the selected source language in session
   ctx.session.nextSourceLang = code;
+
+  // Persist to DB — fire-and-forget (Task 36)
+  userRepository.updateLastSourceLang(ctx.user.id, code).catch((err) => {
+    logger.error({ err, userId: ctx.user.id, code }, "Failed to persist lastSourceLang to DB");
+  });
 
   // Get user settings for language display
   const settings = await userRepository.getSettings(ctx.user.id);
