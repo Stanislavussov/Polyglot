@@ -15,6 +15,8 @@
 | 33  | [Config-Driven Dictionary Word Pipeline + Flash Cards](./33-dictionary-word-pipeline-and-flashcards.md) | 🔲 To Do  |
 | 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 In Progress |
 | 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 In Progress |
+| 38  | [Regen Helper Context Enrichment](./38-regen-helper-context-enrichment.md) | 🔲 To Do |
+| 39  | [Normalize Vocabulary Schema](./39-normalize-vocabulary-schema.md) | 🔲 To Do |
 
 ## Finished
 
