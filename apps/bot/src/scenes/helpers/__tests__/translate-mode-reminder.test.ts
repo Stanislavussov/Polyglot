@@ -211,16 +211,12 @@ describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
 
     // Reminder should show hint text only, no keyboard (buildSourceLangKeyboard returns null for ≤2 langs)
     const replies = vi.mocked(ctx.reply).mock.calls;
-    const reminderReply = replies.find(
-      (call) => typeof call[0] === "string" && call[0].includes("Send"),
-    );
+    const reminderReply = replies.find((call) => typeof call[0] === "string" && call[0].includes("Send"));
     // If found, it should NOT have a keyboard with source lang buttons
-    if (reminderReply && reminderReply[1]) {
+    if (reminderReply?.[1]) {
       const markup = (reminderReply[1] as any).reply_markup;
       if (markup?.inline_keyboard) {
-        const allCallbacks = markup.inline_keyboard.flatMap((row: any[]) =>
-          row.map((b: any) => b.callback_data),
-        );
+        const allCallbacks = markup.inline_keyboard.flatMap((row: any[]) => row.map((b: any) => b.callback_data));
         expect(allCallbacks.some((d: string) => d?.startsWith("tr:srclang:"))).toBe(false);
       }
     }

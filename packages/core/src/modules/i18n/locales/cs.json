@@ -83,5 +83,6 @@
   "cmdDescTranslate": "Přeložit slovo nebo frázi",
   "cmdDescDictionary": "Otevřít osobní slovník",
   "cmdDescTemplate": "Přizpůsobit šablonu překladu",
-  "cmdDescSettings": "Nastavení jazyků a notifikací"
+  "cmdDescSettings": "Nastavení jazyků a notifikací",
+  "qualityUncertain": "⚠️ Kvalita překladu nejistá"
 }

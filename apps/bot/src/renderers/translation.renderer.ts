@@ -242,3 +242,20 @@ export function buildSourceLangKeyboard(langs: LangOption[], currentSelection: s
 
   return kb;
 }
+
+/**
+ * Render a quality uncertain warning line for DB-flagged words.
+ *
+ * Used for words flagged by the lite AI validator (Task 37)
+ * when displaying dictionary entries or flashcards with `needs_review = true`.
+ *
+ * Distinct from `translationNeedsReview` (used on immediate translate output)
+ * — this uses the `qualityUncertain` i18n key for stored/reviewed words.
+ *
+ * @param interfaceLang - User interface language
+ * @returns HTML-safe warning string
+ */
+export function renderQualityWarning(interfaceLang?: string): string {
+  const lang = toLang(interfaceLang);
+  return esc(t("qualityUncertain", lang));
+}

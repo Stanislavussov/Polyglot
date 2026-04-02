@@ -56,6 +56,15 @@ Wiktionary Data
     ├─ 7. validateWordContext            — parsed record: word, languageId, pos, formTags, glosses
     ├─ 8. validateGlosses               — array of non-empty definition strings
     └─ 9. validatePos                   — known POS tag check (phrase, noun, verb, idiom, etc.)
+
+Lite AI Async Path (Task 37) — after translate() returns:
+    │
+    ├─ isHighRisk()                      — phrase/idiom, idiomatic_equivalent, Wiktionary miss, uncommon lang
+    ├─ If high-risk + AI_MODEL_VALIDATOR set:
+    │   ├─ buildLiteValidationPrompt()   — structured scoring prompt (5 dimensions, 0–5 scale)
+    │   ├─ validateWithLiteAI()          — call lite model, parse scores, determine review flag
+    │   └─ If flaggedForReview → onFlagged callback (injected by bot layer)
+    └─ Fire-and-forget — never blocks user, graceful degradation on failure
 ```
 
 ## Public API
@@ -121,6 +130,46 @@ function validatePos(pos: unknown): ValidationResult;
 
 // Constant: list of known POS values from Wiktionary
 const KNOWN_POS: readonly string[];
+
+// ── Lite AI Validation (Task 37) ──
+
+// Scores keyed by language code, each with 5 dimensions (0–5) + reasoning
+interface LiteValidationScore {
+  meaningPreserved: number; naturalness: number; registerAccuracy: number;
+  cefrAccuracy: number; overallScore: number; reasoning: string;
+}
+
+// Result: scores per language + boolean review flag
+interface LiteValidationResult {
+  scores: Record<string, LiteValidationScore>; flaggedForReview: boolean;
+}
+
+// Zod schemas for structured AI output parsing
+const liteValidationScoreSchema: ZodObject;
+const liteValidationResultSchema: ZodObject;
+
+// Threshold below which a translation is flagged for review (default: 3)
+const REVIEW_THRESHOLD: number;
+
+// Build a validation prompt for the lite AI model
+function buildLiteValidationPrompt(input: LiteValidationInput): string;
+
+// Determine whether a translation is high-risk and should be validated
+// Criteria: phrase/idiom input, idiomatic_equivalent, Wiktionary miss, uncommon language
+function isHighRisk(input: RiskDetectorInput, safeLangs?: readonly string[]): boolean;
+
+// Default safe languages allowlist (well-represented in AI training data)
+const SAFE_LANGUAGES: readonly string[];
+
+// AI generation function signature (injected, core never depends on AI adapter)
+type LiteGenerateObjectFn = <T>(prompt: string, schema: ZodSchema<T>, model: string, options?: { maxRetries?: number }) => Promise<T>;
+
+// Call lite AI model, parse scores, determine review flag. Graceful degradation on failure.
+function validateWithLiteAI(input: LiteValidationInput, generateObjectFn: LiteGenerateObjectFn, model: string): Promise<LiteValidationResult>;
+
+// Fire-and-forget async validation trigger. Checks risk, validates, calls onFlagged callback.
+// Returns void immediately — async work runs in background with error handling.
+function triggerAsyncValidation(params: AsyncValidationParams): void;
 ```
 
 ## Types
@@ -188,6 +237,54 @@ interface WordContextInput {
 
 /** Known POS values from Wiktionary */
 type KnownPos = "noun" | "verb" | "adj" | "adv" | "phrase" | "idiom" | "proverb" | ...;
+
+// ── Lite AI Validation Types (Task 37) ──
+
+/** Quality score for a single target language translation (0–5 scale) */
+interface LiteValidationScore {
+  meaningPreserved: number;
+  naturalness: number;
+  registerAccuracy: number;
+  cefrAccuracy: number;
+  overallScore: number;
+  reasoning: string;
+}
+
+/** Result of lite AI validation across all target languages */
+interface LiteValidationResult {
+  scores: Record<string, LiteValidationScore>;
+  flaggedForReview: boolean;
+}
+
+/** Input for the lite validation prompt builder */
+interface LiteValidationInput {
+  original: string;
+  sourceLang: string;
+  translations: Record<string, LanguageTranslation>;
+  dictionaryContext?: DictionaryContext;
+}
+
+/** Input for the risk detector heuristic */
+interface RiskDetectorInput {
+  inputType?: "word" | "phrase" | "sentence";
+  dictionaryContext?: DictionaryContext;
+  expressionTypes?: ExpressionType[];
+  targetLangs: string[];
+}
+
+/** Parameters for fire-and-forget async validation */
+interface AsyncValidationParams {
+  original: string;
+  sourceLang: string;
+  translations: Record<string, LanguageTranslation>;
+  inputType?: "word" | "phrase" | "sentence";
+  dictionaryContext?: DictionaryContext;
+  expressionTypes?: ExpressionType[];
+  targetLangs: string[];
+  validatorModel?: string;
+  generateObjectFn: LiteGenerateObjectFn;
+  onFlagged: (scores: Record<string, LiteValidationScore>) => void;
+}
 ```
 
 ## File Structure
@@ -202,6 +299,20 @@ packages/core/src/modules/validation/
 │   ├── language.validator.ts             # validateLanguage(), resolveToIso3()
 │   ├── example.validator.ts              # validateExamples() + ExpressionType
 │   └── wiktionary.validator.ts           # validateWiktionaryEntry(), validateWordContext(), validateGlosses(), validatePos(), KNOWN_POS
+├── lite-ai/                              # Task 37 — Lite AI second-pass semantic validator
+│   ├── index.ts                          # Re-exports all lite-ai symbols
+│   ├── types.ts                          # LiteValidationScore, LiteValidationResult, LiteValidationInput, RiskDetectorInput, AsyncValidationParams
+│   ├── schemas.ts                        # Zod schemas (liteValidationScoreSchema, liteValidationResultSchema) + REVIEW_THRESHOLD
+│   ├── prompt.builder.ts                 # buildLiteValidationPrompt()
+│   ├── risk-detector.ts                  # isHighRisk() + SAFE_LANGUAGES
+│   ├── lite-validation.service.ts        # validateWithLiteAI() + LiteGenerateObjectFn type
+│   ├── async-validator.ts                # triggerAsyncValidation() — fire-and-forget entry point
+│   └── __tests__/
+│       ├── schemas.test.ts               # 15 tests
+│       ├── prompt.builder.test.ts        # 14 tests
+│       ├── risk-detector.test.ts         # 20 tests
+│       ├── lite-validation.service.test.ts  # 11 tests
+│       └── async-validator.test.ts       # 9 tests
 └── __tests__/
     ├── schema.validator.test.ts          # 8 tests
     ├── semantic.validator.test.ts        # 14 tests
@@ -220,9 +331,16 @@ When validation fails in the translation service (`packages/core/src/modules/tra
 
 Core uses `console.warn`/`console.error` (not pino) to stay infra-free per clean architecture.
 
+Lite AI validation (Task 37) uses `getLogger()` from `packages/core/src/logger.ts` with structured Pino-compatible fields:
+- `info`: validation completed — logs `original`, `sourceLang`, `targetLangs`, `validatorModel`, `overallScores`, `flaggedForReview`, `latencyMs`
+- `warn`: translation flagged for review — same fields
+- `error`: validation failed — logs `original`, `sourceLang`, `targetLangs`, `validatorModel`, `latencyMs`, `error`
+- Async validator logs `info` when validation starts (with `isHighRisk: true`), `error` on unexpected failures
+
 ## Current State
 
-- 4 active validators + 1 no-op + 4 Wiktionary validators (139 tests total across 7 test files in validation module)
+- 4 active validators + 1 no-op + 4 Wiktionary validators + lite-ai sub-module (208 tests total across 12 test files in validation module)
+- **Task 37**: New `lite-ai/` sub-module — lightweight AI second-pass semantic validator for high-risk translations. Runs asynchronously (fire-and-forget), scores translations on 5 dimensions (meaningPreserved, naturalness, registerAccuracy, cefrAccuracy, overallScore), flags for review when `overallScore < REVIEW_THRESHOLD (3)`. Risk detection heuristic (`isHighRisk()`) filters to only validate phrases, idioms, Wiktionary misses, idiomatic equivalents, and uncommon languages. Uses dependency injection for AI generation function (`LiteGenerateObjectFn`). Graceful degradation on failure. Structured Pino-compatible logging. 69 tests across 5 test files. Re-exported from `validation/index.ts` (not yet re-exported from core main `index.ts`).
 - **Task 31**: `ExampleInput.native` removed, `ExampleInput.register` added (inline register label). `ExampleContext` changed from `formal | colloquial | professional` to `neutral | colloquial | professional`. `validateExamples()` validates register is non-empty and context is a valid value. `VALID_EXAMPLE_CONTEXTS` constant and `ExampleContext` type exported. `connotationWarning` is optional — no validation needed beyond Zod schema.
 - **Task 27**: `validate()` accepts optional `inputType` parameter (`InputType = 'word' | 'phrase' | 'sentence'`). When `inputType === 'sentence'`, semantic validation (step 2), example validation (step 4), and alternatives semantic validation (step 5) are skipped — only schema validation and language detection run. `InputType` type exported from module. 9 sentence-specific tests in `validate.test.ts`.
 - **Task 16**: New `language-detect` module (`packages/core/src/modules/language-detect/`) with `detectLanguage()` (franc + script heuristics) and `resolveTranslationDirection()` (direction logic). 33 tests across 2 test files. `franc` added as dependency to `@polyglot/core`. Types `ResolveDirectionInput`, `TranslationDirection` exported.
@@ -302,3 +420,4 @@ packages/core/src/modules/language-detect/
 - Task: `docs/tasks/17-next-translation-language-menu.md` (explicit source lang direction resolver)
 - Task: `docs/tasks/27-input-type-detection-and-text-limits.md` (sentence inputType — skip semantic/example/alternatives validation)
 - Task: `docs/tasks/finished/28-validation-respects-output-config.md` (ValidateOptions — skip validation for disabled output fields)
+- Task: `docs/tasks/37-lite-ai-translation-validator.md` (Lite AI second-pass semantic validator — risk detection, structured scoring, async fire-and-forget)

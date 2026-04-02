@@ -192,6 +192,26 @@ Users can customize which fields appear in their translation output via `/templa
 
 **i18n keys**: `templateTitle`, `templateCurrent` (with `{name}`), `templateDefault`, `templateCustom`, `templateCustomize`, `templateReset`, `templateConstructor`, `templatePreview`, `templateSave`, `templateCancel`, `templateBack`, `templateSaved`, `templateResetDone`, `templateCancelled`, `templateField*` (6 field labels), `templatePreviewHeader`, `templateSessionExpired`.
 
+### Async Lite AI Validation (Task 37)
+
+After every translation card is sent (both word/phrase and sentence), the bot fires `fireAsyncValidation()` from `apps/bot/src/utils/async-validation.ts`. This is a fire-and-forget bridge that:
+
+1. Reads `AI_MODEL_VALIDATOR` from `process.env` — if absent, validation is disabled (feature toggle)
+2. Dynamically imports `triggerAsyncValidation` from `@polyglot/core` — if not yet exported from core's public API, gracefully skips
+3. Delegates risk detection and validation to the core lite-ai module
+4. On flagged translations: logs a warning (DB `markForReview()` pending 37.6 implementation)
+5. Extracts `expressionTypes` from `output.translations` for risk detection
+6. Never throws — all errors caught and logged
+
+**Rendering**: The renderer already shows `translationNeedsReview` for immediate output validation flags. A new `renderQualityWarning(interfaceLang)` function uses the `qualityUncertain` i18n key for DB-flagged words — ready for dictionary/flashcard views when implemented.
+
+**Wiring location**: `handleTranslateText()` in `translate-mode.helper.ts` calls `fireAsyncValidation()` after the translation card is sent in both the sentence and word/phrase branches. No change to user-visible response timing.
+
+**Pending upstream dependencies** (tracked in respective agents):
+- Core package needs to export `triggerAsyncValidation` and types from main index
+- Infra config needs `AI_MODEL_VALIDATOR` field in env schema
+- DB adapter needs `wordRepository.markForReview()` method and `needs_review` column
+
 ## Boundary
 
 - **Mode:** role — when this skill is active, you ARE the bot agent. Only modify the Telegram bot layer.
@@ -256,6 +276,13 @@ function renderSentenceTranslation(output: TranslateOutput, interfaceLang?: stri
 
 // Build inline keyboard for sentences — regen only, no Save/Skip (Task 27)
 function buildSentenceKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard;
+
+// Render quality warning for DB-flagged words — uses qualityUncertain i18n key (Task 37)
+function renderQualityWarning(interfaceLang?: string): string;
+
+// Fire-and-forget async lite AI validation trigger (Task 37)
+// Feature-flagged via AI_MODEL_VALIDATOR env var
+function fireAsyncValidation(params: FireAsyncValidationParams): void;
 
 // Scene: 3-step onboarding (BUG-01 fix — BRD §5)
 async function onboarding(conversation, ctx): Promise<void>;
@@ -477,12 +504,15 @@ apps/bot/src/
 │   ├── start.ts                # /start command (restores translate mode, persists to DB)
 │   └── start.test.ts           # 4 tests (activeMode restore, DB persistence, onboarding entry, no user)
 ├── utils/
-│   ├── classify-input.ts       # ✅ Input classifier: word/phrase/sentence (Task 27)
-│   ├── classify-input.test.ts  # 18 tests (classification rules, boundaries, config)
+│   ├── __tests__/
+│   ├── async-validation.ts           # ✅ fireAsyncValidation() — fire-and-forget lite AI validation bridge (Task 37)
+│   ├── async-validation.test.ts      # 6 tests (feature flag, dynamic import, graceful degradation)
+│   ├── classify-input.ts             # ✅ Input classifier: word/phrase/sentence (Task 27)
+│   ├── classify-input.test.ts        # 18 tests (classification rules, boundaries, config)
 │   ├── sanitize-word-content.ts      # ✅ sanitizeForStorage() — strips transient fields for DB (FEAT-30)
 │   └── sanitize-word-content.test.ts # 9 tests (field stripping, immutability, minimal input)
 ├── renderers/
-│   ├── translation.renderer.ts # renderTranslation, renderSentenceTranslation, renderTopicWord, buildTranslationKeyboard(+inputType), buildPostSaveKeyboard, buildSentenceKeyboard, buildSourceLangKeyboard
+│   ├── translation.renderer.ts # renderTranslation, renderSentenceTranslation, renderTopicWord, renderQualityWarning, buildTranslationKeyboard(+inputType), buildPostSaveKeyboard, buildSentenceKeyboard, buildSourceLangKeyboard
 │   └── __tests__/
 │       └── source-lang-menu.test.ts     # 8 tests (keyboard rendering, ✓ marks, suppression)
 ├── scenes/
@@ -507,7 +537,7 @@ apps/bot/src/
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 11 tests (mode system tests, idle fallback, DB persistence)
-    ├── translation.renderer.test.ts        # 89 tests (includes 7 alternatives, 5 connotation warnings, 2 backward compat, 4 inline synonyms, 15 sentence renderer, 7 sentence keyboard, 5 post-save keyboard)
+    ├── translation.renderer.test.ts        # 95 tests (includes 7 alternatives, 5 connotation warnings, 2 backward compat, 4 inline synonyms, 15 sentence renderer, 7 sentence keyboard, 5 post-save keyboard, 6 quality warning)
     ├── translation.renderer.template.test.ts # ✅ 10 tests (template-aware rendering: field toggle, backward compat, mixed fields)
     ├── template.scene.test.ts              # ✅ 15 tests (command, customize, toggle, save, cancel, reset, preview, back)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)

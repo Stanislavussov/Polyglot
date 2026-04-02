@@ -87,7 +87,8 @@ export type I18nKey =
   | "cmdDescTranslate"
   | "cmdDescDictionary"
   | "cmdDescTemplate"
-  | "cmdDescSettings";
+  | "cmdDescSettings"
+  | "qualityUncertain";
 
 /**
  * Supported interface languages.

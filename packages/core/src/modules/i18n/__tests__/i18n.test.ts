@@ -451,6 +451,23 @@ describe("i18n — t()", () => {
     expect(t("cmdDescTemplate", "de")).toBe("Customize translation template");
     expect(t("cmdDescSettings", "de")).toBe("Language & notification settings");
   });
+
+  // Quality uncertain key (task 37)
+  it("returns qualityUncertain in English", () => {
+    expect(t("qualityUncertain", "en")).toBe("⚠️ Translation quality uncertain");
+  });
+
+  it("returns qualityUncertain in Russian", () => {
+    expect(t("qualityUncertain", "ru")).toBe("⚠️ Качество перевода под вопросом");
+  });
+
+  it("returns qualityUncertain in Czech", () => {
+    expect(t("qualityUncertain", "cs")).toBe("⚠️ Kvalita překladu nejistá");
+  });
+
+  it("falls back to English for qualityUncertain when locale has no file", () => {
+    expect(t("qualityUncertain", "de")).toBe("⚠️ Translation quality uncertain");
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -592,6 +609,7 @@ describe("i18n — locale consistency", () => {
       "cmdDescDictionary",
       "cmdDescTemplate",
       "cmdDescSettings",
+      "qualityUncertain",
     ];
 
     for (const key of enKeys) {

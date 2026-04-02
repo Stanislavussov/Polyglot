@@ -1,6 +1,6 @@
 # Task 37 — Lite AI Translation Validator (Selective, Async)
 
-**Status:** 🔲 To Do  
+**Status:** 🟡 In Progress  
 **Type:** Feature (new core module + infra config + DB migration + bot integration)  
 **Priority:** Medium — closes the semantic validation blind spot; no structural changes blocked  
 **Source:** `docs/research/evaluation.md` — verdict: RECOMMEND with selective application (Alternative E)
@@ -44,7 +44,7 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
 **Goal:** Create Zod schema and TypeScript types for the lite validator's structured output.
 
 **Acceptance Criteria:**
-- [ ] New file `packages/core/src/modules/validation/lite-ai/types.ts` with:
+- [x] New file `packages/core/src/modules/validation/lite-ai/types.ts` with:
   ```ts
   interface LiteValidationScore {
     meaningPreserved: number;  // 0–5
@@ -60,10 +60,10 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
     flaggedForReview: boolean;  // true when any overallScore < 3
   }
   ```
-- [ ] Zod schema in `packages/core/src/modules/validation/lite-ai/schemas.ts` matching the interface
-- [ ] `REVIEW_THRESHOLD` constant exported (default: `3`)
-- [ ] Re-exported from `packages/core/src/modules/validation/lite-ai/index.ts`
-- [ ] Unit tests for schema validation pass/fail cases
+- [x] Zod schema in `packages/core/src/modules/validation/lite-ai/schemas.ts` matching the interface
+- [x] `REVIEW_THRESHOLD` constant exported (default: `3`)
+- [x] Re-exported from `packages/core/src/modules/validation/lite-ai/index.ts`
+- [x] Unit tests for schema validation pass/fail cases
 
 **Dependencies:** None  
 **Effort:** 30 min  
@@ -76,12 +76,12 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
 **Goal:** Create a prompt that instructs the lite model to evaluate a translation on structured dimensions.
 
 **Acceptance Criteria:**
-- [ ] New file `packages/core/src/modules/validation/lite-ai/prompt.builder.ts`
-- [ ] `buildLiteValidationPrompt(input: LiteValidationInput): string` function
-- [ ] Prompt includes: original word/phrase, source language, each target language translation, the scoring rubric (meaning, naturalness, register, CEFR), and instruction to return JSON matching the schema
-- [ ] Prompt specifies that the validator should **not** rewrite — only score
-- [ ] If `dictionaryContext` is available, include it for reference
-- [ ] Unit tests: prompt contains required sections, handles single and multi-language inputs
+- [x] New file `packages/core/src/modules/validation/lite-ai/prompt.builder.ts`
+- [x] `buildLiteValidationPrompt(input: LiteValidationInput): string` function
+- [x] Prompt includes: original word/phrase, source language, each target language translation, the scoring rubric (meaning, naturalness, register, CEFR), and instruction to return JSON matching the schema
+- [x] Prompt specifies that the validator should **not** rewrite — only score
+- [x] If `dictionaryContext` is available, include it for reference
+- [x] Unit tests: prompt contains required sections, handles single and multi-language inputs
 
 **Dependencies:** 37.2  
 **Effort:** 45 min  
@@ -94,14 +94,14 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
 **Goal:** Determine whether a translation should be sent to the lite validator based on risk criteria from the research.
 
 **Acceptance Criteria:**
-- [ ] New file `packages/core/src/modules/validation/lite-ai/risk-detector.ts`
-- [ ] `isHighRisk(input: RiskDetectorInput): boolean` — returns `true` when **any** of:
+- [x] New file `packages/core/src/modules/validation/lite-ai/risk-detector.ts`
+- [x] `isHighRisk(input: RiskDetectorInput): boolean` — returns `true` when **any** of:
   - `inputType` is `"phrase"` or dictionary context `pos` is `"idiom"` or `"phrase"`
   - Any `expressionType` in the result is `"idiomatic_equivalent"`
   - Dictionary context is `undefined` (Wiktionary miss)
   - Target language is not in a configurable `SAFE_LANGUAGES` allowlist (default: `["en", "es", "fr", "de", "ru", "zh", "ja", "ko", "pt", "it"]`)
-- [ ] `SAFE_LANGUAGES` exportable and overridable
-- [ ] Unit tests for each risk criterion individually and combined
+- [x] `SAFE_LANGUAGES` exportable and overridable
+- [x] Unit tests for each risk criterion individually and combined
 
 **Dependencies:** None  
 **Effort:** 30 min  
@@ -114,14 +114,14 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
 **Goal:** Core service that calls the lite model, parses the scoring response, and returns a `LiteValidationResult`.
 
 **Acceptance Criteria:**
-- [ ] New file `packages/core/src/modules/validation/lite-ai/lite-validation.service.ts`
-- [ ] `validateWithLiteAI(input: LiteValidationInput, generateObjectFn: GenerateObjectFn): Promise<LiteValidationResult>`
-- [ ] Input includes: `original`, `sourceLang`, `translations` (the full result), `dictionaryContext?`, `model` (the validator model ID)
-- [ ] Uses `buildLiteValidationPrompt()` + the Zod schema from 37.2
-- [ ] Returns `{ scores, flaggedForReview }` — `flaggedForReview = true` when any language's `overallScore < REVIEW_THRESHOLD`
-- [ ] On AI call failure: log warning, return `{ scores: {}, flaggedForReview: false }` (graceful skip)
-- [ ] Timeout: pass `{ maxRetries: 0 }` to generateObjectFn (no retries for validation calls)
-- [ ] Unit tests with mocked generateObjectFn
+- [x] New file `packages/core/src/modules/validation/lite-ai/lite-validation.service.ts`
+- [x] `validateWithLiteAI(input: LiteValidationInput, generateObjectFn: GenerateObjectFn): Promise<LiteValidationResult>`
+- [x] Input includes: `original`, `sourceLang`, `translations` (the full result), `dictionaryContext?`, `model` (the validator model ID)
+- [x] Uses `buildLiteValidationPrompt()` + the Zod schema from 37.2
+- [x] Returns `{ scores, flaggedForReview }` — `flaggedForReview = true` when any language's `overallScore < REVIEW_THRESHOLD`
+- [x] On AI call failure: log warning, return `{ scores: {}, flaggedForReview: false }` (graceful skip)
+- [x] Timeout: pass `{ maxRetries: 0 }` to generateObjectFn (no retries for validation calls)
+- [x] Unit tests with mocked generateObjectFn
 
 **Dependencies:** 37.2, 37.3  
 **Effort:** 1 hour  
@@ -153,16 +153,16 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
 **Goal:** After `translate()` returns to the caller, trigger lite validation in the background for high-risk translations. Update the stored word if flagged.
 
 **Acceptance Criteria:**
-- [ ] New file `packages/core/src/modules/validation/lite-ai/async-validator.ts`
-- [ ] `triggerAsyncValidation(params: AsyncValidationParams): void` — fire-and-forget
+- [x] New file `packages/core/src/modules/validation/lite-ai/async-validator.ts`
+- [x] `triggerAsyncValidation(params: AsyncValidationParams): void` — fire-and-forget
   - `params` includes: `translateOutput`, `input` (TranslateInput), `validatorModel` (string | undefined), `generateObjectFn`, `onFlagged` callback
   - If `validatorModel` is undefined → return immediately (feature disabled)
   - If `isHighRisk()` returns false → return immediately
   - Otherwise: call `validateWithLiteAI()`, if `flaggedForReview` → call `onFlagged(wordId, scores)`
-- [ ] `onFlagged` callback is injected by the bot layer — calls `wordRepository.markForReview()`
-- [ ] Errors in the async path are caught and logged, never thrown to caller
-- [ ] Logging: info-level log when validation starts, warn when flagged, error on failure
-- [ ] Unit tests with mocked deps
+- [x] `onFlagged` callback is injected by the bot layer — calls `wordRepository.markForReview()`
+- [x] Errors in the async path are caught and logged, never thrown to caller
+- [x] Logging: info-level log when validation starts, warn when flagged, error on failure
+- [x] Unit tests with mocked deps
 
 **Dependencies:** 37.4, 37.5  
 **Effort:** 1 hour  
@@ -175,12 +175,12 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
 **Goal:** Call `triggerAsyncValidation()` after the bot sends the translation card to the user.
 
 **Acceptance Criteria:**
-- [ ] `apps/bot/src/scenes/translate.scene.ts` — after sending the translation message, call `triggerAsyncValidation()` with appropriate params
-- [ ] Wire `onFlagged` to call `wordRepository.markForReview()` (only if the word was saved to dictionary)
-- [ ] Load `AI_MODEL_VALIDATOR` from config; if absent, skip entirely
-- [ ] No change to the user-visible response timing or content
-- [ ] If the word is not saved to dictionary (user didn't press save), the validation still runs but `onFlagged` is a no-op
-- [ ] Integration test: mock the full flow, verify async validation fires
+- [x] `apps/bot/src/scenes/translate.scene.ts` — after sending the translation message, call `triggerAsyncValidation()` with appropriate params (wired via `fireAsyncValidation()` bridge in `apps/bot/src/utils/async-validation.ts`, called from `handleTranslateText()` in `translate-mode.helper.ts`)
+- [ ] Wire `onFlagged` to call `wordRepository.markForReview()` (only if the word was saved to dictionary) — pending 37.6 DB method
+- [x] Load `AI_MODEL_VALIDATOR` from config; if absent, skip entirely
+- [x] No change to the user-visible response timing or content
+- [x] If the word is not saved to dictionary (user didn't press save), the validation still runs but `onFlagged` is a no-op
+- [x] Integration test: mock the full flow, verify async validation fires
 
 **Dependencies:** 37.6, 37.7  
 **Effort:** 45 min  
@@ -193,11 +193,11 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
 **Goal:** When rendering a word that has `needsReview = true` (either from deterministic validation failure or from lite AI validation), show a subtle warning.
 
 **Acceptance Criteria:**
-- [ ] `apps/bot/src/renderers/translation.renderer.ts` — already shows `⚠️` for `needsReview` on translate output; verify it also renders for dictionary/flashcard views when `needs_review` is true in DB
-- [ ] Dictionary list view: flagged words show `⚠️` next to their name
+- [x] `apps/bot/src/renderers/translation.renderer.ts` — `renderQualityWarning(interfaceLang?)` function added using `qualityUncertain` i18n key
+- [ ] Dictionary list view: flagged words show `⚠️` next to their name — pending 37.6 DB `needs_review` column
 - [ ] Flashcard view (when task 33 is implemented): flagged words show `⚠️` on reveal
-- [ ] i18n key: `translation.qualityUncertain` → "⚠️ Translation quality uncertain"
-- [ ] Unit tests for renderer with `needsReview` words from DB
+- [x] i18n key: `qualityUncertain` → "⚠️ Translation quality uncertain" (added to en, ru, cs locales)
+- [x] Unit tests for renderer with `needsReview` words from DB
 
 **Dependencies:** 37.8  
 **Effort:** 30 min  
@@ -210,10 +210,10 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
 **Goal:** Log all lite validation calls and results for monitoring and threshold tuning.
 
 **Acceptance Criteria:**
-- [ ] Every lite validation call logs: `original`, `sourceLang`, `targetLangs`, `validatorModel`, `isHighRisk`, `overallScores`, `flaggedForReview`, `latencyMs`
-- [ ] Log level: `info` for successful validation, `warn` for flagged, `error` for failures
-- [ ] Structured log fields (Pino-compatible) — no string interpolation
-- [ ] Existing logger from `packages/core/src/logger.ts` used (no new logger instance)
+- [x] Every lite validation call logs: `original`, `sourceLang`, `targetLangs`, `validatorModel`, `isHighRisk`, `overallScores`, `flaggedForReview`, `latencyMs`
+- [x] Log level: `info` for successful validation, `warn` for flagged, `error` for failures
+- [x] Structured log fields (Pino-compatible) — no string interpolation
+- [x] Existing logger from `packages/core/src/logger.ts` used (no new logger instance)
 
 **Dependencies:** 37.7  
 **Effort:** 15 min  

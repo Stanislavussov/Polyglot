@@ -83,5 +83,6 @@
   "cmdDescTranslate": "Перевести слово или фразу",
   "cmdDescDictionary": "Открыть личный словарь",
   "cmdDescTemplate": "Настроить шаблон перевода",
-  "cmdDescSettings": "Настройки языков и уведомлений"
+  "cmdDescSettings": "Настройки языков и уведомлений",
+  "qualityUncertain": "⚠️ Качество перевода под вопросом"
 }

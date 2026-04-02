@@ -33,7 +33,7 @@ const translationResultSchema = z.object({
   ),
 });
 
-function makeValidResponse(original: string) {
+function makeValidResponse(_original: string) {
   return {
     emoji: "👋",
     register: "neutral" as const,

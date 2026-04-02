@@ -4,6 +4,7 @@ import {
   buildPostSaveKeyboard,
   buildSentenceKeyboard,
   buildTranslationKeyboard,
+  renderQualityWarning,
   renderSentenceTranslation,
   renderTopicWord,
   renderTranslation,
@@ -991,5 +992,44 @@ describe("buildPostSaveKeyboard", () => {
     const kb = buildPostSaveKeyboard(["cs"], "en");
     const btn = kb.inline_keyboard[0]![0]!;
     expect(btn.text).toBe("🔄 CS");
+  });
+});
+
+// ── renderQualityWarning (Task 37.9) ──
+
+describe("renderQualityWarning", () => {
+  it("renders quality warning in English", () => {
+    const result = renderQualityWarning("en");
+    expect(result).toContain("quality uncertain");
+  });
+
+  it("renders quality warning in Russian", () => {
+    const result = renderQualityWarning("ru");
+    expect(result).toContain("⚠️");
+  });
+
+  it("renders quality warning in Czech", () => {
+    const result = renderQualityWarning("cs");
+    expect(result).toContain("⚠️");
+  });
+
+  it("falls back to English for unknown lang", () => {
+    const result = renderQualityWarning("xx");
+    expect(result).toContain("quality uncertain");
+  });
+
+  it("escapes HTML in warning text", () => {
+    const result = renderQualityWarning("en");
+    expect(result).not.toContain("<script>");
+  });
+
+  it("is different from translationNeedsReview text", () => {
+    const qualityWarning = renderQualityWarning("en");
+    const output = { ...sampleOutput, needsReview: true };
+    const translationCard = renderTranslation(output, "en");
+    // Both contain ⚠️ but have different text
+    expect(qualityWarning).toContain("quality uncertain");
+    expect(translationCard).toContain("inaccuracies");
+    expect(qualityWarning).not.toContain("inaccuracies");
   });
 });

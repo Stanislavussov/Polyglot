@@ -83,5 +83,6 @@
   "cmdDescTranslate": "Translate a word or phrase",
   "cmdDescDictionary": "Open your personal dictionary",
   "cmdDescTemplate": "Customize translation template",
-  "cmdDescSettings": "Language & notification settings"
+  "cmdDescSettings": "Language & notification settings",
+  "qualityUncertain": "⚠️ Translation quality uncertain"
 }

@@ -14,6 +14,7 @@
 | 29  | [Require Source Language Before Translation](./29-require-source-lang-before-translate.md) | 🔲 To Do  |
 | 33  | [Config-Driven Dictionary Word Pipeline + Flash Cards](./33-dictionary-word-pipeline-and-flashcards.md) | 🔲 To Do  |
 | 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 In Progress |
+| 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 In Progress |
 
 ## Finished
 

@@ -131,10 +131,7 @@ describe("Persist source lang — lazy hydration (Task 36)", () => {
 
     // Should use session value, NOT DB value
     expect(ctx.session.nextSourceLang).toBe("cs");
-    expect(translateWithContext).toHaveBeenCalledWith(
-      expect.objectContaining({ sourceLang: "cs" }),
-      expect.anything(),
-    );
+    expect(translateWithContext).toHaveBeenCalledWith(expect.objectContaining({ sourceLang: "cs" }), expect.anything());
   });
 
   it("clears invalid lastSourceLang from both session and DB", async () => {
@@ -170,10 +167,7 @@ describe("Persist source lang — lazy hydration (Task 36)", () => {
     // Should NOT call updateLastSourceLang (no hydration happened)
     expect(userRepository.updateLastSourceLang).not.toHaveBeenCalled();
     // Should use auto-detect
-    expect(translateWithContext).toHaveBeenCalledWith(
-      expect.objectContaining({ sourceLang: "ru" }),
-      expect.anything(),
-    );
+    expect(translateWithContext).toHaveBeenCalledWith(expect.objectContaining({ sourceLang: "ru" }), expect.anything());
   });
 
   it("clears from DB when hydrated value becomes invalid on resolveDirectionFromSource", async () => {
