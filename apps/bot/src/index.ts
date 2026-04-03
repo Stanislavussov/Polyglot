@@ -17,12 +17,22 @@ import {
   handleToggleCallback,
 } from "./scenes/helpers/template.helper.js";
 import {
+  handleFcClose,
+  handleFcDone,
+  handleFcNext,
+  handleFcRestart,
+  handleFcReveal,
+  handleFcStart,
+  handleFcQuit,
+} from "./scenes/helpers/flashcard.helper.js";
+import {
   handleRegenCallback,
   handleSaveCallback,
   handleSkipCallback,
   handleSourceLangCallback,
 } from "./scenes/helpers/translate-mode.helper.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
+import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, SessionData } from "./types.js";
@@ -51,6 +61,7 @@ bot.use(
       savedWordId: undefined,
       needsTranslateReminder: true,
       templateWizard: undefined,
+      flashcard: undefined,
     }),
   }),
 );
@@ -69,12 +80,22 @@ bot.use(createConversation(onboarding));
 bot.command("start", startCommand);
 bot.command("translate", handleTranslateCommand);
 bot.command("template", handleTemplateCommand);
+bot.command("flashcard", handleFlashcardCommand);
 
 // ── Register callback handlers for translate mode ──
 bot.callbackQuery("tr:save", handleSaveCallback);
 bot.callbackQuery("tr:skip", handleSkipCallback);
 bot.callbackQuery(/^tr:regen:/, handleRegenCallback);
 bot.callbackQuery(/^tr:srclang:/, handleSourceLangCallback);
+
+// ── Register callback handlers for flashcard (Task 33) ──
+bot.callbackQuery("fc:start", handleFcStart);
+bot.callbackQuery("fc:reveal", handleFcReveal);
+bot.callbackQuery("fc:next", handleFcNext);
+bot.callbackQuery("fc:done", handleFcDone);
+bot.callbackQuery("fc:restart", handleFcRestart);
+bot.callbackQuery("fc:quit", handleFcQuit);
+bot.callbackQuery("fc:close", handleFcClose);
 
 // ── Register callback handlers for template wizard (Task 32) ──
 bot.callbackQuery("tpl:customize", handleCustomizeCallback);

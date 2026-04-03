@@ -19,6 +19,7 @@ export function getLocalizedCommands(lang: SupportedLang): BotCommand[] {
   return [
     { command: "start", description: t("cmdDescStart", lang) },
     { command: "translate", description: t("cmdDescTranslate", lang) },
+    { command: "flashcard", description: t("cmdDescFlashcard", lang) },
     { command: "dictionary", description: t("cmdDescDictionary", lang) },
     { command: "template", description: t("cmdDescTemplate", lang) },
     { command: "settings", description: t("cmdDescSettings", lang) },

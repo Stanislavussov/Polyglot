@@ -65,5 +65,7 @@ export type {
   WordContext,
 } from "./repositories/word-context.repository.js";
 export { wordContextRepository } from "./repositories/word-context.repository.js";
+export type { WordReview } from "./repositories/word-review.repository.js";
+export { wordReviewRepository } from "./repositories/word-review.repository.js";
 export * from "./schema.js";
 export { schema };

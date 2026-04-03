@@ -12,7 +12,6 @@
 | 24  | [Token Usage Tracking](./24-token-usage-tracking.md) | 🔲 To Do  |
 | 26  | [Diacritics-Aware Translation](./26-diacritics-aware-translation.md) | 🔲 To Do  |
 | 29  | [Require Source Language Before Translation](./29-require-source-lang-before-translate.md) | 🔲 To Do  |
-| 33  | [Config-Driven Dictionary Word Pipeline + Flash Cards](./33-dictionary-word-pipeline-and-flashcards.md) | 🔲 To Do  |
 | 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 In Progress |
 | 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 In Progress |
 | 38  | [Regen Helper Context Enrichment](./38-regen-helper-context-enrichment.md) | 🔲 To Do |
@@ -46,4 +45,5 @@
 | 22  | [Dependency Cruiser](./finished/22-dependency-cruiser.md) |
 | 27  | [Input Type Detection & Text Limits](./finished/27-input-type-detection-and-text-limits.md) |
 | 36  | [Persist Source Language & Re-entry Reminder](./finished/36-persist-source-lang-and-reentry-reminder.md) |
+| 33  | [Config-Driven Dictionary Word Pipeline + Flash Cards](./finished/33-dictionary-word-pipeline-and-flashcards.md) |
 | 39  | [Normalize Vocabulary Schema](./finished/39-normalize-vocabulary-schema.md) |

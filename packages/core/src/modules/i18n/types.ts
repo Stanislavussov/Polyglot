@@ -88,7 +88,22 @@ export type I18nKey =
   | "cmdDescDictionary"
   | "cmdDescTemplate"
   | "cmdDescSettings"
-  | "qualityUncertain";
+  | "qualityUncertain"
+  | "flashcardStart"
+  | "flashcardStartBtn"
+  | "flashcardEmpty"
+  | "flashcardReveal"
+  | "flashcardNext"
+  | "flashcardDone"
+  | "flashcardQuit"
+  | "flashcardRestart"
+  | "flashcardClose"
+  | "flashcardProgress"
+  | "flashcardQuitBtn"
+  | "flashcardDoneBtn"
+  | "flashcardNewDeckBtn"
+  | "flashcardSessionExpired"
+  | "cmdDescFlashcard";
 
 /**
  * Supported interface languages.
@@ -124,6 +139,9 @@ export interface I18nParams {
   nextSourceSet: { lang: string };
   connotationWarning: { warning: string };
   templateCurrent: { name: string };
+  flashcardStart: { count: string | number };
+  flashcardDone: { count: string | number };
+  flashcardProgress: { current: string | number; total: string | number };
 }
 
 /**

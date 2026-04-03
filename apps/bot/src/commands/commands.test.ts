@@ -17,33 +17,35 @@ vi.mock("@polyglot/infra", () => ({
 }));
 
 describe("getLocalizedCommands", () => {
-  it("returns 5 commands with i18n descriptions for English", () => {
+  it("returns 6 commands with i18n descriptions for English", () => {
     const commands = getLocalizedCommands("en");
-    expect(commands).toHaveLength(5);
+    expect(commands).toHaveLength(6);
     expect(commands[0]).toEqual({ command: "start", description: "cmdDescStart:en" });
     expect(commands[1]).toEqual({ command: "translate", description: "cmdDescTranslate:en" });
-    expect(commands[2]).toEqual({ command: "dictionary", description: "cmdDescDictionary:en" });
-    expect(commands[3]).toEqual({ command: "template", description: "cmdDescTemplate:en" });
-    expect(commands[4]).toEqual({ command: "settings", description: "cmdDescSettings:en" });
+    expect(commands[2]).toEqual({ command: "flashcard", description: "cmdDescFlashcard:en" });
+    expect(commands[3]).toEqual({ command: "dictionary", description: "cmdDescDictionary:en" });
+    expect(commands[4]).toEqual({ command: "template", description: "cmdDescTemplate:en" });
+    expect(commands[5]).toEqual({ command: "settings", description: "cmdDescSettings:en" });
   });
 
-  it("returns 5 commands with i18n descriptions for Russian", () => {
+  it("returns 6 commands with i18n descriptions for Russian", () => {
     const commands = getLocalizedCommands("ru");
-    expect(commands).toHaveLength(5);
+    expect(commands).toHaveLength(6);
     expect(commands[0]).toEqual({ command: "start", description: "cmdDescStart:ru" });
     expect(commands[1]).toEqual({ command: "translate", description: "cmdDescTranslate:ru" });
+    expect(commands[2]).toEqual({ command: "flashcard", description: "cmdDescFlashcard:ru" });
   });
 
-  it("returns 5 commands with i18n descriptions for Czech", () => {
+  it("returns 6 commands with i18n descriptions for Czech", () => {
     const commands = getLocalizedCommands("cs");
-    expect(commands).toHaveLength(5);
+    expect(commands).toHaveLength(6);
     expect(commands[0]).toEqual({ command: "start", description: "cmdDescStart:cs" });
-    expect(commands[2]).toEqual({ command: "dictionary", description: "cmdDescDictionary:cs" });
+    expect(commands[3]).toEqual({ command: "dictionary", description: "cmdDescDictionary:cs" });
   });
 
   it("uses i18n fallback for languages without locale files", () => {
     const commands = getLocalizedCommands("de");
-    expect(commands).toHaveLength(5);
+    expect(commands).toHaveLength(6);
     // t() with "de" will fall back to English in real i18n, our mock returns de suffix
     expect(commands[0]).toEqual({ command: "start", description: "cmdDescStart:de" });
   });
@@ -61,7 +63,7 @@ describe("setBotCommands", () => {
 
     // First call: default (no language_code)
     const firstCall = mockApi.setMyCommands.mock.calls[0];
-    expect(firstCall[0]).toHaveLength(5);
+    expect(firstCall[0]).toHaveLength(6);
     expect(firstCall[0][0].description).toBe("cmdDescStart:en");
     expect(firstCall[1]).toBeUndefined(); // no options = default scope
   });
@@ -110,7 +112,7 @@ describe("setUserCommands", () => {
 
     expect(mockApi.setMyCommands).toHaveBeenCalledTimes(1);
     const [commands, options] = mockApi.setMyCommands.mock.calls[0];
-    expect(commands).toHaveLength(5);
+    expect(commands).toHaveLength(6);
     expect(commands[0].description).toBe("cmdDescStart:ru");
     expect(options).toEqual({
       scope: { type: "chat", chat_id: 123456 },

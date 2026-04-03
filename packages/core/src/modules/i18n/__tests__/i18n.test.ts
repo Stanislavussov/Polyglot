@@ -468,6 +468,131 @@ describe("i18n — t()", () => {
   it("falls back to English for qualityUncertain when locale has no file", () => {
     expect(t("qualityUncertain", "de")).toBe("⚠️ Translation quality uncertain");
   });
+
+  // Flash card keys (task 33)
+  it("returns flashcardStart with {count} interpolation in English", () => {
+    expect(t("flashcardStart", "en", { count: 10 })).toBe("📚 Flash Cards — 10 words in your deck.");
+  });
+
+  it("returns flashcardStart with {count} interpolation in Russian", () => {
+    expect(t("flashcardStart", "ru", { count: 10 })).toBe("📚 Карточки — 10 слов в колоде.");
+  });
+
+  it("returns flashcardStart with {count} interpolation in Czech", () => {
+    expect(t("flashcardStart", "cs", { count: 10 })).toBe("📚 Kartičky — 10 slov v balíčku.");
+  });
+
+  it("returns flashcardStartBtn in all locales", () => {
+    expect(t("flashcardStartBtn", "en")).toBe("▶️ Start");
+    expect(t("flashcardStartBtn", "ru")).toBe("▶️ Начать");
+    expect(t("flashcardStartBtn", "cs")).toBe("▶️ Začít");
+  });
+
+  it("returns flashcardEmpty in all locales", () => {
+    expect(t("flashcardEmpty", "en")).toContain("dictionary is empty");
+    expect(t("flashcardEmpty", "ru")).toContain("словарь пуст");
+    expect(t("flashcardEmpty", "cs")).toContain("slovník je prázdný");
+  });
+
+  it("returns flashcardReveal in all locales", () => {
+    expect(t("flashcardReveal", "en")).toBe("👁 Reveal");
+    expect(t("flashcardReveal", "ru")).toBe("👁 Показать");
+    expect(t("flashcardReveal", "cs")).toBe("👁 Odkrýt");
+  });
+
+  it("returns flashcardNext in all locales", () => {
+    expect(t("flashcardNext", "en")).toBe("▶️ Next");
+    expect(t("flashcardNext", "ru")).toBe("▶️ Далее");
+    expect(t("flashcardNext", "cs")).toBe("▶️ Další");
+  });
+
+  it("returns flashcardDone with {count} interpolation in English", () => {
+    expect(t("flashcardDone", "en", { count: 10 })).toBe("🎉 Done! You reviewed 10 words.");
+  });
+
+  it("returns flashcardDone with {count} interpolation in Russian", () => {
+    expect(t("flashcardDone", "ru", { count: 10 })).toBe("🎉 Готово! Вы повторили 10 слов.");
+  });
+
+  it("returns flashcardDone with {count} interpolation in Czech", () => {
+    expect(t("flashcardDone", "cs", { count: 10 })).toBe("🎉 Hotovo! Prošli jste 10 slov.");
+  });
+
+  it("returns flashcardQuit in all locales", () => {
+    expect(t("flashcardQuit", "en")).toContain("session ended");
+    expect(t("flashcardQuit", "ru")).toContain("завершена");
+    expect(t("flashcardQuit", "cs")).toContain("ukončena");
+  });
+
+  it("returns flashcardRestart in all locales", () => {
+    expect(t("flashcardRestart", "en")).toBe("🔄 New Deck");
+    expect(t("flashcardRestart", "ru")).toBe("🔄 Новая колода");
+    expect(t("flashcardRestart", "cs")).toBe("🔄 Nový balíček");
+  });
+
+  it("returns flashcardClose in all locales", () => {
+    expect(t("flashcardClose", "en")).toBe("✕ Close");
+    expect(t("flashcardClose", "ru")).toBe("✕ Закрыть");
+    expect(t("flashcardClose", "cs")).toBe("✕ Zavřít");
+  });
+
+  it("returns flashcardProgress with {current} and {total} interpolation in English", () => {
+    expect(t("flashcardProgress", "en", { current: 3, total: 10 })).toBe("Card 3 of 10");
+  });
+
+  it("returns flashcardProgress with {current} and {total} interpolation in Russian", () => {
+    expect(t("flashcardProgress", "ru", { current: 3, total: 10 })).toBe("Карточка 3 из 10");
+  });
+
+  it("returns flashcardProgress with {current} and {total} interpolation in Czech", () => {
+    expect(t("flashcardProgress", "cs", { current: 3, total: 10 })).toBe("Kartička 3 z 10");
+  });
+
+  it("returns flashcardQuitBtn in all locales", () => {
+    expect(t("flashcardQuitBtn", "en")).toBe("✕ Quit");
+    expect(t("flashcardQuitBtn", "ru")).toBe("✕ Выйти");
+    expect(t("flashcardQuitBtn", "cs")).toBe("✕ Ukončit");
+  });
+
+  it("returns flashcardDoneBtn in all locales", () => {
+    expect(t("flashcardDoneBtn", "en")).toBe("🎉 Done!");
+    expect(t("flashcardDoneBtn", "ru")).toBe("🎉 Готово!");
+    expect(t("flashcardDoneBtn", "cs")).toBe("🎉 Hotovo!");
+  });
+
+  it("returns flashcardNewDeckBtn in all locales", () => {
+    expect(t("flashcardNewDeckBtn", "en")).toBe("🔄 New Deck");
+    expect(t("flashcardNewDeckBtn", "ru")).toBe("🔄 Новая колода");
+    expect(t("flashcardNewDeckBtn", "cs")).toBe("🔄 Nový balíček");
+  });
+
+  it("returns flashcardSessionExpired in all locales", () => {
+    expect(t("flashcardSessionExpired", "en")).toContain("Session expired");
+    expect(t("flashcardSessionExpired", "ru")).toContain("Сессия истекла");
+    expect(t("flashcardSessionExpired", "cs")).toContain("Relace vypršela");
+  });
+
+  it("returns cmdDescFlashcard in all locales", () => {
+    expect(t("cmdDescFlashcard", "en")).toBe("Start a flash card session");
+    expect(t("cmdDescFlashcard", "ru")).toBe("Начать сессию карточек");
+    expect(t("cmdDescFlashcard", "cs")).toBe("Začít relaci kartiček");
+  });
+
+  it("falls back to English for flashcard keys when locale has no file", () => {
+    expect(t("flashcardStart", "de", { count: 5 })).toBe("📚 Flash Cards — 5 words in your deck.");
+    expect(t("flashcardStartBtn", "de")).toBe("▶️ Start");
+    expect(t("flashcardEmpty", "de")).toContain("dictionary is empty");
+    expect(t("flashcardReveal", "de")).toBe("👁 Reveal");
+    expect(t("flashcardNext", "de")).toBe("▶️ Next");
+    expect(t("flashcardDone", "de", { count: 10 })).toBe("🎉 Done! You reviewed 10 words.");
+    expect(t("flashcardQuit", "de")).toContain("session ended");
+    expect(t("flashcardProgress", "de", { current: 1, total: 5 })).toBe("Card 1 of 5");
+    expect(t("flashcardQuitBtn", "de")).toBe("✕ Quit");
+    expect(t("flashcardDoneBtn", "de")).toBe("🎉 Done!");
+    expect(t("flashcardNewDeckBtn", "de")).toBe("🔄 New Deck");
+    expect(t("flashcardSessionExpired", "de")).toContain("Session expired");
+    expect(t("cmdDescFlashcard", "de")).toBe("Start a flash card session");
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -610,6 +735,21 @@ describe("i18n — locale consistency", () => {
       "cmdDescTemplate",
       "cmdDescSettings",
       "qualityUncertain",
+      "flashcardStart",
+      "flashcardStartBtn",
+      "flashcardEmpty",
+      "flashcardReveal",
+      "flashcardNext",
+      "flashcardDone",
+      "flashcardQuit",
+      "flashcardRestart",
+      "flashcardClose",
+      "flashcardProgress",
+      "flashcardQuitBtn",
+      "flashcardDoneBtn",
+      "flashcardNewDeckBtn",
+      "flashcardSessionExpired",
+      "cmdDescFlashcard",
     ];
 
     for (const key of enKeys) {

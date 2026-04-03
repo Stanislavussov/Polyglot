@@ -84,5 +84,20 @@
   "cmdDescDictionary": "Otevřít osobní slovník",
   "cmdDescTemplate": "Přizpůsobit šablonu překladu",
   "cmdDescSettings": "Nastavení jazyků a notifikací",
-  "qualityUncertain": "⚠️ Kvalita překladu nejistá"
+  "qualityUncertain": "⚠️ Kvalita překladu nejistá",
+  "flashcardStart": "📚 Kartičky — {count} slov v balíčku.",
+  "flashcardStartBtn": "▶️ Začít",
+  "flashcardEmpty": "📖 Váš slovník je prázdný. Nejprve přeložte a uložte pár slov!",
+  "flashcardReveal": "👁 Odkrýt",
+  "flashcardNext": "▶️ Další",
+  "flashcardDone": "🎉 Hotovo! Prošli jste {count} slov.",
+  "flashcardQuit": "👋 Relace kartiček ukončena.",
+  "flashcardRestart": "🔄 Nový balíček",
+  "flashcardClose": "✕ Zavřít",
+  "flashcardProgress": "Kartička {current} z {total}",
+  "flashcardQuitBtn": "✕ Ukončit",
+  "flashcardDoneBtn": "🎉 Hotovo!",
+  "flashcardNewDeckBtn": "🔄 Nový balíček",
+  "flashcardSessionExpired": "Relace vypršela. Použijte /flashcard pro restart.",
+  "cmdDescFlashcard": "Začít relaci kartiček"
 }

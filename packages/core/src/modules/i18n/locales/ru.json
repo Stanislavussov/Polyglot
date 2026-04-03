@@ -84,5 +84,20 @@
   "cmdDescDictionary": "Открыть личный словарь",
   "cmdDescTemplate": "Настроить шаблон перевода",
   "cmdDescSettings": "Настройки языков и уведомлений",
-  "qualityUncertain": "⚠️ Качество перевода под вопросом"
+  "qualityUncertain": "⚠️ Качество перевода под вопросом",
+  "flashcardStart": "📚 Карточки — {count} слов в колоде.",
+  "flashcardStartBtn": "▶️ Начать",
+  "flashcardEmpty": "📖 Ваш словарь пуст. Сначала переведите и сохраните несколько слов!",
+  "flashcardReveal": "👁 Показать",
+  "flashcardNext": "▶️ Далее",
+  "flashcardDone": "🎉 Готово! Вы повторили {count} слов.",
+  "flashcardQuit": "👋 Сессия карточек завершена.",
+  "flashcardRestart": "🔄 Новая колода",
+  "flashcardClose": "✕ Закрыть",
+  "flashcardProgress": "Карточка {current} из {total}",
+  "flashcardQuitBtn": "✕ Выйти",
+  "flashcardDoneBtn": "🎉 Готово!",
+  "flashcardNewDeckBtn": "🔄 Новая колода",
+  "flashcardSessionExpired": "Сессия истекла. Используйте /flashcard для перезапуска.",
+  "cmdDescFlashcard": "Начать сессию карточек"
 }

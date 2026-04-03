@@ -1,6 +1,6 @@
 # Task 33 — Config-Driven Dictionary Word Pipeline + Flash Cards
 
-**Status:** 🔲 To Do  
+**Status:** ✅ Done  
 **Type:** Feature (new core module + DB + bot scene)  
 **Priority:** High — first active use of the personal dictionary; enables SRS, quizzes, notifications  
 **Dependencies:**
@@ -99,8 +99,8 @@ Bot: 🎉 Done! Reviewed 10 words.
 
 **Goal:** Define the single config object that controls the entire pipeline. All consumers (flash cards, notifications, quizzes) use this type.
 
-- [ ] Create `packages/core/src/modules/dictionary-pipeline/` directory
-- [ ] Create `types.ts` with the following types:
+- [x] Create `packages/core/src/modules/dictionary-pipeline/` directory
+- [x] Create `types.ts` with the following types:
 
 ```typescript
 import type { CefrLevel, Example, ExpressionType, Register, Synonym, TranslationVariant } from '../translation/types.js';
@@ -258,7 +258,7 @@ export interface DictionaryPipelineDeps {
 
 **Goal:** Named preset configs — callers import a preset, never build config inline.
 
-- [ ] Create `presets.ts`:
+- [x] Create `presets.ts`:
 
 ```typescript
 import type { DictionaryWordConfig } from './types.js';
@@ -327,7 +327,7 @@ export const WORD_OF_DAY_DICT_CONFIG: DictionaryWordConfig = {
 
 **Goal:** Pure function that takes config + userId + deps → returns selected + normalized `WordPipelineResult`.
 
-- [ ] Create `pipeline.ts`:
+- [x] Create `pipeline.ts`:
 
 ```typescript
 export function createDictionaryPipeline(deps: DictionaryPipelineDeps) {
@@ -372,13 +372,13 @@ export function createDictionaryPipeline(deps: DictionaryPipelineDeps) {
 
 **Location:** `packages/core/src/modules/dictionary-pipeline/index.ts`
 
-- [ ] Export all public types and functions:
+- [x] Export all public types and functions:
   ```typescript
   export * from './types.js';
   export * from './presets.js';
   export { createDictionaryPipeline } from './pipeline.js';
   ```
-- [ ] Add `dictionary-pipeline` to `packages/core/src/index.ts` barrel exports
+- [x] Add `dictionary-pipeline` to `packages/core/src/index.ts` barrel exports
 
 ---
 
@@ -393,7 +393,7 @@ export function createDictionaryPipeline(deps: DictionaryPipelineDeps) {
 
 #### 5a — Schema addition in `schema.ts`
 
-- [ ] Add to `schema.ts`:
+- [x] Add to `schema.ts` (adapted to reference `vocabularyEntries` instead of deprecated `words`):
 
 ```typescript
 export const wordReviewLog = pgTable(
@@ -419,7 +419,7 @@ export const wordReviewLog = pgTable(
 
 #### 5b — Migration file `0008_word_review_log.sql`
 
-- [ ] Write migration:
+- [x] Write migration (as `0012_word_review_log.sql` — migration number advanced due to intervening tasks):
 
 ```sql
 CREATE TABLE IF NOT EXISTS "word_review_log" (
@@ -436,7 +436,7 @@ CREATE INDEX "word_review_log_user_date_idx" ON "word_review_log" ("user_id", "r
 
 #### 5c — `word-review.repository.ts`
 
-- [ ] Create repository with these methods:
+- [x] Create repository with these methods (plus `getReviewsBySessionType`):
 
 ```typescript
 export const wordReviewRepository = {
@@ -459,7 +459,7 @@ export const wordReviewRepository = {
 
 The pipeline needs `sourceLang` code, not `sourceLangId`. Extend `wordRepository`:
 
-- [ ] Add to `word.repository.ts`:
+- [x] `findByUserWithSourceLang()` already exists on `vocabularyRepository` (Task 39) — no additional work needed:
 
 ```typescript
 /**
@@ -485,7 +485,7 @@ export interface WordWithSourceLang extends Word {
 
 **Goal:** Telegram-specific rendering of `WordDisplayData` as HTML messages + inline keyboards.
 
-- [ ] Create `flashcard.renderer.ts` with these functions:
+- [x] Create `flashcard.renderer.ts` with these functions:
 
 ```typescript
 /**
@@ -561,7 +561,7 @@ Card {n} of {total}
 
 #### Session state additions
 
-- [ ] Extend `SessionData` in `apps/bot/src/types.ts` with:
+- [x] Extend `SessionData` in `apps/bot/src/types.ts` with:
 
 ```typescript
 /** Flash card session state */
@@ -637,9 +637,9 @@ fc:close:
 
 #### Wiring into the bot
 
-- [ ] Register `/flashcard` command handler in `apps/bot/src/index.ts`
-- [ ] Register all `fc:*` callback handlers in `apps/bot/src/index.ts` (or a dedicated `flashcard-callbacks.ts` helper)
-- [ ] Add `flashcard` to the bot command list (`apps/bot/src/commands/start.ts` or command registration)
+- [x] Register `/flashcard` command handler in `apps/bot/src/index.ts`
+- [x] Register all `fc:*` callback handlers in `apps/bot/src/index.ts` (via `flashcard.helper.ts`)
+- [x] Add `flashcard` to the bot command list (`apps/bot/src/commands/commands.ts` — 6 commands now)
 
 ---
 
@@ -647,7 +647,7 @@ fc:close:
 
 **Goal:** Add all flash card UI strings to all 3 locale files.
 
-- [ ] Add to `packages/core/src/modules/i18n/locales/en.json`:
+- [x] Add to `packages/core/src/modules/i18n/locales/en.json`:
 
 ```json
 {
@@ -667,8 +667,8 @@ fc:close:
 }
 ```
 
-- [ ] Add equivalent keys to `ru.json` (Russian translations)
-- [ ] Add equivalent keys to `cs.json` (Czech translations)
+- [x] Add equivalent keys to `ru.json` (Russian translations)
+- [x] Add equivalent keys to `cs.json` (Czech translations)
 
 ---
 
@@ -700,7 +700,7 @@ const pipelineDeps: DictionaryPipelineDeps = {
 
 **Location:** `packages/core/src/modules/dictionary-pipeline/__tests__/`
 
-- [ ] `pipeline.test.ts`:
+- [x] `pipeline.test.ts` (26 tests):
   - `random` strategy: returns `limit` words from a pool (all different, from pool)
   - `oldest_first`: returns sorted by createdAt ASC
   - `newest_first`: returns sorted by createdAt DESC
@@ -714,7 +714,7 @@ const pipelineDeps: DictionaryPipelineDeps = {
   - `showSynonyms: false`: synonyms absent from `WordDisplayTranslation`
   - `showExamples: false`: examples absent
 
-- [ ] `presets.test.ts`:
+- [x] `presets.test.ts` (17 tests):
   - `FLASHCARD_CONFIG.selection.strategy === 'random'`
   - `FLASHCARD_CONFIG.selection.limit === 10`
   - `NOTIFICATION_DICT_CONFIG.selection.limit === 1`
@@ -724,22 +724,22 @@ const pipelineDeps: DictionaryPipelineDeps = {
 
 **Location:** `packages/adapters/db/src/__tests__/word-review.repository.test.ts`
 
-- [ ] `logReview()`: inserts a row into `word_review_log`
-- [ ] `getReviewCounts()`: returns correct counts per word ID
-- [ ] `getReviewCounts()` for user with no reviews: returns empty Map
-- [ ] `getReviewsForWord()`: returns reviews in desc order
+- [x] `logReview()`: inserts a row into `word_review_log`
+- [x] `getReviewCounts()`: returns correct counts per word ID
+- [x] `getReviewCounts()` for user with no reviews: returns empty Map
+- [x] `getReviewsForWord()`: returns reviews in desc order
 
 #### Unit Tests — Flash Card Renderer
 
 **Location:** `apps/bot/src/__tests__/flashcard.renderer.test.ts`
 
-- [ ] `renderFlashCardFront()`: contains original word, progress string, NOT translation text
-- [ ] `renderFlashCardBack()`: contains original + all translations, CEFR if enabled
-- [ ] `renderFlashCardBack()` with `showSynonyms: false`: no synonyms in output
-- [ ] `buildFlashCardFrontKeyboard()`: has `fc:reveal` and `fc:quit` buttons
-- [ ] `buildFlashCardBackKeyboard(isLastCard: false)`: has `fc:next` and `fc:quit`
-- [ ] `buildFlashCardBackKeyboard(isLastCard: true)`: has `fc:done` and `fc:restart`
-- [ ] `buildFlashCardDoneKeyboard()`: has `fc:restart` and `fc:close`
+- [x] `renderFlashCardFront()`: contains original word, progress string, NOT translation text
+- [x] `renderFlashCardBack()`: contains original + all translations, CEFR if enabled
+- [x] `renderFlashCardBack()` with `showSynonyms: false`: no synonyms in output
+- [x] `buildFlashCardFrontKeyboard()`: has `fc:reveal` and `fc:quit` buttons
+- [x] `buildFlashCardBackKeyboard(isLastCard: false)`: has `fc:next` and `fc:quit`
+- [x] `buildFlashCardBackKeyboard(isLastCard: true)`: has `fc:done` and `fc:restart`
+- [x] `buildFlashCardDoneKeyboard()`: has `fc:restart` and `fc:close`
 
 ---
 
@@ -812,25 +812,25 @@ const pipelineDeps: DictionaryPipelineDeps = {
 
 ## Acceptance Criteria
 
-- [ ] `packages/core/src/modules/dictionary-pipeline/` module exists with `DictionaryWordConfig`, `WordPipelineResult`, `WordDisplayData` types
-- [ ] `createDictionaryPipeline(deps).run(userId, config)` returns words selected by the specified strategy with filters applied
-- [ ] `FLASHCARD_CONFIG`, `NOTIFICATION_DICT_CONFIG`, `WORD_OF_DAY_DICT_CONFIG` presets exported from `@polyglot/core`
-- [ ] `word_review_log` table exists in DB schema with migration `0008_word_review_log.sql`
-- [ ] `wordReviewRepository.logReview()` inserts a review entry
-- [ ] `wordReviewRepository.getReviewCounts()` returns correct counts per word ID
-- [ ] `wordRepository.findByUserWithSourceLang()` returns words with resolved `sourceLang` code
-- [ ] `/flashcard` command starts a 10-word flash card session
-- [ ] Flash card front shows: emoji + original word + progress counter
-- [ ] Tapping "👁 Reveal" shows translations with transcription, CEFR, synonyms
-- [ ] Tapping "▶️ Next" logs a review and advances to the next card
-- [ ] On last card: "🎉 Done!" button appears; tapping shows completion message
-- [ ] "🔄 New Deck" builds a fresh deck (new random order)
-- [ ] "✕ Quit" ends the session and logs partial completion
-- [ ] All 3 locale files (en, ru, cs) have `flashcard*` keys
-- [ ] Session loss mid-deck shows "Session expired" message on callback
-- [ ] Review log errors never block UX (caught + logged)
-- [ ] All new tests pass: `pnpm -r run test`
-- [ ] All packages build: `pnpm -r run build`
+- [x] `packages/core/src/modules/dictionary-pipeline/` module exists with `DictionaryWordConfig`, `WordPipelineResult`, `WordDisplayData` types
+- [x] `createDictionaryPipeline(deps).run(userId, config)` returns words selected by the specified strategy with filters applied
+- [x] `FLASHCARD_CONFIG`, `NOTIFICATION_DICT_CONFIG`, `WORD_OF_DAY_DICT_CONFIG` presets exported from `@polyglot/core`
+- [x] `word_review_log` table exists in DB schema with migration `0012_word_review_log.sql` (references `vocabularyEntries`, not deprecated `words`)
+- [x] `wordReviewRepository.logReview()` inserts a review entry
+- [x] `wordReviewRepository.getReviewCounts()` returns correct counts per entry ID
+- [x] `vocabularyRepository.findByUserWithSourceLang()` returns entries with resolved `sourceLangCode` (Task 39 normalized schema)
+- [x] `/flashcard` command starts a 10-word flash card session
+- [x] Flash card front shows: emoji + original word + progress counter
+- [x] Tapping "👁 Reveal" shows translations with transcription, CEFR, synonyms
+- [x] Tapping "▶️ Next" logs a review and advances to the next card
+- [x] On last card: "🎉 Done!" button appears; tapping shows completion message
+- [x] "🔄 New Deck" builds a fresh deck (new random order)
+- [x] "✕ Quit" ends the session and logs partial completion
+- [x] All 3 locale files (en, ru, cs) have `flashcard*` keys (15 keys each + `cmdDescFlashcard`)
+- [x] Session loss mid-deck shows "Session expired" message on callback
+- [x] Review log errors never block UX (caught + logged, fire-and-forget)
+- [x] All new tests pass: 1324 tests across 80 test files
+- [x] All packages build: `pnpm -r run build`
 
 ---
 

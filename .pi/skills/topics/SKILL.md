@@ -282,9 +282,61 @@ const words = await service.getTopicWords("food", "en", ["cs", "de"]);
 const newCsTranslation = await service.regenerateTopicWord("food", "apple", "en", "cs");
 ```
 
+## Dictionary Pipeline Module (Task 33)
+
+**Location:** `packages/core/src/modules/dictionary-pipeline/`
+
+A separate core module (not part of topics) that provides a config-driven pipeline for reading words from a user's personal dictionary and delivering them to any output format (flash cards, notifications, quizzes).
+
+### Public API
+
+```typescript
+// Pipeline factory
+function createDictionaryPipeline(deps: DictionaryPipelineDeps): {
+  run: (userId: number, config: DictionaryWordConfig) => Promise<WordPipelineResult>;
+};
+
+// Named presets (callers use these, never build config inline)
+const FLASHCARD_CONFIG: DictionaryWordConfig;       // 10 random words, all fields
+const NOTIFICATION_DICT_CONFIG: DictionaryWordConfig; // 1 least-reviewed word, compact
+const WORD_OF_DAY_DICT_CONFIG: DictionaryWordConfig;  // 1 oldest word, mid-detail
+```
+
+### Key Types
+
+- `DictionaryWordConfig` — top-level config controlling selection + presentation
+- `WordSelectionStrategy` — `'random' | 'oldest_first' | 'newest_first' | 'least_reviewed'`
+- `WordDisplayData` — normalized, renderer-agnostic word data
+- `WordPipelineResult` — selected words + meta (total, selected count, strategy)
+- `DictionaryPipelineDeps` — injected deps (findEntriesByUser, getReviewCounts)
+- `PipelineEntry` / `PipelineTranslationRow` — input shapes from DB adapter
+
+### Dependency Injection
+
+```typescript
+interface DictionaryPipelineDeps {
+  findEntriesByUser: (userId: number) => Promise<PipelineEntry[]>;
+  getReviewCounts?: (userId: number) => Promise<Map<number, number>>;
+}
+```
+
+### File Structure
+
+```
+packages/core/src/modules/dictionary-pipeline/
+├── index.ts              # Barrel exports
+├── types.ts              # All types
+├── presets.ts            # Named config presets
+├── pipeline.ts           # createDictionaryPipeline factory
+└── __tests__/
+    ├── pipeline.test.ts  # 26 tests (strategies, filters, presentation, meta)
+    └── presets.test.ts   # 17 tests (preset validation)
+```
+
 ## Reference
 
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (topics section)
 - BRD: `docs/BRD.md` § Post-MVP 2.2 (Ready-Made Topic Sets)
 - Task 13: `docs/tasks/13-wiktionary-jsonl.md` (Wiktionary JSONL Integration)
+- Task 33: `docs/tasks/33-dictionary-word-pipeline-and-flashcards.md` (Dictionary Word Pipeline + Flash Cards)

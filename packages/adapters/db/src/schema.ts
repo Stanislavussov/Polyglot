@@ -182,6 +182,31 @@ export const vocabularyTranslations = pgTable(
 );
 
 // ─────────────────────────────────────────────
+// Word review log — tracks flashcard, notification, quiz reviews
+// Required for 'least_reviewed' strategy and future SRS scheduling
+// ─────────────────────────────────────────────
+export const wordReviewLog = pgTable(
+  "word_review_log",
+  {
+    id: serial("id").primaryKey(),
+    /** References vocabulary_entries.id (not deprecated words table) */
+    entryId: integer("entry_id")
+      .references(() => vocabularyEntries.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /** What triggered this review: 'flashcard' | 'notification' | 'quiz' | 'srs' */
+    sessionType: text("session_type").notNull(),
+    reviewedAt: timestamp("reviewed_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("word_review_log_entry_idx").on(t.entryId),
+    index("word_review_log_user_date_idx").on(t.userId, t.reviewedAt),
+  ],
+);
+
+// ─────────────────────────────────────────────
 // Translation request log — rate limiting & history
 // ─────────────────────────────────────────────
 export const translationRequests = pgTable(

@@ -1,6 +1,6 @@
 import { type ConversationFlavor } from "@grammyjs/conversations";
 import type { User } from "@polyglot/adapter-db";
-import type { InputType, TemplateFields, TranslateOutput } from "@polyglot/core";
+import type { DictionaryWordConfig, InputType, TemplateFields, TranslateOutput, WordDisplayData } from "@polyglot/core";
 import { Context, SessionFlavor } from "grammy";
 
 /**
@@ -63,6 +63,20 @@ export interface SessionData {
     fields: TemplateFields;
     /** Message ID of the wizard message (for in-place editing) */
     wizardMsgId?: number;
+  };
+  /**
+   * Flash card session state (Task 33).
+   * Active during a flashcard session. Cleared on quit/close or session loss.
+   */
+  flashcard?: {
+    /** Words in the deck (from pipeline), stored for rendering without re-fetch */
+    deck: WordDisplayData[];
+    /** Current position in deck (0-based index) */
+    currentIndex: number;
+    /** Message ID of the current card message (for in-place editing) */
+    cardMsgId?: number;
+    /** Config used to generate this deck */
+    config: DictionaryWordConfig;
   };
 }
 

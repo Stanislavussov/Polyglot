@@ -6,6 +6,7 @@ export { getLogger, setLogger } from "./logger.js";
 // Modules
 
 export * from "./modules/context-enrichment/index.js";
+export * from "./modules/dictionary-pipeline/index.js";
 export * from "./modules/i18n/index.js";
 export type {
   AnalyzeInput,

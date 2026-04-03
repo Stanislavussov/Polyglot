@@ -32,10 +32,35 @@ Already implemented:
 - `scenes/template.scene.ts` — /template command handler (shows current template status with Customize/Reset buttons)
 - `scenes/helpers/template.helper.ts` — Template wizard callback handlers (customize, toggle, preview, save, cancel, reset)
 - `scenes/template-preview.data.ts` — Mock translation output for wizard preview
+- `scenes/flashcard.scene.ts` — /flashcard command handler (Task 33); runs dictionary pipeline with FLASHCARD_CONFIG, stores deck in session
+- `scenes/helpers/flashcard.helper.ts` — Flash card callback handlers (fc:start/reveal/next/done/restart/quit/close); wires pipeline deps to DB repositories; best-effort review logging
+- `renderers/flashcard.renderer.ts` — renderFlashCardFront, renderFlashCardBack, buildFlashCardFrontKeyboard, buildFlashCardBackKeyboard, buildFlashCardDoneKeyboard
 
 Still needed:
 - `scenes/dictionary.scene.ts` — dictionary browsing
 - `scenes/settings.scene.ts` — user settings
+
+### Flash Card Session (Task 33)
+
+The `/flashcard` command starts a flash card session using the config-driven dictionary pipeline:
+
+1. **Command**: `/flashcard` → runs `createDictionaryPipeline(deps).run(userId, FLASHCARD_CONFIG)` to get 10 random words from the user's personal dictionary
+2. **Empty check**: If dictionary is empty → replies with `flashcardEmpty` i18n key
+3. **Session state**: `SessionData.flashcard` stores `deck: WordDisplayData[]`, `currentIndex`, `cardMsgId`, `config`
+4. **Start button**: Shows deck size with `[▶️ Start]` button (`fc:start`)
+5. **Card front** (`fc:start`, `fc:next`): Shows emoji + original word + input type + source language flag
+6. **Reveal** (`fc:reveal`): Edits message to show back — all translations with transcription, CEFR, register, synonyms, examples
+7. **Next** (`fc:next`): Logs review (best-effort), advances index, shows next card front
+8. **Last card**: Back keyboard shows `[🎉 Done!]` + `[🔄 Restart]` instead of Next/Quit
+9. **Done** (`fc:done`): Logs review, shows completion message with count, `[🔄 New Deck]` + `[✕ Close]`
+10. **Restart** (`fc:restart`): Re-runs pipeline for fresh random deck
+11. **Quit** (`fc:quit`): Logs review if cards were viewed, clears session, shows quit message
+12. **Close** (`fc:close`): Deletes the card message, clears session
+13. **Session expired**: All callbacks check `ctx.session.flashcard` — if missing, shows `flashcardSessionExpired` via `answerCallbackQuery`
+14. **Review logging**: `wordReviewRepository.logReview()` is fire-and-forget with `.catch()` — never blocks UX
+15. **Pipeline deps wiring**: `flashcard.helper.ts` creates `DictionaryPipelineDeps` using `vocabularyRepository.findByUserWithSourceLang()` and `wordReviewRepository.getReviewCounts()`, resolves language IDs to codes via `getAllLangs()` cache
+
+**Callback data format**: All flashcard callbacks use `fc:` prefix: `fc:start`, `fc:reveal`, `fc:next`, `fc:done`, `fc:restart`, `fc:quit`, `fc:close`.
 
 ### Localized Bot Command Descriptions (Task 35)
 
@@ -236,6 +261,7 @@ After every translation card is sent (both word/phrase and sentence), the bot fi
 | ------------- | --------------------------------- |
 | `/start`      | Onboarding or main menu           |
 | `/translate`  | Translate a word or phrase        |
+| `/flashcard`  | Start a flash card session        |
 | `/template`   | Customize translation output      |
 | `/dictionary` | Personal dictionary               |
 | `/settings`   | Language, notifications, timezone |
@@ -243,7 +269,7 @@ After every translation card is sent (both word/phrase and sentence), the bot fi
 ## Skills (Public API / Key Functions)
 
 ```typescript
-// Get 5 bot commands with localized descriptions (Task 35)
+// Get 6 bot commands with localized descriptions (Task 35 + Task 33)
 function getLocalizedCommands(lang: SupportedLang): BotCommand[];
 
 // Set bot commands for all available locales at startup (Task 35)
@@ -341,6 +367,29 @@ async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>;
 async function handleCancelCallback(ctx: BotContext): Promise<void>;
 async function handleResetCallback(ctx: BotContext): Promise<void>;
 async function handleBackCallback(ctx: BotContext): Promise<void>;
+
+// Command: /flashcard — start a flash card session (Task 33)
+async function handleFlashcardCommand(ctx: BotContext): Promise<void>;
+
+// Flashcard callback handlers (Task 33)
+async function handleFcStart(ctx: BotContext): Promise<void>;
+async function handleFcReveal(ctx: BotContext): Promise<void>;
+async function handleFcNext(ctx: BotContext): Promise<void>;
+async function handleFcDone(ctx: BotContext): Promise<void>;
+async function handleFcRestart(ctx: BotContext): Promise<void>;
+async function handleFcQuit(ctx: BotContext): Promise<void>;
+async function handleFcClose(ctx: BotContext): Promise<void>;
+
+// Render the FRONT of a flash card (original word, no translations) — Task 33
+function renderFlashCardFront(word: WordDisplayData, cardIndex: number, totalCards: number, lang: SupportedLang): string;
+
+// Render the BACK of a flash card (original + all translations) — Task 33
+function renderFlashCardBack(word: WordDisplayData, cardIndex: number, totalCards: number, lang: SupportedLang): string;
+
+// Build keyboards for flash card states — Task 33
+function buildFlashCardFrontKeyboard(lang: SupportedLang): InlineKeyboard;
+function buildFlashCardBackKeyboard(isLastCard: boolean, lang: SupportedLang): InlineKeyboard;
+function buildFlashCardDoneKeyboard(lang: SupportedLang): InlineKeyboard;
 
 // Scene: dictionary browsing (not yet implemented)
 async function handleDictionary(conversation, ctx): Promise<void>;
@@ -523,6 +572,7 @@ apps/bot/src/
 │   └── sanitize-word-content.test.ts # 9 tests (field stripping, immutability, minimal input)
 ├── renderers/
 │   ├── translation.renderer.ts # renderTranslation, renderSentenceTranslation, renderTopicWord, renderQualityWarning, buildTranslationKeyboard(+inputType), buildPostSaveKeyboard, buildSentenceKeyboard, buildSourceLangKeyboard
+│   ├── flashcard.renderer.ts   # ✅ renderFlashCardFront, renderFlashCardBack, buildFlashCardFrontKeyboard, buildFlashCardBackKeyboard, buildFlashCardDoneKeyboard (Task 33)
 │   └── __tests__/
 │       └── source-lang-menu.test.ts     # 8 tests (keyboard rendering, ✓ marks, suppression)
 ├── scenes/
@@ -531,7 +581,9 @@ apps/bot/src/
 │   ├── translate.scene.test.ts # 5 tests (mode activation, DB persistence, confirmation, source lang menu, reminder flag)
 │   ├── template.scene.ts       # ✅ /template command handler (Task 32)
 │   ├── template-preview.data.ts # ✅ Mock translation output for wizard preview (Task 32)
+│   ├── flashcard.scene.ts      # ✅ /flashcard command handler — runs pipeline, stores deck in session (Task 33)
 │   ├── helpers/
+│   │   ├── flashcard.helper.ts       # ✅ fc:* callback handlers + pipeline deps wiring (Task 33)
 │   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (classifier + branching + template-aware), handleRegenCallback, handleSaveCallback, handleSkipCallback, handleSourceLangCallback
 │   │   ├── translate-mode.helper.test.ts # 5 tests (context enrichment wiring)
 │   │   ├── __tests__/
@@ -550,6 +602,7 @@ apps/bot/src/
     ├── translation.renderer.test.ts        # 95 tests (includes 7 alternatives, 5 connotation warnings, 2 backward compat, 4 inline synonyms, 15 sentence renderer, 7 sentence keyboard, 5 post-save keyboard, 6 quality warning)
     ├── translation.renderer.template.test.ts # ✅ 10 tests (template-aware rendering: field toggle, backward compat, mixed fields)
     ├── template.scene.test.ts              # ✅ 15 tests (command, customize, toggle, save, cancel, reset, preview, back)
+    ├── flashcard.renderer.test.ts         # ✅ 20 tests (front/back rendering, keyboards, synonyms, examples, CEFR) (Task 33)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
     └── onboarding.scene.test.ts            # 18 tests (3-step flow, back nav, interface lang inference, no Save/Skip)
 ```

@@ -84,5 +84,20 @@
   "cmdDescDictionary": "Open your personal dictionary",
   "cmdDescTemplate": "Customize translation template",
   "cmdDescSettings": "Language & notification settings",
-  "qualityUncertain": "⚠️ Translation quality uncertain"
+  "qualityUncertain": "⚠️ Translation quality uncertain",
+  "flashcardStart": "📚 Flash Cards — {count} words in your deck.",
+  "flashcardStartBtn": "▶️ Start",
+  "flashcardEmpty": "📖 Your dictionary is empty. Translate some words and save them first!",
+  "flashcardReveal": "👁 Reveal",
+  "flashcardNext": "▶️ Next",
+  "flashcardDone": "🎉 Done! You reviewed {count} words.",
+  "flashcardQuit": "👋 Flash card session ended.",
+  "flashcardRestart": "🔄 New Deck",
+  "flashcardClose": "✕ Close",
+  "flashcardProgress": "Card {current} of {total}",
+  "flashcardQuitBtn": "✕ Quit",
+  "flashcardDoneBtn": "🎉 Done!",
+  "flashcardNewDeckBtn": "🔄 New Deck",
+  "flashcardSessionExpired": "Session expired. Use /flashcard to restart.",
+  "cmdDescFlashcard": "Start a flash card session"
 }
