@@ -96,14 +96,11 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     }
   }
 
-  // Step 8 (Task 36): Non-blocking reminder after commands
+  // Step 8 (Task 36): Clear reminder flag — don't show reminder here
+  // because sendSourceLangMenu() is already called after every translation.
+  // Showing it before translation confuses the user (prompt appears before the card).
   if (ctx.session.needsTranslateReminder) {
     ctx.session.needsTranslateReminder = false;
-    if (nextSource) {
-      // Show reminder menu (non-blocking — translation still proceeds)
-      await sendSourceLangMenu(ctx, settings, lang);
-    }
-    // If nextSource is null, no reminder needed — auto-detect handles it
   }
 
   if (nextSource) {
