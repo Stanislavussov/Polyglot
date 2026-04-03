@@ -169,7 +169,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     // Load user's template for template-aware output resolution (Task 32)
     const savedTemplate = await translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-    const outputConfig = resolveOutputConfig(userTpl, classification.type);
+    const outputConfig = resolveOutputConfig(userTpl, classification.type, word.length);
     const effectiveTemplate = resolveTemplate(userTpl);
 
     // For sentences, skip dictionary context lookup (no learnable word to enrich)
@@ -432,7 +432,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     // Load user's template for template-aware output resolution (Task 32)
     const savedTpl = await translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
-    const outputConfig = resolveOutputConfig(userTpl, isSentence ? "sentence" : (inputType ?? "word"));
+    const outputConfig = resolveOutputConfig(userTpl, isSentence ? "sentence" : (inputType ?? "word"), lastOutput.original.length);
     const effectiveTemplate = resolveTemplate(userTpl);
 
     // For sentences, skip dictionary context lookup

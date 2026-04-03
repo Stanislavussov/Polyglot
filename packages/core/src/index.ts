@@ -48,7 +48,7 @@ export {
 // Shared
 export * from "./shared/errors.js";
 export type { InputContext } from "./shared/translation-template.service.js";
-export { resolveOutputConfig, resolveTemplate } from "./shared/translation-template.service.js";
+export { MAX_TRANSCRIPTION_INPUT_LENGTH, resolveOutputConfig, resolveTemplate } from "./shared/translation-template.service.js";
 export type {
   TemplateFields,
   UserTranslationTemplate,

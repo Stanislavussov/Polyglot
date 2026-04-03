@@ -15,27 +15,41 @@ import type { TranslationOutputConfig } from "./types.js";
 
 export type InputContext = "word" | "phrase" | "sentence";
 
+/** Maximum input text length (in characters) that still gets IPA transcription */
+export const MAX_TRANSCRIPTION_INPUT_LENGTH = 45;
+
 /**
  * Resolve the effective TranslationOutputConfig for a translation request.
  *
  * Rules:
  * 1. Sentences ALWAYS use SENTENCE_OUTPUT (compact, no learning metadata)
  * 2. Words/phrases use the user's custom template if set, otherwise DEFAULT_TEMPLATE
+ * 3. Input text > 45 chars → transcription is disabled (IPA would exceed schema limit)
  *
  * @param userTemplate - The user's saved template, or null for default
  * @param inputContext - What kind of input is being translated
+ * @param inputLength - Length of the input text in characters (optional)
  */
 export function resolveOutputConfig(
   userTemplate: UserTranslationTemplate | null,
   inputContext: InputContext,
+  inputLength?: number,
 ): TranslationOutputConfig {
   // Sentences always use the compact preset — user template doesn't apply
+  let config: TranslationOutputConfig;
   if (inputContext === "sentence") {
-    return SENTENCE_OUTPUT;
+    config = { ...SENTENCE_OUTPUT };
+  } else {
+    const template = userTemplate ?? DEFAULT_TEMPLATE;
+    config = templateToOutputConfig(template);
   }
 
-  const template = userTemplate ?? DEFAULT_TEMPLATE;
-  return templateToOutputConfig(template);
+  // Disable transcription for long inputs — IPA would exceed schema limit (100 chars)
+  if (inputLength !== undefined && inputLength > MAX_TRANSCRIPTION_INPUT_LENGTH) {
+    config = { ...config, includeTranscription: false };
+  }
+
+  return config;
 }
 
 /**

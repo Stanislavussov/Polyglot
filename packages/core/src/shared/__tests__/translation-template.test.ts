@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SENTENCE_OUTPUT } from "../translation-output.presets.js";
-import { resolveOutputConfig, resolveTemplate } from "../translation-template.service.js";
+import { MAX_TRANSCRIPTION_INPUT_LENGTH, resolveOutputConfig, resolveTemplate } from "../translation-template.service.js";
 import {
   DEFAULT_TEMPLATE,
   TEMPLATE_FIELD_KEYS,
@@ -234,6 +234,34 @@ describe("resolveOutputConfig", () => {
     const config = resolveOutputConfig(null, "phrase");
     expect(config.includeExamples).toBe(true);
     expect(config.includeTranscription).toBe(true);
+  });
+
+  // inputLength-based transcription disabling
+  it("disables transcription when inputLength > MAX_TRANSCRIPTION_INPUT_LENGTH", () => {
+    const config = resolveOutputConfig(null, "word", MAX_TRANSCRIPTION_INPUT_LENGTH + 1);
+    expect(config.includeTranscription).toBe(false);
+  });
+
+  it("keeps transcription when inputLength <= MAX_TRANSCRIPTION_INPUT_LENGTH", () => {
+    const config = resolveOutputConfig(null, "word", MAX_TRANSCRIPTION_INPUT_LENGTH);
+    expect(config.includeTranscription).toBe(true);
+  });
+
+  it("disables transcription for sentence with long input", () => {
+    const config = resolveOutputConfig(null, "sentence", 100);
+    expect(config.includeTranscription).toBe(false);
+    // Other SENTENCE_OUTPUT fields remain
+    expect(config.includeExamples).toBe(false);
+    expect(config.includeSynonyms).toBe(false);
+  });
+
+  it("keeps transcription when inputLength is not provided", () => {
+    const config = resolveOutputConfig(null, "word");
+    expect(config.includeTranscription).toBe(true);
+  });
+
+  it("MAX_TRANSCRIPTION_INPUT_LENGTH is 45", () => {
+    expect(MAX_TRANSCRIPTION_INPUT_LENGTH).toBe(45);
   });
 });
 

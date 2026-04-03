@@ -46,7 +46,7 @@ export async function handleRegenLoop(
   const savedTpl = await conversation.external(async () => translationTemplateRepository.getByUserId(userId));
   const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
-  const outputConfig = resolveOutputConfig(userTpl, isSentence ? "sentence" : (inputType ?? "word"));
+  const outputConfig = resolveOutputConfig(userTpl, isSentence ? "sentence" : (inputType ?? "word"), output.original.length);
 
   const renderCard = isSentence
     ? renderSentenceTranslation
