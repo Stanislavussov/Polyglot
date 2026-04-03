@@ -96,6 +96,42 @@ export const userRepository = {
     return rows[0]!;
   },
 
+  /** Update only the user's native language. */
+  async updateNativeLang(userId: number, lang: string): Promise<UserLanguageSettings | null> {
+    const db = getDb();
+    const rows = await db
+      .update(userLanguageSettings)
+      .set({ nativeLang: lang, updatedAt: new Date() })
+      .where(eq(userLanguageSettings.userId, userId))
+      .returning();
+    return rows[0] ?? null;
+  },
+
+  /** Update only the user's learning languages. Throws if exceeds MAX_LEARNING_LANGS. */
+  async updateLearningLangs(userId: number, langs: string[]): Promise<UserLanguageSettings | null> {
+    if (langs.length > MAX_LEARNING_LANGS) {
+      throw new Error(`Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got ${langs.length}`);
+    }
+    const db = getDb();
+    const rows = await db
+      .update(userLanguageSettings)
+      .set({ learningLangs: langs, updatedAt: new Date() })
+      .where(eq(userLanguageSettings.userId, userId))
+      .returning();
+    return rows[0] ?? null;
+  },
+
+  /** Update only the user's interface language. */
+  async updateInterfaceLang(userId: number, lang: string): Promise<UserLanguageSettings | null> {
+    const db = getDb();
+    const rows = await db
+      .update(userLanguageSettings)
+      .set({ interfaceLang: lang, updatedAt: new Date() })
+      .where(eq(userLanguageSettings.userId, userId))
+      .returning();
+    return rows[0] ?? null;
+  },
+
   /** Mark user as onboarded (3-step flow per BRD §5). */
   async markOnboarded(userId: number): Promise<User> {
     const db = getDb();

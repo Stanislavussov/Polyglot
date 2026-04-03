@@ -7,6 +7,35 @@ import { setBotCommands } from "./commands/commands.js";
 import { startCommand } from "./commands/start.js";
 import { authMiddleware } from "./middlewares/auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
+import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
+import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
+import {
+  handleDictClose,
+  handleDictConfirmDelete,
+  handleDictDelete,
+  handleDictNoop,
+  handleDictPage,
+  handleDictView,
+} from "./scenes/helpers/dictionary.helper.js";
+import {
+  handleFcClose,
+  handleFcDone,
+  handleFcNext,
+  handleFcQuit,
+  handleFcRestart,
+  handleFcReveal,
+  handleFcStart,
+} from "./scenes/helpers/flashcard.helper.js";
+import {
+  handleSetBackCallback,
+  handleSetCloseCallback,
+  handleSetIfaceSelectCallback,
+  handleSetInterfaceCallback,
+  handleSetLearningCallback,
+  handleSetLearnToggleCallback,
+  handleSetNativeCallback,
+  handleSetNativeSelectCallback,
+} from "./scenes/helpers/settings.helper.js";
 import {
   handleBackCallback,
   handleCancelCallback,
@@ -17,31 +46,13 @@ import {
   handleToggleCallback,
 } from "./scenes/helpers/template.helper.js";
 import {
-  handleFcClose,
-  handleFcDone,
-  handleFcNext,
-  handleFcRestart,
-  handleFcReveal,
-  handleFcStart,
-  handleFcQuit,
-} from "./scenes/helpers/flashcard.helper.js";
-import {
-  handleDictClose,
-  handleDictConfirmDelete,
-  handleDictDelete,
-  handleDictNoop,
-  handleDictPage,
-  handleDictView,
-} from "./scenes/helpers/dictionary.helper.js";
-import {
   handleRegenCallback,
   handleSaveCallback,
   handleSkipCallback,
   handleSourceLangCallback,
 } from "./scenes/helpers/translate-mode.helper.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
-import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
-import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
+import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, SessionData } from "./types.js";
@@ -92,6 +103,17 @@ bot.command("translate", handleTranslateCommand);
 bot.command("template", handleTemplateCommand);
 bot.command("dictionary", handleDictionaryCommand);
 bot.command("flashcard", handleFlashcardCommand);
+bot.command("settings", handleSettingsCommand);
+
+// ── Register callback handlers for settings (Task 37) ──
+bot.callbackQuery("set:native", handleSetNativeCallback);
+bot.callbackQuery(/^set:native:/, handleSetNativeSelectCallback);
+bot.callbackQuery("set:learning", handleSetLearningCallback);
+bot.callbackQuery(/^set:learn:/, handleSetLearnToggleCallback);
+bot.callbackQuery("set:interface", handleSetInterfaceCallback);
+bot.callbackQuery(/^set:iface:/, handleSetIfaceSelectCallback);
+bot.callbackQuery("set:back", handleSetBackCallback);
+bot.callbackQuery("set:close", handleSetCloseCallback);
 
 // ── Register callback handlers for translate mode ──
 bot.callbackQuery("tr:save", handleSaveCallback);

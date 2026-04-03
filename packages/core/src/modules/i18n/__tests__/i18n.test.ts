@@ -692,6 +692,115 @@ describe("i18n — t()", () => {
     expect(t("dictionaryDeleteCancel", "de")).toBe("← Cancel");
     expect(t("dictionarySessionExpired", "de")).toContain("Session expired");
   });
+
+  // Settings command keys (task 37)
+  it("returns settingsTitle in all locales", () => {
+    expect(t("settingsTitle", "en")).toBe("⚙️ Settings");
+    expect(t("settingsTitle", "ru")).toBe("⚙️ Настройки");
+    expect(t("settingsTitle", "cs")).toBe("⚙️ Nastavení");
+  });
+
+  it("returns settingsNativeLang with {lang} interpolation in all locales", () => {
+    expect(t("settingsNativeLang", "en", { lang: "English" })).toBe("🗣 Native language: English");
+    expect(t("settingsNativeLang", "ru", { lang: "English" })).toBe("🗣 Родной язык: English");
+    expect(t("settingsNativeLang", "cs", { lang: "English" })).toBe("🗣 Mateřský jazyk: English");
+  });
+
+  it("returns settingsLearningLangs with {langs} interpolation in all locales", () => {
+    expect(t("settingsLearningLangs", "en", { langs: "Czech, Russian" })).toBe("📚 Learning: Czech, Russian");
+    expect(t("settingsLearningLangs", "ru", { langs: "Czech, Russian" })).toBe("📚 Изучаю: Czech, Russian");
+    expect(t("settingsLearningLangs", "cs", { langs: "Czech, Russian" })).toBe("📚 Učím se: Czech, Russian");
+  });
+
+  it("returns settingsInterfaceLang with {lang} interpolation in all locales", () => {
+    expect(t("settingsInterfaceLang", "en", { lang: "English" })).toBe("🌐 Interface: English");
+    expect(t("settingsInterfaceLang", "ru", { lang: "English" })).toBe("🌐 Интерфейс: English");
+    expect(t("settingsInterfaceLang", "cs", { lang: "English" })).toBe("🌐 Rozhraní: English");
+  });
+
+  it("returns settingsChangeNative in all locales", () => {
+    expect(t("settingsChangeNative", "en")).toBe("🗣 Change native");
+    expect(t("settingsChangeNative", "ru")).toBe("🗣 Сменить родной");
+    expect(t("settingsChangeNative", "cs")).toBe("🗣 Změnit mateřský");
+  });
+
+  it("returns settingsChangeLearning in all locales", () => {
+    expect(t("settingsChangeLearning", "en")).toBe("📚 Change learning");
+    expect(t("settingsChangeLearning", "ru")).toBe("📚 Сменить изучаемые");
+    expect(t("settingsChangeLearning", "cs")).toBe("📚 Změnit učení");
+  });
+
+  it("returns settingsChangeInterface in all locales", () => {
+    expect(t("settingsChangeInterface", "en")).toBe("🌐 Change interface");
+    expect(t("settingsChangeInterface", "ru")).toBe("🌐 Сменить интерфейс");
+    expect(t("settingsChangeInterface", "cs")).toBe("🌐 Změnit rozhraní");
+  });
+
+  it("returns settingsClose in all locales", () => {
+    expect(t("settingsClose", "en")).toBe("❌ Close");
+    expect(t("settingsClose", "ru")).toBe("❌ Закрыть");
+    expect(t("settingsClose", "cs")).toBe("❌ Zavřít");
+  });
+
+  it("returns settingsChooseNative in all locales", () => {
+    expect(t("settingsChooseNative", "en")).toContain("native language");
+    expect(t("settingsChooseNative", "ru")).toContain("родной язык");
+    expect(t("settingsChooseNative", "cs")).toContain("mateřský jazyk");
+  });
+
+  it("returns settingsChooseLearning in all locales", () => {
+    expect(t("settingsChooseLearning", "en")).toContain("learning");
+    expect(t("settingsChooseLearning", "ru")).toContain("изучаемые");
+    expect(t("settingsChooseLearning", "cs")).toContain("studiu");
+  });
+
+  it("returns settingsChooseInterface in all locales", () => {
+    expect(t("settingsChooseInterface", "en")).toContain("interface language");
+    expect(t("settingsChooseInterface", "ru")).toContain("язык интерфейса");
+    expect(t("settingsChooseInterface", "cs")).toContain("jazyk rozhraní");
+  });
+
+  it("returns settingsNativeUpdated with {lang} interpolation in all locales", () => {
+    expect(t("settingsNativeUpdated", "en", { lang: "French" })).toBe("✅ Native language set to French");
+    expect(t("settingsNativeUpdated", "ru", { lang: "French" })).toBe("✅ Родной язык установлен: French");
+    expect(t("settingsNativeUpdated", "cs", { lang: "French" })).toBe("✅ Mateřský jazyk nastaven na French");
+  });
+
+  it("returns settingsLearningUpdated in all locales", () => {
+    expect(t("settingsLearningUpdated", "en")).toBe("✅ Learning languages updated");
+    expect(t("settingsLearningUpdated", "ru")).toBe("✅ Изучаемые языки обновлены");
+    expect(t("settingsLearningUpdated", "cs")).toBe("✅ Jazyky ke studiu aktualizovány");
+  });
+
+  it("returns settingsInterfaceUpdated with {lang} interpolation in all locales", () => {
+    expect(t("settingsInterfaceUpdated", "en", { lang: "Czech" })).toBe("✅ Interface language set to Czech");
+    expect(t("settingsInterfaceUpdated", "ru", { lang: "Czech" })).toBe("✅ Язык интерфейса установлен: Czech");
+    expect(t("settingsInterfaceUpdated", "cs", { lang: "Czech" })).toBe("✅ Jazyk rozhraní nastaven na Czech");
+  });
+
+  it("returns settingsSessionExpired in all locales", () => {
+    expect(t("settingsSessionExpired", "en")).toContain("Session expired");
+    expect(t("settingsSessionExpired", "ru")).toContain("Сессия истекла");
+    expect(t("settingsSessionExpired", "cs")).toContain("Relace vypršela");
+  });
+
+  it("falls back to English for settings keys when locale has no file", () => {
+    expect(t("settingsTitle", "de")).toBe("⚙️ Settings");
+    expect(t("settingsNativeLang", "de", { lang: "German" })).toBe("🗣 Native language: German");
+    expect(t("settingsLearningLangs", "de", { langs: "English" })).toBe("📚 Learning: English");
+    expect(t("settingsInterfaceLang", "de", { lang: "German" })).toBe("🌐 Interface: German");
+    expect(t("settingsChangeNative", "de")).toBe("🗣 Change native");
+    expect(t("settingsChangeLearning", "de")).toBe("📚 Change learning");
+    expect(t("settingsChangeInterface", "de")).toBe("🌐 Change interface");
+    expect(t("settingsClose", "de")).toBe("❌ Close");
+    expect(t("settingsChooseNative", "de")).toContain("native language");
+    expect(t("settingsChooseLearning", "de")).toContain("learning");
+    expect(t("settingsChooseInterface", "de")).toContain("interface language");
+    expect(t("settingsNativeUpdated", "de", { lang: "French" })).toBe("✅ Native language set to French");
+    expect(t("settingsLearningUpdated", "de")).toBe("✅ Learning languages updated");
+    expect(t("settingsInterfaceUpdated", "de", { lang: "Czech" })).toBe("✅ Interface language set to Czech");
+    expect(t("settingsSessionExpired", "de")).toContain("Session expired");
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -860,6 +969,21 @@ describe("i18n — locale consistency", () => {
       "dictionaryDeleteYes",
       "dictionaryDeleteCancel",
       "dictionarySessionExpired",
+      "settingsTitle",
+      "settingsNativeLang",
+      "settingsLearningLangs",
+      "settingsInterfaceLang",
+      "settingsChangeNative",
+      "settingsChangeLearning",
+      "settingsChangeInterface",
+      "settingsClose",
+      "settingsChooseNative",
+      "settingsChooseLearning",
+      "settingsChooseInterface",
+      "settingsNativeUpdated",
+      "settingsLearningUpdated",
+      "settingsInterfaceUpdated",
+      "settingsSessionExpired",
     ];
 
     for (const key of enKeys) {

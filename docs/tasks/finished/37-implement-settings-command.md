@@ -40,16 +40,16 @@ After any change → return to settings menu with updated values
 
 ## Acceptance Criteria
 
-- [ ] `/settings` command shows current language configuration with Change buttons
-- [ ] User can change native language → persisted to `user_language_settings.native_lang`
-- [ ] User can add/remove learning languages (1–4 limit enforced) → persisted to `user_language_settings.learning_langs`
-- [ ] User can change interface language → persisted to `user_language_settings.interface_lang`
-- [ ] All text in settings menu respects current interface language (i18n)
-- [ ] After each change, settings menu re-renders with updated values
-- [ ] Close button dismisses the menu (delete message or remove keyboard)
-- [ ] Add i18n keys for all new settings UI strings in en/ru/cs locales
-- [ ] Register `bot.command("settings", ...)` in `index.ts`
-- [ ] Register callback handlers for settings buttons (`set:native`, `set:learning`, `set:interface`, `set:close`)
+- [x] `/settings` command shows current language configuration with Change buttons
+- [x] User can change native language → persisted to `user_language_settings.native_lang`
+- [x] User can add/remove learning languages (1–4 limit enforced) → persisted to `user_language_settings.learning_langs`
+- [x] User can change interface language → persisted to `user_language_settings.interface_lang`
+- [x] All text in settings menu respects current interface language (i18n)
+- [x] After each change, settings menu re-renders with updated values
+- [x] Close button dismisses the menu (delete message or remove keyboard)
+- [x] Add i18n keys for all new settings UI strings in en/ru/cs locales
+- [x] Register `bot.command("settings", ...)` in `index.ts`
+- [x] Register callback handlers for settings buttons (`set:native`, `set:learning`, `set:interface`, `set:close`)
 
 ## Dependencies
 

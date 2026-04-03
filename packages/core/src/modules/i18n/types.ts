@@ -114,7 +114,22 @@ export type I18nKey =
   | "dictionaryDeleteConfirm"
   | "dictionaryDeleteYes"
   | "dictionaryDeleteCancel"
-  | "dictionarySessionExpired";
+  | "dictionarySessionExpired"
+  | "settingsTitle"
+  | "settingsNativeLang"
+  | "settingsLearningLangs"
+  | "settingsInterfaceLang"
+  | "settingsChangeNative"
+  | "settingsChangeLearning"
+  | "settingsChangeInterface"
+  | "settingsClose"
+  | "settingsChooseNative"
+  | "settingsChooseLearning"
+  | "settingsChooseInterface"
+  | "settingsNativeUpdated"
+  | "settingsLearningUpdated"
+  | "settingsInterfaceUpdated"
+  | "settingsSessionExpired";
 
 /**
  * Supported interface languages.
@@ -156,6 +171,11 @@ export interface I18nParams {
   dictionaryHeader: { count: string | number };
   dictionaryPage: { page: string | number; total: string | number };
   dictionaryDeleteConfirm: { word: string };
+  settingsNativeLang: { lang: string };
+  settingsLearningLangs: { langs: string };
+  settingsInterfaceLang: { lang: string };
+  settingsNativeUpdated: { lang: string };
+  settingsInterfaceUpdated: { lang: string };
 }
 
 /**

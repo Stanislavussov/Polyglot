@@ -37,7 +37,7 @@ Already implemented:
 - `renderers/flashcard.renderer.ts` — renderFlashCardFront, renderFlashCardBack, buildFlashCardFrontKeyboard, buildFlashCardBackKeyboard, buildFlashCardDoneKeyboard
 
 Still needed:
-- `scenes/settings.scene.ts` — user settings
+- (none — all core scenes implemented)
 
 ### Flash Card Session (Task 33)
 
@@ -61,13 +61,30 @@ The `/flashcard` command starts a flash card session using the config-driven dic
 
 **Callback data format**: All flashcard callbacks use `fc:` prefix: `fc:start`, `fc:reveal`, `fc:next`, `fc:done`, `fc:restart`, `fc:quit`, `fc:close`.
 
+### User Settings (Task 37)
+
+The `/settings` command shows current language configuration with inline buttons to change each setting:
+
+1. **Command**: `/settings` → shows settings menu with current native, learning, and interface language configuration
+2. **Native language** (`set:native`): Opens language picker → `set:native:{code}` selects → `userRepository.updateNativeLang()` persists
+3. **Learning languages** (`set:learning`): Opens multi-select → `set:learn:{code}` toggles → `userRepository.updateLearningLangs()` persists on each toggle. `set:learn:done` returns to menu. Enforces 1–4 language limit (MAX_LEARNING_LANGS).
+4. **Interface language** (`set:interface`): Opens language picker → `set:iface:{code}` selects → `userRepository.updateInterfaceLang()` persists → `setUserCommands()` updates bot command menu for new language
+5. **Back** (`set:back`): Returns to settings main menu from any picker
+6. **Close** (`set:close`): Deletes the settings message (falls back to removing keyboard if message too old)
+7. **All text** respects the current interface language via i18n
+8. **After each change**, settings menu re-renders with updated values
+
+**Callback data format**: All settings callbacks use `set:` prefix: `set:native`, `set:native:{code}`, `set:learning`, `set:learn:{code}`, `set:learn:done`, `set:interface`, `set:iface:{code}`, `set:back`, `set:close`.
+
+**i18n keys**: `settingsTitle`, `settingsNativeLang` (with `{lang}`), `settingsLearningLangs` (with `{langs}`), `settingsInterfaceLang` (with `{lang}`), `settingsChangeNative`, `settingsChangeLearning`, `settingsChangeInterface`, `settingsClose`, `settingsChooseNative`, `settingsChooseLearning`, `settingsChooseInterface`, `settingsNativeUpdated` (with `{lang}`), `settingsLearningUpdated`, `settingsInterfaceUpdated` (with `{lang}`), `settingsSessionExpired`.
+
 ### Localized Bot Command Descriptions (Task 35)
 
 The bot's `/` command menu now shows descriptions in the user's language:
 
 1. **At startup** — `setBotCommands(api)` calls `setMyCommands` for each locale with a file (en, ru, cs) using the `language_code` parameter, plus a default English fallback for unsupported locales.
 2. **Per-user override** — `setUserCommands(api, chatId, lang)` calls `setMyCommands` with `BotCommandScopeChat` to override the command menu for a specific user. Called after onboarding completes.
-3. **On language change** — When settings scene is implemented, `setUserCommands()` should be called after the user changes their interface language.
+3. **On language change** — `setUserCommands()` is called after the user changes their interface language in the settings scene.
 4. **Error resilience** — All `setMyCommands` calls are wrapped in try/catch; failures are logged but never crash the bot or block startup.
 
 **Helper:** `getLocalizedCommands(lang)` returns the 5 commands with descriptions from i18n keys (`cmdDescStart`, `cmdDescTranslate`, `cmdDescDictionary`, `cmdDescTemplate`, `cmdDescSettings`).
@@ -435,8 +452,24 @@ function buildDeleteConfirmKeyboard(entryId, page, lang): InlineKeyboard;
 // Dictionary page size constant (Task 40)
 const DICTIONARY_PAGE_SIZE = 15;
 
-// Scene: user settings (not yet implemented)
-async function handleSettings(conversation, ctx): Promise<void>;
+// Command: /settings — shows settings menu with current config (Task 37)
+async function handleSettingsCommand(ctx: BotContext): Promise<void>;
+
+// Build settings main menu text (exported for reuse by helper)
+function buildSettingsText(nativeLang: string, learningLangs: string[], interfaceLang: string, lang: SupportedLang): string;
+
+// Build settings main menu keyboard (exported for reuse by helper)
+function buildSettingsKeyboard(lang: SupportedLang): InlineKeyboard;
+
+// Settings callback handlers (Task 37)
+async function handleSetNativeCallback(ctx: BotContext): Promise<void>;
+async function handleSetNativeSelectCallback(ctx: BotContext): Promise<void>;
+async function handleSetLearningCallback(ctx: BotContext): Promise<void>;
+async function handleSetLearnToggleCallback(ctx: BotContext): Promise<void>;
+async function handleSetInterfaceCallback(ctx: BotContext): Promise<void>;
+async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<void>;
+async function handleSetBackCallback(ctx: BotContext): Promise<void>;
+async function handleSetCloseCallback(ctx: BotContext): Promise<void>;
 ```
 
 ## Translation Flow (Persistent Mode System)
@@ -628,6 +661,7 @@ apps/bot/src/
 │   ├── helpers/
 │   │   ├── dictionary.helper.ts      # ✅ dict:* callback handlers (page, view, delete, confirm-delete, close, noop) (Task 40)
 │   │   ├── flashcard.helper.ts       # ✅ fc:* callback handlers + pipeline deps wiring (Task 33)
+│   │   ├── settings.helper.ts        # ✅ set:* callback handlers (native/learning/interface pickers, back, close) (Task 37)
 │   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (classifier + branching + template-aware), handleRegenCallback, handleSaveCallback, handleSkipCallback, handleSourceLangCallback
 │   │   ├── translate-mode.helper.test.ts # 5 tests (context enrichment wiring)
 │   │   ├── __tests__/
@@ -640,12 +674,13 @@ apps/bot/src/
 │   │   ├── template.helper.ts        # ✅ Template wizard callbacks: customize, toggle, preview, save, cancel, reset, back (Task 32)
 │   │   ├── regen.helper.ts           # ✅ regeneration loop helper (sentence-aware, vocabularyRepository save flow, template-aware)
 │   │   └── regen.helper.test.ts      # 13 tests (includes dedup, FK resolution, inputType, vocabularyRepository)
-│   └── settings.scene.ts       # ❌ to be created
+│   ├── settings.scene.ts        # ✅ /settings command handler — shows current config, delegates to helpers (Task 37)
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 11 tests (mode system tests, idle fallback, DB persistence)
     ├── translation.renderer.test.ts        # 95 tests (includes 7 alternatives, 5 connotation warnings, 2 backward compat, 4 inline synonyms, 15 sentence renderer, 7 sentence keyboard, 5 post-save keyboard, 6 quality warning)
     ├── translation.renderer.template.test.ts # ✅ 10 tests (template-aware rendering: field toggle, backward compat, mixed fields)
     ├── template.scene.test.ts              # ✅ 15 tests (command, customize, toggle, save, cancel, reset, preview, back)
+    ├── settings.scene.test.ts             # ✅ 17 tests (command, native/learning/interface pickers, toggle, done, close, back) (Task 37)
     ├── flashcard.renderer.test.ts         # ✅ 20 tests (front/back rendering, keyboards, synonyms, examples, CEFR) (Task 33)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
     └── onboarding.scene.test.ts            # 18 tests (3-step flow, back nav, interface lang inference, no Save/Skip)

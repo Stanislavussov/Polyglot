@@ -63,6 +63,12 @@ updateSettings(userId: number, settings: Omit<NewUserLanguageSettings, "userId">
   // Does NOT overwrite lastSourceLang unless explicitly provided in settings
 getSettings(userId: number): Promise<UserLanguageSettings | null>;
 updateActiveMode(userId: number, mode: string): Promise<UserLanguageSettings | null>;
+updateNativeLang(userId: number, lang: string): Promise<UserLanguageSettings | null>;
+  // Updates only nativeLang + updatedAt. Returns null if no settings row exists.
+updateLearningLangs(userId: number, langs: string[]): Promise<UserLanguageSettings | null>;
+  // Updates only learningLangs + updatedAt. Throws if langs.length > MAX_LEARNING_LANGS (4). Returns null if no settings row exists.
+updateInterfaceLang(userId: number, lang: string): Promise<UserLanguageSettings | null>;
+  // Updates only interfaceLang + updatedAt. Returns null if no settings row exists.
 updateLastSourceLang(userId: number, lang: string | null): Promise<void>;
   // Updates only lastSourceLang + updatedAt. Fire-and-forget friendly. Pass null to clear.
 updateOnboardingStep(userId: number, step: number): Promise<User>;
@@ -274,7 +280,7 @@ packages/adapters/db/src/
 │   └── word-context.repository.ts        # ✅ implemented (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
 └── __tests__/
     ├── getDb.test.ts                     # 1 test
-    ├── user.repository.test.ts           # 28 tests (findByTelegramId, create, updateSettings incl. max-4 guard + lastSourceLang protection, getSettings + lastSourceLang, updateActiveMode, updateLastSourceLang, updateOnboardingStep, markOnboarded)
+    ├── user.repository.test.ts           # 39 tests (findByTelegramId, create, updateSettings incl. max-4 guard + lastSourceLang protection, getSettings + lastSourceLang, updateActiveMode, updateNativeLang, updateLearningLangs, updateInterfaceLang, updateLastSourceLang, updateOnboardingStep, markOnboarded)
     ├── vocabulary.repository.test.ts     # 23 tests (Task 39 — create, findByOriginalAndSource, findByUser, findById, search, findByUserAndLang, updateTranslation, updateAllTranslations, delete, findByUserWithSourceLang)
     ├── vocabulary-pagination.repository.test.ts # 12 tests (Task 40 — countByUser, findByUserPaginated, hardDelete)
     ├── topic.repository.test.ts          # 4 tests

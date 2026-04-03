@@ -438,6 +438,125 @@ describe("userRepository", () => {
     });
   });
 
+  describe("updateNativeLang", () => {
+    it("updates nativeLang and returns settings", async () => {
+      const settings = makeSettings({ nativeLang: "de" });
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      const result = await userRepository.updateNativeLang(1, "de");
+
+      expect(result).toEqual(settings);
+      expect(updateFn).toHaveBeenCalledOnce();
+      expect(lastUpdateSet).toMatchObject({ nativeLang: "de" });
+      expect(lastUpdateSet).toHaveProperty("updatedAt");
+    });
+
+    it("returns null when user has no settings row", async () => {
+      updateReturningFn.mockResolvedValueOnce([]);
+
+      const result = await userRepository.updateNativeLang(999, "de");
+
+      expect(result).toBeNull();
+    });
+
+    it("only sets nativeLang and updatedAt — no other fields", async () => {
+      const settings = makeSettings();
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      await userRepository.updateNativeLang(1, "fr");
+
+      const setKeys = Object.keys(lastUpdateSet as object);
+      expect(setKeys).toContain("nativeLang");
+      expect(setKeys).toContain("updatedAt");
+      expect(setKeys).toHaveLength(2);
+    });
+  });
+
+  describe("updateLearningLangs", () => {
+    it("updates learningLangs and returns settings", async () => {
+      const settings = makeSettings({ learningLangs: ["de", "fr"] });
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      const result = await userRepository.updateLearningLangs(1, ["de", "fr"]);
+
+      expect(result).toEqual(settings);
+      expect(updateFn).toHaveBeenCalledOnce();
+      expect(lastUpdateSet).toMatchObject({ learningLangs: ["de", "fr"] });
+      expect(lastUpdateSet).toHaveProperty("updatedAt");
+    });
+
+    it("allows exactly MAX_LEARNING_LANGS (4) languages", async () => {
+      const settings = makeSettings({ learningLangs: ["cs", "de", "fr", "es"] });
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      const result = await userRepository.updateLearningLangs(1, ["cs", "de", "fr", "es"]);
+
+      expect(result).toEqual(settings);
+    });
+
+    it("throws when exceeding MAX_LEARNING_LANGS", async () => {
+      await expect(
+        userRepository.updateLearningLangs(1, ["cs", "de", "fr", "es", "it"]),
+      ).rejects.toThrow(`Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got 5`);
+
+      expect(updateFn).not.toHaveBeenCalled();
+    });
+
+    it("returns null when user has no settings row", async () => {
+      updateReturningFn.mockResolvedValueOnce([]);
+
+      const result = await userRepository.updateLearningLangs(999, ["de"]);
+
+      expect(result).toBeNull();
+    });
+
+    it("only sets learningLangs and updatedAt — no other fields", async () => {
+      const settings = makeSettings();
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      await userRepository.updateLearningLangs(1, ["cs"]);
+
+      const setKeys = Object.keys(lastUpdateSet as object);
+      expect(setKeys).toContain("learningLangs");
+      expect(setKeys).toContain("updatedAt");
+      expect(setKeys).toHaveLength(2);
+    });
+  });
+
+  describe("updateInterfaceLang", () => {
+    it("updates interfaceLang and returns settings", async () => {
+      const settings = makeSettings({ interfaceLang: "ru" });
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      const result = await userRepository.updateInterfaceLang(1, "ru");
+
+      expect(result).toEqual(settings);
+      expect(updateFn).toHaveBeenCalledOnce();
+      expect(lastUpdateSet).toMatchObject({ interfaceLang: "ru" });
+      expect(lastUpdateSet).toHaveProperty("updatedAt");
+    });
+
+    it("returns null when user has no settings row", async () => {
+      updateReturningFn.mockResolvedValueOnce([]);
+
+      const result = await userRepository.updateInterfaceLang(999, "cs");
+
+      expect(result).toBeNull();
+    });
+
+    it("only sets interfaceLang and updatedAt — no other fields", async () => {
+      const settings = makeSettings();
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      await userRepository.updateInterfaceLang(1, "cs");
+
+      const setKeys = Object.keys(lastUpdateSet as object);
+      expect(setKeys).toContain("interfaceLang");
+      expect(setKeys).toContain("updatedAt");
+      expect(setKeys).toHaveLength(2);
+    });
+  });
+
   describe("getSettings returns lastSourceLang", () => {
     it("returns lastSourceLang when present in settings", async () => {
       const settings = makeSettings({ lastSourceLang: "cs" });

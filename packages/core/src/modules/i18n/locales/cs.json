@@ -110,5 +110,20 @@
   "dictionaryDeleteConfirm": "⚠️ Smazat \"{word}\" ze slovníku?",
   "dictionaryDeleteYes": "✅ Ano, smazat",
   "dictionaryDeleteCancel": "← Zrušit",
-  "dictionarySessionExpired": "Relace vypršela. Použijte /dictionary pro restart."
+  "dictionarySessionExpired": "Relace vypršela. Použijte /dictionary pro restart.",
+  "settingsTitle": "⚙️ Nastavení",
+  "settingsNativeLang": "🗣 Mateřský jazyk: {lang}",
+  "settingsLearningLangs": "📚 Učím se: {langs}",
+  "settingsInterfaceLang": "🌐 Rozhraní: {lang}",
+  "settingsChangeNative": "🗣 Změnit mateřský",
+  "settingsChangeLearning": "📚 Změnit učení",
+  "settingsChangeInterface": "🌐 Změnit rozhraní",
+  "settingsClose": "❌ Zavřít",
+  "settingsChooseNative": "🗣 Vyberte svůj mateřský jazyk:",
+  "settingsChooseLearning": "📚 Vyberte jazyky ke studiu (1–4, pak stiskněte ✅ Hotovo):",
+  "settingsChooseInterface": "🌐 Vyberte jazyk rozhraní:",
+  "settingsNativeUpdated": "✅ Mateřský jazyk nastaven na {lang}",
+  "settingsLearningUpdated": "✅ Jazyky ke studiu aktualizovány",
+  "settingsInterfaceUpdated": "✅ Jazyk rozhraní nastaven na {lang}",
+  "settingsSessionExpired": "Relace vypršela. Použijte /settings pro restart."
 }

@@ -110,5 +110,20 @@
   "dictionaryDeleteConfirm": "⚠️ Удалить \"{word}\" из словаря?",
   "dictionaryDeleteYes": "✅ Да, удалить",
   "dictionaryDeleteCancel": "← Отмена",
-  "dictionarySessionExpired": "Сессия истекла. Используйте /dictionary для перезапуска."
+  "dictionarySessionExpired": "Сессия истекла. Используйте /dictionary для перезапуска.",
+  "settingsTitle": "⚙️ Настройки",
+  "settingsNativeLang": "🗣 Родной язык: {lang}",
+  "settingsLearningLangs": "📚 Изучаю: {langs}",
+  "settingsInterfaceLang": "🌐 Интерфейс: {lang}",
+  "settingsChangeNative": "🗣 Сменить родной",
+  "settingsChangeLearning": "📚 Сменить изучаемые",
+  "settingsChangeInterface": "🌐 Сменить интерфейс",
+  "settingsClose": "❌ Закрыть",
+  "settingsChooseNative": "🗣 Выберите ваш родной язык:",
+  "settingsChooseLearning": "📚 Выберите изучаемые языки (1–4, затем нажмите ✅ Готово):",
+  "settingsChooseInterface": "🌐 Выберите язык интерфейса:",
+  "settingsNativeUpdated": "✅ Родной язык установлен: {lang}",
+  "settingsLearningUpdated": "✅ Изучаемые языки обновлены",
+  "settingsInterfaceUpdated": "✅ Язык интерфейса установлен: {lang}",
+  "settingsSessionExpired": "Сессия истекла. Используйте /settings для перезапуска."
 }

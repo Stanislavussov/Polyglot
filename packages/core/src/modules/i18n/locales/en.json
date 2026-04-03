@@ -110,5 +110,20 @@
   "dictionaryDeleteConfirm": "⚠️ Delete \"{word}\" from your dictionary?",
   "dictionaryDeleteYes": "✅ Yes, delete",
   "dictionaryDeleteCancel": "← Cancel",
-  "dictionarySessionExpired": "Session expired. Use /dictionary to restart."
+  "dictionarySessionExpired": "Session expired. Use /dictionary to restart.",
+  "settingsTitle": "⚙️ Settings",
+  "settingsNativeLang": "🗣 Native language: {lang}",
+  "settingsLearningLangs": "📚 Learning: {langs}",
+  "settingsInterfaceLang": "🌐 Interface: {lang}",
+  "settingsChangeNative": "🗣 Change native",
+  "settingsChangeLearning": "📚 Change learning",
+  "settingsChangeInterface": "🌐 Change interface",
+  "settingsClose": "❌ Close",
+  "settingsChooseNative": "🗣 Choose your native language:",
+  "settingsChooseLearning": "📚 Select languages you're learning (1–4, then press ✅ Done):",
+  "settingsChooseInterface": "🌐 Choose your interface language:",
+  "settingsNativeUpdated": "✅ Native language set to {lang}",
+  "settingsLearningUpdated": "✅ Learning languages updated",
+  "settingsInterfaceUpdated": "✅ Interface language set to {lang}",
+  "settingsSessionExpired": "Session expired. Use /settings to restart."
 }
