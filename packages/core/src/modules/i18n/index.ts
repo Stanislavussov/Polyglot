@@ -1,7 +1,5 @@
-// Functional API (primary)
+// Functional API
 export { getSupportedLangs, isSupported, t } from "./i18n.js";
-// Legacy class (kept for backward compatibility — prefer functional API)
-export { I18nService } from "./i18n.service.js";
 export type { LanguageEntry } from "./language-registry.js";
 // Language registry — single source of truth, populated from DB at startup
 export {

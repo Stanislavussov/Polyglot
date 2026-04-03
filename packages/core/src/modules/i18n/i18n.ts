@@ -25,7 +25,18 @@ const messages: Partial<Record<SupportedLang, LocaleMessages>> = {
 /*  Supported-language list (all 10 codes from BRD)                    */
 /* ------------------------------------------------------------------ */
 
-const SUPPORTED_LANGS: readonly SupportedLang[] = ["en", "ru", "cs", "de", "fr", "es", "it", "pt", "uk", "pl"] as const;
+const SUPPORTED_LANGS: readonly SupportedLang[] = [
+  "en",
+  "ru",
+  "cs",
+  "de",
+  "fr",
+  "es",
+  "it",
+  "pt",
+  "uk",
+  "pl",
+] as const;
 
 const supportedSet = new Set<string>(SUPPORTED_LANGS);
 
@@ -41,7 +52,11 @@ const supportedSet = new Set<string>(SUPPORTED_LANGS);
  * - Never throws — returns the English text (or the key itself as last resort).
  * - Supports interpolation: `{param}` placeholders replaced with `params` values.
  */
-export function t(key: I18nKey, lang: SupportedLang, params?: Record<string, string | number>): string {
+export function t(
+  key: I18nKey,
+  lang: SupportedLang,
+  params?: Record<string, string | number>,
+): string {
   const localeDict = messages[lang];
   let text: string = localeDict?.[key] ?? enMessages[key] ?? (key as string);
 

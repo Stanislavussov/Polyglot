@@ -17,7 +17,8 @@
     "lint:fix": "biome check --write .",
     "lint:deps": "depcruise --config .dependency-cruiser.cjs packages apps/bot/src",
     "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > docs/dependency-graph.svg",
-    "import:wiktionary": "tsx src/scripts/import-wiktionary.ts"
+    "import:wiktionary": "tsx src/scripts/import-wiktionary.ts",
+    "clean": "pnpm -r run clean && rm -rf coverage .vitest"
   },
   "dependencies": {
     "@polyglot/adapter-db": "workspace:*",

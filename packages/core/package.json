@@ -5,13 +5,15 @@
   "type": "module",
   "exports": {
     ".": {
+      "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "tsc && rm -rf dist/modules/i18n/locales && cp -r src/modules/i18n/locales dist/modules/i18n/locales",
-    "dev": "tsc --watch"
+    "build": "tsc && rm -rf dist/modules/i18n/locales && cp -r src/modules/i18n/locales dist/modules/i18n/locales && cp -r src/modules/topics/datasets dist/modules/topics/datasets",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
     "franc": "^6.2.0"

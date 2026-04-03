@@ -111,7 +111,7 @@
   "dictionaryDeleteYes": "✅ Yes, delete",
   "dictionaryDeleteCancel": "← Cancel",
   "dictionarySessionExpired": "Session expired. Use /dictionary to restart.",
-  "textOnly": "✏️ I can only translate text. Please send a word, phrase, or sentence.",
+  "textOnly": "✏️ I work with text only — just send me a word, phrase, or sentence and I'll translate it for you!",
   "emojiNotSupported": "😊 Emojis can't be translated. Please send a word or phrase in any language.",
   "settingsTitle": "⚙️ Settings",
   "settingsNativeLang": "🗣 Native language: {lang}",
