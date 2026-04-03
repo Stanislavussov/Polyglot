@@ -18,7 +18,6 @@ import type { TranslationRequest } from "../types.js";
 describe("Schema — expressionType and equivalentNote", () => {
   const baseTranslation = {
     text: "Having your cake and eating it too",
-    cefr: "B2" as const,
     register: "colloquial" as const,
     synonyms: [{ text: "best of both worlds", register: "neutral" as const }],
     examples: [
@@ -150,7 +149,6 @@ describe("Schema — expressionType and equivalentNote", () => {
   it("preserves backward compatibility — data without idiomatic fields parses fine", () => {
     const data = {
       text: "ahoj",
-      cefr: "A1",
       register: "colloquial",
       synonyms: [{ text: "čau", register: "slang" }],
       examples: [

@@ -46,8 +46,8 @@ vi.mock("@polyglot/core", async () => {
       emoji: "🏠",
       register: "neutral",
       translations: {
-        ru: { text: "тест", cefr: "A1", register: "neutral", synonyms: [], examples: [] },
-        en: { text: "test", cefr: "A1", register: "neutral", synonyms: [], examples: [] },
+        ru: { text: "тест", register: "neutral", synonyms: [], examples: [] },
+        en: { text: "test", register: "neutral", synonyms: [], examples: [] },
       },
     }),
   };

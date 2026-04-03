@@ -8,7 +8,6 @@ import type { LiteValidationInput } from "../types.js";
 function makeTranslation(text: string): LanguageTranslation {
   return {
     text,
-    cefr: "A1",
     register: "neutral",
     synonyms: [],
     examples: [],
@@ -23,7 +22,6 @@ function makeScoreResponse(overrides?: Record<string, unknown>) {
         meaningPreserved: 4,
         naturalness: 5,
         registerAccuracy: 4,
-        cefrAccuracy: 4,
         overallScore: 4,
         reasoning: "Good translation",
         ...overrides,
@@ -100,7 +98,6 @@ describe("validateWithLiteAI", () => {
           meaningPreserved: 5,
           naturalness: 5,
           registerAccuracy: 5,
-          cefrAccuracy: 5,
           overallScore: 5,
           reasoning: "Perfect",
         },
@@ -108,7 +105,6 @@ describe("validateWithLiteAI", () => {
           meaningPreserved: 1,
           naturalness: 1,
           registerAccuracy: 1,
-          cefrAccuracy: 1,
           overallScore: 1,
           reasoning: "Very bad",
         },

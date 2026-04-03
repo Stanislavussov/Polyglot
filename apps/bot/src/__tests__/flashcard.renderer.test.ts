@@ -40,7 +40,6 @@ const sampleWord: WordDisplayData = {
   translations: {
     ru: {
       text: "яблоко",
-      cefr: "A1",
       transcription: "ˈjabləkə",
       register: "neutral",
       synonyms: [{ text: "яблочко", register: "colloquial" }],
@@ -48,7 +47,6 @@ const sampleWord: WordDisplayData = {
     },
     cs: {
       text: "jablko",
-      cefr: "A1",
       transcription: "ˈjablkɔ",
       register: "neutral",
     },
@@ -66,7 +64,6 @@ const wordNoSynonyms: WordDisplayData = {
   translations: {
     cs: {
       text: "dům",
-      cefr: "A1",
     },
   },
 };
@@ -125,11 +122,6 @@ describe("renderFlashCardBack", () => {
     const result = renderFlashCardBack(sampleWord, 1, 10, "en");
     expect(result).toContain("[ˈjabləkə]");
     expect(result).toContain("[ˈjablkɔ]");
-  });
-
-  it("contains CEFR level when present", () => {
-    const result = renderFlashCardBack(sampleWord, 1, 10, "en");
-    expect(result).toContain("A1");
   });
 
   it("contains register when present", () => {

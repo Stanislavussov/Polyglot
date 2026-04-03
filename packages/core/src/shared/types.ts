@@ -21,8 +21,6 @@ export interface TranslationOutputConfig {
   includeAlternatives?: boolean;
   /** Include expressionType and equivalentNote for idiomatic expressions. Default: true */
   includeEquivalentNote?: boolean;
-  /** Include CEFR level (A1–C2) per language. Default: true */
-  includeCefr?: boolean;
   /** Include register (slang/colloquial/neutral/literary/professional) at top and per-language level. Default: true */
   includeRegister?: boolean;
   /** Include optional connotation warnings for dangerous/misleading meanings. Default: true */

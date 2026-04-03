@@ -13,7 +13,6 @@ function makeTranslateOutput(original: string, targetLangs: string[]): Translate
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
       examples: [
@@ -48,7 +47,6 @@ function makeCachedTranslation(
     targetLang,
     content: {
       text: `${original}_${targetLang}_cached`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [
@@ -552,7 +550,6 @@ describe("createTopicService", () => {
   describe("regenerateTopicWord", () => {
     const mockTranslationEntry: LanguageTranslationEntry = {
       text: "jablko",
-      cefr: "A1",
       register: "neutral",
       synonyms: [{ text: "jablíčko", register: "colloquial" }],
       examples: [
@@ -642,7 +639,6 @@ describe("createTopicService", () => {
 
       expect(result).toEqual(mockTranslationEntry);
       expect(result.text).toBe("jablko");
-      expect(result.cefr).toBe("A1");
     });
 
     it("propagates errors from translateOne", async () => {

@@ -30,7 +30,6 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain('"cs"');
     expect(prompt).toContain('"de"');
     expect(prompt).toContain('"text"');
-    expect(prompt).toContain('"cefr"');
     expect(prompt).toContain('"register"');
     expect(prompt).toContain('"synonyms"');
     expect(prompt).toContain('"examples"');
@@ -39,11 +38,6 @@ describe("buildTranslationPrompt", () => {
   it("requests emoji in the output", () => {
     const prompt = buildTranslationPrompt(baseRequest);
     expect(prompt).toContain('"emoji"');
-  });
-
-  it("specifies CEFR levels", () => {
-    const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("A1 | A2 | B1 | B2 | C1 | C2");
   });
 
   it("specifies register values", () => {
@@ -224,19 +218,6 @@ describe("buildTranslationPrompt with inputType=sentence", () => {
     expect(prompt).not.toMatch(/^Translate "Can you tell me/m);
   });
 
-  it("CEFR rule says 'overall difficulty of the sentence' for sentences when includeCefr is true", () => {
-    const requestWithCefr = { ...sentenceRequest, outputConfig: { ...SENTENCE_OUTPUT, includeCefr: true } };
-    const prompt = buildTranslationPrompt(requestWithCefr);
-    expect(prompt).toContain("overall difficulty of the sentence");
-    expect(prompt).not.toContain("difficulty of the translated word");
-  });
-
-  it("CEFR rule is omitted for sentences when includeCefr is false (default SENTENCE_OUTPUT)", () => {
-    const prompt = buildTranslationPrompt(sentenceRequest);
-    expect(prompt).not.toContain("overall difficulty of the sentence");
-    expect(prompt).not.toContain("CEFR level");
-  });
-
   it("omits synonyms, alternatives, examples, equivalentNote (via SENTENCE_OUTPUT)", () => {
     const prompt = buildTranslationPrompt(sentenceRequest);
     expect(prompt).not.toContain('"synonyms"');
@@ -270,11 +251,6 @@ describe("buildTranslationPrompt with inputType=word (backward compat)", () => {
     const prompt = buildTranslationPrompt(wordRequest);
     expect(prompt).toContain('Translate "hello" from English to Czech.');
   });
-
-  it("CEFR rule says 'difficulty of the translated word' for words", () => {
-    const prompt = buildTranslationPrompt(wordRequest);
-    expect(prompt).toContain("difficulty of the translated word");
-  });
 });
 
 describe("buildTranslationPrompt with inputType absent (backward compat)", () => {
@@ -287,11 +263,6 @@ describe("buildTranslationPrompt with inputType absent (backward compat)", () =>
   it("uses standard 'Translate \"...\"' format when inputType is absent", () => {
     const prompt = buildTranslationPrompt(noTypeRequest);
     expect(prompt).toContain('Translate "hello" from English to Czech.');
-  });
-
-  it("CEFR rule says 'difficulty of the translated word' when inputType absent", () => {
-    const prompt = buildTranslationPrompt(noTypeRequest);
-    expect(prompt).toContain("difficulty of the translated word");
   });
 });
 

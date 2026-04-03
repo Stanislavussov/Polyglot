@@ -10,7 +10,6 @@ const translationResultSchema = z.object({
     z.string(),
     z.object({
       text: z.string(),
-      cefr: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
       transcription: z.string().optional(),
       register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
       expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
@@ -40,7 +39,6 @@ function makeValidResponse(_original: string) {
     translations: {
       cs: {
         text: "ahoj",
-        cefr: "A1" as const,
         transcription: "[ˈahoj]",
         register: "colloquial" as const,
         synonyms: [{ text: "nazdar", register: "colloquial" as const }],
@@ -83,7 +81,6 @@ describe("validate (orchestrator)", () => {
       translations: {
         cs: {
           text: "hello", // same as original
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [
@@ -124,7 +121,6 @@ describe("validate (orchestrator)", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [
@@ -149,7 +145,6 @@ describe("validate (orchestrator)", () => {
       translations: {
         cs: {
           text: "N/A",
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [
@@ -174,7 +169,6 @@ describe("validate (orchestrator)", () => {
       translations: {
         cs: {
           text: "hello", // same as original
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [
@@ -215,7 +209,6 @@ describe("validate — single-language (partial regeneration)", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1" as const,
           register: "colloquial" as const,
           synonyms: [{ text: "nazdar", register: "colloquial" as const }],
           examples: [
@@ -228,7 +221,6 @@ describe("validate — single-language (partial regeneration)", () => {
         },
         de: {
           text: "hallo",
-          cefr: "A1" as const,
           register: "neutral" as const,
           synonyms: [{ text: "guten Tag", register: "neutral" as const }],
           examples: [
@@ -254,7 +246,6 @@ describe("validate — single-language (partial regeneration)", () => {
       translations: {
         de: {
           text: "hello", // same as original — semantic error
-          cefr: "A1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [
@@ -281,7 +272,6 @@ describe("validate — single-language (partial regeneration)", () => {
       translations: {
         fr: {
           text: "I cannot translate this word",
-          cefr: "B1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [
@@ -307,7 +297,6 @@ describe("validate — single-language (partial regeneration)", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [
@@ -337,7 +326,6 @@ describe("validate — single-language (partial regeneration)", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [
@@ -372,7 +360,6 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
         cs: {
           // Longer Czech text so franc-min can reliably detect it as Czech
           text: "Vlk se nažral a koza zůstala celá, to je české přísloví o dosažení obojího",
-          cefr: "B2" as const,
           register: "colloquial" as const,
           expressionType: "idiomatic_equivalent" as const,
           equivalentNote: "Closest Czech equivalent of the English idiom about having both options.",
@@ -399,7 +386,6 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
       translations: {
         cs: {
           text: "Ranní ptáče dál doskáče",
-          cefr: "B1" as const,
           register: "neutral" as const,
           expressionType: "idiomatic_equivalent" as const,
           equivalentNote: "Czech equivalent proverb about the value of waking early.",
@@ -434,7 +420,6 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
       translations: {
         cs: {
           text: "Vlk se nažral a koza zůstala celá",
-          cefr: "B2" as const,
           register: "colloquial" as const,
           expressionType: "idiomatic_equivalent" as const,
           equivalentNote: "Czech equivalent proverb.",
@@ -461,7 +446,6 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1" as const,
           register: "colloquial" as const,
           // no expressionType — should default to "literal" or undefined
           synonyms: [{ text: "nazdar", register: "colloquial" as const }],
@@ -495,7 +479,6 @@ describe("validate — alternatives semantic validation", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1" as const,
           register: "colloquial" as const,
           synonyms: [{ text: "nazdar", register: "colloquial" as const }],
           examples: [
@@ -539,7 +522,6 @@ describe("validate — alternatives semantic validation", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [
@@ -565,7 +547,6 @@ describe("validate — alternatives semantic validation", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [
@@ -603,7 +584,6 @@ describe("validate — alternatives semantic validation", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [
@@ -636,7 +616,6 @@ describe("validate — alternatives semantic validation", () => {
       translations: {
         de: {
           text: "hallo",
-          cefr: "A1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [
@@ -678,7 +657,7 @@ describe("validate — alternatives semantic validation", () => {
  * skipped when those fields are empty arrays (SENTENCE_OUTPUT preset).
  */
 describe("validate — sentence inputType (Task 27)", () => {
-  /** Minimal sentence schema — only text + cefr + register + transcription */
+  /** Minimal sentence schema — only text + register + transcription */
   const sentenceSchema = z.object({
     emoji: z.string(),
     register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
@@ -686,7 +665,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       z.string(),
       z.object({
         text: z.string(),
-        cefr: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
         transcription: z.string().optional(),
         register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
         synonyms: z.array(z.unknown()).default([]),
@@ -703,7 +681,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         cs: {
           text: original, // same as original — would fail without sentence mode
-          cefr: "B1" as const,
           register: "neutral" as const,
           transcription: "",
           synonyms: [],
@@ -723,7 +700,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         de: {
           text: "N/A", // hallucination pattern — would fail without sentence mode
-          cefr: "A1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [],
@@ -749,7 +725,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         cs: {
           text: "Kde je nejbližší lékárna?",
-          cefr: "B1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [],
@@ -769,7 +744,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         cs: {
           text: "Kde je nejbližší lékárna?",
-          cefr: "B1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [],
@@ -795,7 +769,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         cs: {
           text: "hello", // same as original — should fail
-          cefr: "A1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [],
@@ -815,7 +788,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         cs: {
           text: "hello", // same as original — should fail
-          cefr: "A1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [],
@@ -834,7 +806,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         cs: {
           text: "good morning", // same as original — should fail
-          cefr: "A1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [],
@@ -853,7 +824,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         cs: {
           text: "Kde je nejbližší lékárna?",
-          cefr: "B1" as const,
           register: "neutral" as const,
           transcription: "[ɡdɛ jɛ nɛjblɪʃiː leːkaːrna]",
           synonyms: [],
@@ -861,7 +831,6 @@ describe("validate — sentence inputType (Task 27)", () => {
         },
         de: {
           text: "Wo ist die nächste Apotheke?",
-          cefr: "A2" as const,
           register: "neutral" as const,
           transcription: "[voː ɪst diː nɛːçstə apoˈteːkə]",
           synonyms: [],
@@ -886,7 +855,6 @@ describe("validate with ValidateOptions", () => {
       z.string(),
       z.object({
         text: z.string(),
-        cefr: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
         register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
         synonyms: z.array(
           z.object({
@@ -921,14 +889,12 @@ describe("validate with ValidateOptions", () => {
       translations: {
         en: {
           text: "beast",
-          cefr: "B1" as const,
           register: "colloquial" as const,
           synonyms: [{ text: "creature", register: "neutral" as const }],
           examples: [], // empty — config says no examples
         },
         cs: {
           text: "zvíře",
-          cefr: "A2" as const,
           register: "neutral" as const,
           synonyms: [{ text: "bestie", register: "colloquial" as const }],
           examples: [], // empty — config says no examples
@@ -947,7 +913,6 @@ describe("validate with ValidateOptions", () => {
       translations: {
         en: {
           text: "beast",
-          cefr: "B1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [], // empty — but config doesn't disable examples
@@ -966,7 +931,6 @@ describe("validate with ValidateOptions", () => {
       translations: {
         en: {
           text: "beast",
-          cefr: "B1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [{ context: "colloquial", target: "What a beast!", register: "colloquial" }],
@@ -987,7 +951,6 @@ describe("validate with ValidateOptions", () => {
       translations: {
         en: {
           text: "beast",
-          cefr: "B1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [{ context: "colloquial", target: "What a beast!", register: "colloquial" }],
@@ -1007,7 +970,6 @@ describe("validate with ValidateOptions", () => {
       translations: {
         en: {
           text: "beast",
-          cefr: "B1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [],
@@ -1030,7 +992,6 @@ describe("validate with ValidateOptions", () => {
       translations: {
         en: {
           text: "зверюга", // same as original — semantic should catch this
-          cefr: "B1" as const,
           register: "neutral" as const,
           synonyms: [],
           examples: [],

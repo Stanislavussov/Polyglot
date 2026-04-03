@@ -61,8 +61,8 @@ export const DEFAULT_TEMPLATE: UserTranslationTemplate = {
  * Convert a UserTranslationTemplate to TranslationOutputConfig.
  * This is the bridge between user-facing config and the AI pipeline.
  *
- * Note: includeCefr and includeRegister are NOT user-toggleable —
- * they follow the system presets (currently false in FULL_OUTPUT).
+ * Note: includeRegister is NOT user-toggleable —
+ * it follows the system presets (currently false in FULL_OUTPUT).
  * This keeps the user template simple while preserving system behavior.
  */
 export function templateToOutputConfig(template: UserTranslationTemplate): TranslationOutputConfig {
@@ -73,8 +73,7 @@ export function templateToOutputConfig(template: UserTranslationTemplate): Trans
     includeAlternatives: template.fields.alternatives,
     includeEquivalentNote: template.fields.equivalentNote,
     includeConnotationWarning: template.fields.connotationWarning,
-    // System-controlled flags — not user-toggleable
-    includeCefr: false,
+    // System-controlled flag — not user-toggleable
     includeRegister: false,
   };
 }

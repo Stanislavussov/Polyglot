@@ -19,7 +19,6 @@ function makeTranslateOutputWithWarning(original: string, targetLangs: string[])
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      cefr: "B1",
       register: "neutral",
       synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
       examples: [
@@ -46,7 +45,6 @@ function makeTranslateOutputWithoutWarning(original: string, targetLangs: string
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [
@@ -81,7 +79,6 @@ function makeCachedTranslationWithWarning(
     targetLang,
     content: {
       text: `${original}_${targetLang}_cached`,
-      cefr: "B1",
       register: "neutral",
       synonyms: [],
       examples: [
@@ -117,7 +114,6 @@ describe("LanguageTranslationEntry connotationWarning field", () => {
   it("accepts connotationWarning as an optional field", () => {
     const entry: LanguageTranslationEntry = {
       text: "to excite",
-      cefr: "B1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -130,7 +126,6 @@ describe("LanguageTranslationEntry connotationWarning field", () => {
   it("allows omitting connotationWarning (backward compatible)", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -230,7 +225,6 @@ describe("getTopicWords with connotationWarning", () => {
 describe("regenerateTopicWord with connotationWarning", () => {
   const entryWithWarning: LanguageTranslationEntry = {
     text: "vzrušit",
-    cefr: "B1",
     register: "neutral",
     synonyms: [{ text: "podnítit", register: "literary" }],
     examples: [

@@ -18,7 +18,6 @@ const baseOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "ahoj",
-      cefr: "A1",
       register: "colloquial",
       synonyms: [],
       examples: [],

@@ -6,7 +6,6 @@ describe("liteValidationScoreSchema", () => {
     meaningPreserved: 4,
     naturalness: 5,
     registerAccuracy: 3,
-    cefrAccuracy: 4,
     overallScore: 4,
     reasoning: "Good translation, natural phrasing",
   };
@@ -21,7 +20,6 @@ describe("liteValidationScoreSchema", () => {
       meaningPreserved: 0,
       naturalness: 0,
       registerAccuracy: 0,
-      cefrAccuracy: 0,
       overallScore: 0,
       reasoning: "Completely wrong",
     });
@@ -33,7 +31,6 @@ describe("liteValidationScoreSchema", () => {
       meaningPreserved: 5,
       naturalness: 5,
       registerAccuracy: 5,
-      cefrAccuracy: 5,
       overallScore: 5,
       reasoning: "Perfect",
     });
@@ -76,7 +73,7 @@ describe("liteValidationScoreSchema", () => {
     const result = liteValidationScoreSchema.safeParse({
       meaningPreserved: 4,
       naturalness: 5,
-      // missing registerAccuracy, cefrAccuracy, overallScore, reasoning
+      // missing registerAccuracy, overallScore, reasoning
     });
     expect(result.success).toBe(false);
   });
@@ -97,7 +94,6 @@ describe("liteValidationResultSchema", () => {
         meaningPreserved: 4,
         naturalness: 5,
         registerAccuracy: 3,
-        cefrAccuracy: 4,
         overallScore: 4,
         reasoning: "Good Czech translation",
       },
@@ -105,7 +101,6 @@ describe("liteValidationResultSchema", () => {
         meaningPreserved: 3,
         naturalness: 4,
         registerAccuracy: 4,
-        cefrAccuracy: 3,
         overallScore: 3,
         reasoning: "Acceptable German translation",
       },

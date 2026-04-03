@@ -21,7 +21,6 @@ function makeTranslateOutput(original: string, targetLangs: string[]): Translate
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -57,7 +56,6 @@ describe("MINIMAL_OUTPUT preset used by topics", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
-      includeCefr: false,
       includeRegister: false,
       includeConnotationWarning: false,
     });
@@ -110,7 +108,6 @@ describe("getTopicWords passes MINIMAL_OUTPUT to translateBatch", () => {
           targetLang,
           content: {
             text: `${original}_${targetLang}_cached`,
-            cefr: "A1",
             register: "neutral",
             synonyms: [],
             examples: [],
@@ -182,7 +179,6 @@ describe("generateCustomTopic passes MINIMAL_OUTPUT to translateBatch", () => {
 describe("regenerateTopicWord passes MINIMAL_OUTPUT to translateOne", () => {
   const mockEntry: LanguageTranslationEntry = {
     text: "jablko",
-    cefr: "A1",
     register: "neutral",
     synonyms: [],
     examples: [],
@@ -254,7 +250,6 @@ describe("TopicDeps accepts outputConfig parameter", () => {
     const word = dataset.words[0]!;
     const mockEntry: LanguageTranslationEntry = {
       text: "jablko",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],

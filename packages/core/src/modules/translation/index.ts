@@ -38,7 +38,6 @@ export {
 } from "./translation-output.presets.js";
 // Types
 export type {
-  CefrLevel,
   DictionaryContext,
   Example,
   ExampleContext,

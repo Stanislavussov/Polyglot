@@ -101,7 +101,6 @@ export const words = pgTable(
     // {
     //   "cs": {
     //     "language": "Czech",
-    //     "cefr_level": "B1",
     //     "translation": "Hippokratovo slovo",
     //     "emoji": "🩺",
     //     "transcription": "[ˈhɪpokratovo ˈslovo]",

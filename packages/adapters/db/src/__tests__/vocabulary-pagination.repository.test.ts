@@ -112,7 +112,6 @@ function makeTranslation(overrides: Partial<VocabularyTranslation> = {}): Vocabu
     entryId: 1,
     targetLangId: 3,
     text: "ahoj",
-    cefr: "B1",
     register: "neutral",
     transcription: null,
     expressionType: null,

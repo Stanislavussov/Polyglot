@@ -24,7 +24,6 @@ const sampleOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "ahoj",
-      cefr: "A1",
       register: "colloquial",
       synonyms: [],
       examples: [],
@@ -32,7 +31,6 @@ const sampleOutput: TranslateOutput = {
     },
     de: {
       text: "hallo",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],

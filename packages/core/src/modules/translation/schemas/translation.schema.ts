@@ -10,9 +10,6 @@ import type { TranslationOutputConfig } from "../types.js";
 /** Valid register values */
 const registerEnum = z.enum(["slang", "colloquial", "neutral", "literary", "professional"]);
 
-/** Valid CEFR levels */
-const cefrEnum = z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]);
-
 /** Valid example context types */
 const exampleContextEnum = z.enum(["neutral", "colloquial", "professional"]);
 
@@ -42,7 +39,6 @@ export const translationVariantSchema = z.object({
 /** Zod schema for a single language translation */
 export const languageTranslationSchema = z.object({
   text: z.string().min(1, "Translation text is required"),
-  cefr: cefrEnum,
   transcription: z.string().max(100, "Transcription too long — possible repetition loop").optional(),
   register: registerEnum,
   synonyms: z.array(synonymSchema),
@@ -73,8 +69,8 @@ export const translationRequestSchema = z.object({
  *   emoji: "🩺",
  *   register: "neutral",
  *   translations: {
- *     "cs": { text, cefr, transcription?, register, synonyms, examples },
- *     "en": { text, cefr, transcription?, register, synonyms, examples }
+ *     "cs": { text, transcription?, register, synonyms, examples },
+ *     "en": { text, transcription?, register, synonyms, examples }
  *   }
  * }
  */
@@ -97,12 +93,10 @@ export const translationResultSchema = z.object({
 export function buildLanguageTranslationSchema(config?: TranslationOutputConfig) {
   const includeExamples = config?.includeExamples !== false;
   const includeSynonyms = config?.includeSynonyms !== false;
-  const includeCefr = config?.includeCefr !== false;
   const includeRegister = config?.includeRegister !== false;
 
   return z.object({
     text: z.string().min(1, "Translation text is required"),
-    cefr: includeCefr ? cefrEnum : cefrEnum.optional().default("A1"),
     transcription: z.string().max(100, "Transcription too long — possible repetition loop").optional(),
     register: includeRegister ? registerEnum : registerEnum.optional().default("neutral"),
     synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema).default([]),

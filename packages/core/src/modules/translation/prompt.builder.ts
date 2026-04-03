@@ -3,7 +3,7 @@
  *
  * Builds multi-language prompts that produce output matching
  * translationResultSchema exactly. Requests emoji, register,
- * CEFR level, transcription, synonyms, and example sentences.
+ * transcription, synonyms, and example sentences.
  */
 
 import { getLanguageName } from "../i18n/language-registry.js";
@@ -20,7 +20,6 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
     includeSynonyms: config?.includeSynonyms !== false,
     includeAlternatives: config?.includeAlternatives !== false,
     includeEquivalentNote: config?.includeEquivalentNote !== false,
-    includeCefr: config?.includeCefr !== false,
     includeRegister: config?.includeRegister !== false,
     includeConnotationWarning: config?.includeConnotationWarning !== false,
   };
@@ -63,9 +62,6 @@ The JSON must have this exact structure:
 ${targetLangs
   .map((lang) => {
     const lines: string[] = [`      "text": "<translation in ${getLanguageName(lang)}>"`];
-    if (cfg.includeCefr) {
-      lines.push(`      "cefr": "<CEFR level: A1 | A2 | B1 | B2 | C1 | C2>"`);
-    }
     if (cfg.includeTranscription) {
       lines.push(`      "transcription": "<IPA transcription if applicable, otherwise omit>"`);
     }
@@ -137,11 +133,6 @@ Rules:${
       : ""
   }
 ${
-  cfg.includeCefr
-    ? `
-- CEFR level should reflect the ${isSentence ? "overall difficulty of the sentence" : "difficulty of the translated word in that language"}.`
-    : ""
-}${
   cfg.includeTranscription
     ? `
 - Transcription: provide IPA for non-Latin scripts (e.g. Russian: [prʲɪˈmʲernɨj], Chinese: [tɕʰýntsɯ̀]). Keep it SHORT — one bracketed transcription only, never repeat. Optional for Latin scripts.`
@@ -188,9 +179,6 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   checkItems.push("- All required fields are present");
   if (cfg.includeRegister) {
     checkItems.push("- Register values are exactly one of: slang, colloquial, neutral, literary, professional");
-  }
-  if (cfg.includeCefr) {
-    checkItems.push("- CEFR values are exactly one of: A1, A2, B1, B2, C1, C2");
   }
   if (cfg.includeEquivalentNote) {
     checkItems.push(`- For idiomatic expressions, set expressionType to "idiomatic_equivalent" with an equivalentNote`);

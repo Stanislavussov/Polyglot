@@ -16,7 +16,6 @@ const sampleOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "ahoj",
-      cefr: "A1",
       transcription: "ˈahoj",
       register: "colloquial",
       synonyms: [{ text: "nazdar", register: "colloquial" }],
@@ -28,7 +27,6 @@ const sampleOutput: TranslateOutput = {
     },
     de: {
       text: "hallo",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [{ context: "neutral", target: "Hallo!", register: "neutral" }],
@@ -74,7 +72,6 @@ describe("toVocabularyInput", () => {
 
     expect(cs).toBeDefined();
     expect(cs!.text).toBe("ahoj");
-    expect(cs!.cefr).toBe("A1");
     expect(cs!.register).toBe("colloquial");
     expect(cs!.transcription).toBe("ˈahoj");
     expect(cs!.expressionType).toBe("literal");
@@ -83,7 +80,6 @@ describe("toVocabularyInput", () => {
 
     expect(de).toBeDefined();
     expect(de!.text).toBe("hallo");
-    expect(de!.cefr).toBe("A1");
     expect(de!.register).toBe("neutral");
   });
 
@@ -108,7 +104,6 @@ describe("toVocabularyInput", () => {
         ...sampleOutput.translations,
         xx: {
           text: "unknown",
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [],
@@ -170,8 +165,8 @@ describe("toVocabularyInput", () => {
       emoji: "🔤",
       register: "neutral",
       translations: {
-        xx: { text: "a", cefr: "A1", register: "neutral", synonyms: [], examples: [] },
-        yy: { text: "b", cefr: "A1", register: "neutral", synonyms: [], examples: [] },
+        xx: { text: "a", register: "neutral", synonyms: [], examples: [] },
+        yy: { text: "b", register: "neutral", synonyms: [], examples: [] },
       },
     };
 
@@ -193,7 +188,6 @@ describe("toVocabularyInput", () => {
       translations: {
         cs: {
           text: "test",
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [],

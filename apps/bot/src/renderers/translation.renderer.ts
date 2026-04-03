@@ -128,7 +128,7 @@ export function renderTopicWord(word: TopicWord): string {
  * Render a compact sentence translation card for Telegram (HTML).
  *
  * Shows only: emoji, original sentence, and per-language translations
- * with transcription. No CEFR, synonyms, examples, or alternatives.
+ * with transcription. No synonyms, examples, or alternatives.
  */
 export function renderSentenceTranslation(output: TranslateOutput, interfaceLang?: string): string {
   const lang = toLang(interfaceLang);

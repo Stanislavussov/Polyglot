@@ -29,7 +29,6 @@ const sampleOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "ahoj",
-      cefr: "A1",
       transcription: "ˈahoj",
       register: "colloquial",
       synonyms: [

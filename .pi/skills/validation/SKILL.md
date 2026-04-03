@@ -136,7 +136,7 @@ const KNOWN_POS: readonly string[];
 // Scores keyed by language code, each with 5 dimensions (0–5) + reasoning
 interface LiteValidationScore {
   meaningPreserved: number; naturalness: number; registerAccuracy: number;
-  cefrAccuracy: number; overallScore: number; reasoning: string;
+  overallScore: number; reasoning: string;
 }
 
 // Result: scores per language + boolean review flag
@@ -245,7 +245,6 @@ interface LiteValidationScore {
   meaningPreserved: number;
   naturalness: number;
   registerAccuracy: number;
-  cefrAccuracy: number;
   overallScore: number;
   reasoning: string;
 }
@@ -340,7 +339,7 @@ Lite AI validation (Task 37) uses `getLogger()` from `packages/core/src/logger.t
 ## Current State
 
 - 4 active validators + 1 no-op + 4 Wiktionary validators + lite-ai sub-module (208 tests total across 12 test files in validation module)
-- **Task 37**: New `lite-ai/` sub-module — lightweight AI second-pass semantic validator for high-risk translations. Runs asynchronously (fire-and-forget), scores translations on 5 dimensions (meaningPreserved, naturalness, registerAccuracy, cefrAccuracy, overallScore), flags for review when `overallScore < REVIEW_THRESHOLD (3)`. Risk detection heuristic (`isHighRisk()`) filters to only validate phrases, idioms, Wiktionary misses, idiomatic equivalents, and uncommon languages. Uses dependency injection for AI generation function (`LiteGenerateObjectFn`). Graceful degradation on failure. Structured Pino-compatible logging. 69 tests across 5 test files. Re-exported from `validation/index.ts` (not yet re-exported from core main `index.ts`).
+- **Task 37**: New `lite-ai/` sub-module — lightweight AI second-pass semantic validator for high-risk translations. Runs asynchronously (fire-and-forget), scores translations on 4 dimensions (meaningPreserved, naturalness, registerAccuracy, overallScore), flags for review when `overallScore < REVIEW_THRESHOLD (3)`. Risk detection heuristic (`isHighRisk()`) filters to only validate phrases, idioms, Wiktionary misses, idiomatic equivalents, and uncommon languages. Uses dependency injection for AI generation function (`LiteGenerateObjectFn`). Graceful degradation on failure. Structured Pino-compatible logging. 69 tests across 5 test files. Re-exported from `validation/index.ts` (not yet re-exported from core main `index.ts`).
 - **Task 31**: `ExampleInput.native` removed, `ExampleInput.register` added (inline register label). `ExampleContext` changed from `formal | colloquial | professional` to `neutral | colloquial | professional`. `validateExamples()` validates register is non-empty and context is a valid value. `VALID_EXAMPLE_CONTEXTS` constant and `ExampleContext` type exported. `connotationWarning` is optional — no validation needed beyond Zod schema.
 - **Task 27**: `validate()` accepts optional `inputType` parameter (`InputType = 'word' | 'phrase' | 'sentence'`). When `inputType === 'sentence'`, semantic validation (step 2), example validation (step 4), and alternatives semantic validation (step 5) are skipped — only schema validation and language detection run. `InputType` type exported from module. 9 sentence-specific tests in `validate.test.ts`.
 - **Task 16**: New `language-detect` module (`packages/core/src/modules/language-detect/`) with `detectLanguage()` (franc + script heuristics) and `resolveTranslationDirection()` (direction logic). 33 tests across 2 test files. `franc` added as dependency to `@polyglot/core`. Types `ResolveDirectionInput`, `TranslationDirection` exported.

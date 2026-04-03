@@ -26,7 +26,6 @@ function makeTranslateOutput(original: string, targetLangs: string[]): Translate
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
       examples: [
@@ -61,7 +60,6 @@ function makeCachedTranslation(
     targetLang,
     content: {
       text: `${original}_${targetLang}_cached`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [
@@ -159,7 +157,6 @@ describe("getTopicWords — translation integration", () => {
 describe("regenerateTopicWord — simplified", () => {
   const mockTranslationEntry: LanguageTranslationEntry = {
     text: "jablko",
-    cefr: "A1",
     register: "neutral",
     synonyms: [{ text: "jablíčko", register: "colloquial" }],
     examples: [

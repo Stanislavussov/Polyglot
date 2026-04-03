@@ -46,7 +46,6 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
     translations: {
       en: {
         text: "or something",
-        cefr: "B1",
         register: "colloquial",
         synonyms: [{ text: "perhaps", register: "neutral" }],
         examples: [
@@ -380,7 +379,6 @@ describe("translate — dictionary context passthrough", () => {
       translations: {
         en: {
           text: "что ли", // same as original → semantic fail
-          cefr: "B1",
           register: "colloquial",
           synonyms: [{ text: "perhaps", register: "neutral" }],
           examples: [
@@ -423,7 +421,6 @@ describe("translate — dictionary context passthrough", () => {
       translations: {
         en: {
           text: "что ли",
-          cefr: "B1",
           register: "colloquial",
           synonyms: [{ text: "perhaps", register: "neutral" }],
           examples: [

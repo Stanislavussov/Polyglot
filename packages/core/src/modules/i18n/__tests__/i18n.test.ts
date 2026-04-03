@@ -60,8 +60,7 @@ describe("i18n — t()", () => {
     expect(t("translationError", "cs")).toContain("selhal");
   });
 
-  it("returns CEFR and register keys with interpolation", () => {
-    expect(t("cefr", "en", { level: "B2" })).toBe("CEFR: B2");
+  it("returns register key with interpolation", () => {
     expect(t("register", "en", { register: "neutral" })).toBe("Register: neutral");
   });
 
@@ -895,7 +894,6 @@ describe("i18n — locale consistency", () => {
       "nextTranslation",
       "editTranslation",
       "saveToDictionary",
-      "cefr",
       "register",
       "synonyms",
       "examples",

@@ -3,7 +3,7 @@
  *
  * Builds a prompt instructing a lightweight AI model to evaluate
  * translation quality on structured dimensions (meaning, naturalness,
- * register, CEFR accuracy).
+ * register accuracy).
  *
  * The validator scores — it does NOT rewrite translations.
  *
@@ -19,7 +19,7 @@ import type { LiteValidationInput } from "./types.js";
  * The prompt includes:
  * - Original word/phrase and source language
  * - Each target language translation with its metadata
- * - The scoring rubric (meaning, naturalness, register, CEFR)
+ * - The scoring rubric (meaning, naturalness, register)
  * - Instruction to return JSON matching the schema
  * - Explicit instruction NOT to rewrite — only score
  * - Dictionary context (if available) for reference
@@ -49,10 +49,7 @@ SCORING RUBRIC (0–5 scale for each dimension):
 3. registerAccuracy (0–5): Is the register (formality level) correctly assigned?
    0 = completely wrong register, 5 = perfectly matched
 
-4. cefrAccuracy (0–5): Is the CEFR level (A1–C2) correctly assigned?
-   0 = off by 3+ levels, 5 = exact match
-
-5. overallScore (0–5): Overall translation quality considering all dimensions.
+4. overallScore (0–5): Overall translation quality considering all dimensions.
    0 = unusable, 3 = acceptable, 5 = excellent
 
 INSTRUCTIONS:
@@ -64,7 +61,7 @@ INSTRUCTIONS:
 Return JSON with this exact structure:
 {
   "scores": {
-${targetLangs.map((lang) => `    "${lang}": { "meaningPreserved": <0-5>, "naturalness": <0-5>, "registerAccuracy": <0-5>, "cefrAccuracy": <0-5>, "overallScore": <0-5>, "reasoning": "<brief explanation>" }`).join(",\n")}
+${targetLangs.map((lang) => `    "${lang}": { "meaningPreserved": <0-5>, "naturalness": <0-5>, "registerAccuracy": <0-5>, "overallScore": <0-5>, "reasoning": "<brief explanation>" }`).join(",\n")}
   }
 }`;
 }
@@ -79,7 +76,6 @@ function buildTranslationBlock(translations: Record<string, LanguageTranslation>
     lines.push(`[${lang}]`);
     lines.push(`  text: "${data.text}"`);
     lines.push(`  register: ${data.register}`);
-    lines.push(`  cefr: ${data.cefr}`);
     if (data.expressionType) {
       lines.push(`  expressionType: ${data.expressionType}`);
     }

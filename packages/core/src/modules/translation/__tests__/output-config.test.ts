@@ -20,7 +20,6 @@ function promptWith(config: TranslationOutputConfig): string {
 function validLangEntry(overrides?: Record<string, unknown>) {
   return {
     text: "ahoj",
-    cefr: "A1",
     register: "colloquial",
     synonyms: [{ text: "čau", register: "slang" }],
     examples: [
@@ -42,7 +41,6 @@ describe("presets", () => {
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
-      includeCefr: false,
       includeRegister: false,
       includeConnotationWarning: true,
     });
@@ -55,7 +53,6 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
-      includeCefr: false,
       includeRegister: false,
       includeConnotationWarning: false,
     });
@@ -68,7 +65,6 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
-      includeCefr: false,
       includeRegister: false,
       includeConnotationWarning: false,
     });
@@ -81,7 +77,6 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
-      includeCefr: false,
       includeRegister: false,
       includeConnotationWarning: false,
     });
@@ -155,11 +150,10 @@ describe("buildTranslationPrompt with outputConfig", () => {
     expect(withUndefined).toBe(withoutConfig);
   });
 
-  it("MINIMAL_OUTPUT preset → prompt has text, transcription but not cefr/register/examples/synonyms/alternatives/expressionType/connotationWarning", () => {
+  it("MINIMAL_OUTPUT preset → prompt has text, transcription but not register/examples/synonyms/alternatives/expressionType/connotationWarning", () => {
     const prompt = promptWith(MINIMAL_OUTPUT);
     expect(prompt).toContain('"text"');
     expect(prompt).toContain('"transcription"');
-    expect(prompt).not.toContain('"cefr"');
     expect(prompt).not.toContain('"register"');
     expect(prompt).not.toContain('"examples"');
     expect(prompt).not.toContain('"synonyms"');
@@ -315,7 +309,6 @@ describe("translate() with outputConfig", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1" as const,
           register: "colloquial" as const,
           synonyms: [],
           examples: [],
@@ -355,7 +348,6 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
       translations: {
         de: {
           text: "Können Sie mir sagen, wo die nächste Apotheke ist?",
-          cefr: "B1" as const,
           transcription: "/kœnən ziː miːɐ̯ zaːɡn̩ voː diː nɛːçstə apoˈteːkə ɪst/",
           register: "neutral" as const,
           synonyms: [],
@@ -399,7 +391,6 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
       translations: {
         de: {
           text: "Wo ist die Apotheke?",
-          cefr: "A2" as const,
           register: "neutral" as const,
           // AI may still return these even when not asked
           synonyms: [{ text: "Drogerie", register: "neutral" as const }],

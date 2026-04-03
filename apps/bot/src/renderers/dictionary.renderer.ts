@@ -111,11 +111,8 @@ export function renderDictionaryEntry(
     const transcriptionPart = tr.transcription ? ` [${esc(tr.transcription)}]` : "";
     lines.push(`${flag} <b>${esc(tr.text)}</b>${transcriptionPart}`);
 
-    // Register + CEFR
-    const meta: string[] = [];
-    if (tr.register) meta.push(esc(tr.register));
-    if (tr.cefr) meta.push(esc(tr.cefr));
-    if (meta.length > 0) lines.push(meta.join(" · "));
+    // Register
+    if (tr.register) lines.push(esc(tr.register));
 
     // Details from JSONB
     const details = tr.details as VocabTranslationDetails | null;

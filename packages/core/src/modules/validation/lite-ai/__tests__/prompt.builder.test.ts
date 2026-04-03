@@ -7,7 +7,6 @@ import type { LiteValidationInput } from "../types.js";
 function makeTranslation(overrides?: Partial<LanguageTranslation>): LanguageTranslation {
   return {
     text: "ahoj",
-    cefr: "A1",
     register: "colloquial",
     synonyms: [],
     examples: [],
@@ -29,7 +28,7 @@ describe("buildLiteValidationPrompt", () => {
     sourceLang: "en",
     translations: {
       cs: makeTranslation({ text: "ahoj" }),
-      de: makeTranslation({ text: "hallo", register: "neutral", cefr: "A1" }),
+      de: makeTranslation({ text: "hallo", register: "neutral" }),
     },
   };
 
@@ -49,7 +48,6 @@ describe("buildLiteValidationPrompt", () => {
       expect(prompt).toContain("meaningPreserved");
       expect(prompt).toContain("naturalness");
       expect(prompt).toContain("registerAccuracy");
-      expect(prompt).toContain("cefrAccuracy");
       expect(prompt).toContain("overallScore");
       expect(prompt).toContain("reasoning");
     });
@@ -86,7 +84,6 @@ describe("buildLiteValidationPrompt", () => {
     it("includes translation metadata", () => {
       const prompt = buildLiteValidationPrompt(singleLangInput);
       expect(prompt).toContain("colloquial");
-      expect(prompt).toContain("A1");
     });
   });
 

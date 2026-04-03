@@ -50,7 +50,6 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
     meaningPreserved: number;  // 0–5
     naturalness: number;       // 0–5
     registerAccuracy: number;  // 0–5
-    cefrAccuracy: number;      // 0–5
     overallScore: number;      // 0–5
     reasoning: string;         // brief explanation
   }
@@ -78,7 +77,7 @@ Add a **lightweight AI model** as a second-pass semantic validator for high-risk
 **Acceptance Criteria:**
 - [x] New file `packages/core/src/modules/validation/lite-ai/prompt.builder.ts`
 - [x] `buildLiteValidationPrompt(input: LiteValidationInput): string` function
-- [x] Prompt includes: original word/phrase, source language, each target language translation, the scoring rubric (meaning, naturalness, register, CEFR), and instruction to return JSON matching the schema
+- [x] Prompt includes: original word/phrase, source language, each target language translation, the scoring rubric (meaning, naturalness, register), and instruction to return JSON matching the schema
 - [x] Prompt specifies that the validator should **not** rewrite — only score
 - [x] If `dictionaryContext` is available, include it for reference
 - [x] Unit tests: prompt contains required sections, handles single and multi-language inputs

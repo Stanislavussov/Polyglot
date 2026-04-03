@@ -41,7 +41,6 @@ export type I18nKey =
   | "nextTranslation"
   | "editTranslation"
   | "saveToDictionary"
-  | "cefr"
   | "register"
   | "synonyms"
   | "examples"
@@ -165,7 +164,6 @@ export interface I18nParams {
   langAdded: { lang: string };
   langRemoved: { lang: string };
   notificationTimeSet: { time: string };
-  cefr: { level: string };
   register: { register: string };
   regenerateLang: { lang: string };
   regenerating: { lang: string };

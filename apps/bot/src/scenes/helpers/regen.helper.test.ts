@@ -22,7 +22,6 @@ vi.mock("@polyglot/core", async () => {
     ...actual,
     translateOne: vi.fn().mockResolvedValue({
       text: "regenerated",
-      cefr: "B1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -48,14 +47,12 @@ const sampleOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "ahoj",
-      cefr: "A1",
       register: "colloquial",
       synonyms: [],
       examples: [],
     },
     de: {
       text: "hallo",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -181,7 +178,6 @@ describe("handleRegenLoop", () => {
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
-      includeCefr: false,
       includeRegister: false,
       includeConnotationWarning: true,
     });

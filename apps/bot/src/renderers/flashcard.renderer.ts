@@ -62,11 +62,8 @@ export function renderFlashCardBack(
     const header = tr.transcription ? `<b>${esc(tr.text)}</b> [${esc(tr.transcription)}]` : `<b>${esc(tr.text)}</b>`;
     lines.push(`${flag} ${header}`);
 
-    // CEFR + register on same line
-    const meta: string[] = [];
-    if (tr.register) meta.push(esc(tr.register));
-    if (tr.cefr) meta.push(esc(tr.cefr));
-    if (meta.length > 0) lines.push(meta.join(" · "));
+    // Register on same line
+    if (tr.register) lines.push(esc(tr.register));
 
     // Synonyms
     if (tr.synonyms && tr.synonyms.length > 0) {

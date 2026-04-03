@@ -48,7 +48,7 @@ The `/flashcard` command starts a flash card session using the config-driven dic
 3. **Session state**: `SessionData.flashcard` stores `deck: WordDisplayData[]`, `currentIndex`, `cardMsgId`, `config`
 4. **Start button**: Shows deck size with `[▶️ Start]` button (`fc:start`)
 5. **Card front** (`fc:start`, `fc:next`): Shows emoji + original word + input type + source language flag
-6. **Reveal** (`fc:reveal`): Edits message to show back — all translations with transcription, CEFR, register, synonyms, examples
+6. **Reveal** (`fc:reveal`): Edits message to show back — all translations with transcription, register, synonyms, examples
 7. **Next** (`fc:next`): Logs review (best-effort), advances index, shows next card front
 8. **Last card**: Back keyboard shows `[🎉 Done!]` + `[🔄 Restart]` instead of Next/Quit
 9. **Done** (`fc:done`): Logs review, shows completion message with count, `[🔄 New Deck]` + `[✕ Close]`
@@ -165,7 +165,7 @@ The translate-mode helper now classifies user input as `word`, `phrase`, or `sen
 **Sentence behavior** differs from word/phrase in every layer:
 - **Output preset:** `SENTENCE_OUTPUT` (no synonyms, alternatives, examples, equivalent note)
 - **Dictionary context:** Skipped (no Wiktionary lookup for sentences)
-- **Rendering:** `renderSentenceTranslation()` — compact card: emoji, original, per-language text + transcription only. No CEFR, synonyms, examples, alternatives.
+- **Rendering:** `renderSentenceTranslation()` — compact card: emoji, original, per-language text + transcription only. No synonyms, examples, alternatives.
 - **Keyboard:** `buildSentenceKeyboard()` — regen buttons only, no Save/Skip
 - **Session:** No `pendingTranslation` stored for sentences (nothing to save to dictionary)
 - **Regen:** Uses `SENTENCE_OUTPUT` preset and sentence keyboard. Reads `lastTranslation` + `lastInputType` from session.
@@ -244,7 +244,7 @@ The `/dictionary` command shows the user's personal dictionary as a paginated li
 4. **List view**: Shows emoji + bold original + up to 2 translation summaries per entry. Long words truncated to 30 chars. Global indexing (page 2 starts at 16).
 5. **Navigation**: `[◀️ Prev] [page/total] [▶️ Next]` — prev hidden on page 1, next hidden on last page, entire row hidden when 1 page
 6. **Entry buttons**: One button per entry with `dict:view:{entryId}` callback
-7. **Entry detail** (`dict:view:{entryId}` or `dict:view:{entryId}:{page}`): Shows full translation card — emoji, original, input type + source flag, per-language translations with transcription, CEFR, register, synonyms, examples
+7. **Entry detail** (`dict:view:{entryId}` or `dict:view:{entryId}:{page}`): Shows full translation card — emoji, original, input type + source flag, per-language translations with transcription, register, synonyms, examples
 8. **Delete flow** (`dict:delete:{entryId}`): Shows confirmation with word name → `dict:confirm-delete:{entryId}:{page}` → calls `vocabularyRepository.hardDelete()`, refreshes list
 9. **Edge cases**: Auto-navigate to previous page when current page empties after delete; show `emptyDictionary` when last word deleted; session expiry shows `dictionarySessionExpired`
 10. **Close** (`dict:close`): Deletes the message, clears session
@@ -341,7 +341,7 @@ type LangResolver = (code: string) => number | null;
 
 
 // Render a compact sentence translation card (Task 27)
-// No CEFR, synonyms, examples, alternatives — just text + transcription
+// No synonyms, examples, alternatives — just text + transcription
 function renderSentenceTranslation(output: TranslateOutput, interfaceLang?: string): string;
 
 // Build inline keyboard for sentences — regen only, no Save/Skip (Task 27)
@@ -681,7 +681,7 @@ apps/bot/src/
     ├── translation.renderer.template.test.ts # ✅ 10 tests (template-aware rendering: field toggle, backward compat, mixed fields)
     ├── template.scene.test.ts              # ✅ 15 tests (command, customize, toggle, save, cancel, reset, preview, back)
     ├── settings.scene.test.ts             # ✅ 17 tests (command, native/learning/interface pickers, toggle, done, close, back) (Task 37)
-    ├── flashcard.renderer.test.ts         # ✅ 20 tests (front/back rendering, keyboards, synonyms, examples, CEFR) (Task 33)
+    ├── flashcard.renderer.test.ts         # ✅ 20 tests (front/back rendering, keyboards, synonyms, examples) (Task 33)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
     └── onboarding.scene.test.ts            # 18 tests (3-step flow, back nav, interface lang inference, no Save/Skip)
 ```

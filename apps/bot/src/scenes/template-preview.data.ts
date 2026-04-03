@@ -12,7 +12,6 @@ export const MOCK_PREVIEW_OUTPUT: TranslateOutput = {
   translations: {
     ru: {
       text: "яблоко",
-      cefr: "A1",
       transcription: "ˈjabləkə",
       register: "neutral",
       synonyms: [

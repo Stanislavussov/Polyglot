@@ -19,7 +19,6 @@ function makeIdiomaticTranslateOutput(original: string, targetLangs: string[]): 
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_equivalent_${lang}`,
-      cefr: "B2",
       register: "colloquial",
       synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
       examples: [
@@ -47,7 +46,6 @@ function makeLiteralTranslateOutput(original: string, targetLangs: string[]): Tr
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [
@@ -83,7 +81,6 @@ function makeIdiomaticCachedTranslation(
     targetLang,
     content: {
       text: `${original}_equivalent_${targetLang}_cached`,
-      cefr: "B2",
       register: "colloquial",
       synonyms: [],
       examples: [
@@ -120,7 +117,6 @@ describe("LanguageTranslationEntry idiomatic fields", () => {
   it("accepts expressionType and equivalentNote as optional fields", () => {
     const entry: LanguageTranslationEntry = {
       text: "Having your cake and eating it too",
-      cefr: "B2",
       register: "colloquial",
       synonyms: [],
       examples: [],
@@ -135,7 +131,6 @@ describe("LanguageTranslationEntry idiomatic fields", () => {
   it("allows omitting expressionType and equivalentNote (backward compatible)", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -148,7 +143,6 @@ describe("LanguageTranslationEntry idiomatic fields", () => {
   it("accepts literal as expressionType", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -254,7 +248,6 @@ describe("getTopicWords with idiomatic translations", () => {
 describe("regenerateTopicWord with idiomatic translations", () => {
   const idiomaticEntry: LanguageTranslationEntry = {
     text: "Avoir le beurre et l'argent du beurre",
-    cefr: "B2",
     register: "colloquial",
     synonyms: [{ text: "tout avoir", register: "colloquial" }],
     examples: [

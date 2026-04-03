@@ -136,7 +136,6 @@ export const vocabularyTranslations = pgTable(
       .references(() => languages.id)
       .notNull(),
     text: text("text").notNull(),
-    cefr: text("cefr"),
     register: text("register"),
     transcription: text("transcription"),
     expressionType: text("expression_type"),

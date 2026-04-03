@@ -29,7 +29,7 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 
 - **`InputType`**: New type `'word' | 'phrase' | 'sentence'` added to `types.ts`. Optional `inputType` field on both `TranslateInput` and `TranslationRequest`.
 - **`SENTENCE_OUTPUT` preset**: New preset in `translation-output.presets.ts` — disables examples, synonyms, alternatives, equivalentNote; keeps only transcription. Used for sentence translations to save tokens and avoid irrelevant metadata.
-- **Sentence-aware prompt builder**: When `inputType === 'sentence'`, the prompt uses `"Translate the following sentence from ... to ..."` intro (instead of `Translate "..."`) and CEFR rule says "overall difficulty of the sentence" (not "translated word"). Topic hint says "sentence" instead of "word".
+- **Sentence-aware prompt builder**: When `inputType === 'sentence'`, the prompt uses `"Translate the following sentence from ... to ..."` intro (instead of `Translate "..."`). Topic hint says "sentence" instead of "word".
 - **Sentence-aware validation**: `inputType` is passed through to `validate()` — when `'sentence'`, semantic validation (translation ≠ original) and alternatives/examples checks are skipped. Schema and language detection still run.
 - **Backward compatible**: All changes are additive — `inputType` is optional, absent means full word/phrase behavior.
 
@@ -69,7 +69,6 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 ```typescript
 type ExpressionType = "literal" | "idiomatic_equivalent";
 type Register = "slang" | "colloquial" | "neutral" | "literary" | "professional";
-type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 type ExampleContext = "neutral" | "colloquial" | "professional";
 
 interface Synonym { text: string; register: Register; }
@@ -104,14 +103,12 @@ interface TranslationOutputConfig {
   includeSynonyms?: boolean;       // Default: true — 2–3 synonyms
   includeAlternatives?: boolean;   // Default: true — 2 alternative variants
   includeEquivalentNote?: boolean; // Default: true — idiomatic expression info
-  includeCefr?: boolean;           // Default: true — CEFR level (A1–C2)
   includeRegister?: boolean;       // Default: true — register (slang/colloquial/neutral/literary/professional)
   includeConnotationWarning?: boolean; // Default: true — optional connotation warnings
 }
 
 interface LanguageTranslation {
   text: string;
-  cefr: CefrLevel;
   transcription?: string;
   register: Register;
   synonyms: Synonym[];
@@ -208,12 +205,12 @@ Centralized named presets in `translation-output.presets.ts` — single source o
 import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT } from "@polyglot/core";
 ```
 
-| Preset | Examples | Transcription | Synonyms | Alternatives | EquivalentNote | CEFR | Register | ConnotationWarning |
-|---|---|---|---|---|---|---|---|---|
-| `FULL_OUTPUT` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
-| `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Preset | Examples | Transcription | Synonyms | Alternatives | EquivalentNote | Register | ConnotationWarning |
+|---|---|---|---|---|---|---|---|
+| `FULL_OUTPUT` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
+| `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 **Caller → Preset mapping:**
 

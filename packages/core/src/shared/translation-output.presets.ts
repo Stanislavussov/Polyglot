@@ -20,7 +20,6 @@ export const FULL_OUTPUT: TranslationOutputConfig = {
   includeSynonyms: true,
   includeAlternatives: true,
   includeEquivalentNote: true,
-  includeCefr: false,
   includeRegister: false,
   includeConnotationWarning: true,
 };
@@ -32,7 +31,6 @@ export const MINIMAL_OUTPUT: TranslationOutputConfig = {
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
-  includeCefr: false,
   includeRegister: false,
   includeConnotationWarning: false,
 };
@@ -44,7 +42,6 @@ export const NOTIFICATION_OUTPUT: TranslationOutputConfig = {
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
-  includeCefr: false,
   includeRegister: false,
   includeConnotationWarning: false,
 };
@@ -56,7 +53,6 @@ export const SENTENCE_OUTPUT: TranslationOutputConfig = {
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
-  includeCefr: false,
   includeRegister: false,
   includeConnotationWarning: false,
 };

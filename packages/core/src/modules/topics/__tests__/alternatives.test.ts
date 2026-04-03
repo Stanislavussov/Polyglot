@@ -32,7 +32,6 @@ function makeTranslateOutputWithAlternatives(original: string, targetLangs: stri
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
       examples: [
@@ -70,7 +69,6 @@ function makeTranslateOutputWithoutAlternatives(original: string, targetLangs: s
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [
@@ -105,7 +103,6 @@ function makeCachedTranslationWithAlternatives(
     targetLang,
     content: {
       text: `${original}_${targetLang}_cached`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [
@@ -152,7 +149,6 @@ describe("LanguageTranslationEntry alternatives field", () => {
   it("accepts alternatives as an optional field", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -169,7 +165,6 @@ describe("LanguageTranslationEntry alternatives field", () => {
   it("allows omitting alternatives (backward compatible)", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -181,7 +176,6 @@ describe("LanguageTranslationEntry alternatives field", () => {
   it("allows empty alternatives array", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -287,7 +281,6 @@ describe("getTopicWords with alternatives", () => {
 describe("regenerateTopicWord with alternatives", () => {
   const entryWithAlternatives: LanguageTranslationEntry = {
     text: "jablko",
-    cefr: "A1",
     register: "neutral",
     synonyms: [{ text: "jablíčko", register: "colloquial" }],
     examples: [

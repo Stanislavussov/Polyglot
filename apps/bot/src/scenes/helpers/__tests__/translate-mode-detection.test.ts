@@ -48,14 +48,12 @@ vi.mock("@polyglot/core", async () => {
       translations: {
         ru: {
           text: "привет",
-          cefr: "A1",
           register: "colloquial",
           synonyms: [],
           examples: [],
         },
         cs: {
           text: "ahoj",
-          cefr: "A1",
           register: "colloquial",
           synonyms: [],
           examples: [],

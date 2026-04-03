@@ -144,7 +144,6 @@ interface TopicMeta {
 
 interface LanguageTranslationEntry {
   text: string;
-  cefr: string;
   transcription?: string;
   register: string;
   synonyms: Array<{ text: string; register: string }>;

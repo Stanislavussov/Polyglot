@@ -48,7 +48,6 @@ const pipelineDeps: DictionaryPipelineDeps = {
       translations: e.translations.map((tr) => ({
         targetLangCode: getLangCodeById(tr.targetLangId) ?? "unknown",
         text: tr.text,
-        cefr: tr.cefr,
         transcription: tr.transcription,
         register: tr.register,
         expressionType: tr.expressionType,

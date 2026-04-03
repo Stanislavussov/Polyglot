@@ -86,7 +86,7 @@ type I18nKey =
   | "savedToDict" | "alreadySaved" | "wordDeleted" | "emptyDictionary"
   | "noResults" | "settingsUpdated" | "notificationTimeSet" | "flipCard"
   | "nextTranslation" | "editTranslation" | "saveToDictionary"
-  | "cefr" | "register" | "synonyms" | "examples"
+  | "register" | "synonyms" | "examples"
   | "regenerateLang" | "regenerating" | "regenerated"
   | "translateModeOn" | "translateModeHint"
   | "wiktionaryDefinition" | "wiktionarySource" | "partOfSpeech"
@@ -136,7 +136,6 @@ interface I18nParams {
   langAdded: { lang: string };
   langRemoved: { lang: string };
   notificationTimeSet: { time: string };
-  cefr: { level: string };
   register: { register: string };
   regenerateLang: { lang: string };
   regenerating: { lang: string };

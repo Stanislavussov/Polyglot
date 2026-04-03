@@ -192,7 +192,6 @@ describe("exampleSchema", () => {
 describe("languageTranslationSchema", () => {
   const validTranslation = {
     text: "ahoj",
-    cefr: "A1",
     register: "colloquial",
     synonyms: [{ text: "čau", register: "slang" }],
     examples: [
@@ -225,24 +224,6 @@ describe("languageTranslationSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects invalid CEFR level", () => {
-    const result = languageTranslationSchema.safeParse({
-      ...validTranslation,
-      cefr: "D1",
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("accepts all valid CEFR levels", () => {
-    for (const cefr of ["A1", "A2", "B1", "B2", "C1", "C2"]) {
-      const result = languageTranslationSchema.safeParse({
-        ...validTranslation,
-        cefr,
-      });
-      expect(result.success).toBe(true);
-    }
-  });
-
   it("accepts optional connotationWarning field", () => {
     const result = languageTranslationSchema.safeParse({
       ...validTranslation,
@@ -270,7 +251,6 @@ describe("translationResultSchema", () => {
     translations: {
       cs: {
         text: "ahoj",
-        cefr: "A1",
         register: "colloquial",
         synonyms: [{ text: "čau", register: "slang" }],
         examples: [
@@ -283,7 +263,6 @@ describe("translationResultSchema", () => {
       },
       de: {
         text: "hallo",
-        cefr: "A1",
         register: "neutral",
         synonyms: [{ text: "hi", register: "colloquial" }],
         examples: [
@@ -336,7 +315,6 @@ describe("translationResultSchema", () => {
     expect(result.emoji).toBe("👋");
     expect(result.register).toBe("neutral");
     expect(result.translations.cs.text).toBe("ahoj");
-    expect(result.translations.cs.cefr).toBe("A1");
     expect(result.translations.cs.synonyms).toHaveLength(1);
     expect(result.translations.cs.examples).toHaveLength(1);
     expect(result.translations.de.text).toBe("hallo");
@@ -346,7 +324,6 @@ describe("translationResultSchema", () => {
 describe("buildTranslationResultSchema", () => {
   const langEntry = {
     text: "ahoj",
-    cefr: "A1",
     register: "colloquial",
     synonyms: [{ text: "čau", register: "slang" }],
     examples: [{ context: "neutral", target: "Ahoj, jak se máš?", register: "нейтральный" }],

@@ -57,7 +57,6 @@ export function toVocabularyInput(
     translations.push({
       targetLangId,
       text: lang.text,
-      cefr: lang.cefr,
       register: lang.register,
       transcription: lang.transcription,
       expressionType: lang.expressionType,

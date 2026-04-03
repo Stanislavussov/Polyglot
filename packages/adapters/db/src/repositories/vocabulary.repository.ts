@@ -37,7 +37,6 @@ export interface CreateVocabularyInput {
   translations: Array<{
     targetLangId: number;
     text: string;
-    cefr: string;
     register: string;
     transcription?: string;
     expressionType?: string;
@@ -50,7 +49,6 @@ export interface CreateVocabularyInput {
 /** Partial update for a single translation row. */
 export interface UpdateTranslationData {
   text?: string;
-  cefr?: string;
   register?: string;
   transcription?: string;
   expressionType?: string;
@@ -115,7 +113,6 @@ export const vocabularyRepository = {
               entryId: entry!.id,
               targetLangId: t.targetLangId,
               text: t.text,
-              cefr: t.cefr,
               register: t.register,
               transcription: t.transcription,
               expressionType: t.expressionType,
@@ -294,7 +291,6 @@ export const vocabularyRepository = {
         entryId,
         targetLangId,
         text: data.text ?? "",
-        cefr: data.cefr,
         register: data.register,
         transcription: data.transcription,
         expressionType: data.expressionType,
@@ -316,7 +312,6 @@ export const vocabularyRepository = {
     translations: Array<{
       targetLangId: number;
       text: string;
-      cefr: string;
       register: string;
       transcription?: string;
       expressionType?: string;
@@ -340,7 +335,6 @@ export const vocabularyRepository = {
             entryId,
             targetLangId: t.targetLangId,
             text: t.text,
-            cefr: t.cefr,
             register: t.register,
             transcription: t.transcription,
             expressionType: t.expressionType,

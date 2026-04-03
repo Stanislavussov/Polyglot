@@ -191,7 +191,7 @@ See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key
 - `users` — id, telegramId, username, onboardingStep, onboarded, isActive, createdAt
 - `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode (default "translate"), lastSourceLang (nullable text — last explicitly selected source lang, survives restarts), isActive, updatedAt
 - `vocabularyEntries` — **(Task 39)** userId (FK → users, CASCADE), original, sourceLangId (FK → languages.id), inputType ('word'|'phrase'), emoji, register, isActive, createdAt, updatedAt; unique index on (userId, original, sourceLangId). Replaces the parent data from old `words` table.
-- `vocabularyTranslations` — **(Task 39)** entryId (FK → vocabularyEntries, CASCADE), targetLangId (FK → languages.id), text, cefr, register, transcription, expressionType, equivalentNote, connotationWarning, details (JSONB typed as VocabTranslationDetails), isActive, createdAt, updatedAt; unique index on (entryId, targetLangId). One row per target language per entry.
+- `vocabularyTranslations` — **(Task 39)** entryId (FK → vocabularyEntries, CASCADE), targetLangId (FK → languages.id), text, register, transcription, expressionType, equivalentNote, connotationWarning, details (JSONB typed as VocabTranslationDetails), isActive, createdAt, updatedAt; unique index on (entryId, targetLangId). One row per target language per entry.
 
 - `translationRequests` — userId, original, sourceLangId (FK → languages.id, nullable), createdAt (for rate limiting)
 - `translationRequestTargetLangs` — requestId (FK → translationRequests.id), languageId (FK → languages.id); unique index on (requestId, languageId)
@@ -255,8 +255,8 @@ type VocabularyTranslation = typeof vocabularyTranslations.$inferSelect;
 type VocabTranslationDetails = { synonyms: Synonym[]; examples: Example[]; alternatives?: TranslationVariant[] };
 type VocabularyEntryWithTranslations = VocabularyEntry & { translations: VocabularyTranslation[] };
 type VocabularyEntryWithSourceLang = VocabularyEntryWithTranslations & { sourceLangCode: string };
-type CreateVocabularyInput = { original: string; sourceLangId: number; inputType: 'word' | 'phrase'; emoji: string; register: string; translations: Array<{ targetLangId: number; text: string; cefr: string; register: string; transcription?: string; expressionType?: string; equivalentNote?: string; connotationWarning?: string; details: VocabTranslationDetails }> };
-type UpdateTranslationData = { text?: string; cefr?: string; register?: string; transcription?: string; expressionType?: string; equivalentNote?: string; connotationWarning?: string; details?: VocabTranslationDetails };
+type CreateVocabularyInput = { original: string; sourceLangId: number; inputType: 'word' | 'phrase'; emoji: string; register: string; translations: Array<{ targetLangId: number; text: string; register: string; transcription?: string; expressionType?: string; equivalentNote?: string; connotationWarning?: string; details: VocabTranslationDetails }> };
+type UpdateTranslationData = { text?: string; register?: string; transcription?: string; expressionType?: string; equivalentNote?: string; connotationWarning?: string; details?: VocabTranslationDetails };
 
 
 ```
@@ -309,6 +309,7 @@ packages/adapters/db/drizzle/
 ├── 0010_normalize_vocabulary.sql         # Creates vocabulary_entries + vocabulary_translations tables, migrates data from words (Task 39)
 ├── 0011_drop_legacy_words.sql            # Drops legacy words table after migration verification (Task 39)
 ├── 0012_word_review_log.sql             # Creates word_review_log table for flashcard/notification/quiz review tracking (Task 33)
+├── 0013_drop_cefr_column.sql            # Drops cefr column from vocabulary_translations (CEFR removed from product)
 └── meta/
     ├── _journal.json
     ├── 0000_snapshot.json

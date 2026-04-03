@@ -3,7 +3,7 @@
  *
  * Structured scoring types for the lightweight AI second-pass validator.
  * The validator evaluates translations on meaning preservation, naturalness,
- * register accuracy, and CEFR accuracy.
+ * and register accuracy.
  *
  * Pure types — no runtime, no I/O.
  */
@@ -18,8 +18,6 @@ export interface LiteValidationScore {
   naturalness: number;
   /** How accurate the register/formality level is (0–5) */
   registerAccuracy: number;
-  /** How accurate the assigned CEFR level is (0–5) */
-  cefrAccuracy: number;
   /** Overall quality score (0–5) */
   overallScore: number;
   /** Brief explanation of the scoring */

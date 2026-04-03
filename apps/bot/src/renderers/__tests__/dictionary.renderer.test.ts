@@ -54,7 +54,6 @@ function makeEntry(
       entryId: id,
       targetLangId: t.targetLangId,
       text: t.text,
-      cefr: "A1",
       register: "neutral",
       transcription: null,
       expressionType: null,
@@ -97,7 +96,6 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
       entryId: 10,
       targetLangId: 3,
       text: "яблоко",
-      cefr: "A1",
       register: "neutral",
       transcription: "ˈjabləkə",
       expressionType: null,
@@ -116,7 +114,6 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
       entryId: 10,
       targetLangId: 2,
       text: "jablko",
-      cefr: "A1",
       register: "neutral",
       transcription: "ˈjablkɔ",
       expressionType: null,
@@ -222,9 +219,9 @@ describe("renderDictionaryEntry", () => {
     expect(html).toContain("🇨🇿 <b>jablko</b> [ˈjablkɔ]");
   });
 
-  it("shows CEFR and register", () => {
+  it("shows register", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver, "en");
-    expect(html).toContain("neutral · A1");
+    expect(html).toContain("neutral");
   });
 
   it("shows synonyms from details", () => {

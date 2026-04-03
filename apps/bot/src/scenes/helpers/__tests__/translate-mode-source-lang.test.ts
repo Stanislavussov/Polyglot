@@ -45,8 +45,8 @@ vi.mock("@polyglot/core", async () => {
       emoji: "🏠",
       register: "neutral",
       translations: {
-        ru: { text: "тест", cefr: "A1", register: "neutral", synonyms: [], examples: [] },
-        en: { text: "test", cefr: "A1", register: "neutral", synonyms: [], examples: [] },
+        ru: { text: "тест", register: "neutral", synonyms: [], examples: [] },
+        en: { text: "test", register: "neutral", synonyms: [], examples: [] },
       },
     }),
   };
@@ -198,7 +198,7 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
       sourceLang: "ru",
       emoji: "🏠",
       register: "neutral",
-      translations: { cs: { text: "test", cefr: "A1", register: "neutral", synonyms: [], examples: [] } },
+      translations: { cs: { text: "test", register: "neutral", synonyms: [], examples: [] } },
     } as any;
     ctx.session.pendingCardMsgId = 42;
 

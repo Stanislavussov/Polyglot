@@ -39,7 +39,6 @@ const sampleOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "ahoj",
-      cefr: "A1",
       transcription: "ˈahoj",
       register: "colloquial",
       synonyms: [
@@ -81,7 +80,7 @@ describe("renderTranslation", () => {
     expect(result).toContain("[ˈahoj]");
   });
 
-  it("does not render CEFR level (disabled to save tokens)", () => {
+  it("does not render CEFR level (removed)", () => {
     const result = renderTranslation(sampleOutput, "en");
     expect(result).not.toContain("CEFR:");
   });
@@ -204,7 +203,6 @@ describe("renderTranslation", () => {
         cs: sampleOutput.translations.cs!,
         de: {
           text: "hallo",
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [],
@@ -224,7 +222,6 @@ describe("renderTranslation", () => {
       translations: {
         xx: {
           text: "test",
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [],
@@ -242,14 +239,12 @@ describe("renderTopicWord", () => {
     translations: {
       cs: {
         text: "jablko",
-        cefr: "A1",
         register: "neutral",
         synonyms: [],
         examples: [],
       },
       de: {
         text: "Apfel",
-        cefr: "A1",
         transcription: "ˈapfəl",
         register: "neutral",
         synonyms: [],
@@ -275,7 +270,6 @@ describe("renderTopicWord", () => {
       translations: {
         zz: {
           text: "test",
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [],
@@ -306,7 +300,6 @@ describe("renderTopicWord", () => {
       translations: {
         cs: {
           text: "špatný & zlý",
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [],
@@ -413,7 +406,6 @@ describe("renderTranslation — alternatives", () => {
     translations: {
       cs: {
         text: "dům",
-        cefr: "A1",
         register: "neutral",
         synonyms: [],
         examples: [{ context: "neutral", target: "Dům je velký.", register: "neutrální" }],
@@ -511,7 +503,6 @@ describe("renderTranslation — idiomatic equivalents", () => {
     translations: {
       en: {
         text: "No pain, no gain",
-        cefr: "B1",
         register: "colloquial",
         expressionType: "idiomatic_equivalent",
         equivalentNote: "Closest English proverb conveying the same meaning",
@@ -526,7 +517,6 @@ describe("renderTranslation — idiomatic equivalents", () => {
       },
       de: {
         text: "Ohne Fleiß kein Preis",
-        cefr: "B1",
         register: "neutral",
         expressionType: "idiomatic_equivalent",
         equivalentNote: "Deutsches Äquivalent mit gleicher Bedeutung",
@@ -567,7 +557,6 @@ describe("renderTranslation — idiomatic equivalents", () => {
       translations: {
         en: {
           text: "No pain, no gain",
-          cefr: "B1",
           register: "colloquial",
           expressionType: "idiomatic_equivalent",
           equivalentNote: "English proverb equivalent",
@@ -576,7 +565,6 @@ describe("renderTranslation — idiomatic equivalents", () => {
         },
         fr: {
           text: "sans travail pas de gâteau",
-          cefr: "B1",
           register: "neutral",
           expressionType: "literal",
           synonyms: [],
@@ -597,7 +585,6 @@ describe("renderTopicWord — idiomatic equivalents", () => {
       translations: {
         cs: {
           text: "Ranní ptáče dál doskáče",
-          cefr: "B1",
           register: "colloquial",
           expressionType: "idiomatic_equivalent",
           equivalentNote: "Czech proverb with same meaning",
@@ -790,7 +777,6 @@ const sentenceOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "Můžete mi říct, kde je nejbližší lékárna?",
-      cefr: "B1",
       transcription: "ˈmuːʒɛtɛ mɪ ˈɾ̝iːt͡st kdɛ jɛ ˈnɛjblɪʃiː ˈlɛːkaːrna",
       register: "neutral",
       synonyms: [],
@@ -798,7 +784,6 @@ const sentenceOutput: TranslateOutput = {
     },
     de: {
       text: "Können Sie mir sagen, wo die nächste Apotheke ist?",
-      cefr: "B1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -839,7 +824,6 @@ describe("renderSentenceTranslation", () => {
   it("does NOT render CEFR level", () => {
     const result = renderSentenceTranslation(sentenceOutput, "en");
     expect(result).not.toContain("CEFR:");
-    expect(result).not.toContain("B1");
   });
 
   it("does NOT render synonyms", () => {
@@ -898,7 +882,6 @@ describe("renderSentenceTranslation", () => {
       translations: {
         xx: {
           text: "test",
-          cefr: "A1",
           register: "neutral",
           synonyms: [],
           examples: [],

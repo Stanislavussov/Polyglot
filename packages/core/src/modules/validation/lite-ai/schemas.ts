@@ -17,7 +17,6 @@ export const liteValidationScoreSchema = z.object({
   meaningPreserved: scoreField,
   naturalness: scoreField,
   registerAccuracy: scoreField,
-  cefrAccuracy: scoreField,
   overallScore: scoreField,
   reasoning: z.string().min(1),
 });

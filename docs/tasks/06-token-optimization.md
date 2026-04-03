@@ -93,7 +93,6 @@ The prompt currently contains a full JSON template with placeholders for every l
 
 For each target language provide:
 - The translation text
-- CEFR level (A1–C2) reflecting word difficulty in that language
 - IPA transcription (required for non-Latin scripts, optional otherwise)
 - Register (slang, colloquial, neutral, literary, or professional)
 - 2–3 synonyms with their register
@@ -103,7 +102,7 @@ Also provide one relevant emoji and the overall register for the word.`;
   }
   ```
   - ~150 tokens instead of ~600 tokens — the Zod JSON Schema handles the structure
-  - Keeps all semantic requirements (CEFR, examples, synonyms) as natural language
+  - Keeps all semantic requirements (examples, synonyms) as natural language
 - [ ] Rewrite `buildStrictPrompt()` similarly — shorter base + error feedback:
   ```typescript
   export function buildStrictPrompt(request: TranslationRequest, errors: string[]): string {

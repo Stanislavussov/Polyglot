@@ -20,7 +20,6 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
     translations: {
       cs: {
         text: "ahoj",
-        cefr: "A1",
         register: "colloquial",
         synonyms: [{ text: "čau", register: "slang" }],
         examples: [
@@ -64,7 +63,6 @@ describe("translate", () => {
     expect(result.emoji).toBe("👋");
     expect(result.register).toBe("neutral");
     expect(result.translations.cs.text).toBe("ahoj");
-    expect(result.translations.cs.cefr).toBe("A1");
     expect(result.needsReview).toBeUndefined();
   });
 
@@ -82,7 +80,6 @@ describe("translate", () => {
       translations: {
         cs: {
           text: "hello", // same as original → semantic fail
-          cefr: "A1",
           register: "neutral",
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
@@ -111,7 +108,6 @@ describe("translate", () => {
       translations: {
         cs: {
           text: "hello",
-          cefr: "A1",
           register: "neutral",
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
@@ -163,7 +159,6 @@ describe("translate", () => {
       translations: {
         cs: {
           text: "ahoj",
-          cefr: "A1",
           register: "colloquial",
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
@@ -176,7 +171,6 @@ describe("translate", () => {
         },
         de: {
           text: "hallo",
-          cefr: "A1",
           register: "neutral",
           synonyms: [{ text: "hi", register: "colloquial" }],
           examples: [
@@ -258,7 +252,6 @@ describe("translateOne", () => {
     );
 
     expect(result.text).toBe("ahoj");
-    expect(result.cefr).toBe("A1");
     expect(result.register).toBe("colloquial");
     expect(result.synonyms).toHaveLength(1);
     expect(result.examples).toHaveLength(3);
@@ -314,7 +307,6 @@ describe("translateOne", () => {
       translations: {
         cs: {
           text: "hello",
-          cefr: "A1",
           register: "neutral",
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
@@ -355,7 +347,6 @@ describe("translateBatch", () => {
           translations: {
             cs: {
               text: "svět",
-              cefr: "A2",
               register: "neutral",
               synonyms: [{ text: "země", register: "neutral" }],
               examples: [
@@ -422,7 +413,6 @@ describe("validation logging", () => {
       translations: {
         cs: {
           text: "hello",
-          cefr: "A1",
           register: "neutral",
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
@@ -462,7 +452,6 @@ describe("validation logging", () => {
       translations: {
         cs: {
           text: "hello",
-          cefr: "A1",
           register: "neutral",
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
@@ -505,7 +494,6 @@ describe("validation logging", () => {
       translations: {
         cs: {
           text: "hello",
-          cefr: "A1",
           register: "neutral",
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [
@@ -543,7 +531,6 @@ describe("validation logging", () => {
       translations: {
         cs: {
           text: "hello",
-          cefr: "A1",
           register: "neutral",
           synonyms: [{ text: "čau", register: "slang" }],
           examples: [

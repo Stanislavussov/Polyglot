@@ -69,8 +69,7 @@ describe("templateToOutputConfig", () => {
     expect(config.includeAlternatives).toBe(true);
     expect(config.includeEquivalentNote).toBe(true);
     expect(config.includeConnotationWarning).toBe(true);
-    // System-controlled flags are always false
-    expect(config.includeCefr).toBe(false);
+    // System-controlled flag is always false
     expect(config.includeRegister).toBe(false);
   });
 
@@ -145,15 +144,13 @@ describe("templateToOutputConfig", () => {
     expect(config.includeAlternatives).toBe(false);
     expect(config.includeEquivalentNote).toBe(false);
     expect(config.includeConnotationWarning).toBe(false);
-    // System flags always false regardless
-    expect(config.includeCefr).toBe(false);
+    // System flag always false regardless
     expect(config.includeRegister).toBe(false);
   });
 
-  it("system flags (includeCefr, includeRegister) are always false regardless of template", () => {
-    // Even with default (all true), system flags are false
+  it("system flag (includeRegister) is always false regardless of template", () => {
+    // Even with default (all true), system flag is false
     const config = templateToOutputConfig(DEFAULT_TEMPLATE);
-    expect(config.includeCefr).toBe(false);
     expect(config.includeRegister).toBe(false);
   });
 });
@@ -185,7 +182,6 @@ describe("resolveOutputConfig", () => {
     expect(config.includeAlternatives).toBe(true);
     expect(config.includeEquivalentNote).toBe(true);
     expect(config.includeConnotationWarning).toBe(true);
-    expect(config.includeCefr).toBe(false);
     expect(config.includeRegister).toBe(false);
   });
 

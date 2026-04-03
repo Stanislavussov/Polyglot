@@ -132,7 +132,6 @@ function makeTranslation(overrides: Partial<VocabularyTranslation> = {}): Vocabu
     entryId: 1,
     targetLangId: 3,
     text: "ahoj",
-    cefr: "B1",
     register: "neutral",
     transcription: null,
     expressionType: null,
@@ -157,7 +156,6 @@ function makeCreateInput(overrides: Partial<CreateVocabularyInput> = {}): Create
       {
         targetLangId: 3,
         text: "ahoj",
-        cefr: "B1",
         register: "neutral",
         details: makeDetails(),
       },
@@ -226,7 +224,6 @@ describe("vocabularyRepository", () => {
           entryId: 1,
           targetLangId: 3,
           text: "ahoj",
-          cefr: "B1",
           register: "neutral",
         }),
       ]);
@@ -240,8 +237,8 @@ describe("vocabularyRepository", () => {
 
       const input = makeCreateInput({
         translations: [
-          { targetLangId: 3, text: "ahoj", cefr: "B1", register: "neutral", details: makeDetails() },
-          { targetLangId: 7, text: "hallo", cefr: "A2", register: "neutral", details: makeDetails() },
+          { targetLangId: 3, text: "ahoj", register: "neutral", details: makeDetails() },
+          { targetLangId: 7, text: "hallo", register: "neutral", details: makeDetails() },
         ],
       });
 
@@ -412,8 +409,8 @@ describe("vocabularyRepository", () => {
       insertResultQueue.push([t1, t2]);
 
       const result = await vocabularyRepository.updateAllTranslations(1, [
-        { targetLangId: 3, text: "ahoj", cefr: "B1", register: "neutral", details: makeDetails() },
-        { targetLangId: 7, text: "hallo", cefr: "A2", register: "neutral", details: makeDetails() },
+        { targetLangId: 3, text: "ahoj", register: "neutral", details: makeDetails() },
+        { targetLangId: 7, text: "hallo", register: "neutral", details: makeDetails() },
       ]);
 
       expect(transactionFn).toHaveBeenCalledOnce();
