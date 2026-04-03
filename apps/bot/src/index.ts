@@ -26,12 +26,21 @@ import {
   handleFcQuit,
 } from "./scenes/helpers/flashcard.helper.js";
 import {
+  handleDictClose,
+  handleDictConfirmDelete,
+  handleDictDelete,
+  handleDictNoop,
+  handleDictPage,
+  handleDictView,
+} from "./scenes/helpers/dictionary.helper.js";
+import {
   handleRegenCallback,
   handleSaveCallback,
   handleSkipCallback,
   handleSourceLangCallback,
 } from "./scenes/helpers/translate-mode.helper.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
+import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
 import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
@@ -61,6 +70,7 @@ bot.use(
       savedWordId: undefined,
       needsTranslateReminder: true,
       templateWizard: undefined,
+      dictionary: undefined,
       flashcard: undefined,
     }),
   }),
@@ -80,6 +90,7 @@ bot.use(createConversation(onboarding));
 bot.command("start", startCommand);
 bot.command("translate", handleTranslateCommand);
 bot.command("template", handleTemplateCommand);
+bot.command("dictionary", handleDictionaryCommand);
 bot.command("flashcard", handleFlashcardCommand);
 
 // ── Register callback handlers for translate mode ──
@@ -96,6 +107,14 @@ bot.callbackQuery("fc:done", handleFcDone);
 bot.callbackQuery("fc:restart", handleFcRestart);
 bot.callbackQuery("fc:quit", handleFcQuit);
 bot.callbackQuery("fc:close", handleFcClose);
+
+// ── Register callback handlers for dictionary browse (Task 40) ──
+bot.callbackQuery(/^dict:page:/, handleDictPage);
+bot.callbackQuery(/^dict:view:/, handleDictView);
+bot.callbackQuery(/^dict:delete:/, handleDictDelete);
+bot.callbackQuery(/^dict:confirm-delete:/, handleDictConfirmDelete);
+bot.callbackQuery("dict:close", handleDictClose);
+bot.callbackQuery("dict:noop", handleDictNoop);
 
 // ── Register callback handlers for template wizard (Task 32) ──
 bot.callbackQuery("tpl:customize", handleCustomizeCallback);

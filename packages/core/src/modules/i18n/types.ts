@@ -103,7 +103,18 @@ export type I18nKey =
   | "flashcardDoneBtn"
   | "flashcardNewDeckBtn"
   | "flashcardSessionExpired"
-  | "cmdDescFlashcard";
+  | "cmdDescFlashcard"
+  | "dictionaryHeader"
+  | "dictionaryPage"
+  | "dictionaryPrev"
+  | "dictionaryNext"
+  | "dictionaryClose"
+  | "dictionaryBack"
+  | "dictionaryDelete"
+  | "dictionaryDeleteConfirm"
+  | "dictionaryDeleteYes"
+  | "dictionaryDeleteCancel"
+  | "dictionarySessionExpired";
 
 /**
  * Supported interface languages.
@@ -142,6 +153,9 @@ export interface I18nParams {
   flashcardStart: { count: string | number };
   flashcardDone: { count: string | number };
   flashcardProgress: { current: string | number; total: string | number };
+  dictionaryHeader: { count: string | number };
+  dictionaryPage: { page: string | number; total: string | number };
+  dictionaryDeleteConfirm: { word: string };
 }
 
 /**

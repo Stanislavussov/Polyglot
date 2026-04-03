@@ -99,5 +99,16 @@
   "flashcardDoneBtn": "🎉 Hotovo!",
   "flashcardNewDeckBtn": "🔄 Nový balíček",
   "flashcardSessionExpired": "Relace vypršela. Použijte /flashcard pro restart.",
-  "cmdDescFlashcard": "Začít relaci kartiček"
+  "cmdDescFlashcard": "Začít relaci kartiček",
+  "dictionaryHeader": "📖 Váš slovník ({count} slov)",
+  "dictionaryPage": "Str. {page} z {total}",
+  "dictionaryPrev": "◀️",
+  "dictionaryNext": "▶️",
+  "dictionaryClose": "✕ Zavřít",
+  "dictionaryBack": "← Zpět na seznam",
+  "dictionaryDelete": "🗑 Smazat",
+  "dictionaryDeleteConfirm": "⚠️ Smazat \"{word}\" ze slovníku?",
+  "dictionaryDeleteYes": "✅ Ano, smazat",
+  "dictionaryDeleteCancel": "← Zrušit",
+  "dictionarySessionExpired": "Relace vypršela. Použijte /dictionary pro restart."
 }

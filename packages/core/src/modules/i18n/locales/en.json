@@ -99,5 +99,16 @@
   "flashcardDoneBtn": "🎉 Done!",
   "flashcardNewDeckBtn": "🔄 New Deck",
   "flashcardSessionExpired": "Session expired. Use /flashcard to restart.",
-  "cmdDescFlashcard": "Start a flash card session"
+  "cmdDescFlashcard": "Start a flash card session",
+  "dictionaryHeader": "📖 Your Dictionary ({count} words)",
+  "dictionaryPage": "Page {page} of {total}",
+  "dictionaryPrev": "◀️",
+  "dictionaryNext": "▶️",
+  "dictionaryClose": "✕ Close",
+  "dictionaryBack": "← Back to list",
+  "dictionaryDelete": "🗑 Delete",
+  "dictionaryDeleteConfirm": "⚠️ Delete \"{word}\" from your dictionary?",
+  "dictionaryDeleteYes": "✅ Yes, delete",
+  "dictionaryDeleteCancel": "← Cancel",
+  "dictionarySessionExpired": "Session expired. Use /dictionary to restart."
 }

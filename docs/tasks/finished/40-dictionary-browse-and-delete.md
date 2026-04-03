@@ -1,6 +1,6 @@
 # Task 40 — Dictionary Browse & Delete (/dictionary command)
 
-**Status:** 🔲 Todo  
+**Status:** ✅ Done  
 **Type:** Feature (DB + bot scene + renderer + i18n)  
 **Priority:** High — first way for users to see and manage their saved vocabulary  
 **Dependencies:**
@@ -124,22 +124,22 @@ T6 is the final quality gate.
 - MODIFY `packages/adapters/db/src/index.ts` (export new types if any)
 
 **Acceptance Criteria:**
-- [ ] `vocabularyRepository.countByUser(userId: number): Promise<number>`
+- [x] `vocabularyRepository.countByUser(userId: number): Promise<number>`
   - Returns the count of active vocabulary entries for the user
   - Query: `SELECT COUNT(*) FROM vocabulary_entries WHERE user_id = $userId AND is_active = true`
   - Returns `0` for users with no entries (not `null`)
-- [ ] `vocabularyRepository.findByUserPaginated(userId: number, offset: number, limit: number): Promise<VocabularyEntryWithTranslations[]>`
+- [x] `vocabularyRepository.findByUserPaginated(userId: number, offset: number, limit: number): Promise<VocabularyEntryWithTranslations[]>`
   - Returns active entries with their active translations
   - Ordered by `createdAt DESC` (newest first, matching `findByUser()`)
   - Applies `OFFSET` and `LIMIT` for pagination
   - Returns empty array when offset is beyond total
   - Joins with `vocabulary_translations` (only active ones)
-- [ ] `vocabularyRepository.hardDelete(entryId: number): Promise<void>`
+- [x] `vocabularyRepository.hardDelete(entryId: number): Promise<void>`
   - **Hard delete** — actually removes the entry and all its translations from the DB
   - `DELETE FROM vocabulary_entries WHERE id = $entryId` (CASCADE handles translations)
   - Rationale: soft-delete for dictionary items is confusing — user expects "delete" to mean gone. Soft-delete remains available via existing `.delete()` for future use.
-- [ ] All existing methods unchanged
-- [ ] TypeScript compiles: `pnpm -r run build`
+- [x] All existing methods unchanged
+- [x] TypeScript compiles: `pnpm -r run build`
 
 **Effort estimate:** 1–2 hours
 
@@ -158,7 +158,7 @@ T6 is the final quality gate.
 **Depends on:** none (independent)
 
 **Acceptance Criteria:**
-- [ ] `en.json` contains:
+- [x] `en.json` contains:
   ```json
   "dictionaryHeader": "📖 Your Dictionary ({count} words)",
   "dictionaryPage": "Page {page} of {total}",
@@ -172,7 +172,7 @@ T6 is the final quality gate.
   "dictionaryDeleteCancel": "← Cancel",
   "dictionarySessionExpired": "Session expired. Use /dictionary to restart."
   ```
-- [ ] `ru.json` contains:
+- [x] `ru.json` contains:
   ```json
   "dictionaryHeader": "📖 Ваш словарь ({count} слов)",
   "dictionaryPage": "Стр. {page} из {total}",
@@ -186,7 +186,7 @@ T6 is the final quality gate.
   "dictionaryDeleteCancel": "← Отмена",
   "dictionarySessionExpired": "Сессия истекла. Используйте /dictionary для перезапуска."
   ```
-- [ ] `cs.json` contains:
+- [x] `cs.json` contains:
   ```json
   "dictionaryHeader": "📖 Váš slovník ({count} slov)",
   "dictionaryPage": "Str. {page} z {total}",
@@ -200,15 +200,15 @@ T6 is the final quality gate.
   "dictionaryDeleteCancel": "← Zrušit",
   "dictionarySessionExpired": "Relace vypršela. Použijte /dictionary pro restart."
   ```
-- [ ] `I18nKey` union in `types.ts` includes all new keys:
+- [x] `I18nKey` union in `types.ts` includes all new keys:
   `"dictionaryHeader"`, `"dictionaryPage"`, `"dictionaryPrev"`, `"dictionaryNext"`, `"dictionaryClose"`, `"dictionaryBack"`, `"dictionaryDelete"`, `"dictionaryDeleteConfirm"`, `"dictionaryDeleteYes"`, `"dictionaryDeleteCancel"`, `"dictionarySessionExpired"`
-- [ ] `I18nParams` interface in `types.ts` updated with parameter types:
+- [x] `I18nParams` interface in `types.ts` updated with parameter types:
   ```typescript
   dictionaryHeader: { count: string | number };
   dictionaryPage: { page: string | number; total: string | number };
   dictionaryDeleteConfirm: { word: string };
   ```
-- [ ] TypeScript compiles — no missing key errors in `t()` call sites
+- [x] TypeScript compiles — no missing key errors in `t()` call sites
 
 **Effort estimate:** 1 hour
 
@@ -226,7 +226,7 @@ T6 is the final quality gate.
 **Acceptance Criteria:**
 
 ### `renderDictionaryList()`
-- [ ] Signature:
+- [x] Signature:
   ```typescript
   export function renderDictionaryList(
     entries: VocabularyEntryWithTranslations[],
@@ -236,7 +236,7 @@ T6 is the final quality gate.
     lang: SupportedLang,
   ): string
   ```
-- [ ] Output format:
+- [x] Output format:
   ```
   📖 Your Dictionary (42 words)
 
@@ -247,13 +247,13 @@ T6 is the final quality gate.
 
   Page 1 of 3
   ```
-- [ ] Each line shows: `{index}. {emoji} <b>{original}</b> — {translation1}, {translation2}` (max 2 translations, comma-separated, just the `text` field)
-- [ ] If entry has more than 2 translations: `{t1}, {t2}, +{n}` (e.g. "jablko, яблоко, +1")
-- [ ] Index is global (page 2 starts at 16, not 1)
-- [ ] All text is HTML-escaped
+- [x] Each line shows: `{index}. {emoji} <b>{original}</b> — {translation1}, {translation2}` (max 2 translations, comma-separated, just the `text` field)
+- [x] If entry has more than 2 translations: `{t1}, {t2}, +{n}` (e.g. "jablko, яблоко, +1")
+- [x] Index is global (page 2 starts at 16, not 1)
+- [x] All text is HTML-escaped
 
 ### `renderDictionaryEntry()`
-- [ ] Signature:
+- [x] Signature:
   ```typescript
   export function renderDictionaryEntry(
     entry: VocabularyEntryWithTranslations,
@@ -261,7 +261,7 @@ T6 is the final quality gate.
     lang: SupportedLang,
   ): string
   ```
-- [ ] Output format (similar to flashcard back, but standalone):
+- [x] Output format (similar to flashcard back, but standalone):
   ```
   {emoji} <b>{original}</b>
   <i>{inputType} · {sourceLangFlag}</i>
@@ -273,13 +273,13 @@ T6 is the final quality gate.
 
   {flag2} <b>{text2}</b> ...
   ```
-- [ ] Uses `langResolver` to convert `targetLangId` → language code for flags
-- [ ] Shows all translations (not paginated within a card)
-- [ ] Includes synonyms and examples from `details` JSONB
-- [ ] HTML-escaped
+- [x] Uses `langResolver` to convert `targetLangId` → language code for flags
+- [x] Shows all translations (not paginated within a card)
+- [x] Includes synonyms and examples from `details` JSONB
+- [x] HTML-escaped
 
 ### `buildDictionaryListKeyboard()`
-- [ ] Signature:
+- [x] Signature:
   ```typescript
   export function buildDictionaryListKeyboard(
     entries: VocabularyEntryWithTranslations[],
@@ -288,16 +288,16 @@ T6 is the final quality gate.
     lang: SupportedLang,
   ): InlineKeyboard
   ```
-- [ ] **Row per entry**: each entry gets a button with text `"{emoji} {original}"` and callback data `"dict:view:{entryId}"`
-- [ ] **Navigation row**: `[◀️ Prev] [{page}/{total}] [▶️ Next]`
+- [x] **Row per entry**: each entry gets a button with text `"{emoji} {original}"` and callback data `"dict:view:{entryId}"`
+- [x] **Navigation row**: `[◀️ Prev] [{page}/{total}] [▶️ Next]`
   - `◀️` callback: `dict:page:{page-1}` — hidden when on page 1
   - `{page}/{total}` is a no-op button with callback `dict:noop`
   - `▶️` callback: `dict:page:{page+1}` — hidden when on last page
   - When only 1 page: navigation row is omitted entirely
-- [ ] **Close row**: `[✕ Close]` with callback `dict:close`
+- [x] **Close row**: `[✕ Close]` with callback `dict:close`
 
 ### `buildDictionaryEntryKeyboard()`
-- [ ] Signature:
+- [x] Signature:
   ```typescript
   export function buildDictionaryEntryKeyboard(
     entryId: number,
@@ -305,11 +305,11 @@ T6 is the final quality gate.
     lang: SupportedLang,
   ): InlineKeyboard
   ```
-- [ ] Row 1: `[🗑 Delete]` with callback `dict:delete:{entryId}`
-- [ ] Row 2: `[← Back to list]` with callback `dict:page:{page}` (returns to the page the user was on)
+- [x] Row 1: `[🗑 Delete]` with callback `dict:delete:{entryId}`
+- [x] Row 2: `[← Back to list]` with callback `dict:page:{page}` (returns to the page the user was on)
 
 ### `buildDeleteConfirmKeyboard()`
-- [ ] Signature:
+- [x] Signature:
   ```typescript
   export function buildDeleteConfirmKeyboard(
     entryId: number,
@@ -317,8 +317,8 @@ T6 is the final quality gate.
     lang: SupportedLang,
   ): InlineKeyboard
   ```
-- [ ] Row 1: `[✅ Yes, delete]` with callback `dict:confirm-delete:{entryId}:{page}`
-- [ ] Row 2: `[← Cancel]` with callback `dict:view:{entryId}:{page}` (returns to entry view)
+- [x] Row 1: `[✅ Yes, delete]` with callback `dict:confirm-delete:{entryId}:{page}`
+- [x] Row 2: `[← Cancel]` with callback `dict:view:{entryId}:{page}` (returns to entry view)
 
 **Effort estimate:** 3 hours
 
@@ -338,7 +338,7 @@ T6 is the final quality gate.
 
 ### Session state additions
 
-- [ ] Extend `SessionData` in `apps/bot/src/types.ts`:
+- [x] Extend `SessionData` in `apps/bot/src/types.ts`:
   ```typescript
   /** Dictionary browse state */
   dictionary?: {
@@ -351,14 +351,14 @@ T6 is the final quality gate.
 
 ### `/dictionary` command handler (`dictionary.scene.ts`)
 
-- [ ] Signature: `export async function handleDictionaryCommand(ctx: BotContext): Promise<void>`
-- [ ] Resolves user's interface language via `userRepository.findById()` → `interfaceLang`
-- [ ] Calls `vocabularyRepository.countByUser(ctx.user.id)` for total
-- [ ] If `total === 0`: replies with `t('emptyDictionary', lang)` and returns
-- [ ] Calls `vocabularyRepository.findByUserPaginated(ctx.user.id, 0, 15)` for first page
-- [ ] Calculates `totalPages = Math.ceil(total / 15)`
-- [ ] Sends message with `renderDictionaryList()` + `buildDictionaryListKeyboard()`
-- [ ] Stores `{ currentPage: 1, msgId: msg.message_id }` in `ctx.session.dictionary`
+- [x] Signature: `export async function handleDictionaryCommand(ctx: BotContext): Promise<void>`
+- [x] Resolves user's interface language via `userRepository.findById()` → `interfaceLang`
+- [x] Calls `vocabularyRepository.countByUser(ctx.user.id)` for total
+- [x] If `total === 0`: replies with `t('emptyDictionary', lang)` and returns
+- [x] Calls `vocabularyRepository.findByUserPaginated(ctx.user.id, 0, 15)` for first page
+- [x] Calculates `totalPages = Math.ceil(total / 15)`
+- [x] Sends message with `renderDictionaryList()` + `buildDictionaryListKeyboard()`
+- [x] Stores `{ currentPage: 1, msgId: msg.message_id }` in `ctx.session.dictionary`
 
 ### Callback handlers (`dictionary.helper.ts`)
 
@@ -372,47 +372,47 @@ T6 is the final quality gate.
 | `dict:noop` | `handleDictNoop` | `answerCallbackQuery()` — no action |
 
 #### `handleDictPage(ctx)` — Pagination
-- [ ] Extracts page number from callback data: `ctx.callbackQuery.data.split(':')[2]`
-- [ ] Calls `vocabularyRepository.countByUser()` + `vocabularyRepository.findByUserPaginated(userId, (page-1)*15, 15)`
-- [ ] Edits message with `renderDictionaryList()` + `buildDictionaryListKeyboard()`
-- [ ] Updates `ctx.session.dictionary.currentPage = page`
-- [ ] Answers callback query
+- [x] Extracts page number from callback data: `ctx.callbackQuery.data.split(':')[2]`
+- [x] Calls `vocabularyRepository.countByUser()` + `vocabularyRepository.findByUserPaginated(userId, (page-1)*15, 15)`
+- [x] Edits message with `renderDictionaryList()` + `buildDictionaryListKeyboard()`
+- [x] Updates `ctx.session.dictionary.currentPage = page`
+- [x] Answers callback query
 
 #### `handleDictView(ctx)` — View Single Entry
-- [ ] Extracts `entryId` (and optional `page`) from callback data
-- [ ] Calls `vocabularyRepository.findById(entryId)`
-- [ ] If not found: `answerCallbackQuery({ text: t('noResults', lang) })`; return
-- [ ] Edits message with `renderDictionaryEntry()` + `buildDictionaryEntryKeyboard(entryId, page)`
-- [ ] Uses `getLang(id)?.code` as the `langResolver` for rendering
-- [ ] Answers callback query
+- [x] Extracts `entryId` (and optional `page`) from callback data
+- [x] Calls `vocabularyRepository.findById(entryId)`
+- [x] If not found: `answerCallbackQuery({ text: t('noResults', lang) })`; return
+- [x] Edits message with `renderDictionaryEntry()` + `buildDictionaryEntryKeyboard(entryId, page)`
+- [x] Uses `getLang(id)?.code` as the `langResolver` for rendering
+- [x] Answers callback query
 
 #### `handleDictDelete(ctx)` — Delete Confirmation
-- [ ] Extracts `entryId` from callback data
-- [ ] Calls `vocabularyRepository.findById(entryId)` to get the word's `original` text
-- [ ] Edits message to show: `t('dictionaryDeleteConfirm', lang, { word: entry.original })`
-- [ ] Keyboard: `buildDeleteConfirmKeyboard(entryId, currentPage, lang)`
-- [ ] Answers callback query
+- [x] Extracts `entryId` from callback data
+- [x] Calls `vocabularyRepository.findById(entryId)` to get the word's `original` text
+- [x] Edits message to show: `t('dictionaryDeleteConfirm', lang, { word: entry.original })`
+- [x] Keyboard: `buildDeleteConfirmKeyboard(entryId, currentPage, lang)`
+- [x] Answers callback query
 
 #### `handleDictConfirmDelete(ctx)` — Execute Delete
-- [ ] Extracts `entryId` and `page` from callback data
-- [ ] Calls `vocabularyRepository.hardDelete(entryId)`
-- [ ] Answers callback query with `t('wordDeleted', lang)`
-- [ ] Re-counts and re-fetches the page:
+- [x] Extracts `entryId` and `page` from callback data
+- [x] Calls `vocabularyRepository.hardDelete(entryId)`
+- [x] Answers callback query with `t('wordDeleted', lang)`
+- [x] Re-counts and re-fetches the page:
   - If the current page is now empty (all items deleted) and page > 1: go to page - 1
   - If dictionary is now completely empty: edit message to `t('emptyDictionary', lang)` with no keyboard
-- [ ] Otherwise: edits message back to the list view (re-rendered without deleted word)
+- [x] Otherwise: edits message back to the list view (re-rendered without deleted word)
 
 #### `handleDictClose(ctx)` — Close Dictionary
-- [ ] Deletes the message via `ctx.deleteMessage()`
-- [ ] Clears `ctx.session.dictionary`
-- [ ] Answers callback query (best-effort — message may already be deleted)
+- [x] Deletes the message via `ctx.deleteMessage()`
+- [x] Clears `ctx.session.dictionary`
+- [x] Answers callback query (best-effort — message may already be deleted)
 
 #### `handleDictNoop(ctx)` — No-op for page indicator button
-- [ ] Calls `ctx.answerCallbackQuery()` with no parameters
+- [x] Calls `ctx.answerCallbackQuery()` with no parameters
 
 ### Bot wiring (`index.ts`)
-- [ ] Register `/dictionary` command: `bot.command("dictionary", handleDictionaryCommand)`
-- [ ] Register callbacks:
+- [x] Register `/dictionary` command: `bot.command("dictionary", handleDictionaryCommand)`
+- [x] Register callbacks:
   ```typescript
   bot.callbackQuery(/^dict:page:/, handleDictPage);
   bot.callbackQuery(/^dict:view:/, handleDictView);
@@ -421,14 +421,14 @@ T6 is the final quality gate.
   bot.callbackQuery("dict:close", handleDictClose);
   bot.callbackQuery("dict:noop", handleDictNoop);
   ```
-- [ ] Import handlers from `./scenes/helpers/dictionary.helper.js`
-- [ ] Import command handler from `./scenes/dictionary.scene.js`
-- [ ] Update session initial state to include `dictionary: undefined`
+- [x] Import handlers from `./scenes/helpers/dictionary.helper.js`
+- [x] Import command handler from `./scenes/dictionary.scene.js`
+- [x] Update session initial state to include `dictionary: undefined`
 
 ### Error handling
-- [ ] All `editMessageText` calls wrapped in try/catch — log error, answer callback
-- [ ] Session loss (no `ctx.session.dictionary`): answer with `t('dictionarySessionExpired', lang)`
-- [ ] `findById` returns null (entry deleted by another session): answer with `t('noResults', lang)`, return to list
+- [x] All `editMessageText` calls wrapped in try/catch — log error, answer callback
+- [x] Session loss (no `ctx.session.dictionary`): answer with `t('dictionarySessionExpired', lang)`
+- [x] `findById` returns null (entry deleted by another session): answer with `t('noResults', lang)`, return to list
 
 **Effort estimate:** 4–5 hours
 
@@ -449,15 +449,15 @@ T6 is the final quality gate.
 **Depends on:** T4 (all dictionary features using normalized schema)
 
 **Acceptance Criteria:**
-- [ ] `words` table definition **removed** from `packages/adapters/db/src/schema.ts`
-- [ ] `StoredWordContent` import removed from `schema.ts` (was used by `words.content` column typing)
-- [ ] `packages/adapters/db/src/repositories/word.repository.ts` **deleted**
-- [ ] All exports of `wordRepository`, `Word`, `NewWord`, `CreateWordInput`, `StoredWordContent`, `StoredLanguageTranslation` **removed** from `packages/adapters/db/src/index.ts`
-- [ ] `apps/bot/src/utils/sanitize-word-content.ts` **deleted** (if it still exists)
-- [ ] No remaining imports of `word.repository` or `sanitize-word-content` anywhere in the codebase
-- [ ] Migration `0011_drop_legacy_words.sql` already exists — verify it is correct and references the right table
-- [ ] TypeScript compiles: `pnpm -r run build`
-- [ ] All tests pass: `pnpm -r run test`
+- [x] `words` table definition **removed** from `packages/adapters/db/src/schema.ts`
+- [x] `StoredWordContent` import removed from `schema.ts` (was used by `words.content` column typing)
+- [x] `packages/adapters/db/src/repositories/word.repository.ts` **deleted**
+- [x] All exports of `wordRepository`, `Word`, `NewWord`, `CreateWordInput`, `StoredWordContent`, `StoredLanguageTranslation` **removed** from `packages/adapters/db/src/index.ts`
+- [x] `apps/bot/src/utils/sanitize-word-content.ts` **deleted** (if it still exists)
+- [x] No remaining imports of `word.repository` or `sanitize-word-content` anywhere in the codebase
+- [x] Migration `0011_drop_legacy_words.sql` already exists — verify it is correct and references the right table
+- [x] TypeScript compiles: `pnpm -r run build`
+- [x] All tests pass: `pnpm -r run test`
 
 **Effort estimate:** 1–2 hours
 
@@ -478,46 +478,46 @@ T6 is the final quality gate.
 **Acceptance Criteria:**
 
 ### vocabularyRepository pagination tests
-- [ ] `countByUser()`: returns correct count for user with entries
-- [ ] `countByUser()`: returns `0` for user with no entries
-- [ ] `countByUser()`: does not count soft-deleted entries (`isActive: false`)
-- [ ] `findByUserPaginated()`: returns correct page of entries
-- [ ] `findByUserPaginated()`: offset 0, limit 15 returns first 15 (or fewer if < 15 total)
-- [ ] `findByUserPaginated()`: offset 15, limit 15 returns next page
-- [ ] `findByUserPaginated()`: offset beyond total returns empty array
-- [ ] `findByUserPaginated()`: entries include their active translations
-- [ ] `findByUserPaginated()`: ordered by `createdAt DESC`
-- [ ] `hardDelete()`: removes entry and translations from DB (not soft-delete)
+- [x] `countByUser()`: returns correct count for user with entries
+- [x] `countByUser()`: returns `0` for user with no entries
+- [x] `countByUser()`: does not count soft-deleted entries (`isActive: false`)
+- [x] `findByUserPaginated()`: returns correct page of entries
+- [x] `findByUserPaginated()`: offset 0, limit 15 returns first 15 (or fewer if < 15 total)
+- [x] `findByUserPaginated()`: offset 15, limit 15 returns next page
+- [x] `findByUserPaginated()`: offset beyond total returns empty array
+- [x] `findByUserPaginated()`: entries include their active translations
+- [x] `findByUserPaginated()`: ordered by `createdAt DESC`
+- [x] `hardDelete()`: removes entry and translations from DB (not soft-delete)
 
 ### dictionary.renderer tests
-- [ ] `renderDictionaryList()`: contains header with word count
-- [ ] `renderDictionaryList()`: each entry shows emoji + original + translation summaries
-- [ ] `renderDictionaryList()`: entries with >2 translations show "+N" suffix
-- [ ] `renderDictionaryList()`: global indexing (page 2 starts at 16)
-- [ ] `renderDictionaryList()`: HTML characters are escaped
-- [ ] `renderDictionaryEntry()`: contains original word, translations with transcription, CEFR, synonyms
-- [ ] `buildDictionaryListKeyboard()`: has one button per entry with `dict:view:{id}` callback
-- [ ] `buildDictionaryListKeyboard()`: has navigation buttons when > 1 page
-- [ ] `buildDictionaryListKeyboard()`: no prev button on page 1
-- [ ] `buildDictionaryListKeyboard()`: no next button on last page
-- [ ] `buildDictionaryListKeyboard()`: no navigation row when 1 page
-- [ ] `buildDictionaryListKeyboard()`: has close button
-- [ ] `buildDictionaryEntryKeyboard()`: has delete and back buttons
-- [ ] `buildDeleteConfirmKeyboard()`: has confirm-delete and cancel buttons
+- [x] `renderDictionaryList()`: contains header with word count
+- [x] `renderDictionaryList()`: each entry shows emoji + original + translation summaries
+- [x] `renderDictionaryList()`: entries with >2 translations show "+N" suffix
+- [x] `renderDictionaryList()`: global indexing (page 2 starts at 16)
+- [x] `renderDictionaryList()`: HTML characters are escaped
+- [x] `renderDictionaryEntry()`: contains original word, translations with transcription, CEFR, synonyms
+- [x] `buildDictionaryListKeyboard()`: has one button per entry with `dict:view:{id}` callback
+- [x] `buildDictionaryListKeyboard()`: has navigation buttons when > 1 page
+- [x] `buildDictionaryListKeyboard()`: no prev button on page 1
+- [x] `buildDictionaryListKeyboard()`: no next button on last page
+- [x] `buildDictionaryListKeyboard()`: no navigation row when 1 page
+- [x] `buildDictionaryListKeyboard()`: has close button
+- [x] `buildDictionaryEntryKeyboard()`: has delete and back buttons
+- [x] `buildDeleteConfirmKeyboard()`: has confirm-delete and cancel buttons
 
 ### dictionary.helper callback tests (mocked ctx)
-- [ ] `handleDictPage()`: calls `findByUserPaginated` with correct offset
-- [ ] `handleDictView()`: calls `findById` and edits message
-- [ ] `handleDictDelete()`: shows confirmation with word name
-- [ ] `handleDictConfirmDelete()`: calls `hardDelete` and returns to list
-- [ ] `handleDictConfirmDelete()`: goes to previous page when current page becomes empty
-- [ ] `handleDictClose()`: deletes message and clears session
-- [ ] Session loss: returns `dictionarySessionExpired` message
+- [x] `handleDictPage()`: calls `findByUserPaginated` with correct offset
+- [x] `handleDictView()`: calls `findById` and edits message
+- [x] `handleDictDelete()`: shows confirmation with word name
+- [x] `handleDictConfirmDelete()`: calls `hardDelete` and returns to list
+- [x] `handleDictConfirmDelete()`: goes to previous page when current page becomes empty
+- [x] `handleDictClose()`: deletes message and clears session
+- [x] Session loss: returns `dictionarySessionExpired` message
 
 ### General
-- [ ] All new tests pass: `pnpm -r run test`
-- [ ] All pre-existing tests pass (no regressions after `words` table removal)
-- [ ] TypeScript compiles: `pnpm -r run build`
+- [x] All new tests pass: `pnpm -r run test`
+- [x] All pre-existing tests pass (no regressions after `words` table removal)
+- [x] TypeScript compiles: `pnpm -r run build`
 
 **Effort estimate:** 3–4 hours
 
@@ -618,19 +618,19 @@ Location: `apps/bot/src/scenes/helpers/dictionary.helper.ts` (or a shared consta
 
 ## Acceptance Criteria (Task-level)
 
-- [ ] `/dictionary` command shows paginated list of saved words (15 per page)
-- [ ] List shows emoji, word, and up to 2 translation summaries per entry
-- [ ] Navigation buttons (◀️ ▶️) allow paging through the dictionary
-- [ ] Tapping a word shows its full translation card with all languages, transcriptions, synonyms, examples
-- [ ] "🗑 Delete" button shows a confirmation prompt
-- [ ] Confirming delete removes the word from the database and refreshes the list
-- [ ] Empty dictionary shows `emptyDictionary` message
-- [ ] Session loss on callbacks shows `dictionarySessionExpired` message
-- [ ] Deleting the last word on a page navigates to the previous page
-- [ ] Deleting the last word in the dictionary shows `emptyDictionary`
-- [ ] `words` table definition removed from `schema.ts`
-- [ ] `word.repository.ts` deleted
-- [ ] `sanitize-word-content.ts` deleted
-- [ ] All 3 locale files have 11 new `dictionary*` keys
-- [ ] All packages build: `pnpm -r run build`
-- [ ] All tests pass: `pnpm -r run test`
+- [x] `/dictionary` command shows paginated list of saved words (15 per page)
+- [x] List shows emoji, word, and up to 2 translation summaries per entry
+- [x] Navigation buttons (◀️ ▶️) allow paging through the dictionary
+- [x] Tapping a word shows its full translation card with all languages, transcriptions, synonyms, examples
+- [x] "🗑 Delete" button shows a confirmation prompt
+- [x] Confirming delete removes the word from the database and refreshes the list
+- [x] Empty dictionary shows `emptyDictionary` message
+- [x] Session loss on callbacks shows `dictionarySessionExpired` message
+- [x] Deleting the last word on a page navigates to the previous page
+- [x] Deleting the last word in the dictionary shows `emptyDictionary`
+- [x] `words` table definition removed from `schema.ts`
+- [x] `word.repository.ts` deleted
+- [x] `sanitize-word-content.ts` deleted
+- [x] All 3 locale files have 11 new `dictionary*` keys
+- [x] All packages build: `pnpm -r run build`
+- [x] All tests pass: `pnpm -r run test`

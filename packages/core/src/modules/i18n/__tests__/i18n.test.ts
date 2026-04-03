@@ -593,6 +593,105 @@ describe("i18n — t()", () => {
     expect(t("flashcardSessionExpired", "de")).toContain("Session expired");
     expect(t("cmdDescFlashcard", "de")).toBe("Start a flash card session");
   });
+
+  // Dictionary browse/delete keys (task 40)
+  it("returns dictionaryHeader with {count} interpolation in English", () => {
+    expect(t("dictionaryHeader", "en", { count: 42 })).toBe("📖 Your Dictionary (42 words)");
+  });
+
+  it("returns dictionaryHeader with {count} interpolation in Russian", () => {
+    expect(t("dictionaryHeader", "ru", { count: 42 })).toBe("📖 Ваш словарь (42 слов)");
+  });
+
+  it("returns dictionaryHeader with {count} interpolation in Czech", () => {
+    expect(t("dictionaryHeader", "cs", { count: 42 })).toBe("📖 Váš slovník (42 slov)");
+  });
+
+  it("returns dictionaryPage with {page} and {total} interpolation in English", () => {
+    expect(t("dictionaryPage", "en", { page: 1, total: 3 })).toBe("Page 1 of 3");
+  });
+
+  it("returns dictionaryPage with {page} and {total} interpolation in Russian", () => {
+    expect(t("dictionaryPage", "ru", { page: 2, total: 5 })).toBe("Стр. 2 из 5");
+  });
+
+  it("returns dictionaryPage with {page} and {total} interpolation in Czech", () => {
+    expect(t("dictionaryPage", "cs", { page: 3, total: 4 })).toBe("Str. 3 z 4");
+  });
+
+  it("returns dictionaryPrev in all locales", () => {
+    expect(t("dictionaryPrev", "en")).toBe("◀️");
+    expect(t("dictionaryPrev", "ru")).toBe("◀️");
+    expect(t("dictionaryPrev", "cs")).toBe("◀️");
+  });
+
+  it("returns dictionaryNext in all locales", () => {
+    expect(t("dictionaryNext", "en")).toBe("▶️");
+    expect(t("dictionaryNext", "ru")).toBe("▶️");
+    expect(t("dictionaryNext", "cs")).toBe("▶️");
+  });
+
+  it("returns dictionaryClose in all locales", () => {
+    expect(t("dictionaryClose", "en")).toBe("✕ Close");
+    expect(t("dictionaryClose", "ru")).toBe("✕ Закрыть");
+    expect(t("dictionaryClose", "cs")).toBe("✕ Zavřít");
+  });
+
+  it("returns dictionaryBack in all locales", () => {
+    expect(t("dictionaryBack", "en")).toBe("← Back to list");
+    expect(t("dictionaryBack", "ru")).toBe("← К списку");
+    expect(t("dictionaryBack", "cs")).toBe("← Zpět na seznam");
+  });
+
+  it("returns dictionaryDelete in all locales", () => {
+    expect(t("dictionaryDelete", "en")).toBe("🗑 Delete");
+    expect(t("dictionaryDelete", "ru")).toBe("🗑 Удалить");
+    expect(t("dictionaryDelete", "cs")).toBe("🗑 Smazat");
+  });
+
+  it("returns dictionaryDeleteConfirm with {word} interpolation in English", () => {
+    expect(t("dictionaryDeleteConfirm", "en", { word: "apple" })).toBe('⚠️ Delete "apple" from your dictionary?');
+  });
+
+  it("returns dictionaryDeleteConfirm with {word} interpolation in Russian", () => {
+    expect(t("dictionaryDeleteConfirm", "ru", { word: "apple" })).toBe('⚠️ Удалить "apple" из словаря?');
+  });
+
+  it("returns dictionaryDeleteConfirm with {word} interpolation in Czech", () => {
+    expect(t("dictionaryDeleteConfirm", "cs", { word: "apple" })).toBe('⚠️ Smazat "apple" ze slovníku?');
+  });
+
+  it("returns dictionaryDeleteYes in all locales", () => {
+    expect(t("dictionaryDeleteYes", "en")).toBe("✅ Yes, delete");
+    expect(t("dictionaryDeleteYes", "ru")).toBe("✅ Да, удалить");
+    expect(t("dictionaryDeleteYes", "cs")).toBe("✅ Ano, smazat");
+  });
+
+  it("returns dictionaryDeleteCancel in all locales", () => {
+    expect(t("dictionaryDeleteCancel", "en")).toBe("← Cancel");
+    expect(t("dictionaryDeleteCancel", "ru")).toBe("← Отмена");
+    expect(t("dictionaryDeleteCancel", "cs")).toBe("← Zrušit");
+  });
+
+  it("returns dictionarySessionExpired in all locales", () => {
+    expect(t("dictionarySessionExpired", "en")).toContain("Session expired");
+    expect(t("dictionarySessionExpired", "ru")).toContain("Сессия истекла");
+    expect(t("dictionarySessionExpired", "cs")).toContain("Relace vypršela");
+  });
+
+  it("falls back to English for dictionary browse keys when locale has no file", () => {
+    expect(t("dictionaryHeader", "de", { count: 10 })).toBe("📖 Your Dictionary (10 words)");
+    expect(t("dictionaryPage", "de", { page: 1, total: 2 })).toBe("Page 1 of 2");
+    expect(t("dictionaryPrev", "de")).toBe("◀️");
+    expect(t("dictionaryNext", "de")).toBe("▶️");
+    expect(t("dictionaryClose", "de")).toBe("✕ Close");
+    expect(t("dictionaryBack", "de")).toBe("← Back to list");
+    expect(t("dictionaryDelete", "de")).toBe("🗑 Delete");
+    expect(t("dictionaryDeleteConfirm", "de", { word: "haus" })).toBe('⚠️ Delete "haus" from your dictionary?');
+    expect(t("dictionaryDeleteYes", "de")).toBe("✅ Yes, delete");
+    expect(t("dictionaryDeleteCancel", "de")).toBe("← Cancel");
+    expect(t("dictionarySessionExpired", "de")).toContain("Session expired");
+  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
@@ -750,6 +849,17 @@ describe("i18n — locale consistency", () => {
       "flashcardNewDeckBtn",
       "flashcardSessionExpired",
       "cmdDescFlashcard",
+      "dictionaryHeader",
+      "dictionaryPage",
+      "dictionaryPrev",
+      "dictionaryNext",
+      "dictionaryClose",
+      "dictionaryBack",
+      "dictionaryDelete",
+      "dictionaryDeleteConfirm",
+      "dictionaryDeleteYes",
+      "dictionaryDeleteCancel",
+      "dictionarySessionExpired",
     ];
 
     for (const key of enKeys) {

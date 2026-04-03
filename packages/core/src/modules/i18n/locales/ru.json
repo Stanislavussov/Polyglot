@@ -99,5 +99,16 @@
   "flashcardDoneBtn": "🎉 Готово!",
   "flashcardNewDeckBtn": "🔄 Новая колода",
   "flashcardSessionExpired": "Сессия истекла. Используйте /flashcard для перезапуска.",
-  "cmdDescFlashcard": "Начать сессию карточек"
+  "cmdDescFlashcard": "Начать сессию карточек",
+  "dictionaryHeader": "📖 Ваш словарь ({count} слов)",
+  "dictionaryPage": "Стр. {page} из {total}",
+  "dictionaryPrev": "◀️",
+  "dictionaryNext": "▶️",
+  "dictionaryClose": "✕ Закрыть",
+  "dictionaryBack": "← К списку",
+  "dictionaryDelete": "🗑 Удалить",
+  "dictionaryDeleteConfirm": "⚠️ Удалить \"{word}\" из словаря?",
+  "dictionaryDeleteYes": "✅ Да, удалить",
+  "dictionaryDeleteCancel": "← Отмена",
+  "dictionarySessionExpired": "Сессия истекла. Используйте /dictionary для перезапуска."
 }

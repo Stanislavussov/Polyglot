@@ -47,3 +47,4 @@
 | 36  | [Persist Source Language & Re-entry Reminder](./finished/36-persist-source-lang-and-reentry-reminder.md) |
 | 33  | [Config-Driven Dictionary Word Pipeline + Flash Cards](./finished/33-dictionary-word-pipeline-and-flashcards.md) |
 | 39  | [Normalize Vocabulary Schema](./finished/39-normalize-vocabulary-schema.md) |
+| 40  | [Dictionary Browse & Delete](./finished/40-dictionary-browse-and-delete.md) |

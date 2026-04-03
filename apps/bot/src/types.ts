@@ -65,6 +65,17 @@ export interface SessionData {
     wizardMsgId?: number;
   };
   /**
+   * Dictionary browse state (Task 40).
+   * Active during a dictionary browsing session.
+   * Cleared on close or session loss.
+   */
+  dictionary?: {
+    /** Current page (1-based) */
+    currentPage: number;
+    /** Message ID of the dictionary message (for in-place editing) */
+    msgId?: number;
+  };
+  /**
    * Flash card session state (Task 33).
    * Active during a flashcard session. Cleared on quit/close or session loss.
    */

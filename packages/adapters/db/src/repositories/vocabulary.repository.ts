@@ -1,5 +1,5 @@
 import type { Example, Synonym, TranslationVariant } from "@polyglot/core";
-import { and, desc, eq, ilike, inArray } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { vocabularyEntries, vocabularyTranslations } from "../schema.js";
 
@@ -351,6 +351,54 @@ export const vocabularyRepository = {
         )
         .returning();
     });
+  },
+
+  /**
+   * Count active vocabulary entries for a user.
+   * Returns 0 for users with no entries.
+   */
+  async countByUser(userId: number): Promise<number> {
+    const db = getDb();
+    const result = await db
+      .select({ value: count() })
+      .from(vocabularyEntries)
+      .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true)));
+
+    return result[0]?.value ?? 0;
+  },
+
+  /**
+   * Find active vocabulary entries for a user with pagination.
+   * Returns entries with their active translations, ordered by createdAt DESC.
+   */
+  async findByUserPaginated(userId: number, offset: number, limit: number): Promise<VocabularyEntryWithTranslations[]> {
+    const db = getDb();
+    const entries = await db
+      .select()
+      .from(vocabularyEntries)
+      .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true)))
+      .orderBy(desc(vocabularyEntries.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    if (entries.length === 0) return [];
+
+    const entryIds = entries.map((e) => e.id);
+    const translations = await db
+      .select()
+      .from(vocabularyTranslations)
+      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)));
+
+    return assembleEntriesWithTranslations(entries, translations);
+  },
+
+  /**
+   * Hard delete: permanently removes the entry and all its translations from the DB.
+   * CASCADE on vocabulary_translations handles child rows.
+   */
+  async hardDelete(entryId: number): Promise<void> {
+    const db = getDb();
+    await db.delete(vocabularyEntries).where(eq(vocabularyEntries.id, entryId));
   },
 
   /**

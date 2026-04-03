@@ -37,7 +37,6 @@ Already implemented:
 - `renderers/flashcard.renderer.ts` — renderFlashCardFront, renderFlashCardBack, buildFlashCardFrontKeyboard, buildFlashCardBackKeyboard, buildFlashCardDoneKeyboard
 
 Still needed:
-- `scenes/dictionary.scene.ts` — dictionary browsing
 - `scenes/settings.scene.ts` — user settings
 
 ### Flash Card Session (Task 33)
@@ -185,7 +184,7 @@ When `savedWordId` is set, regen auto-updates only the single regenerated langua
 
 **Utility:**
 - `toVocabularyInput(output, sourceLangId, inputType, langResolver): CreateVocabularyInput` in `apps/bot/src/utils/vocabulary-mapper.ts` — maps `TranslateOutput` → normalized `CreateVocabularyInput` (Task 39, replaces `sanitizeForStorage`)
-- `sanitizeForStorage(output: TranslateOutput): StoredWordContent` in `apps/bot/src/utils/sanitize-word-content.ts` — **@deprecated** (still exists, unused by main flows)
+- `sanitizeForStorage()` — **deleted in Task 40** (superseded by `toVocabularyInput()` in `vocabulary-mapper.ts`)
 
 ### Auto-Detect Input Language (Task 16)
 
@@ -217,6 +216,28 @@ Users can customize which fields appear in their translation output via `/templa
 **Pipeline integration**: `handleTranslateText()` and `handleRegenCallback()` load the user's template via `translationTemplateRepository.getByUserId()`, then use `resolveOutputConfig()` (sentences → SENTENCE_OUTPUT, words/phrases → user template or default) and pass `effectiveTemplate.fields` to the renderer.
 
 **i18n keys**: `templateTitle`, `templateCurrent` (with `{name}`), `templateDefault`, `templateCustom`, `templateCustomize`, `templateReset`, `templateConstructor`, `templatePreview`, `templateSave`, `templateCancel`, `templateBack`, `templateSaved`, `templateResetDone`, `templateCancelled`, `templateField*` (6 field labels), `templatePreviewHeader`, `templateSessionExpired`.
+
+### Dictionary Browse & Delete (Task 40)
+
+The `/dictionary` command shows the user's personal dictionary as a paginated list (15 words per page) with inline navigation, entry detail view, and delete functionality.
+
+1. **Command**: `/dictionary` → calls `vocabularyRepository.countByUser()` + `findByUserPaginated()` to get the first page
+2. **Empty check**: If dictionary is empty → replies with `emptyDictionary` i18n key
+3. **Session state**: `SessionData.dictionary` stores `currentPage` and `msgId`
+4. **List view**: Shows emoji + bold original + up to 2 translation summaries per entry. Long words truncated to 30 chars. Global indexing (page 2 starts at 16).
+5. **Navigation**: `[◀️ Prev] [page/total] [▶️ Next]` — prev hidden on page 1, next hidden on last page, entire row hidden when 1 page
+6. **Entry buttons**: One button per entry with `dict:view:{entryId}` callback
+7. **Entry detail** (`dict:view:{entryId}` or `dict:view:{entryId}:{page}`): Shows full translation card — emoji, original, input type + source flag, per-language translations with transcription, CEFR, register, synonyms, examples
+8. **Delete flow** (`dict:delete:{entryId}`): Shows confirmation with word name → `dict:confirm-delete:{entryId}:{page}` → calls `vocabularyRepository.hardDelete()`, refreshes list
+9. **Edge cases**: Auto-navigate to previous page when current page empties after delete; show `emptyDictionary` when last word deleted; session expiry shows `dictionarySessionExpired`
+10. **Close** (`dict:close`): Deletes the message, clears session
+11. **Noop** (`dict:noop`): Page indicator button — no action
+
+**Callback data format**: All dictionary callbacks use `dict:` prefix: `dict:page:{n}`, `dict:view:{entryId}`, `dict:view:{entryId}:{page}`, `dict:delete:{entryId}`, `dict:confirm-delete:{entryId}:{page}`, `dict:close`, `dict:noop`.
+
+**Renderer**: `apps/bot/src/renderers/dictionary.renderer.ts` — `renderDictionaryList()`, `renderDictionaryEntry()`, `buildDictionaryListKeyboard()`, `buildDictionaryEntryKeyboard()`, `buildDeleteConfirmKeyboard()`. Exports `DICTIONARY_PAGE_SIZE = 15`.
+
+**Deprecated file cleanup (Task 40 T5 bot part)**: `apps/bot/src/utils/sanitize-word-content.ts` and its test deleted — superseded by `vocabulary-mapper.ts`.
 
 ### Async Lite AI Validation (Task 37)
 
@@ -301,8 +322,6 @@ function toVocabularyInput(output: TranslateOutput, sourceLangId: number, inputT
 // Type: resolves language code to DB ID
 type LangResolver = (code: string) => number | null;
 
-// @deprecated — Strip transient fields from TranslateOutput for DB storage (FEAT-30, superseded by toVocabularyInput)
-function sanitizeForStorage(output: TranslateOutput): StoredWordContent;
 
 // Render a compact sentence translation card (Task 27)
 // No CEFR, synonyms, examples, alternatives — just text + transcription
@@ -391,8 +410,30 @@ function buildFlashCardFrontKeyboard(lang: SupportedLang): InlineKeyboard;
 function buildFlashCardBackKeyboard(isLastCard: boolean, lang: SupportedLang): InlineKeyboard;
 function buildFlashCardDoneKeyboard(lang: SupportedLang): InlineKeyboard;
 
-// Scene: dictionary browsing (not yet implemented)
-async function handleDictionary(conversation, ctx): Promise<void>;
+// Scene: /dictionary command — paginated dictionary browser (Task 40)
+async function handleDictionaryCommand(ctx: BotContext): Promise<void>;
+
+// Dictionary callback handlers (Task 40)
+async function handleDictPage(ctx: BotContext): Promise<void>;
+async function handleDictView(ctx: BotContext): Promise<void>;
+async function handleDictDelete(ctx: BotContext): Promise<void>;
+async function handleDictConfirmDelete(ctx: BotContext): Promise<void>;
+async function handleDictClose(ctx: BotContext): Promise<void>;
+async function handleDictNoop(ctx: BotContext): Promise<void>;
+
+// Render paginated dictionary list as HTML (Task 40)
+function renderDictionaryList(entries, page, totalPages, totalWords, lang): string;
+
+// Render single entry detail view as HTML (Task 40)
+function renderDictionaryEntry(entry, langResolver, lang): string;
+
+// Build keyboards for dictionary views (Task 40)
+function buildDictionaryListKeyboard(entries, page, totalPages, lang): InlineKeyboard;
+function buildDictionaryEntryKeyboard(entryId, page, lang): InlineKeyboard;
+function buildDeleteConfirmKeyboard(entryId, page, lang): InlineKeyboard;
+
+// Dictionary page size constant (Task 40)
+const DICTIONARY_PAGE_SIZE = 15;
 
 // Scene: user settings (not yet implemented)
 async function handleSettings(conversation, ctx): Promise<void>;
@@ -568,13 +609,14 @@ apps/bot/src/
 │   ├── classify-input.test.ts        # 18 tests (classification rules, boundaries, config)
 │   ├── vocabulary-mapper.ts           # ✅ toVocabularyInput() — maps TranslateOutput → CreateVocabularyInput (Task 39)
 │   ├── vocabulary-mapper.test.ts     # 13 tests (field mapping, language resolution, immutability, details structure)
-│   ├── sanitize-word-content.ts      # ⚠️ @deprecated sanitizeForStorage() — superseded by vocabulary-mapper.ts (FEAT-30)
-│   └── sanitize-word-content.test.ts # 9 tests (field stripping, immutability, minimal input)
+│   (sanitize-word-content.ts deleted in Task 40 — superseded by vocabulary-mapper.ts)
 ├── renderers/
 │   ├── translation.renderer.ts # renderTranslation, renderSentenceTranslation, renderTopicWord, renderQualityWarning, buildTranslationKeyboard(+inputType), buildPostSaveKeyboard, buildSentenceKeyboard, buildSourceLangKeyboard
 │   ├── flashcard.renderer.ts   # ✅ renderFlashCardFront, renderFlashCardBack, buildFlashCardFrontKeyboard, buildFlashCardBackKeyboard, buildFlashCardDoneKeyboard (Task 33)
+│   ├── dictionary.renderer.ts # ✅ renderDictionaryList, renderDictionaryEntry, buildDictionaryListKeyboard, buildDictionaryEntryKeyboard, buildDeleteConfirmKeyboard, DICTIONARY_PAGE_SIZE (Task 40)
 │   └── __tests__/
-│       └── source-lang-menu.test.ts     # 8 tests (keyboard rendering, ✓ marks, suppression)
+│       ├── source-lang-menu.test.ts     # 8 tests (keyboard rendering, ✓ marks, suppression)
+│       └── dictionary.renderer.test.ts  # 28 tests (list, entry, keyboards, edge cases)
 ├── scenes/
 │   ├── onboarding.scene.ts     # ✅ 3-step onboarding (BRD §5, BUG-01 fix, infers interface lang)
 │   ├── translate.scene.ts      # ✅ implemented (mode-based: sets mode + confirmation, persists to DB)
@@ -582,11 +624,14 @@ apps/bot/src/
 │   ├── template.scene.ts       # ✅ /template command handler (Task 32)
 │   ├── template-preview.data.ts # ✅ Mock translation output for wizard preview (Task 32)
 │   ├── flashcard.scene.ts      # ✅ /flashcard command handler — runs pipeline, stores deck in session (Task 33)
+│   ├── dictionary.scene.ts     # ✅ /dictionary command handler — counts+paginates, stores session (Task 40)
 │   ├── helpers/
+│   │   ├── dictionary.helper.ts      # ✅ dict:* callback handlers (page, view, delete, confirm-delete, close, noop) (Task 40)
 │   │   ├── flashcard.helper.ts       # ✅ fc:* callback handlers + pipeline deps wiring (Task 33)
 │   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (classifier + branching + template-aware), handleRegenCallback, handleSaveCallback, handleSkipCallback, handleSourceLangCallback
 │   │   ├── translate-mode.helper.test.ts # 5 tests (context enrichment wiring)
 │   │   ├── __tests__/
+│   │   │   ├── dictionary.helper.test.ts                 # 17 tests (callbacks, session expired, delete flow)
 │   │   │   ├── translate-mode-detection.test.ts      # 8 tests (auto-detect language direction)
 │   │   │   ├── translate-mode-source-lang.test.ts    # 11 tests (explicit source lang override)
 │   │   │   ├── translate-mode-persist-source.test.ts # 7 tests (DB hydration, invalid clearing, fire-and-forget sync — Task 36)
@@ -595,7 +640,6 @@ apps/bot/src/
 │   │   ├── template.helper.ts        # ✅ Template wizard callbacks: customize, toggle, preview, save, cancel, reset, back (Task 32)
 │   │   ├── regen.helper.ts           # ✅ regeneration loop helper (sentence-aware, vocabularyRepository save flow, template-aware)
 │   │   └── regen.helper.test.ts      # 13 tests (includes dedup, FK resolution, inputType, vocabularyRepository)
-│   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 11 tests (mode system tests, idle fallback, DB persistence)
