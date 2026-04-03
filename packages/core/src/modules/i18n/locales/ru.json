@@ -110,5 +110,7 @@
   "dictionaryDeleteConfirm": "⚠️ Удалить \"{word}\" из словаря?",
   "dictionaryDeleteYes": "✅ Да, удалить",
   "dictionaryDeleteCancel": "← Отмена",
-  "dictionarySessionExpired": "Сессия истекла. Используйте /dictionary для перезапуска."
+  "dictionarySessionExpired": "Сессия истекла. Используйте /dictionary для перезапуска.",
+  "textOnly": "✏️ Я могу переводить только текст. Отправьте слово, фразу или предложение.",
+  "emojiNotSupported": "😊 Эмодзи нельзя перевести. Отправьте слово или фразу на любом языке."
 }

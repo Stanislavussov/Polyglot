@@ -114,7 +114,9 @@ export type I18nKey =
   | "dictionaryDeleteConfirm"
   | "dictionaryDeleteYes"
   | "dictionaryDeleteCancel"
-  | "dictionarySessionExpired";
+  | "dictionarySessionExpired"
+  | "textOnly"
+  | "emojiNotSupported";
 
 /**
  * Supported interface languages.
