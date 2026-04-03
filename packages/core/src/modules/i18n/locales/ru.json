@@ -111,6 +111,8 @@
   "dictionaryDeleteYes": "✅ Да, удалить",
   "dictionaryDeleteCancel": "← Отмена",
   "dictionarySessionExpired": "Сессия истекла. Используйте /dictionary для перезапуска.",
+  "textOnly": "✏️ Я могу переводить только текст. Отправьте слово, фразу или предложение.",
+  "emojiNotSupported": "😊 Эмодзи нельзя перевести. Отправьте слово или фразу на любом языке.",
   "settingsTitle": "⚙️ Настройки",
   "settingsNativeLang": "🗣 Родной язык: {lang}",
   "settingsLearningLangs": "📚 Изучаю: {langs}",

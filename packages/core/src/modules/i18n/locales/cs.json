@@ -111,6 +111,8 @@
   "dictionaryDeleteYes": "✅ Ano, smazat",
   "dictionaryDeleteCancel": "← Zrušit",
   "dictionarySessionExpired": "Relace vypršela. Použijte /dictionary pro restart.",
+  "textOnly": "✏️ Mohu překládat pouze text. Pošlete slovo, frázi nebo větu.",
+  "emojiNotSupported": "😊 Emodži nelze přeložit. Pošlete slovo nebo frázi v jakémkoli jazyce.",
   "settingsTitle": "⚙️ Nastavení",
   "settingsNativeLang": "🗣 Mateřský jazyk: {lang}",
   "settingsLearningLangs": "📚 Učím se: {langs}",

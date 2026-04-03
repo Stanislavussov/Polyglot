@@ -12,15 +12,57 @@ import { logger } from "@polyglot/infra";
 import type { NextFunction } from "grammy";
 import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
 import type { BotContext } from "../types.js";
+import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
+
+/**
+ * Resolve the user's interface language from DB settings.
+ * Falls back to "en" if unavailable.
+ */
+async function resolveInterfaceLang(ctx: BotContext): Promise<SupportedLang> {
+  const user = ctx.user;
+  if (!user) return "en";
+  const settings = await userRepository.getSettings(user.id);
+  const rawLang = settings?.interfaceLang ?? "en";
+  return isSupported(rawLang) ? rawLang : "en";
+}
 
 /**
  * Routes plain text messages to the appropriate mode handler.
  * Commands (starting with /) are NOT processed here — they go through normal handlers.
  */
 export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction): Promise<void> {
-  // Only handle plain text messages (not commands)
-  const text = ctx.message?.text;
-  if (!text || text.startsWith("/")) {
+  // Only handle message updates (not callback queries, edits, etc.)
+  if (!ctx.message) {
+    return next();
+  }
+
+  const text = ctx.message.text;
+
+  // Commands go through normal handlers
+  if (text?.startsWith("/")) {
+    return next();
+  }
+
+  // Non-text messages (stickers, GIFs, photos, voice, etc.)
+  if (!text) {
+    if (ctx.user?.onboarded) {
+      const nonTextType = detectNonTextContent(ctx.message as unknown as Record<string, unknown>);
+      logger.debug({ nonTextType, userId: ctx.from?.id }, "Non-text message received from onboarded user");
+      const lang = await resolveInterfaceLang(ctx);
+      await ctx.reply(t("textOnly", lang));
+      return;
+    }
+    return next();
+  }
+
+  // Emoji-only messages — cannot be translated
+  if (isEmojiOnly(text)) {
+    if (ctx.user?.onboarded) {
+      logger.debug({ text, userId: ctx.from?.id }, "Emoji-only message received");
+      const lang = await resolveInterfaceLang(ctx);
+      await ctx.reply(t("emojiNotSupported", lang));
+      return;
+    }
     return next();
   }
 
