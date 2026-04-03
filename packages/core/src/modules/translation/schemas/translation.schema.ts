@@ -36,17 +36,24 @@ export const translationVariantSchema = z.object({
   synonyms: z.array(synonymSchema),
 });
 
-/** Zod schema for a single language translation */
+/**
+ * Zod schema for a single language translation.
+ *
+ * Uses .nullish() (nullable + optional) so it accepts both null (from AI strict
+ * mode) and undefined (from manually constructed objects in tests/validation).
+ * For the AI-facing schema sent via generateObject, see buildLanguageTranslationSchema
+ * which uses .nullable() only (all fields required, satisfying strict mode).
+ */
 export const languageTranslationSchema = z.object({
   text: z.string().min(1, "Translation text is required"),
-  transcription: z.string().max(100, "Transcription too long — possible repetition loop").optional(),
+  transcription: z.string().max(100, "Transcription too long — possible repetition loop").nullish(),
   register: registerEnum,
   synonyms: z.array(synonymSchema),
   examples: z.array(exampleSchema).min(1, "At least one example is required"),
-  expressionType: expressionTypeEnum.optional().default("literal"),
-  equivalentNote: z.string().optional(),
-  alternatives: z.array(translationVariantSchema).optional(),
-  connotationWarning: z.string().optional(),
+  expressionType: expressionTypeEnum.nullish().default("literal"),
+  equivalentNote: z.string().nullish(),
+  alternatives: z.array(translationVariantSchema).nullish(),
+  connotationWarning: z.string().nullish(),
 });
 
 /** Zod schema for validating a translation request */
@@ -97,16 +104,16 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig)
 
   return z.object({
     text: z.string().min(1, "Translation text is required"),
-    transcription: z.string().max(100, "Transcription too long — possible repetition loop").optional(),
-    register: includeRegister ? registerEnum : registerEnum.optional().default("neutral"),
-    synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema).default([]),
+    transcription: z.string().max(100, "Transcription too long — possible repetition loop").nullable(),
+    register: includeRegister ? registerEnum : registerEnum.nullable(),
+    synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema),
     examples: includeExamples
       ? z.array(exampleSchema).min(1, "At least one example is required")
-      : z.array(exampleSchema).default([]),
-    expressionType: expressionTypeEnum.optional().default("literal"),
-    equivalentNote: z.string().optional(),
-    alternatives: z.array(translationVariantSchema).optional(),
-    connotationWarning: z.string().optional(),
+      : z.array(exampleSchema),
+    expressionType: expressionTypeEnum.nullable(),
+    equivalentNote: z.string().nullable(),
+    alternatives: z.array(translationVariantSchema).nullable(),
+    connotationWarning: z.string().nullable(),
   });
 }
 
@@ -132,7 +139,7 @@ export function buildTranslationResultSchema(targetLangs: string[], config?: Tra
 
   return z.object({
     emoji: z.string().min(1, "Emoji is required"),
-    register: includeRegister ? registerEnum : registerEnum.optional().default("neutral"),
+    register: includeRegister ? registerEnum : registerEnum.nullable(),
     translations: z.object(langEntries),
   });
 }

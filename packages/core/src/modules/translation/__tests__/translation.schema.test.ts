@@ -327,6 +327,11 @@ describe("buildTranslationResultSchema", () => {
     register: "colloquial",
     synonyms: [{ text: "čau", register: "slang" }],
     examples: [{ context: "neutral", target: "Ahoj, jak se máš?", register: "нейтральный" }],
+    transcription: null,
+    expressionType: null,
+    equivalentNote: null,
+    alternatives: null,
+    connotationWarning: null,
   };
 
   it("requires specified language keys", () => {

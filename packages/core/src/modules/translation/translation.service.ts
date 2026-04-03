@@ -81,12 +81,12 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     // Step 2: Call AI adapter (catch generation/parse failures to allow retry)
     try {
-      result = await generateObjectFn(
+      result = (await generateObjectFn(
         prompt,
         schema,
         input.model,
         ...(input.userId !== undefined ? [{ userId: input.userId }] : []),
-      );
+      )) as TranslationResult;
     } catch (generationError) {
       const errorMsg = generationError instanceof Error ? generationError.message : String(generationError);
 
@@ -302,11 +302,11 @@ function stripDisabledFields(
       ...lt,
       ...(config.includeExamples === false && { examples: [] }),
       ...(config.includeSynonyms === false && { synonyms: [] }),
-      ...(config.includeAlternatives === false && { alternatives: undefined }),
-      ...(config.includeTranscription === false && { transcription: undefined }),
-      ...(config.includeEquivalentNote === false && { expressionType: undefined, equivalentNote: undefined }),
+      ...(config.includeAlternatives === false && { alternatives: null }),
+      ...(config.includeTranscription === false && { transcription: null }),
+      ...(config.includeEquivalentNote === false && { expressionType: null, equivalentNote: null }),
       ...(config.includeRegister === false && { register: "neutral" as const }),
-      ...(config.includeConnotationWarning === false && { connotationWarning: undefined }),
+      ...(config.includeConnotationWarning === false && { connotationWarning: null }),
     };
   }
 

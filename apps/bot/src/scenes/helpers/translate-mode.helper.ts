@@ -34,7 +34,6 @@ import {
   renderTranslation,
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
-import { fireAsyncValidation } from "../../utils/async-validation.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
@@ -217,9 +216,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       ctx.session.pendingTranslation = undefined;
       ctx.session.pendingCardMsgId = undefined;
 
-      // Fire async lite AI validation (Task 37.8) — fire-and-forget
-      fireAsyncValidation({ output, inputType: classification.type, targetLangs });
-
       // Show source language selection menu
       await sendSourceLangMenu(ctx, settings, lang);
     } else {
@@ -242,9 +238,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
       // Store message ID for editing later
       ctx.session.pendingCardMsgId = cardMsg.message_id;
-
-      // Fire async lite AI validation (Task 37.8) — fire-and-forget
-      fireAsyncValidation({ output, inputType: classification.type, targetLangs });
 
       // Show source language selection menu immediately after translation
       await sendSourceLangMenu(ctx, settings, lang);

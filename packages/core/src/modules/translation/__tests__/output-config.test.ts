@@ -27,6 +27,11 @@ function validLangEntry(overrides?: Record<string, unknown>) {
       { context: "colloquial", target: "Čau, co je?", register: "разговорный" },
       { context: "professional", target: "Dobrý den, vítejte.", register: "профессиональный" },
     ],
+    transcription: null,
+    expressionType: null,
+    equivalentNote: null,
+    alternatives: null,
+    connotationWarning: null,
     ...overrides,
   };
 }
@@ -395,9 +400,11 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
           // AI may still return these even when not asked
           synonyms: [{ text: "Drogerie", register: "neutral" as const }],
           examples: [],
+          transcription: null,
           alternatives: [{ text: "Wo finde ich eine Apotheke?", register: "neutral" as const, synonyms: [] }],
           equivalentNote: "should be stripped",
           expressionType: "literal" as const,
+          connotationWarning: null,
         },
       },
     };
@@ -417,9 +424,9 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
 
     // SENTENCE_OUTPUT disables synonyms, alternatives, equivalentNote
     expect(output.translations.de.synonyms).toEqual([]);
-    expect(output.translations.de.alternatives).toBeUndefined();
-    expect(output.translations.de.equivalentNote).toBeUndefined();
-    expect(output.translations.de.expressionType).toBeUndefined();
+    expect(output.translations.de.alternatives).toBeNull();
+    expect(output.translations.de.equivalentNote).toBeNull();
+    expect(output.translations.de.expressionType).toBeNull();
     // Transcription is still included (not disabled)
   });
 });

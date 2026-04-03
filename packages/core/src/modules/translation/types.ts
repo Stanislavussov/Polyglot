@@ -57,18 +57,18 @@ export interface TranslationVariant {
 /** Translation data for a single target language */
 export interface LanguageTranslation {
   text: string;
-  transcription?: string;
+  transcription?: string | null;
   register: Register;
   synonyms: Synonym[];
   examples: Example[];
   /** Signals whether the translation is literal or an idiomatic equivalent */
-  expressionType?: ExpressionType;
+  expressionType?: ExpressionType | null;
   /** Short note in the source language explaining why an equivalent was chosen */
-  equivalentNote?: string;
+  equivalentNote?: string | null;
   /** Up to 2 alternative translation variants, each with its own register and synonyms */
-  alternatives?: TranslationVariant[];
+  alternatives?: TranslationVariant[] | null;
   /** Optional warning about dangerous or misleading connotations */
-  connotationWarning?: string;
+  connotationWarning?: string | null;
 }
 
 // TranslationOutputConfig lives in shared/ so leaf modules (topics, etc.)
