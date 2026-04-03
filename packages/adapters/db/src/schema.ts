@@ -10,6 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { VocabTranslationDetails } from "./repositories/vocabulary.repository.js";
 import type { StoredWordContent } from "./repositories/word.repository.js";
 
 // ─────────────────────────────────────────────
@@ -117,6 +118,66 @@ export const words = pgTable(
   (t) => [
     index("words_user_id_idx").on(t.userId),
     uniqueIndex("words_user_original_sourcelangid_idx").on(t.userId, t.original, t.sourceLangId),
+  ],
+);
+
+// ─────────────────────────────────────────────
+// Vocabulary entries — normalized word/phrase per user
+// (replaces monolithic words.content JSONB)
+// ─────────────────────────────────────────────
+export const vocabularyEntries = pgTable(
+  "vocabulary_entries",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    original: text("original").notNull(),
+    sourceLangId: integer("source_lang_id")
+      .references(() => languages.id)
+      .notNull(),
+    inputType: text("input_type").$type<"word" | "phrase">().default("word").notNull(),
+    emoji: text("emoji"),
+    register: text("register"),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("ve_user_id_idx").on(t.userId),
+    uniqueIndex("ve_user_original_sourcelang_idx").on(t.userId, t.original, t.sourceLangId),
+  ],
+);
+
+// ─────────────────────────────────────────────
+// Vocabulary translations — one row per target language per entry
+// ─────────────────────────────────────────────
+export const vocabularyTranslations = pgTable(
+  "vocabulary_translations",
+  {
+    id: serial("id").primaryKey(),
+    entryId: integer("entry_id")
+      .references(() => vocabularyEntries.id, { onDelete: "cascade" })
+      .notNull(),
+    targetLangId: integer("target_lang_id")
+      .references(() => languages.id)
+      .notNull(),
+    text: text("text").notNull(),
+    cefr: text("cefr"),
+    register: text("register"),
+    transcription: text("transcription"),
+    expressionType: text("expression_type"),
+    equivalentNote: text("equivalent_note"),
+    connotationWarning: text("connotation_warning"),
+    details: jsonb("details").$type<VocabTranslationDetails>(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("vt_entry_id_idx").on(t.entryId),
+    index("vt_target_lang_idx").on(t.targetLangId),
+    uniqueIndex("vt_entry_lang_idx").on(t.entryId, t.targetLangId),
   ],
 );
 

@@ -16,7 +16,6 @@
 | 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 In Progress |
 | 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 In Progress |
 | 38  | [Regen Helper Context Enrichment](./38-regen-helper-context-enrichment.md) | 🔲 To Do |
-| 39  | [Normalize Vocabulary Schema](./39-normalize-vocabulary-schema.md) | 🔲 To Do |
 
 ## Finished
 
@@ -47,3 +46,4 @@
 | 22  | [Dependency Cruiser](./finished/22-dependency-cruiser.md) |
 | 27  | [Input Type Detection & Text Limits](./finished/27-input-type-detection-and-text-limits.md) |
 | 36  | [Persist Source Language & Re-entry Reminder](./finished/36-persist-source-lang-and-reentry-reminder.md) |
+| 39  | [Normalize Vocabulary Schema](./finished/39-normalize-vocabulary-schema.md) |

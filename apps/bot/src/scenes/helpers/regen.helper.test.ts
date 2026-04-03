@@ -6,8 +6,8 @@ vi.mock("@polyglot/adapter-ai", () => ({
 }));
 
 vi.mock("@polyglot/adapter-db", () => ({
-  wordRepository: {
-    create: vi.fn().mockResolvedValue({ id: 1 }),
+  vocabularyRepository: {
+    create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
     findByOriginalAndSource: vi.fn().mockResolvedValue(null),
   },
   getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
@@ -35,7 +35,7 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-import { getLang, wordRepository } from "@polyglot/adapter-db";
+import { getLang, vocabularyRepository } from "@polyglot/adapter-db";
 import type { SupportedLang, TranslateOutput } from "@polyglot/core";
 import { translateOne } from "@polyglot/core";
 import { handleRegenLoop } from "./regen.helper.js";
@@ -100,22 +100,26 @@ describe("handleRegenLoop", () => {
     vi.clearAllMocks();
   });
 
-  it("saves to dictionary on tr:save with sanitized content", async () => {
+  it("saves to dictionary on tr:save with normalized vocabulary input", async () => {
     const { conversation } = createMockConversation(["tr:save"]);
     const ctx = createMockCtx();
 
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
-    expect(wordRepository.create).toHaveBeenCalledWith(1, {
-      original: "hello",
-      sourceLangId: 1,
-      inputType: "word",
-      content: {
+    expect(vocabularyRepository.create).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        original: "hello",
+        sourceLangId: 1,
+        inputType: "word",
         emoji: "👋",
         register: "neutral",
-        translations: sampleOutput.translations,
-      },
-    });
+        translations: expect.arrayContaining([
+          expect.objectContaining({ text: "ahoj", targetLangId: 1 }),
+          expect.objectContaining({ text: "hallo", targetLangId: 1 }),
+        ]),
+      }),
+    );
   });
 
   it("renders saved card with savedToDict text and post-save keyboard on save", async () => {
@@ -143,7 +147,7 @@ describe("handleRegenLoop", () => {
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(editMessageText).toHaveBeenCalledTimes(1);
-    expect(wordRepository.create).not.toHaveBeenCalled();
+    expect(vocabularyRepository.create).not.toHaveBeenCalled();
   });
 
   it("calls translateOne on regen and re-renders card", async () => {
@@ -194,17 +198,19 @@ describe("handleRegenLoop", () => {
     expect(loadingText).toContain("Regenerating DE");
   });
 
-  it("merges regenerated translation into saved content", async () => {
+  it("merges regenerated translation into saved vocabulary input", async () => {
     const { conversation } = createMockConversation(["tr:regen:cs", "tr:save"]);
     const ctx = createMockCtx();
 
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
-    // The saved content should have the regenerated CS translation (sanitized)
-    const savedInput = vi.mocked(wordRepository.create).mock.calls[0]![1]!;
-    expect(savedInput.content.translations.cs.text).toBe("regenerated");
+    // The saved input should have the regenerated CS translation
+    const savedInput = vi.mocked(vocabularyRepository.create).mock.calls[0]![1]!;
+    const csTranslation = savedInput.translations.find((t: any) => t.text === "regenerated");
+    expect(csTranslation).toBeDefined();
     // DE should remain unchanged
-    expect(savedInput.content.translations.de.text).toBe("hallo");
+    const deTranslation = savedInput.translations.find((t: any) => t.text === "hallo");
+    expect(deTranslation).toBeDefined();
   });
 
   it("handles regeneration error gracefully and continues", async () => {
@@ -227,7 +233,7 @@ describe("handleRegenLoop", () => {
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(translateOne).toHaveBeenCalledTimes(2);
-    expect(wordRepository.create).toHaveBeenCalledTimes(1);
+    expect(vocabularyRepository.create).toHaveBeenCalledTimes(1);
   });
 
   it("answers callback query for each interaction", async () => {
@@ -240,7 +246,7 @@ describe("handleRegenLoop", () => {
   });
 
   it("detects duplicates and shows alreadySaved toast", async () => {
-    vi.mocked(wordRepository.findByOriginalAndSource).mockResolvedValueOnce({ id: 99 } as any);
+    vi.mocked(vocabularyRepository.findByOriginalAndSource).mockResolvedValueOnce({ id: 99 } as any);
     const { conversation, answerCallbackQuery } = createMockConversation(["tr:save", "tr:skip"]);
     const ctx = createMockCtx();
 
@@ -251,7 +257,7 @@ describe("handleRegenLoop", () => {
       expect.objectContaining({ text: expect.stringContaining("already"), show_alert: true }),
     );
     // No new entry should be created
-    expect(wordRepository.create).not.toHaveBeenCalled();
+    expect(vocabularyRepository.create).not.toHaveBeenCalled();
   });
 
   it("resolves sourceLangId via getLang for save", async () => {
@@ -261,7 +267,7 @@ describe("handleRegenLoop", () => {
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(getLang).toHaveBeenCalledWith("en");
-    expect(wordRepository.create).toHaveBeenCalledWith(
+    expect(vocabularyRepository.create).toHaveBeenCalledWith(
       1,
       expect.objectContaining({
         sourceLangId: 1,
@@ -269,13 +275,13 @@ describe("handleRegenLoop", () => {
     );
   });
 
-  it("passes inputType to wordRepository.create", async () => {
+  it("passes inputType to vocabularyRepository.create", async () => {
     const { conversation } = createMockConversation(["tr:save"]);
     const ctx = createMockCtx();
 
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42, "phrase");
 
-    expect(wordRepository.create).toHaveBeenCalledWith(
+    expect(vocabularyRepository.create).toHaveBeenCalledWith(
       1,
       expect.objectContaining({
         inputType: "phrase",

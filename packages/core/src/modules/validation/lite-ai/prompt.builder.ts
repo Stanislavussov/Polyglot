@@ -103,7 +103,12 @@ function buildDictionaryBlock(ctx: DictionaryContext): string {
   ];
 
   if (ctx.glosses.length > 0) {
-    lines.push(`  definitions: ${ctx.glosses.slice(0, 5).map((g) => `"${g}"`).join(", ")}`);
+    lines.push(
+      `  definitions: ${ctx.glosses
+        .slice(0, 5)
+        .map((g) => `"${g}"`)
+        .join(", ")}`,
+    );
   }
 
   return `\n${lines.join("\n")}\n`;

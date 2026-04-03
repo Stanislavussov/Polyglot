@@ -8,7 +8,7 @@ import {
   getLang,
   translationTemplateRepository,
   userRepository,
-  wordRepository,
+  vocabularyRepository,
 } from "@polyglot/adapter-db";
 import {
   getLangDisplay,
@@ -36,7 +36,7 @@ import {
 import type { BotContext } from "../../types.js";
 import { fireAsyncValidation } from "../../utils/async-validation.js";
 import { classifyInput } from "../../utils/classify-input.js";
-import { sanitizeForStorage } from "../../utils/sanitize-word-content.js";
+import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
@@ -286,22 +286,22 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const sourceLangId = sourceLangEntry.id;
 
   // Step 3 — Duplicate detection
-  const existing = await wordRepository.findByOriginalAndSource(ctx.user.id, output.original, sourceLangId);
+  const existing = await vocabularyRepository.findByOriginalAndSource(ctx.user.id, output.original, sourceLangId);
   if (existing) {
     await ctx.answerCallbackQuery({ text: t("alreadySaved", lang), show_alert: true });
     return;
   }
 
-  // Step 4 — Sanitize
-  const content = sanitizeForStorage(output);
+  // Step 4 — Map to normalized vocabulary input
+  const vocabInput = toVocabularyInput(
+    output,
+    sourceLangId,
+    (inputType as "word" | "phrase") ?? "word",
+    (code) => getLang(code)?.id ?? null,
+  );
 
   // Step 5 — Persist
-  const newEntry = await wordRepository.create(ctx.user.id, {
-    original: output.original,
-    sourceLangId,
-    inputType: (inputType as "word" | "phrase") ?? "word",
-    content,
-  });
+  const newEntry = await vocabularyRepository.create(ctx.user.id, vocabInput);
 
   // Step 6 — Session update
   ctx.session.savedWordId = newEntry.id;
@@ -462,11 +462,27 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     };
     ctx.session.lastTranslation = updated;
 
-    // Auto-update saved DB entry when savedWordId is set
+    // Auto-update saved DB entry when savedWordId is set — only the single regenerated lang
     if (ctx.session.savedWordId) {
       try {
-        const sanitized = sanitizeForStorage(updated);
-        await wordRepository.updateContent(ctx.session.savedWordId, sanitized);
+        const targetLangEntry = getLang(regenLang);
+        if (targetLangEntry) {
+          const regenResult = newTranslation;
+          await vocabularyRepository.updateTranslation(ctx.session.savedWordId, targetLangEntry.id, {
+            text: regenResult.text,
+            cefr: regenResult.cefr,
+            register: regenResult.register,
+            transcription: regenResult.transcription,
+            expressionType: regenResult.expressionType,
+            equivalentNote: regenResult.equivalentNote,
+            connotationWarning: regenResult.connotationWarning,
+            details: {
+              synonyms: regenResult.synonyms ?? [],
+              examples: regenResult.examples ?? [],
+              alternatives: regenResult.alternatives,
+            },
+          });
+        }
       } catch (err) {
         logger.error({ err, savedWordId: ctx.session.savedWordId }, "Failed to update saved word after regen");
       }

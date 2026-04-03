@@ -65,7 +65,7 @@ export function fireAsyncValidation(params: FireAsyncValidationParams): void {
         validatorModel,
         generateObjectFn: generateObject,
         onFlagged: (scores: Record<string, unknown>) => {
-          // TODO(37.6): Wire to wordRepository.markForReview() when DB method is available
+          // TODO(37.6): Wire to vocabularyRepository.markForReview() when DB method is available
           logger.warn(
             { original: output.original, savedWordId, scores },
             "Translation flagged for review by lite AI validator",

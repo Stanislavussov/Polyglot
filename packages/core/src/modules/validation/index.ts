@@ -1,6 +1,11 @@
-export type { InputType, ValidateInput, ValidateOptions, ValidationError, ValidationResult } from "./types.js";
-export type { ExampleContext, ExampleInput, ExpressionType } from "./validators/example.validator.js";
-
+export type {
+  AsyncValidationParams,
+  LiteGenerateObjectFn,
+  LiteValidationInput,
+  LiteValidationResult,
+  LiteValidationScore,
+  RiskDetectorInput,
+} from "./lite-ai/index.js";
 // Lite AI validation sub-module (Task 37)
 export {
   buildLiteValidationPrompt,
@@ -12,14 +17,8 @@ export {
   triggerAsyncValidation,
   validateWithLiteAI,
 } from "./lite-ai/index.js";
-export type {
-  AsyncValidationParams,
-  LiteGenerateObjectFn,
-  LiteValidationInput,
-  LiteValidationResult,
-  LiteValidationScore,
-  RiskDetectorInput,
-} from "./lite-ai/index.js";
+export type { InputType, ValidateInput, ValidateOptions, ValidationError, ValidationResult } from "./types.js";
+export type { ExampleContext, ExampleInput, ExpressionType } from "./validators/example.validator.js";
 export { VALID_EXAMPLE_CONTEXTS, validateExamples } from "./validators/example.validator.js";
 export { validateLanguage } from "./validators/language.validator.js";
 export { validateSchema } from "./validators/schema.validator.js";

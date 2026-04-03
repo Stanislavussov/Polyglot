@@ -5,8 +5,8 @@
  */
 import { getLangDisplay, userRepository } from "@polyglot/adapter-db";
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
-import { sendSourceLangMenu } from "./helpers/translate-mode.helper.js";
 import type { BotContext } from "../types.js";
+import { sendSourceLangMenu } from "./helpers/translate-mode.helper.js";
 
 /**
  * Handles /translate command — activates translate mode.

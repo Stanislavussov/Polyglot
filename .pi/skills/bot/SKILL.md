@@ -26,8 +26,8 @@ Already implemented:
 - `commands/start.ts` — /start handler (onboarding or main menu); restores translate mode for onboarded users (persisted to DB)
 - `scenes/onboarding.scene.ts` — 3-step onboarding conversation (BRD §5); infers interface language from native language; sets activeMode = "translate" on completion (persisted to DB)
 - `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation (persisted to DB)
-- `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks with FEAT-30 flow (FK resolution, dedup detection, sanitization); uses `translateWithContext()` from context-enrichment layer (dictionary context lookup delegated to `createContextLookup()` from DB adapter)
-- `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, FEAT-30 save with dedup/sanitize, skip)
+- `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks with FEAT-30 flow (FK resolution, dedup detection via `vocabularyRepository`, save via `toVocabularyInput()` + `vocabularyRepository.create()`); regen updates single language row via `vocabularyRepository.updateTranslation()`; uses `translateWithContext()` from context-enrichment layer
+- `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, save with `vocabularyRepository.create()` + `toVocabularyInput()`, skip)
 - `renderers/translation.renderer.ts` — renderTranslation (HTML, template-aware), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with inputType-aware save labels), buildPostSaveKeyboard (regen-only post-save keyboard), buildSourceLangKeyboard (source language selection keyboard)
 - `scenes/template.scene.ts` — /template command handler (shows current template status with Customize/Reset buttons)
 - `scenes/helpers/template.helper.ts` — Template wizard callback handlers (customize, toggle, preview, save, cancel, reset)
@@ -136,20 +136,20 @@ The translate-mode helper now classifies user input as `word`, `phrase`, or `sen
 
 **Callback handler:** `handleRegenCallback()` registered for `tr:regen:*` pattern. Handles regeneration in persistent translate mode for both word/phrase and sentence inputs.
 
-### Save to Dictionary — FEAT-30
+### Save to Dictionary — FEAT-30 (updated by Task 39)
 
-The translate-mode save flow now implements the full FEAT-30 pipeline: FK resolution, duplicate detection, content sanitization, and in-place card editing.
+The translate-mode save flow implements the full FEAT-30 pipeline: FK resolution, duplicate detection, normalized vocabulary mapping, and in-place card editing. **Task 39** replaced the monolithic `wordRepository` + `sanitizeForStorage()` approach with the normalized `vocabularyRepository` + `toVocabularyInput()`.
 
 **Save flow (handleSaveCallback):**
 1. FK resolution: `getLang(sourceLang)` from language cache → `sourceLangId`
-2. Duplicate detection: `wordRepository.findByOriginalAndSource(userId, original, sourceLangId)` → if exists, show "already saved" toast and return
-3. Sanitize: `sanitizeForStorage(output)` strips `needsReview`, `dictionaryContext`, `original`, `sourceLang` — returns `StoredWordContent`
-4. Persist: `wordRepository.create(userId, { original, sourceLangId, inputType, content })` with `CreateWordInput` shape
+2. Duplicate detection: `vocabularyRepository.findByOriginalAndSource(userId, original, sourceLangId)` → if exists, show "already saved" toast and return
+3. Map to normalized input: `toVocabularyInput(output, sourceLangId, inputType, langResolver)` builds `CreateVocabularyInput` with parent + per-language children
+4. Persist: `vocabularyRepository.create(userId, vocabInput)` — transactional insert of `vocabulary_entries` + N `vocabulary_translations` rows
 5. Session: set `savedWordId`, clear `pendingTranslation` and `pendingCardMsgId`
 6. Edit card in-place: render with `savedToDict` text + `buildPostSaveKeyboard()` (regen-only)
 
 **Post-save regen (handleRegenCallback):**
-When `savedWordId` is set, regen auto-updates the saved DB entry via `wordRepository.updateContent()`. Card shows `savedToDict` text + `buildPostSaveKeyboard()`. `savedWordId` persists across regens.
+When `savedWordId` is set, regen auto-updates only the single regenerated language row via `vocabularyRepository.updateTranslation(entryId, targetLangId, data)` (no longer rewrites the full blob). Card shows `savedToDict` text + `buildPostSaveKeyboard()`. `savedWordId` persists across regens.
 
 **Session additions:**
 - `savedWordId?: number` — set after successful save, enables auto-update on regen, cleared on new translation
@@ -159,7 +159,8 @@ When `savedWordId` is set, regen auto-updates the saved DB entry via `wordReposi
 - `buildPostSaveKeyboard(langCodes, interfaceLang)` — regen buttons only, no Save/Skip
 
 **Utility:**
-- `sanitizeForStorage(output: TranslateOutput): StoredWordContent` in `apps/bot/src/utils/sanitize-word-content.ts`
+- `toVocabularyInput(output, sourceLangId, inputType, langResolver): CreateVocabularyInput` in `apps/bot/src/utils/vocabulary-mapper.ts` — maps `TranslateOutput` → normalized `CreateVocabularyInput` (Task 39, replaces `sanitizeForStorage`)
+- `sanitizeForStorage(output: TranslateOutput): StoredWordContent` in `apps/bot/src/utils/sanitize-word-content.ts` — **@deprecated** (still exists, unused by main flows)
 
 ### Auto-Detect Input Language (Task 16)
 
@@ -210,7 +211,7 @@ After every translation card is sent (both word/phrase and sentence), the bot fi
 **Pending upstream dependencies** (tracked in respective agents):
 - Core package needs to export `triggerAsyncValidation` and types from main index
 - Infra config needs `AI_MODEL_VALIDATOR` field in env schema
-- DB adapter needs `wordRepository.markForReview()` method and `needs_review` column
+- DB adapter needs `vocabularyRepository.markForReview()` method and `needs_review` column
 
 ## Boundary
 
@@ -267,7 +268,14 @@ function buildTranslationKeyboard(langCodes: string[], inputType: 'word' | 'phra
 // Build post-save keyboard — regen buttons only, no Save/Skip (FEAT-30)
 function buildPostSaveKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard;
 
-// Strip transient fields from TranslateOutput for DB storage (FEAT-30)
+// Map TranslateOutput → CreateVocabularyInput for normalized vocabulary storage (Task 39)
+// Lives in bot layer because it bridges core's TranslateOutput and adapter-db's CreateVocabularyInput
+function toVocabularyInput(output: TranslateOutput, sourceLangId: number, inputType: "word" | "phrase", langResolver: LangResolver): CreateVocabularyInput;
+
+// Type: resolves language code to DB ID
+type LangResolver = (code: string) => number | null;
+
+// @deprecated — Strip transient fields from TranslateOutput for DB storage (FEAT-30, superseded by toVocabularyInput)
 function sanitizeForStorage(output: TranslateOutput): StoredWordContent;
 
 // Render a compact sentence translation card (Task 27)
@@ -378,12 +386,12 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
       ├─ No pendingTranslation (nothing to save)
       └─ Show source language selection menu
 
-[Save callback — FEAT-30 flow]
+[Save callback — FEAT-30 flow (updated Task 39)]
   ├─ FK resolution: getLang(sourceLang) → sourceLangId
-  ├─ Duplicate detection: wordRepository.findByOriginalAndSource()
+  ├─ Duplicate detection: vocabularyRepository.findByOriginalAndSource()
   │   └─ If duplicate: show "already saved" toast, return early
-  ├─ Sanitize: sanitizeForStorage() strips transient fields
-  ├─ Persist: wordRepository.create() with CreateWordInput shape
+  ├─ Map: toVocabularyInput() builds normalized CreateVocabularyInput
+  ├─ Persist: vocabularyRepository.create() — transactional parent + N translations
   ├─ Session: set savedWordId, clear pendingTranslation
   └─ Edit card in-place: savedToDict text + buildPostSaveKeyboard (regen-only)
 
@@ -399,7 +407,7 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
   │   (sentences → SENTENCE_OUTPUT, words/phrases → user template or default)
   ├─ Call translateOneWithContext() with correct preset + inputType
   ├─ Merge regenerated translation into lastTranslation
-  ├─ If savedWordId set: auto-update DB entry via wordRepository.updateContent()
+  ├─ If savedWordId set: auto-update single language row via vocabularyRepository.updateTranslation()
   ├─ For word/phrase (not yet saved): also update pendingTranslation
   └─ Re-render card: savedWordId? → postSaveKeyboard+savedToDict : translationKeyboard
 
@@ -509,7 +517,9 @@ apps/bot/src/
 │   ├── async-validation.test.ts      # 6 tests (feature flag, dynamic import, graceful degradation)
 │   ├── classify-input.ts             # ✅ Input classifier: word/phrase/sentence (Task 27)
 │   ├── classify-input.test.ts        # 18 tests (classification rules, boundaries, config)
-│   ├── sanitize-word-content.ts      # ✅ sanitizeForStorage() — strips transient fields for DB (FEAT-30)
+│   ├── vocabulary-mapper.ts           # ✅ toVocabularyInput() — maps TranslateOutput → CreateVocabularyInput (Task 39)
+│   ├── vocabulary-mapper.test.ts     # 13 tests (field mapping, language resolution, immutability, details structure)
+│   ├── sanitize-word-content.ts      # ⚠️ @deprecated sanitizeForStorage() — superseded by vocabulary-mapper.ts (FEAT-30)
 │   └── sanitize-word-content.test.ts # 9 tests (field stripping, immutability, minimal input)
 ├── renderers/
 │   ├── translation.renderer.ts # renderTranslation, renderSentenceTranslation, renderTopicWord, renderQualityWarning, buildTranslationKeyboard(+inputType), buildPostSaveKeyboard, buildSentenceKeyboard, buildSourceLangKeyboard
@@ -531,8 +541,8 @@ apps/bot/src/
 │   │   │   ├── translate-mode-reminder.test.ts       # 6 tests (non-blocking reminder menu — Task 36)
 │   │   │   └── source-lang-callback.test.ts          # 7 tests (callback handling)
 │   │   ├── template.helper.ts        # ✅ Template wizard callbacks: customize, toggle, preview, save, cancel, reset, back (Task 32)
-│   │   ├── regen.helper.ts           # ✅ regeneration loop helper (sentence-aware, FEAT-30 save flow, template-aware)
-│   │   └── regen.helper.test.ts      # 13 tests (includes dedup, FK resolution, inputType)
+│   │   ├── regen.helper.ts           # ✅ regeneration loop helper (sentence-aware, vocabularyRepository save flow, template-aware)
+│   │   └── regen.helper.test.ts      # 13 tests (includes dedup, FK resolution, inputType, vocabularyRepository)
 │   ├── dictionary.scene.ts     # ❌ to be created
 │   └── settings.scene.ts       # ❌ to be created
 └── __tests__/

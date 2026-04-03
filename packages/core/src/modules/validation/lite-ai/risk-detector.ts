@@ -16,18 +16,7 @@ import type { RiskDetectorInput } from "./types.js";
  *
  * Can be overridden by passing a custom allowlist.
  */
-export const SAFE_LANGUAGES: readonly string[] = [
-  "en",
-  "es",
-  "fr",
-  "de",
-  "ru",
-  "zh",
-  "ja",
-  "ko",
-  "pt",
-  "it",
-];
+export const SAFE_LANGUAGES: readonly string[] = ["en", "es", "fr", "de", "ru", "zh", "ja", "ko", "pt", "it"];
 
 /**
  * Determine whether a translation is high-risk and should be validated
@@ -42,18 +31,12 @@ export const SAFE_LANGUAGES: readonly string[] = [
  * @param input - Risk detection input
  * @param safeLangs - Override safe languages list (for testing or customization)
  */
-export function isHighRisk(
-  input: RiskDetectorInput,
-  safeLangs: readonly string[] = SAFE_LANGUAGES,
-): boolean {
+export function isHighRisk(input: RiskDetectorInput, safeLangs: readonly string[] = SAFE_LANGUAGES): boolean {
   // Criterion 1: Phrase/idiom input
   if (input.inputType === "phrase") {
     return true;
   }
-  if (
-    input.dictionaryContext?.pos === "idiom" ||
-    input.dictionaryContext?.pos === "phrase"
-  ) {
+  if (input.dictionaryContext?.pos === "idiom" || input.dictionaryContext?.pos === "phrase") {
     return true;
   }
 

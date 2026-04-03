@@ -42,12 +42,23 @@ export type {
 // Re-export repositories and types
 export { MAX_LEARNING_LANGS, userRepository } from "./repositories/user.repository.js";
 export type {
+  CreateVocabularyInput,
+  UpdateTranslationData,
+  VocabTranslationDetails,
+  VocabularyEntry,
+  VocabularyEntryWithSourceLang,
+  VocabularyEntryWithTranslations,
+  VocabularyTranslation,
+} from "./repositories/vocabulary.repository.js";
+export { vocabularyRepository } from "./repositories/vocabulary.repository.js";
+export type {
   CreateWordInput,
   NewWord,
   StoredLanguageTranslation,
   StoredWordContent,
   Word,
 } from "./repositories/word.repository.js";
+/** @deprecated Use vocabularyRepository instead. Will be removed after migration to normalized vocabulary schema. */
 export { wordRepository } from "./repositories/word.repository.js";
 export type {
   NewWordContext,

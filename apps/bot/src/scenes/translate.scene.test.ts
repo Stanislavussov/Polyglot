@@ -22,9 +22,10 @@ vi.mock("@polyglot/adapter-db", () => ({
   translationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),
   },
-  wordRepository: {
-    create: vi.fn().mockResolvedValue({ id: 1 }),
+  vocabularyRepository: {
+    create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
     findByOriginalAndSource: vi.fn().mockResolvedValue(null),
+    updateTranslation: vi.fn().mockResolvedValue({}),
   },
 }));
 

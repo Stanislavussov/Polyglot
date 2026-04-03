@@ -14,8 +14,8 @@
  */
 
 import { getLogger } from "../../../logger.js";
-import { isHighRisk } from "./risk-detector.js";
 import { validateWithLiteAI } from "./lite-validation.service.js";
+import { isHighRisk } from "./risk-detector.js";
 import type { AsyncValidationParams } from "./types.js";
 
 /**

@@ -5,7 +5,7 @@
  */
 import type { Conversation } from "@grammyjs/conversations";
 import { generateObject } from "@polyglot/adapter-ai";
-import { getLang, translationTemplateRepository, wordRepository } from "@polyglot/adapter-db";
+import { getLang, translationTemplateRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import {
   type InputType,
   resolveOutputConfig,
@@ -24,7 +24,7 @@ import {
   renderTranslation,
 } from "../../renderers/translation.renderer.js";
 import type { BotContext, ConversationContext } from "../../types.js";
-import { sanitizeForStorage } from "../../utils/sanitize-word-content.js";
+import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
 type TranslateConversation = Conversation<BotContext, ConversationContext>;
 
@@ -83,7 +83,7 @@ export async function handleRegenLoop(
 
       // Duplicate detection
       const existing = await conversation.external(async () =>
-        wordRepository.findByOriginalAndSource(userId, current.original, sourceLangId),
+        vocabularyRepository.findByOriginalAndSource(userId, current.original, sourceLangId),
       );
 
       if (existing) {
@@ -92,15 +92,15 @@ export async function handleRegenLoop(
         continue;
       }
 
-      // Sanitize + persist
-      const sanitized = sanitizeForStorage(current);
+      // Map to normalized vocabulary input + persist
+      const vocabInput = toVocabularyInput(
+        current,
+        sourceLangId,
+        (inputType as "word" | "phrase") ?? "word",
+        (code) => getLang(code)?.id ?? null,
+      );
       await conversation.external(async () => {
-        await wordRepository.create(userId, {
-          original: current.original,
-          sourceLangId,
-          inputType: (inputType as "word" | "phrase") ?? "word",
-          content: sanitized,
-        });
+        await vocabularyRepository.create(userId, vocabInput);
       });
 
       // Post-save card with regen-only keyboard

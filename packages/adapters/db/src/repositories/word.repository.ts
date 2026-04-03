@@ -47,6 +47,11 @@ export interface CreateWordInput {
 /*  Repository                                                         */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @deprecated Use `vocabularyRepository` from `./vocabulary.repository.ts` instead.
+ * This repository operates on the legacy `words` table (monolithic JSONB content).
+ * It will be removed when migration 0011 drops the `words` table.
+ */
 export const wordRepository = {
   /** Create a new word in the dictionary. */
   async create(userId: number, input: CreateWordInput): Promise<Word> {

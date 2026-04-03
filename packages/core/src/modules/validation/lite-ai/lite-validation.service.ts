@@ -14,7 +14,7 @@
 import type { ZodSchema } from "zod";
 import { getLogger } from "../../../logger.js";
 import { buildLiteValidationPrompt } from "./prompt.builder.js";
-import { REVIEW_THRESHOLD, liteValidationResultSchema } from "./schemas.js";
+import { liteValidationResultSchema, REVIEW_THRESHOLD } from "./schemas.js";
 import type { LiteValidationInput, LiteValidationResult, LiteValidationScore } from "./types.js";
 
 /** AI generation function signature for lite validation */
@@ -50,12 +50,7 @@ export async function validateWithLiteAI(
     const prompt = buildLiteValidationPrompt(input);
 
     // Call AI with no retries (validation is best-effort)
-    const raw = await generateObjectFn(
-      prompt,
-      liteValidationResultSchema,
-      model,
-      { maxRetries: 0 },
-    );
+    const raw = await generateObjectFn(prompt, liteValidationResultSchema, model, { maxRetries: 0 });
 
     const scores = raw.scores;
     const flaggedForReview = isFlagged(scores);
@@ -103,18 +98,14 @@ export async function validateWithLiteAI(
  * Pure function.
  */
 function isFlagged(scores: Record<string, LiteValidationScore>): boolean {
-  return Object.values(scores).some(
-    (score) => score.overallScore < REVIEW_THRESHOLD,
-  );
+  return Object.values(scores).some((score) => score.overallScore < REVIEW_THRESHOLD);
 }
 
 /**
  * Extract overall scores for logging.
  * Pure function.
  */
-function extractOverallScores(
-  scores: Record<string, LiteValidationScore>,
-): Record<string, number> {
+function extractOverallScores(scores: Record<string, LiteValidationScore>): Record<string, number> {
   const result: Record<string, number> = {};
   for (const [lang, score] of Object.entries(scores)) {
     result[lang] = score.overallScore;
