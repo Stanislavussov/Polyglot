@@ -27,7 +27,6 @@ function makeEntry(overrides: Partial<PipelineEntry> & { id: number }): Pipeline
       {
         targetLangCode: "cs",
         text: `překlad-${overrides.id}`,
-        cefr: "B1",
         register: "neutral",
         transcription: "[test]",
         expressionType: null,
@@ -66,7 +65,6 @@ function makeConfig(overrides?: Partial<DictionaryWordConfig>): DictionaryWordCo
         equivalentNote: true,
         connotationWarning: true,
       },
-      showCefr: true,
       showRegister: true,
       ...overrides?.presentation,
     },
@@ -283,7 +281,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "x",
-              cefr: "A1",
               register: null,
               transcription: null,
               expressionType: null,
@@ -299,7 +296,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "de",
               text: "y",
-              cefr: "A1",
               register: null,
               transcription: null,
               expressionType: null,
@@ -315,7 +311,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "z",
-              cefr: "A1",
               register: null,
               transcription: null,
               expressionType: null,
@@ -326,7 +321,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "de",
               text: "w",
-              cefr: "A1",
               register: null,
               transcription: null,
               expressionType: null,
@@ -350,72 +344,6 @@ describe("createDictionaryPipeline", () => {
       const result = await pipeline.run(42, config);
 
       expect(result.words.map((w) => w.id)).toEqual([2, 3]);
-    });
-
-    it("filters by CEFR levels", async () => {
-      const entries = [
-        makeEntry({
-          id: 1,
-          translations: [
-            {
-              targetLangCode: "cs",
-              text: "x",
-              cefr: "A1",
-              register: null,
-              transcription: null,
-              expressionType: null,
-              equivalentNote: null,
-              connotationWarning: null,
-              details: null,
-            },
-          ],
-        }),
-        makeEntry({
-          id: 2,
-          translations: [
-            {
-              targetLangCode: "cs",
-              text: "y",
-              cefr: "C1",
-              register: null,
-              transcription: null,
-              expressionType: null,
-              equivalentNote: null,
-              connotationWarning: null,
-              details: null,
-            },
-          ],
-        }),
-        makeEntry({
-          id: 3,
-          translations: [
-            {
-              targetLangCode: "cs",
-              text: "z",
-              cefr: "A2",
-              register: null,
-              transcription: null,
-              expressionType: null,
-              equivalentNote: null,
-              connotationWarning: null,
-              details: null,
-            },
-          ],
-        }),
-      ];
-      const deps = makeDeps(entries);
-      const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({
-        selection: {
-          strategy: "oldest_first",
-          limit: 10,
-          filter: { cefr: ["A1", "A2"] },
-        },
-      });
-
-      const result = await pipeline.run(42, config);
-
-      expect(result.words.map((w) => w.id)).toEqual([1, 3]);
     });
 
     it("filters by sourceLangId", async () => {
@@ -482,7 +410,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "čeština",
-              cefr: "A1",
               register: null,
               transcription: null,
               expressionType: null,
@@ -493,7 +420,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "de",
               text: "deutsch",
-              cefr: "A1",
               register: null,
               transcription: null,
               expressionType: null,
@@ -504,7 +430,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "fr",
               text: "français",
-              cefr: "A1",
               register: null,
               transcription: null,
               expressionType: null,
@@ -528,7 +453,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showCefr: true,
           showRegister: true,
           targetLangs: ["cs", "de"],
         },
@@ -547,7 +471,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "čeština",
-              cefr: "A1",
               register: null,
               transcription: null,
               expressionType: null,
@@ -571,7 +494,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showCefr: true,
           showRegister: true,
           targetLangs: ["de"], // entry only has "cs"
         },
@@ -599,7 +521,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showCefr: true,
           showRegister: true,
         },
       });
@@ -625,7 +546,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showCefr: true,
           showRegister: true,
         },
       });
@@ -651,7 +571,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showCefr: true,
           showRegister: true,
         },
       });
@@ -660,32 +579,6 @@ describe("createDictionaryPipeline", () => {
 
       const translation = Object.values(result.words[0]!.translations)[0]!;
       expect(translation.transcription).toBeUndefined();
-    });
-
-    it("showCefr: false → cefr absent", async () => {
-      const entries = [makeEntry({ id: 1 })];
-      const deps = makeDeps(entries);
-      const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({
-        selection: { strategy: "random", limit: 10 },
-        presentation: {
-          fields: {
-            transcription: true,
-            synonyms: true,
-            examples: true,
-            alternatives: true,
-            equivalentNote: true,
-            connotationWarning: true,
-          },
-          showCefr: false,
-          showRegister: true,
-        },
-      });
-
-      const result = await pipeline.run(42, config);
-
-      const translation = Object.values(result.words[0]!.translations)[0]!;
-      expect(translation.cefr).toBeUndefined();
     });
 
     it("showRegister: false → register absent on word and translation", async () => {
@@ -703,7 +596,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showCefr: true,
           showRegister: false,
         },
       });
@@ -724,7 +616,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "test",
-              cefr: "A1",
               register: "neutral",
               transcription: null,
               expressionType: null,
@@ -752,7 +643,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showCefr: true,
           showRegister: true,
         },
       });
@@ -783,7 +673,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "test",
-              cefr: "A1",
               register: "neutral",
               transcription: null,
               expressionType: "idiomatic_equivalent",

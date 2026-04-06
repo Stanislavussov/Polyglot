@@ -44,7 +44,6 @@ function makeTranslateOutput(
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      cefr: "A1",
       register: "neutral",
       synonyms: [],
       examples: [],
@@ -63,7 +62,6 @@ function makeTranslateOutput(
 function makeLangTranslation(word: string, lang: string): LanguageTranslation {
   return {
     text: `${word}_${lang}`,
-    cefr: "A1",
     register: "neutral",
     synonyms: [],
     examples: [],

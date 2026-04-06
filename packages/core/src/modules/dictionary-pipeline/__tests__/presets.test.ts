@@ -29,8 +29,7 @@ describe("dictionary pipeline presets", () => {
       });
     });
 
-    it("shows CEFR and register", () => {
-      expect(FLASHCARD_CONFIG.presentation.showCefr).toBe(true);
+    it("shows register", () => {
       expect(FLASHCARD_CONFIG.presentation.showRegister).toBe(true);
     });
 
@@ -57,8 +56,7 @@ describe("dictionary pipeline presets", () => {
       expect(NOTIFICATION_DICT_CONFIG.presentation.fields.alternatives).toBe(false);
     });
 
-    it("shows CEFR but not register", () => {
-      expect(NOTIFICATION_DICT_CONFIG.presentation.showCefr).toBe(true);
+    it("does not show register", () => {
       expect(NOTIFICATION_DICT_CONFIG.presentation.showRegister).toBe(false);
     });
 
@@ -89,8 +87,7 @@ describe("dictionary pipeline presets", () => {
       expect(WORD_OF_DAY_DICT_CONFIG.presentation.fields.alternatives).toBe(false);
     });
 
-    it("shows CEFR and register", () => {
-      expect(WORD_OF_DAY_DICT_CONFIG.presentation.showCefr).toBe(true);
+    it("shows register", () => {
       expect(WORD_OF_DAY_DICT_CONFIG.presentation.showRegister).toBe(true);
     });
 

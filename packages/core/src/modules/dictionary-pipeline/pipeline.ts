@@ -55,14 +55,6 @@ function applyFilters(
     );
   }
 
-  // CEFR filter — any target lang translation must match one of the given levels
-  if (filter.cefr && filter.cefr.length > 0) {
-    const allowed = new Set<string>(filter.cefr);
-    result = result.filter((e) =>
-      e.translations.some((t) => t.cefr && allowed.has(t.cefr)),
-    );
-  }
-
   // excludeIds
   if (filter.excludeIds && filter.excludeIds.length > 0) {
     const excluded = new Set(filter.excludeIds);
@@ -152,7 +144,7 @@ function buildDisplayTranslation(
   row: PipelineTranslationRow,
   config: DictionaryWordConfig,
 ): WordDisplayTranslation {
-  const { fields, showCefr, showRegister } = config.presentation;
+  const { fields, showRegister } = config.presentation;
 
   const result: WordDisplayTranslation = {
     text: row.text,

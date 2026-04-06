@@ -80,11 +80,6 @@ describe("renderTranslation", () => {
     expect(result).toContain("[ˈahoj]");
   });
 
-  it("does not render CEFR level (removed)", () => {
-    const result = renderTranslation(sampleOutput, "en");
-    expect(result).not.toContain("CEFR:");
-  });
-
   it("renders synonyms inline after translation header", () => {
     const result = renderTranslation(sampleOutput, "en");
     // Synonyms are inline: text only, no register, no separate block
@@ -819,11 +814,6 @@ describe("renderSentenceTranslation", () => {
     const result = renderSentenceTranslation(sentenceOutput, "en");
     expect(result).toContain("🇨🇿 CS:");
     expect(result).toContain("🇩🇪 DE:");
-  });
-
-  it("does NOT render CEFR level", () => {
-    const result = renderSentenceTranslation(sentenceOutput, "en");
-    expect(result).not.toContain("CEFR:");
   });
 
   it("does NOT render synonyms", () => {

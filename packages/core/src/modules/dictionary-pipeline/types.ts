@@ -13,7 +13,6 @@
 
 import type { TemplateFields } from "../../shared/translation-template.types.js";
 import type {
-  CefrLevel,
   Example,
   ExpressionType,
   Register,
@@ -40,8 +39,6 @@ export interface WordFilter {
   sourceLangId?: number;
   /** Only include words that have a translation for this target language code */
   targetLang?: string;
-  /** Only include words whose stored CEFR matches (any of these levels) */
-  cefr?: CefrLevel[];
   /** Exclude these entry IDs (already shown in current session) */
   excludeIds?: number[];
 }
@@ -62,8 +59,7 @@ export interface WordSelectionConfig {
  * Which fields to include when presenting a word.
  *
  * Uses TemplateFields from the user's saved translation template (Task 32).
- * CEFR and register are system-controlled (not in TemplateFields):
- *   showCefr     → hardcoded per preset (true in flash cards)
+ * Register is system-controlled (not in TemplateFields):
  *   showRegister → hardcoded per preset (true in flash cards)
  */
 
@@ -83,7 +79,6 @@ export interface PresentationConfig {
    */
   fields: TemplateFields;
   /** System-controlled flags not in TemplateFields */
-  showCefr: boolean;
   showRegister: boolean;
   flashcard?: FlashCardPresentationConfig;
 }
@@ -105,7 +100,6 @@ export interface DictionaryWordConfig {
 /** Normalized translation data for a single target language (display-ready) */
 export interface WordDisplayTranslation {
   text: string;
-  cefr?: CefrLevel;
   transcription?: string;
   register?: Register;
   synonyms?: Synonym[];
@@ -158,7 +152,6 @@ export interface WordPipelineResult {
 export interface PipelineTranslationRow {
   targetLangCode: string;
   text: string;
-  cefr?: string | null;
   transcription?: string | null;
   register?: string | null;
   expressionType?: string | null;
