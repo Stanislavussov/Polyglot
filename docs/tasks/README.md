@@ -16,6 +16,26 @@
 | 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 In Progress |
 | 38  | [Regen Helper Context Enrichment](./38-regen-helper-context-enrichment.md) | 🔲 To Do |
 
+## Architecture — Debt Reduction
+
+| #   | Task                                              | Status     | Priority |
+| --- | ------------------------------------------------- | ---------- | -------- |
+| 42  | [Composition Root & Dependency Injection](./42-composition-root-and-di.md) | 🔲 To Do | 🔴 Critical |
+| 43  | [Persistent Session Storage with Versioning](./43-persistent-session-storage.md) | 🔲 To Do | 🔴 Critical |
+| 44  | [Unify Language Cache with TTL Refresh](./44-unify-language-cache.md) | 🔲 To Do | 🟠 High |
+| 45  | [Extract Domain Types from adapter-db to Core](./45-domain-types-in-core.md) | 🔲 To Do | 🔴 Critical |
+| 46  | [Split translate-mode.helper.ts God Module](./46-split-translate-mode-helper.md) | 🔲 To Do | 🟠 High |
+| 47  | [Wire Rate Limiting into Translation Flow](./47-wire-rate-limiting.md) | 🔲 To Do | 🔴 Critical |
+| 48  | [Extract Notification Scheduler to Separate Process](./48-extract-notification-scheduler-process.md) | 🔲 To Do | 🟠 High |
+| 49  | [Centralize Adapter Configuration](./49-centralize-adapter-config.md) | 🔲 To Do | 🟡 Medium |
+| 50  | [SRS Schema Foundation](./50-srs-schema-foundation.md) | 🔲 To Do | 🟠 High |
+| 51  | [Modular Bot Feature Registration](./51-modular-bot-registration.md) | 🔲 To Do | 🟡 Medium |
+| 52  | [Wire Topic Cache + Normalize FK](./52-topic-cache-fk-normalization.md) | 🔲 To Do | 🟡 Medium |
+| 53  | [Decouple Adapters from @polyglot/infra](./53-decouple-adapters-from-infra.md) | 🔲 To Do | 🟡 Medium |
+| 54  | [Fix Core Barrel Export Conflicts](./54-fix-barrel-export-conflicts.md) | 🔲 To Do | 🟡 Medium |
+| 55  | [Health Check & Basic Observability](./55-health-check-and-observability.md) | 🔲 To Do | 🟡 Medium |
+| 56  | [GDPR /delete Command](./56-gdpr-delete-command.md) | 🔲 To Do | 🟡 Medium |
+
 ## Finished
 
 | #   | Task                                              |
