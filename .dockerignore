@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.env
+coverage
+.vitest
+docs
+.pi
+*.md
+.dependency-cruiser.cjs
+biome.json
+vitest.config.ts

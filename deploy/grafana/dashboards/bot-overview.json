@@ -1,0 +1,172 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Bot Uptime",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "process_uptime_seconds{job=\"bot\"}",
+          "legendFormat": "uptime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" }
+      }
+    },
+    {
+      "title": "Memory Usage",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes{job=\"bot\"}",
+          "legendFormat": "RSS"
+        },
+        {
+          "expr": "nodejs_heap_size_used_bytes{job=\"bot\"}",
+          "legendFormat": "Heap Used"
+        },
+        {
+          "expr": "nodejs_heap_size_total_bytes{job=\"bot\"}",
+          "legendFormat": "Heap Total"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" }
+      }
+    },
+    {
+      "title": "CPU Usage",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{job=\"bot\"}[1m])",
+          "legendFormat": "CPU seconds/s"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit" }
+      }
+    },
+    {
+      "title": "Telegram Messages / min",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "targets": [
+        {
+          "expr": "rate(bot_telegram_messages_total{job=\"bot\"}[1m]) * 60",
+          "legendFormat": "{{ type }}"
+        }
+      ]
+    },
+    {
+      "title": "Translations / min",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "targets": [
+        {
+          "expr": "rate(bot_translations_total{job=\"bot\"}[1m]) * 60",
+          "legendFormat": "{{ status }}"
+        }
+      ]
+    },
+    {
+      "title": "Translation Duration (p50 / p95 / p99)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(bot_translation_duration_seconds_bucket{job=\"bot\"}[5m]))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(bot_translation_duration_seconds_bucket{job=\"bot\"}[5m]))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, rate(bot_translation_duration_seconds_bucket{job=\"bot\"}[5m]))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" }
+      }
+    },
+    {
+      "title": "AI Requests / min",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "targets": [
+        {
+          "expr": "rate(bot_ai_requests_total{job=\"bot\"}[1m]) * 60",
+          "legendFormat": "{{ model }} ({{ status }})"
+        }
+      ]
+    },
+    {
+      "title": "AI Tokens / min",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
+      "targets": [
+        {
+          "expr": "rate(bot_ai_tokens_total{job=\"bot\"}[1m]) * 60",
+          "legendFormat": "{{ model }} ({{ type }})"
+        }
+      ]
+    },
+    {
+      "title": "Notifications / min",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
+      "targets": [
+        {
+          "expr": "rate(bot_notifications_total{job=\"bot\"}[1m]) * 60",
+          "legendFormat": "{{ status }}"
+        }
+      ]
+    },
+    {
+      "title": "Event Loop Lag",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 36 },
+      "targets": [
+        {
+          "expr": "nodejs_eventloop_lag_seconds{job=\"bot\"}",
+          "legendFormat": "lag"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" }
+      }
+    },
+    {
+      "title": "Active Handles & Requests",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 36 },
+      "targets": [
+        {
+          "expr": "nodejs_active_handles_total{job=\"bot\"}",
+          "legendFormat": "handles"
+        },
+        {
+          "expr": "nodejs_active_requests_total{job=\"bot\"}",
+          "legendFormat": "requests"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["bot", "polyglot"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Polyglot Bot Overview",
+  "uid": "polyglot-bot-overview"
+}

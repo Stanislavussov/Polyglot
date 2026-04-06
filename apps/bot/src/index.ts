@@ -66,6 +66,7 @@ import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, SessionData } from "./types.js";
+import { startMetricsServer, telegramMessagesCounter } from "./metrics.js";
 
 // ── Load & validate environment ──
 const config = loadConfig();
@@ -96,6 +97,13 @@ bot.use(
     }),
   }),
 );
+
+// Metrics middleware — count incoming messages
+bot.use((ctx, next) => {
+  const type = ctx.callbackQuery ? "callback" : ctx.message ? "message" : "other";
+  telegramMessagesCounter.inc({ type });
+  return next();
+});
 
 // Conversations plugin (must be before createConversation)
 bot.use(conversations());
@@ -219,6 +227,8 @@ async function main(): Promise<void> {
 
   // Start notification scheduler (Task 41) — must be after language cache is loaded
   wireNotificationScheduler(bot.api);
+
+  startMetricsServer();
 
   logger.info("Starting bot in long-polling mode...");
   bot.start({

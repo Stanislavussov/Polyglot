@@ -33,6 +33,7 @@ import {
   renderSentenceTranslation,
   renderTranslation,
 } from "../../renderers/translation.renderer.js";
+import { translationCounter, translationDuration } from "../../metrics.js";
 import type { BotContext } from "../../types.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
@@ -174,6 +175,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     // For sentences, skip dictionary context lookup (no learnable word to enrich)
     const lookupContextFn = isSentence ? async () => undefined : lookupContext;
 
+    const stopTimer = translationDuration.startTimer();
     const output = await translateWithContext(
       {
         word,
@@ -186,6 +188,8 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       },
       { lookupContext: lookupContextFn, generateObjectFn: generateObject },
     );
+    stopTimer();
+    translationCounter.inc({ status: "success" });
 
     // Delete loading message
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
@@ -243,6 +247,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       await sendSourceLangMenu(ctx, settings, lang);
     }
   } catch (err) {
+    translationCounter.inc({ status: "error" });
     logger.error({ err, word, telegramId }, "Translation failed");
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
     await ctx.reply(t("translationError", lang));
@@ -461,14 +466,14 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
           await vocabularyRepository.updateTranslation(ctx.session.savedWordId, targetLangEntry.id, {
             text: regenResult.text,
             register: regenResult.register,
-            transcription: regenResult.transcription,
-            expressionType: regenResult.expressionType,
-            equivalentNote: regenResult.equivalentNote,
-            connotationWarning: regenResult.connotationWarning,
+            transcription: regenResult.transcription ?? undefined,
+            expressionType: regenResult.expressionType ?? undefined,
+            equivalentNote: regenResult.equivalentNote ?? undefined,
+            connotationWarning: regenResult.connotationWarning ?? undefined,
             details: {
               synonyms: regenResult.synonyms ?? [],
               examples: regenResult.examples ?? [],
-              alternatives: regenResult.alternatives,
+              alternatives: regenResult.alternatives ?? undefined,
             },
           });
         }

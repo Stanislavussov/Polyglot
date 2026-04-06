@@ -18,7 +18,15 @@
     "lint:deps": "depcruise --config .dependency-cruiser.cjs packages apps/bot/src",
     "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > docs/dependency-graph.svg",
     "import:wiktionary": "tsx src/scripts/import-wiktionary.ts",
-    "clean": "pnpm -r run clean && rm -rf coverage .vitest"
+    "clean": "pnpm -r run clean && rm -rf coverage .vitest",
+    "docker:up": "docker compose -f deploy/docker-compose.yml up",
+    "docker:up:build": "docker compose -f deploy/docker-compose.yml up --build",
+    "docker:up:detach": "docker compose -f deploy/docker-compose.yml up -d",
+    "docker:down": "docker compose -f deploy/docker-compose.yml down",
+    "docker:logs": "docker compose -f deploy/docker-compose.yml logs -f bot",
+    "docker:migrate": "docker compose -f deploy/docker-compose.yml run --rm migrate",
+    "docker:dev": "docker compose -f deploy/docker-compose.dev.yml up",
+    "docker:dev:build": "docker compose -f deploy/docker-compose.dev.yml up --build"
   },
   "dependencies": {
     "@polyglot/adapter-db": "workspace:*",

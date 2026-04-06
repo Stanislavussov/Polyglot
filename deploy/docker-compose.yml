@@ -1,0 +1,56 @@
+services:
+  bot:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: production
+      network: host
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      - NODE_ENV=production
+    expose:
+      - "9090"
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+    expose:
+      - "9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    depends_on:
+      - prometheus
+
+  # Run database migrations: docker compose run --rm migrate
+  migrate:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: migrate
+      network: host
+    env_file: ../.env
+    profiles:
+      - tools
+
+volumes:
+  prometheus-data:
+  grafana-data:

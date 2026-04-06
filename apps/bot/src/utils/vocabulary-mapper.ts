@@ -51,17 +51,17 @@ export function toVocabularyInput(
     const details: VocabTranslationDetails = {
       synonyms: lang.synonyms ?? [],
       examples: lang.examples ?? [],
-      alternatives: lang.alternatives,
+      alternatives: lang.alternatives ?? undefined,
     };
 
     translations.push({
       targetLangId,
       text: lang.text,
       register: lang.register,
-      transcription: lang.transcription,
-      expressionType: lang.expressionType,
-      equivalentNote: lang.equivalentNote,
-      connotationWarning: lang.connotationWarning,
+      transcription: lang.transcription ?? undefined,
+      expressionType: lang.expressionType ?? undefined,
+      equivalentNote: lang.equivalentNote ?? undefined,
+      connotationWarning: lang.connotationWarning ?? undefined,
       details,
     });
   }
