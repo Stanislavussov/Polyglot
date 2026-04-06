@@ -102,6 +102,25 @@
         ],
         "subAgents": [
           {
+            "name": "infra",
+            "role": "Shared infrastructure: config loading, logger, and utility scripts. Works in packages/infra/src.",
+            "rules": "No business logic — only cross-cutting infrastructure (config, logging, scripts).\nConfig via `loadConfig()` with Zod validation. Logger via shared pino instance.\nInfra is a leaf dependency — never import from domain packages at runtime.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "type": "coding",
+            "skills": [
+              ".pi/skills/dev-standards"
+            ]
+          },
+          {
+            "name": "translation-template",
+            "role": "Translation output configuration: templates, presets, field visibility, and shared error classes. Works in packages/core/src/shared/.",
+            "rules": "Shared utilities only — no adapter imports, no side effects.\n`DEFAULT_TEMPLATE` is the single source of truth for default field visibility.\nOutput presets are immutable constants — never mutate them.\n`resolveOutputConfig` is the only way to derive `TranslationOutputConfig` from a user template.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "type": "coding",
+            "skills": [
+              ".pi/skills/translation-template",
+              ".pi/skills/dev-standards"
+            ]
+          },
+          {
             "name": "i18n",
             "role": "Internationalization of all bot texts. Works in packages/core/src.",
             "rules": "Only `t(key, lang)` — no direct locale file imports from other modules.\nOn missing key — fallback to `en`, never throw.\nKeys are a strict TypeScript enum.\nLanguage lists from DB cache, not hardcoded arrays or union types.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
@@ -151,6 +170,7 @@
               ".pi/skills/dev-standards"
             ],
             "dependsOn": [
+              "infra",
               "validation"
             ]
           },
@@ -161,6 +181,7 @@
             "type": "coding",
             "skills": [
               ".pi/skills/translation",
+              ".pi/skills/context-enrichment",
               ".pi/skills/db-sot",
               ".pi/skills/dev-standards"
             ],
@@ -185,6 +206,20 @@
             ]
           },
           {
+            "name": "dictionary-pipeline",
+            "role": "Config-driven pipeline for reading words from a user's dictionary. Works in packages/core/src/modules/dictionary-pipeline/.",
+            "rules": "Pure core module — no adapter imports, all deps injected via `DictionaryPipelineDeps`.\nPreset configs are the single source of truth for word selection strategies.\n`TemplateFields` controls field visibility — loaded from user's saved template.\nNever hardcode language codes or user settings.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
+            "type": "coding",
+            "skills": [
+              ".pi/skills/dictionary-pipeline",
+              ".pi/skills/dev-standards"
+            ],
+            "dependsOn": [
+              "translation",
+              "translation-template"
+            ]
+          },
+          {
             "name": "notifications",
             "role": "Notification scheduling and delivery, isolated from bot via injection. Works in packages/adapters/notifications/src.",
             "rules": "Receives `sendFn` — never imports bot. One cron job for all users.\nLog and continue on send errors. Respect user timezone.\nTimezone and language defaults from DB constants, not hardcoded.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
@@ -195,6 +230,7 @@
               ".pi/skills/dev-standards"
             ],
             "dependsOn": [
+              "infra",
               "db",
               "topics"
             ]
@@ -210,9 +246,12 @@
               ".pi/skills/dev-standards"
             ],
             "dependsOn": [
+              "infra",
               "i18n",
               "db",
               "translation",
+              "translation-template",
+              "dictionary-pipeline",
               "topics",
               "notifications"
             ]
@@ -223,9 +262,12 @@
             "rules": "Run `pnpm lint:deps` from the project root.\nIf exit code is 0 — report success with a summary of packages/modules checked.\nIf exit code is non-zero — read the violation output carefully.\nFor each violation: identify the source file, the forbidden import, and which rule it breaks.\nAttempt to fix violations by restructuring imports (extract shared types, use dependency injection, break cycles).\nAfter fixing, re-run `pnpm lint:deps` to verify — repeat until clean or max 3 attempts.\nIf violations remain after 3 attempts — report them clearly with file paths, rule names, and suggested fixes.\nNever disable or weaken dependency-cruiser rules — fix the code, not the config.",
             "type": "coding",
             "dependsOn": [
+              "infra",
               "bot",
               "notifications",
               "topics",
+              "dictionary-pipeline",
+              "translation-template",
               "translation",
               "ai",
               "validation",
@@ -244,9 +286,12 @@
             ],
             "dependsOn": [
               "deps-validator",
+              "infra",
               "bot",
               "notifications",
               "topics",
+              "dictionary-pipeline",
+              "translation-template",
               "translation",
               "ai",
               "validation",
