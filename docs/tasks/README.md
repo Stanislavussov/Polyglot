@@ -15,7 +15,6 @@
 | 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 In Progress |
 | 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 In Progress |
 | 38  | [Regen Helper Context Enrichment](./38-regen-helper-context-enrichment.md) | 🔲 To Do |
-| 41  | [Daily Word Notifications](./41-daily-word-notifications.md) | 🔲 To Do |
 
 ## Finished
 
@@ -50,3 +49,4 @@
 | 39  | [Normalize Vocabulary Schema](./finished/39-normalize-vocabulary-schema.md) |
 | 40  | [Dictionary Browse & Delete](./finished/40-dictionary-browse-and-delete.md) |
 | 37b | [Implement /settings Command](./finished/37-implement-settings-command.md) |
+| 41  | [Daily Word Notifications](./finished/41-daily-word-notifications.md) |

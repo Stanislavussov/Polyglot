@@ -495,9 +495,9 @@ describe("userRepository", () => {
     });
 
     it("throws when exceeding MAX_LEARNING_LANGS", async () => {
-      await expect(
-        userRepository.updateLearningLangs(1, ["cs", "de", "fr", "es", "it"]),
-      ).rejects.toThrow(`Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got 5`);
+      await expect(userRepository.updateLearningLangs(1, ["cs", "de", "fr", "es", "it"])).rejects.toThrow(
+        `Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got 5`,
+      );
 
       expect(updateFn).not.toHaveBeenCalled();
     });
@@ -552,6 +552,107 @@ describe("userRepository", () => {
 
       const setKeys = Object.keys(lastUpdateSet as object);
       expect(setKeys).toContain("interfaceLang");
+      expect(setKeys).toContain("updatedAt");
+      expect(setKeys).toHaveLength(2);
+    });
+  });
+
+  describe("updateNotificationPrefs", () => {
+    it("updates all notification preferences and returns settings", async () => {
+      const settings = makeSettings({
+        notificationEnabled: true,
+        notificationTime: "evening",
+        notificationType: "srs",
+      });
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      const result = await userRepository.updateNotificationPrefs(1, {
+        notificationEnabled: true,
+        notificationTime: "evening",
+        notificationType: "srs",
+      });
+
+      expect(result).toEqual(settings);
+      expect(updateFn).toHaveBeenCalledOnce();
+      expect(lastUpdateSet).toHaveProperty("notificationEnabled", true);
+      expect(lastUpdateSet).toHaveProperty("notificationTime", "evening");
+      expect(lastUpdateSet).toHaveProperty("notificationType", "srs");
+      expect(lastUpdateSet).toHaveProperty("updatedAt");
+    });
+
+    it("updates only provided preferences", async () => {
+      const settings = makeSettings({ notificationEnabled: true });
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      await userRepository.updateNotificationPrefs(1, {
+        notificationEnabled: true,
+      });
+
+      const setKeys = Object.keys(lastUpdateSet as object);
+      expect(setKeys).toContain("notificationEnabled");
+      expect(setKeys).toContain("updatedAt");
+      expect(setKeys).not.toContain("notificationTime");
+      expect(setKeys).not.toContain("notificationType");
+    });
+
+    it("returns null when user has no settings row", async () => {
+      updateReturningFn.mockResolvedValueOnce([]);
+
+      const result = await userRepository.updateNotificationPrefs(999, {
+        notificationEnabled: true,
+      });
+
+      expect(result).toBeNull();
+    });
+
+    it("always sets updatedAt timestamp", async () => {
+      const before = new Date();
+      const settings = makeSettings();
+      updateReturningFn.mockResolvedValueOnce([settings]);
+
+      await userRepository.updateNotificationPrefs(1, {
+        notificationTime: "morning",
+      });
+
+      const after = new Date();
+      const updatedAt = (lastUpdateSet as Record<string, unknown>).updatedAt as Date;
+      expect(updatedAt).toBeInstanceOf(Date);
+      expect(updatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(updatedAt.getTime()).toBeLessThanOrEqual(after.getTime());
+    });
+  });
+
+  describe("updateLastInteraction", () => {
+    it("sets lastInteractionAt to current timestamp", async () => {
+      const before = new Date();
+
+      await userRepository.updateLastInteraction(1);
+
+      const after = new Date();
+      expect(updateFn).toHaveBeenCalledOnce();
+      const interactedAt = (lastUpdateSet as Record<string, unknown>).lastInteractionAt as Date;
+      expect(interactedAt).toBeInstanceOf(Date);
+      expect(interactedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(interactedAt.getTime()).toBeLessThanOrEqual(after.getTime());
+    });
+
+    it("also sets updatedAt", async () => {
+      await userRepository.updateLastInteraction(1);
+
+      expect(lastUpdateSet).toHaveProperty("updatedAt");
+    });
+
+    it("returns void", async () => {
+      const result = await userRepository.updateLastInteraction(1);
+
+      expect(result).toBeUndefined();
+    });
+
+    it("only sets lastInteractionAt and updatedAt", async () => {
+      await userRepository.updateLastInteraction(1);
+
+      const setKeys = Object.keys(lastUpdateSet as object);
+      expect(setKeys).toContain("lastInteractionAt");
       expect(setKeys).toContain("updatedAt");
       expect(setKeys).toHaveLength(2);
     });

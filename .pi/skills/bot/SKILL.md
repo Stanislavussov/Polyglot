@@ -36,8 +36,50 @@ Already implemented:
 - `scenes/helpers/flashcard.helper.ts` — Flash card callback handlers (fc:start/reveal/next/done/restart/quit/close); wires pipeline deps to DB repositories; best-effort review logging
 - `renderers/flashcard.renderer.ts` — renderFlashCardFront, renderFlashCardBack, buildFlashCardFrontKeyboard, buildFlashCardBackKeyboard, buildFlashCardDoneKeyboard
 
+- `notifications/notification.formatter.ts` — formatNotificationMessage (HTML), buildNotificationKeyboard (Open dictionary / Skip)
+- `notifications/notification.callbacks.ts` — notif:open (deep-link to /dictionary), notif:skip (dismiss)
+- `notifications/notification.wiring.ts` — wireNotificationScheduler (bridges bot to notification adapter), re-exports stopScheduler
+
 Still needed:
 - (none — all core scenes implemented)
+
+### Daily Word Notifications (Task 41)
+
+Notification scheduler wiring, message formatting, and settings UI for daily word notifications.
+
+**Scheduler wiring** (`notification.wiring.ts`):
+1. `wireNotificationScheduler(api)` — called in `main()` after language cache is loaded
+2. Creates `NotificationServiceDeps` with topic service, vocabulary, review counts, language cache
+3. Creates `sendFn` — looks up user interface language, builds keyboard, sends HTML message via `bot.api.sendMessage()`
+4. Creates `reEngagementSendFn` — sends plain text re-engagement messages
+5. Builds `SchedulerDeps` with notification/user repos, word pickers, i18n
+6. Calls `startScheduler(sendFn, reEngagementSendFn, schedulerDeps)` from `@polyglot/adapter-notifications`
+7. `stopScheduler()` called in graceful shutdown
+
+**Notification message** (`notification.formatter.ts`):
+- `formatNotificationMessage(payload, lang)` — renders emoji + bold original, source label (dictionary vs AI), translations with flag emojis
+- `buildNotificationKeyboard(lang)` — "📖 Open dictionary" (`notif:open`) + "⏭ Skip" (`notif:skip`)
+
+**Notification callbacks** (`notification.callbacks.ts`):
+- `notif:open` → removes keyboard, sends `/dictionary` deep-link
+- `notif:skip` → removes keyboard
+
+**Settings notification UI** (`settings.scene.ts` + `settings.helper.ts`):
+- Settings menu shows 🔔 Notifications section below language settings
+- Toggle button: `set:notif:toggle` — enables/disables notifications
+- When enabled, shows additional buttons:
+  - `set:notif:time` → picker (Morning 8:00 / Evening 20:00)
+  - `set:notif:type` → picker (Dictionary SRS / AI suggestions / Both)
+  - `set:notif:tz` → picker (10 common timezones, validated via `Intl.DateTimeFormat`)
+- All preferences persisted via `userRepository.updateNotificationPrefs()`
+
+**Auth middleware — last interaction tracking** (`auth.ts`):
+- Fire-and-forget `userRepository.updateLastInteraction(userId)` on every request for onboarded users
+- Never blocks request processing — errors logged but swallowed
+
+**Callback data format**: Notification callbacks use `notif:` prefix: `notif:open`, `notif:skip`. Settings notification callbacks use `set:notif:` prefix: `set:notif:toggle`, `set:notif:time`, `set:notif:time:{slot}`, `set:notif:type`, `set:notif:type:{type}`, `set:notif:tz`, `set:notif:tz:{timezone}`.
+
+**i18n keys used**: `notifTitle`, `notifWordFromDict`, `notifAiSuggested`, `notifTranslations`, `notifOpenDict`, `notifSkip`, `settingsNotifSection`, `settingsNotifEnabled`, `settingsNotifDisabled`, `settingsNotifTime`, `settingsNotifType`, `settingsNotifTimezone`, `settingsNotifToggle`, `settingsNotifChooseTime`, `settingsNotifChooseType`, `settingsNotifChooseTimezone`, `notifPaused`, `notifReEngagement`.
 
 ### Flash Card Session (Task 33)
 
@@ -455,11 +497,11 @@ const DICTIONARY_PAGE_SIZE = 15;
 // Command: /settings — shows settings menu with current config (Task 37)
 async function handleSettingsCommand(ctx: BotContext): Promise<void>;
 
-// Build settings main menu text (exported for reuse by helper)
-function buildSettingsText(nativeLang: string, learningLangs: string[], interfaceLang: string, lang: SupportedLang): string;
+// Build settings main menu text (exported for reuse by helper) — Task 41: notification params added
+function buildSettingsText(nativeLang: string, learningLangs: string[], interfaceLang: string, lang: SupportedLang, notifEnabled?: boolean, notifTime?: string, notifType?: string, timezone?: string): string;
 
-// Build settings main menu keyboard (exported for reuse by helper)
-function buildSettingsKeyboard(lang: SupportedLang): InlineKeyboard;
+// Build settings main menu keyboard (exported for reuse by helper) — Task 41: notifEnabled param added
+function buildSettingsKeyboard(lang: SupportedLang, notifEnabled?: boolean): InlineKeyboard;
 
 // Settings callback handlers (Task 37)
 async function handleSetNativeCallback(ctx: BotContext): Promise<void>;
@@ -470,6 +512,26 @@ async function handleSetInterfaceCallback(ctx: BotContext): Promise<void>;
 async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<void>;
 async function handleSetBackCallback(ctx: BotContext): Promise<void>;
 async function handleSetCloseCallback(ctx: BotContext): Promise<void>;
+
+// Notification settings callback handlers (Task 41)
+async function handleSetNotifToggleCallback(ctx: BotContext): Promise<void>;
+async function handleSetNotifTimeCallback(ctx: BotContext): Promise<void>;
+async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise<void>;
+async function handleSetNotifTypeCallback(ctx: BotContext): Promise<void>;
+async function handleSetNotifTypeSelectCallback(ctx: BotContext): Promise<void>;
+async function handleSetNotifTzCallback(ctx: BotContext): Promise<void>;
+async function handleSetNotifTzSelectCallback(ctx: BotContext): Promise<void>;
+
+// Notification formatter (Task 41)
+function formatNotificationMessage(payload: NotificationPayload, lang: SupportedLang): string;
+function buildNotificationKeyboard(lang: SupportedLang): InlineKeyboard;
+
+// Notification callback handlers (Task 41)
+async function handleNotifOpenCallback(ctx: BotContext): Promise<void>;
+async function handleNotifSkipCallback(ctx: BotContext): Promise<void>;
+
+// Notification scheduler wiring (Task 41)
+function wireNotificationScheduler(api: Api<RawApi>): void;
 ```
 
 ## Translation Flow (Persistent Mode System)
@@ -626,8 +688,8 @@ apps/bot/src/
 ├── types.ts                    # BotContext, ConversationContext, UserMode, SessionData
 ├── constants.ts                # LANGUAGES display data, langDisplay()
 ├── middlewares/
-│   ├── auth.ts                 # Auth middleware (user resolution + activeMode hydration from DB)
-│   ├── auth.test.ts            # 7 tests (user resolution, activeMode hydration, fallback)
+│   ├── auth.ts                 # Auth middleware (user resolution + activeMode hydration from DB + lastInteraction update)
+│   ├── auth.test.ts            # 10 tests (user resolution, activeMode hydration, fallback, lastInteraction)
 │   └── mode-router.ts          # ✅ Routes plain text to active mode handler (idle→translate fallback, DB persist)
 ├── commands/
 │   ├── commands.ts             # ✅ getLocalizedCommands(), setBotCommands(), setUserCommands() (Task 35)
@@ -661,7 +723,7 @@ apps/bot/src/
 │   ├── helpers/
 │   │   ├── dictionary.helper.ts      # ✅ dict:* callback handlers (page, view, delete, confirm-delete, close, noop) (Task 40)
 │   │   ├── flashcard.helper.ts       # ✅ fc:* callback handlers + pipeline deps wiring (Task 33)
-│   │   ├── settings.helper.ts        # ✅ set:* callback handlers (native/learning/interface pickers, back, close) (Task 37)
+│   │   ├── settings.helper.ts        # ✅ set:* callback handlers (native/learning/interface/notification pickers, back, close) (Task 37 + 41)
 │   │   ├── translate-mode.helper.ts  # ✅ handleTranslateText (classifier + branching + template-aware), handleRegenCallback, handleSaveCallback, handleSkipCallback, handleSourceLangCallback
 │   │   ├── translate-mode.helper.test.ts # 5 tests (context enrichment wiring)
 │   │   ├── __tests__/
@@ -674,13 +736,20 @@ apps/bot/src/
 │   │   ├── template.helper.ts        # ✅ Template wizard callbacks: customize, toggle, preview, save, cancel, reset, back (Task 32)
 │   │   ├── regen.helper.ts           # ✅ regeneration loop helper (sentence-aware, vocabularyRepository save flow, template-aware)
 │   │   └── regen.helper.test.ts      # 13 tests (includes dedup, FK resolution, inputType, vocabularyRepository)
-│   ├── settings.scene.ts        # ✅ /settings command handler — shows current config, delegates to helpers (Task 37)
+│   ├── settings.scene.ts        # ✅ /settings command handler — shows current config + notifications, delegates to helpers (Task 37 + 41)
+├── notifications/
+│   ├── notification.formatter.ts      # ✅ formatNotificationMessage (HTML), buildNotificationKeyboard (Task 41)
+│   ├── notification.formatter.test.ts # 9 tests (rendering, escaping, keyboard buttons)
+│   ├── notification.callbacks.ts      # ✅ notif:open, notif:skip callback handlers (Task 41)
+│   ├── notification.callbacks.test.ts # 5 tests (open deep-link, skip dismiss, error handling)
+│   └── notification.wiring.ts         # ✅ wireNotificationScheduler(), re-exports stopScheduler (Task 41)
 └── __tests__/
     ├── translate-mode.test.ts              # ✅ 11 tests (mode system tests, idle fallback, DB persistence)
     ├── translation.renderer.test.ts        # 95 tests (includes 7 alternatives, 5 connotation warnings, 2 backward compat, 4 inline synonyms, 15 sentence renderer, 7 sentence keyboard, 5 post-save keyboard, 6 quality warning)
     ├── translation.renderer.template.test.ts # ✅ 10 tests (template-aware rendering: field toggle, backward compat, mixed fields)
     ├── template.scene.test.ts              # ✅ 15 tests (command, customize, toggle, save, cancel, reset, preview, back)
     ├── settings.scene.test.ts             # ✅ 17 tests (command, native/learning/interface pickers, toggle, done, close, back) (Task 37)
+    ├── notification-settings.test.ts      # ✅ 17 tests (notification toggle, time/type/tz pickers, settings rendering) (Task 41)
     ├── flashcard.renderer.test.ts         # ✅ 20 tests (front/back rendering, keyboards, synonyms, examples) (Task 33)
     ├── dictionary-context-renderer.test.ts # 6 tests (dict context rendering, unified expression detection)
     └── onboarding.scene.test.ts            # 18 tests (3-step flow, back nav, interface lang inference, no Save/Skip)

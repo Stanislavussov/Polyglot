@@ -25,6 +25,21 @@ export type {
 } from "./repositories/language.repository.js";
 export { languageRepository } from "./repositories/language.repository.js";
 export type {
+  NotificationType,
+  NotificationUser,
+} from "./repositories/notification.repository.js";
+export {
+  DEFAULT_NOTIFICATION_HOUR,
+  DEFAULT_NOTIFICATION_TYPE,
+  formatNotificationHour,
+  INACTIVITY_DAYS,
+  MAX_NOTIFICATION_HOUR,
+  MIN_NOTIFICATION_HOUR,
+  NOTIFICATION_TYPES,
+  notificationRepository,
+  parseNotificationHour,
+} from "./repositories/notification.repository.js";
+export type {
   NewTopicTranslation,
   TopicTranslation,
 } from "./repositories/topic.repository.js";

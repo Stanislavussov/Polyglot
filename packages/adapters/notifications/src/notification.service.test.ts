@@ -1,6 +1,6 @@
 import type { LanguageTranslationEntry, TopicMeta, TopicWord } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { NotificationServiceDeps, UserForNotification } from "./types.js";
+import type { NotificationServiceDeps, UserForNotification, VocabEntry } from "./types.js";
 
 // ─────────────────────────────────────────────
 // Mock logger (hoisted to avoid TDZ issues)
@@ -101,6 +101,7 @@ describe("createNotificationService", () => {
           cs: "jablko",
           de: "Apfel",
         },
+        source: "suggested",
       });
     });
 
@@ -152,6 +153,7 @@ describe("createNotificationService", () => {
           cs: "chléb",
           de: "Brot",
         },
+        source: "suggested",
       });
     });
 
@@ -270,6 +272,7 @@ describe("createNotificationService", () => {
         original: "bread",
         emoji: "🍕",
         translations: { cs: "chléb" },
+        source: "suggested",
       });
       expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.objectContaining({ lang: "de" }),
@@ -291,6 +294,7 @@ describe("createNotificationService", () => {
         original: "bread",
         emoji: "🍕",
         translations: { cs: "chléb" },
+        source: "suggested",
       });
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({ original: "bread", lang: "de" }),
@@ -353,6 +357,232 @@ describe("createNotificationService", () => {
 
       expect(deps.getTopicWords).toHaveBeenCalledWith("travel", "en", ["cs", "de"]);
       expect(result?.emoji).toBe("✈️");
+    });
+  });
+
+  describe("pickSuggestedWord — source field", () => {
+    it("includes source: 'suggested' in the result", async () => {
+      const deps = buildDeps();
+      const service = createNotificationService(deps);
+
+      const result = await service.pickSuggestedWord(1);
+
+      expect(result?.source).toBe("suggested");
+    });
+  });
+});
+
+// ─────────────────────────────────────────────
+// pickDictionaryWord tests
+// ─────────────────────────────────────────────
+
+describe("pickDictionaryWord", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const mockVocabEntries: VocabEntry[] = [
+    {
+      id: 10,
+      original: "house",
+      emoji: "🏠",
+      createdAt: new Date("2025-01-01"),
+      translations: [
+        { targetLangId: 1, text: "dům" },
+        { targetLangId: 2, text: "Haus" },
+      ],
+    },
+    {
+      id: 20,
+      original: "car",
+      emoji: "🚗",
+      createdAt: new Date("2025-01-05"),
+      translations: [
+        { targetLangId: 1, text: "auto" },
+        { targetLangId: 2, text: "Auto" },
+      ],
+    },
+    {
+      id: 30,
+      original: "book",
+      emoji: null,
+      createdAt: new Date("2025-01-10"),
+      translations: [{ targetLangId: 1, text: "kniha" }],
+    },
+  ];
+
+  const mockGetLangCode = vi.fn((id: number) => {
+    const map: Record<number, string> = { 1: "cs", 2: "de" };
+    return map[id];
+  });
+
+  function buildDictDeps(overrides: Partial<NotificationServiceDeps> = {}): NotificationServiceDeps {
+    return {
+      getTopicWords: vi.fn().mockResolvedValue([]),
+      getBuiltinTopics: vi.fn().mockReturnValue([]),
+      getUserSettings: vi.fn().mockResolvedValue(mockUser),
+      getUserVocabulary: vi.fn().mockResolvedValue(mockVocabEntries),
+      getReviewCounts: vi.fn().mockResolvedValue(new Map<number, number>()),
+      getLangCode: mockGetLangCode,
+      ...overrides,
+    };
+  }
+
+  describe("happy path", () => {
+    it("returns the least reviewed word", async () => {
+      const reviewCounts = new Map<number, number>([
+        [10, 5], // house — reviewed 5 times
+        [20, 2], // car — reviewed 2 times
+        [30, 0], // book — never reviewed
+      ]);
+      const deps = buildDictDeps({
+        getReviewCounts: vi.fn().mockResolvedValue(reviewCounts),
+      });
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result?.original).toBe("book");
+    });
+
+    it("breaks ties by oldest createdAt", async () => {
+      // All have 0 reviews → pick oldest (house, Jan 1)
+      const deps = buildDictDeps();
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result?.original).toBe("house");
+    });
+
+    it("includes translations resolved via getLangCode", async () => {
+      const deps = buildDictDeps();
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result?.translations).toEqual({ cs: "dům", de: "Haus" });
+    });
+
+    it("uses entry emoji when available", async () => {
+      const deps = buildDictDeps();
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result?.emoji).toBe("🏠");
+    });
+
+    it("falls back to 📖 emoji when entry has no emoji", async () => {
+      const singleEntry: VocabEntry[] = [
+        {
+          id: 30,
+          original: "book",
+          emoji: null,
+          createdAt: new Date("2025-01-10"),
+          translations: [{ targetLangId: 1, text: "kniha" }],
+        },
+      ];
+      const deps = buildDictDeps({
+        getUserVocabulary: vi.fn().mockResolvedValue(singleEntry),
+      });
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result?.emoji).toBe("📖");
+    });
+
+    it("includes source: 'srs' in the result", async () => {
+      const deps = buildDictDeps();
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result?.source).toBe("srs");
+    });
+  });
+
+  describe("edge cases", () => {
+    it("returns null when user has no vocabulary", async () => {
+      const deps = buildDictDeps({
+        getUserVocabulary: vi.fn().mockResolvedValue([]),
+      });
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result).toBeNull();
+    });
+
+    it("returns null when entry has no resolvable translations", async () => {
+      const entryWithUnknownLang: VocabEntry[] = [
+        {
+          id: 99,
+          original: "mystery",
+          emoji: "❓",
+          createdAt: new Date(),
+          translations: [{ targetLangId: 999, text: "unknown" }],
+        },
+      ];
+      const deps = buildDictDeps({
+        getUserVocabulary: vi.fn().mockResolvedValue(entryWithUnknownLang),
+        getLangCode: vi.fn().mockReturnValue(undefined),
+      });
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result).toBeNull();
+    });
+
+    it("returns null when deps are missing", async () => {
+      const deps = buildDictDeps({
+        getUserVocabulary: undefined,
+        getReviewCounts: undefined,
+        getLangCode: undefined,
+      });
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result).toBeNull();
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: 1 }),
+        expect.stringContaining("missing deps"),
+      );
+    });
+  });
+
+  describe("error handling", () => {
+    it("returns null when getUserVocabulary throws", async () => {
+      const deps = buildDictDeps({
+        getUserVocabulary: vi.fn().mockRejectedValue(new Error("DB error")),
+      });
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result).toBeNull();
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: 1 }),
+        expect.stringContaining("failed to get user vocabulary"),
+      );
+    });
+
+    it("returns null when getReviewCounts throws", async () => {
+      const deps = buildDictDeps({
+        getReviewCounts: vi.fn().mockRejectedValue(new Error("DB error")),
+      });
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result).toBeNull();
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: 1 }),
+        expect.stringContaining("failed to get review counts"),
+      );
     });
   });
 });

@@ -982,6 +982,24 @@ describe("i18n — locale consistency", () => {
       "settingsLearningUpdated",
       "settingsInterfaceUpdated",
       "settingsSessionExpired",
+      "notifTitle",
+      "notifWordFromDict",
+      "notifAiSuggested",
+      "notifTranslations",
+      "notifOpenDict",
+      "notifSkip",
+      "settingsNotifSection",
+      "settingsNotifEnabled",
+      "settingsNotifDisabled",
+      "settingsNotifTime",
+      "settingsNotifType",
+      "settingsNotifTimezone",
+      "settingsNotifToggle",
+      "settingsNotifChooseTime",
+      "settingsNotifChooseType",
+      "settingsNotifChooseTimezone",
+      "notifPaused",
+      "notifReEngagement",
     ];
 
     for (const key of enKeys) {
@@ -1026,6 +1044,90 @@ describe("i18n — locale consistency", () => {
       const csResult = t(key, "cs");
       // Czech text should differ from English
       expect(csResult).not.toBe(enResult);
+    }
+  });
+});
+
+describe("i18n — notification keys (Task 41.6)", () => {
+  const notifKeys: I18nKey[] = [
+    "notifTitle",
+    "notifWordFromDict",
+    "notifAiSuggested",
+    "notifTranslations",
+    "notifOpenDict",
+    "notifSkip",
+    "settingsNotifSection",
+    "settingsNotifEnabled",
+    "settingsNotifDisabled",
+    "settingsNotifTime",
+    "settingsNotifType",
+    "settingsNotifTimezone",
+    "settingsNotifToggle",
+    "settingsNotifChooseTime",
+    "settingsNotifChooseType",
+    "settingsNotifChooseTimezone",
+    "notifPaused",
+    "notifReEngagement",
+  ];
+
+  it("all notification keys exist in en.json", () => {
+    for (const key of notifKeys) {
+      const result = t(key, "en");
+      expect(result).not.toBe(key);
+    }
+  });
+
+  it("all notification keys exist in ru.json (non-English)", () => {
+    for (const key of notifKeys) {
+      const enResult = t(key, "en");
+      const ruResult = t(key, "ru");
+      expect(ruResult).not.toBe(enResult);
+    }
+  });
+
+  it("all notification keys exist in cs.json (non-English)", () => {
+    for (const key of notifKeys) {
+      const enResult = t(key, "en");
+      const csResult = t(key, "cs");
+      expect(csResult).not.toBe(enResult);
+    }
+  });
+
+  it("settingsNotifTime interpolates {time}", () => {
+    const result = t("settingsNotifTime", "en", { time: "Morning (8:00)" });
+    expect(result).toBe("⏰ Time: Morning (8:00)");
+  });
+
+  it("settingsNotifType interpolates {type}", () => {
+    const result = t("settingsNotifType", "en", { type: "Both" });
+    expect(result).toBe("📋 Type: Both");
+  });
+
+  it("settingsNotifTimezone interpolates {timezone}", () => {
+    const result = t("settingsNotifTimezone", "en", { timezone: "Europe/Prague" });
+    expect(result).toBe("🌍 Timezone: Europe/Prague");
+  });
+
+  it("settingsNotifTime interpolates {time} in Russian", () => {
+    const result = t("settingsNotifTime", "ru", { time: "Утро (8:00)" });
+    expect(result).toBe("⏰ Время: Утро (8:00)");
+  });
+
+  it("settingsNotifType interpolates {type} in Czech", () => {
+    const result = t("settingsNotifType", "cs", { type: "Oba" });
+    expect(result).toBe("📋 Typ: Oba");
+  });
+
+  it("settingsNotifTimezone interpolates {timezone} in Czech", () => {
+    const result = t("settingsNotifTimezone", "cs", { timezone: "Europe/Prague" });
+    expect(result).toBe("🌍 Časová zóna: Europe/Prague");
+  });
+
+  it("notification keys fallback to en for unsupported language", () => {
+    for (const key of notifKeys) {
+      const enResult = t(key, "en");
+      const deResult = t(key, "de");
+      expect(deResult).toBe(enResult);
     }
   });
 });

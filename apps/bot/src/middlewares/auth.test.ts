@@ -10,6 +10,7 @@ vi.mock("@polyglot/adapter-db", () => ({
     findByTelegramId: vi.fn(),
     create: vi.fn(),
     getSettings: vi.fn(),
+    updateLastInteraction: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
@@ -171,5 +172,40 @@ describe("authMiddleware", () => {
     await authMiddleware(ctx, next);
 
     expect(ctx.session.activeMode).toBe("translate"); // unchanged default
+  });
+
+  it("calls updateLastInteraction fire-and-forget for onboarded users", async () => {
+    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+    repo.getSettings.mockResolvedValue(FAKE_SETTINGS as any);
+    const ctx = createMockCtx({ telegramId: 123456 });
+    const next = vi.fn().mockResolvedValue(undefined);
+
+    await authMiddleware(ctx, next);
+
+    expect(repo.updateLastInteraction).toHaveBeenCalledWith(FAKE_USER.id);
+  });
+
+  it("does not call updateLastInteraction for non-onboarded users", async () => {
+    const nonOnboardedUser = { ...FAKE_USER, onboarded: false };
+    repo.findByTelegramId.mockResolvedValue(nonOnboardedUser as any);
+    const ctx = createMockCtx({ telegramId: 123456 });
+    const next = vi.fn().mockResolvedValue(undefined);
+
+    await authMiddleware(ctx, next);
+
+    expect(repo.updateLastInteraction).not.toHaveBeenCalled();
+  });
+
+  it("does not block request when updateLastInteraction fails", async () => {
+    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+    repo.getSettings.mockResolvedValue(FAKE_SETTINGS as any);
+    repo.updateLastInteraction.mockRejectedValue(new Error("db error"));
+    const ctx = createMockCtx({ telegramId: 123456 });
+    const next = vi.fn().mockResolvedValue(undefined);
+
+    await authMiddleware(ctx, next);
+
+    // next() should still be called despite the error
+    expect(next).toHaveBeenCalled();
   });
 });

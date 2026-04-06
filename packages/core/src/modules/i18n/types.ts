@@ -130,7 +130,25 @@ export type I18nKey =
   | "settingsNativeUpdated"
   | "settingsLearningUpdated"
   | "settingsInterfaceUpdated"
-  | "settingsSessionExpired";
+  | "settingsSessionExpired"
+  | "notifTitle"
+  | "notifWordFromDict"
+  | "notifAiSuggested"
+  | "notifTranslations"
+  | "notifOpenDict"
+  | "notifSkip"
+  | "settingsNotifSection"
+  | "settingsNotifEnabled"
+  | "settingsNotifDisabled"
+  | "settingsNotifTime"
+  | "settingsNotifType"
+  | "settingsNotifTimezone"
+  | "settingsNotifToggle"
+  | "settingsNotifChooseTime"
+  | "settingsNotifChooseType"
+  | "settingsNotifChooseTimezone"
+  | "notifPaused"
+  | "notifReEngagement";
 
 /**
  * Supported interface languages.
@@ -186,6 +204,9 @@ export interface I18nParams {
   settingsInterfaceLang: { lang: string };
   settingsNativeUpdated: { lang: string };
   settingsInterfaceUpdated: { lang: string };
+  settingsNotifTime: { time: string };
+  settingsNotifType: { type: string };
+  settingsNotifTimezone: { timezone: string };
 }
 
 /**

@@ -44,6 +44,13 @@ normalizeToIso1(lang) // any recognized form → ISO 639-1
 | `MAX_LEARNING_LANGS` | db layer export |
 | `DEFAULT_ACTIVE_MODE` | `userLanguageSettings.activeMode` column default |
 | `DEFAULT_TIMEZONE` | `userLanguageSettings.timezone` column default |
+| `NOTIFICATION_TIMES` | `["morning", "evening"]` — valid notification time slots |
+| `NOTIFICATION_TYPES` | `["suggested", "srs", "both"]` — valid notification type strategies |
+| `DEFAULT_NOTIFICATION_TIME` | `"morning"` — `userLanguageSettings.notificationTime` column default |
+| `DEFAULT_NOTIFICATION_TYPE` | `"both"` — `userLanguageSettings.notificationType` column default |
+| `MORNING_HOUR` | `8` — local hour for morning notifications |
+| `EVENING_HOUR` | `20` — local hour for evening notifications |
+| `INACTIVITY_DAYS` | `14` — days of inactivity before pausing notifications |
 
 All constants live in the `db` layer and are re-exported for other layers.
 

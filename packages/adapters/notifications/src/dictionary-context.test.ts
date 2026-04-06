@@ -101,6 +101,7 @@ describe("createNotificationService — post context-enrichment refactor", () =>
         original: "apple",
         emoji: "🍕",
         translations: { cs: "jablko", de: "Apfel" },
+        source: "suggested",
       });
       expect(result?.dictionaryContext).toBeUndefined();
     });
@@ -144,6 +145,7 @@ describe("createNotificationService — post context-enrichment refactor", () =>
         original: "apple",
         emoji: "🍕",
         translations: { cs: "jablko", de: "Apfel" },
+        source: "suggested",
       });
     });
   });

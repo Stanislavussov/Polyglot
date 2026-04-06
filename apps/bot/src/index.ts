@@ -1,5 +1,6 @@
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
+import { stopScheduler } from "@polyglot/adapter-notifications";
 import { initLanguageRegistry, setLogger } from "@polyglot/core";
 import { loadConfig, logger } from "@polyglot/infra";
 import { Bot, session } from "grammy";
@@ -7,6 +8,8 @@ import { setBotCommands } from "./commands/commands.js";
 import { startCommand } from "./commands/start.js";
 import { authMiddleware } from "./middlewares/auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
+import { handleNotifOpenCallback, handleNotifSkipCallback } from "./notifications/notification.callbacks.js";
+import { wireNotificationScheduler } from "./notifications/notification.wiring.js";
 import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
 import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
 import {
@@ -35,6 +38,13 @@ import {
   handleSetLearnToggleCallback,
   handleSetNativeCallback,
   handleSetNativeSelectCallback,
+  handleSetNotifToggleCallback,
+  handleSetNotifTimeCallback,
+  handleSetNotifTimeSelectCallback,
+  handleSetNotifTypeCallback,
+  handleSetNotifTypeSelectCallback,
+  handleSetNotifTzCallback,
+  handleSetNotifTzSelectCallback,
 } from "./scenes/helpers/settings.helper.js";
 import {
   handleBackCallback,
@@ -112,8 +122,19 @@ bot.callbackQuery("set:learning", handleSetLearningCallback);
 bot.callbackQuery(/^set:learn:/, handleSetLearnToggleCallback);
 bot.callbackQuery("set:interface", handleSetInterfaceCallback);
 bot.callbackQuery(/^set:iface:/, handleSetIfaceSelectCallback);
+bot.callbackQuery("set:notif:toggle", handleSetNotifToggleCallback);
+bot.callbackQuery("set:notif:time", handleSetNotifTimeCallback);
+bot.callbackQuery(/^set:notif:time:/, handleSetNotifTimeSelectCallback);
+bot.callbackQuery("set:notif:type", handleSetNotifTypeCallback);
+bot.callbackQuery(/^set:notif:type:/, handleSetNotifTypeSelectCallback);
+bot.callbackQuery("set:notif:tz", handleSetNotifTzCallback);
+bot.callbackQuery(/^set:notif:tz:/, handleSetNotifTzSelectCallback);
 bot.callbackQuery("set:back", handleSetBackCallback);
 bot.callbackQuery("set:close", handleSetCloseCallback);
+
+// ── Register callback handlers for notifications (Task 41) ──
+bot.callbackQuery("notif:open", handleNotifOpenCallback);
+bot.callbackQuery("notif:skip", handleNotifSkipCallback);
 
 // ── Register callback handlers for translate mode ──
 bot.callbackQuery("tr:save", handleSaveCallback);
@@ -158,9 +179,10 @@ bot.use(modeRouterMiddleware);
 function setupGracefulShutdown(): void {
   const shutdown = async (signal: string) => {
     logger.info({ signal }, "Received shutdown signal");
+    stopScheduler();
     bot.stop();
     await closeDb();
-    logger.info("Bot stopped and DB connection closed");
+    logger.info("Bot stopped, scheduler stopped, and DB connection closed");
     process.exit(0);
   };
 
@@ -194,6 +216,9 @@ async function main(): Promise<void> {
   logger.info({ count: allLangs.length }, "Language registry loaded from DB");
 
   await setBotCommands(bot.api);
+
+  // Start notification scheduler (Task 41) — must be after language cache is loaded
+  wireNotificationScheduler(bot.api);
 
   logger.info("Starting bot in long-polling mode...");
   bot.start({

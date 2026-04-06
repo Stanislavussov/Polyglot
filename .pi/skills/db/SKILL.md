@@ -1,6 +1,6 @@
 ---
 name: db
-description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, migrations, repositories (User, Vocabulary, Topic, Language, WordContext, WordReview), and singleton connection. Use when implementing or modifying database operations, schema changes, or repository methods.
+description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, migrations, repositories (User, Vocabulary, Topic, Language, WordContext, WordReview, Notification), and singleton connection. Use when implementing or modifying database operations, schema changes, or repository methods.
 ---
 
 # db Agent Skill
@@ -18,10 +18,11 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 ## Current State
 
 Fully implemented. All tables, repositories, singleton connection, and context-lookup factory in place.
-- `schema.ts` — tables: `users`, `userLanguageSettings`, `vocabularyEntries`, `vocabularyTranslations`, `wordReviewLog`, `translationRequests`, `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
-- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `vocabularyRepository`, `translationRequestRepository`, `wordReviewRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
+- `schema.ts` — tables: `users`, `userLanguageSettings` (incl. notification_enabled, notification_time, notification_type, last_interaction_at), `vocabularyEntries`, `vocabularyTranslations`, `wordReviewLog`, `translationRequests`, `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
+- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `vocabularyRepository`, `translationRequestRepository`, `wordReviewRepository`, `notificationRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
 - `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
-- `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded
+- `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded, updateNotificationPrefs, updateLastInteraction
+- `repositories/notification.repository.ts` — **Task 41**: getUsersForWindow, getInactiveUsers, disableNotifications + domain constants (NOTIFICATION_TIMES, NOTIFICATION_TYPES, MORNING_HOUR, EVENING_HOUR, INACTIVITY_DAYS)
 - `repositories/vocabulary.repository.ts` — **Task 39+40**: normalized vocabulary CRUD. create (transactional parent+children), findByOriginalAndSource, findByUser, findById, search, findByUserAndLang, updateTranslation (upsert), updateAllTranslations, delete (soft), hardDelete (permanent), countByUser, findByUserPaginated, findByUserWithSourceLang. Exports VocabularyEntry, VocabularyTranslation, VocabTranslationDetails, VocabularyEntryWithTranslations, VocabularyEntryWithSourceLang, CreateVocabularyInput, UpdateTranslationData types.
 - `repositories/topic.repository.ts` — getCached, setCached, markInvalid (topic translation caching)
 - `repositories/language.repository.ts` — findByCode, create, getOrCreate, findAll (normalized language codes)
@@ -51,6 +52,21 @@ Fully implemented. All tables, repositories, singleton connection, and context-l
 ```typescript
 /** Maximum number of learning languages per user (BRD §5, §12). */
 MAX_LEARNING_LANGS = 4;
+
+/** Valid notification time slots */
+NOTIFICATION_TIMES = ["morning", "evening"] as const;
+/** Valid notification type strategies */
+NOTIFICATION_TYPES = ["suggested", "srs", "both"] as const;
+/** Default notification time slot (schema default) */
+DEFAULT_NOTIFICATION_TIME = "morning";
+/** Default notification type (schema default) */
+DEFAULT_NOTIFICATION_TYPE = "both";
+/** Local hour for morning notifications */
+MORNING_HOUR = 8;
+/** Local hour for evening notifications */
+EVENING_HOUR = 20;
+/** Days of inactivity before pausing notifications */
+INACTIVITY_DAYS = 14;
 ```
 
 ### UserRepository
@@ -71,6 +87,14 @@ updateInterfaceLang(userId: number, lang: string): Promise<UserLanguageSettings 
   // Updates only interfaceLang + updatedAt. Returns null if no settings row exists.
 updateLastSourceLang(userId: number, lang: string | null): Promise<void>;
   // Updates only lastSourceLang + updatedAt. Fire-and-forget friendly. Pass null to clear.
+updateNotificationPrefs(userId: number, prefs: {
+  notificationEnabled?: boolean;
+  notificationTime?: string;
+  notificationType?: string;
+}): Promise<UserLanguageSettings | null>;
+  // Updates only provided notification preference fields + updatedAt. Returns null if no settings row exists.
+updateLastInteraction(userId: number): Promise<void>;
+  // Updates lastInteractionAt + updatedAt to current timestamp. Fire-and-forget friendly.
 updateOnboardingStep(userId: number, step: number): Promise<User>;
 markOnboarded(userId: number): Promise<User>;
   // Sets onboardingStep to 3 (BRD §5 — 3-step onboarding)
@@ -133,6 +157,21 @@ getUserRequestsInWindow(userId: number, windowStart: Date): Promise<number>;
 getRecentRequests(userId: number, limit: number): Promise<TranslationRequestDTO[]>;
 ```
 
+### NotificationRepository
+
+```typescript
+getUsersForWindow(hour: number): Promise<NotificationUser[]>;
+  // Returns users eligible for notification at the given UTC hour.
+  // Filters: notification_enabled = true, is_active = true, last_interaction_at within 14 days (or NULL).
+  // Then filters by timezone: user's local hour must match their notification time slot (morning=8, evening=20).
+getInactiveUsers(): Promise<NotificationUser[]>;
+  // Returns users with notifications enabled but last_interaction_at older than 14 days.
+  // Users with NULL last_interaction_at are NOT considered inactive.
+  // Used for re-engagement flow (Task 41.7).
+disableNotifications(userId: number): Promise<void>;
+  // Sets notification_enabled = false + updatedAt. For inactivity pause.
+```
+
 ### WordReviewRepository
 
 ```typescript
@@ -189,7 +228,7 @@ This is the **single place** where DB → `DictionaryContext` transformation hap
 
 See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key tables:
 - `users` — id, telegramId, username, onboardingStep, onboarded, isActive, createdAt
-- `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode (default "translate"), lastSourceLang (nullable text — last explicitly selected source lang, survives restarts), isActive, updatedAt
+- `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode (default "translate"), lastSourceLang (nullable text — last explicitly selected source lang, survives restarts), notificationEnabled (boolean, default false), notificationTime (text: 'morning'|'evening', default 'morning'), notificationType (text: 'suggested'|'srs'|'both', default 'both'), lastInteractionAt (timestamp, nullable — for 14-day inactivity pause), isActive, updatedAt
 - `vocabularyEntries` — **(Task 39)** userId (FK → users, CASCADE), original, sourceLangId (FK → languages.id), inputType ('word'|'phrase'), emoji, register, isActive, createdAt, updatedAt; unique index on (userId, original, sourceLangId). Replaces the parent data from old `words` table.
 - `vocabularyTranslations` — **(Task 39)** entryId (FK → vocabularyEntries, CASCADE), targetLangId (FK → languages.id), text, register, transcription, expressionType, equivalentNote, connotationWarning, details (JSONB typed as VocabTranslationDetails), isActive, createdAt, updatedAt; unique index on (entryId, targetLangId). One row per target language per entry.
 
@@ -248,6 +287,11 @@ type SavedTranslationTemplate = { id: number; userId: number; name: string; fiel
 // WordReview types (Task 33 — review tracking for flashcards, notifications, quizzes)
 type WordReview = { id: number; entryId: number; userId: number; sessionType: string; reviewedAt: Date };
 
+// Notification types (Task 41 — daily word notifications)
+type NotificationTime = "morning" | "evening";
+type NotificationType = "suggested" | "srs" | "both";
+type NotificationUser = { userId: number; telegramId: number; interfaceLang: string; nativeLang: string; learningLangs: string[]; timezone: string; notificationTime: string; notificationType: string };
+
 // Vocabulary types (Task 39 — normalized schema, replaces StoredWordContent)
 // See vocabulary.repository.ts for full interface definitions
 type VocabularyEntry = typeof vocabularyEntries.$inferSelect;
@@ -277,10 +321,11 @@ packages/adapters/db/src/
 │   ├── translation-request.repository.ts  # ✅ implemented (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)
 │   ├── translation-template.repository.ts # ✅ implemented (getByUserId, upsert, deleteByUserId — Task 32)
 │   ├── word-review.repository.ts         # ✅ implemented (logReview, getReviewCounts, getReviewsForWord, getReviewsBySessionType — Task 33)
-│   └── word-context.repository.ts        # ✅ implemented (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
+│   ├── word-context.repository.ts        # ✅ implemented (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
+│   └── notification.repository.ts        # ✅ implemented (getUsersForWindow, getInactiveUsers, disableNotifications — Task 41)
 └── __tests__/
     ├── getDb.test.ts                     # 1 test
-    ├── user.repository.test.ts           # 39 tests (findByTelegramId, create, updateSettings incl. max-4 guard + lastSourceLang protection, getSettings + lastSourceLang, updateActiveMode, updateNativeLang, updateLearningLangs, updateInterfaceLang, updateLastSourceLang, updateOnboardingStep, markOnboarded)
+    ├── user.repository.test.ts           # 47 tests (findByTelegramId, create, updateSettings incl. max-4 guard + lastSourceLang protection, getSettings + lastSourceLang, updateActiveMode, updateNativeLang, updateLearningLangs, updateInterfaceLang, updateLastSourceLang, updateNotificationPrefs, updateLastInteraction, updateOnboardingStep, markOnboarded)
     ├── vocabulary.repository.test.ts     # 23 tests (Task 39 — create, findByOriginalAndSource, findByUser, findById, search, findByUserAndLang, updateTranslation, updateAllTranslations, delete, findByUserWithSourceLang)
     ├── vocabulary-pagination.repository.test.ts # 12 tests (Task 40 — countByUser, findByUserPaginated, hardDelete)
     ├── topic.repository.test.ts          # 4 tests
@@ -289,6 +334,7 @@ packages/adapters/db/src/
     ├── translation-request.repository.test.ts # 11 tests (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)
     ├── translation-template.repository.test.ts # 12 tests (getByUserId, upsert, deleteByUserId, field normalization, validation — Task 32)
     ├── word-review.repository.test.ts    # 13 tests (logReview, getReviewCounts, getReviewsForWord, getReviewsBySessionType — Task 33)
+    ├── notification.repository.test.ts   # 25 tests (domain constants, getLocalHour, getUsersForWindow with timezone filtering, getInactiveUsers, disableNotifications — Task 41)
     └── context-lookup.test.ts            # 9 tests (factory returns fn, transforms result, no results→undefined, error→undefined, null glosses/formTags, multiple entries, langCode from arg)
 ```
 
@@ -310,6 +356,7 @@ packages/adapters/db/drizzle/
 ├── 0011_drop_legacy_words.sql            # Drops legacy words table after migration verification (Task 39)
 ├── 0012_word_review_log.sql             # Creates word_review_log table for flashcard/notification/quiz review tracking (Task 33)
 ├── 0013_drop_cefr_column.sql            # Drops cefr column from vocabulary_translations (CEFR removed from product)
+├── 0014_notification_preferences.sql    # Adds notification_enabled, notification_time, notification_type, last_interaction_at to user_language_settings (Task 41)
 └── meta/
     ├── _journal.json
     ├── 0000_snapshot.json

@@ -90,6 +90,14 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   /** Last explicitly selected source language code (nullable = auto-detect / never selected).
    *  Survives bot restarts; session is the primary source during a session. */
   lastSourceLang: text("last_source_lang"),
+  /** Whether daily word notifications are enabled */
+  notificationEnabled: boolean("notification_enabled").default(false).notNull(),
+  /** Preferred notification hour in user's local time (0-23). Default 8 (08:00). */
+  notificationTime: text("notification_time").default("8").notNull(),
+  /** Notification word source: 'suggested' (AI) | 'srs' (dictionary review) | 'both' (alternate) */
+  notificationType: text("notification_type").$type<"suggested" | "srs" | "both">().default("both").notNull(),
+  /** Last bot interaction timestamp — used for 14-day inactivity pause */
+  lastInteractionAt: timestamp("last_interaction_at"),
   isActive: boolean("is_active").default(true).notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

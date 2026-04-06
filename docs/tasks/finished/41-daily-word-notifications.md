@@ -1,6 +1,6 @@
 # Task 41 — Daily Word Notifications (from Dictionary & AI)
 
-**Status:** 🔲 To Do
+**Status:** ✅ Done
 **BRD ref:** §2.5 "Post-MVP 2.5 Notifications (Telegram Push)"
 **Depends on:** Task 33 (flashcards & word review), Task 39 (normalized vocabulary), Task 40 (dictionary browse)
 
@@ -50,15 +50,15 @@ The word is sourced from two strategies: **dictionary SRS review** (word the use
 ### 41.1 — DB: Add notification preference columns
 **Goal:** Store user notification preferences.
 **Acceptance Criteria:**
-- [ ] New migration adds columns to `userLanguageSettings`:
+- [x] New migration adds columns to `userLanguageSettings`:
   - `notification_enabled` (boolean, default `false`)
   - `notification_time` (text: `'morning'` | `'evening'`, default `'morning'`)
   - `notification_type` (text: `'suggested'` | `'srs'` | `'both'`, default `'both'`)
   - `last_interaction_at` (timestamp, nullable — for 14-day inactivity pause)
-- [ ] Schema updated in `schema.ts`
-- [ ] `userRepository` gains `updateNotificationPrefs()` and `updateLastInteraction()`
-- [ ] New `notificationRepository` with `getUsersForWindow(hour: number)` — returns users where `notification_enabled = true`, local time matches `notification_time` slot (morning=8, evening=20), and `last_interaction_at` within 14 days
-- [ ] Tests for new repository methods
+- [x] Schema updated in `schema.ts`
+- [x] `userRepository` gains `updateNotificationPrefs()` and `updateLastInteraction()`
+- [x] New `notificationRepository` with `getUsersForWindow(hour: number)` — returns users where `notification_enabled = true`, local time matches `notification_time` slot (morning=8, evening=20), and `last_interaction_at` within 14 days
+- [x] Tests for new repository methods
 
 **Effort:** 3–4h
 **Files:** `packages/adapters/db/src/schema.ts`, `packages/adapters/db/drizzle/0014_*.sql`, `packages/adapters/db/src/repositories/user.repository.ts`, `packages/adapters/db/src/repositories/notification.repository.ts` (new), tests
@@ -68,12 +68,12 @@ The word is sourced from two strategies: **dictionary SRS review** (word the use
 ### 41.2 — Notification service: `pickDictionaryWord()`
 **Goal:** Select a word from the user's dictionary that needs review (least reviewed / longest since last review).
 **Acceptance Criteria:**
-- [ ] New method `pickDictionaryWord(userId)` in notification service
-- [ ] Strategy: get user's vocabulary → get review counts → pick word with fewest reviews (tie-break: oldest `createdAt`)
-- [ ] Returns `SuggestedWord` format (original + emoji + translations map) or `null` if dictionary is empty
-- [ ] Falls back gracefully: if user has no saved words → returns `null` (caller uses AI-suggested instead)
-- [ ] New dep in `NotificationServiceDeps`: `getUserVocabulary` and `getReviewCounts`
-- [ ] Unit tests with mocked deps (empty dictionary, all reviewed equally, partial translations)
+- [x] New method `pickDictionaryWord(userId)` in notification service
+- [x] Strategy: get user's vocabulary → get review counts → pick word with fewest reviews (tie-break: oldest `createdAt`)
+- [x] Returns `SuggestedWord` format (original + emoji + translations map) or `null` if dictionary is empty
+- [x] Falls back gracefully: if user has no saved words → returns `null` (caller uses AI-suggested instead)
+- [x] New dep in `NotificationServiceDeps`: `getUserVocabulary` and `getReviewCounts`
+- [x] Unit tests with mocked deps (empty dictionary, all reviewed equally, partial translations)
 
 **Effort:** 3–4h
 **Files:** `packages/adapters/notifications/src/notification.service.ts`, `packages/adapters/notifications/src/types.ts`, `packages/adapters/notifications/src/notification.service.test.ts`
@@ -83,17 +83,17 @@ The word is sourced from two strategies: **dictionary SRS review** (word the use
 ### 41.3 — Scheduler: cron job + timezone-aware delivery
 **Goal:** Implement the scheduler that runs hourly, checks which users are due for a notification, picks words, and sends messages.
 **Acceptance Criteria:**
-- [ ] `scheduler.ts` implements `startScheduler(sendFn)` and `stopScheduler()`
-- [ ] Single cron job runs every hour (`0 * * * *`)
-- [ ] Each tick: query `notificationRepository.getUsersForWindow(currentUtcHour)` — the repo handles timezone math (user's local hour = UTC hour + timezone offset)
-- [ ] For each user: pick word based on their `notification_type` preference:
+- [x] `scheduler.ts` implements `startScheduler(sendFn)` and `stopScheduler()`
+- [x] Single cron job runs every hour (`0 * * * *`)
+- [x] Each tick: query `notificationRepository.getUsersForWindow(currentUtcHour)` — the repo handles timezone math (user's local hour = UTC hour + timezone offset)
+- [x] For each user: pick word based on their `notification_type` preference:
   - `'srs'` → try `pickDictionaryWord()`, fallback to `pickSuggestedWord()` if empty
   - `'suggested'` → `pickSuggestedWord()`
   - `'both'` → alternate or random pick between the two
-- [ ] Build notification payload via `buildNotificationPayload()`
-- [ ] Call `sendFn(telegramId, payload)` — on error, log and continue (never stop)
-- [ ] Log each sent notification via `logNotificationSent()`
-- [ ] Tests for scheduler logic (mocked cron, sendFn, deps)
+- [x] Build notification payload via `buildNotificationPayload()`
+- [x] Call `sendFn(telegramId, payload)` — on error, log and continue (never stop)
+- [x] Log each sent notification via `logNotificationSent()`
+- [x] Tests for scheduler logic (mocked cron, sendFn, deps)
 
 **Effort:** 4–5h
 **Files:** `packages/adapters/notifications/src/scheduler.ts`, `packages/adapters/notifications/src/scheduler.test.ts` (new), `packages/adapters/notifications/src/index.ts`
@@ -103,15 +103,15 @@ The word is sourced from two strategies: **dictionary SRS review** (word the use
 ### 41.4 — Bot: notification message formatter + `sendFn` injection
 **Goal:** Format notification payloads as Telegram messages and wire the scheduler into the bot startup.
 **Acceptance Criteria:**
-- [ ] New `notification.formatter.ts` in bot — converts `NotificationPayload` → Telegram HTML message:
+- [x] New `notification.formatter.ts` in bot — converts `NotificationPayload` → Telegram HTML message:
   - Emoji + original word
   - Translations per language with flag emoji
   - CEFR level (if available from vocabulary data)
   - Inline keyboard: "📖 Open dictionary" / "⏭ Skip"
-- [ ] Bot startup calls `startScheduler(sendFn)` where `sendFn` uses `bot.api.sendMessage()`
-- [ ] Graceful shutdown calls `stopScheduler()`
-- [ ] Callback handler for "Open dictionary" button (deep-links to `/dictionary` with the word)
-- [ ] Tests for formatter output
+- [x] Bot startup calls `startScheduler(sendFn)` where `sendFn` uses `bot.api.sendMessage()`
+- [x] Graceful shutdown calls `stopScheduler()`
+- [x] Callback handler for "Open dictionary" button (deep-links to `/dictionary` with the word)
+- [x] Tests for formatter output
 
 **Effort:** 3–4h
 **Files:** `apps/bot/src/notifications/notification.formatter.ts` (new), `apps/bot/src/notifications/notification.formatter.test.ts` (new), `apps/bot/src/index.ts` (startup wiring)
@@ -121,16 +121,16 @@ The word is sourced from two strategies: **dictionary SRS review** (word the use
 ### 41.5 — Settings: notification preferences UI
 **Goal:** Let users enable/disable notifications and configure time slot + type from `/settings`.
 **Acceptance Criteria:**
-- [ ] Settings scene shows notification section below language settings:
+- [x] Settings scene shows notification section below language settings:
   - 🔔 Notifications: On/Off
   - ⏰ Time: Morning (8:00) / Evening (20:00)
   - 📋 Type: Dictionary word / AI suggestion / Both
   - 🌍 Timezone: (current value, tap to change)
-- [ ] Inline keyboard buttons for toggling each preference
-- [ ] Timezone picker: show common timezones grouped by region (UTC±N list), or accept text input like "Europe/Prague"
-- [ ] On first enable: prompt for timezone if still default `"UTC"`
-- [ ] All preference changes persist via `userRepository.updateNotificationPrefs()`
-- [ ] Tests for settings keyboard building and callback handling
+- [x] Inline keyboard buttons for toggling each preference
+- [x] Timezone picker: show common timezones grouped by region (UTC±N list), or accept text input like "Europe/Prague"
+- [x] On first enable: prompt for timezone if still default `"UTC"`
+- [x] All preference changes persist via `userRepository.updateNotificationPrefs()`
+- [x] Tests for settings keyboard building and callback handling
 
 **Effort:** 4–5h
 **Files:** `apps/bot/src/scenes/settings.scene.ts`, `apps/bot/src/scenes/helpers/settings.helper.ts`, tests
@@ -140,13 +140,13 @@ The word is sourced from two strategies: **dictionary SRS review** (word the use
 ### 41.6 — i18n: notification strings
 **Goal:** Add all notification-related i18n keys for `en`, `ru`, `cs`.
 **Acceptance Criteria:**
-- [ ] Keys added to all 3 locale files:
+- [x] Keys added to all 3 locale files:
   - `notifTitle`, `notifWordFromDict`, `notifAiSuggested`, `notifTranslations`, `notifOpenDict`, `notifSkip`
   - `settingsNotifSection`, `settingsNotifEnabled`, `settingsNotifDisabled`, `settingsNotifTime`, `settingsNotifType`, `settingsNotifTimezone`
   - `settingsNotifToggle`, `settingsNotifChooseTime`, `settingsNotifChooseType`, `settingsNotifChooseTimezone`
   - `notifPaused` (14-day inactivity message), `notifReEngagement`
-- [ ] Types updated in `i18n/types.ts`
-- [ ] Existing tests pass, new interpolation tests added
+- [x] Types updated in `i18n/types.ts`
+- [x] Existing tests pass, new interpolation tests added
 
 **Effort:** 2–3h
 **Files:** `packages/core/src/modules/i18n/locales/en.json`, `ru.json`, `cs.json`, `packages/core/src/modules/i18n/types.ts`, tests
@@ -156,11 +156,11 @@ The word is sourced from two strategies: **dictionary SRS review** (word the use
 ### 41.7 — Inactivity pause + re-engagement
 **Goal:** Pause notifications for inactive users and send a re-engagement message.
 **Acceptance Criteria:**
-- [ ] Auth middleware updates `last_interaction_at` on every bot interaction (fire-and-forget)
-- [ ] `notificationRepository.getUsersForWindow()` excludes users with `last_interaction_at` older than 14 days
-- [ ] When a user crosses the 14-day threshold: send one re-engagement message ("We paused your notifications. Use /settings to re-enable.") and set `notification_enabled = false`
-- [ ] Re-engagement cron (daily, separate from hourly notification cron) or checked inline during hourly tick
-- [ ] Tests for inactivity detection and re-engagement flow
+- [x] Auth middleware updates `last_interaction_at` on every bot interaction (fire-and-forget)
+- [x] `notificationRepository.getUsersForWindow()` excludes users with `last_interaction_at` older than 14 days
+- [x] When a user crosses the 14-day threshold: send one re-engagement message ("We paused your notifications. Use /settings to re-enable.") and set `notification_enabled = false`
+- [x] Re-engagement cron (daily, separate from hourly notification cron) or checked inline during hourly tick
+- [x] Tests for inactivity detection and re-engagement flow
 
 **Effort:** 2–3h
 **Files:** `apps/bot/src/middlewares/auth.ts` (add `updateLastInteraction`), `packages/adapters/db/src/repositories/notification.repository.ts`, `packages/adapters/notifications/src/scheduler.ts`, tests

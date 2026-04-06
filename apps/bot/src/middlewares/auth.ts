@@ -40,6 +40,12 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
       ctx.session.activeMode = VALID_MODES.has(dbMode) ? (dbMode as UserMode) : "translate";
       logger.debug({ userId: user.id, activeMode: ctx.session.activeMode }, "Hydrated activeMode from DB");
     }
+
+    // Fire-and-forget: update last interaction timestamp for notification inactivity detection.
+    // Never blocks request processing — errors are logged but swallowed.
+    userRepository.updateLastInteraction(user.id).catch((err) => {
+      logger.error({ err, userId: user.id }, "Failed to update last interaction timestamp");
+    });
   }
 
   return next();

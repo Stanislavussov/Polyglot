@@ -92,6 +92,20 @@
       "when": 1775400000000,
       "tag": "0012_word_review_log",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1775500000000,
+      "tag": "0013_drop_cefr_column",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1775600000000,
+      "tag": "0014_notification_preferences",
+      "breakpoints": true
     }
   ]
 }

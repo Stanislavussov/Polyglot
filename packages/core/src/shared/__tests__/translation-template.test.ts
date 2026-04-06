@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { SENTENCE_OUTPUT } from "../translation-output.presets.js";
-import { MAX_TRANSCRIPTION_INPUT_LENGTH, resolveOutputConfig, resolveTemplate } from "../translation-template.service.js";
+import {
+  MAX_TRANSCRIPTION_INPUT_LENGTH,
+  resolveOutputConfig,
+  resolveTemplate,
+} from "../translation-template.service.js";
 import {
   DEFAULT_TEMPLATE,
   TEMPLATE_FIELD_KEYS,

@@ -13,12 +13,12 @@ import type { NotificationServiceDeps, SuggestedWord } from "./types.js";
 /**
  * Create a notification service with injected dependencies.
  *
- * @param deps — topic service, user settings, optional regenerateTopicWord
- * @returns Object with pickSuggestedWord
+ * @param deps — topic service, user settings, vocabulary, review counts
+ * @returns Object with pickSuggestedWord and pickDictionaryWord
  */
 export function createNotificationService(deps: NotificationServiceDeps) {
   /**
-   * Pick a suggested word for a user's notification.
+   * Pick a suggested word for a user's notification (AI topic-based).
    *
    * Flow:
    * 1. Fetch user settings (native lang, learning langs)
@@ -115,8 +115,79 @@ export function createNotificationService(deps: NotificationServiceDeps) {
       original: word.original,
       emoji: topic.emoji,
       translations,
+      source: "suggested" as const,
     };
   }
 
-  return { pickSuggestedWord };
+  /**
+   * Pick a word from the user's dictionary that needs review.
+   *
+   * Strategy: least reviewed (tie-break: oldest createdAt).
+   * Falls back to null if user has no saved vocabulary.
+   *
+   * @param userId — internal user ID
+   * @returns SuggestedWord or null if dictionary is empty
+   */
+  async function pickDictionaryWord(userId: number): Promise<SuggestedWord | null> {
+    if (!deps.getUserVocabulary || !deps.getReviewCounts || !deps.getLangCode) {
+      logger.warn({ userId }, "pickDictionaryWord: missing deps (getUserVocabulary/getReviewCounts/getLangCode)");
+      return null;
+    }
+
+    // Step 1: Get user's vocabulary entries
+    let entries: Awaited<ReturnType<NonNullable<typeof deps.getUserVocabulary>>>;
+    try {
+      entries = await deps.getUserVocabulary(userId);
+    } catch (err) {
+      logger.error({ err, userId }, "pickDictionaryWord: failed to get user vocabulary");
+      return null;
+    }
+
+    if (entries.length === 0) {
+      logger.info({ userId }, "pickDictionaryWord: user has no vocabulary entries");
+      return null;
+    }
+
+    // Step 2: Get review counts
+    let reviewCounts: Map<number, number>;
+    try {
+      reviewCounts = await deps.getReviewCounts(userId);
+    } catch (err) {
+      logger.error({ err, userId }, "pickDictionaryWord: failed to get review counts");
+      return null;
+    }
+
+    // Step 3: Sort by fewest reviews (tie-break: oldest createdAt)
+    const sorted = [...entries].sort((a, b) => {
+      const aCount = reviewCounts.get(a.id) ?? 0;
+      const bCount = reviewCounts.get(b.id) ?? 0;
+      if (aCount !== bCount) return aCount - bCount;
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    });
+
+    const entry = sorted[0]!;
+
+    // Step 4: Build translations map (langId → langCode → text)
+    const translations: Record<string, string> = {};
+    for (const t of entry.translations) {
+      const code = deps.getLangCode(t.targetLangId);
+      if (code) {
+        translations[code] = t.text;
+      }
+    }
+
+    if (Object.keys(translations).length === 0) {
+      logger.warn({ userId, entryId: entry.id }, "pickDictionaryWord: entry has no resolvable translations");
+      return null;
+    }
+
+    return {
+      original: entry.original,
+      emoji: entry.emoji ?? "📖",
+      translations,
+      source: "srs" as const,
+    };
+  }
+
+  return { pickSuggestedWord, pickDictionaryWord };
 }

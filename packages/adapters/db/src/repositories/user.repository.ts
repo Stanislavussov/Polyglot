@@ -132,6 +132,38 @@ export const userRepository = {
     return rows[0] ?? null;
   },
 
+  /** Update notification preferences (enable/disable, time slot, type). */
+  async updateNotificationPrefs(
+    userId: number,
+    prefs: {
+      notificationEnabled?: boolean;
+      notificationTime?: string;
+      notificationType?: string;
+    },
+  ): Promise<UserLanguageSettings | null> {
+    const db = getDb();
+    const set: Record<string, unknown> = { updatedAt: new Date() };
+    if (prefs.notificationEnabled !== undefined) set.notificationEnabled = prefs.notificationEnabled;
+    if (prefs.notificationTime !== undefined) set.notificationTime = prefs.notificationTime;
+    if (prefs.notificationType !== undefined) set.notificationType = prefs.notificationType;
+
+    const rows = await db
+      .update(userLanguageSettings)
+      .set(set)
+      .where(eq(userLanguageSettings.userId, userId))
+      .returning();
+    return rows[0] ?? null;
+  },
+
+  /** Update last interaction timestamp (fire-and-forget friendly). */
+  async updateLastInteraction(userId: number): Promise<void> {
+    const db = getDb();
+    await db
+      .update(userLanguageSettings)
+      .set({ lastInteractionAt: new Date(), updatedAt: new Date() })
+      .where(eq(userLanguageSettings.userId, userId));
+  },
+
   /** Mark user as onboarded (3-step flow per BRD §5). */
   async markOnboarded(userId: number): Promise<User> {
     const db = getDb();
