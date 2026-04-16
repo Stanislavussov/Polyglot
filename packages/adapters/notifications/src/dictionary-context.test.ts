@@ -18,16 +18,22 @@ import type { NotificationServiceDeps, UserForNotification } from "./types.js";
 // Mock logger (hoisted to avoid TDZ issues)
 // ─────────────────────────────────────────────
 
-const { mockLogger } = vi.hoisted(() => ({
+const { mockLogger, mockChild } = vi.hoisted(() => ({
   mockLogger: {
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
   },
+  mockChild: vi.fn(() => mockLogger),
 }));
 
-vi.mock("@polyglot/infra", () => ({
-  logger: mockLogger,
+vi.mock("@polyglot/core", () => ({
+  getLogger: vi.fn(() => ({
+    info: mockLogger.info,
+    warn: mockLogger.warn,
+    error: mockLogger.error,
+    child: mockChild,
+  })),
 }));
 
 import { createNotificationService } from "./notification.service.js";

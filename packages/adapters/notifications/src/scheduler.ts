@@ -6,9 +6,10 @@
  * 2. On send error — log and continue, never stop the scheduler
  * 3. Receives sendFn via injection — never imports bot
  * 4. Timezone and time slot constants come from DB (injected via deps)
+ * 5. Uses core's getLogger() — logger injected at composition root
  */
 
-import { logger } from "@polyglot/infra";
+import { getLogger } from "@polyglot/core";
 import cron from "node-cron";
 import { logNotificationSent } from "./log.js";
 import type {
@@ -42,7 +43,7 @@ async function pickWordForUser(user: NotificationUser, deps: SchedulerDeps): Pro
     const dictWord = await deps.pickDictionaryWord(user.userId);
     if (dictWord) return dictWord;
     // Fallback to suggested if no dictionary words
-    logger.info({ userId: user.userId }, "No dictionary word — falling back to AI suggestion");
+    getLogger().info({ userId: user.userId }, "No dictionary word — falling back to AI suggestion");
     return deps.pickSuggestedWord(user.userId);
   }
 
@@ -98,6 +99,7 @@ export function buildNotificationPayload(
  * Process one hourly tick: find eligible users, pick words, send notifications.
  */
 export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise<{ sent: number; errors: number }> {
+  const logger = getLogger();
   const utcHour = new Date().getUTCHours();
   let sent = 0;
   let errors = 0;
@@ -158,6 +160,7 @@ export async function processInactiveUsers(
   reEngagementSendFn: ReEngagementSendFn,
   deps: SchedulerDeps,
 ): Promise<{ processed: number; errors: number }> {
+  const logger = getLogger();
   let processed = 0;
   let errors = 0;
 
@@ -206,12 +209,13 @@ export async function processInactiveUsers(
  * @param deps — scheduler dependencies (repos, pickers, i18n)
  */
 export function startScheduler(sendFn: SendFn, reEngagementSendFn: ReEngagementSendFn, deps: SchedulerDeps): void {
+  const logger = getLogger();
   if (cronTask) {
-    logger.warn("Scheduler already running — ignoring duplicate startScheduler call");
+    logger.warn({}, "Scheduler already running — ignoring duplicate startScheduler call");
     return;
   }
 
-  logger.info("Starting notification scheduler (0 * * * *)");
+  logger.info({}, "Starting notification scheduler (0 * * * *)");
 
   cronTask = cron.schedule("0 * * * *", async () => {
     try {
@@ -233,9 +237,10 @@ export function startScheduler(sendFn: SendFn, reEngagementSendFn: ReEngagementS
  * Stop the notification scheduler gracefully.
  */
 export function stopScheduler(): void {
+  const logger = getLogger();
   if (cronTask) {
     cronTask.stop();
     cronTask = null;
-    logger.info("Notification scheduler stopped");
+    logger.info({}, "Notification scheduler stopped");
   }
 }

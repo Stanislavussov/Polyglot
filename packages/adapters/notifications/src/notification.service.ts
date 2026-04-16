@@ -6,8 +6,9 @@
  * 2. On error — log and continue, never stop the scheduler
  * 3. Respect user timezone and language preferences
  * 4. Uses partial regeneration when a topic word is missing a language
+ * 5. Uses core's getLogger() — injected at composition root
  */
-import { logger } from "@polyglot/infra";
+import { getLogger } from "@polyglot/core";
 import type { NotificationServiceDeps, SuggestedWord } from "./types.js";
 
 /**
@@ -17,6 +18,7 @@ import type { NotificationServiceDeps, SuggestedWord } from "./types.js";
  * @returns Object with pickSuggestedWord and pickDictionaryWord
  */
 export function createNotificationService(deps: NotificationServiceDeps) {
+  const logger = getLogger();
   /**
    * Pick a suggested word for a user's notification (AI topic-based).
    *
@@ -43,7 +45,7 @@ export function createNotificationService(deps: NotificationServiceDeps) {
     // Step 2: Pick a random built-in topic
     const topics = deps.getBuiltinTopics();
     if (topics.length === 0) {
-      logger.warn("No built-in topics available");
+      logger.warn({}, "No built-in topics available");
       return null;
     }
 

@@ -1,13 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockInfo } = vi.hoisted(() => ({
+const { mockInfo, mockWarn, mockError, mockDebug, mockChild } = vi.hoisted(() => ({
   mockInfo: vi.fn(),
+  mockWarn: vi.fn(),
+  mockError: vi.fn(),
+  mockDebug: vi.fn(),
+  mockChild: vi.fn(() => ({
+    info: mockInfo,
+    warn: mockWarn,
+    error: mockError,
+    debug: mockDebug,
+  })),
 }));
 
-vi.mock("@polyglot/infra", () => ({
-  logger: {
+vi.mock("@polyglot/core", () => ({
+  getLogger: vi.fn(() => ({
     info: mockInfo,
-  },
+    warn: mockWarn,
+    error: mockError,
+    debug: mockDebug,
+    child: mockChild,
+  })),
 }));
 
 import { logNotificationSent } from "./index.js";

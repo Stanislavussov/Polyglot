@@ -14,8 +14,8 @@ const { mockLogger } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@polyglot/infra", () => ({
-  logger: mockLogger,
+vi.mock("@polyglot/core", () => ({
+  getLogger: vi.fn(() => mockLogger),
 }));
 
 // Mock node-cron

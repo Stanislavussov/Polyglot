@@ -1,4 +1,9 @@
-import { logger } from "@polyglot/infra";
+/**
+ * Notification log utilities.
+ *
+ * Logs notification lifecycle events using core's getLogger().
+ */
+import { getLogger } from "@polyglot/core";
 import type { NotificationType } from "./types.js";
 
 /**
@@ -10,5 +15,6 @@ import type { NotificationType } from "./types.js";
  * - 'srs': Word from dictionary due for SRS review
  */
 export function logNotificationSent(params: { userId: number; type: NotificationType; wordId: number }): void {
+  const logger = getLogger();
   logger.info(params, "Notification sent");
 }

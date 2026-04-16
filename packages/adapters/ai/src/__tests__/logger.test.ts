@@ -1,18 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Must use vi.hoisted to avoid the TDZ issue with vi.mock hoisting
-const { mockInfo, mockError } = vi.hoisted(() => ({
+const { mockInfo, mockError, mockChild } = vi.hoisted(() => ({
   mockInfo: vi.fn(),
   mockError: vi.fn(),
+  mockChild: vi.fn(() => ({
+    info: mockInfo,
+    error: mockError,
+  })),
 }));
 
-vi.mock("@polyglot/infra", () => ({
-  logger: {
-    child: () => ({
-      info: mockInfo,
-      error: mockError,
-    }),
-  },
+vi.mock("@polyglot/core", () => ({
+  getLogger: vi.fn(() => ({
+    info: mockInfo,
+    error: mockError,
+    child: mockChild,
+  })),
 }));
 
 import { logRequest } from "../logger.js";

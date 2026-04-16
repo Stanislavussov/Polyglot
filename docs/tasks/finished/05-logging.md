@@ -133,19 +133,21 @@ export const logger = pino({ level: 'info' }, pino.destination(1));
 
 | Package | Logging approach | Reason |
 |---|---|---|
-| `packages/infra` | Pino (stdout only) | Logger home — no deps issue |
-| `packages/adapters/ai` | `logger` from `@polyglot/infra` | Already in its dep graph |
-| `packages/adapters/notifications` | `logger` from `@polyglot/infra` | Adapter layer — infra dep OK |
-| `apps/bot` | `logger` from `@polyglot/infra` | App layer — infra dep OK |
-| `packages/core` | `console.warn` / `console.error` | Core must stay infra-free; raw console acceptable for MVP |
+| `packages/core` | `logger` from `@polyglot/core` | Single pino singleton — no infra dep |
+| `packages/adapters/*` | `logger` from `@polyglot/core` | Imports from core, no infra dep |
+| `packages/infra` | `logger` from `@polyglot/core` | Imports from core, no own logger |
+| `apps/bot` | `logger` from `@polyglot/core` | Single logger source for entire app |
 
 ---
 
 ## Files Created / Modified
 
 ### Modified
-- `packages/infra/src/logger.ts` — remove Betterstack conditional, stdout-only
-- `packages/infra/package.json` — add explicit `pino` dependency
+- `packages/core/src/logger.ts` — singleton pino instance (single implementation)
+- `packages/core/src/logger-interface.ts` — Logger interface + getLogger/setLogger
+- `packages/infra/src/logger.ts` — deleted (moved to core)
+- `packages/infra/src/config.ts` — import logger from `@polyglot/core`
+- `packages/infra/package.json` — removed `pino` dependency (now in core)
 - `packages/adapters/ai/src/types.ts` — add `userId` to `AIRequestLog` and `GenerateOptions`
 - `packages/adapters/ai/src/index.ts` — thread `userId` through `logRequest()` calls
 - `packages/adapters/ai/src/logger.ts` — include `userId` in pino log object

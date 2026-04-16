@@ -3,4 +3,3 @@
 
 export type { Env } from "./config.js";
 export { loadConfig } from "./config.js";
-export { logger } from "./logger.js";

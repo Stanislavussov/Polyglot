@@ -1,7 +1,8 @@
-// Logger
+// Logger — singleton pino, also exported from here for convenience
 
-export type { Logger } from "./logger.js";
-export { getLogger, setLogger } from "./logger.js";
+export type { Logger } from "./logger-interface.js";
+export { getLogger, setLogger } from "./logger-interface.js";
+export { logger } from "./logger.js";
 
 // Modules
 

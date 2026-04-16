@@ -53,6 +53,20 @@ module.exports = {
       to: { path: "^packages/infra/" },
     },
     {
+      name: "no-adapter-ai-importing-infra",
+      comment: "@polyglot/adapter-ai must not import @polyglot/infra",
+      severity: "error",
+      from: { path: "^packages/adapters/ai/src" },
+      to: { path: "^packages/infra/" },
+    },
+    {
+      name: "no-adapter-notifications-importing-infra",
+      comment: "@polyglot/adapter-notifications must not import @polyglot/infra",
+      severity: "error",
+      from: { path: "^packages/adapters/notifications/src" },
+      to: { path: "^packages/infra/" },
+    },
+    {
       name: "no-adapter-db-importing-ai-or-notifications",
       comment: "@polyglot/adapter-db must not import @polyglot/adapter-ai or @polyglot/adapter-notifications",
       severity: "error",

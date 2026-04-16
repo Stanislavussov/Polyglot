@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { config as dotenvConfig } from "dotenv";
 import { z } from "zod";
-import { logger } from "./logger.js";
+import { logger } from "@polyglot/core";
 
 const envSchema = z.object({
   BOT_TOKEN: z.string().min(1, "BOT_TOKEN is required"),

@@ -14,13 +14,12 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "import:wiktionary": "tsx src/scripts/import-wiktionary.ts"
+    "import:wiktionary": "tsx scripts/import-wiktionary.ts"
   },
   "dependencies": {
     "@polyglot/adapter-db": "workspace:*",
     "@polyglot/core": "workspace:*",
-    "dotenv": "^17.3.1",
-    "pino": "^10.3.1"
+    "dotenv": "^17.3.1"
   },
   "devDependencies": {
     "tsx": "^4.7.0"

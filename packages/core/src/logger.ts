@@ -1,41 +1,24 @@
 /**
- * Core logger abstraction.
+ * Core logger — singleton pino instance.
  *
- * Core must stay free of infrastructure dependencies (clean arch),
- * so we define a minimal logger interface here. The composition root
- * (apps/bot) injects the real pino logger at startup via `setLogger()`.
+ * Core uses pino directly so that adapters and other packages consuming
+ * core get structured logging without needing their own logger setup.
  *
- * Default: no-op (silent) — the app MUST call setLogger() before
- * any translation/validation work happens.
+ * Call sites use the Logger interface (info/warn/error/debug) with
+ * (obj, msg) signature — pino matches this natively.
+ *
+ * Betterstack transport (tech-reqs/16-logging.md) can be wired in the
+ * composition root (apps/bot) by replacing the pino export with one
+ * that writes to Logtail.
  */
+import pino from "pino";
 
-export interface Logger {
-  info(obj: Record<string, unknown>, msg: string): void;
-  warn(obj: Record<string, unknown>, msg: string): void;
-  error(obj: Record<string, unknown>, msg: string): void;
-  debug(obj: Record<string, unknown>, msg: string): void;
-}
+const coreLogger = pino({ level: "info" }, pino.destination(1));
 
-/** No-op logger used before setLogger() is called. */
-const noop = () => {};
-const noopLogger: Logger = {
-  info: noop,
-  warn: noop,
-  error: noop,
-  debug: noop,
-};
+export { coreLogger as logger };
+export default coreLogger;
 
-let currentLogger: Logger = noopLogger;
-
-/** Get the current logger instance. */
-export function getLogger(): Logger {
-  return currentLogger;
-}
-
-/**
- * Inject the real logger (called once from the composition root).
- * Pino is compatible — its `.info(obj, msg)` signature matches.
- */
-export function setLogger(logger: Logger): void {
-  currentLogger = logger;
-}
+// Also re-export the interface/getter/setter for internal core modules
+// that import from this file via relative path (e.g. ../../logger.js)
+export type { Logger } from "./logger-interface.js";
+export { getLogger, setLogger } from "./logger-interface.js";
