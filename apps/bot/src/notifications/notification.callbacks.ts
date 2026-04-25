@@ -5,7 +5,7 @@
  * - notif:open → deep-link to /dictionary
  * - notif:skip → dismiss notification message
  */
-import { logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
 import type { BotContext } from "../types.js";
 
 /**

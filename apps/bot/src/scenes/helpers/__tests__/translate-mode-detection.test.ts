@@ -220,7 +220,7 @@ describe("handleTranslateText — auto-detect language direction", () => {
   });
 
   it("logs debug info about resolved direction", async () => {
-    const { logger } = await import("@polyglot/infra");
+    const { logger } = await import("@polyglot/core");
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "привет");
 

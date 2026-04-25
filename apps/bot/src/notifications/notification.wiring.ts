@@ -25,7 +25,7 @@ import {
   type SupportedLang,
   t,
 } from "@polyglot/core";
-import { logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
 import { buildNotificationKeyboard } from "./notification.formatter.js";
 

@@ -5,7 +5,7 @@ vi.mock("@polyglot/infra", () => ({
   logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-import { logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
 import { toVocabularyInput } from "./vocabulary-mapper.js";
 
 const sampleOutput: TranslateOutput = {

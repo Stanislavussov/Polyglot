@@ -1,5 +1,4 @@
-import { type SupportedLang, t } from "@polyglot/core";
-import { logger } from "@polyglot/infra";
+import { logger, type SupportedLang, t } from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
 
 /** Locales that have dedicated i18n locale files. */

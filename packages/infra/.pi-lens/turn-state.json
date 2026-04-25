@@ -1,0 +1,21 @@
+{
+  "files": {
+    "src/index.ts": {
+      "modifiedRanges": [
+        {
+          "start": 4,
+          "end": 4
+        },
+        {
+          "start": 6,
+          "end": 6
+        }
+      ],
+      "importsChanged": true,
+      "lastEdit": "2026-04-25T17:33:30.057Z"
+    }
+  },
+  "turnCycles": 0,
+  "maxCycles": 3,
+  "lastUpdated": "2026-04-25T17:33:30.057Z"
+}

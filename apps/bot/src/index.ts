@@ -1,12 +1,12 @@
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
 import { stopScheduler } from "@polyglot/adapter-notifications";
-import { initLanguageRegistry, setLogger } from "@polyglot/core";
+import { initLanguageRegistry, logger, setLogger } from "@polyglot/core";
 import { loadConfig } from "@polyglot/infra";
-import { logger } from "@polyglot/core";
 import { Bot, session } from "grammy";
 import { setBotCommands } from "./commands/commands.js";
 import { startCommand } from "./commands/start.js";
+import { startMetricsServer, telegramMessagesCounter } from "./metrics.js";
 import { authMiddleware } from "./middlewares/auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { handleNotifOpenCallback, handleNotifSkipCallback } from "./notifications/notification.callbacks.js";
@@ -39,9 +39,9 @@ import {
   handleSetLearnToggleCallback,
   handleSetNativeCallback,
   handleSetNativeSelectCallback,
-  handleSetNotifToggleCallback,
   handleSetNotifTimeCallback,
   handleSetNotifTimeSelectCallback,
+  handleSetNotifToggleCallback,
   handleSetNotifTypeCallback,
   handleSetNotifTypeSelectCallback,
   handleSetNotifTzCallback,
@@ -67,7 +67,6 @@ import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, SessionData } from "./types.js";
-import { startMetricsServer, telegramMessagesCounter } from "./metrics.js";
 
 // ── Load & validate environment ──
 const config = loadConfig();

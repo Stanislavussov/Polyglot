@@ -167,7 +167,7 @@ describe("handleTranslateText — nextSourceLang integration", () => {
   });
 
   it("logs nextSourceLang in debug output", async () => {
-    const { logger } = await import("@polyglot/infra");
+    const { logger } = await import("@polyglot/core");
     const ctx = createMockCtx("cs");
     await handleTranslateText(ctx, "dům");
 

@@ -1,0 +1,27 @@
+{
+  "files": {
+    "src/commands/commands.ts": {
+      "modifiedRanges": [
+        {
+          "start": 1,
+          "end": 2
+        }
+      ],
+      "importsChanged": true,
+      "lastEdit": "2026-04-25T17:33:23.922Z"
+    },
+    "src/index.ts": {
+      "modifiedRanges": [
+        {
+          "start": 5,
+          "end": 6
+        }
+      ],
+      "importsChanged": true,
+      "lastEdit": "2026-04-25T17:33:50.443Z"
+    }
+  },
+  "turnCycles": 0,
+  "maxCycles": 3,
+  "lastUpdated": "2026-04-25T17:33:50.443Z"
+}

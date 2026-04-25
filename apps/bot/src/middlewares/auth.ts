@@ -1,5 +1,5 @@
 import { userRepository } from "@polyglot/adapter-db";
-import { logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import type { BotContext, UserMode } from "../types.js";
 

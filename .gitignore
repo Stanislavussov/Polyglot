@@ -4,3 +4,4 @@ dist
 coverage
 *.tsbuildinfo
 .pi/ai-sdk-debug.log
+.pi-lens/*

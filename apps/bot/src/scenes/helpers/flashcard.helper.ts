@@ -8,7 +8,7 @@
 import { getAllLangs, userRepository, vocabularyRepository, wordReviewRepository } from "@polyglot/adapter-db";
 import type { DictionaryPipelineDeps, SupportedLang } from "@polyglot/core";
 import { createDictionaryPipeline, FLASHCARD_CONFIG, isSupported, t } from "@polyglot/core";
-import { logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
 import {
   buildFlashCardBackKeyboard,
   buildFlashCardDoneKeyboard,

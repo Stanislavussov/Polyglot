@@ -8,7 +8,7 @@
 import { getAllLangs, userRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import type { SupportedLang } from "@polyglot/core";
 import { isSupported, t } from "@polyglot/core";
-import { logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
 import {
   buildDeleteConfirmKeyboard,
   buildDictionaryEntryKeyboard,

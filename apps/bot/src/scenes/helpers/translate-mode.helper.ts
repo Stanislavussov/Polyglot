@@ -23,7 +23,8 @@ import {
   translateOneWithContext,
   translateWithContext,
 } from "@polyglot/core";
-import { loadConfig, logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
+import { loadConfig } from "@polyglot/infra";
 import {
   buildPostSaveKeyboard,
   buildSentenceKeyboard,

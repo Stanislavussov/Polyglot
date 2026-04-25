@@ -4,7 +4,7 @@
  */
 import { createServer } from "node:http";
 import { collectDefaultMetrics, Counter, Histogram, register } from "prom-client";
-import { logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
 
 // ── Default Node.js metrics (CPU, memory, event-loop, GC) ───────────
 collectDefaultMetrics();

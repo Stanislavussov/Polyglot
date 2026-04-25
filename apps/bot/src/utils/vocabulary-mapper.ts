@@ -10,7 +10,7 @@
  */
 import type { CreateVocabularyInput, VocabTranslationDetails } from "@polyglot/adapter-db";
 import type { TranslateOutput } from "@polyglot/core";
-import { logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
 
 /**
  * Resolves a language code to its database ID.

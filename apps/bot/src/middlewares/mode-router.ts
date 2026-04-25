@@ -8,7 +8,7 @@
 
 import { userRepository } from "@polyglot/adapter-db";
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
-import { logger } from "@polyglot/infra";
+import { logger } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
 import type { BotContext } from "../types.js";

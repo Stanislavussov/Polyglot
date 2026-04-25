@@ -81,7 +81,7 @@ describe("setBotCommands", () => {
   });
 
   it("logs error but does not throw when setMyCommands fails", async () => {
-    const { logger } = await import("@polyglot/infra");
+    const { logger } = await import("@polyglot/core");
     mockApi.setMyCommands.mockRejectedValue(new Error("Network error"));
 
     await expect(setBotCommands(mockApi as any)).resolves.toBeUndefined();
@@ -121,7 +121,7 @@ describe("setUserCommands", () => {
   });
 
   it("logs error but does not throw on failure", async () => {
-    const { logger } = await import("@polyglot/infra");
+    const { logger } = await import("@polyglot/core");
     mockApi.setMyCommands.mockRejectedValue(new Error("Rate limited"));
 
     await expect(setUserCommands(mockApi as any, 123456, "en")).resolves.toBeUndefined();
