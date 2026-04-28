@@ -114,6 +114,33 @@ module.exports = {
         ],
       },
     },
+    {
+      name: "no-bot-scenes-importing-adapters",
+      comment: "Bot scenes/helpers should import services via ctx.services, not directly from adapters (task-42 incremental migration)",
+      severity: "info",
+      from: { path: "^apps/bot/src/scenes/" },
+      to: {
+        path: [
+          "^packages/adapters/db/",
+          "^packages/adapters/ai/",
+          "^packages/adapters/notifications/",
+        ],
+      },
+    },
+    // Remove this rule after task-42 migration is complete
+    // {
+    //   name: "no-bot-scenes-importing-adapters",
+    //   comment: "Bot scenes/helpers should import services via ctx.services, not directly from adapters (task-42 incremental migration)",
+    //   severity: "info",
+    //   from: { path: "^apps/bot/src/scenes/" },
+    //   to: {
+    //     path: [
+    //       "^packages/adapters/db/",
+    //       "^packages/adapters/ai/",
+    //       "^packages/adapters/notifications/",
+    //     ],
+    //   },
+    // },
 
     // ───────────────────────────────────────────────
     // Circular dependency rule

@@ -9,24 +9,40 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
 }));
 
-const { mockLookupContext } = vi.hoisted(() => ({
+const {
+  mockLookupContext,
+  mockUserRepository,
+  mockVocabularyRepository,
+  mockTranslationTemplateRepository,
+  mockLanguageCache,
+  mockAi,
+} = vi.hoisted(() => ({
   mockLookupContext: vi.fn(),
-}));
-
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
+  mockUserRepository: {
     getSettings: vi.fn(),
   },
-  vocabularyRepository: {
+  mockVocabularyRepository: {
     create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
     findByOriginalAndSource: vi.fn().mockResolvedValue(null),
     updateTranslation: vi.fn().mockResolvedValue({}),
   },
-  createContextLookup: () => mockLookupContext,
-  getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
-  translationTemplateRepository: {
+  mockTranslationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),
   },
+  mockLanguageCache: {
+    getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
+  },
+  mockAi: {
+    generateObject: vi.fn(),
+  },
+}));
+
+vi.mock("@polyglot/adapter-db", () => ({
+  userRepository: mockUserRepository,
+  vocabularyRepository: mockVocabularyRepository,
+  createContextLookup: () => mockLookupContext,
+  getLang: mockLanguageCache.getLang,
+  translationTemplateRepository: mockTranslationTemplateRepository,
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -55,7 +71,6 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { userRepository } from "@polyglot/adapter-db";
 import { translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../types.js";
 import { handleTranslateText } from "./translate-mode.helper.js";
@@ -76,17 +91,25 @@ function createMockCtx(_overrides: Partial<{ nativeLang: string; learningLangs: 
       deleteMessage: vi.fn().mockResolvedValue(undefined),
     },
     user: { id: 1, telegramId: 123456789 },
+    services: {
+      userRepository: mockUserRepository,
+      vocabularyRepository: mockVocabularyRepository,
+      translationTemplateRepository: mockTranslationTemplateRepository,
+      languageCache: mockLanguageCache,
+      ai: mockAi,
+    },
   } as unknown as BotContext;
 }
 
 describe("handleTranslateText — context enrichment", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(userRepository.getSettings).mockResolvedValue({
+    // Reset mock implementations
+    mockUserRepository.getSettings.mockResolvedValue({
       interfaceLang: "en",
       nativeLang: "ru",
       learningLangs: ["cs", "de"],
-    } as any);
+    });
   });
 
   it("calls translateWithContext with correct input and deps", async () => {

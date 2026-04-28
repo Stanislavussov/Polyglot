@@ -1,6 +1,5 @@
 import { userRepository } from "@polyglot/adapter-db";
-import { isSupported, type SupportedLang, t } from "@polyglot/core";
-import { logger } from "@polyglot/core";
+import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
 
 /**

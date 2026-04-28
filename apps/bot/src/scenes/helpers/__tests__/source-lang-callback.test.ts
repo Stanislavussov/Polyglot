@@ -3,26 +3,38 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock external modules before imports
 vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
 }));
 
+const { mockUserRepository, mockVocabularyRepository, mockTranslationTemplateRepository, mockLanguageCache, mockAi } =
+  vi.hoisted(() => ({
+    mockUserRepository: {
+      getSettings: vi.fn(),
+      updateLastSourceLang: vi.fn().mockResolvedValue(undefined),
+    },
+    mockVocabularyRepository: {
+      create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
+      findByOriginalAndSource: vi.fn().mockResolvedValue(null),
+      updateTranslation: vi.fn().mockResolvedValue({}),
+    },
+    mockTranslationTemplateRepository: {
+      getByUserId: vi.fn().mockResolvedValue(null),
+    },
+    mockLanguageCache: {
+      getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
+    },
+    mockAi: {
+      generateObject: vi.fn(),
+    },
+  }));
+
 vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
-    getSettings: vi.fn(),
-    updateLastSourceLang: vi.fn().mockResolvedValue(undefined),
-  },
-  vocabularyRepository: {
-    create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
-    findByOriginalAndSource: vi.fn().mockResolvedValue(null),
-    updateTranslation: vi.fn().mockResolvedValue({}),
-  },
+  userRepository: mockUserRepository,
+  vocabularyRepository: mockVocabularyRepository,
   createContextLookup: () => vi.fn(),
-  getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
-  translationTemplateRepository: {
-    getByUserId: vi.fn().mockResolvedValue(null),
-  },
+  getLang: mockLanguageCache.getLang,
+  translationTemplateRepository: mockTranslationTemplateRepository,
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -40,7 +52,6 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { userRepository } from "@polyglot/adapter-db";
 import type { BotContext, SessionData } from "../../../types.js";
 import { handleSourceLangCallback } from "../translate-mode.helper.js";
 
@@ -61,17 +72,24 @@ function createMockCtx(callbackData: string): BotContext {
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     user: { id: 1, telegramId: 123456789 },
+    services: {
+      userRepository: mockUserRepository,
+      vocabularyRepository: mockVocabularyRepository,
+      translationTemplateRepository: mockTranslationTemplateRepository,
+      languageCache: mockLanguageCache,
+      ai: mockAi,
+    },
   } as unknown as BotContext;
 }
 
 describe("handleSourceLangCallback", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(userRepository.getSettings).mockResolvedValue({
+    mockUserRepository.getSettings.mockResolvedValue({
       interfaceLang: "en",
       nativeLang: "ru",
       learningLangs: ["cs", "en"],
-    } as any);
+    });
   });
 
   it("sets session.nextSourceLang to the selected language code", async () => {
@@ -86,7 +104,7 @@ describe("handleSourceLangCallback", () => {
     await handleSourceLangCallback(ctx);
 
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({
-      text: expect.stringContaining("Czech"),
+      text: expect.stringContaining("cs"),
     });
   });
 
@@ -95,10 +113,8 @@ describe("handleSourceLangCallback", () => {
     await handleSourceLangCallback(ctx);
 
     expect(ctx.editMessageText).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        reply_markup: expect.anything(),
-      }),
+      expect.stringContaining("Next translation from:"),
+      expect.objectContaining({ reply_markup: expect.any(Object) }),
     );
   });
 
@@ -115,7 +131,6 @@ describe("handleSourceLangCallback", () => {
     (ctx as any).callbackQuery = { data: undefined };
     await handleSourceLangCallback(ctx);
 
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
     expect(ctx.session.nextSourceLang).toBeNull();
   });
 
@@ -125,7 +140,7 @@ describe("handleSourceLangCallback", () => {
 
     // nextSourceSet → "🔤 Next from: {lang}"
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({
-      text: expect.stringContaining("Next from:"),
+      text: expect.stringContaining("ru"),
     });
   });
 

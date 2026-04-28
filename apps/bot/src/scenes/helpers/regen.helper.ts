@@ -8,6 +8,7 @@ import { generateObject } from "@polyglot/adapter-ai";
 import { getLang, translationTemplateRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import {
   type InputType,
+  logger,
   resolveOutputConfig,
   resolveTemplate,
   type SupportedLang,
@@ -15,7 +16,6 @@ import {
   t,
   translateOne,
 } from "@polyglot/core";
-import { logger } from "@polyglot/core";
 import { loadConfig } from "@polyglot/infra";
 import {
   buildPostSaveKeyboard,
@@ -47,7 +47,11 @@ export async function handleRegenLoop(
   const savedTpl = await conversation.external(async () => translationTemplateRepository.getByUserId(userId));
   const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
-  const outputConfig = resolveOutputConfig(userTpl, isSentence ? "sentence" : (inputType ?? "word"), output.original.length);
+  const outputConfig = resolveOutputConfig(
+    userTpl,
+    isSentence ? "sentence" : (inputType ?? "word"),
+    output.original.length,
+  );
 
   const renderCard = isSentence
     ? renderSentenceTranslation

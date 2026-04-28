@@ -6,6 +6,7 @@ import { loadConfig } from "@polyglot/infra";
 import { Bot, session } from "grammy";
 import { setBotCommands } from "./commands/commands.js";
 import { startCommand } from "./commands/start.js";
+import { createContainer } from "./container.js";
 import { startMetricsServer, telegramMessagesCounter } from "./metrics.js";
 import { authMiddleware } from "./middlewares/auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
@@ -107,6 +108,14 @@ bot.use((ctx, next) => {
 
 // Conversations plugin (must be before createConversation)
 bot.use(conversations());
+
+// Service container middleware — injects ServiceContainer into ctx.services
+// Must be after conversations but before auth (user is resolved after)
+const services = createContainer();
+bot.use((ctx, next) => {
+  ctx.services = services;
+  return next();
+});
 
 // Auth middleware — resolves/creates user, attaches to ctx.user
 // Must be before createConversation so ctx.user is available inside conversations

@@ -13,19 +13,19 @@ import {
 } from "@polyglot/adapter-db";
 import {
   createNotificationService,
-  startScheduler,
-  stopScheduler,
   type NotificationPayload,
   type SchedulerDeps,
+  startScheduler,
+  stopScheduler,
 } from "@polyglot/adapter-notifications";
 import {
   createTopicService,
   getBuiltinTopics,
   isSupported,
+  logger,
   type SupportedLang,
   t,
 } from "@polyglot/core";
-import { logger } from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
 import { buildNotificationKeyboard } from "./notification.formatter.js";
 
@@ -76,10 +76,11 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
         original: e.original,
         emoji: e.emoji,
         createdAt: e.createdAt,
-        translations: (e as any).translations?.map((tr: any) => ({
-          targetLangId: tr.targetLangId,
-          text: tr.text,
-        })) ?? [],
+        translations:
+          (e as any).translations?.map((tr: any) => ({
+            targetLangId: tr.targetLangId,
+            text: tr.text,
+          })) ?? [],
       }));
     },
     getReviewCounts: async (userId: number) => {
@@ -92,7 +93,10 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
   });
 
   // ── Build sendFn (notification → Telegram message) ──
-  const sendFn = async (telegramId: number, payload: NotificationPayload): Promise<void> => {
+  const sendFn = async (
+    telegramId: number,
+    payload: NotificationPayload,
+  ): Promise<void> => {
     // Look up user's interface language for keyboard buttons
     const user = await userRepository.findByTelegramId(telegramId);
     let lang: SupportedLang = "en";
@@ -111,17 +115,24 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
   };
 
   // ── Build re-engagement sendFn ──
-  const reEngagementSendFn = async (telegramId: number, message: string): Promise<void> => {
+  const reEngagementSendFn = async (
+    telegramId: number,
+    message: string,
+  ): Promise<void> => {
     await api.sendMessage(telegramId, message, { parse_mode: "HTML" });
   };
 
   // ── Build scheduler deps ──
   const schedulerDeps: SchedulerDeps = {
-    getUsersForWindow: (hour: number) => notificationRepository.getUsersForWindow(hour),
+    getUsersForWindow: (hour: number) =>
+      notificationRepository.getUsersForWindow(hour),
     getInactiveUsers: () => notificationRepository.getInactiveUsers(),
-    disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
-    pickSuggestedWord: (userId: number) => notifService.pickSuggestedWord(userId),
-    pickDictionaryWord: (userId: number) => notifService.pickDictionaryWord(userId),
+    disableNotifications: (userId: number) =>
+      notificationRepository.disableNotifications(userId),
+    pickSuggestedWord: (userId: number) =>
+      notifService.pickSuggestedWord(userId),
+    pickDictionaryWord: (userId: number) =>
+      notifService.pickDictionaryWord(userId),
     t: (key: string, lang: string, params?: Record<string, string>) =>
       t(key as any, (isSupported(lang) ? lang : "en") as SupportedLang, params),
   };

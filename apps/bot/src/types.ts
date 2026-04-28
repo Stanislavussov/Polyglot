@@ -1,6 +1,13 @@
 import { type ConversationFlavor } from "@grammyjs/conversations";
 import type { User } from "@polyglot/adapter-db";
-import type { DictionaryWordConfig, InputType, TemplateFields, TranslateOutput, WordDisplayData } from "@polyglot/core";
+import type {
+  DictionaryWordConfig,
+  InputType,
+  ServiceContainer,
+  TemplateFields,
+  TranslateOutput,
+  WordDisplayData,
+} from "@polyglot/core";
 import { Context, SessionFlavor } from "grammy";
 
 /**
@@ -94,6 +101,7 @@ export interface SessionData {
 /** Custom context properties injected by auth middleware */
 export interface CustomContextProps {
   user: User;
+  services: ServiceContainer;
 }
 
 /** Context type used in the outside middleware tree (has ConversationFlavor + Session) */

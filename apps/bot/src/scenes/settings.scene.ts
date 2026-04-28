@@ -76,8 +76,14 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   const timezone = settings?.timezone ?? "UTC";
 
   const text = buildSettingsText(
-    nativeLang, learningLangs, interfaceLang, lang,
-    notifEnabled, notifTime, notifType, timezone,
+    nativeLang,
+    learningLangs,
+    interfaceLang,
+    lang,
+    notifEnabled,
+    notifTime,
+    notifType,
+    timezone,
   );
   const kb = buildSettingsKeyboard(lang, notifEnabled);
 

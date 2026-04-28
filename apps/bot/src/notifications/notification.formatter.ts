@@ -18,10 +18,15 @@ import { InlineKeyboard } from "grammy";
  * - Source label (dictionary or AI)
  * - Translations per language with flag emoji
  */
-export function formatNotificationMessage(payload: NotificationPayload, lang: SupportedLang): string {
+export function formatNotificationMessage(
+  payload: NotificationPayload,
+  lang: SupportedLang,
+): string {
   const { word } = payload;
   const sourceLabel =
-    word.source === "srs" ? t("notifWordFromDict", lang) : t("notifAiSuggested", lang);
+    word.source === "srs"
+      ? t("notifWordFromDict", lang)
+      : t("notifAiSuggested", lang);
 
   const translationLines = Object.entries(word.translations)
     .map(([code, text]) => {

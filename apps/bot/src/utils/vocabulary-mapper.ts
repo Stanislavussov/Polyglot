@@ -8,8 +8,7 @@
  * Replaces the old sanitizeForStorage() which produced a monolithic JSONB blob.
  * Now produces a normalized parent + per-language children structure.
  */
-import type { CreateVocabularyInput, VocabTranslationDetails } from "@polyglot/adapter-db";
-import type { TranslateOutput } from "@polyglot/core";
+import type { CreateVocabularyInput, TranslateOutput, VocabTranslationDetails } from "@polyglot/core";
 import { logger } from "@polyglot/core";
 
 /**

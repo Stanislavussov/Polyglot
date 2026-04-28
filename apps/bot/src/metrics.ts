@@ -3,8 +3,13 @@
  * and a health endpoint on :9090/healthz.
  */
 import { createServer } from "node:http";
-import { collectDefaultMetrics, Counter, Histogram, register } from "prom-client";
 import { logger } from "@polyglot/core";
+import {
+  Counter,
+  collectDefaultMetrics,
+  Histogram,
+  register,
+} from "prom-client";
 
 // ── Default Node.js metrics (CPU, memory, event-loop, GC) ───────────
 collectDefaultMetrics();

@@ -1,8 +1,27 @@
 // Logger — singleton pino, also exported from here for convenience
 
+// Ports — service container for dependency injection
+export type { ServiceContainer } from "./ports/container.js";
+export type {
+  CreateVocabularyInput,
+  UpdateTranslationData,
+  VocabularyEntry,
+  VocabularyEntryWithSourceLang,
+  VocabularyEntryWithTranslations,
+  VocabularyRepository,
+  VocabularyTranslation,
+} from "./ports/vocabulary.repository.js";
+export type {
+  NotificationType,
+  NotificationUser,
+} from "./ports/notification.repository.js";
+export type { VocabTranslationDetails } from "./ports/vocabulary.repository.js";
+
+// Logger
+
+export { logger } from "./logger.js";
 export type { Logger } from "./logger-interface.js";
 export { getLogger, setLogger } from "./logger-interface.js";
-export { logger } from "./logger.js";
 
 // Modules
 
@@ -49,7 +68,11 @@ export {
 // Shared
 export * from "./shared/errors.js";
 export type { InputContext } from "./shared/translation-template.service.js";
-export { MAX_TRANSCRIPTION_INPUT_LENGTH, resolveOutputConfig, resolveTemplate } from "./shared/translation-template.service.js";
+export {
+  MAX_TRANSCRIPTION_INPUT_LENGTH,
+  resolveOutputConfig,
+  resolveTemplate,
+} from "./shared/translation-template.service.js";
 export type {
   TemplateFields,
   UserTranslationTemplate,

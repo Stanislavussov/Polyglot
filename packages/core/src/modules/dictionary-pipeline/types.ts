@@ -12,13 +12,7 @@
  */
 
 import type { TemplateFields } from "../../shared/translation-template.types.js";
-import type {
-  Example,
-  ExpressionType,
-  Register,
-  Synonym,
-  TranslationVariant,
-} from "../translation/types.js";
+import type { Example, ExpressionType, Register, Synonym, TranslationVariant } from "../translation/types.js";
 
 /* ------------------------------------------------------------------ */
 /*  Selection                                                          */

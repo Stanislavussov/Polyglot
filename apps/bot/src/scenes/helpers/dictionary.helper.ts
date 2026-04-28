@@ -7,8 +7,7 @@
 
 import { getAllLangs, userRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import type { SupportedLang } from "@polyglot/core";
-import { isSupported, t } from "@polyglot/core";
-import { logger } from "@polyglot/core";
+import { isSupported, logger, t } from "@polyglot/core";
 import {
   buildDeleteConfirmKeyboard,
   buildDictionaryEntryKeyboard,
@@ -47,7 +46,10 @@ async function answerExpired(ctx: BotContext): Promise<void> {
 
 export async function handleDictPage(ctx: BotContext): Promise<void> {
   const dict = ctx.session.dictionary;
-  if (!dict) { await answerExpired(ctx); return; }
+  if (!dict) {
+    await answerExpired(ctx);
+    return;
+  }
 
   const data = ctx.callbackQuery?.data ?? "";
   const page = parseInt(data.split(":")[2] ?? "1", 10);
@@ -88,7 +90,10 @@ export async function handleDictPage(ctx: BotContext): Promise<void> {
 
 export async function handleDictView(ctx: BotContext): Promise<void> {
   const dict = ctx.session.dictionary;
-  if (!dict) { await answerExpired(ctx); return; }
+  if (!dict) {
+    await answerExpired(ctx);
+    return;
+  }
 
   const data = ctx.callbackQuery?.data ?? "";
   const parts = data.split(":");
@@ -118,7 +123,10 @@ export async function handleDictView(ctx: BotContext): Promise<void> {
 
 export async function handleDictDelete(ctx: BotContext): Promise<void> {
   const dict = ctx.session.dictionary;
-  if (!dict) { await answerExpired(ctx); return; }
+  if (!dict) {
+    await answerExpired(ctx);
+    return;
+  }
 
   const data = ctx.callbackQuery?.data ?? "";
   const entryId = parseInt(data.split(":")[2] ?? "0", 10);
@@ -146,7 +154,10 @@ export async function handleDictDelete(ctx: BotContext): Promise<void> {
 
 export async function handleDictConfirmDelete(ctx: BotContext): Promise<void> {
   const dict = ctx.session.dictionary;
-  if (!dict) { await answerExpired(ctx); return; }
+  if (!dict) {
+    await answerExpired(ctx);
+    return;
+  }
 
   const data = ctx.callbackQuery?.data ?? "";
   const parts = data.split(":");

@@ -17,7 +17,8 @@
  * - \u{20E3}                 — combining enclosing keycap (1️⃣)
  * - \u{1F1E6}–\u{1F1FF}     — regional indicator symbols (flags 🇺🇸)
  */
-const EMOJI_PATTERN = /[\p{Extended_Pictographic}\p{Emoji_Modifier}\u{FE0F}\u{FE0E}\u{200D}\u{20E3}\u{1F1E6}-\u{1F1FF}]/gu;
+const EMOJI_PATTERN =
+  /[\p{Extended_Pictographic}\p{Emoji_Modifier}\u{FE0F}\u{FE0E}\u{200D}\u{20E3}\u{1F1E6}-\u{1F1FF}]/gu;
 
 /**
  * Check whether a text message consists entirely of emoji characters

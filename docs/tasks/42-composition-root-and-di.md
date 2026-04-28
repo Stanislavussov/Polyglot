@@ -1,6 +1,6 @@
 # Task 42 — Composition Root & Dependency Injection
 
-**Status:** 🔲 To Do  
+**Status:** ✅ Done  
 **Category:** Architecture — Critical  
 **Blocks:** Milestone 2.0 (SRS), Milestone 4.0 (Multi-platform)
 
@@ -47,16 +47,16 @@ Consequences:
 
 ## Acceptance Criteria
 
-- [ ] Port interfaces defined in `packages/core/src/ports/`: `UserRepository`, `VocabularyRepository`, `TranslationTemplateRepository`, `WordReviewRepository`, `NotificationRepository`, `TranslationRequestRepository`, `LanguageCachePort`, `AIPort`
-- [ ] `ServiceContainer` interface defined in `packages/core/src/ports/container.ts` aggregating all ports
-- [ ] `apps/bot/src/container.ts` creates the concrete container from adapter implementations
-- [ ] `BotContext` extended with `services: ServiceContainer`
-- [ ] Container injected via middleware in `apps/bot/src/index.ts` (before auth middleware)
-- [ ] At least 3 handler files migrated from direct imports to `ctx.services.*` (translate-mode.helper, settings.helper, flashcard.helper) as proof of pattern
-- [ ] Remaining files tracked with `// TODO(task-42): migrate to ctx.services` comments
-- [ ] Dependency-cruiser rule added: `no-bot-scenes-importing-adapters` (warning severity, not error — allows incremental migration)
-- [ ] All existing tests pass
-- [ ] New test: container is properly wired and injected into context
+- [x] Port interfaces defined in `packages/core/src/ports/`: `UserRepository`, `VocabularyRepository`, `TranslationTemplateRepository`, `WordReviewRepository`, `NotificationRepository`, `TranslationRequestRepository`, `LanguageCachePort`, `AIPort`
+- [x] `ServiceContainer` interface defined in `packages/core/src/ports/container.ts` aggregating all ports
+- [x] `apps/bot/src/container.ts` creates the concrete container from adapter implementations
+- [x] `BotContext` extended with `services: ServiceContainer`
+- [x] Container injected via middleware in `apps/bot/src/index.ts` (before auth middleware)
+- [x] At least 3 handler files migrated from direct imports to `ctx.services.*` (translate-mode.helper, settings.helper, flashcard.helper) as proof of pattern
+- [x] Remaining files tracked with `// TODO(task-42): migrate to ctx.services` comments
+- [x] Dependency-cruiser rule added: `no-bot-scenes-importing-adapters` (warning severity, not error — allows incremental migration)
+- [x] All existing tests pass
+- [x] New test: container is properly wired and injected into context
 
 ## Dependencies
 

@@ -2,18 +2,14 @@
  * Translate mode helper — handles text translation in persistent translate mode.
  * Called by the mode router when user is in translate mode.
  */
-import { generateObject } from "@polyglot/adapter-ai";
-import {
-  createContextLookup,
-  getLang,
-  translationTemplateRepository,
-  userRepository,
-  vocabularyRepository,
-} from "@polyglot/adapter-db";
+// Context lookup factory — utility function, not a repository (no DI needed)
+// Note: createContextLookup is a factory function, not a repository — kept as direct import
+import { createContextLookup } from "@polyglot/adapter-db";
 import {
   getLangDisplay,
   getLanguageName,
   isSupported,
+  logger,
   resolveDirectionFromSource,
   resolveOutputConfig,
   resolveTemplate,
@@ -23,8 +19,8 @@ import {
   translateOneWithContext,
   translateWithContext,
 } from "@polyglot/core";
-import { logger } from "@polyglot/core";
 import { loadConfig } from "@polyglot/infra";
+import { translationCounter, translationDuration } from "../../metrics.js";
 import {
   buildPostSaveKeyboard,
   buildSentenceKeyboard,
@@ -34,7 +30,6 @@ import {
   renderSentenceTranslation,
   renderTranslation,
 } from "../../renderers/translation.renderer.js";
-import { translationCounter, translationDuration } from "../../metrics.js";
 import type { BotContext } from "../../types.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
@@ -50,7 +45,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const telegramId = ctx.from!.id;
 
   // Get user settings
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
@@ -91,7 +86,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     } else {
       // Step 5 (Task 36): Invalid lastSourceLang — clear both session + DB
       ctx.session.nextSourceLang = null;
-      userRepository.updateLastSourceLang(ctx.user.id, null).catch((err) => {
+      ctx.services.userRepository.updateLastSourceLang(ctx.user.id, null).catch((err: unknown) => {
         logger.error({ err, userId: ctx.user.id }, "Failed to clear invalid lastSourceLang from DB");
       });
     }
@@ -120,7 +115,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       // Selected source lang no longer in config — reset and fall back
       ctx.session.nextSourceLang = null;
       // Step 5 (Task 36): Clear from DB too
-      userRepository.updateLastSourceLang(ctx.user.id, null).catch((err) => {
+      ctx.services.userRepository.updateLastSourceLang(ctx.user.id, null).catch((err: unknown) => {
         logger.error({ err, userId: ctx.user.id }, "Failed to clear invalid nextSourceLang from DB");
       });
       const fallback = resolveTranslationDirection({
@@ -168,7 +163,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     const config = loadConfig();
 
     // Load user's template for template-aware output resolution (Task 32)
-    const savedTemplate = await translationTemplateRepository.getByUserId(ctx.user.id);
+    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
     const outputConfig = resolveOutputConfig(userTpl, classification.type, word.length);
     const effectiveTemplate = resolveTemplate(userTpl);
@@ -187,7 +182,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         outputConfig,
         inputType: classification.type,
       },
-      { lookupContext: lookupContextFn, generateObjectFn: generateObject },
+      { lookupContext: lookupContextFn, generateObjectFn: ctx.services.ai.generateObject },
     );
     stopTimer();
     translationCounter.inc({ status: "success" });
@@ -268,12 +263,12 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   // Step 2 — FK resolution
-  const sourceLangEntry = getLang(output.sourceLang);
+  const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
   if (!sourceLangEntry) {
     logger.error({ sourceLang: output.sourceLang }, "Source language not found in cache");
     await ctx.answerCallbackQuery({ text: t("translationError", lang) });
@@ -282,7 +277,11 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const sourceLangId = sourceLangEntry.id;
 
   // Step 3 — Duplicate detection
-  const existing = await vocabularyRepository.findByOriginalAndSource(ctx.user.id, output.original, sourceLangId);
+  const existing = await ctx.services.vocabularyRepository.findByOriginalAndSource(
+    ctx.user.id,
+    output.original,
+    sourceLangId,
+  );
   if (existing) {
     await ctx.answerCallbackQuery({ text: t("alreadySaved", lang), show_alert: true });
     return;
@@ -293,11 +292,11 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
     output,
     sourceLangId,
     (inputType as "word" | "phrase") ?? "word",
-    (code) => getLang(code)?.id ?? null,
+    (code) => ctx.services.languageCache.getLang(code)?.id ?? null,
   );
 
   // Step 5 — Persist
-  const newEntry = await vocabularyRepository.create(ctx.user.id, vocabInput);
+  const newEntry = await ctx.services.vocabularyRepository.create(ctx.user.id, vocabInput);
 
   // Step 6 — Session update
   ctx.session.savedWordId = newEntry.id;
@@ -305,7 +304,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   ctx.session.pendingCardMsgId = undefined;
 
   // Step 7 — Edit card in place (template-aware rendering)
-  const savedTemplate = await translationTemplateRepository.getByUserId(ctx.user.id);
+  const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
   const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
 
@@ -332,12 +331,12 @@ export async function handleSkipCallback(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   // Remove keyboard, keep the card (template-aware rendering)
-  const savedTemplate = await translationTemplateRepository.getByUserId(ctx.user.id);
+  const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
   const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
 
@@ -414,7 +413,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const isSentence = ctx.session.lastInputType === "sentence";
@@ -429,9 +428,13 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     const config = loadConfig();
 
     // Load user's template for template-aware output resolution (Task 32)
-    const savedTpl = await translationTemplateRepository.getByUserId(ctx.user.id);
+    const savedTpl = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
-    const outputConfig = resolveOutputConfig(userTpl, isSentence ? "sentence" : (inputType ?? "word"), lastOutput.original.length);
+    const outputConfig = resolveOutputConfig(
+      userTpl,
+      isSentence ? "sentence" : (inputType ?? "word"),
+      lastOutput.original.length,
+    );
     const effectiveTemplate = resolveTemplate(userTpl);
 
     // For sentences, skip dictionary context lookup
@@ -448,7 +451,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
         outputConfig,
         inputType,
       },
-      { lookupContext: lookupContextFn, generateObjectFn: generateObject },
+      { lookupContext: lookupContextFn, generateObjectFn: ctx.services.ai.generateObject },
     );
 
     // Merge regenerated translation
@@ -461,10 +464,10 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     // Auto-update saved DB entry when savedWordId is set — only the single regenerated lang
     if (ctx.session.savedWordId) {
       try {
-        const targetLangEntry = getLang(regenLang);
+        const targetLangEntry = ctx.services.languageCache.getLang(regenLang);
         if (targetLangEntry) {
           const regenResult = newTranslation;
-          await vocabularyRepository.updateTranslation(ctx.session.savedWordId, targetLangEntry.id, {
+          await ctx.services.vocabularyRepository.updateTranslation(ctx.session.savedWordId, targetLangEntry.id, {
             text: regenResult.text,
             register: regenResult.register,
             transcription: regenResult.transcription ?? undefined,
@@ -528,12 +531,12 @@ export async function handleSourceLangCallback(ctx: BotContext): Promise<void> {
   ctx.session.nextSourceLang = code;
 
   // Persist to DB — fire-and-forget (Task 36)
-  userRepository.updateLastSourceLang(ctx.user.id, code).catch((err) => {
+  ctx.services.userRepository.updateLastSourceLang(ctx.user.id, code).catch((err: unknown) => {
     logger.error({ err, userId: ctx.user.id, code }, "Failed to persist lastSourceLang to DB");
   });
 
   // Get user settings for language display
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";

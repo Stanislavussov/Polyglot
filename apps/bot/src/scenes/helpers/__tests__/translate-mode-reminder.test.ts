@@ -8,27 +8,45 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
 }));
 
-const { mockLookupContext } = vi.hoisted(() => ({
+// Hoist mocks so they can be referenced in ctx.services
+const {
+  mockLookupContext,
+  mockUserRepository,
+  mockVocabularyRepository,
+  mockTranslationTemplateRepository,
+  mockLanguageCache,
+  mockAi,
+} = vi.hoisted(() => ({
   mockLookupContext: vi.fn(),
-}));
-
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
+  mockUserRepository: {
     getSettings: vi.fn(),
     updateActiveMode: vi.fn().mockResolvedValue({}),
     updateLastSourceLang: vi.fn().mockResolvedValue(undefined),
   },
-  vocabularyRepository: {
+  mockVocabularyRepository: {
     create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
     findByOriginalAndSource: vi.fn().mockResolvedValue(null),
     updateTranslation: vi.fn().mockResolvedValue({}),
   },
-  createContextLookup: () => mockLookupContext,
-  getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
-  getLangDisplay: vi.fn((code: string) => code.toUpperCase()),
-  translationTemplateRepository: {
+  mockTranslationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),
   },
+  mockLanguageCache: {
+    getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
+    getLangDisplay: vi.fn((code: string) => code.toUpperCase()),
+  },
+  mockAi: {
+    generateObject: vi.fn(),
+  },
+}));
+
+vi.mock("@polyglot/adapter-db", () => ({
+  userRepository: mockUserRepository,
+  vocabularyRepository: mockVocabularyRepository,
+  createContextLookup: () => mockLookupContext,
+  getLang: mockLanguageCache.getLang,
+  getLangDisplay: mockLanguageCache.getLangDisplay,
+  translationTemplateRepository: mockTranslationTemplateRepository,
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -58,7 +76,6 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { userRepository } from "@polyglot/adapter-db";
 import type { BotContext, SessionData } from "../../../types.js";
 import { handleTranslateText } from "../translate-mode.helper.js";
 
@@ -83,18 +100,25 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
     },
     user: { id: 1, telegramId: 123456789 },
+    services: {
+      userRepository: mockUserRepository,
+      vocabularyRepository: mockVocabularyRepository,
+      translationTemplateRepository: mockTranslationTemplateRepository,
+      languageCache: mockLanguageCache,
+      ai: mockAi,
+    },
   } as unknown as BotContext;
 }
 
 describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(userRepository.getSettings).mockResolvedValue({
+    mockUserRepository.getSettings.mockResolvedValue({
       interfaceLang: "en",
       nativeLang: "ru",
       learningLangs: ["cs", "en"],
       lastSourceLang: null,
-    } as any);
+    });
   });
 
   it("shows reminder menu when flag is true and nextSourceLang is set", async () => {
@@ -168,12 +192,13 @@ describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
   });
 
   it("reminder + hydration: fresh session hydrates from DB and shows reminder", async () => {
-    vi.mocked(userRepository.getSettings).mockResolvedValue({
+    // Mock returns stored lastSourceLang
+    mockUserRepository.getSettings = vi.fn().mockResolvedValue({
       interfaceLang: "en",
       nativeLang: "ru",
       learningLangs: ["cs", "en"],
       lastSourceLang: "cs", // DB has stored source lang
-    } as any);
+    });
 
     // Simulate fresh session after restart
     const ctx = createMockCtx({
@@ -196,12 +221,13 @@ describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
   });
 
   it("2-language user: no source lang keyboard in reminder (only hint text)", async () => {
-    vi.mocked(userRepository.getSettings).mockResolvedValue({
+    // Mock returns only 2 languages
+    mockUserRepository.getSettings = vi.fn().mockResolvedValue({
       interfaceLang: "en",
       nativeLang: "ru",
       learningLangs: ["en"], // only 2 languages total
       lastSourceLang: "en",
-    } as any);
+    });
 
     const ctx = createMockCtx({
       nextSourceLang: null,

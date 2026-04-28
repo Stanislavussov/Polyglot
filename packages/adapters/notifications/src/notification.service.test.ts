@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { LanguageTranslationEntry, TopicMeta, TopicWord } from "@polyglot/core";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { NotificationServiceDeps, UserForNotification, VocabEntry } from "./types.js";
 
 // ─────────────────────────────────────────────

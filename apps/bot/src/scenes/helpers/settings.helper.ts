@@ -2,8 +2,13 @@
  * Settings callback handlers — set:* callbacks.
  * Manages native/learning/interface language pickers, notification prefs, and close.
  */
-import { formatNotificationHour, getLangDisplay, getSupportedLangs, MAX_NOTIFICATION_HOUR, MIN_NOTIFICATION_HOUR, NOTIFICATION_TYPES, parseNotificationHour, userRepository } from "@polyglot/adapter-db";
-import { isSupported, type SupportedLang, t } from "@polyglot/core";
+import {
+  formatNotificationHour,
+  MAX_NOTIFICATION_HOUR,
+  MIN_NOTIFICATION_HOUR,
+  NOTIFICATION_TYPES,
+} from "@polyglot/adapter-db";
+import { isSupported, type NotificationType, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS } from "../../constants.js";
@@ -12,14 +17,14 @@ import { buildSettingsKeyboard, buildSettingsText } from "../settings.scene.js";
 
 /** Resolve interface language from user settings */
 async function getLang(ctx: BotContext): Promise<SupportedLang> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   return (isSupported(iLang) ? iLang : "en") as SupportedLang;
 }
 
 /** Re-render the settings main menu (after a change or back navigation) */
 async function showSettingsMenu(ctx: BotContext): Promise<void> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const notifEnabled = (settings as any)?.notificationEnabled ?? false;
@@ -45,8 +50,8 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
 export async function handleSetNativeCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   const kb = new InlineKeyboard();
-  for (const l of getSupportedLangs()) {
-    kb.text(getLangDisplay(l.code), `set:native:${l.code}`).row();
+  for (const l of ctx.services.languageCache.getSupportedLangs()) {
+    kb.text(ctx.services.languageCache.getLangDisplay(l.code), `set:native:${l.code}`).row();
   }
   kb.text(`⬅️ ${t("back", lang)}`, "set:back").row();
 
@@ -63,22 +68,22 @@ export async function handleSetNativeSelectCallback(ctx: BotContext): Promise<vo
   const code = data.replace("set:native:", "");
   const lang = await getLang(ctx);
 
-  await userRepository.updateNativeLang(ctx.user.id, code);
+  await ctx.services.userRepository.updateNativeLang(ctx.user.id, code);
   await ctx.answerCallbackQuery({
-    text: t("settingsNativeUpdated", lang, { lang: getLangDisplay(code) }),
+    text: t("settingsNativeUpdated", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
   });
   await showSettingsMenu(ctx);
 }
 
 /** set:learning — show learning language multi-select */
 export async function handleSetLearningCallback(ctx: BotContext): Promise<void> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
   const selected = settings?.learningLangs ?? [];
 
-  const kb = buildLearningKeyboard(selected, nativeLang, lang);
+  const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
   await ctx.editMessageText(t("settingsChooseLearning", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
@@ -87,13 +92,18 @@ export async function handleSetLearningCallback(ctx: BotContext): Promise<void> 
 }
 
 /** Build multi-select keyboard for learning languages */
-function buildLearningKeyboard(selected: string[], nativeLang: string, lang: SupportedLang): InlineKeyboard {
+function buildLearningKeyboard(
+  ctx: BotContext,
+  selected: string[],
+  nativeLang: string,
+  lang: SupportedLang,
+): InlineKeyboard {
   const kb = new InlineKeyboard();
-  for (const l of getSupportedLangs()) {
+  for (const l of ctx.services.languageCache.getSupportedLangs()) {
     if (l.code === nativeLang) continue;
     const isSelected = selected.includes(l.code);
     const prefix = isSelected ? "✅ " : "";
-    kb.text(`${prefix}${getLangDisplay(l.code)}`, `set:learn:${l.code}`).row();
+    kb.text(`${prefix}${ctx.services.languageCache.getLangDisplay(l.code)}`, `set:learn:${l.code}`).row();
   }
   if (selected.length > 0) {
     kb.text(t("done", lang), "set:learn:done").row();
@@ -111,7 +121,7 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
     return handleSetLearnDoneCallback(ctx);
   }
 
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
@@ -121,7 +131,7 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
   if (idx >= 0) {
     selected.splice(idx, 1);
     await ctx.answerCallbackQuery({
-      text: t("langRemoved", lang, { lang: getLangDisplay(code) }),
+      text: t("langRemoved", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
     });
   } else if (selected.length >= MAX_LEARNING_LANGS) {
     await ctx.answerCallbackQuery({
@@ -132,20 +142,20 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
   } else {
     selected.push(code);
     await ctx.answerCallbackQuery({
-      text: t("langAdded", lang, { lang: getLangDisplay(code) }),
+      text: t("langAdded", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
     });
   }
 
   // Persist intermediate state so it's kept across callbacks
-  await userRepository.updateLearningLangs(ctx.user.id, selected);
+  await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
 
-  const kb = buildLearningKeyboard(selected, nativeLang, lang);
+  const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
   await ctx.editMessageReplyMarkup({ reply_markup: kb });
 }
 
 /** set:learn:done — confirm learning language selection */
 async function handleSetLearnDoneCallback(ctx: BotContext): Promise<void> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const selected = settings?.learningLangs ?? [];
 
   if (selected.length === 0) {
@@ -166,8 +176,8 @@ async function handleSetLearnDoneCallback(ctx: BotContext): Promise<void> {
 export async function handleSetInterfaceCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   const kb = new InlineKeyboard();
-  for (const l of getSupportedLangs()) {
-    kb.text(getLangDisplay(l.code), `set:iface:${l.code}`).row();
+  for (const l of ctx.services.languageCache.getSupportedLangs()) {
+    kb.text(ctx.services.languageCache.getLangDisplay(l.code), `set:iface:${l.code}`).row();
   }
   kb.text(`⬅️ ${t("back", lang)}`, "set:back").row();
 
@@ -183,12 +193,12 @@ export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<voi
   const data = ctx.callbackQuery?.data ?? "";
   const code = data.replace("set:iface:", "");
 
-  await userRepository.updateInterfaceLang(ctx.user.id, code);
+  await ctx.services.userRepository.updateInterfaceLang(ctx.user.id, code);
 
   // Use the NEW interface language for the confirmation
   const newLang = (isSupported(code) ? code : "en") as SupportedLang;
   await ctx.answerCallbackQuery({
-    text: t("settingsInterfaceUpdated", newLang, { lang: getLangDisplay(code) }),
+    text: t("settingsInterfaceUpdated", newLang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
   });
 
   // Update bot commands for the user's new language
@@ -202,11 +212,11 @@ export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<voi
 
 /** set:notif:toggle — enable/disable notifications */
 export async function handleSetNotifToggleCallback(ctx: BotContext): Promise<void> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const currentEnabled = (settings as any)?.notificationEnabled ?? false;
   const newEnabled = !currentEnabled;
 
-  await userRepository.updateNotificationPrefs(ctx.user.id, {
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
     notificationEnabled: newEnabled,
   });
 
@@ -257,7 +267,7 @@ export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise
     return;
   }
 
-  await userRepository.updateNotificationPrefs(ctx.user.id, {
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
     notificationTime: String(hour),
   });
 
@@ -294,8 +304,8 @@ export async function handleSetNotifTypeSelectCallback(ctx: BotContext): Promise
   const data = ctx.callbackQuery?.data ?? "";
   const type = data.replace("set:notif:type:", "");
 
-  await userRepository.updateNotificationPrefs(ctx.user.id, {
-    notificationType: type,
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
+    notificationType: type as NotificationType,
   });
 
   const lang = await getLang(ctx);
@@ -351,8 +361,8 @@ export async function handleSetNotifTzSelectCallback(ctx: BotContext): Promise<v
   }
 
   // Update timezone via updateSettings — pass existing fields + new timezone
-  const settings = await userRepository.getSettings(ctx.user.id);
-  await userRepository.updateSettings(ctx.user.id, {
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  await ctx.services.userRepository.updateSettings(ctx.user.id, {
     interfaceLang: settings?.interfaceLang ?? "en",
     nativeLang: settings?.nativeLang ?? "en",
     learningLangs: settings?.learningLangs ?? [],
@@ -373,7 +383,7 @@ export async function handleSetBackCallback(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
 }
 
-/** set:close ��� dismiss the settings menu */
+/** set:close — dismiss the settings menu */
 export async function handleSetCloseCallback(ctx: BotContext): Promise<void> {
   try {
     await ctx.deleteMessage();

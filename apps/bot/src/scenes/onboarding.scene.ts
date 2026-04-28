@@ -1,7 +1,6 @@
 import type { Conversation } from "@grammyjs/conversations";
 import { getLangDisplay, getSupportedLangs, userRepository } from "@polyglot/adapter-db";
-import { isSupported, type SupportedLang, t } from "@polyglot/core";
-import { logger } from "@polyglot/core";
+import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../commands/commands.js";
 import { MAX_LEARNING_LANGS } from "../constants.js";

@@ -4,8 +4,9 @@
  * Logs every AI request with: model, tokens, cost_usd, duration_ms, success.
  * Uses core's Logger interface — injected at startup via setLogger().
  */
-import { getLogger } from "@polyglot/core";
+
 import type { Logger } from "@polyglot/core";
+import { getLogger } from "@polyglot/core";
 import type { AIRequestLog } from "./types.js";
 
 /**

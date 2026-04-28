@@ -5,9 +5,12 @@
  * All text via i18n. HTML parse mode.
  */
 
+import type {
+  VocabTranslationDetails,
+  VocabularyEntryWithTranslations,
+} from "@polyglot/adapter-db";
 import type { SupportedLang } from "@polyglot/core";
 import { getLangFlag, isSupported, t } from "@polyglot/core";
-import type { VocabTranslationDetails, VocabularyEntryWithTranslations } from "@polyglot/adapter-db";
 import { InlineKeyboard } from "grammy";
 
 /** Page size for dictionary list */
@@ -18,7 +21,10 @@ const MAX_WORD_LENGTH = 30;
 
 /** Escape HTML special characters for Telegram */
 function esc(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 /** Resolve a string to SupportedLang with "en" fallback */
@@ -62,11 +68,16 @@ export function renderDictionaryList(
     if (translationTexts.length <= 2) {
       translationSummary = translationTexts.map((t) => esc(t)).join(", ");
     } else {
-      const shown = translationTexts.slice(0, 2).map((t) => esc(t)).join(", ");
+      const shown = translationTexts
+        .slice(0, 2)
+        .map((t) => esc(t))
+        .join(", ");
       translationSummary = `${shown}, +${translationTexts.length - 2}`;
     }
 
-    const wordPart = emoji ? `${emoji} <b>${esc(original)}</b>` : `<b>${esc(original)}</b>`;
+    const wordPart = emoji
+      ? `${emoji} <b>${esc(original)}</b>`
+      : `<b>${esc(original)}</b>`;
     const line = translationSummary
       ? `${idx}. ${wordPart} — ${translationSummary}`
       : `${idx}. ${wordPart}`;
@@ -75,7 +86,14 @@ export function renderDictionaryList(
 
   if (totalPages > 1) {
     lines.push("");
-    lines.push(esc(t("dictionaryPage", l, { page: String(page), total: String(totalPages) })));
+    lines.push(
+      esc(
+        t("dictionaryPage", l, {
+          page: String(page),
+          total: String(totalPages),
+        }),
+      ),
+    );
   }
 
   return lines.join("\n");
@@ -93,7 +111,9 @@ export function renderDictionaryEntry(
 
   // Header
   const emoji = entry.emoji ?? "";
-  const header = emoji ? `${emoji} <b>${esc(entry.original)}</b>` : `<b>${esc(entry.original)}</b>`;
+  const header = emoji
+    ? `${emoji} <b>${esc(entry.original)}</b>`
+    : `<b>${esc(entry.original)}</b>`;
   lines.push(header);
 
   // Source language flag + input type
@@ -108,7 +128,9 @@ export function renderDictionaryEntry(
     const flag = langCode ? (getLangFlag(langCode) ?? "🔤") : "🔤";
 
     // Translation header with transcription
-    const transcriptionPart = tr.transcription ? ` [${esc(tr.transcription)}]` : "";
+    const transcriptionPart = tr.transcription
+      ? ` [${esc(tr.transcription)}]`
+      : "";
     lines.push(`${flag} <b>${esc(tr.text)}</b>${transcriptionPart}`);
 
     // Register

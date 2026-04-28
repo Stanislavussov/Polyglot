@@ -241,9 +241,7 @@ describe("handleSetNotifTimeSelectCallback", () => {
     await handleSetNotifTimeSelectCallback(ctx);
 
     expect(userRepository.updateNotificationPrefs).not.toHaveBeenCalled();
-    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
-      expect.objectContaining({ show_alert: true }),
-    );
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });
 });
 

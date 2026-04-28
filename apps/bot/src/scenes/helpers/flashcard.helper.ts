@@ -4,11 +4,8 @@
  * Handles: start, reveal, next, done, restart, quit, close.
  * Review logging is best-effort (never blocks UX).
  */
-
-import { getAllLangs, userRepository, vocabularyRepository, wordReviewRepository } from "@polyglot/adapter-db";
 import type { DictionaryPipelineDeps, SupportedLang } from "@polyglot/core";
-import { createDictionaryPipeline, FLASHCARD_CONFIG, isSupported, t } from "@polyglot/core";
-import { logger } from "@polyglot/core";
+import { createDictionaryPipeline, FLASHCARD_CONFIG, isSupported, logger, t } from "@polyglot/core";
 import {
   buildFlashCardBackKeyboard,
   buildFlashCardDoneKeyboard,
@@ -20,53 +17,62 @@ import type { BotContext } from "../../types.js";
 
 /* ── Language resolution ───────────────────────────────────────── */
 
-function getLangCodeById(id: number): string | undefined {
-  const all = getAllLangs();
+/**
+ * Get language code by ID using the injected language cache service.
+ */
+function getLangCodeById(ctx: BotContext, id: number): string | undefined {
+  const all = ctx.services.languageCache.getAllLangs();
   return all.find((l) => l.id === id)?.code;
 }
 
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const lang = settings?.interfaceLang;
   return lang && isSupported(lang) ? lang : "en";
 }
 
-/* ── Pipeline deps ─────────────────────────────────────────────── */
+/* ── Pipeline deps factory ─────────────────────────────────────── */
 
-const pipelineDeps: DictionaryPipelineDeps = {
-  findEntriesByUser: async (userId) => {
-    const entries = await vocabularyRepository.findByUserWithSourceLang(userId, (id) => getLangCodeById(id));
-    return entries.map((e) => ({
-      id: e.id,
-      original: e.original,
-      sourceLangId: e.sourceLangId,
-      sourceLangCode: e.sourceLangCode,
-      inputType: e.inputType,
-      emoji: e.emoji,
-      register: e.register,
-      createdAt: e.createdAt,
-      translations: e.translations.map((tr) => ({
-        targetLangCode: getLangCodeById(tr.targetLangId) ?? "unknown",
-        text: tr.text,
-        transcription: tr.transcription,
-        register: tr.register,
-        expressionType: tr.expressionType,
-        equivalentNote: tr.equivalentNote,
-        connotationWarning: tr.connotationWarning,
-        details: tr.details as any,
-      })),
-    }));
-  },
-  getReviewCounts: async (userId) => {
-    return wordReviewRepository.getReviewCounts(userId);
-  },
-};
-
-const pipeline = createDictionaryPipeline(pipelineDeps);
+/**
+ * Creates pipeline deps that use ctx.services for data access.
+ * Called per-request to ensure fresh ctx.services access.
+ */
+function createPipelineDeps(ctx: BotContext): DictionaryPipelineDeps {
+  return {
+    findEntriesByUser: async (userId) => {
+      const entries = await ctx.services.vocabularyRepository.findByUserWithSourceLang(userId, (id) =>
+        getLangCodeById(ctx, id),
+      );
+      return entries.map((e) => ({
+        id: e.id,
+        original: e.original,
+        sourceLangId: e.sourceLangId,
+        sourceLangCode: e.sourceLangCode,
+        inputType: e.inputType,
+        emoji: e.emoji,
+        register: e.register,
+        createdAt: e.createdAt,
+        translations: e.translations.map((tr) => ({
+          targetLangCode: getLangCodeById(ctx, tr.targetLangId) ?? "unknown",
+          text: tr.text,
+          transcription: tr.transcription,
+          register: tr.register,
+          expressionType: tr.expressionType,
+          equivalentNote: tr.equivalentNote,
+          connotationWarning: tr.connotationWarning,
+          details: tr.details,
+        })),
+      }));
+    },
+    getReviewCounts: async (userId) => {
+      return ctx.services.wordReviewRepository.getReviewCounts(userId);
+    },
+  };
+}
 
 /** Exported for use by flashcard.scene.ts. */
-export function getPipeline() {
-  return pipeline;
+export function getPipeline(ctx: BotContext) {
+  return createDictionaryPipeline(createPipelineDeps(ctx));
 }
 
 /* ── Shared helpers ────────────────────────────────────────────── */
@@ -80,9 +86,9 @@ async function answerExpired(ctx: BotContext): Promise<void> {
   }
 }
 
-function logReviewSafe(userId: number, entryId: number): void {
-  wordReviewRepository.logReview(userId, entryId, "flashcard").catch((err) => {
-    logger.error({ err, userId, entryId }, "Failed to log flashcard review");
+function logReviewSafe(ctx: BotContext, entryId: number): void {
+  ctx.services.wordReviewRepository.logReview(ctx.user.id, entryId, "flashcard").catch((err) => {
+    logger.error({ err, userId: ctx.user.id, entryId }, "Failed to log flashcard review");
   });
 }
 
@@ -133,7 +139,7 @@ export async function handleFcNext(ctx: BotContext): Promise<void> {
 
   const lang = await getUserLang(ctx);
   const currentWord = fc.deck[fc.currentIndex];
-  if (currentWord) logReviewSafe(ctx.user.id, currentWord.id);
+  if (currentWord) logReviewSafe(ctx, currentWord.id);
 
   fc.currentIndex++;
   const word = fc.deck[fc.currentIndex]!;
@@ -156,7 +162,7 @@ export async function handleFcDone(ctx: BotContext): Promise<void> {
 
   const lang = await getUserLang(ctx);
   const lastWord = fc.deck[fc.currentIndex];
-  if (lastWord) logReviewSafe(ctx.user.id, lastWord.id);
+  if (lastWord) logReviewSafe(ctx, lastWord.id);
 
   const text = t("flashcardDone", lang, { count: String(fc.deck.length) });
   const kb = buildFlashCardDoneKeyboard(lang);
@@ -174,6 +180,7 @@ export async function handleFcDone(ctx: BotContext): Promise<void> {
 
 export async function handleFcRestart(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
+  const pipeline = getPipeline(ctx);
   const result = await pipeline.run(ctx.user.id, FLASHCARD_CONFIG);
 
   if (result.words.length === 0) {
@@ -216,7 +223,7 @@ export async function handleFcQuit(ctx: BotContext): Promise<void> {
 
   if (fc && fc.currentIndex > 0) {
     const currentWord = fc.deck[fc.currentIndex];
-    if (currentWord) logReviewSafe(ctx.user.id, currentWord.id);
+    if (currentWord) logReviewSafe(ctx, currentWord.id);
   }
 
   ctx.session.flashcard = undefined;
