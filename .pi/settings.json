@@ -1,8 +1,6 @@
 {
   "$schema": "/Users/stanislav.ussov/Projects/ai-sdk/schema.json",
-  "packages": [
-    "/Users/stanislav.ussov/Projects/ai-sdk"
-  ],
+  "packages": ["/Users/stanislav.ussov/.pi"],
   "orchestrator": {
     "model": "minimax/MiniMax-M2.5",
     "agents": [
@@ -11,153 +9,77 @@
         "standalone": true,
         "role": "Business analysis pipeline. Produces ONE SINGLE task file in docs/tasks/. All intermediate work is temporary.",
         "rules": "Pipeline produces exactly ONE artifact: a single comprehensive task file in docs/tasks/.\nAll intermediate agents write to .pi/tmp/business/ \u2014 these are temp working files, NOT permanent artifacts.\nNever modify docs/BRD.md, docs/roadmap.md, docs/mvp-scope.md, docs/requirements/, docs/tech-reqs/, docs/reviews/, docs/research/.\nThe final task-finalizer agent reads all temp artifacts and produces the ONE output file.\nBe concise \u2014 core information with nuances, no filler, no repetition. Tables over prose.\nWhen instructions or context are ambiguous \u2014 STOP and ask the user for clarification. Do not guess or make assumptions. Use the ask-user tool to present the ambiguity clearly with 2-4 specific options.",
-        "skills": [
-          ".pi/skills/business"
-        ],
-        "enabledTools": [
-          "read",
-          "bash",
-          "write"
-        ],
+        "skills": [".pi/skills/business"],
+        "enabledTools": ["read", "bash", "write"],
         "subAgents": [
           {
             "name": "product",
             "role": "Competitor intelligence \u2192 .pi/tmp/business/research/competitors.md (TEMP)",
             "rules": "See skill for details. Score by impact \u00d7 effort.\nALL output goes to .pi/tmp/business/research/ \u2014 NEVER write to docs/.\nBe dense \u2014 competitor table + short rationale per proposal, no essays.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/product"
-            ]
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/product"]
           },
           {
             "name": "researcher",
             "role": "Stress-tests hypotheses and tech decisions \u2192 .pi/tmp/business/research/evaluation.md (TEMP)",
             "rules": "See skill for details. Always end with a verdict.\nALL output goes to .pi/tmp/business/research/ \u2014 NEVER write to docs/.\nKeep evaluations tight \u2014 evidence bullets + risk table + verdict. No padding.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/research"
-            ]
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/research"]
           },
           {
             "name": "business-analyst",
             "role": "Synthesizes research into requirements \u2192 .pi/tmp/business/requirements/ (TEMP)",
             "rules": "See skill for details. Never prioritize \u2014 PO's job.\nALL output goes to .pi/tmp/business/ (e.g. .pi/tmp/business/brd.md, .pi/tmp/business/requirements/) \u2014 NEVER write to docs/.\nCompact requirements \u2014 ID, one-liner, acceptance criteria bullets. No narratives.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/business-analyst"
-            ],
-            "dependsOn": [
-              "product",
-              "researcher"
-            ]
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/business-analyst"],
+            "dependsOn": ["product", "researcher"]
           },
           {
             "name": "product-owner",
             "role": "Prioritizes scope, defines MVP \u2192 .pi/tmp/business/scope/ (TEMP)",
             "rules": "See skill for details. MoSCoW method. Never modify BRD.\nALL output goes to .pi/tmp/business/scope/ (e.g. .pi/tmp/business/scope/roadmap.md, .pi/tmp/business/scope/mvp-scope.md) \u2014 NEVER write to docs/.\nRoadmap as tables, not paragraphs. One-line rationale per item.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/product-owner"
-            ],
-            "dependsOn": [
-              "business-analyst"
-            ]
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/product-owner"],
+            "dependsOn": ["business-analyst"]
           },
           {
             "name": "architect",
             "role": "Technical design: components, APIs, data models \u2192 .pi/tmp/business/tech-reqs/ (TEMP)",
             "rules": "See skill for details. Align with monorepo structure. DB-SOT for domain values.\nALL output goes to .pi/tmp/business/tech-reqs/ \u2014 NEVER write to docs/.\nDesign docs: boundaries + TS interfaces + decision table. No prose introductions.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/architect",
-              ".pi/skills/db-sot"
-            ],
-            "dependsOn": [
-              "product-owner"
-            ]
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/architect", ".pi/skills/db-sot"],
+            "dependsOn": ["product-owner"]
           },
           {
             "name": "task-creator",
             "role": "Creates ONE comprehensive draft task \u2192 .pi/tmp/business/draft-task.md (TEMP)",
             "rules": "Read all upstream temp artifacts from .pi/tmp/business/.\nProduce ONE SINGLE comprehensive task file \u2014 NOT multiple tasks.\nThe task must be self-contained: goal, architecture overview, all subtasks/steps, types, acceptance criteria, edge cases, files to create/modify.\nWrite draft to .pi/tmp/business/draft-task.md \u2014 NEVER write to docs/.\nTask = title + goal + architecture + steps (with code examples) + acceptance criteria + edge cases + effort estimate.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/task-creator"
-            ],
-            "dependsOn": [
-              "architect"
-            ]
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/task-creator"],
+            "dependsOn": ["architect"]
           },
           {
             "name": "brd-grooming",
             "role": "BRD vs draft task contradiction check \u2192 .pi/tmp/business/reviews/brd-grooming.md (TEMP)",
             "rules": "Compare docs/BRD.md against the draft task at .pi/tmp/business/draft-task.md.\nALL output goes to .pi/tmp/business/reviews/ \u2014 NEVER write to docs/.\nOne block per contradiction \u2014 quote + conflict + severity + fix. No preambles.\nDon't rewrite BRD or the draft task.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/brd-grooming"
-            ],
-            "dependsOn": [
-              "task-creator"
-            ]
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/brd-grooming"],
+            "dependsOn": ["task-creator"]
           },
           {
             "name": "integrator",
             "role": "Cross-cutting consistency check \u2192 .pi/tmp/business/reviews/integration-review.md (TEMP)",
             "rules": "Review all temp artifacts in .pi/tmp/business/ plus live source code for consistency.\nALL output goes to .pi/tmp/business/reviews/ \u2014 NEVER write to docs/.\nFlag hardcoded language/mode lists \u2014 must be DB-driven.\nIssue table + traceability matrix. No summaries \u2014 findings speak for themselves.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "skills": [
-              ".pi/skills/integrator",
-              ".pi/skills/db-sot"
-            ],
-            "dependsOn": [
-              "task-creator"
-            ]
+            "enabledTools": ["read", "bash", "write"],
+            "skills": [".pi/skills/integrator", ".pi/skills/db-sot"],
+            "dependsOn": ["task-creator"]
           },
           {
             "name": "task-finalizer",
             "role": "Merges draft task + review feedback into ONE FINAL task file \u2192 docs/tasks/",
             "rules": "Read the draft task from .pi/tmp/business/draft-task.md.\nRead review findings from .pi/tmp/business/reviews/ (brd-grooming.md, integration-review.md).\nIncorporate all Critical and Major review findings directly into the task \u2014 fix contradictions, add missing items, correct inconsistencies.\nMinor findings: incorporate if easy, otherwise note in an 'Open Questions' section.\nWrite exactly ONE file to docs/tasks/<NN>-<slug>.md where NN is the next available task number.\nThis is the ONLY file the entire business pipeline writes to docs/.\nAfter writing the final task, clean up: delete .pi/tmp/business/ directory.\nThe task must be fully self-contained \u2014 a developer must be able to implement it without reading any other document.",
-            "enabledTools": [
-              "read",
-              "bash",
-              "write"
-            ],
-            "dependsOn": [
-              "brd-grooming",
-              "integrator"
-            ]
+            "enabledTools": ["read", "bash", "write"],
+            "dependsOn": ["brd-grooming", "integrator"]
           }
         ]
       },
@@ -166,18 +88,14 @@
         "standalone": false,
         "role": "Technical implementation pipeline. Implements tasks from docs/tasks/ across all architecture layers with quality gates.",
         "rules": "Read task specs from docs/tasks/ before implementing.\nEach sub-agent owns its layer \u2014 no cross-boundary changes.\nAll agents write tests (Vitest) and update docs (SKILL.md + task files) \u2014 see dev-standards skill.\nFinal quality gates: test-runner then doc-validator.\nDB schema is the source of truth for all domain values \u2014 never hardcode languages, modes, or enums.\nWhen task or instructions are vague or unclear \u2014 STOP and ask the user for clarification. Do not guess or make assumptions. Use the ask-user tool to present the ambiguity clearly with 2-4 specific options.",
-        "skills": [
-          ".pi/skills/technical"
-        ],
+        "skills": [".pi/skills/technical"],
         "subAgents": [
           {
             "name": "infra",
             "role": "Shared infrastructure: config loading, logger, and utility scripts. Works in packages/infra/src.",
             "rules": "No business logic \u2014 only cross-cutting infrastructure (config, logging, scripts).\nConfig via `loadConfig()` with Zod validation. Logger via shared pino instance.\nInfra is a leaf dependency \u2014 never import from domain packages at runtime.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
-            "skills": [
-              ".pi/skills/dev-standards"
-            ]
+            "skills": [".pi/skills/dev-standards"]
           },
           {
             "name": "translation-template",
@@ -210,9 +128,7 @@
               ".pi/skills/db-sot",
               ".pi/skills/dev-standards"
             ],
-            "dependsOn": [
-              "i18n"
-            ]
+            "dependsOn": ["i18n"]
           },
           {
             "name": "db",
@@ -224,24 +140,15 @@
               ".pi/skills/db-sot",
               ".pi/skills/dev-standards"
             ],
-            "dependsOn": [
-              "validation",
-              "i18n"
-            ]
+            "dependsOn": ["validation", "i18n"]
           },
           {
             "name": "ai",
             "role": "The only module that knows OpenRouter/Vercel AI SDK. Works in packages/adapters/ai/src.",
             "rules": "No domain logic \u2014 only sends requests and returns responses.\nAll requests logged: model, tokens, cost_usd, duration_ms.\nModel is always a parameter, never hardcoded. maxRetries configurable.\nAfter implementing: write Vitest tests, update SKILL.md and task files.",
             "type": "coding",
-            "skills": [
-              ".pi/skills/ai",
-              ".pi/skills/dev-standards"
-            ],
-            "dependsOn": [
-              "infra",
-              "validation"
-            ]
+            "skills": [".pi/skills/ai", ".pi/skills/dev-standards"],
+            "dependsOn": ["infra", "validation"]
           },
           {
             "name": "translation",
@@ -254,10 +161,7 @@
               ".pi/skills/db-sot",
               ".pi/skills/dev-standards"
             ],
-            "dependsOn": [
-              "ai",
-              "validation"
-            ]
+            "dependsOn": ["ai", "validation"]
           },
           {
             "name": "topics",
@@ -269,10 +173,7 @@
               ".pi/skills/db-sot",
               ".pi/skills/dev-standards"
             ],
-            "dependsOn": [
-              "translation",
-              "db"
-            ]
+            "dependsOn": ["translation", "db"]
           },
           {
             "name": "dictionary-pipeline",
@@ -283,10 +184,7 @@
               ".pi/skills/dictionary-pipeline",
               ".pi/skills/dev-standards"
             ],
-            "dependsOn": [
-              "translation",
-              "translation-template"
-            ]
+            "dependsOn": ["translation", "translation-template"]
           },
           {
             "name": "notifications",
@@ -298,11 +196,7 @@
               ".pi/skills/db-sot",
               ".pi/skills/dev-standards"
             ],
-            "dependsOn": [
-              "infra",
-              "db",
-              "topics"
-            ]
+            "dependsOn": ["infra", "db", "topics"]
           },
           {
             "name": "bot",
@@ -349,10 +243,7 @@
             "role": "Runs full test suite, analyzes failures, fixes broken tests. Final quality gate.",
             "rules": "Run `pnpm test` from project root first. Fix only test files \u2014 never source code.\nRe-run after fixes \u2014 max 3 attempts. Never skip or delete failing tests.\nUse DB-exported constants in mocks, not hardcoded string literals.",
             "type": "coding",
-            "skills": [
-              ".pi/skills/test-runner",
-              ".pi/skills/db-sot"
-            ],
+            "skills": [".pi/skills/test-runner", ".pi/skills/db-sot"],
             "dependsOn": [
               "deps-validator",
               "infra",
@@ -373,13 +264,8 @@
             "role": "Validates all documentation against current code state. Final pipeline gate.",
             "rules": "Verify SKILL.md files: Current State, File Structure, Public API, Types, Schema.\nVerify task files: checkboxes, file lists, README status. Move \u2705 Done tasks to docs/tasks/finished/.\nFlag hardcoded language/mode unions in docs \u2014 must reference DB cache.\nFix docs only \u2014 never source code.",
             "type": "coding",
-            "skills": [
-              ".pi/skills/doc-validator",
-              ".pi/skills/db-sot"
-            ],
-            "dependsOn": [
-              "test-runner"
-            ]
+            "skills": [".pi/skills/doc-validator", ".pi/skills/db-sot"],
+            "dependsOn": ["test-runner"]
           }
         ]
       }
