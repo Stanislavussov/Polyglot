@@ -5,45 +5,14 @@ on:
     branches: [master]
 
 env:
-  IMAGE: ghcr.io/${{ github.repository }}
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/polyglot
 
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
 
-  build-and-push:
-    needs: ci
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: deploy/Dockerfile
-          target: production
-          push: true
-          tags: ${{ env.IMAGE }}:latest
-
-      - uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: deploy/Dockerfile
-          target: migrate
-          push: true
-          tags: ${{ env.IMAGE }}:migrate
-
   deploy:
-    needs: build-and-push
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
