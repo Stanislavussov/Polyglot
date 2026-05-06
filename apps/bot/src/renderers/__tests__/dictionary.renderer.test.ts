@@ -204,39 +204,39 @@ describe("renderDictionaryEntry", () => {
   };
 
   it("contains original word with emoji", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver, "en");
+    const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("🍎 <b>apple</b>");
   });
 
   it("shows source language flag and input type", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver, "en");
+    const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("word · 🇬🇧");
   });
 
   it("contains translations with transcription", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver, "en");
+    const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("🇷🇺 <b>яблоко</b> [ˈjabləkə]");
     expect(html).toContain("🇨🇿 <b>jablko</b> [ˈjablkɔ]");
   });
 
   it("shows register", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver, "en");
+    const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("neutral");
   });
 
   it("shows synonyms from details", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver, "en");
+    const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("(яблочко)");
   });
 
   it("shows examples from details", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver, "en");
+    const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("💬 <i>Я ем яблоко.</i>  → нейтральный");
   });
 
   it("falls back to 🔤 when langResolver returns undefined", () => {
     const noResolver = () => undefined;
-    const html = renderDictionaryEntry(entryWithDetails, noResolver, "en");
+    const html = renderDictionaryEntry(entryWithDetails, noResolver);
     expect(html).toContain("🔤");
   });
 });
