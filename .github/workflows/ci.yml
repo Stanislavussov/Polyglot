@@ -6,9 +6,13 @@ on:
   pull_request:
     branches: [master]
   workflow_call:
+    secrets:
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_TOKEN:
+        required: true
 
 env:
-  REGISTRY: docker.io
   IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/polyglot
 
 jobs:

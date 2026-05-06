@@ -4,15 +4,15 @@ on:
   push:
     branches: [master]
 
-env:
-  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/polyglot
-
 jobs:
   ci:
     permissions:
       contents: read
       packages: write
     uses: ./.github/workflows/ci.yml
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
   deploy:
     needs: ci
