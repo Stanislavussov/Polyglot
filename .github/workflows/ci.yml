@@ -60,9 +60,7 @@ jobs:
           file: deploy/Dockerfile
           target: production
           push: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          tags: ${{ env.IMAGE_NAME }}:latest
 
       - uses: docker/build-push-action@v6
         with:
@@ -70,6 +68,4 @@ jobs:
           file: deploy/Dockerfile
           target: migrate
           push: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:migrate-latest
-            ${{ env.IMAGE_NAME }}:migrate-sha-${{ github.sha }}
+          tags: ${{ env.IMAGE_NAME }}:migrate-latest
