@@ -1,5 +1,5 @@
 import type { TranslateOutput } from "@polyglot/core";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock logger (hoisted to avoid TDZ issues)
 const { mockLogger } = vi.hoisted(() => ({

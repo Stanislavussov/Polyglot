@@ -418,10 +418,7 @@ describe("startScheduler / stopScheduler", () => {
 
     // First call creates the cron, second is ignored
     expect(mockSchedule).toHaveBeenCalledTimes(1);
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.stringContaining("already running"),
-    );
+    expect(mockLogger.warn).toHaveBeenCalledWith(expect.anything(), expect.stringContaining("already running"));
   });
 
   it("stopScheduler stops the cron task", () => {
@@ -433,10 +430,7 @@ describe("startScheduler / stopScheduler", () => {
     stopScheduler();
 
     expect(mockStop).toHaveBeenCalledOnce();
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      expect.anything(),
-      "Notification scheduler stopped",
-    );
+    expect(mockLogger.info).toHaveBeenCalledWith(expect.anything(), "Notification scheduler stopped");
   });
 
   it("stopScheduler is safe to call when not running", () => {
