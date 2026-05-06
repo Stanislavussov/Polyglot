@@ -25,7 +25,7 @@ jobs:
 
       - name: Run remote commands
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             set -e
             mkdir -p /opt/polyglot
             cd /opt/polyglot
