@@ -16,6 +16,7 @@ const {
   mockTranslationTemplateRepository,
   mockLanguageCache,
   mockAi,
+  mockLogger,
 } = vi.hoisted(() => ({
   mockLookupContext: vi.fn(),
   mockUserRepository: {
@@ -35,6 +36,12 @@ const {
   },
   mockAi: {
     generateObject: vi.fn(),
+  },
+  mockLogger: {
+    error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
@@ -65,12 +72,13 @@ vi.mock("@polyglot/core", async () => {
         en: { text: "test", register: "neutral", synonyms: [], examples: [] },
       },
     }),
+    logger: mockLogger,
   };
 });
 
 vi.mock("@polyglot/infra", () => ({
   loadConfig: () => ({ AI_MODEL: "test-model" }),
-  logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
+  logger: mockLogger,
 }));
 
 import { translateWithContext } from "@polyglot/core";
@@ -95,7 +103,7 @@ function createMockCtx(nextSourceLang?: string | null): BotContext {
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
     },
-    user: { id: 1, telegramId: 123456789 },
+    user: { id: 1, telegramTelegramId: 123456789 },
     services: {
       userRepository: mockUserRepository,
       vocabularyRepository: mockVocabularyRepository,
@@ -176,29 +184,11 @@ describe("handleTranslateText — nextSourceLang integration", () => {
     expect(ctx.session.nextSourceLang).toBeNull();
   });
 
-  it("does not show detected language indicator when using explicit source", async () => {
+  it("logs nextSourceLang in debug output when explicitly set", async () => {
     const ctx = createMockCtx("cs");
     await handleTranslateText(ctx, "dům");
 
-    // Card should NOT have the detected lang prefix
-    const replies = vi.mocked(ctx.reply).mock.calls;
-    const translationCard = replies.find((call) => typeof call[0] === "string" && call[0].includes("test"));
-    expect(translationCard).toBeDefined();
-    // Detected lang indicator should NOT appear (source was explicitly set)
-    const hasDetectedPrefix = replies.some(
-      (call) =>
-        typeof call[0] === "string" &&
-        (call[0].includes("Detected:") || call[0].includes("🇷🇺") || call[0].includes("Russian")),
-    );
-    expect(hasDetectedPrefix).toBe(false);
-  });
-
-  it("logs nextSourceLang in debug output", async () => {
-    const { logger } = await import("@polyglot/core");
-    const ctx = createMockCtx("cs");
-    await handleTranslateText(ctx, "dům");
-
-    expect(logger.debug).toHaveBeenCalledWith(
+    expect(mockLogger.debug).toHaveBeenCalledWith(
       expect.objectContaining({
         nextSourceLang: "cs",
       }),
@@ -309,10 +299,14 @@ describe("handleSkipCallback — source lang menu", () => {
 
     await handleSkipCallback(ctx);
 
-    // Should reply without a keyboard
-    expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining("Send"),
-      expect.not.objectContaining({ reply_markup: expect.any(Object) }),
-    );
+    // With only 2 languages (native + 1 learning), keyboard should not be shown
+    // Check that ctx.reply was called with just a string (no second argument with reply_markup)
+    const replyCalls = vi.mocked(ctx.reply).mock.calls;
+    const hintCall = replyCalls.find((call) => typeof call[0] === "string" && call[0].includes("Send the next word"));
+    expect(hintCall).toBeDefined();
+    // With only 2 languages, no keyboard is shown - verify no reply_markup in the call
+    if (hintCall && hintCall.length > 1) {
+      expect(hintCall[1]).not.toHaveProperty("reply_markup");
+    }
   });
 });

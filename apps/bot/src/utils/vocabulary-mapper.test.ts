@@ -1,11 +1,19 @@
 import type { TranslateOutput } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@polyglot/infra", () => ({
-  logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
+// Mock logger (hoisted to avoid TDZ issues)
+const { mockLogger } = vi.hoisted(() => ({
+  mockLogger: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-import { logger } from "@polyglot/core";
+vi.mock("@polyglot/core", () => ({
+  logger: mockLogger,
+}));
+
+vi.mock("@polyglot/infra", () => ({
+  logger: mockLogger,
+}));
+
 import { toVocabularyInput } from "./vocabulary-mapper.js";
 
 const sampleOutput: TranslateOutput = {
@@ -47,6 +55,10 @@ const langResolver = (code: string): number | null => {
 };
 
 describe("toVocabularyInput", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("correctly maps TranslateOutput → CreateVocabularyInput", () => {
     const result = toVocabularyInput(sampleOutput, 1, "word", langResolver);
 
@@ -116,7 +128,7 @@ describe("toVocabularyInput", () => {
     // xx should be skipped, only cs and de remain
     expect(result.translations).toHaveLength(2);
     expect(result.translations.find((t) => t.text === "unknown")).toBeUndefined();
-    expect(logger.warn).toHaveBeenCalledWith(
+    expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.objectContaining({ code: "xx" }),
       expect.stringContaining("Unknown language code"),
     );

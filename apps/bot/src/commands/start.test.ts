@@ -5,6 +5,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { BotContext, SessionData } from "../types.js";
 import { startCommand } from "./start.js";
 
+// Mock logger (hoisted to avoid TDZ issues)
+const { mockLogger } = vi.hoisted(() => ({
+  mockLogger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+  },
+}));
+
 // Mock dependencies
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: {
@@ -16,15 +26,11 @@ vi.mock("@polyglot/adapter-db", () => ({
 vi.mock("@polyglot/core", () => ({
   t: vi.fn((key: string) => `[${key}]`),
   isSupported: vi.fn(() => true),
+  logger: mockLogger,
 }));
 
 vi.mock("@polyglot/infra", () => ({
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-    debug: vi.fn(),
-    warn: vi.fn(),
-  },
+  logger: mockLogger,
 }));
 
 import { userRepository } from "@polyglot/adapter-db";

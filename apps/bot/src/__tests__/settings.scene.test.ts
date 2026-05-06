@@ -3,24 +3,39 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock dependencies before imports
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
+// Define mocks at top level using vi.hoisted
+const { mockLogger, mockUserRepository, mockLanguageCache } = vi.hoisted(() => {
+  const mockUR = {
     getSettings: vi.fn(),
     updateNativeLang: vi.fn().mockResolvedValue({}),
     updateLearningLangs: vi.fn().mockResolvedValue({}),
     updateInterfaceLang: vi.fn().mockResolvedValue({}),
-  },
-  getLangDisplay: vi.fn((code: string) => {
-    const map: Record<string, string> = {
-      en: "🇬🇧 English",
-      ru: "🇷🇺 Русский",
-      cs: "🇨🇿 Čeština",
-      de: "🇩🇪 Deutsch",
-    };
-    return map[code] ?? code;
-  }),
-  getSupportedLangs: vi.fn(() => [{ code: "en" }, { code: "ru" }, { code: "cs" }, { code: "de" }]),
+  };
+  const mockLC = {
+    getSupportedLangs: vi.fn(() => [{ code: "en" }, { code: "ru" }, { code: "cs" }, { code: "de" }]),
+    getLangDisplay: vi.fn((code: string) => {
+      const map: Record<string, string> = {
+        en: "🇬🇧 English",
+        ru: "🇷🇺 Русский",
+        cs: "🇨🇿 Čeština",
+        de: "🇩🇪 Deutsch",
+      };
+      return map[code] ?? code;
+    }),
+  };
+  return {
+    mockLogger: { debug: vi.fn(), error: vi.fn(), info: vi.fn(), warn: vi.fn() },
+    mockUserRepository: mockUR,
+    mockLanguageCache: mockLC,
+  };
+});
+
+// Mock dependencies before imports
+vi.mock("@polyglot/adapter-db", () => ({
+  userRepository: mockUserRepository,
+  languageCache: mockLanguageCache,
+  getLangDisplay: mockLanguageCache.getLangDisplay,
+  getSupportedLangs: mockLanguageCache.getSupportedLangs,
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -31,7 +46,7 @@ vi.mock("@polyglot/core", async () => {
 });
 
 vi.mock("@polyglot/infra", () => ({
-  logger: { debug: vi.fn(), error: vi.fn(), info: vi.fn(), warn: vi.fn() },
+  logger: mockLogger,
   loadConfig: () => ({ AI_MODEL: "test-model", BOT_TOKEN: "test" }),
 }));
 
@@ -39,7 +54,6 @@ vi.mock("../commands/commands.js", () => ({
   setUserCommands: vi.fn().mockResolvedValue(undefined),
 }));
 
-import { userRepository } from "@polyglot/adapter-db";
 import { setUserCommands } from "../commands/commands.js";
 import {
   handleSetBackCallback,
@@ -69,7 +83,12 @@ function createMockCtx(callbackData?: string) {
     user: { id: 1 },
     session: { activeMode: "translate" },
     from: { id: 12345 },
+    chat: { id: 12345 },
     api: {},
+    services: {
+      userRepository: mockUserRepository,
+      languageCache: mockLanguageCache,
+    },
     callbackQuery: callbackData ? { data: callbackData, message: { message_id: 100 } } : undefined,
     reply: vi.fn().mockResolvedValue({ message_id: 200 }),
     editMessageText: vi.fn().mockResolvedValue({}),
@@ -81,7 +100,7 @@ function createMockCtx(callbackData?: string) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(userRepository.getSettings).mockResolvedValue(DEFAULT_SETTINGS as any);
+  mockUserRepository.getSettings.mockResolvedValue(DEFAULT_SETTINGS as any);
 });
 
 describe("handleSettingsCommand", () => {
@@ -113,7 +132,7 @@ describe("handleSettingsCommand", () => {
   });
 
   it("handles missing settings gracefully", async () => {
-    vi.mocked(userRepository.getSettings).mockResolvedValue(null);
+    mockUserRepository.getSettings.mockResolvedValue(null);
     const ctx = createMockCtx();
 
     await handleSettingsCommand(ctx);
@@ -149,7 +168,7 @@ describe("handleSetNativeSelectCallback", () => {
 
     await handleSetNativeSelectCallback(ctx);
 
-    expect(userRepository.updateNativeLang).toHaveBeenCalledWith(1, "de");
+    expect(mockUserRepository.updateNativeLang).toHaveBeenCalledWith(1, "de");
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         text: expect.stringContaining("🇩🇪 Deutsch"),
@@ -194,7 +213,7 @@ describe("handleSetLearnToggleCallback", () => {
 
     await handleSetLearnToggleCallback(ctx);
 
-    expect(userRepository.updateLearningLangs).toHaveBeenCalledWith(1, ["cs", "ru", "de"]);
+    expect(mockUserRepository.updateLearningLangs).toHaveBeenCalledWith(1, ["cs", "ru", "de"]);
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         text: expect.stringContaining("Added"),
@@ -207,7 +226,7 @@ describe("handleSetLearnToggleCallback", () => {
 
     await handleSetLearnToggleCallback(ctx);
 
-    expect(userRepository.updateLearningLangs).toHaveBeenCalledWith(1, ["ru"]);
+    expect(mockUserRepository.updateLearningLangs).toHaveBeenCalledWith(1, ["ru"]);
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         text: expect.stringContaining("Removed"),
@@ -216,7 +235,7 @@ describe("handleSetLearnToggleCallback", () => {
   });
 
   it("shows alert when max languages reached", async () => {
-    vi.mocked(userRepository.getSettings).mockResolvedValue({
+    mockUserRepository.getSettings.mockResolvedValue({
       ...DEFAULT_SETTINGS,
       learningLangs: ["cs", "ru", "de", "fr"],
     } as any);
@@ -224,7 +243,7 @@ describe("handleSetLearnToggleCallback", () => {
 
     await handleSetLearnToggleCallback(ctx);
 
-    expect(userRepository.updateLearningLangs).not.toHaveBeenCalled();
+    expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });
 
@@ -243,7 +262,7 @@ describe("handleSetLearnToggleCallback", () => {
   });
 
   it("shows alert when pressing done with no selection", async () => {
-    vi.mocked(userRepository.getSettings).mockResolvedValue({
+    mockUserRepository.getSettings.mockResolvedValue({
       ...DEFAULT_SETTINGS,
       learningLangs: [],
     } as any);
@@ -280,7 +299,7 @@ describe("handleSetIfaceSelectCallback", () => {
 
     await handleSetIfaceSelectCallback(ctx);
 
-    expect(userRepository.updateInterfaceLang).toHaveBeenCalledWith(1, "ru");
+    expect(mockUserRepository.updateInterfaceLang).toHaveBeenCalledWith(1, "ru");
     expect(setUserCommands).toHaveBeenCalledWith(ctx.api, 12345, "ru");
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
       expect.objectContaining({

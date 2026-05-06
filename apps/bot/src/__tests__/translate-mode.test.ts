@@ -5,6 +5,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { modeRouterMiddleware } from "../middlewares/mode-router.js";
 import type { BotContext, SessionData, UserMode } from "../types.js";
 
+// Mock logger (hoisted to avoid TDZ issues)
+const { mockLogger } = vi.hoisted(() => ({
+  mockLogger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+  },
+}));
+
 // Mock dependencies
 vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
@@ -28,16 +38,12 @@ vi.mock("@polyglot/core", () => ({
   translate: vi.fn(),
   t: vi.fn((key: string) => `[${key}]`),
   isSupported: vi.fn(() => true),
+  logger: mockLogger,
 }));
 
 vi.mock("@polyglot/infra", () => ({
   loadConfig: vi.fn(() => ({ AI_MODEL: "test-model" })),
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-    debug: vi.fn(),
-    warn: vi.fn(),
-  },
+  logger: mockLogger,
 }));
 
 // Mock translate-mode helper

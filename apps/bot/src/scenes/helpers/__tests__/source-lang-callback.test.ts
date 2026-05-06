@@ -99,12 +99,13 @@ describe("handleSourceLangCallback", () => {
     expect(ctx.session.nextSourceLang).toBe("cs");
   });
 
-  it("sends confirmation via answerCallbackQuery", async () => {
+  it("sends confirmation via answerCallbackQuery with language name", async () => {
     const ctx = createMockCtx("tr:srclang:cs");
     await handleSourceLangCallback(ctx);
 
+    // The confirmation shows the language name, not the code
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({
-      text: expect.stringContaining("cs"),
+      text: expect.stringContaining("Czech"),
     });
   });
 
@@ -134,13 +135,13 @@ describe("handleSourceLangCallback", () => {
     expect(ctx.session.nextSourceLang).toBeNull();
   });
 
-  it("uses i18n nextSourceSet key for confirmation", async () => {
+  it("uses i18n nextSourceSet key for confirmation with Russian", async () => {
     const ctx = createMockCtx("tr:srclang:ru");
     await handleSourceLangCallback(ctx);
 
     // nextSourceSet → "🔤 Next from: {lang}"
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({
-      text: expect.stringContaining("ru"),
+      text: expect.stringContaining("Russian"),
     });
   });
 

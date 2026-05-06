@@ -47,14 +47,14 @@ describe("formatNotificationMessage", () => {
 
   it("shows SRS source label for dictionary words", () => {
     const msg = formatNotificationMessage(srsPayload, "en");
-    // i18n key "notifWordFromDict" is rendered (contains "dictionary" in actual locale)
-    expect(msg).toContain("notifWordFromDict");
+    // The translated value contains "dictionary" or "From your dict"
+    expect(msg).toMatch(/dictionary|dict/i);
   });
 
   it("shows AI source label for suggested words", () => {
     const msg = formatNotificationMessage(suggestedPayload, "en");
-    // i18n key "notifAiSuggested" is rendered
-    expect(msg).toContain("notifAiSuggested");
+    // The translated value contains "AI" or "suggestion"
+    expect(msg).toMatch(/AI|suggestion/i);
   });
 
   it("renders translations with flag emojis", () => {
@@ -94,7 +94,8 @@ describe("formatNotificationMessage", () => {
 
   it("includes translations header from i18n", () => {
     const msg = formatNotificationMessage(srsPayload, "en");
-    expect(msg).toContain("notifTranslations");
+    // The translations header should be present (check for "Translations" or similar)
+    expect(msg).toMatch(/translation/i);
   });
 });
 

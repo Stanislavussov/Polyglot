@@ -1,19 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getLocalizedCommands, setBotCommands, setUserCommands } from "./commands.js";
 
-// Mock @polyglot/core i18n
-vi.mock("@polyglot/core", () => ({
-  t: (key: string, lang: string) => `${key}:${lang}`,
-}));
-
-// Mock @polyglot/infra logger
-vi.mock("@polyglot/infra", () => ({
-  logger: {
+// Mock logger (hoisted to avoid TDZ issues)
+const { mockLogger } = vi.hoisted(() => ({
+  mockLogger: {
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
   },
+}));
+
+// Mock @polyglot/core i18n + logger
+vi.mock("@polyglot/core", () => ({
+  t: (key: string, lang: string) => `${key}:${lang}`,
+  logger: mockLogger,
+}));
+
+// Mock @polyglot/infra logger
+vi.mock("@polyglot/infra", () => ({
+  logger: mockLogger,
 }));
 
 describe("getLocalizedCommands", () => {
@@ -81,11 +87,10 @@ describe("setBotCommands", () => {
   });
 
   it("logs error but does not throw when setMyCommands fails", async () => {
-    const { logger } = await import("@polyglot/core");
     mockApi.setMyCommands.mockRejectedValue(new Error("Network error"));
 
     await expect(setBotCommands(mockApi as any)).resolves.toBeUndefined();
-    expect(logger.error).toHaveBeenCalled();
+    expect(mockLogger.error).toHaveBeenCalled();
   });
 
   it("continues setting other locales when one fails", async () => {
@@ -121,10 +126,9 @@ describe("setUserCommands", () => {
   });
 
   it("logs error but does not throw on failure", async () => {
-    const { logger } = await import("@polyglot/core");
     mockApi.setMyCommands.mockRejectedValue(new Error("Rate limited"));
 
     await expect(setUserCommands(mockApi as any, 123456, "en")).resolves.toBeUndefined();
-    expect(logger.error).toHaveBeenCalled();
+    expect(mockLogger.error).toHaveBeenCalled();
   });
 });
