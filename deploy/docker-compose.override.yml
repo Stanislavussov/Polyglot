@@ -1,0 +1,10 @@
+services:
+  bot:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: production
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ../.env

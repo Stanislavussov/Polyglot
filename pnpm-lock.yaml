@@ -88,9 +88,6 @@ importers:
       '@polyglot/core':
         specifier: workspace:*
         version: link:../../core
-      '@polyglot/infra':
-        specifier: workspace:*
-        version: link:../../infra
       ai:
         specifier: ^6.0.116
         version: 6.0.116(zod@4.3.6)
@@ -116,9 +113,6 @@ importers:
       '@polyglot/core':
         specifier: workspace:*
         version: link:../../core
-      '@polyglot/infra':
-        specifier: workspace:*
-        version: link:../../infra
       node-cron:
         specifier: ^4.2.1
         version: 4.2.1
@@ -132,6 +126,9 @@ importers:
       franc:
         specifier: ^6.2.0
         version: 6.2.0
+      pino:
+        specifier: ^10.3.1
+        version: 10.3.1
 
   packages/infra:
     dependencies:
@@ -144,9 +141,6 @@ importers:
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
-      pino:
-        specifier: ^10.3.1
-        version: 10.3.1
     devDependencies:
       tsx:
         specifier: ^4.7.0
