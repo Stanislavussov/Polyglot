@@ -16,21 +16,8 @@ export interface GenerateOptions {
 }
 
 export interface AIPort {
-  generateObject<T>(
-    prompt: string,
-    schema: ZodSchema<T>,
-    model: string,
-    options?: GenerateOptions,
-  ): Promise<T>;
-  generateText(
-    prompt: string,
-    model: string,
-    options?: GenerateOptions,
-  ): Promise<string>;
+  generateObject<T>(prompt: string, schema: ZodSchema<T>, model: string, options?: GenerateOptions): Promise<T>;
+  generateText(prompt: string, model: string, options?: GenerateOptions): Promise<string>;
   getAvailableModels(): AIModel[];
-  estimateCost(
-    inputTokens: number,
-    outputTokens: number,
-    modelId: string,
-  ): number;
+  estimateCost(inputTokens: number, outputTokens: number, modelId: string): number;
 }

@@ -18,15 +18,9 @@ import { InlineKeyboard } from "grammy";
  * - Source label (dictionary or AI)
  * - Translations per language with flag emoji
  */
-export function formatNotificationMessage(
-  payload: NotificationPayload,
-  lang: SupportedLang,
-): string {
+export function formatNotificationMessage(payload: NotificationPayload, lang: SupportedLang): string {
   const { word } = payload;
-  const sourceLabel =
-    word.source === "srs"
-      ? t("notifWordFromDict", lang)
-      : t("notifAiSuggested", lang);
+  const sourceLabel = word.source === "srs" ? t("notifWordFromDict", lang) : t("notifAiSuggested", lang);
 
   const translationLines = Object.entries(word.translations)
     .map(([code, text]) => {
@@ -54,15 +48,10 @@ export function formatNotificationMessage(
  * - "⏭ Skip" → notif:skip
  */
 export function buildNotificationKeyboard(lang: SupportedLang): InlineKeyboard {
-  return new InlineKeyboard()
-    .text(t("notifOpenDict", lang), "notif:open")
-    .text(t("notifSkip", lang), "notif:skip");
+  return new InlineKeyboard().text(t("notifOpenDict", lang), "notif:open").text(t("notifSkip", lang), "notif:skip");
 }
 
 /** Escape HTML entities in user/AI content */
 function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }

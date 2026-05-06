@@ -25,10 +25,7 @@ import type {
  * Apply WordFilter to a list of entries.
  * All filters are AND — every condition must be satisfied.
  */
-function applyFilters(
-  entries: PipelineEntry[],
-  config: DictionaryWordConfig,
-): PipelineEntry[] {
+function applyFilters(entries: PipelineEntry[], config: DictionaryWordConfig): PipelineEntry[] {
   const { filter } = config.selection;
   if (!filter) return entries;
 
@@ -37,9 +34,7 @@ function applyFilters(
   // inputType filter
   if (filter.inputType && filter.inputType.length > 0) {
     const allowed = new Set(filter.inputType);
-    result = result.filter((e) =>
-      allowed.has(e.inputType as "word" | "phrase"),
-    );
+    result = result.filter((e) => allowed.has(e.inputType as "word" | "phrase"));
   }
 
   // sourceLangId filter
@@ -50,9 +45,7 @@ function applyFilters(
   // targetLang filter — entry must have a translation for this language
   if (filter.targetLang) {
     const lang = filter.targetLang;
-    result = result.filter((e) =>
-      e.translations.some((t) => t.targetLangCode === lang),
-    );
+    result = result.filter((e) => e.translations.some((t) => t.targetLangCode === lang));
   }
 
   // excludeIds
@@ -86,21 +79,15 @@ async function selectByStrategy(
       break;
 
     case "oldest_first":
-      sorted = [...entries].sort(
-        (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
-      );
+      sorted = [...entries].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
       break;
 
     case "newest_first":
-      sorted = [...entries].sort(
-        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
-      );
+      sorted = [...entries].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       break;
 
     case "least_reviewed": {
-      const reviewCounts = deps.getReviewCounts
-        ? await deps.getReviewCounts(userId)
-        : new Map<number, number>();
+      const reviewCounts = deps.getReviewCounts ? await deps.getReviewCounts(userId) : new Map<number, number>();
 
       sorted = [...entries].sort((a, b) => {
         const countA = reviewCounts.get(a.id) ?? 0;
@@ -140,10 +127,7 @@ function shuffleArray<T>(arr: T[]): T[] {
  * Build a single WordDisplayTranslation from a PipelineTranslationRow,
  * applying presentation field masking.
  */
-function buildDisplayTranslation(
-  row: PipelineTranslationRow,
-  config: DictionaryWordConfig,
-): WordDisplayTranslation {
+function buildDisplayTranslation(row: PipelineTranslationRow, config: DictionaryWordConfig): WordDisplayTranslation {
   const { fields, showRegister } = config.presentation;
 
   const result: WordDisplayTranslation = {
@@ -158,34 +142,20 @@ function buildDisplayTranslation(
     result.register = row.register as Register;
   }
 
-  if (
-    fields.synonyms &&
-    row.details?.synonyms &&
-    row.details.synonyms.length > 0
-  ) {
+  if (fields.synonyms && row.details?.synonyms && row.details.synonyms.length > 0) {
     result.synonyms = row.details.synonyms;
   }
 
-  if (
-    fields.examples &&
-    row.details?.examples &&
-    row.details.examples.length > 0
-  ) {
+  if (fields.examples && row.details?.examples && row.details.examples.length > 0) {
     result.examples = row.details.examples;
   }
 
-  if (
-    fields.alternatives &&
-    row.details?.alternatives &&
-    row.details.alternatives.length > 0
-  ) {
+  if (fields.alternatives && row.details?.alternatives && row.details.alternatives.length > 0) {
     result.alternatives = row.details.alternatives;
   }
 
   if (row.expressionType) {
-    result.expressionType = row.expressionType as
-      | "literal"
-      | "idiomatic_equivalent";
+    result.expressionType = row.expressionType as "literal" | "idiomatic_equivalent";
   }
 
   if (fields.equivalentNote && row.equivalentNote) {
@@ -198,19 +168,14 @@ function buildDisplayTranslation(
 /**
  * Build WordDisplayData from a PipelineEntry, applying presentation config.
  */
-function buildDisplayData(
-  entry: PipelineEntry,
-  config: DictionaryWordConfig,
-): WordDisplayData | null {
+function buildDisplayData(entry: PipelineEntry, config: DictionaryWordConfig): WordDisplayData | null {
   const { targetLangs, showRegister } = config.presentation;
 
   // Filter translations by target language if specified
   let translationRows = entry.translations;
   if (targetLangs && targetLangs.length > 0) {
     const allowed = new Set(targetLangs);
-    translationRows = translationRows.filter((t) =>
-      allowed.has(t.targetLangCode),
-    );
+    translationRows = translationRows.filter((t) => allowed.has(t.targetLangCode));
   }
 
   // If no renderable translations, skip this word
@@ -228,8 +193,7 @@ function buildDisplayData(
     sourceLang: entry.sourceLangCode,
     inputType: entry.inputType as "word" | "phrase",
     emoji: entry.emoji ?? "📝",
-    register:
-      showRegister && entry.register ? (entry.register as Register) : "neutral",
+    register: showRegister && entry.register ? (entry.register as Register) : "neutral",
     createdAt: entry.createdAt,
     translations,
   };
@@ -250,20 +214,14 @@ function buildDisplayData(
  */
 export function createDictionaryPipeline(deps: DictionaryPipelineDeps) {
   return {
-    async run(
-      userId: number,
-      config: DictionaryWordConfig,
-    ): Promise<WordPipelineResult> {
+    async run(userId: number, config: DictionaryWordConfig): Promise<WordPipelineResult> {
       const logger = getLogger();
 
       // 1. Fetch all entries
       const allEntries = await deps.findEntriesByUser(userId);
       const totalInDictionary = allEntries.length;
 
-      logger.debug(
-        { userId, totalInDictionary },
-        `[dictionary-pipeline] ${totalInDictionary} entries in dictionary`,
-      );
+      logger.debug({ userId, totalInDictionary }, `[dictionary-pipeline] ${totalInDictionary} entries in dictionary`);
 
       if (totalInDictionary === 0) {
         return {
@@ -299,10 +257,7 @@ export function createDictionaryPipeline(deps: DictionaryPipelineDeps) {
         }
       }
 
-      logger.debug(
-        { count: words.length },
-        `[dictionary-pipeline] Built ${words.length} display items`,
-      );
+      logger.debug({ count: words.length }, `[dictionary-pipeline] Built ${words.length} display items`);
 
       return {
         words,

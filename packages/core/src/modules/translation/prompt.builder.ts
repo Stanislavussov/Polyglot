@@ -7,7 +7,7 @@
  */
 
 import { getLanguageName } from "../i18n/language-registry.js";
-import type { DictionaryContext, InputType, TranslationOutputConfig, TranslationRequest } from "./types.js";
+import type { DictionaryContext, TranslationOutputConfig, TranslationRequest } from "./types.js";
 
 /**
  * Resolve output config — all fields default to true when absent.

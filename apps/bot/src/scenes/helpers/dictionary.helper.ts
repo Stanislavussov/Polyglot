@@ -28,6 +28,7 @@ function getLangCodeById(id: number): string | undefined {
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = await userRepository.getSettings(ctx.user.id);
   const lang = settings?.interfaceLang;
+
   return lang && isSupported(lang) ? lang : "en";
 }
 
@@ -36,7 +37,9 @@ async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
 async function answerExpired(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
   try {
-    await ctx.answerCallbackQuery({ text: t("dictionarySessionExpired", lang) });
+    await ctx.answerCallbackQuery({
+      text: t("dictionarySessionExpired", lang),
+    });
   } catch {
     /* ignore */
   }
@@ -53,7 +56,7 @@ export async function handleDictPage(ctx: BotContext): Promise<void> {
 
   const data = ctx.callbackQuery?.data ?? "";
   const page = parseInt(data.split(":")[2] ?? "1", 10);
-  if (isNaN(page) || page < 1) return void ctx.answerCallbackQuery();
+  if (Number.isNaN(page) || page < 1) return void ctx.answerCallbackQuery();
 
   const lang = await getUserLang(ctx);
   const total = await vocabularyRepository.countByUser(ctx.user.id);
@@ -61,7 +64,9 @@ export async function handleDictPage(ctx: BotContext): Promise<void> {
 
   if (total === 0) {
     try {
-      await ctx.editMessageText(t("emptyDictionary", lang), { reply_markup: undefined });
+      await ctx.editMessageText(t("emptyDictionary", lang), {
+        reply_markup: undefined,
+      });
     } catch (err) {
       logger.error({ err }, "Failed to edit dictionary message");
     }
@@ -108,7 +113,7 @@ export async function handleDictView(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const text = renderDictionaryEntry(entry, getLangCodeById, lang);
+  const text = renderDictionaryEntry(entry, getLangCodeById);
   const kb = buildDictionaryEntryKeyboard(entryId, page, lang);
 
   try {
@@ -125,6 +130,7 @@ export async function handleDictDelete(ctx: BotContext): Promise<void> {
   const dict = ctx.session.dictionary;
   if (!dict) {
     await answerExpired(ctx);
+
     return;
   }
 
@@ -132,10 +138,12 @@ export async function handleDictDelete(ctx: BotContext): Promise<void> {
   const entryId = parseInt(data.split(":")[2] ?? "0", 10);
 
   const lang = await getUserLang(ctx);
+
   const entry = await vocabularyRepository.findById(entryId);
 
   if (!entry) {
     await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+
     return;
   }
 
@@ -174,7 +182,9 @@ export async function handleDictConfirmDelete(ctx: BotContext): Promise<void> {
 
   if (total === 0) {
     try {
-      await ctx.editMessageText(t("emptyDictionary", lang), { reply_markup: undefined });
+      await ctx.editMessageText(t("emptyDictionary", lang), {
+        reply_markup: undefined,
+      });
     } catch (err) {
       logger.error({ err }, "Failed to edit dictionary message");
     }

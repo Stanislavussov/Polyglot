@@ -18,14 +18,7 @@ import {
   startScheduler,
   stopScheduler,
 } from "@polyglot/adapter-notifications";
-import {
-  createTopicService,
-  getBuiltinTopics,
-  isSupported,
-  logger,
-  type SupportedLang,
-  t,
-} from "@polyglot/core";
+import { createTopicService, getBuiltinTopics, isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
 import { buildNotificationKeyboard } from "./notification.formatter.js";
 
@@ -53,8 +46,7 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
 
   // ── Build notification service deps ──
   const notifService = createNotificationService({
-    getTopicWords: (topicId, sourceLang, targetLangs) =>
-      topicService.getTopicWords(topicId, sourceLang, targetLangs),
+    getTopicWords: (topicId, sourceLang, targetLangs) => topicService.getTopicWords(topicId, sourceLang, targetLangs),
     getBuiltinTopics,
     getUserSettings: async (userId) => {
       const settings = await userRepository.getSettings(userId);
@@ -93,10 +85,7 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
   });
 
   // ── Build sendFn (notification → Telegram message) ──
-  const sendFn = async (
-    telegramId: number,
-    payload: NotificationPayload,
-  ): Promise<void> => {
+  const sendFn = async (telegramId: number, payload: NotificationPayload): Promise<void> => {
     // Look up user's interface language for keyboard buttons
     const user = await userRepository.findByTelegramId(telegramId);
     let lang: SupportedLang = "en";
@@ -115,24 +104,17 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
   };
 
   // ── Build re-engagement sendFn ──
-  const reEngagementSendFn = async (
-    telegramId: number,
-    message: string,
-  ): Promise<void> => {
+  const reEngagementSendFn = async (telegramId: number, message: string): Promise<void> => {
     await api.sendMessage(telegramId, message, { parse_mode: "HTML" });
   };
 
   // ── Build scheduler deps ──
   const schedulerDeps: SchedulerDeps = {
-    getUsersForWindow: (hour: number) =>
-      notificationRepository.getUsersForWindow(hour),
+    getUsersForWindow: (hour: number) => notificationRepository.getUsersForWindow(hour),
     getInactiveUsers: () => notificationRepository.getInactiveUsers(),
-    disableNotifications: (userId: number) =>
-      notificationRepository.disableNotifications(userId),
-    pickSuggestedWord: (userId: number) =>
-      notifService.pickSuggestedWord(userId),
-    pickDictionaryWord: (userId: number) =>
-      notifService.pickDictionaryWord(userId),
+    disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
+    pickSuggestedWord: (userId: number) => notifService.pickSuggestedWord(userId),
+    pickDictionaryWord: (userId: number) => notifService.pickDictionaryWord(userId),
     t: (key: string, lang: string, params?: Record<string, string>) =>
       t(key as any, (isSupported(lang) ? lang : "en") as SupportedLang, params),
   };

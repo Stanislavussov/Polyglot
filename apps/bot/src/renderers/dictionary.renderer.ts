@@ -5,10 +5,7 @@
  * All text via i18n. HTML parse mode.
  */
 
-import type {
-  VocabTranslationDetails,
-  VocabularyEntryWithTranslations,
-} from "@polyglot/adapter-db";
+import type { VocabTranslationDetails, VocabularyEntryWithTranslations } from "@polyglot/adapter-db";
 import type { SupportedLang } from "@polyglot/core";
 import { getLangFlag, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
@@ -21,10 +18,7 @@ const MAX_WORD_LENGTH = 30;
 
 /** Escape HTML special characters for Telegram */
 function esc(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /** Resolve a string to SupportedLang with "en" fallback */
@@ -35,7 +29,7 @@ function toLang(lang?: string): SupportedLang {
 /** Truncate text to maxLen with ellipsis */
 function truncate(text: string, maxLen: number): string {
   if (text.length <= maxLen) return text;
-  return text.slice(0, maxLen - 1) + "…";
+  return `${text.slice(0, maxLen - 1)}…`;
 }
 
 /**
@@ -75,12 +69,8 @@ export function renderDictionaryList(
       translationSummary = `${shown}, +${translationTexts.length - 2}`;
     }
 
-    const wordPart = emoji
-      ? `${emoji} <b>${esc(original)}</b>`
-      : `<b>${esc(original)}</b>`;
-    const line = translationSummary
-      ? `${idx}. ${wordPart} — ${translationSummary}`
-      : `${idx}. ${wordPart}`;
+    const wordPart = emoji ? `${emoji} <b>${esc(original)}</b>` : `<b>${esc(original)}</b>`;
+    const line = translationSummary ? `${idx}. ${wordPart} — ${translationSummary}` : `${idx}. ${wordPart}`;
     lines.push(line);
   }
 
@@ -105,15 +95,12 @@ export function renderDictionaryList(
 export function renderDictionaryEntry(
   entry: VocabularyEntryWithTranslations,
   langResolver: (id: number) => string | undefined,
-  lang: SupportedLang,
 ): string {
   const lines: string[] = [];
 
   // Header
   const emoji = entry.emoji ?? "";
-  const header = emoji
-    ? `${emoji} <b>${esc(entry.original)}</b>`
-    : `<b>${esc(entry.original)}</b>`;
+  const header = emoji ? `${emoji} <b>${esc(entry.original)}</b>` : `<b>${esc(entry.original)}</b>`;
   lines.push(header);
 
   // Source language flag + input type
@@ -128,9 +115,7 @@ export function renderDictionaryEntry(
     const flag = langCode ? (getLangFlag(langCode) ?? "🔤") : "🔤";
 
     // Translation header with transcription
-    const transcriptionPart = tr.transcription
-      ? ` [${esc(tr.transcription)}]`
-      : "";
+    const transcriptionPart = tr.transcription ? ` [${esc(tr.transcription)}]` : "";
     lines.push(`${flag} <b>${esc(tr.text)}</b>${transcriptionPart}`);
 
     // Register
@@ -200,11 +185,7 @@ export function buildDictionaryListKeyboard(
 /**
  * Build the inline keyboard for a single dictionary entry view.
  */
-export function buildDictionaryEntryKeyboard(
-  entryId: number,
-  page: number,
-  lang: SupportedLang,
-): InlineKeyboard {
+export function buildDictionaryEntryKeyboard(entryId: number, page: number, lang: SupportedLang): InlineKeyboard {
   const l = toLang(lang);
   return new InlineKeyboard()
     .text(t("dictionaryDelete", l), `dict:delete:${entryId}`)
@@ -215,11 +196,7 @@ export function buildDictionaryEntryKeyboard(
 /**
  * Build the inline keyboard for delete confirmation.
  */
-export function buildDeleteConfirmKeyboard(
-  entryId: number,
-  page: number,
-  lang: SupportedLang,
-): InlineKeyboard {
+export function buildDeleteConfirmKeyboard(entryId: number, page: number, lang: SupportedLang): InlineKeyboard {
   const l = toLang(lang);
   return new InlineKeyboard()
     .text(t("dictionaryDeleteYes", l), `dict:confirm-delete:${entryId}:${page}`)

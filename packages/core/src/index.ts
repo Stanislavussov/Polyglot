@@ -3,19 +3,19 @@
 // Ports — service container for dependency injection
 export type { ServiceContainer } from "./ports/container.js";
 export type {
+  NotificationType,
+  NotificationUser,
+} from "./ports/notification.repository.js";
+export type {
   CreateVocabularyInput,
   UpdateTranslationData,
+  VocabTranslationDetails,
   VocabularyEntry,
   VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularyRepository,
   VocabularyTranslation,
 } from "./ports/vocabulary.repository.js";
-export type {
-  NotificationType,
-  NotificationUser,
-} from "./ports/notification.repository.js";
-export type { VocabTranslationDetails } from "./ports/vocabulary.repository.js";
 
 // Logger
 

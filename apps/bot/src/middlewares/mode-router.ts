@@ -11,10 +11,7 @@ import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
 import type { BotContext } from "../types.js";
-import {
-  detectNonTextContent,
-  isEmojiOnly,
-} from "../utils/validate-text-input.js";
+import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
 
 /**
  * Resolve the user's interface language from DB settings.
@@ -32,10 +29,7 @@ async function resolveInterfaceLang(ctx: BotContext): Promise<SupportedLang> {
  * Routes plain text messages to the appropriate mode handler.
  * Commands (starting with /) are NOT processed here — they go through normal handlers.
  */
-export async function modeRouterMiddleware(
-  ctx: BotContext,
-  next: NextFunction,
-): Promise<void> {
+export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction): Promise<void> {
   // Only handle message updates (not callback queries, edits, etc.)
   if (!ctx.message) {
     return next();
@@ -51,13 +45,8 @@ export async function modeRouterMiddleware(
   // Non-text messages (stickers, GIFs, photos, voice, etc.)
   if (!text) {
     if (ctx.user?.onboarded) {
-      const nonTextType = detectNonTextContent(
-        ctx.message as unknown as Record<string, unknown>,
-      );
-      logger.debug(
-        { nonTextType, userId: ctx.from?.id },
-        "Non-text message received from onboarded user",
-      );
+      const nonTextType = detectNonTextContent(ctx.message as unknown as Record<string, unknown>);
+      logger.debug({ nonTextType, userId: ctx.from?.id }, "Non-text message received from onboarded user");
       const lang = await resolveInterfaceLang(ctx);
       await ctx.reply(t("textOnly", lang));
       return;
@@ -68,10 +57,7 @@ export async function modeRouterMiddleware(
   // Emoji-only messages — cannot be translated
   if (isEmojiOnly(text)) {
     if (ctx.user?.onboarded) {
-      logger.debug(
-        { text, userId: ctx.from?.id },
-        "Emoji-only message received",
-      );
+      logger.debug({ text, userId: ctx.from?.id }, "Emoji-only message received");
       const lang = await resolveInterfaceLang(ctx);
       await ctx.reply(t("emojiNotSupported", lang));
       return;
@@ -83,10 +69,7 @@ export async function modeRouterMiddleware(
   const mode = ctx.session.activeMode;
   const userId = ctx.from?.id;
 
-  logger.debug(
-    { mode, text: text.slice(0, 30), userId },
-    "Mode router: routing message",
-  );
+  logger.debug({ mode, text: text.slice(0, 30), userId }, "Mode router: routing message");
 
   switch (mode) {
     case "translate":
@@ -99,10 +82,7 @@ export async function modeRouterMiddleware(
       const user = ctx.user;
 
       if (user?.onboarded) {
-        logger.warn(
-          { mode, userId },
-          "Onboarded user hit idle mode — falling back to translate",
-        );
+        logger.warn({ mode, userId }, "Onboarded user hit idle mode — falling back to translate");
         ctx.session.activeMode = "translate";
         await userRepository.updateActiveMode(user.id, "translate");
         await handleTranslateText(ctx, text);
