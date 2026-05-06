@@ -9,6 +9,8 @@ env:
 
 jobs:
   ci:
+    permissions:
+      packages: write
     uses: ./.github/workflows/ci.yml
 
   deploy:
