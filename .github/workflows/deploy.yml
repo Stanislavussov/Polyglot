@@ -2,8 +2,7 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [master]
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}
