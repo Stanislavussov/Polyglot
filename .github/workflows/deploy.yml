@@ -18,11 +18,11 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy
-        uses: webfactory/ssh-agent@v0.8.0
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      - name: Run remote commands
+      - name: SSH Login
         run: |
-          ssh -tt -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'HOME=/root mkdir -p /opt/polyglot && cd /opt/polyglot && docker compose pull && docker compose up -d --remove-orphans && docker image prune -f'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'echo "Successfully logged in as $(whoami)"'
