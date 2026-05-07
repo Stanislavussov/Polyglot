@@ -25,4 +25,4 @@ jobs:
 
       - name: Run remote commands
         run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'HOME=/root mkdir -p /opt/polyglot && cd /opt/polyglot && docker compose pull && docker compose up -d --remove-orphans && docker image prune -f'
+          ssh -tt -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'HOME=/root mkdir -p /opt/polyglot && cd /opt/polyglot && docker compose pull && docker compose up -d --remove-orphans && docker image prune -f'
