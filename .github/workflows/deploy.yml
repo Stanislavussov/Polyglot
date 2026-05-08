@@ -23,6 +23,14 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      - name: SSH Login
+      - name: Run remote commands
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'echo "Successfully logged in as $(whoami)"'
+          ssh -tt -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
+            echo "SSH login successful"
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin && echo "Docker login successful"
+            mkdir -p /opt/polyglot
+            cd /opt/polyglot
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f
+          '
