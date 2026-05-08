@@ -34,6 +34,9 @@ jobs:
           ssh -tt -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
             export HOME=/root
             export DOCKER_CONFIG=/root/.docker
+            mkdir -p /root/.ssh
+            ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null
+
             echo "SSH login successful"
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin && echo "Docker login successful"
 

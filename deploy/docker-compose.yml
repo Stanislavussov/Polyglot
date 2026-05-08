@@ -1,6 +1,6 @@
 services:
   bot:
-    image: ${GITHUB_REPO:-}:latest
+    image: ${DOCKER_USERNAME}/polyglot:latest
     restart: unless-stopped
     environment:
       - NODE_ENV=production
