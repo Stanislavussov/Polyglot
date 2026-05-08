@@ -23,14 +23,31 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
+      - name: Setup Deploy Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
       - name: Run remote commands
         run: |
           ssh -tt -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
+            export HOME=/root
+            export DOCKER_CONFIG=/root/.docker
             echo "SSH login successful"
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin && echo "Docker login successful"
+
             mkdir -p /opt/polyglot
-            cd /opt/polyglot
-            docker compose pull
+            if [ -d /opt/polyglot/.git ]; then
+              cd /opt/polyglot
+              git pull git@github.com:${{ secrets.REPOSITORY }}.git master
+            else
+              rm -rf /opt/polyglot
+              git clone git@github.com:${{ secrets.REPOSITORY }}.git /opt/polyglot
+              cd /opt/polyglot
+            fi
+
+            docker pull ${{ secrets.DOCKER_USERNAME }}/polyglot:latest
             docker compose up -d --remove-orphans
             docker image prune -f
           '
