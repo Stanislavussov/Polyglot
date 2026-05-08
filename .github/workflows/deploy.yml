@@ -22,8 +22,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Generate .env file
+      - name: Prepare files
         run: |
+          cp deploy/docker-compose.yml ./docker-compose.yml
+          
           echo "IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot:latest" >> .env
           echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
