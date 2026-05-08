@@ -1,8 +1,12 @@
 services:
   bot:
-    image: ${DOCKER_USERNAME}/polyglot:latest
+    image: ${IMAGE_NAME}
+    container_name: polyglot_bot
     restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-    expose:
-      - "9090"
+    env_file:
+      - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

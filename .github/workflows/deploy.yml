@@ -6,9 +6,6 @@ on:
 
 jobs:
   ci:
-    permissions:
-      contents: read
-      packages: write
     uses: ./.github/workflows/ci.yml
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -18,39 +15,41 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     steps:
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate .env file
+        run: |
+          echo "IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot:latest" >> .env
+          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
+          echo "AI_MODEL=${{ secrets.AI_MODEL }}" >> .env
+          echo "AI_MODEL_FALLBACK=${{ secrets.AI_MODEL_FALLBACK }}" >> .env
+          echo "REPOSITORY=${{ secrets.REPOSITORY }}" >> .env
+
+      - name: Copy Compose and Env to VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "docker-compose.yaml,.env"
+          target: "/opt/polyglot"
 
-      - name: Setup Deploy Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-
-      - name: Run remote commands
-        run: |
-          ssh -tt -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
-            export HOME=/root
-            export DOCKER_CONFIG=/root/.docker
-            mkdir -p /root/.ssh
-            ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null
-
-            echo "SSH login successful"
-            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin && echo "Docker login successful"
-
-            mkdir -p /opt/polyglot
-            if [ -d /opt/polyglot/.git ]; then
-              cd /opt/polyglot
-              git pull git@github.com:${{ secrets.REPOSITORY }}.git master
-            else
-              rm -rf /opt/polyglot
-              git clone git@github.com:${{ secrets.REPOSITORY }}.git /opt/polyglot
-              cd /opt/polyglot
-            fi
-
-            docker pull ${{ secrets.DOCKER_USERNAME }}/polyglot:latest
+      - name: Deploy and Restart on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/polyglot
+            
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            
+            docker compose pull
+            
             docker compose up -d --remove-orphans
+            
             docker image prune -f
-          '
