@@ -39,6 +39,7 @@ export {
   notificationRepository,
   parseNotificationHour,
 } from "./repositories/notification.repository.js";
+export { reportedIssueRepository } from "./repositories/reported-issue.repository.js";
 export type {
   NewTopicTranslation,
   TopicTranslation,
@@ -66,13 +67,8 @@ export type {
   VocabularyTranslation,
 } from "./repositories/vocabulary.repository.js";
 export { vocabularyRepository } from "./repositories/vocabulary.repository.js";
-
-export type {
-  NewWordContext,
-  WordContext,
-} from "./repositories/word-context.repository.js";
-export { wordContextRepository } from "./repositories/word-context.repository.js";
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
+export type { IssueStatus, IssueType, ReportedIssue } from "./schema.js";
 export * from "./schema.js";
 export { schema };

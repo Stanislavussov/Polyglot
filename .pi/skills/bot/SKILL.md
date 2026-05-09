@@ -693,7 +693,6 @@ apps/bot/src/
 │   └── mode-router.ts          # ✅ Routes plain text to active mode handler (idle→translate fallback, DB persist)
 ├── commands/
 │   ├── commands.ts             # ✅ getLocalizedCommands(), setBotCommands(), setUserCommands() (Task 35)
-│   ├── commands.test.ts        # 10 tests (localized commands, startup locale iteration, per-user scope, error resilience)
 │   ├── start.ts                # /start command (restores translate mode, persists to DB)
 │   └── start.test.ts           # 4 tests (activeMode restore, DB persistence, onboarding entry, no user)
 ├── utils/

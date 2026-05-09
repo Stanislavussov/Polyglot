@@ -148,7 +148,21 @@ export type I18nKey =
   | "settingsNotifChooseType"
   | "settingsNotifChooseTimezone"
   | "notifPaused"
-  | "notifReEngagement";
+  | "notifReEngagement"
+  | "cmdDescReport"
+  | "reportTitle"
+  | "reportChooseType"
+  | "reportBug"
+  | "reportSuggestion"
+  | "reportOther"
+  | "reportEnterDescription"
+  | "reportPreview"
+  | "reportSend"
+  | "reportEdit"
+  | "reportCancel"
+  | "reportSent"
+  | "reportCancelled"
+  | "reportTooLong";
 
 /**
  * Supported interface languages.

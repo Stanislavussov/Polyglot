@@ -17,11 +17,16 @@
     "lint:fix": "biome check --write .",
     "lint:deps": "depcruise --config .dependency-cruiser.cjs packages apps/bot/src",
     "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > docs/dependency-graph.svg",
-    "import:wiktionary": "tsx src/scripts/import-wiktionary.ts",
     "clean": "pnpm -r run clean && rm -rf coverage .vitest",
     "docker:up": "docker compose -f deploy/docker-compose.yml up",
     "docker:dev": "docker compose -f deploy/docker-compose.override.yml up",
-    "docker:dev:build": "docker compose -f docker-compose.override.yml up --build"
+    "docker:dev:build": "docker compose -f docker-compose.override.yml up --build",
+    "db:generate": "pnpm --filter @polyglot/adapter-db db:generate",
+    "db:pull": "pnpm --filter @polyglot/adapter-db db:pull",
+    "db:push": "pnpm --filter @polyglot/adapter-db db:push",
+    "db:migrate": "pnpm --filter @polyglot/adapter-db db:migrate",
+    "db:studio": "pnpm --filter @polyglot/adapter-db db:studio",
+    "db:check": "pnpm --filter @polyglot/adapter-db db:check"
   },
   "dependencies": {
     "@polyglot/adapter-db": "workspace:*",

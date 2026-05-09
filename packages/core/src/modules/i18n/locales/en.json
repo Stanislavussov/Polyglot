@@ -144,5 +144,19 @@
   "settingsNotifChooseType": "📋 Choose notification type:",
   "settingsNotifChooseTimezone": "🌍 Enter your timezone (e.g. Europe/Prague):",
   "notifPaused": "😴 Your daily notifications have been paused due to 14 days of inactivity. Use /settings to re-enable.",
-  "notifReEngagement": "👋 We haven't seen you in a while! Your notifications have been paused. Come back and use /settings to re-enable them."
+  "notifReEngagement": "👋 We haven't seen you in a while! Your notifications have been paused. Come back and use /settings to re-enable them.",
+  "cmdDescReport": "Report a bug or suggest a feature",
+  "reportTitle": "🐛 Report an Issue",
+  "reportChooseType": "What would you like to report?",
+  "reportBug": "🐛 Bug",
+  "reportSuggestion": "💡 Suggestion",
+  "reportOther": "📝 Other",
+  "reportEnterDescription": "✏️ Please describe your issue in detail (max 1000 characters):",
+  "reportPreview": "📋 Here's a preview of your report:",
+  "reportSend": "✅ Send",
+  "reportEdit": "✏️ Edit",
+  "reportCancel": "❌ Cancel",
+  "reportSent": "✅ Your report has been sent! Thank you for helping improve Polyglot.",
+  "reportCancelled": "Report cancelled.",
+  "reportTooLong": "⚠️ Your description is too long (max 1000 characters). Please shorten it."
 }

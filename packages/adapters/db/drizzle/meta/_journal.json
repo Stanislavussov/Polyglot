@@ -106,6 +106,13 @@
       "when": 1775600000000,
       "tag": "0014_notification_preferences",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1778341066182,
+      "tag": "0015_closed_pepper_potts",
+      "breakpoints": true
     }
   ]
 }

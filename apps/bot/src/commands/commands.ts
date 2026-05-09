@@ -11,8 +11,8 @@ export interface BotCommand {
 }
 
 /**
- * Returns the 5 bot commands with descriptions localized to the given language.
- * Uses i18n keys: cmdDescStart, cmdDescTranslate, cmdDescDictionary, cmdDescTemplate, cmdDescSettings.
+ * Returns the 7 bot commands with descriptions localized to the given language.
+ * Uses i18n keys: cmdDescStart, cmdDescTranslate, cmdDescDictionary, cmdDescTemplate, cmdDescSettings, cmdDescFlashcard, cmdDescReport.
  */
 export function getLocalizedCommands(lang: SupportedLang): BotCommand[] {
   return [
@@ -22,6 +22,7 @@ export function getLocalizedCommands(lang: SupportedLang): BotCommand[] {
     { command: "dictionary", description: t("cmdDescDictionary", lang) },
     { command: "template", description: t("cmdDescTemplate", lang) },
     { command: "settings", description: t("cmdDescSettings", lang) },
+    { command: "report", description: t("cmdDescReport", lang) },
   ];
 }
 
