@@ -109,10 +109,7 @@ async function stepPreview(
  *   → Edit: back to step 2
  *   → Cancel: exit
  */
-export async function handleReportIssue(
-  conversation: ReportConversation,
-  ctx: ConversationContext,
-): Promise<void> {
+export async function handleReportIssue(conversation: ReportConversation, ctx: ConversationContext): Promise<void> {
   if (!ctx.user) {
     await ctx.reply("Please use /start first.");
     return;

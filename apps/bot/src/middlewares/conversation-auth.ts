@@ -1,5 +1,5 @@
-import { type Middleware, type NextFunction } from "grammy";
 import { userRepository } from "@polyglot/adapter-db";
+import { type Middleware, type NextFunction } from "grammy";
 import type { ConversationContext } from "../types.js";
 
 /**
