@@ -67,4 +67,4 @@ FROM build AS migrate
 
 ENV NODE_ENV=production
 
-CMD ["pnpm", "--filter", "@polyglot/adapter-db", "run", "db:push"]
+CMD ["pnpm", "--filter", "@polyglot/adapter-db", "run", "db:migrate"]
