@@ -89,15 +89,6 @@ jobs:
           echo "AI_MODEL_FALLBACK=${{ secrets.AI_MODEL_FALLBACK }}" >> .env
           echo "REPOSITORY=${{ secrets.REPOSITORY }}" >> .env
 
-      - name: Clean remote target
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            rm -rf /opt/polyglot && mkdir -p /opt/polyglot
-
       - name: Copy Compose and Env to VPS
         uses: appleboy/scp-action@v1.0.0
         with:
