@@ -96,7 +96,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            sudo rm -rf /opt/polyglot && sudo mkdir -p /opt/polyglot && sudo chown ${{ secrets.VPS_USER }}:${{ secrets.VPS_USER }} /opt/polyglot
+            rm -rf /opt/polyglot && mkdir -p /opt/polyglot
 
       - name: Copy Compose and Env to VPS
         uses: appleboy/scp-action@v1.0.0
@@ -107,7 +107,6 @@ jobs:
           source: "docker-compose.yml,.env"
           target: "/opt/polyglot"
           overwrite: true
-          rm: true
 
       - name: Deploy and Restart on VPS
         uses: appleboy/ssh-action@v1.0.3
