@@ -1,5 +1,5 @@
 import type { Conversation } from "@grammyjs/conversations";
-import { type IssueType, reportedIssueRepository } from "@polyglot/adapter-db";
+import { type IssueType, reportedIssueRepository, userRepository } from "@polyglot/adapter-db";
 import { logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext, ConversationContext } from "../types.js";
@@ -115,7 +115,8 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
     return;
   }
   const userId = ctx.user.id;
-  const lang: SupportedLang = (ctx.user.settings?.interfaceLang ?? "en") as SupportedLang;
+  const settings = await userRepository.getSettings(userId);
+  const lang: SupportedLang = (settings?.interfaceLang ?? "en") as SupportedLang;
 
   const type = await stepChooseType(conversation, ctx, lang);
 
