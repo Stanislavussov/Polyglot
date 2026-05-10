@@ -90,14 +90,14 @@ jobs:
           echo "REPOSITORY=${{ secrets.REPOSITORY }}" >> .env
 
       - name: Copy Compose and Env to VPS
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "docker-compose.yml,.env"
           target: "/opt/polyglot"
-          remove_target_before: true
+          overwrite: true
 
       - name: Deploy and Restart on VPS
         uses: appleboy/ssh-action@v1.0.3
