@@ -1,32 +1,26 @@
-# Ansible — Docker on Ubuntu VPS
+# Ansible — VPS Hardening
 
-## Environment variables
+## Security features
 
-| Variable       | Required | Default         | Description             |
-| -------------- | -------- | --------------- | ----------------------- |
-| `VPS_HOST`     | **yes**  | —               | VPS IP address          |
-| `VPS_USER`     | no       | `root`          | SSH user                |
-| `VPS_SSH_KEY`  | no       | `~/.ssh/id_rsa` | Path to SSH private key |
-| `VPS_SSH_PORT` | no       | `22`            | SSH port                |
+- UFW firewall (deny incoming, allow outgoing, SSH/HTTP/HTTPS)
+- fail2ban (brute-force protection)
+- SSH hardening (no root login, no password auth, max 3 attempts)
+- Deploy user with sudo access
 
 ## Usage
 
 ```bash
-# 1. Copy inventory template (if needed)
-cp inventory/hosts.example.yml inventory/hosts.yml
-
-# 2. Export env vars (or add to .env / shell profile)
+export DEPLOY_USER_SSH_KEY="$(cat ~/.ssh/id_rsa.pub)"
 export VPS_HOST=45.33.xx.xx
-export VPS_USER=root
-export VPS_SSH_KEY=~/.ssh/vps_key
-export VPS_SSH_PORT=22
-
-# 3. Run
 ansible-playbook site.yml
 ```
 
-Or inline:
+## Env vars
 
-```bash
-VPS_HOST=45.33.xx.xx VPS_SSH_KEY=~/.ssh/vps_key ansible-playbook site.yml
-```
+| Variable | Description |
+|----------|-------------|
+| `VPS_HOST` | VPS IP address |
+| `VPS_USER` | SSH user (default: root) |
+| `VPS_SSH_KEY` | Path to SSH private key |
+| `VPS_SSH_PORT` | SSH port (default: 22) |
+| `DEPLOY_USER_SSH_KEY` | Public key for deploy user |
