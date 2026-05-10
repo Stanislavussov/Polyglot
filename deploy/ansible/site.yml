@@ -107,6 +107,25 @@
         groups: docker
         append: true
 
+    - name: Create /opt/polyglot directory
+      ansible.builtin.file:
+        path: /opt/polyglot
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: '0755'
+        state: directory
+
+    - name: Allow deploy user to cleanup old deployments
+      ansible.builtin.copy:
+        content: |
+          # Deploy cleanup - allows CI to rm -rf old polyglot dirs
+          {{ deploy_user }} ALL=(root) NOPASSWD: /bin/rm -rf /opt/polyglot_old
+        dest: /etc/sudoers.d/deploy-user-polyglot
+        owner: root
+        group: root
+        mode: '0440'
+        validate: /usr/sbin/visudo -cf %s
+
   handlers:
     - name: Restart ssh
       ansible.builtin.systemd:
