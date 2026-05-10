@@ -98,6 +98,7 @@ jobs:
           source: "docker-compose.yml,.env"
           target: "/opt/polyglot"
           overwrite: true
+          rm: true
 
       - name: Deploy and Restart on VPS
         uses: appleboy/ssh-action@v1.0.3
