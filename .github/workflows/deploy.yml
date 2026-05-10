@@ -97,6 +97,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "docker-compose.yml,.env"
           target: "/opt/polyglot"
+          remove_target_before: true
 
       - name: Deploy and Restart on VPS
         uses: appleboy/ssh-action@v1.0.3
