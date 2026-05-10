@@ -144,5 +144,19 @@
   "settingsNotifChooseType": "📋 Vyberte typ notifikací:",
   "settingsNotifChooseTimezone": "🌍 Zadejte vaši časovou zónu (např. Europe/Prague):",
   "notifPaused": "😴 Vaše denní notifikace byly pozastaveny kvůli 14 dnům neaktivity. Použijte /settings pro opětovné zapnutí.",
-  "notifReEngagement": "👋 Dlouho jsme vás neviděli! Vaše notifikace byly pozastaveny. Vraťte se a použijte /settings pro jejich zapnutí."
+  "notifReEngagement": "👋 Dlouho jsme vás neviděli! Vaše notifikace byly pozastaveny. Vraťte se a použijte /settings pro jejich zapnutí.",
+  "cmdDescReport": "Nahlásit chybu nebo navrhnout funkci",
+  "reportTitle": "🐛 Nahlásit problém",
+  "reportChooseType": "Co chcete nahlásit?",
+  "reportBug": "🐛 Chyba",
+  "reportSuggestion": "💡 Návrh",
+  "reportOther": "📝 Jiné",
+  "reportEnterDescription": "✏️ Prosím, popište váš problém podrobně (max 1000 znaků):",
+  "reportPreview": "📋 Zde je náhled vašeho hlášení:",
+  "reportSend": "✅ Odeslat",
+  "reportEdit": "✏️ Upravit",
+  "reportCancel": "❌ Zrušit",
+  "reportSent": "✅ Vaše hlášení bylo odesláno! Děkujeme za pomoc při zlepšování Polyglot.",
+  "reportCancelled": "Hlášení zrušeno.",
+  "reportTooLong": "⚠️ Vaše popis je příliš dlouhý (max 1000 znaků). Prosím, zkraťte ho."
 }

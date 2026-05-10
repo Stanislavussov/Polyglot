@@ -9,6 +9,7 @@ import { startCommand } from "./commands/start.js";
 import { createContainer } from "./container.js";
 import { startMetricsServer, telegramMessagesCounter } from "./metrics.js";
 import { authMiddleware } from "./middlewares/auth.js";
+import { conversationAuthPlugin } from "./middlewares/conversation-auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { handleNotifOpenCallback, handleNotifSkipCallback } from "./notifications/notification.callbacks.js";
 import { wireNotificationScheduler } from "./notifications/notification.wiring.js";
@@ -64,6 +65,7 @@ import {
   handleSourceLangCallback,
 } from "./scenes/helpers/translate-mode.helper.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
+import { handleReportIssue } from "./scenes/report-issue.scene.js";
 import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
@@ -123,6 +125,7 @@ bot.use(authMiddleware);
 
 // Register conversation handlers (onboarding still uses conversations)
 bot.use(createConversation(onboarding));
+bot.use(createConversation(handleReportIssue, { plugins: [conversationAuthPlugin()] }));
 
 // ── Register commands ──
 bot.command("start", startCommand);
@@ -131,6 +134,9 @@ bot.command("template", handleTemplateCommand);
 bot.command("dictionary", handleDictionaryCommand);
 bot.command("flashcard", handleFlashcardCommand);
 bot.command("settings", handleSettingsCommand);
+bot.command("report", async (ctx) => {
+  await ctx.conversation.enter("handleReportIssue");
+});
 
 // ── Register callback handlers for settings (Task 37) ──
 bot.callbackQuery("set:native", handleSetNativeCallback);

@@ -284,3 +284,28 @@ export const userTranslationTemplates = pgTable(
   },
   (t) => [uniqueIndex("user_translation_templates_user_id_idx").on(t.userId)],
 );
+
+// ─────────────────────────────────────────────
+// Reported issues — user-submitted bugs, suggestions, and other issues
+// ─────────────────────────────────────────────
+
+export type IssueType = "bug" | "suggestion" | "other";
+export type IssueStatus = "open" | "in_progress" | "resolved" | "rejected";
+
+export const reportedIssues = pgTable(
+  "reported_issues",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    type: text("type").$type<IssueType>().notNull(),
+    description: text("description").notNull(),
+    status: text("status").$type<IssueStatus>().default("open").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [index("ri_user_id_idx").on(t.userId), index("ri_status_idx").on(t.status)],
+);
+
+export type ReportedIssue = typeof reportedIssues.$inferSelect;
