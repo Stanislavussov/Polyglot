@@ -19,7 +19,10 @@ export interface LanguageDetectionStrategy {
    * @returns Detected ISO 639-1 code, or undefined if inconclusive.
    *          Async strategies return a Promise.
    */
-  detect(text: string, candidates: string[]): string | undefined | Promise<string | undefined>;
+  detect(
+    text: string,
+    candidates: string[],
+  ): string | undefined | Promise<string | undefined>;
 }
 
 // ============================================================================
@@ -27,10 +30,19 @@ export interface LanguageDetectionStrategy {
 // ============================================================================
 
 /** Unicode script ranges for heuristic detection */
-type ScriptId = "cyrillic" | "latin" | "cjk" | "arabic" | "devanagari" | "greek" | "hangul" | "kana";
+type ScriptId =
+  | "cyrillic"
+  | "latin"
+  | "cjk"
+  | "arabic"
+  | "devanagari"
+  | "greek"
+  | "hangul"
+  | "kana";
 
 function classifyCodePoint(cp: number): ScriptId | undefined {
-  if ((cp >= 0x0400 && cp <= 0x04ff) || (cp >= 0x0500 && cp <= 0x052f)) return "cyrillic";
+  if ((cp >= 0x0400 && cp <= 0x04ff) || (cp >= 0x0500 && cp <= 0x052f))
+    return "cyrillic";
   if (
     (cp >= 0x0041 && cp <= 0x024f) ||
     (cp >= 0x1e00 && cp <= 0x1eff) ||
@@ -43,7 +55,8 @@ function classifyCodePoint(cp: number): ScriptId | undefined {
   if (cp >= 0x0900 && cp <= 0x097f) return "devanagari";
   if (cp >= 0x0370 && cp <= 0x03ff) return "greek";
   if (cp >= 0xac00 && cp <= 0xd7af) return "hangul";
-  if ((cp >= 0x3040 && cp <= 0x309f) || (cp >= 0x30a0 && cp <= 0x30ff)) return "kana";
+  if ((cp >= 0x3040 && cp <= 0x309f) || (cp >= 0x30a0 && cp <= 0x30ff))
+    return "kana";
   return undefined;
 }
 
@@ -99,7 +112,10 @@ function detectScript(text: string): ScriptId | undefined {
 
   let best: ScriptId | undefined;
   let bestCount = 0;
-  for (const [script, count] of Object.entries(counts) as [ScriptId, number][]) {
+  for (const [script, count] of Object.entries(counts) as [
+    ScriptId,
+    number,
+  ][]) {
     if (count > bestCount) {
       best = script;
       bestCount = count;
@@ -293,13 +309,24 @@ export class DiacriticsStrategy implements LanguageDetectionStrategy {
  */
 export class WiktionaryStrategy implements LanguageDetectionStrategy {
   readonly name = "wiktionary";
-  private readonly lookup: (word: string, langCode: string) => Promise<DictionaryContext | undefined>;
+  private readonly lookup: (
+    word: string,
+    langCode: string,
+  ) => Promise<DictionaryContext | undefined>;
 
-  constructor(lookup: (word: string, langCode: string) => Promise<DictionaryContext | undefined>) {
+  constructor(
+    lookup: (
+      word: string,
+      langCode: string,
+    ) => Promise<DictionaryContext | undefined>,
+  ) {
     this.lookup = lookup;
   }
 
-  async detect(text: string, candidates: string[]): Promise<string | undefined> {
+  async detect(
+    text: string,
+    candidates: string[],
+  ): Promise<string | undefined> {
     const word = text.trim().toLowerCase();
     if (!word || word.includes(" ")) return undefined; // Single word only
 
@@ -334,13 +361,16 @@ export class AIStrategy implements LanguageDetectionStrategy {
     this.generate = generate;
   }
 
-  async detect(text: string, candidates: string[]): Promise<string | undefined> {
+  async detect(
+    text: string,
+    candidates: string[],
+  ): Promise<string | undefined> {
     if (candidates.length <= 1) return undefined; // No need for AI with single candidate
 
     const candidatesStr = candidates.join(", ");
     const prompt = `Detect the language of this text from these candidates: ${candidatesStr}.
 Text: "${text}"
-Respond with ONLY the ISO 639-1 language code (e.g., "en", "cs", "ru"). No explanation.`;
+Respond with ONLY the ISO 639-1 language code (candidatesStr). No explanation.`;
 
     try {
       const response = await this.generate(prompt);
@@ -383,7 +413,10 @@ const _ISO1_TO_ISO3_LEGACY: Readonly<Record<string, string>> = ISO1_TO_ISO3;
  * detectLanguage("kocour", ["en", "cs"]) // → "cs" (diacritics: ǒ)
  * detectLanguage("hello", ["en", "ru"])  // → "en" (script only)
  */
-export function detectLanguage(text: string, candidates: string[]): string | undefined {
+export function detectLanguage(
+  text: string,
+  candidates: string[],
+): string | undefined {
   const trimmed = text.trim();
 
   // Empty or whitespace-only text
@@ -426,7 +459,10 @@ export async function detectLanguageAsync(
   text: string,
   candidates: string[],
   deps: {
-    contextLookup?: (word: string, langCode: string) => Promise<DictionaryContext | undefined>;
+    contextLookup?: (
+      word: string,
+      langCode: string,
+    ) => Promise<DictionaryContext | undefined>;
     aiGenerate?: AIGenerateFn;
   },
 ): Promise<string | undefined> {
@@ -455,7 +491,10 @@ export async function detectLanguageAsync(
   // 4. Wiktionary lookup
   if (deps.contextLookup) {
     const wiktionaryStrategy = new WiktionaryStrategy(deps.contextLookup);
-    const wiktionaryResult = await wiktionaryStrategy.detect(trimmed, candidates);
+    const wiktionaryResult = await wiktionaryStrategy.detect(
+      trimmed,
+      candidates,
+    );
     if (wiktionaryResult !== undefined) return wiktionaryResult;
   }
 
