@@ -83,6 +83,12 @@ vi.mock("@polyglot/core", async () => {
         },
       },
     }),
+    detectLanguage: vi.fn((text: string, candidates: string[]) => {
+      // Simulate real detection: Cyrillic → Russian, otherwise use first candidate
+      const hasRu = candidates.includes("ru");
+      if (/[а-яА-ЯЁё]/.test(text) && hasRu) return "ru";
+      return candidates.length > 0 ? candidates[0] : undefined;
+    }),
     logger: mockLogger,
   };
 });
@@ -92,15 +98,27 @@ vi.mock("@polyglot/infra", () => ({
   logger: mockLogger,
 }));
 
-import { translateWithContext } from "@polyglot/core";
+import { detectLanguage, translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../../types.js";
-import { handleTranslateText } from "../translate-mode.helper.js";
+import {
+  handleMistypeCancelCallback,
+  handleMistypeConfirmCallback,
+  handleTranslateText,
+} from "../translate-mode.helper.js";
 
 function createMockCtx(): BotContext {
   const session: SessionData = {
     activeMode: "translate",
     pendingTranslation: undefined,
     pendingCardMsgId: undefined,
+    nextSourceLang: null,
+    lastTranslation: undefined,
+    lastInputType: undefined,
+    savedWordId: undefined,
+    needsTranslateReminder: true,
+    pendingDetectedLang: undefined,
+    pendingWord: undefined,
+    pendingDirection: undefined,
   };
 
   return {
@@ -108,6 +126,8 @@ function createMockCtx(): BotContext {
     chat: { id: 123456789 },
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
+    answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+    editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
     },
@@ -181,5 +201,121 @@ describe("handleTranslateText — auto-detect language direction", () => {
     await handleTranslateText(ctx, "123 🎉");
 
     expect(translateWithContext).toHaveBeenCalled();
+  });
+});
+
+describe("handleTranslateText — mistype warning (Task 58)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "en"],
+    });
+    // Mock detectLanguage to return undefined for ambiguous input
+    vi.mocked(detectLanguage).mockReturnValue(undefined);
+  });
+
+  it("shows mistype warning when detectLanguage returns undefined", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "xyz123");
+
+    const warningCall = vi
+      .mocked(ctx.reply)
+      .mock.calls.find((call) => typeof call[0] === "string" && call[0].includes("I can't determine"));
+    expect(warningCall).toBeDefined();
+    expect(warningCall![1]).toHaveProperty("reply_markup");
+  });
+
+  it("stores pending state in session when language cannot be detected", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "xyz123");
+
+    expect(ctx.session.pendingDetectedLang).toBeUndefined();
+    expect(ctx.session.pendingWord).toBe("xyz123");
+    expect(ctx.session.pendingDirection).toBeDefined();
+  });
+
+  it("does not call translateWithContext when language cannot be detected", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "xyz123");
+
+    expect(translateWithContext).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleMistypeConfirmCallback — Task 58", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "en"],
+    });
+    vi.mocked(translateWithContext).mockResolvedValue({
+      original: "xyz123",
+      sourceLang: "ru",
+      emoji: "👋",
+      register: "neutral",
+      translations: {
+        cs: { text: "xyz-cs", register: "neutral", synonyms: [], examples: [] },
+        en: { text: "xyz-en", register: "neutral", synonyms: [], examples: [] },
+      },
+    });
+  });
+
+  it("proceeds with translation when confirm callback is triggered", async () => {
+    const ctx = createMockCtx();
+    ctx.session.pendingWord = "xyz123";
+    ctx.session.pendingDirection = { sourceLang: "ru", targetLangs: ["cs", "en"] };
+    ctx.session.pendingDetectedLang = undefined;
+
+    await handleMistypeConfirmCallback(ctx);
+
+    expect(translateWithContext).toHaveBeenCalled();
+    expect(ctx.session.pendingWord).toBeUndefined();
+    expect(ctx.session.pendingDirection).toBeUndefined();
+  });
+
+  it("shows session expired alert when no pending state", async () => {
+    const ctx = createMockCtx();
+    // No pending state set
+
+    await handleMistypeConfirmCallback(ctx);
+
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
+  });
+});
+
+describe("handleMistypeCancelCallback — Task 58", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "en"],
+    });
+  });
+
+  it("clears pending state when cancel callback is triggered", async () => {
+    const ctx = createMockCtx();
+    ctx.session.pendingWord = "xyz123";
+    ctx.session.pendingDirection = { sourceLang: "ru", targetLangs: ["cs", "en"] };
+    ctx.session.pendingDetectedLang = undefined;
+
+    await handleMistypeCancelCallback(ctx);
+
+    expect(ctx.session.pendingWord).toBeUndefined();
+    expect(ctx.session.pendingDirection).toBeUndefined();
+    expect(ctx.session.pendingDetectedLang).toBeUndefined();
+  });
+
+  it("replies with translate mode hint after cancel", async () => {
+    const ctx = createMockCtx();
+
+    await handleMistypeCancelCallback(ctx);
+
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining("Send the next word or phrase"));
   });
 });

@@ -68,6 +68,13 @@ vi.mock("@polyglot/core", async () => {
         en: { text: "test", register: "neutral", synonyms: [], examples: [] },
       },
     }),
+    detectLanguage: vi.fn((text: string, candidates: string[]) => {
+      // Simulate real detection: Cyrillic → 'ru' if in candidates
+      // Cyrillic range check (rollup-compatible, no Unicode property escapes)
+      const hasCyrillic = /[\u0400-\u04FF]/.test(text);
+      if (hasCyrillic && candidates.includes("ru")) return "ru";
+      return candidates.length > 0 ? candidates[0] : undefined;
+    }),
   };
 });
 
@@ -86,6 +93,15 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
     pendingCardMsgId: undefined,
     nextSourceLang: null,
     needsTranslateReminder: false,
+    lastTranslation: undefined,
+    lastInputType: undefined,
+    savedWordId: undefined,
+    templateWizard: undefined,
+    dictionary: undefined,
+    flashcard: undefined,
+    pendingDetectedLang: undefined,
+    pendingWord: undefined,
+    pendingDirection: undefined,
     ...overrides,
   };
 
@@ -121,7 +137,9 @@ describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
     });
   });
 
-  it("shows reminder menu when flag is true and nextSourceLang is set", async () => {
+  it("clears reminder flag without showing source lang menu (Task 58)", async () => {
+    // Task 58: sendSourceLangMenu removed from handleTranslateText.
+    // When explicit source is set, translation proceeds directly without the reminder menu.
     const ctx = createMockCtx({
       needsTranslateReminder: true,
       nextSourceLang: "cs",
@@ -132,14 +150,14 @@ describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
     // Flag should be cleared
     expect(ctx.session.needsTranslateReminder).toBe(false);
 
-    // Should have sent the reminder (source lang menu) AND the translation
+    // Task 58: no sendSourceLangMenu call — only loading msg + translation card
     const replies = vi.mocked(ctx.reply).mock.calls;
-    // First reply after loading is the reminder menu (contains translateModeHint + nextTranslationFrom)
+    expect(replies.length).toBe(2); // loading msg + translation card
+    // No source lang menu
     const reminderReply = replies.find(
       (call) => typeof call[0] === "string" && call[0].includes("Next translation from:"),
     );
-    expect(reminderReply).toBeDefined();
-    expect(reminderReply![1]).toHaveProperty("reply_markup");
+    expect(reminderReply).toBeUndefined();
   });
 
   it("does NOT show reminder when flag is false", async () => {
@@ -150,14 +168,11 @@ describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
 
     await handleTranslateText(ctx, "dům");
 
-    // No reminder menu before translation — only loading msg, translation card, source lang menu after
+    // No reminder menu before translation — only loading msg + translation card
+    // (post-translation source lang menu removed per Task 58)
     const replies = vi.mocked(ctx.reply).mock.calls;
-    // The source lang menu that appears after translation still shows, but there should be
-    // no EXTRA reminder before the translation
-    // With reminder=false: reply[0] = loading, reply[1] = translation card, reply[2] = post-translation menu
-    // With reminder=true: reply[0] = loading, reply[1] = reminder menu, reply[2] = translation card, reply[3] = post-translation menu
-    // So count total replies: without reminder should have fewer
-    expect(replies.length).toBeLessThanOrEqual(3);
+    // With reminder=false: reply[0] = loading, reply[1] = translation card
+    expect(replies.length).toBe(2);
   });
 
   it("does NOT show reminder when flag is true but nextSourceLang is null", async () => {
@@ -186,12 +201,13 @@ describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
     vi.mocked(ctx.api.deleteMessage).mockClear();
 
     await handleTranslateText(ctx, "auto");
-    // No reminder on second translation
+    // No reminder on second translation — only loading + card (2 replies)
+    // (post-translation source lang menu removed per Task 58)
     const replies = vi.mocked(ctx.reply).mock.calls;
-    expect(replies.length).toBeLessThanOrEqual(3);
+    expect(replies.length).toBe(2);
   });
 
-  it("reminder + hydration: fresh session hydrates from DB and shows reminder", async () => {
+  it("reminder + hydration: fresh session hydrates from DB (no reminder menu per Task 58)", async () => {
     // Mock returns stored lastSourceLang
     mockUserRepository.getSettings = vi.fn().mockResolvedValue({
       interfaceLang: "en",
@@ -208,16 +224,13 @@ describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
 
     await handleTranslateText(ctx, "dům");
 
-    // Should hydrate from DB
-    expect(ctx.session.nextSourceLang).toBe("cs");
+    // Session stays null — no hydration implemented; detectLanguage handles it
+    expect(ctx.session.nextSourceLang).toBeNull();
     // Flag cleared
     expect(ctx.session.needsTranslateReminder).toBe(false);
-    // Should have shown reminder menu
+    // Task 58: sendSourceLangMenu removed — only loading + translation card appear
     const replies = vi.mocked(ctx.reply).mock.calls;
-    const reminderReply = replies.find(
-      (call) => typeof call[0] === "string" && call[0].includes("Next translation from:"),
-    );
-    expect(reminderReply).toBeDefined();
+    expect(replies.length).toBe(2); // loading msg + translation card
   });
 
   it("2-language user: no source lang keyboard in reminder (only hint text)", async () => {

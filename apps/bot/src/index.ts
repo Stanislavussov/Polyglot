@@ -59,6 +59,8 @@ import {
   handleToggleCallback,
 } from "./scenes/helpers/template.helper.js";
 import {
+  handleMistypeCancelCallback,
+  handleMistypeConfirmCallback,
   handleRegenCallback,
   handleSaveCallback,
   handleSkipCallback,
@@ -97,6 +99,9 @@ bot.use(
       templateWizard: undefined,
       dictionary: undefined,
       flashcard: undefined,
+      pendingDetectedLang: undefined,
+      pendingWord: undefined,
+      pendingDirection: undefined,
     }),
   }),
 );
@@ -164,6 +169,8 @@ bot.callbackQuery("tr:save", handleSaveCallback);
 bot.callbackQuery("tr:skip", handleSkipCallback);
 bot.callbackQuery(/^tr:regen:/, handleRegenCallback);
 bot.callbackQuery(/^tr:srclang:/, handleSourceLangCallback);
+bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);
+bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
 
 // ── Register callback handlers for flashcard (Task 33) ──
 bot.callbackQuery("fc:start", handleFcStart);

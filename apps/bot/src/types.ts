@@ -83,6 +83,20 @@ export interface SessionData {
     msgId?: number;
   };
   /**
+   * Language detection pre-request state (Task 58).
+   * Set when input language cannot be detected from learningLangs.
+   * undefined = mistype flow active.
+   * Cleared on confirm/cancel.
+   */
+  pendingDetectedLang?: string | undefined;
+  /** Pending word awaiting mistype confirmation */
+  pendingWord?: string;
+  /** Pending direction for mistype flow */
+  pendingDirection?: {
+    sourceLang: string;
+    targetLangs: string[];
+  };
+  /**
    * Flash card session state (Task 33).
    * Active during a flashcard session. Cleared on quit/close or session loss.
    */

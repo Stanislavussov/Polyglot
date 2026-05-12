@@ -8,7 +8,7 @@ let lastInsertValues: unknown = null;
 
 const returningFn = vi.fn(() => Promise.resolve([...mockRows]));
 
-const onConflictDoUpdateFn = vi.fn(() => ({ returning: returningFn }));
+const onConflictDoUpdateFn = vi.fn((_set: Record<string, unknown>) => ({ returning: returningFn }));
 
 const insertValuesFn = vi.fn((values: unknown) => {
   lastInsertValues = values;
@@ -194,8 +194,9 @@ describe("translationTemplateRepository", () => {
       await translationTemplateRepository.upsert(42, "Custom", fields);
 
       expect(onConflictDoUpdateFn).toHaveBeenCalledOnce();
-      const conflictCall = onConflictDoUpdateFn.mock.calls[0]![0] as Record<string, unknown>;
-      const setObj = conflictCall.set as Record<string, unknown>;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const conflictCall = onConflictDoUpdateFn.mock.calls[0]![0] as unknown as Record<string, unknown>;
+      const setObj = (conflictCall?.set ?? {}) as Record<string, unknown>;
       expect(setObj).toHaveProperty("name", "Custom");
       expect(setObj).toHaveProperty("transcription", true);
       expect(setObj).toHaveProperty("synonyms", true);
@@ -215,8 +216,9 @@ describe("translationTemplateRepository", () => {
       await translationTemplateRepository.upsert(42, "Custom", fields);
 
       const after = new Date();
-      const conflictCall = onConflictDoUpdateFn.mock.calls[0]![0] as Record<string, unknown>;
-      const setObj = conflictCall.set as Record<string, unknown>;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const conflictCall = onConflictDoUpdateFn.mock.calls[0]![0] as unknown as Record<string, unknown>;
+      const setObj = (conflictCall?.set ?? {}) as Record<string, unknown>;
       const updatedAt = setObj.updatedAt as Date;
       expect(updatedAt).toBeInstanceOf(Date);
       expect(updatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());

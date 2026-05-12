@@ -6,6 +6,8 @@
 // Note: createContextLookup is a factory function, not a repository — kept as direct import
 import { createContextLookup } from "@polyglot/adapter-db";
 import {
+  detectLanguage,
+  detectLanguageAsync,
   getLangDisplay,
   getLanguageName,
   isSupported,
@@ -20,6 +22,7 @@ import {
   translateWithContext,
 } from "@polyglot/core";
 import { loadConfig } from "@polyglot/infra";
+import { InlineKeyboard } from "grammy";
 import { translationCounter, translationDuration } from "../../metrics.js";
 import {
   buildPostSaveKeyboard,
@@ -56,90 +59,95 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     return;
   }
 
-  // Resolve translation direction:
-  // 1. If nextSourceLang is set → use explicit source (Task 17)
-  // 2. Try hydrating from DB lastSourceLang (Task 36)
-  // 3. Otherwise → auto-detect input language (Task 16)
-  let sourceLang: string;
-  let targetLangs: string[];
-  let detectedLang: string | undefined;
-
-  let nextSource = ctx.session.nextSourceLang;
-
-  // Step 4 (Task 36): Lazy hydration — if session is empty, try DB fallback
-  if (!nextSource && settings?.lastSourceLang) {
-    const hydrated = settings.lastSourceLang;
-    const hydrateDirection = resolveDirectionFromSource({
-      sourceLang: hydrated,
-      nativeLang,
-      learningLangs,
-    });
-
-    if (hydrateDirection) {
-      // Valid — hydrate into session
-      ctx.session.nextSourceLang = hydrated;
-      nextSource = hydrated;
-      // Mark reminder so user knows which source is active
-      if (ctx.session.needsTranslateReminder === undefined) {
-        ctx.session.needsTranslateReminder = true;
-      }
-    } else {
-      // Step 5 (Task 36): Invalid lastSourceLang — clear both session + DB
-      ctx.session.nextSourceLang = null;
-      ctx.services.userRepository.updateLastSourceLang(ctx.user.id, null).catch((err: unknown) => {
-        logger.error({ err, userId: ctx.user.id }, "Failed to clear invalid lastSourceLang from DB");
-      });
-    }
-  }
-
-  // Step 8 (Task 36): Clear reminder flag — don't show reminder here
-  // because sendSourceLangMenu() is already called after every translation.
+  // Clear reminder flag — sendSourceLangMenu() is called after every translation.
   // Showing it before translation confuses the user (prompt appears before the card).
   if (ctx.session.needsTranslateReminder) {
     ctx.session.needsTranslateReminder = false;
   }
 
-  if (nextSource) {
-    // Explicit source language from user selection
-    const direction = resolveDirectionFromSource({
-      sourceLang: nextSource,
-      nativeLang,
-      learningLangs,
-    });
+  // Language detection: always detect for each word (don't rely on previous selection)
+  const allCandidates = [nativeLang, ...learningLangs];
+  // Add "en" as hidden candidate so AI can detect English words
+  // (English is the de facto lingua franca for language learning).
+  const candidatesWithEnglish = ["en", ...allCandidates];
 
-    if (direction) {
-      sourceLang = direction.sourceLang;
-      targetLangs = direction.targetLangs;
-      detectedLang = undefined; // no detection needed
-    } else {
-      // Selected source lang no longer in config — reset and fall back
-      ctx.session.nextSourceLang = null;
-      // Step 5 (Task 36): Clear from DB too
-      ctx.services.userRepository.updateLastSourceLang(ctx.user.id, null).catch((err: unknown) => {
-        logger.error({ err, userId: ctx.user.id }, "Failed to clear invalid nextSourceLang from DB");
-      });
-      const fallback = resolveTranslationDirection({
-        text: word,
-        nativeLang,
-        learningLangs,
-      });
-      sourceLang = fallback.sourceLang;
-      targetLangs = fallback.targetLangs;
-      detectedLang = fallback.detectedLang;
-    }
-  } else {
-    // Auto-detect input language (default / first translation)
-    const direction = resolveTranslationDirection({
+  // Try fast sync detection first (script + diacritics + franc)
+  let preDetectLang: string | undefined = detectLanguage(word, allCandidates);
+
+  // If sync detection fails, try async detection with AI (last resort)
+  if (preDetectLang === undefined) {
+    const config = loadConfig();
+    const aiGenerate = async (prompt: string) => {
+      const result = await ctx.services.ai.generateText(prompt, config.AI_MODEL);
+      return result.trim();
+    };
+
+    preDetectLang = await detectLanguageAsync(word, candidatesWithEnglish, {
+      contextLookup: lookupContext,
+      aiGenerate,
+    });
+  }
+
+  let sourceLang: string;
+  let targetLangs: string[];
+  let detectedLang: string | undefined;
+
+  if (preDetectLang === undefined) {
+    // Cannot detect language — likely mistype. Store pending state and show warning.
+    ctx.session.pendingDetectedLang = undefined;
+    ctx.session.pendingWord = word;
+
+    // Resolve fallback direction for pending state (standard direction)
+    const fallbackDir = resolveTranslationDirection({
       text: word,
       nativeLang,
       learningLangs,
     });
-    sourceLang = direction.sourceLang;
-    targetLangs = direction.targetLangs;
-    detectedLang = direction.detectedLang;
+    ctx.session.pendingDirection = {
+      sourceLang: fallbackDir.sourceLang,
+      targetLangs: fallbackDir.targetLangs,
+    };
+
+    const warningText = t("mistypeWarning", lang, {
+      word: word.length > 50 ? `${word.slice(0, 47)}...` : word,
+    });
+    const keyboard = new InlineKeyboard()
+      .text(t("mistypeConfirm", lang), "tr:mistype:confirm")
+      .text(t("mistypeCancel", lang), "tr:mistype:cancel");
+
+    await ctx.reply(warningText, { reply_markup: keyboard });
+    return;
   }
 
-  // Classify input type
+  // Language detected — use detected lang as source
+  const direction = resolveDirectionFromSource({
+    sourceLang: preDetectLang,
+    nativeLang,
+    learningLangs,
+  });
+
+  if (direction) {
+    sourceLang = direction.sourceLang;
+    targetLangs = direction.targetLangs;
+    detectedLang = preDetectLang;
+  } else if (preDetectLang === "en") {
+    // AI detected English (lingua franca) but "en" is not in user config.
+    // Treat as learning language → translate from English to user's languages.
+    sourceLang = "en";
+    targetLangs = [nativeLang, ...learningLangs];
+    detectedLang = "en";
+  } else {
+    // Detected lang is no longer in config — use fallback
+    const fallback = resolveTranslationDirection({
+      text: word,
+      nativeLang,
+      learningLangs,
+    });
+    sourceLang = fallback.sourceLang;
+    targetLangs = fallback.targetLangs;
+    detectedLang = fallback.detectedLang;
+  }
+
   const classification = classifyInput(word);
   const isSentence = classification.type === "sentence";
 
@@ -149,7 +157,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       detectedLang,
       sourceLang,
       targetLangs,
-      nextSourceLang: nextSource ?? null,
       inputType: classification.type,
       wordCount: classification.wordCount,
     },
@@ -182,7 +189,10 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         outputConfig,
         inputType: classification.type,
       },
-      { lookupContext: lookupContextFn, generateObjectFn: ctx.services.ai.generateObject },
+      {
+        lookupContext: lookupContextFn,
+        generateObjectFn: ctx.services.ai.generateObject,
+      },
     );
     stopTimer();
     translationCounter.inc({ status: "success" });
@@ -215,9 +225,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       // No pendingTranslation for sentences — nothing to save
       ctx.session.pendingTranslation = undefined;
       ctx.session.pendingCardMsgId = undefined;
-
-      // Show source language selection menu
-      await sendSourceLangMenu(ctx, settings, lang);
+      // No source lang menu (Task 58)
     } else {
       // Word/phrase: full card with Save/Skip/Regen keyboard
       ctx.session.pendingTranslation = output;
@@ -238,9 +246,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
       // Store message ID for editing later
       ctx.session.pendingCardMsgId = cardMsg.message_id;
-
-      // Show source language selection menu immediately after translation
-      await sendSourceLangMenu(ctx, settings, lang);
+      // No source lang menu (Task 58)
     }
   } catch (err) {
     translationCounter.inc({ status: "error" });
@@ -259,7 +265,10 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const inputType = ctx.session.lastInputType;
   if (!output) {
     logger.warn({ userId: ctx.from?.id }, "Save clicked but pendingTranslation is empty (session lost?)");
-    await ctx.answerCallbackQuery({ text: "⚠️ Session expired. Please translate the word again.", show_alert: true });
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
     return;
   }
 
@@ -283,7 +292,10 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
     sourceLangId,
   );
   if (existing) {
-    await ctx.answerCallbackQuery({ text: t("alreadySaved", lang), show_alert: true });
+    await ctx.answerCallbackQuery({
+      text: t("alreadySaved", lang),
+      show_alert: true,
+    });
     return;
   }
 
@@ -312,7 +324,10 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const savedCard = `${renderTranslation(output, lang, effectiveTemplate.fields)}\n\n${t("savedToDict", lang)}`;
   const keyboard = buildPostSaveKeyboard(langCodes, lang);
   try {
-    await ctx.editMessageText(savedCard, { reply_markup: keyboard, parse_mode: "HTML" });
+    await ctx.editMessageText(savedCard, {
+      reply_markup: keyboard,
+      parse_mode: "HTML",
+    });
   } catch (err) {
     logger.error({ err }, "Failed to edit message after save — save still succeeded");
   }
@@ -327,7 +342,10 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
 export async function handleSkipCallback(ctx: BotContext): Promise<void> {
   const output = ctx.session.pendingTranslation;
   if (!output) {
-    await ctx.answerCallbackQuery({ text: "⚠️ Session expired. Please translate the word again.", show_alert: true });
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
     return;
   }
 
@@ -349,9 +367,7 @@ export async function handleSkipCallback(ctx: BotContext): Promise<void> {
   ctx.session.pendingCardMsgId = undefined;
 
   await ctx.answerCallbackQuery();
-
-  // Show hint + source language selection menu
-  await sendSourceLangMenu(ctx, settings, lang);
+  // No source lang menu (Task 58)
 }
 
 /**
@@ -376,7 +392,11 @@ export function buildLangOptions(
  */
 export async function sendSourceLangMenu(
   ctx: BotContext,
-  settings: { nativeLang?: string; learningLangs?: string[]; interfaceLang?: string } | null,
+  settings: {
+    nativeLang?: string;
+    learningLangs?: string[];
+    interfaceLang?: string;
+  } | null,
   lang: SupportedLang,
 ): Promise<void> {
   const nativeLang = settings?.nativeLang ?? "en";
@@ -451,7 +471,10 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
         outputConfig,
         inputType,
       },
-      { lookupContext: lookupContextFn, generateObjectFn: ctx.services.ai.generateObject },
+      {
+        lookupContext: lookupContextFn,
+        generateObjectFn: ctx.services.ai.generateObject,
+      },
     );
 
     // Merge regenerated translation
@@ -498,16 +521,25 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     if (isSentence) {
       const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang)}`;
       const keyboard = buildSentenceKeyboard(langCodes, lang);
-      await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
+      await ctx.editMessageText(card, {
+        reply_markup: keyboard,
+        parse_mode: "HTML",
+      });
     } else if (ctx.session.savedWordId) {
       // Post-save: regen-only keyboard + saved indicator
       const card = `${renderTranslation(updated, lang, effectiveTemplate.fields)}\n\n${t("savedToDict", lang)}`;
       const keyboard = buildPostSaveKeyboard(langCodes, lang);
-      await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
+      await ctx.editMessageText(card, {
+        reply_markup: keyboard,
+        parse_mode: "HTML",
+      });
     } else {
       const card = renderTranslation(updated, lang, effectiveTemplate.fields);
       const keyboard = buildTranslationKeyboard(langCodes, (inputType as "word" | "phrase") ?? "word", lang);
-      await ctx.editMessageText(card, { reply_markup: keyboard, parse_mode: "HTML" });
+      await ctx.editMessageText(card, {
+        reply_markup: keyboard,
+        parse_mode: "HTML",
+      });
     }
   } catch (err) {
     logger.error({ err, word: lastOutput.original, regenLang }, "Regeneration failed");
@@ -556,4 +588,122 @@ export async function handleSourceLangCallback(ctx: BotContext): Promise<void> {
     const text = `${t("translateModeHint", lang)}\n\n${t("nextTranslationFrom", lang)}`;
     await ctx.editMessageText(text, { reply_markup: keyboard });
   }
+}
+
+/**
+ * Handles mistype confirmation callback (tr:mistype:confirm).
+ * Runs translation using the pending direction stored in session.
+ * Clears pending state after completion.
+ */
+export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<void> {
+  const pendingWord = ctx.session.pendingWord;
+  const pendingDirection = ctx.session.pendingDirection;
+
+  if (!pendingWord || !pendingDirection) {
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
+    return;
+  }
+
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const { sourceLang, targetLangs } = pendingDirection;
+
+  // Clear pending state immediately
+  ctx.session.pendingDetectedLang = undefined;
+  ctx.session.pendingWord = undefined;
+  ctx.session.pendingDirection = undefined;
+
+  // Classify input type
+  const classification = classifyInput(pendingWord);
+  const isSentence = classification.type === "sentence";
+
+  // Show loading message
+  const loadingMsg = await ctx.reply(t("translating", lang));
+
+  try {
+    const config = loadConfig();
+
+    // Load user's template
+    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
+    const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
+    const outputConfig = resolveOutputConfig(userTpl, classification.type, pendingWord.length);
+    const effectiveTemplate = resolveTemplate(userTpl);
+
+    const lookupContextFn = isSentence ? async () => undefined : lookupContext;
+
+    const stopTimer = translationDuration.startTimer();
+    const output = await translateWithContext(
+      {
+        word: pendingWord,
+        sourceLang,
+        targetLangs,
+        model: config.AI_MODEL,
+        userId: ctx.user.id,
+        outputConfig,
+        inputType: classification.type,
+      },
+      {
+        lookupContext: lookupContextFn,
+        generateObjectFn: ctx.services.ai.generateObject,
+      },
+    );
+    stopTimer();
+    translationCounter.inc({ status: "success" });
+
+    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+
+    ctx.session.savedWordId = undefined;
+    ctx.session.lastTranslation = output;
+    ctx.session.lastInputType = classification.type;
+
+    const langCodes = Object.keys(output.translations);
+
+    if (isSentence) {
+      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang)}`;
+      const keyboard = buildSentenceKeyboard(langCodes, lang);
+      await ctx.reply(card, { reply_markup: keyboard, parse_mode: "HTML" });
+
+      ctx.session.pendingTranslation = undefined;
+      ctx.session.pendingCardMsgId = undefined;
+    } else {
+      ctx.session.pendingTranslation = output;
+
+      const card = renderTranslation(output, lang, effectiveTemplate.fields);
+      const keyboard = buildTranslationKeyboard(langCodes, classification.type as "word" | "phrase", lang);
+      const cardMsg = await ctx.reply(card, {
+        reply_markup: keyboard,
+        parse_mode: "HTML",
+      });
+
+      ctx.session.pendingCardMsgId = cardMsg.message_id;
+    }
+  } catch (err) {
+    translationCounter.inc({ status: "error" });
+    logger.error({ err, word: pendingWord }, "Translation failed after mistype confirm");
+    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await ctx.reply(t("translationError", lang));
+  }
+
+  await ctx.answerCallbackQuery();
+}
+
+/**
+ * Handles mistype cancellation callback (tr:mistype:cancel).
+ * Clears the pending state and waits for new input.
+ */
+export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void> {
+  ctx.session.pendingDetectedLang = undefined;
+  ctx.session.pendingWord = undefined;
+  ctx.session.pendingDirection = undefined;
+
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+
+  await ctx.answerCallbackQuery();
+  await ctx.reply(t("translateModeHint", lang));
 }

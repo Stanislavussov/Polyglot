@@ -1,8 +1,10 @@
 {
   "$schema": "/Users/stanislav.ussov/Projects/ai-sdk/schema.json",
-  "packages": ["/Users/stanislav.ussov/.pi"],
+  "packages": [
+    "/Users/stanislav.ussov/Projects/ai-sdk"
+  ],
   "orchestrator": {
-    "model": "minimax/MiniMax-M2.5",
+    "model": "minimax/MiniMax-M2.7",
     "agents": [
       {
         "name": "business",

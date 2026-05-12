@@ -1,4 +1,21 @@
-export { detectLanguage } from "./detect-language.js";
+// Re-export ContextLookupFn from context-enrichment (avoids circular imports)
+export type { ContextLookupFn } from "../context-enrichment/types.js";
+export type {
+  AIGenerateFn,
+  LanguageDetectionStrategy,
+} from "./detect-language.js";
+export {
+  AIStrategy,
+  DiacriticsStrategy,
+  // Main functions
+  detectLanguage,
+  detectLanguageAsync,
+  FrancStrategy,
+  ISO1_TO_ISO3,
+  // Strategy classes
+  ScriptStrategy,
+  WiktionaryStrategy,
+} from "./detect-language.js";
 export {
   resolveDirectionFromSource,
   resolveTranslationDirection,
