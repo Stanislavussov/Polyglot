@@ -158,5 +158,8 @@
   "reportCancel": "❌ Zrušit",
   "reportSent": "✅ Vaše hlášení bylo odesláno! Děkujeme za pomoc při zlepšování Polyglot.",
   "reportCancelled": "Hlášení zrušeno.",
-  "reportTooLong": "⚠️ Vaše popis je příliš dlouhý (max 1000 znaků). Prosím, zkraťte ho."
+  "reportTooLong": "⚠️ Vaše popis je příliš dlouhý (max 1000 znaků). Prosím, zkraťte ho.",
+  "mistypeWarning": "⚠️ Nemohu určit jazyk \"{word}\". Neudělal/a jste překlep?",
+  "mistypeConfirm": "Ano, přeložit",
+  "mistypeCancel": "Zkusit znovu"
 }

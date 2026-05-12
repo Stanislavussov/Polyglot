@@ -15,6 +15,7 @@
 | 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 In Progress |
 | 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 In Progress |
 | 38  | [Regen Helper Context Enrichment](./38-regen-helper-context-enrichment.md) | 🔲 To Do |
+| 58  | [Language Detection Pre-Request](./58-language-detection-pre-request.md) | 🔲 To Do |
 
 ## Architecture — Debt Reduction
 

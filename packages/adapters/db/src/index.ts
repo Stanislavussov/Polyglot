@@ -67,6 +67,7 @@ export type {
   VocabularyTranslation,
 } from "./repositories/vocabulary.repository.js";
 export { vocabularyRepository } from "./repositories/vocabulary.repository.js";
+export { wordContextRepository } from "./repositories/word-context.repository.js";
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
 export type { IssueStatus, IssueType, ReportedIssue } from "./schema.js";

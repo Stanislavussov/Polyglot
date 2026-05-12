@@ -66,6 +66,15 @@ function createMockCtx(): BotContext {
     pendingCardMsgId: undefined,
     nextSourceLang: null,
     needsTranslateReminder: undefined,
+    lastTranslation: undefined,
+    lastInputType: undefined,
+    savedWordId: undefined,
+    templateWizard: undefined,
+    dictionary: undefined,
+    flashcard: undefined,
+    pendingDetectedLang: undefined,
+    pendingWord: undefined,
+    pendingDirection: undefined,
   };
 
   return {
@@ -106,17 +115,16 @@ describe("handleTranslateCommand", () => {
   });
 
   it("shows source language menu after confirmation (3+ langs)", async () => {
+    // Task 58: No source lang menu on /translate — detection happens on first text message
+    // Only one reply: the confirmation message
     const ctx = createMockCtx();
 
     await handleTranslateCommand(ctx);
 
-    // reply called twice: confirmation + source lang menu
+    // reply called once: confirmation only (no source lang menu)
     const replies = vi.mocked(ctx.reply).mock.calls;
-    expect(replies.length).toBeGreaterThanOrEqual(2);
-    // Last reply is the source lang menu
-    const lastReply = replies.at(-1);
-    expect(lastReply![0]).toContain("[translateModeHint]");
-    expect(lastReply![1]).toHaveProperty("reply_markup");
+    expect(replies.length).toBe(1);
+    expect(replies[0]![0]).toContain("[translateModeOn]");
   });
 
   it("clears needsTranslateReminder after /translate", async () => {

@@ -63,6 +63,12 @@ vi.mock("@polyglot/core", async () => {
         },
       },
     }),
+    detectLanguage: vi.fn((text: string, candidates: string[]) => {
+      // Simulate real detection: Cyrillic → Russian, otherwise first candidate
+      const hasRu = candidates.includes("ru");
+      if (/[а-яА-ЯЁё]/.test(text) && hasRu) return "ru";
+      return candidates.length > 0 ? candidates[0] : undefined;
+    }),
   };
 });
 
@@ -75,11 +81,23 @@ import { translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../types.js";
 import { handleTranslateText } from "./translate-mode.helper.js";
 
-function createMockCtx(_overrides: Partial<{ nativeLang: string; learningLangs: string[] }> = {}): BotContext {
+function createMockCtx(overrides?: Partial<SessionData>): BotContext {
   const session: SessionData = {
     activeMode: "translate",
     pendingTranslation: undefined,
     pendingCardMsgId: undefined,
+    nextSourceLang: null,
+    needsTranslateReminder: false,
+    lastTranslation: undefined,
+    lastInputType: undefined,
+    savedWordId: undefined,
+    templateWizard: undefined,
+    dictionary: undefined,
+    flashcard: undefined,
+    pendingDetectedLang: undefined,
+    pendingWord: undefined,
+    pendingDirection: undefined,
+    ...overrides,
   };
 
   return {
@@ -114,11 +132,15 @@ describe("handleTranslateText — context enrichment", () => {
 
   it("calls translateWithContext with correct input and deps", async () => {
     const ctx = createMockCtx();
-    await handleTranslateText(ctx, "привет");
+    // Mock detectLanguage returns "ru" (candidates[0]) for Latin text
+    // "ru" is native lang → standard direction: sourceLang=ru, targets=[cs, de]
+    await handleTranslateText(ctx, "hello");
 
     expect(translateWithContext).toHaveBeenCalledWith(
       expect.objectContaining({
-        word: "привет",
+        word: "hello",
+        // detectLanguage returns "ru" (first candidate, Latin text), which is nativeLang
+        // nativeLang in candidates → standard direction: source=native, targets=learningLangs
         sourceLang: "ru",
         targetLangs: ["cs", "de"],
       }),

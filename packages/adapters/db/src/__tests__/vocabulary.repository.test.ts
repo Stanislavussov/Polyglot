@@ -105,7 +105,7 @@ beforeEach(() => {
 function makeDetails(overrides: Partial<VocabTranslationDetails> = {}): VocabTranslationDetails {
   return {
     synonyms: [{ text: "nazdar", register: "colloquial" }],
-    examples: [{ context: "formal", target: "Ahoj!", native: "Hello!" }],
+    examples: [{ context: "neutral", target: "Ahoj!", register: "neutral" }],
     ...overrides,
   };
 }

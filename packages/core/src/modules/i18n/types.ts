@@ -162,7 +162,10 @@ export type I18nKey =
   | "reportCancel"
   | "reportSent"
   | "reportCancelled"
-  | "reportTooLong";
+  | "reportTooLong"
+  | "mistypeWarning"
+  | "mistypeConfirm"
+  | "mistypeCancel";
 
 /**
  * Supported interface languages.
@@ -211,6 +214,7 @@ export interface I18nParams {
   settingsNotifTime: { time: string };
   settingsNotifType: { type: string };
   settingsNotifTimezone: { timezone: string };
+  mistypeWarning: { word: string };
 }
 
 /**

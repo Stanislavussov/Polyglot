@@ -6,7 +6,6 @@
 import { getLangDisplay, userRepository } from "@polyglot/adapter-db";
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
-import { sendSourceLangMenu } from "./helpers/translate-mode.helper.js";
 
 /**
  * Handles /translate command — activates translate mode.
@@ -31,8 +30,6 @@ export async function handleTranslateCommand(ctx: BotContext): Promise<void> {
 
   // Send confirmation message with language direction
   await ctx.reply(t("translateModeOn", lang, { fromLang, toLangs }));
-
-  // Show source language selection menu (Task 36 — Step 7)
-  await sendSourceLangMenu(ctx, settings, lang);
+  // No source lang menu on /translate (Task 58 — detection happens on first text message)
   ctx.session.needsTranslateReminder = false;
 }

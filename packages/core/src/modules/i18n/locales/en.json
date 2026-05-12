@@ -158,5 +158,8 @@
   "reportCancel": "❌ Cancel",
   "reportSent": "✅ Your report has been sent! Thank you for helping improve Polyglot.",
   "reportCancelled": "Report cancelled.",
-  "reportTooLong": "⚠️ Your description is too long (max 1000 characters). Please shorten it."
+  "reportTooLong": "⚠️ Your description is too long (max 1000 characters). Please shorten it.",
+  "mistypeWarning": "⚠️ I can't determine the language of \"{word}\". Did you make a typo?",
+  "mistypeConfirm": "Yes, translate anyway",
+  "mistypeCancel": "Try again"
 }
