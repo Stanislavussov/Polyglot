@@ -48,6 +48,7 @@ describe("presets", () => {
       includeEquivalentNote: true,
       includeRegister: false,
       includeConnotationWarning: true,
+      includeNativeSynonyms: true,
     });
   });
 
@@ -60,6 +61,7 @@ describe("presets", () => {
       includeEquivalentNote: false,
       includeRegister: false,
       includeConnotationWarning: false,
+      includeNativeSynonyms: false,
     });
   });
 
@@ -72,6 +74,7 @@ describe("presets", () => {
       includeEquivalentNote: false,
       includeRegister: false,
       includeConnotationWarning: false,
+      includeNativeSynonyms: false,
     });
   });
 
@@ -84,6 +87,7 @@ describe("presets", () => {
       includeEquivalentNote: false,
       includeRegister: false,
       includeConnotationWarning: false,
+      includeNativeSynonyms: false,
     });
   });
 });
@@ -230,6 +234,7 @@ describe("buildTranslationResultSchema with config", () => {
     const result = schema.safeParse({
       emoji: "👋",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {
         cs: validLangEntry({ examples: [] }),
       },
@@ -244,6 +249,7 @@ describe("buildTranslationResultSchema with config", () => {
     const result = schema.safeParse({
       emoji: "👋",
       register: "neutral",
+      nativeSynonyms: [],
       translations: { cs: entry },
     });
     expect(result.success).toBe(false);
@@ -254,6 +260,7 @@ describe("buildTranslationResultSchema with config", () => {
     const result = schema.safeParse({
       emoji: "👋",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {
         cs: validLangEntry({ synonyms: [] }),
       },

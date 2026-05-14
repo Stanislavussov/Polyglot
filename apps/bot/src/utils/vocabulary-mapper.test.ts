@@ -21,6 +21,7 @@ const sampleOutput: TranslateOutput = {
   sourceLang: "en",
   emoji: "👋",
   register: "neutral",
+  nativeSynonyms: [{ text: "привет", register: "colloquial" }],
   translations: {
     cs: {
       text: "ahoj",
@@ -162,6 +163,7 @@ describe("toVocabularyInput", () => {
       sourceLang: "en",
       emoji: "🔤",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {},
     };
 
@@ -176,6 +178,7 @@ describe("toVocabularyInput", () => {
       sourceLang: "en",
       emoji: "🔤",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {
         xx: { text: "a", register: "neutral", synonyms: [], examples: [] },
         yy: { text: "b", register: "neutral", synonyms: [], examples: [] },
@@ -197,6 +200,7 @@ describe("toVocabularyInput", () => {
       sourceLang: "en",
       emoji: "🔤",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {
         cs: {
           text: "test",

@@ -15,6 +15,7 @@ const baseOutput: TranslateOutput = {
   sourceLang: "en",
   emoji: "👋",
   register: "neutral",
+  nativeSynonyms: [],
   translations: {
     cs: {
       text: "ahoj",

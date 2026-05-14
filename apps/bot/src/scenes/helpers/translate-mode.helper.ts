@@ -132,9 +132,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     detectedLang = preDetectLang;
   } else if (preDetectLang === "en") {
     // AI detected English (lingua franca) but "en" is not in user config.
-    // Treat as learning language → translate from English to user's languages.
+    // Treat as learning language → translate from English to user's learning languages only.
     sourceLang = "en";
-    targetLangs = [nativeLang, ...learningLangs];
+    targetLangs = [...learningLangs];
     detectedLang = "en";
   } else {
     // Detected lang is no longer in config — use fallback
@@ -184,6 +184,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         word,
         sourceLang,
         targetLangs,
+        nativeLang,
         model: config.AI_MODEL,
         userId: ctx.user.id,
         outputConfig,
@@ -230,7 +231,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       // Word/phrase: full card with Save/Skip/Regen keyboard
       ctx.session.pendingTranslation = output;
 
-      let card = renderTranslation(output, lang, effectiveTemplate.fields);
+      let card = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang);
 
       // Show detected language when it differs from native (i.e., reversed direction)
       if (detectedLang && detectedLang !== nativeLang) {
@@ -275,6 +276,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
 
   // Step 2 — FK resolution
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
@@ -321,7 +323,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const effectiveTemplate = resolveTemplate(userTpl);
 
   const langCodes = Object.keys(output.translations);
-  const savedCard = `${renderTranslation(output, lang, effectiveTemplate.fields)}\n\n${t("savedToDict", lang)}`;
+  const savedCard = `${renderTranslation(output, lang, effectiveTemplate.fields, nativeLang)}\n\n${t("savedToDict", lang)}`;
   const keyboard = buildPostSaveKeyboard(langCodes, lang);
   try {
     await ctx.editMessageText(savedCard, {
@@ -352,13 +354,14 @@ export async function handleSkipCallback(ctx: BotContext): Promise<void> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
 
   // Remove keyboard, keep the card (template-aware rendering)
   const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
   const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
 
-  await ctx.editMessageText(renderTranslation(output, lang, effectiveTemplate.fields), {
+  await ctx.editMessageText(renderTranslation(output, lang, effectiveTemplate.fields, nativeLang), {
     parse_mode: "HTML",
   });
 
@@ -436,6 +439,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
   const isSentence = ctx.session.lastInputType === "sentence";
   const inputType = ctx.session.lastInputType;
 
@@ -527,14 +531,14 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
       });
     } else if (ctx.session.savedWordId) {
       // Post-save: regen-only keyboard + saved indicator
-      const card = `${renderTranslation(updated, lang, effectiveTemplate.fields)}\n\n${t("savedToDict", lang)}`;
+      const card = `${renderTranslation(updated, lang, effectiveTemplate.fields, nativeLang)}\n\n${t("savedToDict", lang)}`;
       const keyboard = buildPostSaveKeyboard(langCodes, lang);
       await ctx.editMessageText(card, {
         reply_markup: keyboard,
         parse_mode: "HTML",
       });
     } else {
-      const card = renderTranslation(updated, lang, effectiveTemplate.fields);
+      const card = renderTranslation(updated, lang, effectiveTemplate.fields, nativeLang);
       const keyboard = buildTranslationKeyboard(langCodes, (inputType as "word" | "phrase") ?? "word", lang);
       await ctx.editMessageText(card, {
         reply_markup: keyboard,
@@ -610,6 +614,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
   const { sourceLang, targetLangs } = pendingDirection;
 
   // Clear pending state immediately
@@ -641,6 +646,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
         word: pendingWord,
         sourceLang,
         targetLangs,
+        nativeLang,
         model: config.AI_MODEL,
         userId: ctx.user.id,
         outputConfig,
@@ -672,7 +678,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     } else {
       ctx.session.pendingTranslation = output;
 
-      const card = renderTranslation(output, lang, effectiveTemplate.fields);
+      const card = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang);
       const keyboard = buildTranslationKeyboard(langCodes, classification.type as "word" | "phrase", lang);
       const cardMsg = await ctx.reply(card, {
         reply_markup: keyboard,

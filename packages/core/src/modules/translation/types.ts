@@ -85,6 +85,8 @@ export interface TranslationRequest {
   text: string;
   sourceLang: string;
   targetLangs: string[];
+  /** User's native language — for native synonym generation */
+  nativeLang?: string;
   topic?: string;
   /** Optional Wiktionary dictionary context for prompt enrichment */
   dictionaryContext?: DictionaryContext;
@@ -101,6 +103,8 @@ export interface TranslationRequest {
 export interface TranslationResult {
   emoji: string;
   register: Register;
+  /** Native-language synonyms for the source word */
+  nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
 }
 
@@ -109,6 +113,8 @@ export interface TranslateInput {
   word: string;
   sourceLang: string;
   targetLangs: string[];
+  /** User's native language — for native synonym generation */
+  nativeLang?: string;
   model: string;
   topic?: string;
   userId?: number;
@@ -126,6 +132,8 @@ export interface TranslateOutput {
   sourceLang: string;
   emoji: string;
   register: Register;
+  /** Native-language synonyms for the source word */
+  nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
   needsReview?: boolean;
   /** Dictionary context that was used to enrich this translation (if any) */

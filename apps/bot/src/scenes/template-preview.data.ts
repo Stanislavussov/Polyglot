@@ -9,6 +9,7 @@ export const MOCK_PREVIEW_OUTPUT: TranslateOutput = {
   sourceLang: "en",
   emoji: "🍎",
   register: "neutral",
+  nativeSynonyms: [{ text: "яблоко", register: "neutral" }],
   translations: {
     ru: {
       text: "яблоко",

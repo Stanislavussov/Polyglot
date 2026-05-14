@@ -187,6 +187,7 @@ describe("resolveOutputConfig", () => {
     expect(config.includeEquivalentNote).toBe(true);
     expect(config.includeConnotationWarning).toBe(true);
     expect(config.includeRegister).toBe(false);
+    expect(config.includeNativeSynonyms).toBe(true);
   });
 
   it("returns custom config when user template is set and input is word", () => {

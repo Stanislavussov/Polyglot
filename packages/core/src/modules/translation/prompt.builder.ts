@@ -22,6 +22,7 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
     includeEquivalentNote: config?.includeEquivalentNote !== false,
     includeRegister: config?.includeRegister !== false,
     includeConnotationWarning: config?.includeConnotationWarning !== false,
+    includeNativeSynonyms: config?.includeNativeSynonyms !== false,
   };
 }
 
@@ -32,7 +33,7 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
  * The output format matches translationResultSchema — JSON, no markdown.
  */
 export function buildTranslationPrompt(request: TranslationRequest): string {
-  const { text, sourceLang, targetLangs, topic, dictionaryContext, outputConfig, inputType } = request;
+  const { text, sourceLang, targetLangs, nativeLang, topic, dictionaryContext, outputConfig, inputType } = request;
   const cfg = resolveConfig(outputConfig);
   const isSentence = inputType === "sentence";
 
@@ -42,6 +43,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
 
   const sourceLangName = getLanguageName(sourceLang);
   const targetLangNames = targetLangs.map((l) => getLanguageName(l)).join(", ");
+  const nativeLangName = nativeLang ? getLanguageName(nativeLang) : null;
 
   const intro = isSentence
     ? `Translate the following sentence from ${sourceLangName} to ${targetLangNames}:\n"${text}"`
@@ -56,6 +58,13 @@ The JSON must have this exact structure:
     cfg.includeRegister
       ? `
   "register": "<overall register: slang | colloquial | neutral | literary | professional>",`
+      : ""
+  }${
+    cfg.includeNativeSynonyms && nativeLangName
+      ? `
+  "nativeSynonyms": [
+    { "text": "<synonym in ${nativeLangName}>", "register": "<register>" }
+  ],`
       : ""
   }
   "translations": {
@@ -115,6 +124,11 @@ Rules:${
     cfg.includeSynonyms
       ? `
 - Provide 2–3 synonyms per language with their register.`
+      : ""
+  }${
+    cfg.includeNativeSynonyms && nativeLangName
+      ? `
+- Provide 2–3 synonyms of the source word "${text}" in ${nativeLangName} with their register in the "nativeSynonyms" array.`
       : ""
   }${
     cfg.includeAlternatives

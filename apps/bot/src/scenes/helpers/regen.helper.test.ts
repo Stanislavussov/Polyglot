@@ -44,6 +44,7 @@ const sampleOutput: TranslateOutput = {
   sourceLang: "en",
   emoji: "👋",
   register: "neutral",
+  nativeSynonyms: [],
   translations: {
     cs: {
       text: "ahoj",
@@ -180,6 +181,7 @@ describe("handleRegenLoop", () => {
       includeEquivalentNote: true,
       includeRegister: false,
       includeConnotationWarning: true,
+      includeNativeSynonyms: true,
     });
   });
 

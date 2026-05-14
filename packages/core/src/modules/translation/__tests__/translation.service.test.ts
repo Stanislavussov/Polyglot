@@ -17,6 +17,7 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
   return {
     emoji: "👋",
     register: "neutral",
+    nativeSynonyms: [{ text: "привет", register: "colloquial" }],
     translations: {
       cs: {
         text: "ahoj",

@@ -60,6 +60,7 @@ function makeTranslateOutputWithAlternatives(original: string, targetLangs: stri
     sourceLang: "en",
     emoji: "📝",
     register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }
@@ -85,6 +86,7 @@ function makeTranslateOutputWithoutAlternatives(original: string, targetLangs: s
     sourceLang: "en",
     emoji: "📝",
     register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }

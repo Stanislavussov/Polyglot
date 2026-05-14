@@ -164,6 +164,7 @@ describe("handleTranslateText — context enrichment", () => {
       includeEquivalentNote: true,
       includeRegister: false,
       includeConnotationWarning: true,
+      includeNativeSynonyms: true,
     });
   });
 

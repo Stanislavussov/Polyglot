@@ -7,7 +7,7 @@ import type { ResolveDirectionInput, ResolveFromSourceInput, TranslationDirectio
  * Logic:
  * 1. Detect language of `text` from `[nativeLang, ...learningLangs]`
  * 2. If detected === nativeLang → translate to all learningLangs (standard)
- * 3. If detected is one of learningLangs → translate to nativeLang + remaining learningLangs
+ * 3. If detected is one of learningLangs → translate to remaining learningLangs
  * 4. If undefined (inconclusive) → fallback to nativeLang → learningLangs
  *
  * @param input - Text, native language, and learning languages
@@ -32,10 +32,11 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
   }
 
   // Case 3: Detected one of the learning languages → reverse direction
+  // Target = remaining learning languages only (no native language translations)
   if (learningLangs.includes(detectedLang)) {
     return {
       sourceLang: detectedLang,
-      targetLangs: [nativeLang, ...learningLangs.filter((l) => l !== detectedLang)],
+      targetLangs: learningLangs.filter((l) => l !== detectedLang),
       detectedLang,
     };
   }
@@ -57,7 +58,7 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
  *
  * Logic:
  * 1. If sourceLang === nativeLang → targets = learningLangs
- * 2. If sourceLang is one of learningLangs → targets = [nativeLang, ...remaining learningLangs]
+ * 2. If sourceLang is one of learningLangs → targets = remaining learningLangs
  * 3. If sourceLang is not in config → returns null (invalid, caller should reset)
  *
  * @param input - Explicit source language, native language, and learning languages
@@ -78,10 +79,11 @@ export function resolveDirectionFromSource(input: ResolveFromSourceInput): Trans
   }
 
   // Source is one of the learning languages → reverse direction
+  // Target = remaining learning languages only (no native language translations)
   if (learningLangs.includes(sourceLang)) {
     return {
       sourceLang,
-      targetLangs: [nativeLang, ...learningLangs.filter((l) => l !== sourceLang)],
+      targetLangs: learningLangs.filter((l) => l !== sourceLang),
       detectedLang: undefined,
     };
   }

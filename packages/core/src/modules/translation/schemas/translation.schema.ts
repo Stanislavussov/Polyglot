@@ -75,15 +75,16 @@ export const translationRequestSchema = z.object({
  * {
  *   emoji: "🩺",
  *   register: "neutral",
+ *   nativeSynonyms: [{ text: "хитрый", register: "neutral" }, ...],
  *   translations: {
  *     "cs": { text, transcription?, register, synonyms, examples },
- *     "en": { text, transcription?, register, synonyms, examples }
  *   }
  * }
  */
 export const translationResultSchema = z.object({
   emoji: z.string().min(1, "Emoji is required"),
   register: registerEnum,
+  nativeSynonyms: z.array(synonymSchema),
   translations: z.object({}).catchall(languageTranslationSchema),
 });
 
@@ -140,6 +141,7 @@ export function buildTranslationResultSchema(targetLangs: string[], config?: Tra
   return z.object({
     emoji: z.string().min(1, "Emoji is required"),
     register: includeRegister ? registerEnum : registerEnum.nullable(),
+    nativeSynonyms: z.array(synonymSchema),
     translations: z.object(langEntries),
   });
 }

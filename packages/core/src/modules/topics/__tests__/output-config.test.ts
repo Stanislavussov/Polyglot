@@ -31,6 +31,7 @@ function makeTranslateOutput(original: string, targetLangs: string[]): Translate
     sourceLang: "en",
     emoji: "📝",
     register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }
@@ -58,6 +59,7 @@ describe("MINIMAL_OUTPUT preset used by topics", () => {
       includeEquivalentNote: false,
       includeRegister: false,
       includeConnotationWarning: false,
+      includeNativeSynonyms: false,
     });
   });
 });

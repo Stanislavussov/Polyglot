@@ -37,6 +37,7 @@ function makeIdiomaticTranslateOutput(original: string, targetLangs: string[]): 
     sourceLang: "en",
     emoji: "🗣️",
     register: "colloquial",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }
@@ -63,6 +64,7 @@ function makeLiteralTranslateOutput(original: string, targetLangs: string[]): Tr
     sourceLang: "en",
     emoji: "📝",
     register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }

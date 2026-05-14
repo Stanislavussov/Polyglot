@@ -54,6 +54,7 @@ function makeTranslateOutput(
     sourceLang: "en",
     emoji: "📝",
     register: "neutral",
+    nativeSynonyms: [],
     translations,
     ...(dictionaryContext ? { dictionaryContext } : {}),
   };

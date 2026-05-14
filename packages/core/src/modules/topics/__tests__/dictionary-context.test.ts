@@ -42,6 +42,7 @@ function makeTranslateOutput(original: string, targetLangs: string[]): Translate
     sourceLang: "en",
     emoji: "📝",
     register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }

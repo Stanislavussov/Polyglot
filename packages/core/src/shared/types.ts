@@ -25,4 +25,6 @@ export interface TranslationOutputConfig {
   includeRegister?: boolean;
   /** Include optional connotation warnings for dangerous/misleading meanings. Default: true */
   includeConnotationWarning?: boolean;
+  /** Include native-language synonyms for the source word (shown inline with source). Default: true */
+  includeNativeSynonyms?: boolean;
 }

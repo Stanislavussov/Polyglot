@@ -36,6 +36,7 @@ const sampleOutput: TranslateOutput = {
   sourceLang: "en",
   emoji: "👋",
   register: "neutral",
+  nativeSynonyms: [{ text: "привет", register: "colloquial" }],
   translations: {
     cs: {
       text: "ahoj",
@@ -398,6 +399,7 @@ describe("renderTranslation — alternatives", () => {
     sourceLang: "en",
     emoji: "🏠",
     register: "neutral",
+    nativeSynonyms: [],
     translations: {
       cs: {
         text: "dům",
@@ -495,6 +497,7 @@ describe("renderTranslation — idiomatic equivalents", () => {
     sourceLang: "cs",
     emoji: "🍰",
     register: "colloquial",
+    nativeSynonyms: [],
     translations: {
       en: {
         text: "No pain, no gain",
@@ -769,6 +772,7 @@ const sentenceOutput: TranslateOutput = {
   sourceLang: "en",
   emoji: "💊",
   register: "neutral",
+  nativeSynonyms: [],
   translations: {
     cs: {
       text: "Můžete mi říct, kde je nejbližší lékárna?",

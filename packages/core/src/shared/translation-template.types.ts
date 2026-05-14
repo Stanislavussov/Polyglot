@@ -73,8 +73,9 @@ export function templateToOutputConfig(template: UserTranslationTemplate): Trans
     includeAlternatives: template.fields.alternatives,
     includeEquivalentNote: template.fields.equivalentNote,
     includeConnotationWarning: template.fields.connotationWarning,
-    // System-controlled flag — not user-toggleable
+    // System-controlled flags — not user-toggleable
     includeRegister: false,
+    includeNativeSynonyms: true,
   };
 }
 

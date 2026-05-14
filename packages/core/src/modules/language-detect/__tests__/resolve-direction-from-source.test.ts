@@ -29,7 +29,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("cs");
-    expect(result!.targetLangs).toEqual(["ru", "en"]);
+    expect(result!.targetLangs).toEqual(["en"]);
     expect(result!.detectedLang).toBeUndefined();
   });
 
@@ -40,7 +40,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["ru", "cs"]);
+    expect(result!.targetLangs).toEqual(["cs"]);
     expect(result!.detectedLang).toBeUndefined();
   });
 
@@ -75,7 +75,7 @@ describe("resolveDirectionFromSource", () => {
     expect(result!.targetLangs).toEqual(["en"]);
   });
 
-  it("handles single learning language: source=learning → targets=[native]", () => {
+  it("handles single learning language: source=learning → targets=[]", () => {
     const result = resolveDirectionFromSource({
       sourceLang: "en",
       nativeLang: "ru",
@@ -83,7 +83,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["ru"]);
+    expect(result!.targetLangs).toEqual([]);
   });
 
   // === Multiple learning languages ===
@@ -96,7 +96,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["ru", "cs", "de"]);
+    expect(result!.targetLangs).toEqual(["cs", "de"]);
   });
 
   // === Edge cases ===
@@ -132,7 +132,7 @@ describe("resolveDirectionFromSource", () => {
 
   // === Task 17 example scenarios ===
 
-  it("scenario: user selects Czech → translates to ru + en", () => {
+  it("scenario: user selects Czech → translates to en only", () => {
     // User config: nativeLang: "ru", learningLangs: ["cs", "en"]
     const result = resolveDirectionFromSource({
       sourceLang: "cs",
@@ -141,7 +141,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("cs");
-    expect(result!.targetLangs).toEqual(["ru", "en"]);
+    expect(result!.targetLangs).toEqual(["en"]);
   });
 
   it("scenario: user selects Russian → translates to cs + en", () => {
@@ -155,7 +155,7 @@ describe("resolveDirectionFromSource", () => {
     expect(result!.targetLangs).toEqual(["cs", "en"]);
   });
 
-  it("scenario: user selects English → translates to ru + cs", () => {
+  it("scenario: user selects English → translates to cs only", () => {
     const result = resolveDirectionFromSource({
       sourceLang: "en",
       nativeLang: "ru",
@@ -163,7 +163,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["ru", "cs"]);
+    expect(result!.targetLangs).toEqual(["cs"]);
   });
 
   it("scenario: stale source lang removed from config → returns null", () => {

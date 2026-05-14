@@ -210,6 +210,7 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
       sourceLang: "ru",
       emoji: "🏠",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {
         cs: { text: "test-cs", register: "neutral", synonyms: [], examples: [] },
         en: { text: "test-en", register: "neutral", synonyms: [], examples: [] },
@@ -232,6 +233,7 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
       sourceLang: "ru",
       emoji: "🏠",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {
         cs: { text: "test-cs", register: "neutral", synonyms: [], examples: [] },
       },
@@ -262,6 +264,7 @@ describe("handleSkipCallback — source lang menu", () => {
       sourceLang: "ru",
       emoji: "🏠",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {
         cs: { text: "test-cs", register: "neutral", synonyms: [], examples: [] },
         en: { text: "test-en", register: "neutral", synonyms: [], examples: [] },
@@ -282,6 +285,7 @@ describe("handleSkipCallback — source lang menu", () => {
       sourceLang: "ru",
       emoji: "🏠",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {
         cs: { text: "test-cs", register: "neutral", synonyms: [], examples: [] },
       },
@@ -301,6 +305,7 @@ describe("handleSkipCallback — source lang menu", () => {
       sourceLang: "ru",
       emoji: "🏠",
       register: "neutral",
+      nativeSynonyms: [],
       translations: {
         en: { text: "test-en", register: "neutral", synonyms: [], examples: [] },
       },

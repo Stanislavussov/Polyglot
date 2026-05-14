@@ -36,6 +36,7 @@ function makeTranslateOutputWithWarning(original: string, targetLangs: string[])
     sourceLang: "en",
     emoji: "⚡",
     register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }
@@ -61,6 +62,7 @@ function makeTranslateOutputWithoutWarning(original: string, targetLangs: string
     sourceLang: "en",
     emoji: "📝",
     register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }

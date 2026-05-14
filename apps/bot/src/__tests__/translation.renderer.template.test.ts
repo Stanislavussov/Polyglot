@@ -26,6 +26,7 @@ const sampleOutput: TranslateOutput = {
   sourceLang: "en",
   emoji: "👋",
   register: "neutral",
+  nativeSynonyms: [{ text: "привет", register: "colloquial" }],
   translations: {
     cs: {
       text: "ahoj",

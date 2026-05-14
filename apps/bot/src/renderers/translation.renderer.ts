@@ -38,11 +38,15 @@ export function renderTranslation(
   output: TranslateOutput,
   interfaceLang?: string,
   templateFields?: TemplateFields,
+  nativeLang?: string,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
 
-  lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
+  const showNativeSyns =
+    output.sourceLang !== nativeLang && templateFields?.synonyms !== false && output.nativeSynonyms.length > 0;
+  const nativeSyns = showNativeSyns ? ` (${output.nativeSynonyms.map((s) => esc(s.text)).join(", ")})` : "";
+  lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
   lines.push("");
 
   for (const [code, translation] of Object.entries(output.translations)) {

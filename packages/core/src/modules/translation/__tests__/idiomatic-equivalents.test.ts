@@ -91,6 +91,7 @@ describe("Schema — expressionType and equivalentNote", () => {
     const result = translationResultSchema.safeParse({
       emoji: "🐺",
       register: "colloquial",
+      nativeSynonyms: [],
       translations: {
         en: {
           ...baseTranslation,
@@ -111,6 +112,7 @@ describe("Schema — expressionType and equivalentNote", () => {
     const result = schema.safeParse({
       emoji: "🐺",
       register: "colloquial",
+      nativeSynonyms: [],
       translations: {
         en: {
           ...baseTranslation,
@@ -129,6 +131,7 @@ describe("Schema — expressionType and equivalentNote", () => {
     const result = translationResultSchema.safeParse({
       emoji: "🐺",
       register: "colloquial",
+      nativeSynonyms: [],
       translations: {
         en: {
           ...baseTranslation,

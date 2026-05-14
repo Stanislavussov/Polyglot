@@ -22,6 +22,7 @@ export const FULL_OUTPUT: TranslationOutputConfig = {
   includeEquivalentNote: true,
   includeRegister: false,
   includeConnotationWarning: true,
+  includeNativeSynonyms: true,
 };
 
 /** Lightweight — for bulk topic translation, caching pipelines */
@@ -33,6 +34,7 @@ export const MINIMAL_OUTPUT: TranslationOutputConfig = {
   includeEquivalentNote: false,
   includeRegister: false,
   includeConnotationWarning: false,
+  includeNativeSynonyms: false,
 };
 
 /** Notification word-of-the-day — compact but still useful */
@@ -44,6 +46,7 @@ export const NOTIFICATION_OUTPUT: TranslationOutputConfig = {
   includeEquivalentNote: false,
   includeRegister: false,
   includeConnotationWarning: false,
+  includeNativeSynonyms: false,
 };
 
 /** Sentence translation — just translation text + transcription, no learning metadata */
@@ -55,4 +58,5 @@ export const SENTENCE_OUTPUT: TranslationOutputConfig = {
   includeEquivalentNote: false,
   includeRegister: false,
   includeConnotationWarning: false,
+  includeNativeSynonyms: false,
 };

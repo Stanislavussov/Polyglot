@@ -54,6 +54,7 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
     text: input.word,
     sourceLang: input.sourceLang,
     targetLangs: input.targetLangs,
+    nativeLang: input.nativeLang,
     topic: input.topic,
     dictionaryContext: input.dictionaryContext,
     outputConfig: input.outputConfig,
@@ -267,6 +268,7 @@ function toOutput(input: TranslateInput, result: TranslationResult, needsReview:
     sourceLang: input.sourceLang,
     emoji,
     register: result.register,
+    nativeSynonyms: input.outputConfig?.includeNativeSynonyms === false ? [] : (result.nativeSynonyms ?? []),
     translations,
   };
 

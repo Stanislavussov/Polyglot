@@ -248,6 +248,7 @@ describe("translationResultSchema", () => {
   const validResult = {
     emoji: "👋",
     register: "neutral",
+    nativeSynonyms: [{ text: "привет", register: "colloquial" }],
     translations: {
       cs: {
         text: "ahoj",
@@ -303,6 +304,7 @@ describe("translationResultSchema", () => {
     const result = translationResultSchema.safeParse({
       emoji: "👋",
       register: "neutral",
+      nativeSynonyms: [{ text: "привет", register: "colloquial" }],
       translations: {
         cs: validResult.translations.cs,
       },
@@ -359,6 +361,7 @@ describe("buildTranslationResultSchema", () => {
     const result = schema.safeParse({
       emoji: "👋",
       register: "neutral",
+      nativeSynonyms: [{ text: "привет", register: "colloquial" }],
       translations: { cs: langEntry, en: { ...langEntry, text: "hello" } },
     });
     expect(result.success).toBe(true);

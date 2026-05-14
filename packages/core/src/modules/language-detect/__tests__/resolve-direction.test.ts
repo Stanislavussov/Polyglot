@@ -27,9 +27,9 @@ describe("resolveTranslationDirection", () => {
       text: "hello world this is a test",
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toContain("ru");
     expect(result.targetLangs).toContain("cs");
     expect(result.targetLangs).not.toContain("en");
+    expect(result.targetLangs).not.toContain("ru");
     expect(result.detectedLang).toBe("en");
   });
 
@@ -39,9 +39,9 @@ describe("resolveTranslationDirection", () => {
       text: "dobrý den jak se máte dnes",
     });
     expect(result.sourceLang).toBe("cs");
-    expect(result.targetLangs).toContain("ru");
     expect(result.targetLangs).toContain("en");
     expect(result.targetLangs).not.toContain("cs");
+    expect(result.targetLangs).not.toContain("ru");
     expect(result.detectedLang).toBe("cs");
   });
 
@@ -81,14 +81,14 @@ describe("resolveTranslationDirection", () => {
 
   // === Single learning language ===
 
-  it("handles single learning language: detected=learning → targets=[native]", () => {
+  it("handles single learning language: detected=learning → targets=[]", () => {
     const result = resolveTranslationDirection({
       text: "hello world this is a test",
       nativeLang: "ru",
       learningLangs: ["en"],
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual(["ru"]);
+    expect(result.targetLangs).toEqual([]);
     expect(result.detectedLang).toBe("en");
   });
 
@@ -112,8 +112,7 @@ describe("resolveTranslationDirection", () => {
       learningLangs: ["cs", "en", "de"],
     });
     expect(result.sourceLang).toBe("en");
-    // Targets should be [native, ...remaining learning]
-    expect(result.targetLangs).toEqual(["ru", "cs", "de"]);
+    expect(result.targetLangs).toEqual(["cs", "de"]);
     expect(result.detectedLang).toBe("en");
   });
 
