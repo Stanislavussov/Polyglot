@@ -22,7 +22,6 @@ export const FLASHCARD_CONFIG: DictionaryWordConfig = {
       equivalentNote: true,
       connotationWarning: true,
     },
-    showRegister: true,
     flashcard: { frontSide: "original" },
   },
 };
@@ -42,7 +41,6 @@ export const NOTIFICATION_DICT_CONFIG: DictionaryWordConfig = {
       equivalentNote: false,
       connotationWarning: false,
     },
-    showRegister: false,
   },
 };
 
@@ -61,6 +59,5 @@ export const WORD_OF_DAY_DICT_CONFIG: DictionaryWordConfig = {
       equivalentNote: true,
       connotationWarning: true,
     },
-    showRegister: true,
   },
 };

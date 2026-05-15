@@ -50,13 +50,11 @@ function createPipelineDeps(ctx: BotContext): DictionaryPipelineDeps {
         sourceLangCode: e.sourceLangCode,
         inputType: e.inputType,
         emoji: e.emoji,
-        register: e.register,
         createdAt: e.createdAt,
         translations: e.translations.map((tr) => ({
           targetLangCode: getLangCodeById(ctx, tr.targetLangId) ?? "unknown",
           text: tr.text,
           transcription: tr.transcription,
-          register: tr.register,
           expressionType: tr.expressionType,
           equivalentNote: tr.equivalentNote,
           connotationWarning: tr.connotationWarning,

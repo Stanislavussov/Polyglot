@@ -8,27 +8,24 @@ export const MOCK_PREVIEW_OUTPUT: TranslateOutput = {
   original: "apple",
   sourceLang: "en",
   emoji: "🍎",
-  register: "neutral",
-  nativeSynonyms: [{ text: "яблоко", register: "neutral" }],
+  nativeSynonyms: [{ text: "яблоко" }],
   translations: {
     ru: {
       text: "яблоко",
       transcription: "ˈjabləkə",
-      register: "neutral",
       synonyms: [
-        { text: "фрукт", register: "neutral" },
-        { text: "плод", register: "literary" },
+        { text: "фрукт" },
+        { text: "плод" },
       ],
       examples: [
-        { context: "neutral", target: "Я купил яблоко в магазине.", register: "нейтральный" },
-        { context: "colloquial", target: "Кинь мне яблочко!", register: "разговорный" },
-        { context: "professional", target: "Поставка яблок осуществляется еженедельно.", register: "деловой" },
+        { context: "neutral", target: "Я купил яблоко в магазине." },
+        { context: "colloquial", target: "Кинь мне яблочко!" },
+        { context: "professional", target: "Поставка яблок осуществляется еженедельно." },
       ],
       alternatives: [
         {
           text: "фрукт",
-          register: "neutral",
-          synonyms: [{ text: "плод", register: "literary" }],
+          synonyms: [{ text: "плод" }],
         },
       ],
       connotationWarning: "In slang, can mean a tech company",

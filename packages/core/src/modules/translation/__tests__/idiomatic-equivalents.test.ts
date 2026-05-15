@@ -18,14 +18,9 @@ import type { TranslationRequest } from "../types.js";
 describe("Schema — expressionType and equivalentNote", () => {
   const baseTranslation = {
     text: "Having your cake and eating it too",
-    register: "colloquial" as const,
-    synonyms: [{ text: "best of both worlds", register: "neutral" as const }],
+    synonyms: [{ text: "best of both worlds" }],
     examples: [
-      {
-        context: "neutral" as const,
-        target: "You can't have your cake and eat it too.",
-        register: "neutral",
-      },
+      { context: "neutral" as const, target: "You can't have your cake and eat it too." },
     ],
   };
 
@@ -90,7 +85,6 @@ describe("Schema — expressionType and equivalentNote", () => {
   it("works in a full translationResultSchema with idiomatic fields", () => {
     const result = translationResultSchema.safeParse({
       emoji: "🐺",
-      register: "colloquial",
       nativeSynonyms: [],
       translations: {
         en: {
@@ -111,7 +105,6 @@ describe("Schema — expressionType and equivalentNote", () => {
     const schema = buildTranslationResultSchema(["en"]);
     const result = schema.safeParse({
       emoji: "🐺",
-      register: "colloquial",
       nativeSynonyms: [],
       translations: {
         en: {
@@ -130,7 +123,6 @@ describe("Schema — expressionType and equivalentNote", () => {
   it("allows per-language expressionType — one literal, one idiomatic", () => {
     const result = translationResultSchema.safeParse({
       emoji: "🐺",
-      register: "colloquial",
       nativeSynonyms: [],
       translations: {
         en: {
@@ -155,14 +147,9 @@ describe("Schema — expressionType and equivalentNote", () => {
   it("preserves backward compatibility — data without idiomatic fields parses fine", () => {
     const data = {
       text: "ahoj",
-      register: "colloquial",
-      synonyms: [{ text: "čau", register: "slang" }],
+      synonyms: [{ text: "čau" }],
       examples: [
-        {
-          context: "neutral",
-          target: "Ahoj, jak se máš?",
-          register: "нейтральный",
-        },
+        { context: "neutral", target: "Ahoj, jak se máš?" },
       ],
     };
     const result = languageTranslationSchema.safeParse(data);

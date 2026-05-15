@@ -36,7 +36,6 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
     translateOne: async () => ({
       text: "",
       transcription: "",
-      register: "",
       synonyms: [],
       examples: [],
     }),

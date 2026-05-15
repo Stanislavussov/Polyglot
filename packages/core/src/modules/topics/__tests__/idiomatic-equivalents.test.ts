@@ -19,14 +19,9 @@ function makeIdiomaticTranslateOutput(original: string, targetLangs: string[]): 
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_equivalent_${lang}`,
-      register: "colloquial",
-      synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
+      synonyms: [{ text: `syn_${original}_${lang}` }],
       examples: [
-        {
-          context: "colloquial",
-          target: `Idiomatic example of ${original} in ${lang}.`,
-          register: "colloquial",
-        },
+        { context: "colloquial", target: `Idiomatic example of ${original} in ${lang}.` },
       ],
       expressionType: "idiomatic_equivalent" as const,
       equivalentNote: `No direct equivalent in ${lang}; closest idiom used`,
@@ -36,7 +31,6 @@ function makeIdiomaticTranslateOutput(original: string, targetLangs: string[]): 
     original,
     sourceLang: "en",
     emoji: "🗣️",
-    register: "colloquial",
     nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
@@ -47,14 +41,9 @@ function makeLiteralTranslateOutput(original: string, targetLangs: string[]): Tr
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      register: "neutral",
       synonyms: [],
       examples: [
-        {
-          context: "neutral",
-          target: `Example of ${original} in ${lang}.`,
-          register: "neutral",
-        },
+        { context: "neutral", target: `Example of ${original} in ${lang}.` },
       ],
       // expressionType defaults to 'literal' or is omitted
     };
@@ -63,7 +52,6 @@ function makeLiteralTranslateOutput(original: string, targetLangs: string[]): Tr
     original,
     sourceLang: "en",
     emoji: "📝",
-    register: "neutral",
     nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
@@ -83,14 +71,9 @@ function makeIdiomaticCachedTranslation(
     targetLang,
     content: {
       text: `${original}_equivalent_${targetLang}_cached`,
-      register: "colloquial",
       synonyms: [],
       examples: [
-        {
-          context: "colloquial",
-          target: `Cached idiomatic ${original} in ${targetLang}.`,
-          register: "colloquial",
-        },
+        { context: "colloquial", target: `Cached idiomatic ${original} in ${targetLang}.` },
       ],
       expressionType: "idiomatic_equivalent",
       equivalentNote: `Cached: no direct equivalent in ${targetLang}`,
@@ -119,7 +102,6 @@ describe("LanguageTranslationEntry idiomatic fields", () => {
   it("accepts expressionType and equivalentNote as optional fields", () => {
     const entry: LanguageTranslationEntry = {
       text: "Having your cake and eating it too",
-      register: "colloquial",
       synonyms: [],
       examples: [],
       expressionType: "idiomatic_equivalent",
@@ -133,7 +115,6 @@ describe("LanguageTranslationEntry idiomatic fields", () => {
   it("allows omitting expressionType and equivalentNote (backward compatible)", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      register: "neutral",
       synonyms: [],
       examples: [],
     };
@@ -145,7 +126,6 @@ describe("LanguageTranslationEntry idiomatic fields", () => {
   it("accepts literal as expressionType", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      register: "neutral",
       synonyms: [],
       examples: [],
       expressionType: "literal",
@@ -250,14 +230,9 @@ describe("getTopicWords with idiomatic translations", () => {
 describe("regenerateTopicWord with idiomatic translations", () => {
   const idiomaticEntry: LanguageTranslationEntry = {
     text: "Avoir le beurre et l'argent du beurre",
-    register: "colloquial",
-    synonyms: [{ text: "tout avoir", register: "colloquial" }],
+    synonyms: [{ text: "tout avoir" }],
     examples: [
-      {
-        context: "colloquial",
-        target: "Il veut avoir le beurre et l'argent du beurre.",
-        register: "familier",
-      },
+      { context: "colloquial", target: "Il veut avoir le beurre et l'argent du beurre." },
     ],
     expressionType: "idiomatic_equivalent",
     equivalentNote: "French equivalent of 'having your cake and eating it too'",

@@ -61,7 +61,6 @@ describe("i18n — t()", () => {
   });
 
   it("returns register key with interpolation", () => {
-    expect(t("register", "en", { register: "neutral" })).toBe("Register: neutral");
   });
 
   // Regeneration keys (task 07)

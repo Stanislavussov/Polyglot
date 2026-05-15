@@ -118,9 +118,6 @@ export function renderDictionaryEntry(
     const transcriptionPart = tr.transcription ? ` [${esc(tr.transcription)}]` : "";
     lines.push(`${flag} <b>${esc(tr.text)}</b>${transcriptionPart}`);
 
-    // Register
-    if (tr.register) lines.push(esc(tr.register));
-
     // Details from JSONB
     const details = tr.details as VocabTranslationDetails | null;
     if (details) {
@@ -132,8 +129,7 @@ export function renderDictionaryEntry(
       // Examples
       if (details.examples && details.examples.length > 0) {
         for (const ex of details.examples) {
-          const registerLabel = ex.register ? `  → ${esc(ex.register)}` : "";
-          lines.push(`💬 <i>${esc(ex.target)}</i>${registerLabel}`);
+          lines.push(`💬 <i>${esc(ex.target)}</i>`);
         }
       }
     }

@@ -53,11 +53,9 @@ vi.mock("@polyglot/core", async () => {
       original: "hello",
       sourceLang: "en",
       emoji: "👋",
-      register: "neutral",
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial",
           synonyms: [],
           examples: [],
         },
@@ -162,7 +160,6 @@ describe("handleTranslateText — context enrichment", () => {
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
-      includeRegister: false,
       includeConnotationWarning: true,
       includeNativeSynonyms: true,
     });

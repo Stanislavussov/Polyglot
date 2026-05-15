@@ -62,9 +62,6 @@ export function renderFlashCardBack(
     const header = tr.transcription ? `<b>${esc(tr.text)}</b> [${esc(tr.transcription)}]` : `<b>${esc(tr.text)}</b>`;
     lines.push(`${flag} ${header}`);
 
-    // Register on same line
-    if (tr.register) lines.push(esc(tr.register));
-
     // Synonyms
     if (tr.synonyms && tr.synonyms.length > 0) {
       lines.push(`(${tr.synonyms.map((s) => esc(s.text)).join(", ")})`);
@@ -73,8 +70,7 @@ export function renderFlashCardBack(
     // Examples
     if (tr.examples && tr.examples.length > 0) {
       for (const ex of tr.examples) {
-        const registerLabel = ex.register ? `  → ${esc(ex.register)}` : "";
-        lines.push(`💬 <i>${esc(ex.target)}</i>${registerLabel}`);
+        lines.push(`💬 <i>${esc(ex.target)}</i>`);
       }
     }
 

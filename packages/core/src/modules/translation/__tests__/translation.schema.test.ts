@@ -93,7 +93,6 @@ describe("synonymSchema", () => {
   it("validates a correct synonym", () => {
     const result = synonymSchema.safeParse({
       text: "greeting",
-      register: "neutral",
     });
     expect(result.success).toBe(true);
   });
@@ -101,24 +100,8 @@ describe("synonymSchema", () => {
   it("rejects empty text", () => {
     const result = synonymSchema.safeParse({
       text: "",
-      register: "neutral",
     });
     expect(result.success).toBe(false);
-  });
-
-  it("rejects invalid register", () => {
-    const result = synonymSchema.safeParse({
-      text: "greeting",
-      register: "unknown",
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("accepts all valid register values", () => {
-    for (const register of ["slang", "colloquial", "neutral", "literary", "professional"]) {
-      const result = synonymSchema.safeParse({ text: "word", register });
-      expect(result.success).toBe(true);
-    }
   });
 });
 
@@ -127,7 +110,6 @@ describe("exampleSchema", () => {
     const result = exampleSchema.safeParse({
       context: "neutral",
       target: "This is a neutral sentence.",
-      register: "neutral",
     });
     expect(result.success).toBe(true);
   });
@@ -136,34 +118,14 @@ describe("exampleSchema", () => {
     const result = exampleSchema.safeParse({
       context: "neutral",
       target: "",
-      register: "neutral",
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects empty register", () => {
+  it("rejects empty context", () => {
     const result = exampleSchema.safeParse({
-      context: "neutral",
-      target: "Some target text.",
-      register: "",
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects invalid context", () => {
-    const result = exampleSchema.safeParse({
-      context: "casual",
+      context: "",
       target: "text",
-      register: "neutral",
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects formal context (replaced by neutral)", () => {
-    const result = exampleSchema.safeParse({
-      context: "formal",
-      target: "text",
-      register: "neutral",
     });
     expect(result.success).toBe(false);
   });
@@ -173,32 +135,20 @@ describe("exampleSchema", () => {
       const result = exampleSchema.safeParse({
         context,
         target: "text",
-        register: "нейтральный",
       });
       expect(result.success).toBe(true);
     }
-  });
-
-  it("does not require native field (removed)", () => {
-    const result = exampleSchema.safeParse({
-      context: "neutral",
-      target: "text",
-      register: "neutral",
-    });
-    expect(result.success).toBe(true);
   });
 });
 
 describe("languageTranslationSchema", () => {
   const validTranslation = {
     text: "ahoj",
-    register: "colloquial",
-    synonyms: [{ text: "čau", register: "slang" }],
+    synonyms: [{ text: "čau" }],
     examples: [
       {
         context: "neutral",
         target: "Ahoj, jak se máš?",
-        register: "нейтральный",
       },
     ],
   };
@@ -247,30 +197,25 @@ describe("languageTranslationSchema", () => {
 describe("translationResultSchema", () => {
   const validResult = {
     emoji: "👋",
-    register: "neutral",
-    nativeSynonyms: [{ text: "привет", register: "colloquial" }],
+    nativeSynonyms: [{ text: "привет" }],
     translations: {
       cs: {
         text: "ahoj",
-        register: "colloquial",
-        synonyms: [{ text: "čau", register: "slang" }],
+        synonyms: [{ text: "čau" }],
         examples: [
           {
             context: "neutral",
             target: "Ahoj, jak se máš?",
-            register: "нейтральный",
           },
         ],
       },
       de: {
         text: "hallo",
-        register: "neutral",
-        synonyms: [{ text: "hi", register: "colloquial" }],
+        synonyms: [{ text: "hi" }],
         examples: [
           {
             context: "neutral",
             target: "Hallo, wie geht es Ihnen?",
-            register: "neutral",
           },
         ],
       },
@@ -288,8 +233,8 @@ describe("translationResultSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects missing register", () => {
-    const { register, ...rest } = validResult;
+  it("rejects missing nativeSynonyms", () => {
+    const { nativeSynonyms, ...rest } = validResult;
     const result = translationResultSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
@@ -303,8 +248,7 @@ describe("translationResultSchema", () => {
   it("validates a single-language result", () => {
     const result = translationResultSchema.safeParse({
       emoji: "👋",
-      register: "neutral",
-      nativeSynonyms: [{ text: "привет", register: "colloquial" }],
+      nativeSynonyms: [{ text: "привет" }],
       translations: {
         cs: validResult.translations.cs,
       },
@@ -315,7 +259,6 @@ describe("translationResultSchema", () => {
   it("preserves all fields after parsing", () => {
     const result = translationResultSchema.parse(validResult);
     expect(result.emoji).toBe("👋");
-    expect(result.register).toBe("neutral");
     expect(result.translations.cs.text).toBe("ahoj");
     expect(result.translations.cs.synonyms).toHaveLength(1);
     expect(result.translations.cs.examples).toHaveLength(1);
@@ -326,9 +269,8 @@ describe("translationResultSchema", () => {
 describe("buildTranslationResultSchema", () => {
   const langEntry = {
     text: "ahoj",
-    register: "colloquial",
-    synonyms: [{ text: "čau", register: "slang" }],
-    examples: [{ context: "neutral", target: "Ahoj, jak se máš?", register: "нейтральный" }],
+    synonyms: [{ text: "čau" }],
+    examples: [{ context: "neutral", target: "Ahoj, jak se máš?" }],
     transcription: null,
     expressionType: null,
     equivalentNote: null,
@@ -340,7 +282,6 @@ describe("buildTranslationResultSchema", () => {
     const schema = buildTranslationResultSchema(["cs", "en"]);
     const result = schema.safeParse({
       emoji: "👋",
-      register: "neutral",
       translations: {},
     });
     expect(result.success).toBe(false);
@@ -350,7 +291,7 @@ describe("buildTranslationResultSchema", () => {
     const schema = buildTranslationResultSchema(["cs", "en"]);
     const result = schema.safeParse({
       emoji: "👋",
-      register: "neutral",
+      nativeSynonyms: [{ text: "привет" }],
       translations: { cs: langEntry },
     });
     expect(result.success).toBe(false);
@@ -360,8 +301,7 @@ describe("buildTranslationResultSchema", () => {
     const schema = buildTranslationResultSchema(["cs", "en"]);
     const result = schema.safeParse({
       emoji: "👋",
-      register: "neutral",
-      nativeSynonyms: [{ text: "привет", register: "colloquial" }],
+      nativeSynonyms: [{ text: "привет" }],
       translations: { cs: langEntry, en: { ...langEntry, text: "hello" } },
     });
     expect(result.success).toBe(true);
@@ -371,7 +311,7 @@ describe("buildTranslationResultSchema", () => {
     const schema = buildTranslationResultSchema(["cs"]);
     const result = schema.safeParse({
       emoji: "👋",
-      register: "neutral",
+      nativeSynonyms: [{ text: "привет" }],
       translations: { cs: { text: "ahoj" } },
     });
     expect(result.success).toBe(false);

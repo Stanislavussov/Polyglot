@@ -267,7 +267,6 @@ function toOutput(input: TranslateInput, result: TranslationResult, needsReview:
     original: input.word,
     sourceLang: input.sourceLang,
     emoji,
-    register: result.register,
     nativeSynonyms: input.outputConfig?.includeNativeSynonyms === false ? [] : (result.nativeSynonyms ?? []),
     translations,
   };
@@ -307,7 +306,6 @@ function stripDisabledFields(
       ...(config.includeAlternatives === false && { alternatives: null }),
       ...(config.includeTranscription === false && { transcription: null }),
       ...(config.includeEquivalentNote === false && { expressionType: null, equivalentNote: null }),
-      ...(config.includeRegister === false && { register: "neutral" as const }),
       ...(config.includeConnotationWarning === false && { connotationWarning: null }),
     };
   }

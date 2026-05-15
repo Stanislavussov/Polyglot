@@ -7,32 +7,23 @@
 import { z } from "zod";
 import type { TranslationOutputConfig } from "../types.js";
 
-/** Valid register values */
-const registerEnum = z.enum(["slang", "colloquial", "neutral", "literary", "professional"]);
-
-/** Valid example context types */
-const exampleContextEnum = z.enum(["neutral", "colloquial", "professional"]);
-
 /** Valid expression type values */
 const expressionTypeEnum = z.enum(["literal", "idiomatic_equivalent"]);
 
 /** Zod schema for a synonym */
 export const synonymSchema = z.object({
   text: z.string().min(1, "Synonym text is required"),
-  register: registerEnum,
 });
 
 /** Zod schema for an example sentence */
 export const exampleSchema = z.object({
-  context: exampleContextEnum,
+  context: z.string().min(1, "Example context is required"),
   target: z.string().min(1, "Example target sentence is required"),
-  register: z.string().min(1, "Example register label is required"),
 });
 
 /** Zod schema for a translation variant (alternative translation) */
 export const translationVariantSchema = z.object({
   text: z.string().min(1, "Variant text is required"),
-  register: registerEnum,
   synonyms: z.array(synonymSchema),
 });
 
@@ -47,7 +38,6 @@ export const translationVariantSchema = z.object({
 export const languageTranslationSchema = z.object({
   text: z.string().min(1, "Translation text is required"),
   transcription: z.string().max(100, "Transcription too long — possible repetition loop").nullish(),
-  register: registerEnum,
   synonyms: z.array(synonymSchema),
   examples: z.array(exampleSchema).min(1, "At least one example is required"),
   expressionType: expressionTypeEnum.nullish().default("literal"),
@@ -74,16 +64,14 @@ export const translationRequestSchema = z.object({
  * Structure:
  * {
  *   emoji: "🩺",
- *   register: "neutral",
- *   nativeSynonyms: [{ text: "хитрый", register: "neutral" }, ...],
+ *   nativeSynonyms: [{ text: "хитрый" }, ...],
  *   translations: {
- *     "cs": { text, transcription?, register, synonyms, examples },
+ *     "cs": { text, transcription?, synonyms, examples },
  *   }
  * }
  */
 export const translationResultSchema = z.object({
   emoji: z.string().min(1, "Emoji is required"),
-  register: registerEnum,
   nativeSynonyms: z.array(synonymSchema),
   translations: z.object({}).catchall(languageTranslationSchema),
 });
@@ -101,12 +89,10 @@ export const translationResultSchema = z.object({
 export function buildLanguageTranslationSchema(config?: TranslationOutputConfig) {
   const includeExamples = config?.includeExamples !== false;
   const includeSynonyms = config?.includeSynonyms !== false;
-  const includeRegister = config?.includeRegister !== false;
 
   return z.object({
     text: z.string().min(1, "Translation text is required"),
     transcription: z.string().max(100, "Transcription too long — possible repetition loop").nullable(),
-    register: includeRegister ? registerEnum : registerEnum.nullable(),
     synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema),
     examples: includeExamples
       ? z.array(exampleSchema).min(1, "At least one example is required")
@@ -131,7 +117,6 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig)
  * @returns Zod schema with explicit required language keys
  */
 export function buildTranslationResultSchema(targetLangs: string[], config?: TranslationOutputConfig) {
-  const includeRegister = config?.includeRegister !== false;
   const langSchema = buildLanguageTranslationSchema(config);
   const langEntries: Record<string, typeof langSchema> = {};
   for (const lang of targetLangs) {
@@ -140,7 +125,6 @@ export function buildTranslationResultSchema(targetLangs: string[], config?: Tra
 
   return z.object({
     emoji: z.string().min(1, "Emoji is required"),
-    register: includeRegister ? registerEnum : registerEnum.nullable(),
     nativeSynonyms: z.array(synonymSchema),
     translations: z.object(langEntries),
   });

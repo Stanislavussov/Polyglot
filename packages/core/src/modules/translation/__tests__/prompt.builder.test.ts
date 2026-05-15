@@ -40,16 +40,19 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain('"emoji"');
   });
 
-  it("specifies register values", () => {
+  it("does not specify specific register values", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("slang | colloquial | neutral | literary | professional");
+    // Register values are no longer constrained to specific enum
+    expect(prompt).not.toContain("slang | colloquial | neutral | literary | professional");
   });
 
-  it("requests example contexts: neutral, colloquial, professional", () => {
+  it("requests flexible example contexts", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain('"neutral"');
-    expect(prompt).toContain('"colloquial"');
-    expect(prompt).toContain('"professional"');
+    // Examples now use flexible context labels instead of fixed neutral/colloquial/professional
+    expect(prompt).toContain('"context": "<context label>"');
+    expect(prompt).not.toContain('"context": "neutral"');
+    expect(prompt).not.toContain('"context": "colloquial"');
+    expect(prompt).not.toContain('"context": "professional"');
   });
 
   it("requests JSON only, no markdown", () => {

@@ -20,12 +20,11 @@ function promptWith(config: TranslationOutputConfig): string {
 function validLangEntry(overrides?: Record<string, unknown>) {
   return {
     text: "ahoj",
-    register: "colloquial",
-    synonyms: [{ text: "čau", register: "slang" }],
+    synonyms: [{ text: "čau" }],
     examples: [
-      { context: "neutral", target: "Ahoj, jak se máš?", register: "нейтральный" },
-      { context: "colloquial", target: "Čau, co je?", register: "разговорный" },
-      { context: "professional", target: "Dobrý den, vítejte.", register: "профессиональный" },
+      { context: "neutral", target: "Ahoj, jak se máš?" },
+      { context: "colloquial", target: "Čau, co je?" },
+      { context: "professional", target: "Dobrý den, vítejte." },
     ],
     transcription: null,
     expressionType: null,
@@ -46,7 +45,6 @@ describe("presets", () => {
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
-      includeRegister: false,
       includeConnotationWarning: true,
       includeNativeSynonyms: true,
     });
@@ -59,7 +57,6 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
-      includeRegister: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
@@ -72,7 +69,6 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
-      includeRegister: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
@@ -85,7 +81,6 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
-      includeRegister: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
@@ -233,7 +228,6 @@ describe("buildTranslationResultSchema with config", () => {
     const schema = buildTranslationResultSchema(["cs"], { includeExamples: false });
     const result = schema.safeParse({
       emoji: "👋",
-      register: "neutral",
       nativeSynonyms: [],
       translations: {
         cs: validLangEntry({ examples: [] }),
@@ -248,7 +242,6 @@ describe("buildTranslationResultSchema with config", () => {
     delete (entry as Record<string, unknown>).text;
     const result = schema.safeParse({
       emoji: "👋",
-      register: "neutral",
       nativeSynonyms: [],
       translations: { cs: entry },
     });
@@ -259,7 +252,6 @@ describe("buildTranslationResultSchema with config", () => {
     const schema = buildTranslationResultSchema(["cs"], { includeSynonyms: false });
     const result = schema.safeParse({
       emoji: "👋",
-      register: "neutral",
       nativeSynonyms: [],
       translations: {
         cs: validLangEntry({ synonyms: [] }),
@@ -272,7 +264,6 @@ describe("buildTranslationResultSchema with config", () => {
     const schema = buildTranslationResultSchema(["cs"]);
     const result = schema.safeParse({
       emoji: "👋",
-      register: "neutral",
       translations: {
         cs: validLangEntry({ examples: [] }),
       },
@@ -317,11 +308,9 @@ describe("translate() with outputConfig", () => {
   it("passes outputConfig through to prompt and schema builders", async () => {
     const mockResult = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial" as const,
           synonyms: [],
           examples: [],
           expressionType: "literal" as const,
@@ -356,12 +345,10 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
   it("passes inputType through to prompt builder and validation", async () => {
     const mockResult = {
       emoji: "🏥",
-      register: "neutral" as const,
       translations: {
         de: {
           text: "Können Sie mir sagen, wo die nächste Apotheke ist?",
           transcription: "/kœnən ziː miːɐ̯ zaːɡn̩ voː diː nɛːçstə apoˈteːkə ɪst/",
-          register: "neutral" as const,
           synonyms: [],
           examples: [],
           expressionType: "literal" as const,
@@ -399,16 +386,13 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
   it("sentence translation strips disabled fields from AI response", async () => {
     const mockResult = {
       emoji: "🏥",
-      register: "neutral" as const,
       translations: {
         de: {
           text: "Wo ist die Apotheke?",
-          register: "neutral" as const,
           // AI may still return these even when not asked
-          synonyms: [{ text: "Drogerie", register: "neutral" as const }],
+          synonyms: [{ text: "Drogerie" }],
           examples: [],
           transcription: null,
-          alternatives: [{ text: "Wo finde ich eine Apotheke?", register: "neutral" as const, synonyms: [] }],
           equivalentNote: "should be stripped",
           expressionType: "literal" as const,
           connotationWarning: null,

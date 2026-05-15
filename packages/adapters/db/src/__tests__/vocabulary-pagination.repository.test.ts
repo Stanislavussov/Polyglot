@@ -84,8 +84,8 @@ beforeEach(() => {
 
 function makeDetails(overrides: Partial<VocabTranslationDetails> = {}): VocabTranslationDetails {
   return {
-    synonyms: [{ text: "nazdar", register: "colloquial" }],
-    examples: [{ context: "neutral", target: "Ahoj!", register: "neutral" }],
+    synonyms: [{ text: "nazdar" }],
+    examples: [{ context: "neutral", target: "Ahoj!" }],
     ...overrides,
   };
 }
@@ -98,7 +98,6 @@ function makeEntry(overrides: Partial<VocabularyEntry> = {}): VocabularyEntry {
     sourceLangId: 5,
     inputType: "word",
     emoji: "👋",
-    register: "neutral",
     isActive: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),
@@ -112,7 +111,6 @@ function makeTranslation(overrides: Partial<VocabularyTranslation> = {}): Vocabu
     entryId: 1,
     targetLangId: 3,
     text: "ahoj",
-    register: "neutral",
     transcription: null,
     expressionType: null,
     equivalentNote: null,

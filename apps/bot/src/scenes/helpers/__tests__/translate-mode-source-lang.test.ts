@@ -66,10 +66,7 @@ vi.mock("@polyglot/core", async () => {
       original: "test",
       sourceLang: "cs",
       emoji: "🏠",
-      register: "neutral",
       translations: {
-        ru: { text: "тест", register: "neutral", synonyms: [], examples: [] },
-        en: { text: "test", register: "neutral", synonyms: [], examples: [] },
       },
     }),
     detectLanguage: vi.fn((_text: string, _candidates: string[]) => {
@@ -209,11 +206,8 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
       original: "test",
       sourceLang: "ru",
       emoji: "🏠",
-      register: "neutral",
       nativeSynonyms: [],
       translations: {
-        cs: { text: "test-cs", register: "neutral", synonyms: [], examples: [] },
-        en: { text: "test-en", register: "neutral", synonyms: [], examples: [] },
       },
     } as any;
     mockVocabularyRepository.create = vi.fn().mockResolvedValue({ id: 42 });
@@ -223,7 +217,7 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
 
     expect(mockVocabularyRepository.create).toHaveBeenCalled();
     expect(ctx.session.savedWordId).toBe(42);
-    expect(ctx.editMessageText).toHaveBeenCalledWith(expect.stringContaining("test-cs"), expect.any(Object));
+    expect(ctx.editMessageText).toHaveBeenCalledWith(expect.stringContaining("Saved to dictionary"), expect.any(Object));
   });
 
   it("sets savedWordId in session after save", async () => {
@@ -232,10 +226,8 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
       original: "test",
       sourceLang: "ru",
       emoji: "🏠",
-      register: "neutral",
       nativeSynonyms: [],
       translations: {
-        cs: { text: "test-cs", register: "neutral", synonyms: [], examples: [] },
       },
     } as any;
     mockVocabularyRepository.create = vi.fn().mockResolvedValue({ id: 99 });
@@ -263,11 +255,8 @@ describe("handleSkipCallback — source lang menu", () => {
       original: "test",
       sourceLang: "ru",
       emoji: "🏠",
-      register: "neutral",
       nativeSynonyms: [],
       translations: {
-        cs: { text: "test-cs", register: "neutral", synonyms: [], examples: [] },
-        en: { text: "test-en", register: "neutral", synonyms: [], examples: [] },
       },
     } as any;
 
@@ -284,10 +273,8 @@ describe("handleSkipCallback — source lang menu", () => {
       original: "test",
       sourceLang: "ru",
       emoji: "🏠",
-      register: "neutral",
       nativeSynonyms: [],
       translations: {
-        cs: { text: "test-cs", register: "neutral", synonyms: [], examples: [] },
       },
     } as any;
     ctx.session.pendingCardMsgId = 999;
@@ -304,10 +291,8 @@ describe("handleSkipCallback — source lang menu", () => {
       original: "test",
       sourceLang: "ru",
       emoji: "🏠",
-      register: "neutral",
       nativeSynonyms: [],
       translations: {
-        en: { text: "test-en", register: "neutral", synonyms: [], examples: [] },
       },
     } as any;
 

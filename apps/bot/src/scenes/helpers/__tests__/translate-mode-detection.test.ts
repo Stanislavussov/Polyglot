@@ -67,18 +67,15 @@ vi.mock("@polyglot/core", async () => {
       original: "hello",
       sourceLang: "en",
       emoji: "👋",
-      register: "neutral",
       nativeSynonyms: [],
       translations: {
         ru: {
           text: "привет",
-          register: "colloquial",
           synonyms: [],
           examples: [],
         },
         cs: {
           text: "ahoj",
-          register: "colloquial",
           synonyms: [],
           examples: [],
         },
@@ -257,11 +254,8 @@ describe("handleMistypeConfirmCallback — Task 58", () => {
       original: "xyz123",
       sourceLang: "ru",
       emoji: "👋",
-      register: "neutral",
       nativeSynonyms: [],
       translations: {
-        cs: { text: "xyz-cs", register: "neutral", synonyms: [], examples: [] },
-        en: { text: "xyz-en", register: "neutral", synonyms: [], examples: [] },
       },
     });
   });

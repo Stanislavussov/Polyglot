@@ -26,14 +26,9 @@ function makeTranslateOutput(original: string, targetLangs: string[]): Translate
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      register: "neutral",
-      synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
+      synonyms: [{ text: `syn_${original}_${lang}` }],
       examples: [
-        {
-          context: "neutral",
-          target: `Example of ${original} in ${lang}.`,
-          register: "neutral",
-        },
+        { context: "neutral", target: `Example of ${original} in ${lang}.` },
       ],
     };
   }
@@ -41,7 +36,6 @@ function makeTranslateOutput(original: string, targetLangs: string[]): Translate
     original,
     sourceLang: "en",
     emoji: "📝",
-    register: "neutral",
     nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
@@ -61,14 +55,9 @@ function makeCachedTranslation(
     targetLang,
     content: {
       text: `${original}_${targetLang}_cached`,
-      register: "neutral",
       synonyms: [],
       examples: [
-        {
-          context: "neutral",
-          target: `Cached ${original} in ${targetLang}.`,
-          register: "neutral",
-        },
+        { context: "neutral", target: `Cached ${original} in ${targetLang}.` },
       ],
     },
     isValid: true,
@@ -158,14 +147,9 @@ describe("getTopicWords — translation integration", () => {
 describe("regenerateTopicWord — simplified", () => {
   const mockTranslationEntry: LanguageTranslationEntry = {
     text: "jablko",
-    register: "neutral",
-    synonyms: [{ text: "jablíčko", register: "colloquial" }],
+    synonyms: [{ text: "jablíčko" }],
     examples: [
-      {
-        context: "neutral",
-        target: "Podej mi jablko.",
-        register: "neutrální",
-      },
+      { context: "neutral", target: "Podej mi jablko." },
     ],
   };
 

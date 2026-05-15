@@ -21,20 +21,18 @@ function makeEntry(overrides: Partial<PipelineEntry> & { id: number }): Pipeline
     sourceLangCode: "en",
     inputType: "word",
     emoji: "📝",
-    register: "neutral",
     createdAt: new Date("2025-01-01"),
     translations: [
       {
         targetLangCode: "cs",
         text: `překlad-${overrides.id}`,
-        register: "neutral",
         transcription: "[test]",
         expressionType: null,
         equivalentNote: null,
         connotationWarning: null,
         details: {
-          synonyms: [{ text: "syn", register: "neutral" as const }],
-          examples: [{ context: "neutral" as const, target: "example", register: "neutral" }],
+          synonyms: [{ text: "syn" }],
+          examples: [{ context: "neutral" as const, target: "example" }],
           alternatives: [],
         },
       },
@@ -65,7 +63,6 @@ function makeConfig(overrides?: Partial<DictionaryWordConfig>): DictionaryWordCo
         equivalentNote: true,
         connotationWarning: true,
       },
-      showRegister: true,
       ...overrides?.presentation,
     },
   };
@@ -281,7 +278,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "x",
-              register: null,
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -296,7 +292,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "de",
               text: "y",
-              register: null,
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -311,7 +306,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "z",
-              register: null,
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -321,7 +315,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "de",
               text: "w",
-              register: null,
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -404,13 +397,12 @@ describe("createDictionaryPipeline", () => {
   describe("presentation — targetLangs filter", () => {
     it("output only includes requested languages", async () => {
       const entries = [
-        makeEntry({
+makeEntry({
           id: 1,
           translations: [
             {
               targetLangCode: "cs",
               text: "čeština",
-              register: null,
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -420,7 +412,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "de",
               text: "deutsch",
-              register: null,
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -430,7 +421,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "fr",
               text: "français",
-              register: null,
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -453,7 +443,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showRegister: true,
           targetLangs: ["cs", "de"],
         },
       });
@@ -471,7 +460,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "čeština",
-              register: null,
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -494,7 +482,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showRegister: true,
           targetLangs: ["de"], // entry only has "cs"
         },
       });
@@ -521,7 +508,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showRegister: true,
         },
       });
 
@@ -546,7 +532,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showRegister: true,
         },
       });
 
@@ -571,7 +556,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showRegister: true,
         },
       });
 
@@ -596,16 +580,13 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showRegister: false,
         },
       });
 
       const result = await pipeline.run(42, config);
 
       const word = result.words[0]!;
-      expect(word.register).toBe("neutral"); // falls back to neutral
       const translation = Object.values(word.translations)[0]!;
-      expect(translation.register).toBeUndefined();
     });
 
     it("showAlternatives: false → alternatives absent", async () => {
@@ -616,7 +597,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "test",
-              register: "neutral",
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -624,7 +604,7 @@ describe("createDictionaryPipeline", () => {
               details: {
                 synonyms: [],
                 examples: [],
-                alternatives: [{ text: "alt", register: "neutral" as const, synonyms: [] }],
+                alternatives: [{ text: "alt", synonyms: [] }],
               },
             },
           ],
@@ -643,7 +623,6 @@ describe("createDictionaryPipeline", () => {
             equivalentNote: true,
             connotationWarning: true,
           },
-          showRegister: true,
         },
       });
 
@@ -673,7 +652,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "test",
-              register: "neutral",
               transcription: null,
               expressionType: "idiomatic_equivalent",
               equivalentNote: "Idiomatic note",

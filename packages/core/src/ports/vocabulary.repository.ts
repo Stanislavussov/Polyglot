@@ -14,7 +14,6 @@ export interface VocabularyTranslation {
   entryId: number;
   targetLangId: number;
   text: string;
-  register: string;
   transcription: string | null;
   expressionType: string | null;
   equivalentNote: string | null;
@@ -37,7 +36,6 @@ export interface VocabularyEntry {
   sourceLangId: number;
   inputType: "word" | "phrase";
   emoji: string;
-  register: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,11 +54,9 @@ export interface CreateVocabularyInput {
   sourceLangId: number;
   inputType: "word" | "phrase";
   emoji: string;
-  register: string;
   translations: Array<{
     targetLangId: number;
     text: string;
-    register: string;
     transcription?: string;
     expressionType?: string;
     equivalentNote?: string;
@@ -71,7 +67,6 @@ export interface CreateVocabularyInput {
 
 export interface UpdateTranslationData {
   text?: string;
-  register?: string;
   transcription?: string | null;
   expressionType?: string | null;
   equivalentNote?: string | null;
