@@ -372,9 +372,7 @@ describe("translate — dictionary context passthrough", () => {
         en: {
           text: "что ли", // same as original → semantic fail
           synonyms: [{ text: "perhaps" }],
-          examples: [
-            { context: "neutral", target: "что ли sentence." },
-          ],
+          examples: [{ context: "neutral", target: "что ли sentence." }],
         },
       },
     });
@@ -409,9 +407,7 @@ describe("translate — dictionary context passthrough", () => {
         en: {
           text: "что ли",
           synonyms: [{ text: "perhaps" }],
-          examples: [
-            { context: "neutral", target: "что ли sentence." },
-          ],
+          examples: [{ context: "neutral", target: "что ли sentence." }],
         },
       },
     });

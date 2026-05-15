@@ -95,7 +95,9 @@ describe("createDictionaryPipeline", () => {
       const entries = Array.from({ length: 20 }, (_, i) => makeEntry({ id: i + 1 }));
       const deps = makeDeps(entries);
       const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({ selection: { strategy: "random", limit: 5 } });
+      const config = makeConfig({
+        selection: { strategy: "random", limit: 5 },
+      });
 
       const result = await pipeline.run(42, config);
 
@@ -109,7 +111,9 @@ describe("createDictionaryPipeline", () => {
       const entries = [makeEntry({ id: 1 }), makeEntry({ id: 2 })];
       const deps = makeDeps(entries);
       const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({ selection: { strategy: "random", limit: 10 } });
+      const config = makeConfig({
+        selection: { strategy: "random", limit: 10 },
+      });
 
       const result = await pipeline.run(42, config);
 
@@ -122,7 +126,9 @@ describe("createDictionaryPipeline", () => {
       const ids = new Set(entries.map((e) => e.id));
       const deps = makeDeps(entries);
       const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({ selection: { strategy: "random", limit: 8 } });
+      const config = makeConfig({
+        selection: { strategy: "random", limit: 8 },
+      });
 
       const result = await pipeline.run(42, config);
 
@@ -141,7 +147,9 @@ describe("createDictionaryPipeline", () => {
       ];
       const deps = makeDeps(entries);
       const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({ selection: { strategy: "oldest_first", limit: 3 } });
+      const config = makeConfig({
+        selection: { strategy: "oldest_first", limit: 3 },
+      });
 
       const result = await pipeline.run(42, config);
 
@@ -158,7 +166,9 @@ describe("createDictionaryPipeline", () => {
       ];
       const deps = makeDeps(entries);
       const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({ selection: { strategy: "newest_first", limit: 3 } });
+      const config = makeConfig({
+        selection: { strategy: "newest_first", limit: 3 },
+      });
 
       const result = await pipeline.run(42, config);
 
@@ -183,7 +193,9 @@ describe("createDictionaryPipeline", () => {
         getReviewCounts: vi.fn().mockResolvedValue(reviewCounts),
       };
       const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({ selection: { strategy: "least_reviewed", limit: 3 } });
+      const config = makeConfig({
+        selection: { strategy: "least_reviewed", limit: 3 },
+      });
 
       const result = await pipeline.run(42, config);
 
@@ -202,7 +214,9 @@ describe("createDictionaryPipeline", () => {
         getReviewCounts: vi.fn().mockResolvedValue(new Map()),
       };
       const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({ selection: { strategy: "least_reviewed", limit: 3 } });
+      const config = makeConfig({
+        selection: { strategy: "least_reviewed", limit: 3 },
+      });
 
       const result = await pipeline.run(42, config);
 
@@ -220,7 +234,9 @@ describe("createDictionaryPipeline", () => {
         // no getReviewCounts provided
       };
       const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({ selection: { strategy: "least_reviewed", limit: 2 } });
+      const config = makeConfig({
+        selection: { strategy: "least_reviewed", limit: 2 },
+      });
 
       const result = await pipeline.run(42, config);
 
@@ -385,7 +401,9 @@ describe("createDictionaryPipeline", () => {
       const entries = Array.from({ length: 15 }, (_, i) => makeEntry({ id: i + 1 }));
       const deps = makeDeps(entries);
       const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({ selection: { strategy: "random", limit: 5 } });
+      const config = makeConfig({
+        selection: { strategy: "random", limit: 5 },
+      });
 
       const result = await pipeline.run(42, config);
 
@@ -397,7 +415,7 @@ describe("createDictionaryPipeline", () => {
   describe("presentation — targetLangs filter", () => {
     it("output only includes requested languages", async () => {
       const entries = [
-makeEntry({
+        makeEntry({
           id: 1,
           translations: [
             {
@@ -563,30 +581,6 @@ makeEntry({
 
       const translation = Object.values(result.words[0]!.translations)[0]!;
       expect(translation.transcription).toBeUndefined();
-    });
-
-    it("showRegister: false → register absent on word and translation", async () => {
-      const entries = [makeEntry({ id: 1 })];
-      const deps = makeDeps(entries);
-      const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({
-        selection: { strategy: "random", limit: 10 },
-        presentation: {
-          fields: {
-            transcription: true,
-            synonyms: true,
-            examples: true,
-            alternatives: true,
-            equivalentNote: true,
-            connotationWarning: true,
-          },
-        },
-      });
-
-      const result = await pipeline.run(42, config);
-
-      const word = result.words[0]!;
-      const translation = Object.values(word.translations)[0]!;
     });
 
     it("showAlternatives: false → alternatives absent", async () => {

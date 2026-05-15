@@ -14,9 +14,7 @@ function makeTranslateOutput(original: string, targetLangs: string[]): Translate
     translations[lang] = {
       text: `${original}_${lang}`,
       synonyms: [{ text: `syn_${original}_${lang}` }],
-      examples: [
-        { context: "neutral", target: `Example of ${original} in ${lang}.` },
-      ],
+      examples: [{ context: "neutral", target: `Example of ${original} in ${lang}.` }],
     };
   }
   return {
@@ -43,9 +41,7 @@ function makeCachedTranslation(
     content: {
       text: `${original}_${targetLang}_cached`,
       synonyms: [],
-      examples: [
-        { context: "neutral", target: `Cached ${original} in ${targetLang}.` },
-      ],
+      examples: [{ context: "neutral", target: `Cached ${original} in ${targetLang}.` }],
     },
     isValid: true,
     invalidReason: null,
@@ -541,9 +537,7 @@ describe("createTopicService", () => {
     const mockTranslationEntry: LanguageTranslationEntry = {
       text: "jablko",
       synonyms: [{ text: "jablíčko" }],
-      examples: [
-        { context: "neutral", target: "Podej mi jablko." },
-      ],
+      examples: [{ context: "neutral", target: "Podej mi jablko." }],
     };
 
     it("throws for unknown topic ID", async () => {

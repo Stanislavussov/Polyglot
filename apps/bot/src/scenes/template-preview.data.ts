@@ -13,10 +13,7 @@ export const MOCK_PREVIEW_OUTPUT: TranslateOutput = {
     ru: {
       text: "яблоко",
       transcription: "ˈjabləkə",
-      synonyms: [
-        { text: "фрукт" },
-        { text: "плод" },
-      ],
+      synonyms: [{ text: "фрукт" }, { text: "плод" }],
       examples: [
         { context: "neutral", target: "Я купил яблоко в магазине." },
         { context: "colloquial", target: "Кинь мне яблочко!" },

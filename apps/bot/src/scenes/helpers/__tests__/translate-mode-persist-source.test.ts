@@ -58,8 +58,7 @@ vi.mock("@polyglot/core", async () => {
       original: "test",
       sourceLang: "cs",
       emoji: "🏠",
-      translations: {
-      },
+      translations: {},
     }),
     detectLanguage: vi.fn((_text: string, _candidates: string[]) => {
       // Return undefined to let nextSourceLang (from session/DB) take precedence.

@@ -6,7 +6,6 @@
  */
 
 import { getLogger } from "../../logger.js";
-import type { Example, ExpressionType, Synonym, TranslationVariant } from "../translation/types.js";
 import type {
   DictionaryPipelineDeps,
   DictionaryWordConfig,

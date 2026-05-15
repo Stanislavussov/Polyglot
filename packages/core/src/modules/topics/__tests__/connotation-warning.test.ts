@@ -20,9 +20,7 @@ function makeTranslateOutputWithWarning(original: string, targetLangs: string[])
     translations[lang] = {
       text: `${original}_${lang}`,
       synonyms: [{ text: `syn_${original}_${lang}` }],
-      examples: [
-        { context: "neutral", target: `Example of ${original} in ${lang}.` },
-      ],
+      examples: [{ context: "neutral", target: `Example of ${original} in ${lang}.` }],
       connotationWarning: `to arouse — sexual connotation in ${lang}`,
     };
   }
@@ -41,9 +39,7 @@ function makeTranslateOutputWithoutWarning(original: string, targetLangs: string
     translations[lang] = {
       text: `${original}_${lang}`,
       synonyms: [],
-      examples: [
-        { context: "neutral", target: `Example of ${original} in ${lang}.` },
-      ],
+      examples: [{ context: "neutral", target: `Example of ${original} in ${lang}.` }],
     };
   }
   return {
@@ -70,9 +66,7 @@ function makeCachedTranslationWithWarning(
     content: {
       text: `${original}_${targetLang}_cached`,
       synonyms: [],
-      examples: [
-        { context: "neutral", target: `Cached ${original} in ${targetLang}.` },
-      ],
+      examples: [{ context: "neutral", target: `Cached ${original} in ${targetLang}.` }],
       connotationWarning: `Cached warning for ${original} in ${targetLang}`,
     },
     isValid: true,
@@ -209,9 +203,7 @@ describe("regenerateTopicWord with connotationWarning", () => {
   const entryWithWarning: LanguageTranslationEntry = {
     text: "vzrušit",
     synonyms: [{ text: "podnítit" }],
-    examples: [
-      { context: "neutral", target: "Zpráva vzrušila veřejnost." },
-    ],
+    examples: [{ context: "neutral", target: "Zpráva vzrušila veřejnost." }],
     connotationWarning: "vzrušit — sexual connotation in some contexts",
   };
 

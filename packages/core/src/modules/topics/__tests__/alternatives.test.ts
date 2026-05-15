@@ -31,9 +31,7 @@ function makeTranslateOutputWithAlternatives(original: string, targetLangs: stri
     translations[lang] = {
       text: `${original}_${lang}`,
       synonyms: [{ text: `syn_${original}_${lang}` }],
-      examples: [
-        { context: "neutral", target: `Example of ${original} in ${lang}.` },
-      ],
+      examples: [{ context: "neutral", target: `Example of ${original} in ${lang}.` }],
       alternatives: [
         {
           text: `${original}_alt1_${lang}`,
@@ -61,9 +59,7 @@ function makeTranslateOutputWithoutAlternatives(original: string, targetLangs: s
     translations[lang] = {
       text: `${original}_${lang}`,
       synonyms: [],
-      examples: [
-        { context: "neutral", target: `Example of ${original} in ${lang}.` },
-      ],
+      examples: [{ context: "neutral", target: `Example of ${original} in ${lang}.` }],
     };
   }
   return {
@@ -90,9 +86,7 @@ function makeCachedTranslationWithAlternatives(
     content: {
       text: `${original}_${targetLang}_cached`,
       synonyms: [],
-      examples: [
-        { context: "neutral", target: `Cached ${original} in ${targetLang}.` },
-      ],
+      examples: [{ context: "neutral", target: `Cached ${original} in ${targetLang}.` }],
       alternatives: [
         {
           text: `${original}_alt1_${targetLang}_cached`,
@@ -256,9 +250,7 @@ describe("regenerateTopicWord with alternatives", () => {
   const entryWithAlternatives: LanguageTranslationEntry = {
     text: "jablko",
     synonyms: [{ text: "jablíčko" }],
-    examples: [
-      { context: "neutral", target: "Podej mi jablko." },
-    ],
+    examples: [{ context: "neutral", target: "Podej mi jablko." }],
     alternatives: [
       {
         text: "jabloň plod",

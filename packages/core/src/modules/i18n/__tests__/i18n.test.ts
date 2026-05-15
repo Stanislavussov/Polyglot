@@ -60,8 +60,7 @@ describe("i18n — t()", () => {
     expect(t("translationError", "cs")).toContain("selhal");
   });
 
-  it("returns register key with interpolation", () => {
-  });
+  it("returns register key with interpolation", () => {});
 
   // Regeneration keys (task 07)
   it("returns regenerateLang with {lang} interpolation in English", () => {

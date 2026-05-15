@@ -30,10 +30,7 @@ const sampleOutput: TranslateOutput = {
     cs: {
       text: "ahoj",
       transcription: "ˈahoj",
-      synonyms: [
-        { text: "dobrý den" },
-        { text: "nazdar" },
-      ],
+      synonyms: [{ text: "dobrý den" }, { text: "nazdar" }],
       examples: [
         { context: "neutral", target: "Dobrý den, pane!" },
         { context: "colloquial", target: "Ahoj, jak se máš?" },

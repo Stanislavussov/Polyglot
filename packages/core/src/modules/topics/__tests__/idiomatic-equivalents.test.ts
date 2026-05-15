@@ -20,9 +20,7 @@ function makeIdiomaticTranslateOutput(original: string, targetLangs: string[]): 
     translations[lang] = {
       text: `${original}_equivalent_${lang}`,
       synonyms: [{ text: `syn_${original}_${lang}` }],
-      examples: [
-        { context: "colloquial", target: `Idiomatic example of ${original} in ${lang}.` },
-      ],
+      examples: [{ context: "colloquial", target: `Idiomatic example of ${original} in ${lang}.` }],
       expressionType: "idiomatic_equivalent" as const,
       equivalentNote: `No direct equivalent in ${lang}; closest idiom used`,
     };
@@ -42,9 +40,7 @@ function makeLiteralTranslateOutput(original: string, targetLangs: string[]): Tr
     translations[lang] = {
       text: `${original}_${lang}`,
       synonyms: [],
-      examples: [
-        { context: "neutral", target: `Example of ${original} in ${lang}.` },
-      ],
+      examples: [{ context: "neutral", target: `Example of ${original} in ${lang}.` }],
       // expressionType defaults to 'literal' or is omitted
     };
   }
@@ -72,9 +68,7 @@ function makeIdiomaticCachedTranslation(
     content: {
       text: `${original}_equivalent_${targetLang}_cached`,
       synonyms: [],
-      examples: [
-        { context: "colloquial", target: `Cached idiomatic ${original} in ${targetLang}.` },
-      ],
+      examples: [{ context: "colloquial", target: `Cached idiomatic ${original} in ${targetLang}.` }],
       expressionType: "idiomatic_equivalent",
       equivalentNote: `Cached: no direct equivalent in ${targetLang}`,
     },
@@ -231,9 +225,7 @@ describe("regenerateTopicWord with idiomatic translations", () => {
   const idiomaticEntry: LanguageTranslationEntry = {
     text: "Avoir le beurre et l'argent du beurre",
     synonyms: [{ text: "tout avoir" }],
-    examples: [
-      { context: "colloquial", target: "Il veut avoir le beurre et l'argent du beurre." },
-    ],
+    examples: [{ context: "colloquial", target: "Il veut avoir le beurre et l'argent du beurre." }],
     expressionType: "idiomatic_equivalent",
     equivalentNote: "French equivalent of 'having your cake and eating it too'",
   };

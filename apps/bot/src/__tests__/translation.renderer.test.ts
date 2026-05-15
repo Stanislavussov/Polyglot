@@ -40,10 +40,7 @@ const sampleOutput: TranslateOutput = {
     cs: {
       text: "ahoj",
       transcription: "ˈahoj",
-      synonyms: [
-        { text: "dobrý den" },
-        { text: "nazdar" },
-      ],
+      synonyms: [{ text: "dobrý den" }, { text: "nazdar" }],
       examples: [
         { context: "neutral", target: "Dobrý den, pane!" },
         { context: "colloquial", target: "Ahoj, jak se máš?" },
@@ -410,14 +407,6 @@ describe("renderTranslation — alternatives", () => {
     },
   };
 
-  it("renders alternatives after main translation", () => {
-    const result = renderTranslation(outputWithAlternatives, "en");
-  });
-
-  it("renders alternative synonyms inline", () => {
-    const result = renderTranslation(outputWithAlternatives, "en");
-  });
-
   it("renders alternative without synonyms (no dash)", () => {
     const result = renderTranslation(outputWithAlternatives, "en");
     const staveniLine = result.split("\n").find((l) => l.includes("stavení"));
@@ -488,7 +477,10 @@ describe("renderTranslation — idiomatic equivalents", () => {
         equivalentNote: "Closest English proverb conveying the same meaning",
         synonyms: [],
         examples: [
-          { context: "colloquial", target: "No pain, no gain — you have to work for it." },
+          {
+            context: "colloquial",
+            target: "No pain, no gain — you have to work for it.",
+          },
         ],
       },
       de: {
@@ -701,11 +693,6 @@ describe("renderTranslation — inline synonyms", () => {
     // Header line should contain inline synonyms
     const csLine = result.split("\n").find((l) => l.includes("CS:"));
     expect(csLine).toContain("<b>ahoj</b> [ˈahoj] (dobrý den, nazdar)");
-  });
-
-  it("shows synonym text only — no register in parenthetical", () => {
-    const result = renderTranslation(sampleOutput, "en");
-    // Should NOT show register in inline synonyms
   });
 
   it("shows no parenthetical when zero synonyms", () => {

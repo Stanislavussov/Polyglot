@@ -72,9 +72,7 @@ describe("translate", () => {
         cs: {
           text: "hello", // same as original → semantic fail
           synonyms: [{ text: "čau" }],
-          examples: [
-            { context: "neutral", target: "Hello, jak se máš?" },
-          ],
+          examples: [{ context: "neutral", target: "Hello, jak se máš?" }],
         },
       },
     });
@@ -95,9 +93,7 @@ describe("translate", () => {
         cs: {
           text: "hello",
           synonyms: [{ text: "čau" }],
-          examples: [
-            { context: "neutral", target: "Hello world in Czech." },
-          ],
+          examples: [{ context: "neutral", target: "Hello world in Czech." }],
         },
       },
     });
@@ -141,16 +137,12 @@ describe("translate", () => {
         cs: {
           text: "ahoj",
           synonyms: [{ text: "čau" }],
-          examples: [
-            { context: "neutral", target: "Řekl ahoj kolegovi." },
-          ],
+          examples: [{ context: "neutral", target: "Řekl ahoj kolegovi." }],
         },
         de: {
           text: "hallo",
           synonyms: [{ text: "hi" }],
-          examples: [
-            { context: "neutral", target: "Er sagte hallo zum Kollegen." },
-          ],
+          examples: [{ context: "neutral", target: "Er sagte hallo zum Kollegen." }],
         },
       },
     });
@@ -278,9 +270,7 @@ describe("translateOne", () => {
         cs: {
           text: "hello",
           synonyms: [{ text: "čau" }],
-          examples: [
-            { context: "neutral", target: "Hello world in Czech." },
-          ],
+          examples: [{ context: "neutral", target: "Hello world in Czech." }],
         },
       },
     });
@@ -313,9 +303,7 @@ describe("translateBatch", () => {
             cs: {
               text: "svět",
               synonyms: [{ text: "země" }],
-              examples: [
-                { context: "neutral", target: "Svět je krásné místo." },
-              ],
+              examples: [{ context: "neutral", target: "Svět je krásné místo." }],
               transcription: null,
               expressionType: null,
               equivalentNote: null,
@@ -379,9 +367,7 @@ describe("validation logging", () => {
         cs: {
           text: "hello",
           synonyms: [{ text: "čau" }],
-          examples: [
-            { context: "neutral", target: "Hello world in Czech." },
-          ],
+          examples: [{ context: "neutral", target: "Hello world in Czech." }],
         },
       },
     });
@@ -413,9 +399,7 @@ describe("validation logging", () => {
         cs: {
           text: "hello",
           synonyms: [{ text: "čau" }],
-          examples: [
-            { context: "neutral", target: "Hello world in Czech." },
-          ],
+          examples: [{ context: "neutral", target: "Hello world in Czech." }],
         },
       },
     });
@@ -450,9 +434,7 @@ describe("validation logging", () => {
         cs: {
           text: "hello",
           synonyms: [{ text: "čau" }],
-          examples: [
-            { context: "neutral", target: "Hello world in Czech." },
-          ],
+          examples: [{ context: "neutral", target: "Hello world in Czech." }],
           transcription: null,
           expressionType: null,
           equivalentNote: null,
@@ -487,9 +469,7 @@ describe("validation logging", () => {
         cs: {
           text: "hello",
           synonyms: [{ text: "čau" }],
-          examples: [
-            { context: "neutral", target: "Hello world in Czech." },
-          ],
+          examples: [{ context: "neutral", target: "Hello world in Czech." }],
           transcription: null,
           expressionType: null,
           equivalentNote: null,

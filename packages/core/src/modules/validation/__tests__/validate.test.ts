@@ -13,12 +13,8 @@ const translationResultSchema = z.object({
       expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
       equivalentNote: z.string().optional(),
       connotationWarning: z.string().optional(),
-      synonyms: z.array(
-        z.object({ text: z.string() }),
-      ),
-      examples: z.array(
-        z.object({ context: z.enum(["neutral", "colloquial", "professional"]), target: z.string() }),
-      ),
+      synonyms: z.array(z.object({ text: z.string() })),
+      examples: z.array(z.object({ context: z.enum(["neutral", "colloquial", "professional"]), target: z.string() })),
     }),
   ),
 });
@@ -62,9 +58,7 @@ describe("validate (orchestrator)", () => {
         cs: {
           text: "hello", // same as original
           synonyms: [],
-          examples: [
-            { context: "neutral", target: "Hello there, how are you doing today?" },
-          ],
+          examples: [{ context: "neutral", target: "Hello there, how are you doing today?" }],
         },
       },
     };
@@ -96,9 +90,7 @@ describe("validate (orchestrator)", () => {
         cs: {
           text: "ahoj",
           synonyms: [],
-          examples: [
-            { context: "neutral", target: "Completely unrelated sentence without the word" },
-          ],
+          examples: [{ context: "neutral", target: "Completely unrelated sentence without the word" }],
         },
       },
     };
@@ -114,9 +106,7 @@ describe("validate (orchestrator)", () => {
         cs: {
           text: "N/A",
           synonyms: [],
-          examples: [
-            { context: "neutral", target: "N/A in this sentence" },
-          ],
+          examples: [{ context: "neutral", target: "N/A in this sentence" }],
         },
       },
     };
@@ -132,9 +122,7 @@ describe("validate (orchestrator)", () => {
         cs: {
           text: "hello", // same as original
           synonyms: [],
-          examples: [
-            { context: "neutral", target: "Hello sentence for testing here today" },
-          ],
+          examples: [{ context: "neutral", target: "Hello sentence for testing here today" }],
         },
       },
     };
@@ -166,16 +154,12 @@ describe("validate — single-language (partial regeneration)", () => {
         cs: {
           text: "ahoj",
           synonyms: [{ text: "nazdar" }],
-          examples: [
-            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." }],
         },
         de: {
           text: "hallo",
           synonyms: [{ text: "guten Tag" }],
-          examples: [
-            { context: "neutral" as const, target: "Er sagte hallo zu seinem Kollegen bei dem Treffen." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Er sagte hallo zu seinem Kollegen bei dem Treffen." }],
         },
       },
     };
@@ -192,9 +176,7 @@ describe("validate — single-language (partial regeneration)", () => {
         de: {
           text: "hello", // same as original — semantic error
           synonyms: [],
-          examples: [
-            { context: "neutral" as const, target: "Er sagte hello zu seinem Kollegen im Büro heute." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Er sagte hello zu seinem Kollegen im Büro heute." }],
         },
       },
     };
@@ -212,9 +194,7 @@ describe("validate — single-language (partial regeneration)", () => {
         fr: {
           text: "I cannot translate this word",
           synonyms: [],
-          examples: [
-            { context: "neutral" as const, target: "Une phrase en français pour tester la validation." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Une phrase en français pour tester la validation." }],
         },
       },
     };
@@ -231,9 +211,7 @@ describe("validate — single-language (partial regeneration)", () => {
         cs: {
           text: "ahoj",
           synonyms: [],
-          examples: [
-            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." }],
         },
       },
     };
@@ -288,7 +266,10 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
           equivalentNote: "Closest Czech equivalent of the English idiom about having both options.",
           synonyms: [],
           examples: [
-            { context: "colloquial" as const, target: "Podařilo se mu dosáhnout obou cílů současně, vlk se nažral a koza zůstala celá." },
+            {
+              context: "colloquial" as const,
+              target: "Podařilo se mu dosáhnout obou cílů současně, vlk se nažral a koza zůstala celá.",
+            },
           ],
         },
       },
@@ -307,9 +288,7 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
           expressionType: "idiomatic_equivalent" as const,
           equivalentNote: "Czech equivalent proverb about the value of waking early.",
           synonyms: [],
-          examples: [
-            { context: "neutral" as const, target: "Vstával brzy, a tak měl vždy náskok před ostatními." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Vstával brzy, a tak měl vždy náskok před ostatními." }],
         },
       },
     };
@@ -357,9 +336,7 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
           text: "ahoj",
           // no expressionType — should default to "literal" or undefined
           synonyms: [{ text: "nazdar" }],
-          examples: [
-            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." }],
         },
       },
     };
@@ -383,9 +360,7 @@ describe("validate — alternatives semantic validation", () => {
         cs: {
           text: "ahoj",
           synonyms: [{ text: "nazdar" }],
-          examples: [
-            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." }],
           alternatives: [
             {
               text: "nazdar",
@@ -418,9 +393,7 @@ describe("validate — alternatives semantic validation", () => {
         cs: {
           text: "ahoj",
           synonyms: [],
-          examples: [
-            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." }],
           alternatives: [],
         },
       },
@@ -437,9 +410,7 @@ describe("validate — alternatives semantic validation", () => {
         cs: {
           text: "ahoj",
           synonyms: [],
-          examples: [
-            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." }],
           alternatives: [
             {
               text: "nazdar",
@@ -466,9 +437,7 @@ describe("validate — alternatives semantic validation", () => {
         cs: {
           text: "ahoj",
           synonyms: [],
-          examples: [
-            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." }],
           alternatives: [
             {
               text: "I cannot translate this",
@@ -491,9 +460,7 @@ describe("validate — alternatives semantic validation", () => {
         de: {
           text: "hallo",
           synonyms: [],
-          examples: [
-            { context: "neutral" as const, target: "Er sagte hallo zu seinem Kollegen im Büro heute." },
-          ],
+          examples: [{ context: "neutral" as const, target: "Er sagte hallo zu seinem Kollegen im Büro heute." }],
           alternatives: [
             {
               text: "grüß Gott",
@@ -701,18 +668,14 @@ describe("validate with ValidateOptions", () => {
       z.string(),
       z.object({
         text: z.string(),
-        synonyms: z.array(
-          z.object({ text: z.string() }),
-        ),
+        synonyms: z.array(z.object({ text: z.string() })),
         examples: z.array(z.object({ context: z.string(), target: z.string() })).default([]),
         expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
         alternatives: z
           .array(
             z.object({
               text: z.string(),
-              synonyms: z.array(
-                z.object({ text: z.string() }),
-              ),
+              synonyms: z.array(z.object({ text: z.string() })),
             }),
           )
           .optional(),

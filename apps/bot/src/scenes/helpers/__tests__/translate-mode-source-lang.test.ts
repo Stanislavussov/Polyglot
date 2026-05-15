@@ -66,8 +66,7 @@ vi.mock("@polyglot/core", async () => {
       original: "test",
       sourceLang: "cs",
       emoji: "🏠",
-      translations: {
-      },
+      translations: {},
     }),
     detectLanguage: vi.fn((_text: string, _candidates: string[]) => {
       // Simulate detection that returns undefined so nextSourceLang takes effect
@@ -207,8 +206,7 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
       sourceLang: "ru",
       emoji: "🏠",
       nativeSynonyms: [],
-      translations: {
-      },
+      translations: {},
     } as any;
     mockVocabularyRepository.create = vi.fn().mockResolvedValue({ id: 42 });
     mockVocabularyRepository.findByOriginalAndSource = vi.fn().mockResolvedValue(null);
@@ -217,7 +215,10 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
 
     expect(mockVocabularyRepository.create).toHaveBeenCalled();
     expect(ctx.session.savedWordId).toBe(42);
-    expect(ctx.editMessageText).toHaveBeenCalledWith(expect.stringContaining("Saved to dictionary"), expect.any(Object));
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      expect.stringContaining("Saved to dictionary"),
+      expect.any(Object),
+    );
   });
 
   it("sets savedWordId in session after save", async () => {
@@ -227,8 +228,7 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
       sourceLang: "ru",
       emoji: "🏠",
       nativeSynonyms: [],
-      translations: {
-      },
+      translations: {},
     } as any;
     mockVocabularyRepository.create = vi.fn().mockResolvedValue({ id: 99 });
 
@@ -256,8 +256,7 @@ describe("handleSkipCallback — source lang menu", () => {
       sourceLang: "ru",
       emoji: "🏠",
       nativeSynonyms: [],
-      translations: {
-      },
+      translations: {},
     } as any;
 
     await handleSkipCallback(ctx);
@@ -274,8 +273,7 @@ describe("handleSkipCallback — source lang menu", () => {
       sourceLang: "ru",
       emoji: "🏠",
       nativeSynonyms: [],
-      translations: {
-      },
+      translations: {},
     } as any;
     ctx.session.pendingCardMsgId = 999;
 
@@ -292,8 +290,7 @@ describe("handleSkipCallback — source lang menu", () => {
       sourceLang: "ru",
       emoji: "🏠",
       nativeSynonyms: [],
-      translations: {
-      },
+      translations: {},
     } as any;
 
     await handleSkipCallback(ctx);

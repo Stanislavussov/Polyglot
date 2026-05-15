@@ -8,7 +8,6 @@ describe("validateExamples", () => {
         {
           context: "neutral",
           target: "Hippokratova přísaha obsahuje důležitá slova.",
-          
         },
       ],
       "slova",
@@ -31,10 +30,7 @@ describe("validateExamples", () => {
   });
 
   it("fails for empty target text", () => {
-    const result = validateExamples(
-      [{ context: "neutral", target: "" }],
-      "ahoj",
-    );
+    const result = validateExamples([{ context: "neutral", target: "" }], "ahoj");
     expect(result.valid).toBe(false);
     expect(result.errors[0].rule).toBe("examples");
   });
@@ -61,7 +57,6 @@ describe("validateExamples", () => {
         {
           context: "neutral",
           target: "Completely unrelated sentence here.",
-          
         },
       ],
       "ahoj",
@@ -75,12 +70,10 @@ describe("validateExamples", () => {
         {
           context: "neutral",
           target: "Good example with word hello",
-          
         },
         {
           context: "colloquial",
           target: "",
-          
         },
       ],
       "hello",
@@ -96,7 +89,6 @@ describe("validateExamples", () => {
         {
           context: "neutral",
           target: "",
-          
         },
       ],
       "specific_word",
