@@ -35,20 +35,17 @@ const sampleWord: WordDisplayData = {
   sourceLang: "en",
   inputType: "word",
   emoji: "🍎",
-  register: "neutral",
   createdAt: new Date("2025-01-01"),
   translations: {
     ru: {
       text: "яблоко",
       transcription: "ˈjabləkə",
-      register: "neutral",
-      synonyms: [{ text: "яблочко", register: "colloquial" }],
-      examples: [{ context: "neutral", target: "Я ем яблоко.", register: "нейтральный" }],
+      synonyms: [{ text: "яблочко" }],
+      examples: [{ context: "neutral", target: "Я ем яблоко." }],
     },
     cs: {
       text: "jablko",
       transcription: "ˈjablkɔ",
-      register: "neutral",
     },
   },
 };
@@ -59,7 +56,6 @@ const wordNoSynonyms: WordDisplayData = {
   sourceLang: "en",
   inputType: "word",
   emoji: "🏠",
-  register: "neutral",
   createdAt: new Date("2025-01-02"),
   translations: {
     cs: {
@@ -122,11 +118,6 @@ describe("renderFlashCardBack", () => {
     const result = renderFlashCardBack(sampleWord, 1, 10, "en");
     expect(result).toContain("[ˈjabləkə]");
     expect(result).toContain("[ˈjablkɔ]");
-  });
-
-  it("contains register when present", () => {
-    const result = renderFlashCardBack(sampleWord, 1, 10, "en");
-    expect(result).toContain("neutral");
   });
 
   it("contains target language flags", () => {

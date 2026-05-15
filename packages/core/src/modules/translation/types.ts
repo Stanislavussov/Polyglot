@@ -28,29 +28,20 @@ export interface DictionaryContext {
   langCode: string;
 }
 
-/** Word register — formality level of a word or phrase */
-export type Register = "slang" | "colloquial" | "neutral" | "literary" | "professional";
-
-/** Example sentence context type */
-export type ExampleContext = "neutral" | "colloquial" | "professional";
-
-/** A synonym with its register */
+/** A synonym */
 export interface Synonym {
   text: string;
-  register: Register;
 }
 
-/** An example sentence with context, target language, and register label */
+/** An example sentence with context and target language */
 export interface Example {
-  context: ExampleContext;
+  context: string;
   target: string;
-  register: string;
 }
 
-/** A single translation variant with its own register and synonyms */
+/** A single translation variant */
 export interface TranslationVariant {
   text: string;
-  register: Register;
   synonyms: Synonym[];
 }
 
@@ -58,14 +49,13 @@ export interface TranslationVariant {
 export interface LanguageTranslation {
   text: string;
   transcription?: string | null;
-  register: Register;
   synonyms: Synonym[];
   examples: Example[];
   /** Signals whether the translation is literal or an idiomatic equivalent */
   expressionType?: ExpressionType | null;
   /** Short note in the source language explaining why an equivalent was chosen */
   equivalentNote?: string | null;
-  /** Up to 2 alternative translation variants, each with its own register and synonyms */
+  /** Up to 2 alternative translation variants */
   alternatives?: TranslationVariant[] | null;
   /** Optional warning about dangerous or misleading connotations */
   connotationWarning?: string | null;
@@ -85,6 +75,8 @@ export interface TranslationRequest {
   text: string;
   sourceLang: string;
   targetLangs: string[];
+  /** User's native language — for native synonym generation */
+  nativeLang?: string;
   topic?: string;
   /** Optional Wiktionary dictionary context for prompt enrichment */
   dictionaryContext?: DictionaryContext;
@@ -100,7 +92,7 @@ export interface TranslationRequest {
  */
 export interface TranslationResult {
   emoji: string;
-  register: Register;
+  nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
 }
 
@@ -109,6 +101,8 @@ export interface TranslateInput {
   word: string;
   sourceLang: string;
   targetLangs: string[];
+  /** User's native language — for native synonym generation */
+  nativeLang?: string;
   model: string;
   topic?: string;
   userId?: number;
@@ -125,9 +119,8 @@ export interface TranslateOutput {
   original: string;
   sourceLang: string;
   emoji: string;
-  register: Register;
+  nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
   needsReview?: boolean;
-  /** Dictionary context that was used to enrich this translation (if any) */
   dictionaryContext?: DictionaryContext;
 }

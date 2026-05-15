@@ -42,28 +42,15 @@ const nounDictionaryContext: DictionaryContext = {
 function makeValidResult(overrides?: Partial<TranslationResult>): TranslationResult {
   return {
     emoji: "❓",
-    register: "colloquial",
+    nativeSynonyms: [{ text: "что ли" }],
     translations: {
       en: {
         text: "or something",
-        register: "colloquial",
-        synonyms: [{ text: "perhaps", register: "neutral" }],
+        synonyms: [{ text: "perhaps" }],
         examples: [
-          {
-            context: "neutral",
-            target: "Is this or something you wanted?",
-            register: "нейтральный",
-          },
-          {
-            context: "colloquial",
-            target: "Are you tired or something?",
-            register: "разговорный",
-          },
-          {
-            context: "professional",
-            target: "Should we proceed or something else?",
-            register: "профессиональный",
-          },
+          { context: "neutral", target: "Is this or something you wanted?" },
+          { context: "colloquial", target: "Are you tired or something?" },
+          { context: "professional", target: "Should we proceed or something else?" },
         ],
         transcription: null,
         expressionType: null,
@@ -384,14 +371,9 @@ describe("translate — dictionary context passthrough", () => {
       translations: {
         en: {
           text: "что ли", // same as original → semantic fail
-          register: "colloquial",
-          synonyms: [{ text: "perhaps", register: "neutral" }],
+          synonyms: [{ text: "perhaps" }],
           examples: [
-            {
-              context: "neutral",
-              target: "что ли sentence.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "что ли sentence." },
           ],
         },
       },
@@ -426,14 +408,9 @@ describe("translate — dictionary context passthrough", () => {
       translations: {
         en: {
           text: "что ли",
-          register: "colloquial",
-          synonyms: [{ text: "perhaps", register: "neutral" }],
+          synonyms: [{ text: "perhaps" }],
           examples: [
-            {
-              context: "neutral",
-              target: "что ли sentence.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "что ли sentence." },
           ],
         },
       },

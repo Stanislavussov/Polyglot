@@ -38,11 +38,15 @@ export function renderTranslation(
   output: TranslateOutput,
   interfaceLang?: string,
   templateFields?: TemplateFields,
+  nativeLang?: string,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
 
-  lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
+  const showNativeSyns =
+    output.sourceLang !== nativeLang && templateFields?.synonyms !== false && output.nativeSynonyms.length > 0;
+  const nativeSyns = showNativeSyns ? ` (${output.nativeSynonyms.map((s) => esc(s.text)).join(", ")})` : "";
+  lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
   lines.push("");
 
   for (const [code, translation] of Object.entries(output.translations)) {
@@ -82,17 +86,15 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
   // Alternatives: omit when fields?.alternatives === false
   if (fields?.alternatives !== false && lt.alternatives && lt.alternatives.length > 0) {
     for (const alt of lt.alternatives) {
-      const altSyns = alt.synonyms.map((s) => `${esc(s.text)} (${esc(s.register)})`).join(", ");
-      lines.push(`   ∙ ${esc(alt.text)} (${esc(alt.register)})${altSyns ? ` — ${altSyns}` : ""}`);
+      const altSyns = alt.synonyms.map((s) => esc(s.text)).join(", ");
+      lines.push(`   ∙ ${esc(alt.text)}${altSyns ? ` — ${altSyns}` : ""}`);
     }
   }
 
   // Examples: omit when fields?.examples === false
   if (fields?.examples !== false && lt.examples.length > 0) {
     for (const ex of lt.examples) {
-      // Guard for old data that may lack register field
-      const registerLabel = ex.register ? `  → ${esc(ex.register)}` : "";
-      lines.push(`💬 <i>${esc(ex.target)}</i>${registerLabel}`);
+      lines.push(`💬 <i>${esc(ex.target)}</i>`);
     }
   }
 

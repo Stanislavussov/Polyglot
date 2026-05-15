@@ -21,7 +21,7 @@ export type LangResolver = (code: string) => number | null;
  * Convert a TranslateOutput into a CreateVocabularyInput ready for
  * vocabularyRepository.create().
  *
- * - Extracts `emoji`, `register` to parent level
+ * - Extracts `emoji` to parent level
  * - For each translation[code]: resolves code → targetLangId via langResolver
  * - Builds `details: { synonyms, examples, alternatives }` JSONB per translation
  * - Strips transient fields: needsReview, dictionaryContext, original, sourceLang
@@ -56,7 +56,6 @@ export function toVocabularyInput(
     translations.push({
       targetLangId,
       text: lang.text,
-      register: lang.register,
       transcription: lang.transcription ?? undefined,
       expressionType: lang.expressionType ?? undefined,
       equivalentNote: lang.equivalentNote ?? undefined,
@@ -70,7 +69,6 @@ export function toVocabularyInput(
     sourceLangId,
     inputType,
     emoji: output.emoji,
-    register: output.register,
     translations,
   };
 }

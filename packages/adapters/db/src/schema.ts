@@ -119,7 +119,6 @@ export const vocabularyEntries = pgTable(
       .notNull(),
     inputType: text("input_type").$type<"word" | "phrase">().default("word").notNull(),
     emoji: text("emoji"),
-    register: text("register"),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -144,7 +143,6 @@ export const vocabularyTranslations = pgTable(
       .references(() => languages.id)
       .notNull(),
     text: text("text").notNull(),
-    register: text("register"),
     transcription: text("transcription"),
     expressionType: text("expression_type"),
     equivalentNote: text("equivalent_note"),

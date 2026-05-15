@@ -19,14 +19,9 @@ function makeTranslateOutputWithWarning(original: string, targetLangs: string[])
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      register: "neutral",
-      synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
+      synonyms: [{ text: `syn_${original}_${lang}` }],
       examples: [
-        {
-          context: "neutral",
-          target: `Example of ${original} in ${lang}.`,
-          register: "neutral",
-        },
+        { context: "neutral", target: `Example of ${original} in ${lang}.` },
       ],
       connotationWarning: `to arouse — sexual connotation in ${lang}`,
     };
@@ -35,7 +30,7 @@ function makeTranslateOutputWithWarning(original: string, targetLangs: string[])
     original,
     sourceLang: "en",
     emoji: "⚡",
-    register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }
@@ -45,14 +40,9 @@ function makeTranslateOutputWithoutWarning(original: string, targetLangs: string
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      register: "neutral",
       synonyms: [],
       examples: [
-        {
-          context: "neutral",
-          target: `Example of ${original} in ${lang}.`,
-          register: "neutral",
-        },
+        { context: "neutral", target: `Example of ${original} in ${lang}.` },
       ],
     };
   }
@@ -60,7 +50,7 @@ function makeTranslateOutputWithoutWarning(original: string, targetLangs: string
     original,
     sourceLang: "en",
     emoji: "📝",
-    register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }
@@ -79,14 +69,9 @@ function makeCachedTranslationWithWarning(
     targetLang,
     content: {
       text: `${original}_${targetLang}_cached`,
-      register: "neutral",
       synonyms: [],
       examples: [
-        {
-          context: "neutral",
-          target: `Cached ${original} in ${targetLang}.`,
-          register: "neutral",
-        },
+        { context: "neutral", target: `Cached ${original} in ${targetLang}.` },
       ],
       connotationWarning: `Cached warning for ${original} in ${targetLang}`,
     },
@@ -114,7 +99,6 @@ describe("LanguageTranslationEntry connotationWarning field", () => {
   it("accepts connotationWarning as an optional field", () => {
     const entry: LanguageTranslationEntry = {
       text: "to excite",
-      register: "neutral",
       synonyms: [],
       examples: [],
       connotationWarning: "to arouse — sexual connotation",
@@ -126,7 +110,6 @@ describe("LanguageTranslationEntry connotationWarning field", () => {
   it("allows omitting connotationWarning (backward compatible)", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      register: "neutral",
       synonyms: [],
       examples: [],
     };
@@ -225,14 +208,9 @@ describe("getTopicWords with connotationWarning", () => {
 describe("regenerateTopicWord with connotationWarning", () => {
   const entryWithWarning: LanguageTranslationEntry = {
     text: "vzrušit",
-    register: "neutral",
-    synonyms: [{ text: "podnítit", register: "literary" }],
+    synonyms: [{ text: "podnítit" }],
     examples: [
-      {
-        context: "neutral",
-        target: "Zpráva vzrušila veřejnost.",
-        register: "neutrální",
-      },
+      { context: "neutral", target: "Zpráva vzrušila veřejnost." },
     ],
     connotationWarning: "vzrušit — sexual connotation in some contexts",
   };

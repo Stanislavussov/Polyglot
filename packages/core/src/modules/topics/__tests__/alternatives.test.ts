@@ -17,13 +17,11 @@ import type { CachedTranslation, LanguageTranslationEntry, TopicDeps, TopicTrans
 const sampleAlternatives: TopicTranslationVariant[] = [
   {
     text: "alt1",
-    register: "colloquial",
-    synonyms: [{ text: "alt1_syn", register: "neutral" }],
+    synonyms: [{ text: "alt1_syn" }],
   },
   {
     text: "alt2",
-    register: "literary",
-    synonyms: [{ text: "alt2_syn", register: "literary" }],
+    synonyms: [{ text: "alt2_syn" }],
   },
 ];
 
@@ -32,25 +30,18 @@ function makeTranslateOutputWithAlternatives(original: string, targetLangs: stri
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      register: "neutral",
-      synonyms: [{ text: `syn_${original}_${lang}`, register: "neutral" }],
+      synonyms: [{ text: `syn_${original}_${lang}` }],
       examples: [
-        {
-          context: "neutral",
-          target: `Example of ${original} in ${lang}.`,
-          register: "neutral",
-        },
+        { context: "neutral", target: `Example of ${original} in ${lang}.` },
       ],
       alternatives: [
         {
           text: `${original}_alt1_${lang}`,
-          register: "colloquial",
-          synonyms: [{ text: `${original}_alt1_syn_${lang}`, register: "neutral" }],
+          synonyms: [{ text: `${original}_alt1_syn_${lang}` }],
         },
         {
           text: `${original}_alt2_${lang}`,
-          register: "literary",
-          synonyms: [{ text: `${original}_alt2_syn_${lang}`, register: "literary" }],
+          synonyms: [{ text: `${original}_alt2_syn_${lang}` }],
         },
       ],
     };
@@ -59,7 +50,7 @@ function makeTranslateOutputWithAlternatives(original: string, targetLangs: stri
     original,
     sourceLang: "en",
     emoji: "📝",
-    register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }
@@ -69,14 +60,9 @@ function makeTranslateOutputWithoutAlternatives(original: string, targetLangs: s
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      register: "neutral",
       synonyms: [],
       examples: [
-        {
-          context: "neutral",
-          target: `Example of ${original} in ${lang}.`,
-          register: "neutral",
-        },
+        { context: "neutral", target: `Example of ${original} in ${lang}.` },
       ],
     };
   }
@@ -84,7 +70,7 @@ function makeTranslateOutputWithoutAlternatives(original: string, targetLangs: s
     original,
     sourceLang: "en",
     emoji: "📝",
-    register: "neutral",
+    nativeSynonyms: [],
     translations: translations as TranslateOutput["translations"],
   };
 }
@@ -103,24 +89,17 @@ function makeCachedTranslationWithAlternatives(
     targetLang,
     content: {
       text: `${original}_${targetLang}_cached`,
-      register: "neutral",
       synonyms: [],
       examples: [
-        {
-          context: "neutral",
-          target: `Cached ${original} in ${targetLang}.`,
-          register: "neutral",
-        },
+        { context: "neutral", target: `Cached ${original} in ${targetLang}.` },
       ],
       alternatives: [
         {
           text: `${original}_alt1_${targetLang}_cached`,
-          register: "colloquial",
-          synonyms: [{ text: `cached_syn_1`, register: "neutral" }],
+          synonyms: [{ text: `cached_syn_1` }],
         },
         {
           text: `${original}_alt2_${targetLang}_cached`,
-          register: "literary",
           synonyms: [],
         },
       ],
@@ -149,7 +128,6 @@ describe("LanguageTranslationEntry alternatives field", () => {
   it("accepts alternatives as an optional field", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      register: "neutral",
       synonyms: [],
       examples: [],
       alternatives: sampleAlternatives,
@@ -157,7 +135,6 @@ describe("LanguageTranslationEntry alternatives field", () => {
 
     expect(entry.alternatives).toHaveLength(2);
     expect(entry.alternatives![0].text).toBe("alt1");
-    expect(entry.alternatives![0].register).toBe("colloquial");
     expect(entry.alternatives![0].synonyms).toHaveLength(1);
     expect(entry.alternatives![1].text).toBe("alt2");
   });
@@ -165,7 +142,6 @@ describe("LanguageTranslationEntry alternatives field", () => {
   it("allows omitting alternatives (backward compatible)", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      register: "neutral",
       synonyms: [],
       examples: [],
     };
@@ -176,7 +152,6 @@ describe("LanguageTranslationEntry alternatives field", () => {
   it("allows empty alternatives array", () => {
     const entry: LanguageTranslationEntry = {
       text: "apple",
-      register: "neutral",
       synonyms: [],
       examples: [],
       alternatives: [],
@@ -226,7 +201,6 @@ describe("getTopicWords with alternatives", () => {
     const firstCacheCall = setCached.mock.calls[0][0];
     const cachedContent = firstCacheCall.content as LanguageTranslationEntry;
     expect(cachedContent.alternatives).toHaveLength(2);
-    expect(cachedContent.alternatives![0].register).toBe("colloquial");
   });
 
   it("retrieves alternatives from cache", async () => {
@@ -281,24 +255,17 @@ describe("getTopicWords with alternatives", () => {
 describe("regenerateTopicWord with alternatives", () => {
   const entryWithAlternatives: LanguageTranslationEntry = {
     text: "jablko",
-    register: "neutral",
-    synonyms: [{ text: "jablíčko", register: "colloquial" }],
+    synonyms: [{ text: "jablíčko" }],
     examples: [
-      {
-        context: "neutral",
-        target: "Podej mi jablko.",
-        register: "neutrální",
-      },
+      { context: "neutral", target: "Podej mi jablko." },
     ],
     alternatives: [
       {
         text: "jabloň plod",
-        register: "literary",
-        synonyms: [{ text: "ovoce", register: "neutral" }],
+        synonyms: [{ text: "ovoce" }],
       },
       {
         text: "jablíčko",
-        register: "colloquial",
         synonyms: [],
       },
     ],

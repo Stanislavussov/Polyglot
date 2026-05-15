@@ -14,11 +14,10 @@ const baseOutput: TranslateOutput = {
   original: "hello",
   sourceLang: "en",
   emoji: "👋",
-  register: "neutral",
+  nativeSynonyms: [],
   translations: {
     cs: {
       text: "ahoj",
-      register: "colloquial",
       synonyms: [],
       examples: [],
     },

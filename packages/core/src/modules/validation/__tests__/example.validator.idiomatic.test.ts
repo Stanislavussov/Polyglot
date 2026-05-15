@@ -14,12 +14,12 @@ describe("validateExamples — expressionType parameter", () => {
     {
       context: "neutral" as const,
       target: "You can't have your cake and eat it too in this situation.",
-      register: "neutral",
+      
     },
     {
       context: "colloquial" as const,
       target: "That's like having your cake and eating it too.",
-      register: "colloquial",
+      
     },
   ];
 
@@ -49,7 +49,7 @@ describe("validateExamples — expressionType parameter", () => {
 
   it("still fails for empty target with idiomatic_equivalent", () => {
     const result = validateExamples(
-      [{ context: "neutral", target: "", register: "нейтральный" }],
+      [{ context: "neutral", target: "" }],
       "idiom",
       "idiomatic_equivalent",
     );
@@ -57,15 +57,6 @@ describe("validateExamples — expressionType parameter", () => {
     expect(result.errors.some((e) => e.field?.includes("target"))).toBe(true);
   });
 
-  it("still fails for empty register with idiomatic_equivalent", () => {
-    const result = validateExamples(
-      [{ context: "neutral", target: "Some target text.", register: "" }],
-      "idiom",
-      "idiomatic_equivalent",
-    );
-    expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.field?.includes("register"))).toBe(true);
-  });
 
   it("idiomatic examples that don't repeat the phrase verbatim still pass", () => {
     // This is the key scenario: an idiomatic equivalent used in context
@@ -74,12 +65,12 @@ describe("validateExamples — expressionType parameter", () => {
       {
         context: "neutral" as const,
         target: "In this negotiation, everyone got what they wanted.",
-        register: "нейтральный",
+        
       },
       {
         context: "colloquial" as const,
         target: "She managed to get the best of both worlds.",
-        register: "разговорный",
+        
       },
     ];
     const result = validateExamples(idiomaticExamples, "Having your cake and eating it too", "idiomatic_equivalent");
@@ -92,7 +83,7 @@ describe("validateExamples — expressionType parameter", () => {
       {
         context: "neutral" as const,
         target: "This is a completely different sentence.",
-        register: "нейтральный",
+        
       },
     ];
     const result = validateExamples(examples, "hello", "literal");

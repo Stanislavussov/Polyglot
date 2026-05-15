@@ -20,24 +20,21 @@ const sampleOutput: TranslateOutput = {
   original: "hello",
   sourceLang: "en",
   emoji: "👋",
-  register: "neutral",
+  nativeSynonyms: [{ text: "привет" }],
   translations: {
     cs: {
       text: "ahoj",
       transcription: "ˈahoj",
-      register: "colloquial",
-      synonyms: [{ text: "nazdar", register: "colloquial" }],
-      examples: [{ context: "colloquial", target: "Ahoj!", register: "hovorový" }],
-      alternatives: [{ text: "dobrý den", register: "neutral", synonyms: [] }],
+      synonyms: [{ text: "nazdar" }],
+      examples: [{ context: "colloquial", target: "Ahoj!" }],
       expressionType: "literal",
       equivalentNote: "Standard greeting",
       connotationWarning: "Very informal",
     },
     de: {
       text: "hallo",
-      register: "neutral",
       synonyms: [],
-      examples: [{ context: "neutral", target: "Hallo!", register: "neutral" }],
+      examples: [{ context: "neutral", target: "Hallo!" }],
     },
   },
   needsReview: true,
@@ -66,14 +63,12 @@ describe("toVocabularyInput", () => {
     expect(result.sourceLangId).toBe(1);
     expect(result.inputType).toBe("word");
     expect(result.emoji).toBe("👋");
-    expect(result.register).toBe("neutral");
     expect(result.translations).toHaveLength(2);
   });
 
   it("extracts emoji and register to parent level", () => {
     const result = toVocabularyInput(sampleOutput, 1, "word", langResolver);
     expect(result.emoji).toBe("👋");
-    expect(result.register).toBe("neutral");
   });
 
   it("maps each translations[code] to a separate entry in translations[]", () => {
@@ -84,7 +79,6 @@ describe("toVocabularyInput", () => {
 
     expect(cs).toBeDefined();
     expect(cs!.text).toBe("ahoj");
-    expect(cs!.register).toBe("colloquial");
     expect(cs!.transcription).toBe("ˈahoj");
     expect(cs!.expressionType).toBe("literal");
     expect(cs!.equivalentNote).toBe("Standard greeting");
@@ -92,16 +86,14 @@ describe("toVocabularyInput", () => {
 
     expect(de).toBeDefined();
     expect(de!.text).toBe("hallo");
-    expect(de!.register).toBe("neutral");
   });
 
   it("builds details with synonyms, examples, alternatives", () => {
     const result = toVocabularyInput(sampleOutput, 1, "word", langResolver);
 
     const cs = result.translations.find((t) => t.targetLangId === 3)!;
-    expect(cs.details.synonyms).toEqual([{ text: "nazdar", register: "colloquial" }]);
-    expect(cs.details.examples).toEqual([{ context: "colloquial", target: "Ahoj!", register: "hovorový" }]);
-    expect(cs.details.alternatives).toEqual([{ text: "dobrý den", register: "neutral", synonyms: [] }]);
+    expect(cs.details.synonyms).toEqual([{ text: "nazdar" }]);
+    expect(cs.details.examples).toEqual([{ context: "colloquial", target: "Ahoj!" }]);
 
     const de = result.translations.find((t) => t.targetLangId === 4)!;
     expect(de.details.synonyms).toEqual([]);
@@ -116,7 +108,6 @@ describe("toVocabularyInput", () => {
         ...sampleOutput.translations,
         xx: {
           text: "unknown",
-          register: "neutral",
           synonyms: [],
           examples: [],
         },
@@ -161,7 +152,7 @@ describe("toVocabularyInput", () => {
       original: "test",
       sourceLang: "en",
       emoji: "🔤",
-      register: "neutral",
+      nativeSynonyms: [],
       translations: {},
     };
 
@@ -175,10 +166,8 @@ describe("toVocabularyInput", () => {
       original: "test",
       sourceLang: "en",
       emoji: "🔤",
-      register: "neutral",
+      nativeSynonyms: [],
       translations: {
-        xx: { text: "a", register: "neutral", synonyms: [], examples: [] },
-        yy: { text: "b", register: "neutral", synonyms: [], examples: [] },
       },
     };
 
@@ -196,11 +185,10 @@ describe("toVocabularyInput", () => {
       original: "test",
       sourceLang: "en",
       emoji: "🔤",
-      register: "neutral",
+      nativeSynonyms: [],
       translations: {
         cs: {
           text: "test",
-          register: "neutral",
           synonyms: [],
           examples: [],
         },

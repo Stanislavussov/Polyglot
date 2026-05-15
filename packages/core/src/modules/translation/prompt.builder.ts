@@ -2,8 +2,8 @@
  * Prompt Builder — constructs AI prompts for translation requests.
  *
  * Builds multi-language prompts that produce output matching
- * translationResultSchema exactly. Requests emoji, register,
- * transcription, synonyms, and example sentences.
+ * translationResultSchema exactly. Requests emoji, transcription,
+ * synonyms, and example sentences.
  */
 
 import { getLanguageName } from "../i18n/language-registry.js";
@@ -20,8 +20,8 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
     includeSynonyms: config?.includeSynonyms !== false,
     includeAlternatives: config?.includeAlternatives !== false,
     includeEquivalentNote: config?.includeEquivalentNote !== false,
-    includeRegister: config?.includeRegister !== false,
     includeConnotationWarning: config?.includeConnotationWarning !== false,
+    includeNativeSynonyms: config?.includeNativeSynonyms !== false,
   };
 }
 
@@ -32,7 +32,7 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
  * The output format matches translationResultSchema — JSON, no markdown.
  */
 export function buildTranslationPrompt(request: TranslationRequest): string {
-  const { text, sourceLang, targetLangs, topic, dictionaryContext, outputConfig, inputType } = request;
+  const { text, sourceLang, targetLangs, nativeLang, topic, dictionaryContext, outputConfig, inputType } = request;
   const cfg = resolveConfig(outputConfig);
   const isSentence = inputType === "sentence";
 
@@ -42,6 +42,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
 
   const sourceLangName = getLanguageName(sourceLang);
   const targetLangNames = targetLangs.map((l) => getLanguageName(l)).join(", ");
+  const nativeLangName = nativeLang ? getLanguageName(nativeLang) : null;
 
   const intro = isSentence
     ? `Translate the following sentence from ${sourceLangName} to ${targetLangNames}:\n"${text}"`
@@ -53,9 +54,11 @@ Return ONLY valid JSON, no markdown, no explanation, no code fences.
 The JSON must have this exact structure:
 {
   "emoji": "<one relevant emoji>",${
-    cfg.includeRegister
+    cfg.includeNativeSynonyms && nativeLangName
       ? `
-  "register": "<overall register: slang | colloquial | neutral | literary | professional>",`
+  "nativeSynonyms": [
+    { "text": "<synonym in ${nativeLangName}>" }
+  ],`
       : ""
   }
   "translations": {
@@ -64,9 +67,6 @@ ${targetLangs
     const lines: string[] = [`      "text": "<translation in ${getLanguageName(lang)}>"`];
     if (cfg.includeTranscription) {
       lines.push(`      "transcription": "<IPA transcription if applicable, otherwise omit>"`);
-    }
-    if (cfg.includeRegister) {
-      lines.push(`      "register": "<register: slang | colloquial | neutral | literary | professional>"`);
     }
     if (cfg.includeEquivalentNote) {
       lines.push(
@@ -77,17 +77,17 @@ ${targetLangs
       );
     }
     if (cfg.includeSynonyms) {
-      lines.push(`      "synonyms": [\n        { "text": "<synonym>", "register": "<register>" }\n      ]`);
+      lines.push(`      "synonyms": [\n        { "text": "<synonym>" }\n      ]`);
     }
     if (cfg.includeAlternatives) {
-      const synPart = cfg.includeSynonyms ? `, "synonyms": [{ "text": "<syn>", "register": "<reg>" }]` : "";
+      const synPart = cfg.includeSynonyms ? `, "synonyms": [{ "text": "<syn>" }]` : "";
       lines.push(
-        `      "alternatives": [\n        { "text": "<alternative translation 1>", "register": "<register>"${synPart} },\n        { "text": "<alternative translation 2>", "register": "<register>"${synPart} }\n      ]`,
+        `      "alternatives": [\n        { "text": "<alternative translation 1>"${synPart} },\n        { "text": "<alternative translation 2>"${synPart} }\n      ]`,
       );
     }
     if (cfg.includeExamples) {
       lines.push(
-        `      "examples": [\n        { "context": "neutral", "target": "<neutral example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" },\n        { "context": "colloquial", "target": "<casual example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" },\n        { "context": "professional", "target": "<professional example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" }\n      ]`,
+        `      "examples": [\n        { "context": "<context label>", "target": "<example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" },\n        { "context": "<context label>", "target": "<example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" },\n        { "context": "<context label>", "target": "<example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" }\n      ]`,
       );
     }
     if (cfg.includeConnotationWarning) {
@@ -105,26 +105,31 @@ Rules:${
     cfg.includeExamples
       ? `
 - VARIETY IN EXAMPLES IS MANDATORY: Each of the 3 example sentences MUST use a DIFFERENT word or expression. Specifically:
-  * Example 1 (neutral): use the main translation ("text" field).
-  * Example 2 (colloquial): use the first alternative translation or a synonym — NOT the main translation.
-  * Example 3 (professional): use the second alternative translation or a different synonym — NOT the main translation and NOT the same as example 2.
+  * Example 1: use the main translation ("text" field).
+  * Example 2: use the first alternative translation or a synonym — NOT the main translation.
+  * Example 3: use the second alternative translation or a different synonym — NOT the main translation and NOT the same as example 2.
   This applies to the "target" sentences. NEVER repeat the same word/phrase across all 3 examples.
-- The "register" field in each example is a ONE-WORD label in ${sourceLangName} describing the register of that example (e.g. neutral, colloquial, professional — in ${sourceLangName}).`
+- The "register" field in each example is a ONE-WORD label in ${sourceLangName} describing the register of that example.`
       : ""
   }${
     cfg.includeSynonyms
       ? `
-- Provide 2–3 synonyms per language with their register.`
+- Provide 2–3 synonyms per language.`
+      : ""
+  }${
+    cfg.includeNativeSynonyms && nativeLangName
+      ? `
+- Provide 2–3 synonyms of the source word "${text}" in ${nativeLangName} in the "nativeSynonyms" array.`
       : ""
   }${
     cfg.includeAlternatives
       ? `
-- Provide exactly 2 alternative translations per language in the \`alternatives\` array. Each alternative should be a different valid translation with its own register and 1–2 synonyms.`
+- Provide exactly 2 alternative translations per language in the \`alternatives\` array. Each alternative should be a different valid translation with 1–2 synonyms.`
       : ""
   }${
     cfg.includeExamples
       ? `
-- Provide exactly 3 example sentences per language (neutral, colloquial, professional). Keep each sentence SHORT — one sentence only.`
+- Provide exactly 3 example sentences per language. Keep each sentence SHORT — one sentence only.`
       : ""
   }${
     cfg.includeConnotationWarning
@@ -135,7 +140,7 @@ Rules:${
 ${
   cfg.includeTranscription
     ? `
-- Transcription: provide IPA for non-Latin scripts (e.g. Russian: [prʲɪˈmʲernɨj], Chinese: [tɕʰýntsɯ̀]). Keep it SHORT — one bracketed transcription only, never repeat. Optional for Latin scripts.`
+- Transcription: provide IPA for non-Latin scripts (e.g. Russian: [prʲɪˈvʲet], Chinese: [tɕʰýntsɯ̀]). Keep it SHORT — one bracketed transcription only, never repeat. Optional for Latin scripts.`
     : ""
 }
 - Return ONLY the JSON object. No additional text before or after.${
@@ -177,9 +182,6 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   }
   checkItems.push("- Translations are actual translations, not the original word repeated");
   checkItems.push("- All required fields are present");
-  if (cfg.includeRegister) {
-    checkItems.push("- Register values are exactly one of: slang, colloquial, neutral, literary, professional");
-  }
   if (cfg.includeEquivalentNote) {
     checkItems.push(`- For idiomatic expressions, set expressionType to "idiomatic_equivalent" with an equivalentNote`);
   }

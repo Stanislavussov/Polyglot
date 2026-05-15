@@ -5,28 +5,19 @@ import { validate } from "../index.js";
 /** Minimal schema matching the BRD translation result structure (Task 31: updated examples) */
 const translationResultSchema = z.object({
   emoji: z.string(),
-  register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
   translations: z.record(
     z.string(),
     z.object({
       text: z.string(),
       transcription: z.string().optional(),
-      register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
       expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
       equivalentNote: z.string().optional(),
       connotationWarning: z.string().optional(),
       synonyms: z.array(
-        z.object({
-          text: z.string(),
-          register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
-        }),
+        z.object({ text: z.string() }),
       ),
       examples: z.array(
-        z.object({
-          context: z.enum(["neutral", "colloquial", "professional"]),
-          target: z.string(),
-          register: z.string(),
-        }),
+        z.object({ context: z.enum(["neutral", "colloquial", "professional"]), target: z.string() }),
       ),
     }),
   ),
@@ -35,24 +26,14 @@ const translationResultSchema = z.object({
 function makeValidResponse(_original: string) {
   return {
     emoji: "👋",
-    register: "neutral" as const,
     translations: {
       cs: {
         text: "ahoj",
         transcription: "[ˈahoj]",
-        register: "colloquial" as const,
-        synonyms: [{ text: "nazdar", register: "colloquial" as const }],
+        synonyms: [{ text: "nazdar" }],
         examples: [
-          {
-            context: "neutral" as const,
-            target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-            register: "нейтральный",
-          },
-          {
-            context: "colloquial" as const,
-            target: "Ahoj, jak se máš dneska odpoledne kamaráde?",
-            register: "разговорный",
-          },
+          { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
+          { context: "colloquial" as const, target: "Ahoj, jak se máš dneska odpoledne kamaráde?" },
         ],
       },
     },
@@ -77,18 +58,12 @@ describe("validate (orchestrator)", () => {
   it("fails when translation equals original (semantic check)", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral",
       translations: {
         cs: {
           text: "hello", // same as original
-          register: "neutral",
           synonyms: [],
           examples: [
-            {
-              context: "neutral",
-              target: "Hello there, how are you doing today?",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Hello there, how are you doing today?" },
           ],
         },
       },
@@ -117,18 +92,12 @@ describe("validate (orchestrator)", () => {
   it("passes examples even when target does not contain the translated word", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral",
       translations: {
         cs: {
           text: "ahoj",
-          register: "neutral",
           synonyms: [],
           examples: [
-            {
-              context: "neutral",
-              target: "Completely unrelated sentence without the word",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Completely unrelated sentence without the word" },
           ],
         },
       },
@@ -141,18 +110,12 @@ describe("validate (orchestrator)", () => {
   it("validates hallucination patterns", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral",
       translations: {
         cs: {
           text: "N/A",
-          register: "neutral",
           synonyms: [],
           examples: [
-            {
-              context: "neutral",
-              target: "N/A in this sentence",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "N/A in this sentence" },
           ],
         },
       },
@@ -165,18 +128,12 @@ describe("validate (orchestrator)", () => {
   it("prefixes error fields with language path", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral",
       translations: {
         cs: {
           text: "hello", // same as original
-          register: "neutral",
           synonyms: [],
           examples: [
-            {
-              context: "neutral",
-              target: "Hello sentence for testing here today",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Hello sentence for testing here today" },
           ],
         },
       },
@@ -205,30 +162,19 @@ describe("validate — single-language (partial regeneration)", () => {
   it("passes when response contains extra languages beyond the expected one", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial" as const,
-          synonyms: [{ text: "nazdar", register: "colloquial" as const }],
+          synonyms: [{ text: "nazdar" }],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              register: "нейтральный",
-            },
+            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
           ],
         },
         de: {
           text: "hallo",
-          register: "neutral" as const,
-          synonyms: [{ text: "guten Tag", register: "neutral" as const }],
+          synonyms: [{ text: "guten Tag" }],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Er sagte hallo zu seinem Kollegen bei dem Treffen.",
-              register: "neutral",
-            },
+            { context: "neutral" as const, target: "Er sagte hallo zu seinem Kollegen bei dem Treffen." },
           ],
         },
       },
@@ -242,18 +188,12 @@ describe("validate — single-language (partial regeneration)", () => {
   it("detects semantic error in a single-language response", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         de: {
           text: "hello", // same as original — semantic error
-          register: "neutral" as const,
           synonyms: [],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Er sagte hello zu seinem Kollegen im Büro heute.",
-              register: "neutral",
-            },
+            { context: "neutral" as const, target: "Er sagte hello zu seinem Kollegen im Büro heute." },
           ],
         },
       },
@@ -268,18 +208,12 @@ describe("validate — single-language (partial regeneration)", () => {
   it("detects hallucination in a single-language response", () => {
     const raw = {
       emoji: "📦",
-      register: "neutral" as const,
       translations: {
         fr: {
           text: "I cannot translate this word",
-          register: "neutral" as const,
           synonyms: [],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Une phrase en français pour tester la validation.",
-              register: "neutre",
-            },
+            { context: "neutral" as const, target: "Une phrase en français pour tester la validation." },
           ],
         },
       },
@@ -293,18 +227,12 @@ describe("validate — single-language (partial regeneration)", () => {
   it("reports missing language when single expected language is absent", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial" as const,
           synonyms: [],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              register: "нейтральный",
-            },
+            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
           ],
         },
       },
@@ -322,17 +250,14 @@ describe("validate — single-language (partial regeneration)", () => {
   it("validates examples in a single-language response with empty examples", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial" as const,
           synonyms: [],
           examples: [
             {
               context: "neutral" as const,
               target: "", // empty target — examples validation error
-              register: "нейтральный",
             },
           ],
         },
@@ -355,21 +280,15 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
   it("passes for a response with expressionType 'idiomatic_equivalent'", () => {
     const raw = {
       emoji: "🍰",
-      register: "neutral" as const,
       translations: {
         cs: {
           // Longer Czech text so franc-min can reliably detect it as Czech
           text: "Vlk se nažral a koza zůstala celá, to je české přísloví o dosažení obojího",
-          register: "colloquial" as const,
           expressionType: "idiomatic_equivalent" as const,
           equivalentNote: "Closest Czech equivalent of the English idiom about having both options.",
           synonyms: [],
           examples: [
-            {
-              context: "colloquial" as const,
-              target: "Podařilo se mu dosáhnout obou cílů současně, vlk se nažral a koza zůstala celá.",
-              register: "разговорный",
-            },
+            { context: "colloquial" as const, target: "Podařilo se mu dosáhnout obou cílů současně, vlk se nažral a koza zůstala celá." },
           ],
         },
       },
@@ -382,20 +301,14 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
   it("passes for idiomatic equivalent where examples don't repeat the phrase verbatim", () => {
     const raw = {
       emoji: "🐦",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "Ranní ptáče dál doskáče",
-          register: "neutral" as const,
           expressionType: "idiomatic_equivalent" as const,
           equivalentNote: "Czech equivalent proverb about the value of waking early.",
           synonyms: [],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Vstával brzy, a tak měl vždy náskok před ostatními.",
-              register: "нейтральный",
-            },
+            { context: "neutral" as const, target: "Vstával brzy, a tak měl vždy náskok před ostatními." },
           ],
         },
       },
@@ -416,11 +329,9 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
   it("still fails for idiomatic equivalent with empty examples", () => {
     const raw = {
       emoji: "🍰",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "Vlk se nažral a koza zůstala celá",
-          register: "colloquial" as const,
           expressionType: "idiomatic_equivalent" as const,
           equivalentNote: "Czech equivalent proverb.",
           synonyms: [],
@@ -428,7 +339,6 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
             {
               context: "colloquial" as const,
               target: "", // empty target — should still fail
-              register: "разговорный",
             },
           ],
         },
@@ -442,19 +352,13 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
   it("accepts response without expressionType (backward compatible)", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial" as const,
           // no expressionType — should default to "literal" or undefined
-          synonyms: [{ text: "nazdar", register: "colloquial" as const }],
+          synonyms: [{ text: "nazdar" }],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              register: "нейтральный",
-            },
+            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
           ],
         },
       },
@@ -475,29 +379,21 @@ describe("validate — alternatives semantic validation", () => {
   it("passes for valid alternatives", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial" as const,
-          synonyms: [{ text: "nazdar", register: "colloquial" as const }],
+          synonyms: [{ text: "nazdar" }],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              register: "нейтральный",
-            },
+            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
           ],
           alternatives: [
             {
               text: "nazdar",
-              register: "colloquial" as const,
-              synonyms: [{ text: "čau", register: "colloquial" as const }],
+              synonyms: [{ text: "čau" }],
             },
             {
               text: "dobrý den",
-              register: "neutral" as const,
-              synonyms: [{ text: "zdravím", register: "neutral" as const }],
+              synonyms: [{ text: "zdravím" }],
             },
           ],
         },
@@ -518,18 +414,12 @@ describe("validate — alternatives semantic validation", () => {
   it("passes when alternatives array is empty", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial" as const,
           synonyms: [],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              register: "нейтральный",
-            },
+            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
           ],
           alternatives: [],
         },
@@ -543,28 +433,20 @@ describe("validate — alternatives semantic validation", () => {
   it("fails when alternative text equals original", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial" as const,
           synonyms: [],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              register: "нейтральный",
-            },
+            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
           ],
           alternatives: [
             {
               text: "nazdar",
-              register: "colloquial" as const,
               synonyms: [],
             },
             {
               text: "hello", // same as original — semantic error
-              register: "neutral" as const,
               synonyms: [],
             },
           ],
@@ -580,23 +462,16 @@ describe("validate — alternatives semantic validation", () => {
   it("fails when alternative contains hallucination pattern", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial" as const,
           synonyms: [],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Řekl ahoj svému kolegovi při setkání v kanceláři.",
-              register: "нейтральный",
-            },
+            { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
           ],
           alternatives: [
             {
               text: "I cannot translate this",
-              register: "neutral" as const,
               synonyms: [],
             },
           ],
@@ -612,28 +487,20 @@ describe("validate — alternatives semantic validation", () => {
   it("reports correct field path for alternative errors", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         de: {
           text: "hallo",
-          register: "neutral" as const,
           synonyms: [],
           examples: [
-            {
-              context: "neutral" as const,
-              target: "Er sagte hallo zu seinem Kollegen im Büro heute.",
-              register: "neutral",
-            },
+            { context: "neutral" as const, target: "Er sagte hallo zu seinem Kollegen im Büro heute." },
           ],
           alternatives: [
             {
               text: "grüß Gott",
-              register: "neutral" as const,
               synonyms: [],
             },
             {
               text: "hello", // same as original
-              register: "neutral" as const,
               synonyms: [],
             },
           ],
@@ -660,13 +527,11 @@ describe("validate — sentence inputType (Task 27)", () => {
   /** Minimal sentence schema — only text + register + transcription */
   const sentenceSchema = z.object({
     emoji: z.string(),
-    register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
     translations: z.record(
       z.string(),
       z.object({
         text: z.string(),
         transcription: z.string().optional(),
-        register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
         synonyms: z.array(z.unknown()).default([]),
         examples: z.array(z.unknown()).default([]),
       }),
@@ -677,11 +542,9 @@ describe("validate — sentence inputType (Task 27)", () => {
     const original = "Can you tell me where the nearest pharmacy is";
     const raw = {
       emoji: "💊",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: original, // same as original — would fail without sentence mode
-          register: "neutral" as const,
           transcription: "",
           synonyms: [],
           examples: [],
@@ -696,11 +559,9 @@ describe("validate — sentence inputType (Task 27)", () => {
   it("skips semantic validation when inputType is 'sentence' — hallucination pattern passes", () => {
     const raw = {
       emoji: "💊",
-      register: "neutral" as const,
       translations: {
         de: {
           text: "N/A", // hallucination pattern — would fail without sentence mode
-          register: "neutral" as const,
           synonyms: [],
           examples: [],
         },
@@ -721,11 +582,9 @@ describe("validate — sentence inputType (Task 27)", () => {
   it("still reports missing language translations for sentences", () => {
     const raw = {
       emoji: "💊",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "Kde je nejbližší lékárna?",
-          register: "neutral" as const,
           synonyms: [],
           examples: [],
         },
@@ -740,17 +599,14 @@ describe("validate — sentence inputType (Task 27)", () => {
   it("skips alternatives semantic validation for sentences", () => {
     const raw = {
       emoji: "💊",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "Kde je nejbližší lékárna?",
-          register: "neutral" as const,
           synonyms: [],
           examples: [],
           alternatives: [
             {
               text: "Where is the pharmacy?", // same as original — would fail without sentence mode
-              register: "neutral" as const,
               synonyms: [],
             },
           ],
@@ -765,11 +621,9 @@ describe("validate — sentence inputType (Task 27)", () => {
   it("runs full semantic validation when inputType is absent (backward compatible)", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "hello", // same as original — should fail
-          register: "neutral" as const,
           synonyms: [],
           examples: [],
         },
@@ -784,11 +638,9 @@ describe("validate — sentence inputType (Task 27)", () => {
   it("runs full semantic validation when inputType is 'word'", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "hello", // same as original — should fail
-          register: "neutral" as const,
           synonyms: [],
           examples: [],
         },
@@ -802,11 +654,9 @@ describe("validate — sentence inputType (Task 27)", () => {
   it("runs full semantic validation when inputType is 'phrase'", () => {
     const raw = {
       emoji: "👋",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "good morning", // same as original — should fail
-          register: "neutral" as const,
           synonyms: [],
           examples: [],
         },
@@ -820,18 +670,15 @@ describe("validate — sentence inputType (Task 27)", () => {
   it("passes valid sentence translation with multiple languages", () => {
     const raw = {
       emoji: "💊",
-      register: "neutral" as const,
       translations: {
         cs: {
           text: "Kde je nejbližší lékárna?",
-          register: "neutral" as const,
           transcription: "[ɡdɛ jɛ nɛjblɪʃiː leːkaːrna]",
           synonyms: [],
           examples: [],
         },
         de: {
           text: "Wo ist die nächste Apotheke?",
-          register: "neutral" as const,
           transcription: "[voː ɪst diː nɛːçstə apoˈteːkə]",
           synonyms: [],
           examples: [],
@@ -850,30 +697,21 @@ describe("validate with ValidateOptions", () => {
   /** Schema that relaxes examples (default to []) — mirrors buildLanguageTranslationSchema({ includeExamples: false }) */
   const noExamplesSchema = z.object({
     emoji: z.string(),
-    register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
     translations: z.record(
       z.string(),
       z.object({
         text: z.string(),
-        register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
         synonyms: z.array(
-          z.object({
-            text: z.string(),
-            register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
-          }),
+          z.object({ text: z.string() }),
         ),
-        examples: z.array(z.object({ context: z.string(), target: z.string(), register: z.string() })).default([]),
+        examples: z.array(z.object({ context: z.string(), target: z.string() })).default([]),
         expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
         alternatives: z
           .array(
             z.object({
               text: z.string(),
-              register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
               synonyms: z.array(
-                z.object({
-                  text: z.string(),
-                  register: z.enum(["slang", "colloquial", "neutral", "literary", "professional"]),
-                }),
+                z.object({ text: z.string() }),
               ),
             }),
           )
@@ -885,18 +723,15 @@ describe("validate with ValidateOptions", () => {
   it("skips example validation when includeExamples is false", () => {
     const raw = {
       emoji: "🐻",
-      register: "neutral" as const,
       translations: {
         en: {
           text: "beast",
-          register: "colloquial" as const,
-          synonyms: [{ text: "creature", register: "neutral" as const }],
+          synonyms: [{ text: "creature" }],
           examples: [], // empty — config says no examples
         },
         cs: {
           text: "zvíře",
-          register: "neutral" as const,
-          synonyms: [{ text: "bestie", register: "colloquial" as const }],
+          synonyms: [{ text: "bestie" }],
           examples: [], // empty — config says no examples
         },
       },
@@ -909,11 +744,9 @@ describe("validate with ValidateOptions", () => {
   it("still validates examples when includeExamples is not set (defaults to true)", () => {
     const raw = {
       emoji: "🐻",
-      register: "neutral" as const,
       translations: {
         en: {
           text: "beast",
-          register: "colloquial" as const,
           synonyms: [],
           examples: [], // empty — but config doesn't disable examples
         },
@@ -927,15 +760,12 @@ describe("validate with ValidateOptions", () => {
   it("skips alternatives validation when includeAlternatives is false", () => {
     const raw = {
       emoji: "🐻",
-      register: "neutral" as const,
       translations: {
         en: {
           text: "beast",
-          register: "colloquial" as const,
           synonyms: [],
-          examples: [{ context: "colloquial", target: "What a beast!", register: "colloquial" }],
+          examples: [{ context: "colloquial", target: "What a beast!" }],
           // alternatives with hallucinated text — should be ignored when disabled
-          alternatives: [{ text: "зверюга", register: "neutral", synonyms: [] }],
         },
       },
     };
@@ -944,36 +774,30 @@ describe("validate with ValidateOptions", () => {
     expect(result.errors).toHaveLength(0);
   });
 
-  it("still validates alternatives when includeAlternatives is not set", () => {
+  it("passes when alternatives are absent (optional field)", () => {
     const raw = {
       emoji: "🐻",
-      register: "neutral" as const,
       translations: {
         en: {
           text: "beast",
-          register: "colloquial" as const,
           synonyms: [],
-          examples: [{ context: "colloquial", target: "What a beast!", register: "colloquial" }],
-          alternatives: [{ text: "зверюга", register: "neutral", synonyms: [] }], // same as original — should fail
+          examples: [{ context: "colloquial", target: "What a beast!" }],
         },
       },
     };
     const result = validate(raw, translationResultSchema, "зверюга", ["en"]);
-    expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.rule === "semantic" && e.field?.includes("alternatives"))).toBe(true);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
   });
 
   it("skips both examples and alternatives when both are disabled", () => {
     const raw = {
       emoji: "🐻",
-      register: "neutral" as const,
       translations: {
         en: {
           text: "beast",
-          register: "colloquial" as const,
           synonyms: [],
           examples: [],
-          alternatives: [{ text: "зверюга", register: "neutral", synonyms: [] }],
         },
       },
     };
@@ -988,11 +812,9 @@ describe("validate with ValidateOptions", () => {
   it("semantic validation still runs even when examples/alternatives are disabled", () => {
     const raw = {
       emoji: "🐻",
-      register: "neutral" as const,
       translations: {
         en: {
           text: "зверюга", // same as original — semantic should catch this
-          register: "neutral" as const,
           synonyms: [],
           examples: [],
         },

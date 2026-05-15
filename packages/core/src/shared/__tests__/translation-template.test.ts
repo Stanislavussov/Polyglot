@@ -74,7 +74,6 @@ describe("templateToOutputConfig", () => {
     expect(config.includeEquivalentNote).toBe(true);
     expect(config.includeConnotationWarning).toBe(true);
     // System-controlled flag is always false
-    expect(config.includeRegister).toBe(false);
   });
 
   it("maps examples: false → includeExamples: false", () => {
@@ -148,14 +147,11 @@ describe("templateToOutputConfig", () => {
     expect(config.includeAlternatives).toBe(false);
     expect(config.includeEquivalentNote).toBe(false);
     expect(config.includeConnotationWarning).toBe(false);
-    // System flag always false regardless
-    expect(config.includeRegister).toBe(false);
   });
 
-  it("system flag (includeRegister) is always false regardless of template", () => {
-    // Even with default (all true), system flag is false
+  it("uses system defaults for default template", () => {
     const config = templateToOutputConfig(DEFAULT_TEMPLATE);
-    expect(config.includeRegister).toBe(false);
+    expect(config.includeNativeSynonyms).toBe(true);
   });
 });
 
@@ -186,7 +182,7 @@ describe("resolveOutputConfig", () => {
     expect(config.includeAlternatives).toBe(true);
     expect(config.includeEquivalentNote).toBe(true);
     expect(config.includeConnotationWarning).toBe(true);
-    expect(config.includeRegister).toBe(false);
+    expect(config.includeNativeSynonyms).toBe(true);
   });
 
   it("returns custom config when user template is set and input is word", () => {

@@ -12,7 +12,7 @@
  */
 
 import type { TemplateFields } from "../../shared/translation-template.types.js";
-import type { Example, ExpressionType, Register, Synonym, TranslationVariant } from "../translation/types.js";
+import type { Example, ExpressionType, Synonym, TranslationVariant } from "../translation/types.js";
 
 /* ------------------------------------------------------------------ */
 /*  Selection                                                          */
@@ -53,8 +53,6 @@ export interface WordSelectionConfig {
  * Which fields to include when presenting a word.
  *
  * Uses TemplateFields from the user's saved translation template (Task 32).
- * Register is system-controlled (not in TemplateFields):
- *   showRegister → hardcoded per preset (true in flash cards)
  */
 
 /** Flash-card-specific presentation config */
@@ -72,8 +70,6 @@ export interface PresentationConfig {
    * Use resolveTemplate(userTemplate).fields to get TemplateFields.
    */
   fields: TemplateFields;
-  /** System-controlled flags not in TemplateFields */
-  showRegister: boolean;
   flashcard?: FlashCardPresentationConfig;
 }
 
@@ -95,7 +91,6 @@ export interface DictionaryWordConfig {
 export interface WordDisplayTranslation {
   text: string;
   transcription?: string;
-  register?: Register;
   synonyms?: Synonym[];
   examples?: Example[];
   alternatives?: TranslationVariant[];
@@ -112,7 +107,6 @@ export interface WordDisplayData {
   sourceLang: string;
   inputType: "word" | "phrase";
   emoji: string;
-  register: Register;
   createdAt: Date;
   /** Translations keyed by ISO 639-1 target language code */
   translations: Record<string, WordDisplayTranslation>;
@@ -169,7 +163,6 @@ export interface PipelineEntry {
   sourceLangCode: string;
   inputType: string;
   emoji?: string | null;
-  register?: string | null;
   createdAt: Date;
   translations: PipelineTranslationRow[];
 }

@@ -45,7 +45,6 @@ function makeEntry(
     sourceLangId: 1,
     inputType: "word",
     emoji,
-    register: "neutral",
     isActive: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),
@@ -54,7 +53,6 @@ function makeEntry(
       entryId: id,
       targetLangId: t.targetLangId,
       text: t.text,
-      register: "neutral",
       transcription: null,
       expressionType: null,
       equivalentNote: null,
@@ -86,7 +84,6 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
   sourceLangId: 1,
   inputType: "word",
   emoji: "🍎",
-  register: "neutral",
   isActive: true,
   createdAt: new Date("2025-01-01"),
   updatedAt: new Date("2025-01-01"),
@@ -96,14 +93,13 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
       entryId: 10,
       targetLangId: 3,
       text: "яблоко",
-      register: "neutral",
       transcription: "ˈjabləkə",
       expressionType: null,
       equivalentNote: null,
       connotationWarning: null,
       details: {
-        synonyms: [{ text: "яблочко", register: "colloquial" }],
-        examples: [{ context: "neutral", target: "Я ем яблоко.", register: "нейтральный" }],
+        synonyms: [{ text: "яблочко" }],
+        examples: [{ context: "neutral", target: "Я ем яблоко." }],
       },
       isActive: true,
       createdAt: new Date("2025-01-01"),
@@ -114,7 +110,6 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
       entryId: 10,
       targetLangId: 2,
       text: "jablko",
-      register: "neutral",
       transcription: "ˈjablkɔ",
       expressionType: null,
       equivalentNote: null,
@@ -219,11 +214,6 @@ describe("renderDictionaryEntry", () => {
     expect(html).toContain("🇨🇿 <b>jablko</b> [ˈjablkɔ]");
   });
 
-  it("shows register", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("neutral");
-  });
-
   it("shows synonyms from details", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("(яблочко)");
@@ -231,7 +221,7 @@ describe("renderDictionaryEntry", () => {
 
   it("shows examples from details", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("💬 <i>Я ем яблоко.</i>  → нейтральный");
+    expect(html).toContain("💬 <i>Я ем яблоко.</i>");
   });
 
   it("falls back to 🔤 when langResolver returns undefined", () => {

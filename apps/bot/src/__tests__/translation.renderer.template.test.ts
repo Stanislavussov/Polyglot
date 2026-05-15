@@ -25,24 +25,22 @@ const sampleOutput: TranslateOutput = {
   original: "hello",
   sourceLang: "en",
   emoji: "👋",
-  register: "neutral",
+  nativeSynonyms: [{ text: "привет" }],
   translations: {
     cs: {
       text: "ahoj",
       transcription: "ˈahoj",
-      register: "colloquial",
       synonyms: [
-        { text: "dobrý den", register: "neutral" },
-        { text: "nazdar", register: "colloquial" },
+        { text: "dobrý den" },
+        { text: "nazdar" },
       ],
       examples: [
-        { context: "neutral", target: "Dobrý den, pane!", register: "neutrální" },
-        { context: "colloquial", target: "Ahoj, jak se máš?", register: "hovorový" },
+        { context: "neutral", target: "Dobrý den, pane!" },
+        { context: "colloquial", target: "Ahoj, jak se máš?" },
       ],
       alternatives: [
         {
           text: "zdravím",
-          register: "literary",
           synonyms: [],
         },
       ],
@@ -77,7 +75,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
     expect(result).toContain("[ˈahoj]");
     expect(result).toContain("(dobrý den, nazdar)");
     expect(result).toContain("💬");
-    expect(result).toContain("∙ zdravím (literary)");
+    expect(result).toContain("∙ zdravím");
     expect(result).toContain("⚠️");
   });
 
@@ -86,7 +84,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
     expect(result).toContain("[ˈahoj]");
     expect(result).toContain("(dobrý den, nazdar)");
     expect(result).toContain("💬");
-    expect(result).toContain("∙ zdravím (literary)");
+    expect(result).toContain("∙ zdravím");
     expect(result).toContain("⚠️");
   });
 
@@ -115,7 +113,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
   it("omits alternatives when alternatives is false", () => {
     const fields: TemplateFields = { ...allTrue, alternatives: false };
     const result = renderTranslation(sampleOutput, "en", fields);
-    expect(result).not.toContain("∙ zdravím (literary)");
+    expect(result).not.toContain("∙ zdravím");
   });
 
   it("omits connotation warning when connotationWarning is false", () => {
@@ -156,7 +154,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
     expect(result).toContain("[ˈahoj]");
     expect(result).not.toContain("(dobrý den");
     expect(result).toContain("💬");
-    expect(result).not.toContain("∙ zdravím (literary)");
+    expect(result).not.toContain("∙ zdravím");
     expect(result).not.toContain("⚠️");
   });
 });

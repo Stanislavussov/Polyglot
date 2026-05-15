@@ -27,11 +27,10 @@ export interface TopicWord {
 /** Whether a translation is literal or an idiomatic equivalent (mirrors translation module) */
 export type TopicExpressionType = "literal" | "idiomatic_equivalent";
 
-/** An alternative translation variant with its own register and synonyms (mirrors translation module) */
+/** An alternative translation variant with synonyms (mirrors translation module) */
 export interface TopicTranslationVariant {
   text: string;
-  register: string;
-  synonyms: Array<{ text: string; register: string }>;
+  synonyms: Array<{ text: string }>;
 }
 
 /**
@@ -42,14 +41,13 @@ export interface TopicTranslationVariant {
 export interface LanguageTranslationEntry {
   text: string;
   transcription?: string;
-  register: string;
-  synonyms: Array<{ text: string; register: string }>;
-  examples: Array<{ context: string; target: string; register: string }>;
+  synonyms: Array<{ text: string }>;
+  examples: Array<{ context: string; target: string }>;
   /** Signals whether the translation is literal or an idiomatic equivalent */
   expressionType?: TopicExpressionType;
   /** Short note in the source language explaining why an equivalent was chosen */
   equivalentNote?: string;
-  /** Up to 2 alternative translation variants, each with its own register and synonyms */
+  /** Up to 2 alternative translation variants */
   alternatives?: TopicTranslationVariant[];
   /** Optional warning about dangerous or misleading connotations */
   connotationWarning?: string;

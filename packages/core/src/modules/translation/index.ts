@@ -40,11 +40,9 @@ export {
 export type {
   DictionaryContext,
   Example,
-  ExampleContext,
   ExpressionType,
   InputType,
   LanguageTranslation,
-  Register,
   Synonym,
   TranslateInput,
   TranslateOutput,

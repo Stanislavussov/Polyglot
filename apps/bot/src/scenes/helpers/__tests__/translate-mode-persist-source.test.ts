@@ -58,10 +58,7 @@ vi.mock("@polyglot/core", async () => {
       original: "test",
       sourceLang: "cs",
       emoji: "🏠",
-      register: "neutral",
       translations: {
-        ru: { text: "тест", register: "neutral", synonyms: [], examples: [] },
-        en: { text: "test", register: "neutral", synonyms: [], examples: [] },
       },
     }),
     detectLanguage: vi.fn((_text: string, _candidates: string[]) => {
@@ -168,7 +165,7 @@ describe("Persist source lang — lazy hydration (Task 36)", () => {
     expect(translateWithContext).toHaveBeenCalledWith(
       expect.objectContaining({
         sourceLang: "cs",
-        targetLangs: ["ru", "en"],
+        targetLangs: ["en"],
       }),
       expect.anything(),
     );

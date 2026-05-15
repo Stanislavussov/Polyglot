@@ -54,6 +54,7 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
     text: input.word,
     sourceLang: input.sourceLang,
     targetLangs: input.targetLangs,
+    nativeLang: input.nativeLang,
     topic: input.topic,
     dictionaryContext: input.dictionaryContext,
     outputConfig: input.outputConfig,
@@ -266,7 +267,7 @@ function toOutput(input: TranslateInput, result: TranslationResult, needsReview:
     original: input.word,
     sourceLang: input.sourceLang,
     emoji,
-    register: result.register,
+    nativeSynonyms: input.outputConfig?.includeNativeSynonyms === false ? [] : (result.nativeSynonyms ?? []),
     translations,
   };
 
@@ -305,7 +306,6 @@ function stripDisabledFields(
       ...(config.includeAlternatives === false && { alternatives: null }),
       ...(config.includeTranscription === false && { transcription: null }),
       ...(config.includeEquivalentNote === false && { expressionType: null, equivalentNote: null }),
-      ...(config.includeRegister === false && { register: "neutral" as const }),
       ...(config.includeConnotationWarning === false && { connotationWarning: null }),
     };
   }

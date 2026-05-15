@@ -33,11 +33,9 @@ export interface CreateVocabularyInput {
   sourceLangId: number;
   inputType: "word" | "phrase";
   emoji: string;
-  register: string;
   translations: Array<{
     targetLangId: number;
     text: string;
-    register: string;
     transcription?: string;
     expressionType?: string;
     equivalentNote?: string;
@@ -49,7 +47,6 @@ export interface CreateVocabularyInput {
 /** Partial update for a single translation row. */
 export interface UpdateTranslationData {
   text?: string;
-  register?: string;
   transcription?: string;
   expressionType?: string;
   equivalentNote?: string;
@@ -100,7 +97,6 @@ export const vocabularyRepository = {
           sourceLangId: input.sourceLangId,
           inputType: input.inputType,
           emoji: input.emoji,
-          register: input.register,
         })
         .returning();
 
@@ -113,7 +109,6 @@ export const vocabularyRepository = {
               entryId: entry!.id,
               targetLangId: t.targetLangId,
               text: t.text,
-              register: t.register,
               transcription: t.transcription,
               expressionType: t.expressionType,
               equivalentNote: t.equivalentNote,
@@ -291,7 +286,6 @@ export const vocabularyRepository = {
         entryId,
         targetLangId,
         text: data.text ?? "",
-        register: data.register,
         transcription: data.transcription,
         expressionType: data.expressionType,
         equivalentNote: data.equivalentNote,
@@ -312,7 +306,6 @@ export const vocabularyRepository = {
     translations: Array<{
       targetLangId: number;
       text: string;
-      register: string;
       transcription?: string;
       expressionType?: string;
       equivalentNote?: string;
@@ -335,7 +328,6 @@ export const vocabularyRepository = {
             entryId,
             targetLangId: t.targetLangId,
             text: t.text,
-            register: t.register,
             transcription: t.transcription,
             expressionType: t.expressionType,
             equivalentNote: t.equivalentNote,

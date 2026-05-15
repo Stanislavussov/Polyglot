@@ -22,7 +22,6 @@ vi.mock("@polyglot/core", async () => {
     ...actual,
     translateOne: vi.fn().mockResolvedValue({
       text: "regenerated",
-      register: "neutral",
       synonyms: [],
       examples: [],
     }),
@@ -43,17 +42,15 @@ const sampleOutput: TranslateOutput = {
   original: "hello",
   sourceLang: "en",
   emoji: "👋",
-  register: "neutral",
+  nativeSynonyms: [],
   translations: {
     cs: {
       text: "ahoj",
-      register: "colloquial",
       synonyms: [],
       examples: [],
     },
     de: {
       text: "hallo",
-      register: "neutral",
       synonyms: [],
       examples: [],
     },
@@ -110,7 +107,6 @@ describe("handleRegenLoop", () => {
         sourceLangId: 1,
         inputType: "word",
         emoji: "👋",
-        register: "neutral",
         translations: expect.arrayContaining([
           expect.objectContaining({ text: "ahoj", targetLangId: 1 }),
           expect.objectContaining({ text: "hallo", targetLangId: 1 }),
@@ -178,8 +174,8 @@ describe("handleRegenLoop", () => {
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
-      includeRegister: false,
       includeConnotationWarning: true,
+      includeNativeSynonyms: true,
     });
   });
 

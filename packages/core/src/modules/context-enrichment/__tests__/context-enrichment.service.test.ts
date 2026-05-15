@@ -44,7 +44,6 @@ function makeTranslateOutput(
   for (const lang of targetLangs) {
     translations[lang] = {
       text: `${original}_${lang}`,
-      register: "neutral",
       synonyms: [],
       examples: [],
     };
@@ -53,7 +52,7 @@ function makeTranslateOutput(
     original,
     sourceLang: "en",
     emoji: "📝",
-    register: "neutral",
+    nativeSynonyms: [],
     translations,
     ...(dictionaryContext ? { dictionaryContext } : {}),
   };
@@ -62,7 +61,6 @@ function makeTranslateOutput(
 function makeLangTranslation(word: string, lang: string): LanguageTranslation {
   return {
     text: `${word}_${lang}`,
-    register: "neutral",
     synonyms: [],
     examples: [],
   };

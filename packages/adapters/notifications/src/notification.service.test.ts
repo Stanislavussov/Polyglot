@@ -47,9 +47,8 @@ const mockTopicMeta: TopicMeta = {
 
 const makeLangEntry = (text: string): LanguageTranslationEntry => ({
   text,
-  register: "neutral",
-  synonyms: [{ text: `${text}-syn`, register: "neutral" }],
-  examples: [{ context: "neutral", target: text, register: "neutral" }],
+  synonyms: [{ text: `${text}-syn` }],
+  examples: [{ context: "neutral", target: text }],
 });
 
 const mockTopicWord: TopicWord = {

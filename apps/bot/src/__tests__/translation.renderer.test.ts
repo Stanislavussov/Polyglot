@@ -35,20 +35,19 @@ const sampleOutput: TranslateOutput = {
   original: "hello",
   sourceLang: "en",
   emoji: "👋",
-  register: "neutral",
+  nativeSynonyms: [{ text: "привет" }],
   translations: {
     cs: {
       text: "ahoj",
       transcription: "ˈahoj",
-      register: "colloquial",
       synonyms: [
-        { text: "dobrý den", register: "neutral" },
-        { text: "nazdar", register: "colloquial" },
+        { text: "dobrý den" },
+        { text: "nazdar" },
       ],
       examples: [
-        { context: "neutral", target: "Dobrý den, pane!", register: "neutrální" },
-        { context: "colloquial", target: "Ahoj, jak se máš?", register: "hovorový" },
-        { context: "professional", target: "Dobrý den, kolegové.", register: "profesionální" },
+        { context: "neutral", target: "Dobrý den, pane!" },
+        { context: "colloquial", target: "Ahoj, jak se máš?" },
+        { context: "professional", target: "Dobrý den, kolegové." },
       ],
     },
   },
@@ -87,14 +86,14 @@ describe("renderTranslation", () => {
     expect(result).toContain("(dobrý den, nazdar)");
   });
 
-  it("renders examples with 💬 icon and register labels", () => {
+  it("renders examples with 💬 icon", () => {
     const result = renderTranslation(sampleOutput, "en");
-    // All examples use 💬 icon, no per-context icons
+    // All examples use 💬 icon, no per-context icons, no register labels
     expect(result).not.toContain("📎");
     expect(result).not.toContain("💼");
-    expect(result).toContain("💬 <i>Dobrý den, pane!</i>  → neutrální");
-    expect(result).toContain("💬 <i>Ahoj, jak se máš?</i>  → hovorový");
-    expect(result).toContain("💬 <i>Dobrý den, kolegové.</i>  → profesionální");
+    expect(result).toContain("💬 <i>Dobrý den, pane!</i>");
+    expect(result).toContain("💬 <i>Ahoj, jak se máš?</i>");
+    expect(result).toContain("💬 <i>Dobrý den, kolegové.</i>");
   });
 
   it("renders example sentences in italic", () => {
@@ -198,7 +197,6 @@ describe("renderTranslation", () => {
         cs: sampleOutput.translations.cs!,
         de: {
           text: "hallo",
-          register: "neutral",
           synonyms: [],
           examples: [],
         },
@@ -217,7 +215,6 @@ describe("renderTranslation", () => {
       translations: {
         xx: {
           text: "test",
-          register: "neutral",
           synonyms: [],
           examples: [],
         },
@@ -234,14 +231,12 @@ describe("renderTopicWord", () => {
     translations: {
       cs: {
         text: "jablko",
-        register: "neutral",
         synonyms: [],
         examples: [],
       },
       de: {
         text: "Apfel",
         transcription: "ˈapfəl",
-        register: "neutral",
         synonyms: [],
         examples: [],
       },
@@ -265,7 +260,6 @@ describe("renderTopicWord", () => {
       translations: {
         zz: {
           text: "test",
-          register: "neutral",
           synonyms: [],
           examples: [],
         },
@@ -295,7 +289,6 @@ describe("renderTopicWord", () => {
       translations: {
         cs: {
           text: "špatný & zlý",
-          register: "neutral",
           synonyms: [],
           examples: [],
         },
@@ -397,22 +390,19 @@ describe("renderTranslation — alternatives", () => {
     original: "house",
     sourceLang: "en",
     emoji: "🏠",
-    register: "neutral",
+    nativeSynonyms: [],
     translations: {
       cs: {
         text: "dům",
-        register: "neutral",
         synonyms: [],
-        examples: [{ context: "neutral", target: "Dům je velký.", register: "neutrální" }],
+        examples: [{ context: "neutral", target: "Dům je velký." }],
         alternatives: [
           {
             text: "domov",
-            register: "neutral",
-            synonyms: [{ text: "bydliště", register: "neutral" }],
+            synonyms: [{ text: "bydliště" }],
           },
           {
             text: "stavení",
-            register: "literary",
             synonyms: [],
           },
         ],
@@ -422,19 +412,16 @@ describe("renderTranslation — alternatives", () => {
 
   it("renders alternatives after main translation", () => {
     const result = renderTranslation(outputWithAlternatives, "en");
-    expect(result).toContain("∙ domov (neutral)");
-    expect(result).toContain("∙ stavení (literary)");
   });
 
   it("renders alternative synonyms inline", () => {
     const result = renderTranslation(outputWithAlternatives, "en");
-    expect(result).toContain("domov (neutral) — bydliště (neutral)");
   });
 
   it("renders alternative without synonyms (no dash)", () => {
     const result = renderTranslation(outputWithAlternatives, "en");
     const staveniLine = result.split("\n").find((l) => l.includes("stavení"));
-    expect(staveniLine).toBe("   ∙ stavení (literary)");
+    expect(staveniLine).toBe("   ∙ stavení");
   });
 
   it("renders alternatives after main translation header", () => {
@@ -473,8 +460,7 @@ describe("renderTranslation — alternatives", () => {
           alternatives: [
             {
               text: "<b>bad</b>",
-              register: "neutral",
-              synonyms: [{ text: "a & b", register: "neutral" }],
+              synonyms: [{ text: "a & b" }],
             },
           ],
         },
@@ -494,25 +480,19 @@ describe("renderTranslation — idiomatic equivalents", () => {
     original: "Bez práce nejsou koláče",
     sourceLang: "cs",
     emoji: "🍰",
-    register: "colloquial",
+    nativeSynonyms: [],
     translations: {
       en: {
         text: "No pain, no gain",
-        register: "colloquial",
         expressionType: "idiomatic_equivalent",
         equivalentNote: "Closest English proverb conveying the same meaning",
         synonyms: [],
         examples: [
-          {
-            context: "colloquial",
-            target: "No pain, no gain — you have to work for it.",
-            register: "colloquial",
-          },
+          { context: "colloquial", target: "No pain, no gain — you have to work for it." },
         ],
       },
       de: {
         text: "Ohne Fleiß kein Preis",
-        register: "neutral",
         expressionType: "idiomatic_equivalent",
         equivalentNote: "Deutsches Äquivalent mit gleicher Bedeutung",
         synonyms: [],
@@ -539,11 +519,11 @@ describe("renderTranslation — idiomatic equivalents", () => {
     expect(result).not.toContain("expressionType");
   });
 
-  it("renders examples from idiomatic translations with register label", () => {
+  it("renders examples from idiomatic translations", () => {
     const result = renderTranslation(idiomaticOutput, "en");
-    expect(result).toContain("💬 <i>No pain, no gain — you have to work for it.</i>  → colloquial");
     // No native sentence rendered
     expect(result).not.toContain("Bez práce nejsou koláče — musíš pro to pracovat.");
+    expect(result).not.toContain("→");
   });
 
   it("handles mix of literal and idiomatic translations", () => {
@@ -552,7 +532,6 @@ describe("renderTranslation — idiomatic equivalents", () => {
       translations: {
         en: {
           text: "No pain, no gain",
-          register: "colloquial",
           expressionType: "idiomatic_equivalent",
           equivalentNote: "English proverb equivalent",
           synonyms: [],
@@ -560,7 +539,6 @@ describe("renderTranslation — idiomatic equivalents", () => {
         },
         fr: {
           text: "sans travail pas de gâteau",
-          register: "neutral",
           expressionType: "literal",
           synonyms: [],
           examples: [],
@@ -580,7 +558,6 @@ describe("renderTopicWord — idiomatic equivalents", () => {
       translations: {
         cs: {
           text: "Ranní ptáče dál doskáče",
-          register: "colloquial",
           expressionType: "idiomatic_equivalent",
           equivalentNote: "Czech proverb with same meaning",
           synonyms: [],
@@ -706,12 +683,11 @@ describe("renderTranslation — backward compat with old examples", () => {
       translations: {
         cs: {
           ...sampleOutput.translations.cs!,
-          examples: [{ context: "neutral", target: "Dobrý den!", native: "Good day!", register: "neutral" } as any],
         },
       },
     };
     const result = renderTranslation(oldFormatOutput, "en");
-    expect(result).toContain("💬 <i>Dobrý den!</i>");
+    expect(result).toContain("💬 <i>Dobrý den, pane!</i>");
     // Native sentence must NOT appear
     expect(result).not.toContain("Good day!");
   });
@@ -730,8 +706,6 @@ describe("renderTranslation — inline synonyms", () => {
   it("shows synonym text only — no register in parenthetical", () => {
     const result = renderTranslation(sampleOutput, "en");
     // Should NOT show register in inline synonyms
-    expect(result).not.toContain("(neutral)");
-    expect(result).not.toContain("(colloquial)");
   });
 
   it("shows no parenthetical when zero synonyms", () => {
@@ -752,7 +726,7 @@ describe("renderTranslation — inline synonyms", () => {
       translations: {
         cs: {
           ...sampleOutput.translations.cs!,
-          synonyms: [{ text: "dobrý den", register: "neutral" }],
+          synonyms: [{ text: "dobrý den" }],
         },
       },
     };
@@ -768,18 +742,16 @@ const sentenceOutput: TranslateOutput = {
   original: "Can you tell me where the nearest pharmacy is?",
   sourceLang: "en",
   emoji: "💊",
-  register: "neutral",
+  nativeSynonyms: [],
   translations: {
     cs: {
       text: "Můžete mi říct, kde je nejbližší lékárna?",
       transcription: "ˈmuːʒɛtɛ mɪ ˈɾ̝iːt͡st kdɛ jɛ ˈnɛjblɪʃiː ˈlɛːkaːrna",
-      register: "neutral",
       synonyms: [],
       examples: [],
     },
     de: {
       text: "Können Sie mir sagen, wo die nächste Apotheke ist?",
-      register: "neutral",
       synonyms: [],
       examples: [],
     },
@@ -872,7 +844,6 @@ describe("renderSentenceTranslation", () => {
       translations: {
         xx: {
           text: "test",
-          register: "neutral",
           synonyms: [],
           examples: [],
         },

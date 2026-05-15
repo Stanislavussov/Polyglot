@@ -38,6 +38,7 @@ export async function handleRegenLoop(
   userId: number,
   cardMsgId: number,
   inputType?: InputType,
+  nativeLang?: string,
 ): Promise<void> {
   const isSentence = inputType === "sentence";
   let current = output;
@@ -55,7 +56,7 @@ export async function handleRegenLoop(
 
   const renderCard = isSentence
     ? renderSentenceTranslation
-    : (o: TranslateOutput, l: SupportedLang) => renderTranslation(o, l, effectiveTemplate.fields);
+    : (o: TranslateOutput, l: SupportedLang) => renderTranslation(o, l, effectiveTemplate.fields, nativeLang);
   const buildKeyboard = isSentence
     ? buildSentenceKeyboard
     : (codes: string[], l: SupportedLang) =>

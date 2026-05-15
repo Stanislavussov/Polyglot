@@ -16,28 +16,15 @@ const mockLogger: Logger = {
 function makeValidResult(overrides?: Partial<TranslationResult>): TranslationResult {
   return {
     emoji: "👋",
-    register: "neutral",
+    nativeSynonyms: [{ text: "привет" }],
     translations: {
       cs: {
         text: "ahoj",
-        register: "colloquial",
-        synonyms: [{ text: "čau", register: "slang" }],
+        synonyms: [{ text: "čau" }],
         examples: [
-          {
-            context: "neutral",
-            target: "Řekl ahoj svému kolegovi.",
-            register: "нейтральный",
-          },
-          {
-            context: "colloquial",
-            target: "Ahoj, jak se máš?",
-            register: "разговорный",
-          },
-          {
-            context: "professional",
-            target: "Ahoj, vítejte na schůzce.",
-            register: "профессиональный",
-          },
+          { context: "neutral", target: "Řekl ahoj svému kolegovi." },
+          { context: "colloquial", target: "Ahoj, jak se máš?" },
+          { context: "professional", target: "Ahoj, vítejte na schůzce." },
         ],
         transcription: null,
         expressionType: null,
@@ -66,7 +53,6 @@ describe("translate", () => {
     expect(result.original).toBe("hello");
     expect(result.sourceLang).toBe("en");
     expect(result.emoji).toBe("👋");
-    expect(result.register).toBe("neutral");
     expect(result.translations.cs.text).toBe("ahoj");
     expect(result.needsReview).toBeUndefined();
   });
@@ -85,14 +71,9 @@ describe("translate", () => {
       translations: {
         cs: {
           text: "hello", // same as original → semantic fail
-          register: "neutral",
-          synonyms: [{ text: "čau", register: "slang" }],
+          synonyms: [{ text: "čau" }],
           examples: [
-            {
-              context: "neutral",
-              target: "Hello, jak se máš?",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Hello, jak se máš?" },
           ],
         },
       },
@@ -113,14 +94,9 @@ describe("translate", () => {
       translations: {
         cs: {
           text: "hello",
-          register: "neutral",
-          synonyms: [{ text: "čau", register: "slang" }],
+          synonyms: [{ text: "čau" }],
           examples: [
-            {
-              context: "neutral",
-              target: "Hello world in Czech.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Hello world in Czech." },
           ],
         },
       },
@@ -164,26 +140,16 @@ describe("translate", () => {
       translations: {
         cs: {
           text: "ahoj",
-          register: "colloquial",
-          synonyms: [{ text: "čau", register: "slang" }],
+          synonyms: [{ text: "čau" }],
           examples: [
-            {
-              context: "neutral",
-              target: "Řekl ahoj kolegovi.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Řekl ahoj kolegovi." },
           ],
         },
         de: {
           text: "hallo",
-          register: "neutral",
-          synonyms: [{ text: "hi", register: "colloquial" }],
+          synonyms: [{ text: "hi" }],
           examples: [
-            {
-              context: "neutral",
-              target: "Er sagte hallo zum Kollegen.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Er sagte hallo zum Kollegen." },
           ],
         },
       },
@@ -257,7 +223,6 @@ describe("translateOne", () => {
     );
 
     expect(result.text).toBe("ahoj");
-    expect(result.register).toBe("colloquial");
     expect(result.synonyms).toHaveLength(1);
     expect(result.examples).toHaveLength(3);
   });
@@ -312,14 +277,9 @@ describe("translateOne", () => {
       translations: {
         cs: {
           text: "hello",
-          register: "neutral",
-          synonyms: [{ text: "čau", register: "slang" }],
+          synonyms: [{ text: "čau" }],
           examples: [
-            {
-              context: "neutral",
-              target: "Hello world in Czech.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Hello world in Czech." },
           ],
         },
       },
@@ -352,14 +312,9 @@ describe("translateBatch", () => {
           translations: {
             cs: {
               text: "svět",
-              register: "neutral",
-              synonyms: [{ text: "země", register: "neutral" }],
+              synonyms: [{ text: "země" }],
               examples: [
-                {
-                  context: "neutral",
-                  target: "Svět je krásné místo.",
-                  register: "нейтральный",
-                },
+                { context: "neutral", target: "Svět je krásné místo." },
               ],
               transcription: null,
               expressionType: null,
@@ -423,14 +378,9 @@ describe("validation logging", () => {
       translations: {
         cs: {
           text: "hello",
-          register: "neutral",
-          synonyms: [{ text: "čau", register: "slang" }],
+          synonyms: [{ text: "čau" }],
           examples: [
-            {
-              context: "neutral",
-              target: "Hello world in Czech.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Hello world in Czech." },
           ],
         },
       },
@@ -462,14 +412,9 @@ describe("validation logging", () => {
       translations: {
         cs: {
           text: "hello",
-          register: "neutral",
-          synonyms: [{ text: "čau", register: "slang" }],
+          synonyms: [{ text: "čau" }],
           examples: [
-            {
-              context: "neutral",
-              target: "Hello world in Czech.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Hello world in Czech." },
           ],
         },
       },
@@ -504,14 +449,9 @@ describe("validation logging", () => {
       translations: {
         cs: {
           text: "hello",
-          register: "neutral",
-          synonyms: [{ text: "čau", register: "slang" }],
+          synonyms: [{ text: "čau" }],
           examples: [
-            {
-              context: "neutral",
-              target: "Hello world in Czech.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Hello world in Czech." },
           ],
           transcription: null,
           expressionType: null,
@@ -546,14 +486,9 @@ describe("validation logging", () => {
       translations: {
         cs: {
           text: "hello",
-          register: "neutral",
-          synonyms: [{ text: "čau", register: "slang" }],
+          synonyms: [{ text: "čau" }],
           examples: [
-            {
-              context: "neutral",
-              target: "Hello world in Czech.",
-              register: "нейтральный",
-            },
+            { context: "neutral", target: "Hello world in Czech." },
           ],
           transcription: null,
           expressionType: null,
@@ -582,7 +517,6 @@ describe("parseResponse", () => {
     const result = parseResponse(raw);
 
     expect(result.emoji).toBe("👋");
-    expect(result.register).toBe("neutral");
     expect(result.translations.cs.text).toBe("ahoj");
   });
 
@@ -594,15 +528,9 @@ describe("parseResponse", () => {
     expect(() =>
       parseResponse({
         emoji: "👋",
-        // missing register and translations
+        // missing translations
       }),
     ).toThrow();
-  });
-
-  it("throws on invalid register value", () => {
-    const raw = makeValidResult();
-    (raw as unknown as Record<string, unknown>).register = "unknown";
-    expect(() => parseResponse(raw)).toThrow();
   });
 
   it("throws on empty translations record", () => {

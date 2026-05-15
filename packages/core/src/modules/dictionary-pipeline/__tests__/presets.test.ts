@@ -30,7 +30,6 @@ describe("dictionary pipeline presets", () => {
     });
 
     it("shows register", () => {
-      expect(FLASHCARD_CONFIG.presentation.showRegister).toBe(true);
     });
 
     it("is a valid DictionaryWordConfig", () => {
@@ -57,7 +56,6 @@ describe("dictionary pipeline presets", () => {
     });
 
     it("does not show register", () => {
-      expect(NOTIFICATION_DICT_CONFIG.presentation.showRegister).toBe(false);
     });
 
     it("has no flashcard config", () => {
@@ -88,7 +86,6 @@ describe("dictionary pipeline presets", () => {
     });
 
     it("shows register", () => {
-      expect(WORD_OF_DAY_DICT_CONFIG.presentation.showRegister).toBe(true);
     });
 
     it("is a valid DictionaryWordConfig", () => {

@@ -6,7 +6,7 @@
  */
 
 import { getLogger } from "../../logger.js";
-import type { Register } from "../translation/types.js";
+import type { Example, ExpressionType, Synonym, TranslationVariant } from "../translation/types.js";
 import type {
   DictionaryPipelineDeps,
   DictionaryWordConfig,
@@ -128,7 +128,7 @@ function shuffleArray<T>(arr: T[]): T[] {
  * applying presentation field masking.
  */
 function buildDisplayTranslation(row: PipelineTranslationRow, config: DictionaryWordConfig): WordDisplayTranslation {
-  const { fields, showRegister } = config.presentation;
+  const { fields } = config.presentation;
 
   const result: WordDisplayTranslation = {
     text: row.text,
@@ -136,10 +136,6 @@ function buildDisplayTranslation(row: PipelineTranslationRow, config: Dictionary
 
   if (fields.transcription && row.transcription) {
     result.transcription = row.transcription;
-  }
-
-  if (showRegister && row.register) {
-    result.register = row.register as Register;
   }
 
   if (fields.synonyms && row.details?.synonyms && row.details.synonyms.length > 0) {
@@ -169,7 +165,7 @@ function buildDisplayTranslation(row: PipelineTranslationRow, config: Dictionary
  * Build WordDisplayData from a PipelineEntry, applying presentation config.
  */
 function buildDisplayData(entry: PipelineEntry, config: DictionaryWordConfig): WordDisplayData | null {
-  const { targetLangs, showRegister } = config.presentation;
+  const { targetLangs } = config.presentation;
 
   // Filter translations by target language if specified
   let translationRows = entry.translations;
@@ -193,7 +189,6 @@ function buildDisplayData(entry: PipelineEntry, config: DictionaryWordConfig): W
     sourceLang: entry.sourceLangCode,
     inputType: entry.inputType as "word" | "phrase",
     emoji: entry.emoji ?? "📝",
-    register: showRegister && entry.register ? (entry.register as Register) : "neutral",
     createdAt: entry.createdAt,
     translations,
   };
