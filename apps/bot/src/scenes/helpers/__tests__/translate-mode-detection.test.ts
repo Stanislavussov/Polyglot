@@ -255,8 +255,7 @@ describe("handleMistypeConfirmCallback — Task 58", () => {
       sourceLang: "ru",
       emoji: "👋",
       nativeSynonyms: [],
-      translations: {
-      },
+      translations: {},
     });
   });
 

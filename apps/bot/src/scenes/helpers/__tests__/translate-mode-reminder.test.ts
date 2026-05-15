@@ -62,8 +62,7 @@ vi.mock("@polyglot/core", async () => {
       original: "test",
       sourceLang: "cs",
       emoji: "🏠",
-      translations: {
-      },
+      translations: {},
     }),
     detectLanguage: vi.fn((text: string, candidates: string[]) => {
       // Simulate real detection: Cyrillic → 'ru' if in candidates

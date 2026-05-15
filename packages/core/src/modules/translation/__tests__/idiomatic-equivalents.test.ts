@@ -19,9 +19,7 @@ describe("Schema — expressionType and equivalentNote", () => {
   const baseTranslation = {
     text: "Having your cake and eating it too",
     synonyms: [{ text: "best of both worlds" }],
-    examples: [
-      { context: "neutral" as const, target: "You can't have your cake and eat it too." },
-    ],
+    examples: [{ context: "neutral" as const, target: "You can't have your cake and eat it too." }],
   };
 
   it("accepts expressionType as 'literal'", () => {
@@ -148,9 +146,7 @@ describe("Schema — expressionType and equivalentNote", () => {
     const data = {
       text: "ahoj",
       synonyms: [{ text: "čau" }],
-      examples: [
-        { context: "neutral", target: "Ahoj, jak se máš?" },
-      ],
+      examples: [{ context: "neutral", target: "Ahoj, jak se máš?" }],
     };
     const result = languageTranslationSchema.safeParse(data);
     expect(result.success).toBe(true);

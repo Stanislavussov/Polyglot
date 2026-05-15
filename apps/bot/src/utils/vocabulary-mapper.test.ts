@@ -167,8 +167,7 @@ describe("toVocabularyInput", () => {
       sourceLang: "en",
       emoji: "🔤",
       nativeSynonyms: [],
-      translations: {
-      },
+      translations: {},
     };
 
     const result = toVocabularyInput(allUnknown, 1, "word", langResolver);
