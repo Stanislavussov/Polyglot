@@ -1,5 +1,8 @@
 # Task 35 — Localized Bot Command Descriptions
 
+**Status:** 🟡 Partial — i18n keys added, startup per-language commands implemented, helper function extracted, error resilience done, tests done. Per-user on language change NOT wired (settings scene integration pending).  
+**Last verified:** 2026-05-16
+
 ## Goal
 
 Telegram's bot command menu (the "/" menu) currently shows hardcoded English descriptions for all users. Adjust command descriptions to match the user's selected interface language using Telegram's `setMyCommands` with `language_code` scoping and per-user `BotCommandScopeChat`.

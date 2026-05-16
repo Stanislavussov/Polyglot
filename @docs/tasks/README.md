@@ -7,21 +7,25 @@
 | 06  | [AI Token Optimization](./06-token-optimization.md) | 🔲 To Do  |
 | 08  | [AI Model Fallback](./08-model-fallback.md)       | 🔲 To Do  |
 | 11  | [Input Message Limits & Validation Config](./11-input-limits-config.md) | 🔲 To Do  |
-| 14  | [Refactor Language Usage to `languages` Table](./14-language-table-refactor.md) | 🔲 To Do  |
+| 14  | [Refactor Language Usage to `languages` Table](./14-language-table-refactor.md) | 🟡 Partial |
 | 18  | [Language Buttons Native Display](./18-language-buttons-native-display.md) | 🔲 To Do  |
 | 24  | [Token Usage Tracking](./24-token-usage-tracking.md) | 🔲 To Do  |
 | 26  | [Diacritics-Aware Translation](./26-diacritics-aware-translation.md) | 🔲 To Do  |
-| 29  | [Require Source Language Before Translation](./29-require-source-lang-before-translate.md) | 🔲 To Do  |
-| 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 In Progress |
-| 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 In Progress |
-| 38  | [Regen Helper Context Enrichment](./38-regen-helper-context-enrichment.md) | 🔲 To Do |
+| 29  | [Require Source Language Before Translation](./29-require-source-lang-before-translate.md) | ❌ Superseded by Task 58 |
+| 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 Partial |
+| 36  | [Fix Onboarding Back-Navigation](./36-fix-onboarding-back-navigation.md) | 🔲 To Do |
+| 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 Partial (types/schema done, service not wired) |
+| 38  | [Fix Onboarding Demo Translation](./38-fix-onboarding-demo-translation.md) | 🔲 To Do |
+| 39  | [Hide Source Lang Menu Multiple Targets](./39-hide-source-lang-menu-multiple-targets.md) | 🔲 To Do |
+| 40  | [Sync Username on Every Request](./40-sync-username-on-every-request.md) | 🔲 To Do |
+| 57  | [Source Language Examples](./57-source-lang-examples.md) | 🔲 To Do |
 | 58  | [Language Detection Pre-Request](./58-language-detection-pre-request.md) | 🔲 To Do |
 
 ## Architecture — Debt Reduction
 
 | #   | Task                                              | Status     | Priority |
 | --- | ------------------------------------------------- | ---------- | -------- |
-| 42  | [Composition Root & Dependency Injection](./42-composition-root-and-di.md) | 🔲 To Do | 🔴 Critical |
+| 42  | [Composition Root & Dependency Injection](./42-composition-root-and-di.md) | ✅ Done (infra complete, incremental migration in progress) | 🔴 Critical |
 | 43  | [Persistent Session Storage with Versioning](./43-persistent-session-storage.md) | 🔲 To Do | 🔴 Critical |
 | 44  | [Unify Language Cache with TTL Refresh](./44-unify-language-cache.md) | 🔲 To Do | 🟠 High |
 | 45  | [Extract Domain Types from adapter-db to Core](./45-domain-types-in-core.md) | 🔲 To Do | 🔴 Critical |
@@ -32,10 +36,10 @@
 | 50  | [SRS Schema Foundation](./50-srs-schema-foundation.md) | 🔲 To Do | 🟠 High |
 | 51  | [Modular Bot Feature Registration](./51-modular-bot-registration.md) | 🔲 To Do | 🟡 Medium |
 | 52  | [Wire Topic Cache + Normalize FK](./52-topic-cache-fk-normalization.md) | 🔲 To Do | 🟡 Medium |
-| 53  | [Decouple Adapters from @polyglot/infra](./53-decouple-adapters-from-infra.md) | 🔲 To Do | 🟡 Medium |
+| 53  | [Decouple Adapters from @polyglot/infra](./53-decouple-adapters-from-infra.md) | ✅ Done | ✅ Done |
 | 54  | [Fix Core Barrel Export Conflicts](./54-fix-barrel-export-conflicts.md) | 🔲 To Do | 🟡 Medium |
 | 55  | [Health Check & Basic Observability](./55-health-check-and-observability.md) | 🔲 To Do | 🟡 Medium |
-| 56  | [GDPR /delete Command](./56-gdpr-delete-command.md) | 🔲 To Do | 🟡 Medium |
+| 56  | [Docker Compose Build](./56-docker-compose-build.md) | ✅ Done (files in `deploy/`) | ✅ Done |
 
 ## Finished
 

@@ -2,6 +2,7 @@
 
 **Status:** ✅ Done  
 **Category:** Architecture — Medium  
+**Last verified:** 2026-05-16  
 
 ---
 

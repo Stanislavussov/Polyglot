@@ -1,7 +1,7 @@
 # Polyglot — MVP Scope & Feature Prioritization
 
 **Owner:** Product Owner  
-**Last updated:** 2026-03-28  
+**Last updated:** 2026-05-16  
 **Method:** MoSCoW (Must / Should / Could / Won't for this release)
 
 ---
@@ -96,7 +96,7 @@ The following clarifications were outstanding in `docs/requirements/30-save-to-d
 
 This section places FEAT-30 within the full product feature landscape.
 
-### Features Implemented (as of 2026-03-28)
+### Features Implemented (as of 2026-05-16)
 
 | Feature | Tasks | Status |
 |---------|-------|--------|
@@ -104,34 +104,63 @@ This section places FEAT-30 within the full product feature landscape.
 | Database schema | Task 02 | ✅ Done |
 | Bot setup (grammY) | Task 03 | ✅ Done |
 | AI translation pipeline | Task 04 | ✅ Done |
-| Token optimization | Task 06 | ✅ Done |
+| Structured logging | Task 05 | ✅ Done |
 | Partial regeneration | Task 07 | ✅ Done |
-| Model fallback | Task 08 | ✅ Done |
 | Translate session loop | Task 09 | ✅ Done |
 | Idiomatic equivalents | Task 10 | ✅ Done |
-| Input limits config | Task 11 | ✅ Done |
+| Input limits config | Task 11 | ✅ Done (config exists, rate limiting not wired — see Task 47) |
 | Idiom analysis | Task 12 | ✅ Done |
 | Wiktionary JSONL | Task 13 | ✅ Done |
-| Language table refactor | Task 14 | ✅ Done |
+| Language table refactor | Task 14 | 🟡 Partial — `languages` table exists, `translationRequests` migrated, remaining tables pending |
 | Context enrichment layer | Task 15 | ✅ Done |
 | Auto-detect input language | Task 16 | ✅ Done |
 | Language buttons — native display | Task 18 | ✅ Done |
-| Diacritics-aware translation | Task 26 | ✅ Done |
 | Input type detection & text limits | Task 27 | ✅ Done |
+| Link translation_requests to languages | Task 23 | ✅ Done |
+| Validation respects output config | Task 28 | ✅ Done |
+| Save to Dictionary (FEAT-30) | Task 30 | ✅ Done |
+| Redesign translation card | Task 31 | ✅ Done |
+| User translation template | Task 32 | ✅ Done |
+| Dictionary word pipeline + flashcards | Task 33 | ✅ Done |
+| Persist source language & reentry reminder | Task 36 | ✅ Done |
+| Normalize vocabulary schema | Task 39 | ✅ Done |
+| Dictionary browse & delete | Task 40 | ✅ Done |
+| Implement /settings command | Task 37b | ✅ Done |
+| Daily word notifications | Task 41 | ✅ Done |
+| Composition Root & DI | Task 42 | ✅ Infrastructure done, incremental migration in progress |
+| Decouple adapters from infra | Task 53 | ✅ Done |
+| Docker Compose Build | Task 56 | ✅ Done (files in `deploy/`) |
 
 ### Features In Design / Active
 
 | Feature | Task | Status |
 |---------|------|--------|
-| Save to Dictionary (FEAT-30) | Task TBD (from 30-save-to-dictionary.md) | 🟡 In Design → **In Scope: this PO decision** |
+| AI Token Optimization | Task 06 | 🔲 To Do — prompts slimmed, but MAX_RETRIES still 2, no warnings system |
+| AI Model Fallback | Task 08 | 🔲 To Do — no `fallback.ts` exists |
+| Token Usage Tracking | Task 24 | 🔲 To Do |
+| Diacritics-Aware Translation | Task 26 | 🔲 To Do — no `hasDiacritics` column, no validator |
+| Localized Bot Commands | Task 35 | 🟡 Partial — startup + onboarding done, settings change pending |
+| Lite AI Translation Validator | Task 37 | 🟡 Partial — types/schema/prompt/risk-detector designed, service not wired |
+| Regen Helper Context Enrichment | Task 38 | 🔲 To Do |
+| Fix Onboarding Back-Navigation | Task 36 | 🔲 To Do |
+| Fix Onboarding Demo Translation | Task 38 (onboarding) | 🔲 To Do |
+| Language Detection Pre-Request | Task 58 | 🔲 To Do |
+| Source Language Examples | Task 57 | 🔲 To Do |
+| ~~Require Source Lang Before Translate~~ | ~~Task 29~~ | ❌ Superseded by Task 58 |
 
-### Must Have — Next Release
+### Must Have — Next Release (v1.1)
 
-Per BRD §6 and FEAT-30 requirements, the following are must-haves for the v1.0 release:
+Per BRD §6 and current implementation state, the following are must-haves for the v1.1 release:
 
-- ✅ Core AI translation (multi-language, word/phrase/sentence)
-- ✅ Input type detection (word / phrase / sentence)
-- **FEAT-30 MVP** (see §2 above) — Save to Dictionary with FK integrity, duplicate detection, input type storage
+- ✅ Core AI translation (multi-language, word/phrase/sentence) — **Complete**
+- ✅ Input type detection (word / phrase / sentence) — **Complete**
+- ✅ FEAT-30 MVP — Save to Dictionary with FK integrity, duplicate detection, input type storage — **Complete**
+- ✅ Dictionary browse, search, delete — **Complete**
+- ✅ Flash cards — **Complete**
+- ✅ Daily word notifications — **Complete**
+- ✅ /settings command — **Complete**
+- 🟡 Wire rate limiting into translation flow (Task 47) — infrastructure exists, not wired
+- 🔲 Token optimization (Task 06) — partial, needs warnings system + MAX_RETRIES reduction
 
 ---
 
@@ -141,15 +170,32 @@ Items below are tagged with priority for the roadmap. See `docs/roadmap.md` for 
 
 | Feature | MoSCoW | Milestone | Notes |
 |---------|--------|-----------|-------|
-| `/dictionary` browse command | Should | v1.1 | Completes the save→browse loop |
-| Content sanitization hardening | Could | v1.1 | Strip `needsReview` in all write paths |
-| `word_target_langs` junction table | Could | v1.1 | FK integrity for target langs (FEAT-30/C2 follow-up) |
-| Phrase card visual differentiation | Could | v1.1 | Examples-first layout for phrases |
-| Edit saved translation | Should | v1.2 | BRD §7; open question #2 must resolve first |
+| Wire rate limiting (Task 47) | Must | v1.1 | Infrastructure exists (`translationRequests` table), needs wiring |
+| Token optimization (Task 06) | Must | v1.1 | Prompts slimmed, needs warnings system + MAX_RETRIES = 1 |
+| AI model fallback (Task 08) | Should | v1.1 | No `fallback.ts` exists yet |
+| Token usage tracking (Task 24) | Could | v1.1 | Visibility + debugging |
+| Diacritics-aware translation (Task 26) | Should | v1.1 | Critical for Czech/Polish quality |
+| Language detection pre-request (Task 58) | Should | v1.1 | Replaces source lang menu |
+| Regen helper context enrichment (Task 38) | Should | v1.1 | Regen misses Wiktionary context |
+| Fix onboarding back-navigation (Task 36) | Should | v1.1 | UX polish |
+| Fix onboarding demo translation (Task 38-onboarding) | Should | v1.1 | Shows placeholder instead of real AI result |
+| Source language examples (Task 57) | Could | v1.1 | Bilingual sentence pairs |
+| Persistent session storage (Task 43) | Must | v1.1 | Survives bot restart |
+| Unify language cache (Task 44) | Should | v1.1 | Single source of truth |
+| Extract domain types (Task 45) | Must | v1.1 | Clean adapter swappability |
+| Split translate-mode.helper (Task 46) | Should | v1.1 | Developer velocity |
+| Extract notification scheduler (Task 48) | Should | v1.2 | Reliability at scale |
+| Centralize adapter config (Task 49) | Could | v1.1 | Remove process.env leaks |
+| SRS schema foundation (Task 50) | Must | v2.0 | Prerequisite for Milestone 2.0 |
+| Modular bot registration (Task 51) | Could | v1.1 | Clean index.ts |
+| Wire topic cache (Task 52) | Should | v2.0 | Prerequisite for Milestone 3.0 |
+| Fix barrel export conflicts (Task 54) | Could | v1.1 | Prevent TS2308 collisions |
+| Health check & observability (Task 55) | Should | v1.1 | Production reliability |
+| Edit saved translation | Should | v1.1 | BRD §7; open question #2 must resolve first |
 | Ready-made topic sets | Should | v2.0 | BRD §7.2 |
 | AI-generated topics | Should | v2.0 | BRD §7.2 |
 | Spaced Repetition (SRS / SM-2) | Must (v2) | v2.0 | BRD §7.3 — depends on dictionary |
 | Quizzes | Should (v2) | v2.0 | BRD §7.4 — depends on SRS |
-| Daily notifications | Should (v2) | v2.0 | BRD §7.5 — depends on SRS |
+| SRS notifications | Should (v2) | v2.0 | BRD §7.5 — depends on SRS |
 | Audio pronunciation | Won't (MVP/v2) | v3+ | BRD §8 — defer to native app |
 | Native mobile app | Won't (MVP/v2) | v3+ | BRD §8 — post-Telegram |

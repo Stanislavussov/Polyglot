@@ -1,5 +1,8 @@
 # Task 14: Refactor Language Usage to Use `languages` Table
 
+**Status:** 🟡 Partial — `languages` table exists and seeded. `translationRequests.sourceLangId` migrated (Task 23). `language.repository.ts` exists. Remaining: `userLanguageSettings` FK, `words` FK, `topicTranslationCache` FK, junction tables, data migration.
+**Last verified:** 2026-05-16
+
 ## Overview
 
 Replace all hardcoded language code strings (`"en"`, `"ru"`, `"cs"`) with references to the normalized `languages` table. This centralizes language management, enables runtime language additions, and improves referential integrity.
