@@ -1,16 +1,9 @@
+import type { TranslationRequest } from "@polyglot/core";
 import { and, count, desc, eq, gte, inArray } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { languages, translationRequests, translationRequestTargetLangs } from "../schema.js";
 
-/** DTO returned by getRecentRequests — uses language codes, not IDs. */
-export interface TranslationRequestDTO {
-  id: number;
-  userId: number;
-  original: string;
-  sourceLangCode: string | null;
-  targetLangCodes: string[];
-  createdAt: Date;
-}
+export type { TranslationRequest };
 
 export const translationRequestRepository = {
   /**
@@ -82,7 +75,7 @@ export const translationRequestRepository = {
    * Get recent translation requests for a user, with language codes resolved.
    * Returns DTOs with language codes (strings), never IDs.
    */
-  async getRecentRequests(userId: number, limit: number): Promise<TranslationRequestDTO[]> {
+  async getRecentRequests(userId: number, limit: number): Promise<TranslationRequest[]> {
     const db = getDb();
 
     // Fetch requests with source language join

@@ -1,11 +1,12 @@
+import type { NewUser, User, UserLanguageSettings } from "@polyglot/core";
 import { eq } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { userLanguageSettings, users } from "../schema.js";
 
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-export type UserLanguageSettings = typeof userLanguageSettings.$inferSelect;
-export type NewUserLanguageSettings = typeof userLanguageSettings.$inferInsert;
+export type { NewUser, User, UserLanguageSettings };
+
+/** Internal insert type for Drizzle — kept local to avoid leaking DB-specific inference. */
+type InsertUserLanguageSettings = typeof userLanguageSettings.$inferInsert;
 
 /** Maximum number of learning languages per user (BRD §5, §12). */
 export const MAX_LEARNING_LANGS = 4;
@@ -29,7 +30,7 @@ export const userRepository = {
    *  NOTE: Does NOT overwrite `lastSourceLang` unless explicitly provided — prevents accidental erasure. */
   async updateSettings(
     userId: number,
-    settings: Omit<NewUserLanguageSettings, "userId">,
+    settings: Omit<InsertUserLanguageSettings, "userId">,
   ): Promise<UserLanguageSettings> {
     if (settings.learningLangs && settings.learningLangs.length > MAX_LEARNING_LANGS) {
       throw new Error(`Maximum ${MAX_LEARNING_LANGS} learning languages allowed, got ${settings.learningLangs.length}`);

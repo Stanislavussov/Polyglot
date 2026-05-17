@@ -19,6 +19,7 @@ export interface VocabularyTranslation {
   equivalentNote: string | null;
   connotationWarning: string | null;
   details: VocabTranslationDetails | null;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,7 +36,8 @@ export interface VocabularyEntry {
   original: string;
   sourceLangId: number;
   inputType: "word" | "phrase";
-  emoji: string;
+  emoji: string | null;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,10 +1,10 @@
 import * as schema from "./schema.js";
 
+export type { CachedLanguage } from "@polyglot/core";
 // Database connection — extracted to connection.ts to avoid circular deps
 export type { Db } from "./connection.js";
 export { closeDb, getDb } from "./connection.js";
 export { createContextLookup } from "./context-lookup.js";
-export type { CachedLanguage } from "./language-cache.js";
 // Language cache — loaded from DB, serves all language metadata
 export {
   getAllLangs,
@@ -40,13 +40,12 @@ export type {
   TopicTranslation,
 } from "./repositories/topic.repository.js";
 export { topicRepository } from "./repositories/topic.repository.js";
-export type { TranslationRequestDTO } from "./repositories/translation-request.repository.js";
+export type { TranslationRequest } from "./repositories/translation-request.repository.js";
 export { translationRequestRepository } from "./repositories/translation-request.repository.js";
 export type { SavedTranslationTemplate } from "./repositories/translation-template.repository.js";
 export { translationTemplateRepository } from "./repositories/translation-template.repository.js";
 export type {
   NewUser,
-  NewUserLanguageSettings,
   User,
   UserLanguageSettings,
 } from "./repositories/user.repository.js";

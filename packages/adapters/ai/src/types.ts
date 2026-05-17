@@ -1,17 +1,6 @@
-/**
- * AI Adapter Types
- * Platform-specific types for the AI adapter layer.
- */
+import type { AIModel, GenerateOptions } from "@polyglot/core";
 
-/** Describes an available AI model with pricing info */
-export interface AIModel {
-  id: string;
-  name: string;
-  provider: string;
-  maxTokens: number;
-  costPer1kInput: number;
-  costPer1kOutput: number;
-}
+export type { AIModel, GenerateOptions };
 
 /** Logged after every AI request */
 export interface AIRequestLog {
@@ -22,10 +11,4 @@ export interface AIRequestLog {
   success: boolean;
   userId?: number;
   error?: string;
-}
-
-/** Options for AI generation calls */
-export interface GenerateOptions {
-  maxRetries?: number;
-  userId?: number;
 }

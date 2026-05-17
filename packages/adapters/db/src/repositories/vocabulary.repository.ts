@@ -1,58 +1,25 @@
-import type { Example, Synonym, TranslationVariant } from "@polyglot/core";
+import type {
+  CreateVocabularyInput,
+  UpdateTranslationData,
+  VocabTranslationDetails,
+  VocabularyEntry,
+  VocabularyEntryWithSourceLang,
+  VocabularyEntryWithTranslations,
+  VocabularyTranslation,
+} from "@polyglot/core";
 import { and, count, desc, eq, ilike, inArray } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { vocabularyEntries, vocabularyTranslations } from "../schema.js";
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
-
-export type VocabularyEntry = typeof vocabularyEntries.$inferSelect;
-export type VocabularyTranslation = typeof vocabularyTranslations.$inferSelect;
-
-/** JSONB details stored in vocabulary_translations.details — display-only, never queried. */
-export interface VocabTranslationDetails {
-  synonyms: Synonym[];
-  examples: Example[];
-  alternatives?: TranslationVariant[];
-}
-
-/** A vocabulary entry joined with all its translations. */
-export interface VocabularyEntryWithTranslations extends VocabularyEntry {
-  translations: VocabularyTranslation[];
-}
-
-/** A vocabulary entry with source language code resolved. */
-export interface VocabularyEntryWithSourceLang extends VocabularyEntryWithTranslations {
-  sourceLangCode: string;
-}
-
-/** Input for creating a new vocabulary entry with translations. */
-export interface CreateVocabularyInput {
-  original: string;
-  sourceLangId: number;
-  inputType: "word" | "phrase";
-  emoji: string;
-  translations: Array<{
-    targetLangId: number;
-    text: string;
-    transcription?: string;
-    expressionType?: string;
-    equivalentNote?: string;
-    connotationWarning?: string;
-    details: VocabTranslationDetails;
-  }>;
-}
-
-/** Partial update for a single translation row. */
-export interface UpdateTranslationData {
-  text?: string;
-  transcription?: string;
-  expressionType?: string;
-  equivalentNote?: string;
-  connotationWarning?: string;
-  details?: VocabTranslationDetails;
-}
+export type {
+  CreateVocabularyInput,
+  UpdateTranslationData,
+  VocabTranslationDetails,
+  VocabularyEntry,
+  VocabularyEntryWithSourceLang,
+  VocabularyEntryWithTranslations,
+  VocabularyTranslation,
+};
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */

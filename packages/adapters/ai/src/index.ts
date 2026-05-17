@@ -9,12 +9,12 @@
 export { estimateCost, getAvailableModels } from "./models.js";
 export type { AIModel, AIRequestLog, GenerateOptions } from "./types.js";
 
+import type { GenerateOptions } from "@polyglot/core";
 import { generateObject as aiGenerateObject, generateText as aiGenerateText } from "ai";
 import type { ZodSchema } from "zod";
 import { getModel } from "./client.js";
 import { logRequest } from "./logger.js";
 import { calculateCost } from "./models.js";
-import type { GenerateOptions } from "./types.js";
 
 const DEFAULT_MAX_RETRIES = 2;
 

@@ -4,22 +4,26 @@
 export interface User {
   id: number;
   telegramId: number;
-  interfaceLang: string;
-  nativeLang: string;
-  learningLangs: string[];
-  activeMode: string;
-  timezone: string;
-  lastSourceLang: string | null;
+  username: string | null;
+  onboardingStep: number;
+  onboarded: boolean;
+  isActive: boolean;
+  createdAt: Date;
 }
+
 export interface NewUser {
   telegramId: number;
+  username?: string | null;
 }
+
 export interface UserLanguageSettings {
+  id: number;
+  userId: number;
   interfaceLang: string;
   nativeLang: string;
   learningLangs: string[];
-  activeMode: string;
   timezone: string;
+  activeMode: string;
   lastSourceLang: string | null;
   notificationEnabled: boolean;
   notificationTime: string;
@@ -28,11 +32,12 @@ export interface UserLanguageSettings {
   isActive: boolean;
   updatedAt: Date;
 }
+
 export interface UserRepository {
   findByTelegramId(telegramId: number): Promise<User | null>;
   create(data: NewUser): Promise<User>;
   getSettings(userId: number): Promise<UserLanguageSettings | null>;
-  updateSettings(userId: number, settings: Partial<UserLanguageSettings>): Promise<void>;
+  updateSettings(userId: number, settings: Partial<UserLanguageSettings>): Promise<UserLanguageSettings>;
   updateNativeLang(userId: number, lang: string): Promise<void>;
   updateLearningLangs(userId: number, langs: string[]): Promise<void>;
   updateInterfaceLang(userId: number, lang: string): Promise<void>;

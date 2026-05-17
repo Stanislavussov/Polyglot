@@ -1,5 +1,5 @@
-import { and, desc, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
 import type { NotificationType, NotificationUser } from "@polyglot/core";
+import { and, desc, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { notificationHistory, userLanguageSettings, users } from "../schema.js";
 

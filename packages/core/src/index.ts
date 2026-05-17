@@ -1,11 +1,19 @@
 // Logger — singleton pino, also exported from here for convenience
 
+export type { AIModel, AIPort, GenerateOptions } from "./ports/ai.port.js";
 // Ports — service container for dependency injection
 export type { ServiceContainer } from "./ports/container.js";
+export type { CachedLanguage, LanguageCachePort } from "./ports/language-cache.port.js";
 export type {
   NotificationType,
   NotificationUser,
 } from "./ports/notification.repository.js";
+export type { TranslationRequest, TranslationRequestRepository } from "./ports/translation-request.repository.js";
+export type {
+  NewUser,
+  User,
+  UserLanguageSettings,
+} from "./ports/user.repository.js";
 export type {
   CreateVocabularyInput,
   UpdateTranslationData,

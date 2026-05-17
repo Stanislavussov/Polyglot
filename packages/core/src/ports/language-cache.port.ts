@@ -5,9 +5,10 @@ export interface CachedLanguage {
   id: number;
   code: string;
   name: string;
-  nativeName: string;
-  flag: string;
+  nativeName: string | null;
+  flag: string | null;
   isSupported: boolean;
+  localizedNames: Record<string, string> | null;
 }
 
 export interface LanguageCachePort {

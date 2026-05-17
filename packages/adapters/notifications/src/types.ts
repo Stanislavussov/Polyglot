@@ -11,6 +11,8 @@ import type {
   NotificationUser,
   TopicMeta,
   TopicWord,
+  User,
+  UserLanguageSettings,
 } from "@polyglot/core";
 
 export type { NotificationType, NotificationUser };
@@ -19,13 +21,8 @@ export type { NotificationType, NotificationUser };
 export type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
 
 /** User data needed for notification scheduling and delivery. */
-export interface UserForNotification {
-  id: number;
-  telegramId: number;
-  timezone: string;
-  nativeLang: string;
-  learningLangs: string[];
-}
+export type UserForNotification = Pick<User, "id" | "telegramId"> &
+  Pick<UserLanguageSettings, "timezone" | "nativeLang" | "learningLangs">;
 
 /** Notification payload sent to the user. */
 export interface NotificationPayload {
