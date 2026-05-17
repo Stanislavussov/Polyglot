@@ -14,7 +14,7 @@ import type { NotificationType } from "./types.js";
  * - 'suggested': AI-suggested word based on user's saved topics
  * - 'srs': Word from dictionary due for SRS review
  */
-export function logNotificationSent(params: { userId: number; type: NotificationType; wordId: number }): void {
+export function logNotificationSent(params: { userId: number; type: NotificationType; wordId?: number }): void {
   const logger = getLogger();
   logger.info(params, "Notification sent");
 }

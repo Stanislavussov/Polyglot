@@ -2,12 +2,7 @@
  * Settings callback handlers — set:* callbacks.
  * Manages native/learning/interface language pickers, notification prefs, and close.
  */
-import {
-  formatNotificationHour,
-  MAX_NOTIFICATION_HOUR,
-  MIN_NOTIFICATION_HOUR,
-  NOTIFICATION_TYPES,
-} from "@polyglot/adapter-db";
+import { formatNotificationTime, NOTIFICATION_TYPES } from "@polyglot/adapter-db";
 import { isSupported, type NotificationType, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../../commands/commands.js";
@@ -27,9 +22,9 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-  const notifEnabled = (settings as any)?.notificationEnabled ?? false;
-  const notifTime = (settings as any)?.notificationTime ?? "8";
-  const notifType = (settings as any)?.notificationType ?? "both";
+  const notifEnabled = settings?.notificationEnabled ?? false;
+  const notifTime = settings?.notificationTime ?? "08:00";
+  const notifType = settings?.notificationType ?? "both";
   const timezone = settings?.timezone ?? "UTC";
 
   const text = buildSettingsText(
@@ -213,7 +208,7 @@ export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<voi
 /** set:notif:toggle — enable/disable notifications */
 export async function handleSetNotifToggleCallback(ctx: BotContext): Promise<void> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const currentEnabled = (settings as any)?.notificationEnabled ?? false;
+  const currentEnabled = settings?.notificationEnabled ?? false;
   const newEnabled = !currentEnabled;
 
   await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
@@ -235,16 +230,17 @@ function hourIcon(hour: number): string {
   return "🌑";
 }
 
-/** set:notif:time — show notification time picker with hourly grid */
+/** set:notif:time — show notification time picker with 30-min grid */
 export async function handleSetNotifTimeCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   const kb = new InlineKeyboard();
 
-  // Show hours in rows of 4 buttons for a compact grid
-  for (let h = MIN_NOTIFICATION_HOUR; h <= MAX_NOTIFICATION_HOUR; h++) {
-    const label = `${hourIcon(h)} ${formatNotificationHour(h)}`;
-    kb.text(label, `set:notif:time:${h}`);
-    if ((h + 1) % 4 === 0) kb.row();
+  // Show 48 time slots (every 30 min) in rows of 4
+  for (let slot = 0; slot < 48; slot++) {
+    const totalMinutes = slot * 30;
+    const label = `${hourIcon(Math.floor(totalMinutes / 60))} ${formatNotificationTime(totalMinutes)}`;
+    kb.text(label, `set:notif:time:${totalMinutes}`);
+    if ((slot + 1) % 4 === 0) kb.row();
   }
   kb.row();
   kb.text(`⬅️ ${t("back", lang)}`, "set:back").row();
@@ -256,24 +252,25 @@ export async function handleSetNotifTimeCallback(ctx: BotContext): Promise<void>
   await ctx.answerCallbackQuery();
 }
 
-/** set:notif:time:{hour} — select a notification hour */
+/** set:notif:time:{minutes} — select a notification time */
 export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data ?? "";
-  const hourStr = data.replace("set:notif:time:", "");
-  const hour = Number.parseInt(hourStr, 10);
+  const minutesStr = data.replace("set:notif:time:", "");
+  const totalMinutes = Number.parseInt(minutesStr, 10);
 
-  if (Number.isNaN(hour) || hour < MIN_NOTIFICATION_HOUR || hour > MAX_NOTIFICATION_HOUR) {
+  if (Number.isNaN(totalMinutes) || totalMinutes < 0 || totalMinutes > 23 * 60 + 30) {
     await ctx.answerCallbackQuery({ text: "Invalid time", show_alert: true });
     return;
   }
 
+  const timeStr = formatNotificationTime(totalMinutes);
   await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
-    notificationTime: String(hour),
+    notificationTime: timeStr,
   });
 
   const lang = await getLang(ctx);
   await ctx.answerCallbackQuery({
-    text: t("settingsNotifTime", lang, { time: formatNotificationHour(hour) }),
+    text: t("settingsNotifTime", lang, { time: timeStr }),
   });
   await showSettingsMenu(ctx);
 }
@@ -283,9 +280,9 @@ export async function handleSetNotifTypeCallback(ctx: BotContext): Promise<void>
   const lang = await getLang(ctx);
   const kb = new InlineKeyboard();
   const typeLabels: Record<string, string> = {
-    srs: "📖 Dictionary (SRS)",
-    suggested: "✨ AI suggestions",
-    both: "🔀 Both",
+    srs: t("notifTypeSrs", lang),
+    suggested: t("notifTypeSuggested", lang),
+    both: t("notifTypeBoth", lang),
   };
   for (const type of NOTIFICATION_TYPES) {
     kb.text(typeLabels[type] ?? type, `set:notif:type:${type}`).row();

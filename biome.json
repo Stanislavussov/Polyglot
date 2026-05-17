@@ -25,7 +25,8 @@
       },
       "suspicious": {
         "noExplicitAny": "off",
-        "noConsole": "error"
+        "noConsole": "error",
+        "noThenProperty": "off"
       },
       "complexity": {
         "noForEach": "off"

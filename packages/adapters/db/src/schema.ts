@@ -92,8 +92,8 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   lastSourceLang: text("last_source_lang"),
   /** Whether daily word notifications are enabled */
   notificationEnabled: boolean("notification_enabled").default(false).notNull(),
-  /** Preferred notification hour in user's local time (0-23). Default 8 (08:00). */
-  notificationTime: text("notification_time").default("8").notNull(),
+  /** Preferred notification time in user's local time ("HH:MM", e.g. "08:00", "14:30"). Default 08:00. */
+  notificationTime: text("notification_time").default("08:00").notNull(),
   /** Notification word source: 'suggested' (AI) | 'srs' (dictionary review) | 'both' (alternate) */
   notificationType: text("notification_type").$type<"suggested" | "srs" | "both">().default("both").notNull(),
   /** Last bot interaction timestamp — used for 14-day inactivity pause */
@@ -307,3 +307,23 @@ export const reportedIssues = pgTable(
 );
 
 export type ReportedIssue = typeof reportedIssues.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Notification history — tracks words sent to users
+// Prevents repeating the same word in recent notifications
+// ─────────────────────────────────────────────
+export const notificationHistory = pgTable(
+  "notification_history",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    original: text("original").notNull(),
+    source: text("source").notNull(), // 'srs' | 'suggested'
+    sentAt: timestamp("sent_at").defaultNow().notNull(),
+  },
+  (t) => [index("notif_hist_user_sent_idx").on(t.userId, t.sentAt)],
+);
+
+export type NotificationHistory = typeof notificationHistory.$inferSelect;

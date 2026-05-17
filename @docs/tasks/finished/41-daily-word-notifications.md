@@ -193,3 +193,108 @@ The word is sourced from two strategies: **dictionary SRS review** (word the use
 - Push notification batching / rate limiting at Telegram API level
 - Analytics dashboard for notification open rates
 - Custom notification frequency (only daily for now)
+
+---
+
+# Revision — Productionize Notifications (2026-05-16)
+
+**Status:** 📋 Proposed  
+**Trigger:** Task marked Done but has runtime bugs and isn't production-ready
+
+## Current Reality (post-implementation audit)
+
+### What's actually working:
+- ✅ All 7 subtasks (41.1–41.7) implemented and wired
+- ✅ 66 unit tests across 4 test files
+- ✅ Scheduler runs on bot startup via `node-cron` (`0 * * * *`)
+- ✅ Settings UI for notification preferences
+- ✅ Inactive user re-engagement (14-day rule)
+
+### Known issues:
+1. 🔴 **Schema mismatch** — `notification_time` column stores `'morning'`/`'evening'` (TEXT DEFAULT `'morning'`) but code expects integer hour strings (`"8"`, `"20"`) via `parseNotificationHour()`. Runtime bug.
+2. 🔴 **No `SCHEDULER_ENABLED` env toggle** — scheduler always runs in bot process, cannot be disabled for dev/testing
+3. 🟠 **No retry logic** — send failures are logged and dropped, no retry
+4. 🟠 **Single process** — scheduler runs inside bot process (Task 48 blocks extraction)
+5. 🟠 **No production deployment config** — docker-compose has no scheduler service, no env vars
+
+## Revision Scope
+
+### Phase 1 — Fix & Stabilize
+
+#### R1. Fix `notification_time` schema mismatch
+**Goal:** Align DB storage with code expectations.
+**Options:**
+- **A (preferred):** Change column to store integer hours (`0`–`23`). Update migration 0014, settings UI shows "8:00" / "20:00" instead of "Morning" / "Evening".
+- **B:** Keep named slots, update code to map `'morning'` → `8`, `'evening'` → `20` via a lookup table.
+**Acceptance Criteria:**
+- [ ] Schema and code agree on value format
+- [ ] Existing user data migrated (if any)
+- [ ] Settings UI displays and stores correct format
+- [ ] Tests updated
+
+#### R2. Add `SCHEDULER_ENABLED` env toggle
+**Goal:** Allow disabling scheduler in dev/testing environments.
+**Acceptance Criteria:**
+- [ ] `SCHEDULER_ENABLED` added to `packages/infra/src/config.ts` (default `true`)
+- [ ] `apps/bot/src/index.ts` conditionally calls `wireNotificationScheduler()` based on env var
+- [ ] `.env.example` documents the toggle
+- [ ] Tests pass with scheduler disabled
+
+#### R3. Add basic send retry logic
+**Goal:** Don't drop notifications on transient Telegram API errors.
+**Acceptance Criteria:**
+- [ ] Scheduler retries failed sends up to 3 times with exponential backoff (1s, 2s, 4s)
+- [ ] After max retries, log error and continue (never block the tick)
+- [ ] Tests cover retry behavior
+
+**Effort:** 4–6h total
+
+---
+
+### Phase 2 — Extract Scheduler (merge with Task 48) — ⏸️ DEFERRED
+
+**Status:** Not needed at MVP scale. Revisit when:
+- 100+ active users and hourly tick takes noticeable time
+- Multiple bot instances cause duplicate sends
+- Scheduler needs independent resource profile or scaling
+
+**Kept here as reference for when it becomes relevant.**
+
+#### R4. Separate scheduler process *(deferred)*
+**Goal:** Scheduler runs independently from bot process.
+**Acceptance Criteria:**
+- [ ] `apps/scheduler/` — new entry point (or `apps/bot/src/scheduler-entry.ts`)
+- [ ] Scheduler loads config, DB, starts cron loop — no bot polling
+- [ ] Sends via raw Telegram Bot API (no grammY Bot instance needed)
+- [ ] `apps/bot/src/index.ts` no longer calls `wireNotificationScheduler()` when `SCHEDULER_ENABLED=false`
+- [ ] `pnpm scheduler` script added to root `package.json`
+- [ ] `docker-compose.yml` updated with `scheduler` service
+- [ ] Graceful shutdown (stop cron, close DB)
+- [ ] Dev mode: `SCHEDULER_ENABLED=true` in bot process still works (backward compatible)
+- [ ] Existing tests pass unchanged
+
+**Effort:** 4–6h (when triggered)
+
+---
+
+## Execution Order
+
+```
+R1 (schema fix) ──┐
+R2 (env toggle) ──┼──→ R3 (retry logic)
+                    │
+R4 (deferred) — only after R2, when scale demands it
+```
+
+## Dependencies
+
+- Phase 1: No external deps. All files exist and are modifiable.
+- Phase 2: Depends on Phase 1 R2 (env toggle). Deferred until scale triggers it.
+
+## Out of Scope (for this revision)
+
+- Full SRS integration (SM-2/FSRS) — still Milestone 2.0
+- Job queue replacement (BullMQ, etc.) — `node-cron` stays
+- Separate scheduler process (Phase 2) — deferred
+- Analytics / open rate tracking
+- Custom notification frequency (still daily only)

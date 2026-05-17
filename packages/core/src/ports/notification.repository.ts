@@ -16,10 +16,11 @@ export interface NotificationUser {
 }
 
 export interface NotificationRepository {
-  getUsersForWindow(hour: number): Promise<NotificationUser[]>;
+  getUsersForWindow(hour: number, minute?: number): Promise<NotificationUser[]>;
   getInactiveUsers(): Promise<NotificationUser[]>;
   disableNotifications(userId: number): Promise<void>;
-  updateLastNotified(userId: number, timestamp: Date): Promise<void>;
+  recordSentWord(userId: number, original: string, source: string): Promise<void>;
+  getRecentSentWords(userId: number, limit?: number): Promise<string[]>;
   updatePrefs(
     userId: number,
     prefs: { notificationEnabled?: boolean; notificationTime?: string; notificationType?: NotificationType },

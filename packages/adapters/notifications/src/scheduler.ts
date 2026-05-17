@@ -24,6 +24,26 @@ import type {
 /** Internal state for the running cron task. */
 let cronTask: cron.ScheduledTask | null = null;
 
+const MAX_RETRIES = 3;
+const RETRY_DELAYS_MS = [1000, 2000, 4000];
+
+async function sendWithRetry(sendFn: SendFn, telegramId: number, payload: NotificationPayload): Promise<void> {
+  const logger = getLogger();
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      await sendFn(telegramId, payload);
+      return;
+    } catch (err) {
+      if (attempt < MAX_RETRIES - 1) {
+        logger.warn({ err, telegramId, attempt: attempt + 1 }, "Send failed — retrying after delay");
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
 /**
  * Pick a word for a user based on their notification type preference.
  *
@@ -32,31 +52,35 @@ let cronTask: cron.ScheduledTask | null = null;
  * - 'suggested' → AI-suggested word only
  * - 'both' → randomly alternate between the two
  */
-async function pickWordForUser(user: NotificationUser, deps: SchedulerDeps): Promise<SuggestedWord | null> {
+async function pickWordForUser(
+  user: NotificationUser,
+  deps: SchedulerDeps,
+  recentWords: string[],
+): Promise<SuggestedWord | null> {
   const { notificationType } = user;
 
   if (notificationType === "suggested") {
-    return deps.pickSuggestedWord(user.userId);
+    return deps.pickSuggestedWord(user.userId, recentWords);
   }
 
   if (notificationType === "srs") {
-    const dictWord = await deps.pickDictionaryWord(user.userId);
+    const dictWord = await deps.pickDictionaryWord(user.userId, recentWords);
     if (dictWord) return dictWord;
     // Fallback to suggested if no dictionary words
     getLogger().info({ userId: user.userId }, "No dictionary word — falling back to AI suggestion");
-    return deps.pickSuggestedWord(user.userId);
+    return deps.pickSuggestedWord(user.userId, recentWords);
   }
 
   // 'both' — randomly pick between the two strategies
   const useSrs = Math.random() < 0.5;
   if (useSrs) {
-    const dictWord = await deps.pickDictionaryWord(user.userId);
+    const dictWord = await deps.pickDictionaryWord(user.userId, recentWords);
     if (dictWord) return dictWord;
-    return deps.pickSuggestedWord(user.userId);
+    return deps.pickSuggestedWord(user.userId, recentWords);
   }
-  const suggested = await deps.pickSuggestedWord(user.userId);
+  const suggested = await deps.pickSuggestedWord(user.userId, recentWords);
   if (suggested) return suggested;
-  return deps.pickDictionaryWord(user.userId);
+  return deps.pickDictionaryWord(user.userId, recentWords);
 }
 
 /**
@@ -70,7 +94,8 @@ export function buildNotificationPayload(
   t: (key: string, lang: string, params?: Record<string, string>) => string,
 ): NotificationPayload {
   const lang = user.interfaceLang;
-  const hour = Number.parseInt(user.notificationTime, 10) || 8;
+  const timeParts = (user.notificationTime || "08:00").split(":");
+  const hour = Number.parseInt(timeParts[0], 10) || 8;
 
   // Build a plain-text message with translations
   const title = t("notifTitle", lang);
@@ -100,42 +125,45 @@ export function buildNotificationPayload(
  */
 export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise<{ sent: number; errors: number }> {
   const logger = getLogger();
-  const utcHour = new Date().getUTCHours();
+  const now = Temporal.Now.zonedDateTimeISO("UTC");
+  const utcHour = now.hour;
+  const utcMinute = now.minute;
   let sent = 0;
   let errors = 0;
 
   // Step 1: Get users whose local time matches their preferred notification window
   let users: NotificationUser[];
   try {
-    users = await deps.getUsersForWindow(utcHour);
+    users = await deps.getUsersForWindow(utcHour, utcMinute);
   } catch (err) {
-    logger.error({ err, utcHour }, "Failed to query users for notification window");
+    logger.error({ err, utcHour, utcMinute }, "Failed to query users for notification window");
     return { sent: 0, errors: 1 };
   }
 
   if (users.length === 0) {
-    logger.debug({ utcHour }, "No users eligible for notification at this hour");
+    logger.debug({ utcHour, utcMinute }, "No users eligible for notification at this time");
     return { sent: 0, errors: 0 };
   }
 
-  logger.info({ utcHour, userCount: users.length }, "Processing notification batch");
+  logger.info({ utcHour, utcMinute, userCount: users.length }, "Processing notification batch");
 
   // Step 2: For each user, pick a word and send
   for (const user of users) {
     try {
-      const word = await pickWordForUser(user, deps);
+      const recentWords = await deps.getRecentSentWords(user.userId);
+      const word = await pickWordForUser(user, deps, recentWords);
       if (!word) {
         logger.warn({ userId: user.userId }, "Could not pick a word for user — skipping");
         continue;
       }
 
       const payload = buildNotificationPayload(user, word, deps.t);
-      await sendFn(user.telegramId, payload);
+      await sendWithRetry(sendFn, user.telegramId, payload);
 
+      await deps.recordSentWord(user.userId, word.original, word.source ?? "suggested");
       logNotificationSent({
         userId: user.userId,
         type: word.source ?? "suggested",
-        wordId: 0, // word ID not tracked at notification level
       });
 
       sent++;
@@ -149,7 +177,7 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
     }
   }
 
-  logger.info({ utcHour, sent, errors }, "Notification batch complete");
+  logger.info({ utcHour, utcMinute, sent, errors }, "Notification batch complete");
   return { sent, errors };
 }
 
@@ -215,15 +243,16 @@ export function startScheduler(sendFn: SendFn, reEngagementSendFn: ReEngagementS
     return;
   }
 
-  logger.info({}, "Starting notification scheduler (0 * * * *)");
+  logger.info({}, "Starting notification scheduler (* * * * *)");
 
-  cronTask = cron.schedule("0 * * * *", async () => {
+  cronTask = cron.schedule("* * * * *", async () => {
+    const now = Temporal.Now.zonedDateTimeISO("UTC");
+    logger.info({ utcHour: now.hour, utcMinute: now.minute }, "Scheduler tick");
     try {
       await checkAndSend(sendFn, deps);
 
       // Process inactive users once daily at midnight UTC
-      const currentHour = new Date().getUTCHours();
-      if (currentHour === 0) {
+      if (now.hour === 0 && now.minute === 0) {
         await processInactiveUsers(reEngagementSendFn, deps);
       }
     } catch (err) {

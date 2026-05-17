@@ -29,15 +29,14 @@ export type {
   NotificationUser,
 } from "./repositories/notification.repository.js";
 export {
-  DEFAULT_NOTIFICATION_HOUR,
+  DEFAULT_NOTIFICATION_TIME,
   DEFAULT_NOTIFICATION_TYPE,
-  formatNotificationHour,
+  formatNotificationTime,
+  getLocalMinutes,
   INACTIVITY_DAYS,
-  MAX_NOTIFICATION_HOUR,
-  MIN_NOTIFICATION_HOUR,
   NOTIFICATION_TYPES,
   notificationRepository,
-  parseNotificationHour,
+  parseNotificationMinutes,
 } from "./repositories/notification.repository.js";
 export { reportedIssueRepository } from "./repositories/reported-issue.repository.js";
 export type {
@@ -70,6 +69,7 @@ export { vocabularyRepository } from "./repositories/vocabulary.repository.js";
 export { wordContextRepository } from "./repositories/word-context.repository.js";
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
-export type { IssueStatus, IssueType, ReportedIssue } from "./schema.js";
+export type { IssueStatus, IssueType, NotificationHistory, ReportedIssue } from "./schema.js";
 export * from "./schema.js";
+export { notificationHistory } from "./schema.js";
 export { schema };

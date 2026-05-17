@@ -21,6 +21,12 @@ export interface UserLanguageSettings {
   activeMode: string;
   timezone: string;
   lastSourceLang: string | null;
+  notificationEnabled: boolean;
+  notificationTime: string;
+  notificationType: string;
+  lastInteractionAt: Date | null;
+  isActive: boolean;
+  updatedAt: Date;
 }
 export interface UserRepository {
   findByTelegramId(telegramId: number): Promise<User | null>;
@@ -32,5 +38,10 @@ export interface UserRepository {
   updateInterfaceLang(userId: number, lang: string): Promise<void>;
   updateActiveMode(userId: number, mode: string): Promise<void>;
   updateLastSourceLang(userId: number, lang: string | null): Promise<void>;
+  updateNotificationPrefs(
+    userId: number,
+    prefs: { notificationEnabled?: boolean; notificationTime?: string; notificationType?: string },
+  ): Promise<void>;
+  updateLastInteraction(userId: number): Promise<void>;
   markOnboarded(userId: number): Promise<void>;
 }

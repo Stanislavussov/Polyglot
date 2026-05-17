@@ -44,16 +44,39 @@ vi.mock("@polyglot/adapter-db", () => ({
   getLangDisplay: mockLanguageCache.getLangDisplay,
   getSupportedLangs: mockLanguageCache.getSupportedLangs,
   NOTIFICATION_TYPES: ["suggested", "srs", "both"],
-  DEFAULT_NOTIFICATION_HOUR: 8,
-  MIN_NOTIFICATION_HOUR: 0,
-  MAX_NOTIFICATION_HOUR: 23,
-  parseNotificationHour: (v: string | null | undefined) => {
-    if (v == null) return 8;
-    const p = Number.parseInt(v, 10);
-    if (Number.isNaN(p) || p < 0 || p > 23) return 8;
-    return p;
+  DEFAULT_NOTIFICATION_TIME: "08:00",
+  parseNotificationMinutes: (v: string | null | undefined) => {
+    if (v == null) return 8 * 60;
+    const parts = v.split(":");
+    if (parts.length !== 2) return 8 * 60;
+    const h = Number.parseInt(parts[0], 10);
+    const m = Number.parseInt(parts[1], 10);
+    if (Number.isNaN(h) || Number.isNaN(m) || h < 0 || h > 23) return 8 * 60;
+    return h * 60 + m;
   },
-  formatNotificationHour: (h: number) => `${h.toString().padStart(2, "0")}:00`,
+  formatNotificationTime: (m: number) => {
+    const h = Math.floor(m / 60);
+    const min = m % 60;
+    return `${h.toString().padStart(2, "0")}:${min.toString().padStart(2, "0")}`;
+  },
+  getLocalMinutes: (tz: string, h: number, m: number) => {
+    try {
+      const date = new Date();
+      date.setUTCHours(h, m, 0, 0);
+      const parts = new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: false,
+        timeZone: tz,
+      }).formatToParts(date);
+      const hourPart = parts.find((p: any) => p.type === "hour");
+      const minutePart = parts.find((p: any) => p.type === "minute");
+      if (!hourPart || !minutePart) return -1;
+      return Number.parseInt(hourPart.value, 10) * 60 + Number.parseInt(minutePart.value, 10);
+    } catch {
+      return -1;
+    }
+  },
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -223,7 +246,7 @@ describe("handleSetNotifToggleCallback", () => {
 });
 
 describe("handleSetNotifTimeCallback", () => {
-  it("shows time picker with hourly options (0-23)", async () => {
+  it("shows time picker with 30-min interval options (0-1410)", async () => {
     const ctx = createMockCtx("set:notif:time");
 
     await handleSetNotifTimeCallback(ctx);
@@ -232,30 +255,30 @@ describe("handleSetNotifTimeCallback", () => {
     const opts = ctx.editMessageText.mock.calls[0][1];
     const buttons = opts.reply_markup.inline_keyboard.flat();
     const cbData = buttons.map((b: any) => b.callback_data);
-    // Should have all 24 hours plus back button
+    // Should have 48 time slots (every 30 min) plus back button
     expect(cbData).toContain("set:notif:time:0");
-    expect(cbData).toContain("set:notif:time:8");
-    expect(cbData).toContain("set:notif:time:14");
-    expect(cbData).toContain("set:notif:time:23");
+    expect(cbData).toContain("set:notif:time:480");
+    expect(cbData).toContain("set:notif:time:870");
+    expect(cbData).toContain("set:notif:time:1410");
     expect(cbData).toContain("set:back");
   });
 });
 
 describe("handleSetNotifTimeSelectCallback", () => {
-  it("updates notification time to selected hour", async () => {
-    const ctx = createMockCtx("set:notif:time:14");
+  it("updates notification time to selected time", async () => {
+    const ctx = createMockCtx("set:notif:time:870");
 
     await handleSetNotifTimeSelectCallback(ctx);
 
     expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, {
-      notificationTime: "14",
+      notificationTime: "14:30",
     });
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
     expect(ctx.editMessageText).toHaveBeenCalled();
   });
 
-  it("rejects invalid hour values", async () => {
-    const ctx = createMockCtx("set:notif:time:25");
+  it("rejects invalid minute values", async () => {
+    const ctx = createMockCtx("set:notif:time:1500");
 
     await handleSetNotifTimeSelectCallback(ctx);
 

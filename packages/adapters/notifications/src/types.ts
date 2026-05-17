@@ -14,8 +14,9 @@ import type { DictionaryContext, LanguageTranslationEntry, TopicMeta, TopicWord 
  * Notification type — matches BRD §2.5 notification categories.
  * - 'suggested': AI-suggested word based on user's saved topics
  * - 'srs': Word from dictionary due for review according to SRS schedule
+ * - 'both': Alternates between SRS and AI-suggested
  */
-export type NotificationType = "suggested" | "srs";
+export type NotificationType = "suggested" | "srs" | "both";
 
 /** Injected send function — the notifications module never imports the bot. */
 export type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
@@ -128,8 +129,8 @@ export interface NotificationServiceDeps {
  * Separates scheduling concerns from word-picking concerns.
  */
 export interface SchedulerDeps {
-  /** Get users eligible for notification at the given UTC hour. */
-  getUsersForWindow: (hour: number) => Promise<NotificationUser[]>;
+  /** Get users eligible for notification at the given UTC hour/minute. */
+  getUsersForWindow: (hour: number, minute?: number) => Promise<NotificationUser[]>;
 
   /** Get users with notifications enabled but inactive for > INACTIVITY_DAYS. */
   getInactiveUsers: () => Promise<NotificationUser[]>;
@@ -137,11 +138,17 @@ export interface SchedulerDeps {
   /** Disable notifications for a user (e.g., due to inactivity). */
   disableNotifications: (userId: number) => Promise<void>;
 
+  /** Get recent sent words for a user (to avoid repeats). */
+  getRecentSentWords: (userId: number, limit?: number) => Promise<string[]>;
+
+  /** Record a sent word in history. */
+  recordSentWord: (userId: number, original: string, source: string) => Promise<void>;
+
   /** Pick a word from AI topic suggestions. */
-  pickSuggestedWord: (userId: number) => Promise<SuggestedWord | null>;
+  pickSuggestedWord: (userId: number, recentWords?: string[]) => Promise<SuggestedWord | null>;
 
   /** Pick a word from user's dictionary (SRS review). */
-  pickDictionaryWord: (userId: number) => Promise<SuggestedWord | null>;
+  pickDictionaryWord: (userId: number, recentWords?: string[]) => Promise<SuggestedWord | null>;
 
   /** Get i18n text. */
   t: (key: string, lang: string, params?: Record<string, string>) => string;

@@ -52,7 +52,7 @@ const mockUser: NotificationUser = {
   nativeLang: "en",
   learningLangs: ["cs", "de"],
   timezone: "Europe/Prague",
-  notificationTime: "8",
+  notificationTime: "08:00",
   notificationType: "both",
 };
 
@@ -63,7 +63,7 @@ const mockUser2: NotificationUser = {
   nativeLang: "ru",
   learningLangs: ["en"],
   timezone: "America/New_York",
-  notificationTime: "20",
+  notificationTime: "20:00",
   notificationType: "suggested",
 };
 
@@ -96,6 +96,8 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
     getUsersForWindow: vi.fn().mockResolvedValue([mockUser]),
     getInactiveUsers: vi.fn().mockResolvedValue([]),
     disableNotifications: vi.fn().mockResolvedValue(undefined),
+    getRecentSentWords: vi.fn().mockResolvedValue([]),
+    recordSentWord: vi.fn().mockResolvedValue(undefined),
     pickSuggestedWord: vi.fn().mockResolvedValue(mockSuggestedWord),
     pickDictionaryWord: vi.fn().mockResolvedValue(mockDictWord),
     t: mockT,
@@ -108,7 +110,7 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
 // ─────────────────────────────────────────────
 
 describe("buildNotificationPayload", () => {
-  it("builds a payload with user's preferred hour", () => {
+  it("builds a payload with user's preferred time", () => {
     const payload = buildNotificationPayload(mockUser, mockSuggestedWord, mockT);
 
     expect(payload.hour).toBe(8);
@@ -120,8 +122,8 @@ describe("buildNotificationPayload", () => {
     expect(payload.message).toContain("Apfel");
   });
 
-  it("builds a payload with custom hour (20:00)", () => {
-    const eveningUser = { ...mockUser, notificationTime: "20" };
+  it("builds a payload with custom time (20:00)", () => {
+    const eveningUser = { ...mockUser, notificationTime: "20:00" };
     const payload = buildNotificationPayload(eveningUser, mockDictWord, mockT);
 
     expect(payload.hour).toBe(20);
@@ -192,7 +194,7 @@ describe("checkAndSend", () => {
     expect(result.errors).toBe(0);
   });
 
-  it("logs and continues on send error", async () => {
+  it("logs and continues on send error", { timeout: 15000 }, async () => {
     const failSend = vi.fn().mockRejectedValue(new Error("Telegram API error"));
     const deps = buildSchedulerDeps({
       getUsersForWindow: vi.fn().mockResolvedValue([mockUser, mockUser2]),
@@ -241,7 +243,7 @@ describe("checkAndSend", () => {
 
       await checkAndSend(mockSendFn, deps);
 
-      expect(deps.pickSuggestedWord).toHaveBeenCalledWith(1);
+      expect(deps.pickSuggestedWord).toHaveBeenCalledWith(1, []);
       expect(deps.pickDictionaryWord).not.toHaveBeenCalled();
     });
 
@@ -253,7 +255,7 @@ describe("checkAndSend", () => {
 
       await checkAndSend(mockSendFn, deps);
 
-      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1);
+      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
     });
 
     it("falls back to suggested when srs has no words", async () => {
@@ -265,8 +267,8 @@ describe("checkAndSend", () => {
 
       await checkAndSend(mockSendFn, deps);
 
-      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1);
-      expect(deps.pickSuggestedWord).toHaveBeenCalledWith(1);
+      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
+      expect(deps.pickSuggestedWord).toHaveBeenCalledWith(1, []);
     });
 
     it("alternates between strategies for 'both' type", async () => {
@@ -279,7 +281,7 @@ describe("checkAndSend", () => {
       vi.spyOn(Math, "random").mockReturnValue(0.3);
       await checkAndSend(mockSendFn, deps);
 
-      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1);
+      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
     });
 
     it("falls back to other strategy for 'both' when primary returns null", async () => {
@@ -405,7 +407,7 @@ describe("startScheduler / stopScheduler", () => {
 
     startScheduler(sendFn, reEngagementSendFn, deps);
 
-    expect(mockSchedule).toHaveBeenCalledWith("0 * * * *", expect.any(Function));
+    expect(mockSchedule).toHaveBeenCalledWith("*/30 * * * *", expect.any(Function));
   });
 
   it("does not register duplicate cron jobs", () => {
