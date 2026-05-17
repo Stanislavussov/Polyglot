@@ -24,10 +24,6 @@ export type {
   NewLanguage,
 } from "./repositories/language.repository.js";
 export { languageRepository } from "./repositories/language.repository.js";
-export type {
-  NotificationType,
-  NotificationUser,
-} from "./repositories/notification.repository.js";
 export {
   DEFAULT_NOTIFICATION_TIME,
   DEFAULT_NOTIFICATION_TYPE,

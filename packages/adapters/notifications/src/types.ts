@@ -4,19 +4,16 @@
  * Defines public types for notification scheduling, delivery,
  * and word suggestion payloads.
  */
-import type { DictionaryContext, LanguageTranslationEntry, TopicMeta, TopicWord } from "@polyglot/core";
+import type {
+  DictionaryContext,
+  LanguageTranslationEntry,
+  NotificationType,
+  NotificationUser,
+  TopicMeta,
+  TopicWord,
+} from "@polyglot/core";
 
-// ─────────────────────────────────────────────
-// Public types
-// ─────────────────────────────────────────────
-
-/**
- * Notification type — matches BRD §2.5 notification categories.
- * - 'suggested': AI-suggested word based on user's saved topics
- * - 'srs': Word from dictionary due for review according to SRS schedule
- * - 'both': Alternates between SRS and AI-suggested
- */
-export type NotificationType = "suggested" | "srs" | "both";
+export type { NotificationType, NotificationUser };
 
 /** Injected send function — the notifications module never imports the bot. */
 export type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
@@ -68,18 +65,6 @@ export interface VocabEntry {
 // ─────────────────────────────────────────────
 // Scheduler types
 // ─────────────────────────────────────────────
-
-/** User data returned by the DB notification repository for scheduling. */
-export interface NotificationUser {
-  userId: number;
-  telegramId: number;
-  interfaceLang: string;
-  nativeLang: string;
-  learningLangs: string[];
-  timezone: string;
-  notificationTime: string;
-  notificationType: string;
-}
 
 /** Send function for re-engagement messages (plain text). */
 export type ReEngagementSendFn = (telegramId: number, message: string) => Promise<void>;

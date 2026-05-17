@@ -3,8 +3,7 @@
  *
  * Logs notification lifecycle events using core's getLogger().
  */
-import { getLogger } from "@polyglot/core";
-import type { NotificationType } from "./types.js";
+import { getLogger, type NotificationType } from "@polyglot/core";
 
 /**
  * Log a successfully dispatched notification.

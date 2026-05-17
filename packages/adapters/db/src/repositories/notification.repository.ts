@@ -1,4 +1,5 @@
 import { and, desc, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
+import type { NotificationType, NotificationUser } from "@polyglot/core";
 import { getDb } from "../connection.js";
 import { notificationHistory, userLanguageSettings, users } from "../schema.js";
 
@@ -14,23 +15,6 @@ export const DEFAULT_NOTIFICATION_TIME = "08:00";
 export const DEFAULT_NOTIFICATION_TYPE = "both" as const;
 /** Days of inactivity before pausing notifications */
 export const INACTIVITY_DAYS = 14;
-
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
-
-export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
-
-export type NotificationUser = {
-  userId: number;
-  telegramId: number;
-  interfaceLang: string;
-  nativeLang: string;
-  learningLangs: string[];
-  timezone: string;
-  notificationTime: string;
-  notificationType: string;
-};
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -92,6 +76,7 @@ const notificationUserSelect = {
   nativeLang: userLanguageSettings.nativeLang,
   learningLangs: userLanguageSettings.learningLangs,
   timezone: userLanguageSettings.timezone,
+  notificationEnabled: userLanguageSettings.notificationEnabled,
   notificationTime: userLanguageSettings.notificationTime,
   notificationType: userLanguageSettings.notificationType,
 } as const;
@@ -174,7 +159,7 @@ export const notificationRepository = {
     prefs: {
       notificationEnabled?: boolean;
       notificationTime?: string;
-      notificationType?: string;
+      notificationType?: NotificationType;
     },
   ): Promise<void> {
     const db = getDb();

@@ -64,6 +64,7 @@ const mockUser: NotificationUser = {
   nativeLang: "en",
   learningLangs: ["cs", "de"],
   timezone: "Europe/Prague",
+  notificationEnabled: true,
   notificationTime: "08:00",
   notificationType: "both",
 };
@@ -75,6 +76,7 @@ const mockUser2: NotificationUser = {
   nativeLang: "ru",
   learningLangs: ["en"],
   timezone: "America/New_York",
+  notificationEnabled: true,
   notificationTime: "20:00",
   notificationType: "suggested",
 };
