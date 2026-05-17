@@ -1,5 +1,81 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+// ── Mock Temporal API (for Node < 26 environments) ──────────────
+
+const ETC_GMT_OFFSETS: Record<string, number> = {
+  "Etc/GMT": 0,
+  "Etc/GMT-12": 12,
+  "Etc/GMT-11": 11,
+  "Etc/GMT-10": 10,
+  "Etc/GMT-9": 9,
+  "Etc/GMT-8": 8,
+  "Etc/GMT-7": 7,
+  "Etc/GMT-6": 6,
+  "Etc/GMT-5": 5,
+  "Etc/GMT-4": 4,
+  "Etc/GMT-3": 3,
+  "Etc/GMT-2": 2,
+  "Etc/GMT-1": 1,
+  "Etc/GMT+1": -1,
+  "Etc/GMT+2": -2,
+  "Etc/GMT+3": -3,
+  "Etc/GMT+4": -4,
+  "Etc/GMT+5": -5,
+  "Etc/GMT+6": -6,
+  "Etc/GMT+7": -7,
+  "Etc/GMT+8": -8,
+  "Etc/GMT+9": -9,
+  "Etc/GMT+10": -10,
+  "Etc/GMT+11": -11,
+  "Etc/GMT+12": -12,
+};
+
+const IANA_OFFSETS: Record<string, number> = {
+  UTC: 0,
+  "Europe/Prague": 1,
+  "Europe/London": 0,
+  "Europe/Moscow": 3,
+  "America/New_York": -5,
+  "America/Chicago": -6,
+  "America/Denver": -7,
+  "America/Los_Angeles": -8,
+  "Asia/Tokyo": 9,
+  "Asia/Shanghai": 8,
+  "Australia/Sydney": 11,
+};
+
+function getUtcOffsetHours(timezone: string): number {
+  if (ETC_GMT_OFFSETS[timezone] !== undefined) return ETC_GMT_OFFSETS[timezone];
+  if (IANA_OFFSETS[timezone] !== undefined) return IANA_OFFSETS[timezone];
+  throw new Error(`Unknown timezone: ${timezone}`);
+}
+
+vi.stubGlobal("Temporal", {
+  Instant: {
+    from: (iso: string) => {
+      const match = iso.match(/T(\d{2}):(\d{2}):(\d{2})Z/);
+      if (!match) throw new Error(`Invalid instant: ${iso}`);
+      return { hour: +match[1]!, minute: +match[2]!, second: +match[3]! };
+    },
+  },
+});
+
+(globalThis as any).Temporal.Instant.from = (iso: string) => {
+  const match = iso.match(/T(\d{2}):(\d{2}):(\d{2})Z/);
+  if (!match) throw new Error(`Invalid instant: ${iso}`);
+  return {
+    hour: +match[1]!,
+    minute: +match[2]!,
+    second: +match[3]!,
+    toZonedDateTimeISO: (tz: string) => {
+      const offset = getUtcOffsetHours(tz);
+      let h = (+match[1]! + offset) % 24;
+      if (h < 0) h += 24;
+      return { hour: h, minute: +match[2]! };
+    },
+  };
+};
+
 // ── Configurable mock DB ────────────────────────────────────────
 
 let queryResults: unknown[] = [];

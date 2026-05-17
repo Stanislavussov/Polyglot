@@ -427,37 +427,19 @@ describe("pickDictionaryWord", () => {
       getBuiltinTopics: vi.fn().mockReturnValue([]),
       getUserSettings: vi.fn().mockResolvedValue(mockUser),
       getUserVocabulary: vi.fn().mockResolvedValue(mockVocabEntries),
-      getReviewCounts: vi.fn().mockResolvedValue(new Map<number, number>()),
       getLangCode: mockGetLangCode,
       ...overrides,
     };
   }
 
   describe("happy path", () => {
-    it("returns the least reviewed word", async () => {
-      const reviewCounts = new Map<number, number>([
-        [10, 5], // house — reviewed 5 times
-        [20, 2], // car — reviewed 2 times
-        [30, 0], // book — never reviewed
-      ]);
-      const deps = buildDictDeps({
-        getReviewCounts: vi.fn().mockResolvedValue(reviewCounts),
-      });
-      const service = createNotificationService(deps);
-
-      const result = await service.pickDictionaryWord(1);
-
-      expect(result?.original).toBe("book");
-    });
-
-    it("breaks ties by oldest createdAt", async () => {
-      // All have 0 reviews → pick oldest (house, Jan 1)
+    it("returns a random word from candidates", async () => {
       const deps = buildDictDeps();
       const service = createNotificationService(deps);
 
       const result = await service.pickDictionaryWord(1);
 
-      expect(result?.original).toBe("house");
+      expect(["house", "car", "book"]).toContain(result?.original);
     });
 
     it("includes translations resolved via getLangCode", async () => {
@@ -544,7 +526,6 @@ describe("pickDictionaryWord", () => {
     it("returns null when deps are missing", async () => {
       const deps = buildDictDeps({
         getUserVocabulary: undefined,
-        getReviewCounts: undefined,
         getLangCode: undefined,
       });
       const service = createNotificationService(deps);
@@ -572,21 +553,6 @@ describe("pickDictionaryWord", () => {
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({ userId: 1 }),
         expect.stringContaining("failed to get user vocabulary"),
-      );
-    });
-
-    it("returns null when getReviewCounts throws", async () => {
-      const deps = buildDictDeps({
-        getReviewCounts: vi.fn().mockRejectedValue(new Error("DB error")),
-      });
-      const service = createNotificationService(deps);
-
-      const result = await service.pickDictionaryWord(1);
-
-      expect(result).toBeNull();
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.objectContaining({ userId: 1 }),
-        expect.stringContaining("failed to get review counts"),
       );
     });
   });

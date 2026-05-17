@@ -15,11 +15,20 @@ declare namespace Temporal {
     toZonedDateTime(timeZone: string): ZonedDateTime;
   }
 
+  interface Instant {
+    toZonedDateTimeISO(timeZone: string): ZonedDateTime;
+  }
+
   namespace Now {
     function zonedDateTimeISO(timeZone: string): ZonedDateTime;
+  }
+
+  namespace Instant {
+    function from(iso: string): Instant;
   }
 }
 
 declare const Temporal: {
   Now: typeof Temporal.Now;
+  Instant: typeof Temporal.Instant;
 };

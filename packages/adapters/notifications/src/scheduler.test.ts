@@ -5,6 +5,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { NotificationUser, ReEngagementSendFn, SchedulerDeps, SendFn, SuggestedWord } from "./types.js";
 
 // ─────────────────────────────────────────────
+// Mock Temporal API (for Node < 26 environments)
+// ─────────────────────────────────────────────
+
+const mockTemporalNow = { hour: 8, minute: 0 };
+
+vi.stubGlobal("Temporal", {
+  Now: {
+    zonedDateTimeISO: () => mockTemporalNow,
+  },
+});
+
+// ─────────────────────────────────────────────
 // Mock logger (hoisted to avoid TDZ issues)
 // ─────────────────────────────────────────────
 
@@ -407,7 +419,7 @@ describe("startScheduler / stopScheduler", () => {
 
     startScheduler(sendFn, reEngagementSendFn, deps);
 
-    expect(mockSchedule).toHaveBeenCalledWith("*/30 * * * *", expect.any(Function));
+    expect(mockSchedule).toHaveBeenCalledWith("* * * * *", expect.any(Function));
   });
 
   it("does not register duplicate cron jobs", () => {

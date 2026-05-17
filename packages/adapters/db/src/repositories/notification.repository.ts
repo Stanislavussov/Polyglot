@@ -71,10 +71,11 @@ export function formatNotificationTime(totalMinutes: number): string {
  */
 export function getLocalMinutes(timezone: string, utcHour: number, utcMinute: number): number {
   try {
-    const now = Temporal.Now.zonedDateTimeISO("UTC");
-    const targetPlain = now.toPlainDateTime().with({ hour: utcHour, minute: utcMinute });
-    const targetZoned = targetPlain.toZonedDateTime("UTC").withTimeZone(timezone);
-    return targetZoned.hour * 60 + targetZoned.minute;
+    const h = String(utcHour).padStart(2, "0");
+    const m = String(utcMinute).padStart(2, "0");
+    const instant = Temporal.Instant.from(`1970-01-01T${h}:${m}:00Z`);
+    const zoned = instant.toZonedDateTimeISO(timezone);
+    return zoned.hour * 60 + zoned.minute;
   } catch {
     return -1;
   }

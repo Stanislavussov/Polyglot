@@ -117,9 +117,6 @@ export interface NotificationServiceDeps {
   /** Get all vocabulary entries for a user (for pickDictionaryWord). */
   getUserVocabulary?: (userId: number) => Promise<VocabEntry[]>;
 
-  /** Get review counts per vocabulary entry (entryId → count). */
-  getReviewCounts?: (userId: number) => Promise<Map<number, number>>;
-
   /** Resolve language ID → language code. */
   getLangCode?: (langId: number) => string | undefined;
 }
