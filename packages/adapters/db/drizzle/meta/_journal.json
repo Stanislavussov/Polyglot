@@ -129,17 +129,10 @@
       "breakpoints": true
     },
     {
-      "idx": 17,
+      "idx": 18,
       "version": "7",
       "when": 1778923250841,
       "tag": "0017_cuddly_slipstream",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "7",
-      "when": 1778962991543,
-      "tag": "0018_curvy_adam_destine",
       "breakpoints": true
     }
   ]
