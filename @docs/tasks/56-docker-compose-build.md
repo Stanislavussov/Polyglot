@@ -2,7 +2,10 @@
 
 **Status:** ✅ Done  
 **Category:** DevOps / Infrastructure — Medium  
-**Blocks:** Local development parity, self-hosted deployment, future CI/CD
+**Blocks:** Local development parity, self-hosted deployment, future CI/CD  
+**Last verified:** 2026-05-16  
+
+**Note:** Docker files are in `deploy/` directory (not project root): `deploy/Dockerfile`, `deploy/docker-compose.yml`, `.dockerignore` at root.
 
 ---
 

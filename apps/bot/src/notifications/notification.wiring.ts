@@ -4,13 +4,7 @@
  * Creates sendFn, builds SchedulerDeps, and starts/stops the scheduler.
  * No business logic — only dependency injection and wiring.
  */
-import {
-  getAllLangs,
-  notificationRepository,
-  userRepository,
-  vocabularyRepository,
-  wordReviewRepository,
-} from "@polyglot/adapter-db";
+import { getAllLangs, notificationRepository, userRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import {
   createNotificationService,
   type NotificationPayload,
@@ -18,9 +12,17 @@ import {
   startScheduler,
   stopScheduler,
 } from "@polyglot/adapter-notifications";
-import { createTopicService, getBuiltinTopics, isSupported, logger, type SupportedLang, t } from "@polyglot/core";
+import {
+  createTopicService,
+  getBuiltinTopics,
+  type I18nKey,
+  isSupported,
+  logger,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
-import { buildNotificationKeyboard } from "./notification.formatter.js";
+import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
 
 /**
  * Wire and start the notification scheduler.
@@ -67,15 +69,11 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
         original: e.original,
         emoji: e.emoji,
         createdAt: e.createdAt,
-        translations:
-          (e as any).translations?.map((tr: any) => ({
-            targetLangId: tr.targetLangId,
-            text: tr.text,
-          })) ?? [],
+        translations: e.translations.map((tr) => ({
+          targetLangId: tr.targetLangId,
+          text: tr.text,
+        })),
       }));
-    },
-    getReviewCounts: async (userId: number) => {
-      return wordReviewRepository.getReviewCounts(userId);
     },
     getLangCode: (langId: number) => {
       const all = getAllLangs();
@@ -96,7 +94,8 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
     }
 
     const kb = buildNotificationKeyboard(lang);
-    await api.sendMessage(telegramId, payload.message, {
+    const message = formatNotificationMessage(payload, lang);
+    await api.sendMessage(telegramId, message, {
       parse_mode: "HTML",
       reply_markup: kb,
     });
@@ -109,13 +108,16 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
 
   // ── Build scheduler deps ──
   const schedulerDeps: SchedulerDeps = {
-    getUsersForWindow: (hour: number) => notificationRepository.getUsersForWindow(hour),
+    getUsersForWindow: (hour: number, minute = 0) => notificationRepository.getUsersForWindow(hour, minute),
     getInactiveUsers: () => notificationRepository.getInactiveUsers(),
     disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
-    pickSuggestedWord: (userId: number) => notifService.pickSuggestedWord(userId),
-    pickDictionaryWord: (userId: number) => notifService.pickDictionaryWord(userId),
+    getRecentSentWords: (userId: number, limit = 3) => notificationRepository.getRecentSentWords(userId, limit),
+    recordSentWord: (userId: number, original: string, source: string) =>
+      notificationRepository.recordSentWord(userId, original, source),
+    pickSuggestedWord: (userId: number, recentWords) => notifService.pickSuggestedWord(userId, recentWords),
+    pickDictionaryWord: (userId: number, recentWords) => notifService.pickDictionaryWord(userId, recentWords),
     t: (key: string, lang: string, params?: Record<string, string>) =>
-      t(key as any, (isSupported(lang) ? lang : "en") as SupportedLang, params),
+      t(key as I18nKey, (isSupported(lang) ? lang : "en") as SupportedLang, params),
   };
 
   // ── Start scheduler ──

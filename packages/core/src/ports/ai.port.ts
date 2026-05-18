@@ -8,6 +8,8 @@ export interface AIModel {
   name: string;
   provider: string;
   maxTokens: number;
+  costPer1kInput: number;
+  costPer1kOutput: number;
 }
 
 export interface GenerateOptions {

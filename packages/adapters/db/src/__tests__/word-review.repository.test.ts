@@ -23,7 +23,6 @@ function chainable(): unknown {
   self.orderBy = vi.fn(() => self);
   self.groupBy = vi.fn(() => self);
   self.limit = vi.fn(() => terminal());
-  // biome-ignore lint/suspicious/noThenProperty: mock needs .then for async chain resolution
   self.then = (resolve: (v: unknown) => void) => terminal().then(resolve);
 
   return self;

@@ -1,11 +1,12 @@
 import { type ConversationFlavor } from "@grammyjs/conversations";
-import type { User, UserLanguageSettings } from "@polyglot/adapter-db";
 import type {
   DictionaryWordConfig,
   InputType,
   ServiceContainer,
   TemplateFields,
   TranslateOutput,
+  User,
+  UserLanguageSettings,
   WordDisplayData,
 } from "@polyglot/core";
 import { Context, SessionFlavor } from "grammy";

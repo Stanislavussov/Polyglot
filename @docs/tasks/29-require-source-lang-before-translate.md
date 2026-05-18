@@ -1,9 +1,11 @@
 # Task 29 — Require Source Language Selection Before Translation
 
-**Status:** 🔲 To Do  
+**Status:** ❌ Superseded by Task 58  
 **Type:** UX improvement  
-**Priority:** Medium — prevents wasted AI calls when auto-detect picks the wrong direction  
+**Priority:** Medium — ~~prevents wasted AI calls when auto-detect picks the wrong direction~~  
 **Dependencies:** Task 17 (source language menu infrastructure)
+
+> **Superseded by [Task 58](./58-language-detection-pre-request.md):** Task 58 removes the source language selection menu entirely in favor of automatic language detection with mistype warning. This task's approach (buffer word → show menu → auto-translate on selection) is no longer needed.
 
 ---
 

@@ -9,28 +9,11 @@
  *
  * Must call `loadLanguageCache()` at app startup (after DB is connected).
  */
+import type { CachedLanguage } from "@polyglot/core";
 import { getDb } from "./connection.js";
 import { languages } from "./schema.js";
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
-
-export interface CachedLanguage {
-  id: number;
-  /** ISO 639-1 code: "en", "ru", "cs" */
-  code: string;
-  /** English name: "English", "Russian" */
-  name: string;
-  /** Native/autonym name: "Русский", "Deutsch" */
-  nativeName: string | null;
-  /** Emoji flag: "🇬🇧", "🇷🇺" */
-  flag: string | null;
-  /** Available as interface/learning language in bot UI */
-  isSupported: boolean;
-  /** Localized display names: {"ru": "Английский", "cs": "Angličtina"} */
-  localizedNames: Record<string, string> | null;
-}
+export type { CachedLanguage };
 
 /* ------------------------------------------------------------------ */
 /*  Cache state                                                        */

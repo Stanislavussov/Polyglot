@@ -4,7 +4,7 @@
  * with inline buttons to change each setting.
  * Callback handlers are in helpers/settings.helper.ts.
  */
-import { formatNotificationHour, getLangDisplay, parseNotificationHour, userRepository } from "@polyglot/adapter-db";
+import { formatNotificationTime, getLangDisplay, parseNotificationMinutes, userRepository } from "@polyglot/adapter-db";
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../types.js";
@@ -35,7 +35,7 @@ export function buildSettingsText(
     notifEnabled ? t("settingsNotifEnabled", lang) : t("settingsNotifDisabled", lang),
   ];
   if (notifEnabled) {
-    const displayTime = formatNotificationHour(parseNotificationHour(notifTime));
+    const displayTime = formatNotificationTime(parseNotificationMinutes(notifTime));
     lines.push(t("settingsNotifTime", lang, { time: displayTime }));
     lines.push(t("settingsNotifType", lang, { type: notifType ?? "both" }));
     lines.push(t("settingsNotifTimezone", lang, { timezone: timezone ?? "UTC" }));
@@ -70,9 +70,9 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   const nativeLang = settings?.nativeLang ?? "en";
   const learningLangs = settings?.learningLangs ?? [];
   const interfaceLang = settings?.interfaceLang ?? "en";
-  const notifEnabled = (settings as any)?.notificationEnabled ?? false;
-  const notifTime = (settings as any)?.notificationTime ?? "8";
-  const notifType = (settings as any)?.notificationType ?? "both";
+  const notifEnabled = settings?.notificationEnabled ?? false;
+  const notifTime = settings?.notificationTime ?? "08:00";
+  const notifType = settings?.notificationType ?? "both";
   const timezone = settings?.timezone ?? "UTC";
 
   const text = buildSettingsText(

@@ -4,6 +4,7 @@
  */
 import { translationTemplateRepository, userRepository } from "@polyglot/adapter-db";
 import {
+  type I18nKey,
   isSupported,
   resolveTemplate,
   type SupportedLang,
@@ -17,7 +18,7 @@ import type { BotContext } from "../../types.js";
 import { MOCK_PREVIEW_OUTPUT } from "../template-preview.data.js";
 
 /** Map TemplateFields key → i18n key for field label */
-const FIELD_I18N_MAP: Record<keyof TemplateFields, string> = {
+const FIELD_I18N_MAP: Record<keyof TemplateFields, I18nKey> = {
   transcription: "templateFieldTranscription",
   synonyms: "templateFieldSynonyms",
   examples: "templateFieldExamples",
@@ -38,12 +39,12 @@ function buildToggleKeyboard(fields: TemplateFields, lang: SupportedLang): Inlin
   const kb = new InlineKeyboard();
   for (const key of TEMPLATE_FIELD_KEYS) {
     const icon = fields[key] ? "✅" : "❌";
-    const label = t(FIELD_I18N_MAP[key] as any, lang);
+    const label = t(FIELD_I18N_MAP[key], lang);
     kb.text(`${icon} ${label}`, `tpl:toggle:${key}`).row();
   }
-  kb.text(t("templatePreview" as any, lang), "tpl:preview");
-  kb.text(t("templateSave" as any, lang), "tpl:save");
-  kb.text(t("templateCancel" as any, lang), "tpl:cancel");
+  kb.text(t("templatePreview", lang), "tpl:preview");
+  kb.text(t("templateSave", lang), "tpl:save");
+  kb.text(t("templateCancel", lang), "tpl:cancel");
   return kb;
 }
 
@@ -55,7 +56,7 @@ export async function handleCustomizeCallback(ctx: BotContext): Promise<void> {
 
   ctx.session.templateWizard = { fields: { ...tpl.fields } };
   const kb = buildToggleKeyboard(ctx.session.templateWizard.fields, lang);
-  const text = t("templateConstructor" as any, lang);
+  const text = t("templateConstructor", lang);
 
   try {
     await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
@@ -71,7 +72,10 @@ export async function handleCustomizeCallback(ctx: BotContext): Promise<void> {
 export async function handleToggleCallback(ctx: BotContext): Promise<void> {
   if (!ctx.session.templateWizard) {
     const lang = await getLang(ctx);
-    await ctx.answerCallbackQuery({ text: t("templateSessionExpired" as any, lang), show_alert: true });
+    await ctx.answerCallbackQuery({
+      text: t("templateSessionExpired", lang),
+      show_alert: true,
+    });
     return;
   }
   const data = ctx.callbackQuery?.data ?? "";
@@ -83,7 +87,10 @@ export async function handleToggleCallback(ctx: BotContext): Promise<void> {
   ctx.session.templateWizard.fields[key] = !ctx.session.templateWizard.fields[key];
   const lang = await getLang(ctx);
   const kb = buildToggleKeyboard(ctx.session.templateWizard.fields, lang);
-  await ctx.editMessageText(t("templateConstructor" as any, lang), { reply_markup: kb, parse_mode: "HTML" });
+  await ctx.editMessageText(t("templateConstructor", lang), {
+    reply_markup: kb,
+    parse_mode: "HTML",
+  });
   await ctx.answerCallbackQuery();
 }
 
@@ -91,13 +98,16 @@ export async function handleToggleCallback(ctx: BotContext): Promise<void> {
 export async function handlePreviewCallback(ctx: BotContext): Promise<void> {
   if (!ctx.session.templateWizard) {
     const lang = await getLang(ctx);
-    await ctx.answerCallbackQuery({ text: t("templateSessionExpired" as any, lang), show_alert: true });
+    await ctx.answerCallbackQuery({
+      text: t("templateSessionExpired", lang),
+      show_alert: true,
+    });
     return;
   }
   const lang = await getLang(ctx);
   const card = renderTranslation(MOCK_PREVIEW_OUTPUT, lang, ctx.session.templateWizard.fields);
-  const text = `${t("templatePreviewHeader" as any, lang)}\n\n${card}`;
-  const kb = new InlineKeyboard().text(t("templateBack" as any, lang), "tpl:back");
+  const text = `${t("templatePreviewHeader", lang)}\n\n${card}`;
+  const kb = new InlineKeyboard().text(t("templateBack", lang), "tpl:back");
   await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
   await ctx.answerCallbackQuery();
 }
@@ -106,12 +116,18 @@ export async function handlePreviewCallback(ctx: BotContext): Promise<void> {
 export async function handleBackCallback(ctx: BotContext): Promise<void> {
   if (!ctx.session.templateWizard) {
     const lang = await getLang(ctx);
-    await ctx.answerCallbackQuery({ text: t("templateSessionExpired" as any, lang), show_alert: true });
+    await ctx.answerCallbackQuery({
+      text: t("templateSessionExpired", lang),
+      show_alert: true,
+    });
     return;
   }
   const lang = await getLang(ctx);
   const kb = buildToggleKeyboard(ctx.session.templateWizard.fields, lang);
-  await ctx.editMessageText(t("templateConstructor" as any, lang), { reply_markup: kb, parse_mode: "HTML" });
+  await ctx.editMessageText(t("templateConstructor", lang), {
+    reply_markup: kb,
+    parse_mode: "HTML",
+  });
   await ctx.answerCallbackQuery();
 }
 
@@ -119,13 +135,18 @@ export async function handleBackCallback(ctx: BotContext): Promise<void> {
 export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void> {
   if (!ctx.session.templateWizard) {
     const lang = await getLang(ctx);
-    await ctx.answerCallbackQuery({ text: t("templateSessionExpired" as any, lang), show_alert: true });
+    await ctx.answerCallbackQuery({
+      text: t("templateSessionExpired", lang),
+      show_alert: true,
+    });
     return;
   }
   const lang = await getLang(ctx);
   await translationTemplateRepository.upsert(ctx.user.id, "Custom", ctx.session.templateWizard.fields);
   ctx.session.templateWizard = undefined;
-  await ctx.editMessageText(t("templateSaved" as any, lang), { parse_mode: "HTML" });
+  await ctx.editMessageText(t("templateSaved", lang), {
+    parse_mode: "HTML",
+  });
   await ctx.answerCallbackQuery();
 }
 
@@ -133,7 +154,9 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
 export async function handleCancelCallback(ctx: BotContext): Promise<void> {
   ctx.session.templateWizard = undefined;
   const lang = await getLang(ctx);
-  await ctx.editMessageText(t("templateCancelled" as any, lang), { parse_mode: "HTML" });
+  await ctx.editMessageText(t("templateCancelled", lang), {
+    parse_mode: "HTML",
+  });
   await ctx.answerCallbackQuery();
 }
 
@@ -142,6 +165,8 @@ export async function handleResetCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   await translationTemplateRepository.deleteByUserId(ctx.user.id);
   ctx.session.templateWizard = undefined;
-  await ctx.editMessageText(t("templateResetDone" as any, lang), { parse_mode: "HTML" });
+  await ctx.editMessageText(t("templateResetDone", lang), {
+    parse_mode: "HTML",
+  });
   await ctx.answerCallbackQuery();
 }

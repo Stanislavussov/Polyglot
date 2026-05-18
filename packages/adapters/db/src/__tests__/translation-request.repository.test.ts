@@ -27,8 +27,6 @@ function chainable(): unknown {
   self.innerJoin = vi.fn(() => self);
   self.orderBy = vi.fn(() => self);
   self.limit = vi.fn(() => terminal());
-  // If the chain ends without .limit (e.g. innerJoin().where() returns directly)
-  // biome-ignore lint/suspicious/noThenProperty: mock needs .then for async chain resolution
   self.then = (resolve: (v: unknown) => void) => terminal().then(resolve);
 
   return self;
@@ -190,8 +188,20 @@ describe("translationRequestRepository", () => {
       queryResults = [
         // 1. select requests with source lang join
         [
-          { id: 1, userId: 10, original: "hello", sourceLangCode: "en", createdAt: now },
-          { id: 2, userId: 10, original: "world", sourceLangCode: null, createdAt: now },
+          {
+            id: 1,
+            userId: 10,
+            original: "hello",
+            sourceLangCode: "en",
+            createdAt: now,
+          },
+          {
+            id: 2,
+            userId: 10,
+            original: "world",
+            sourceLangCode: null,
+            createdAt: now,
+          },
         ],
         // 2. select target langs junction
         [
@@ -240,7 +250,15 @@ describe("translationRequestRepository", () => {
 
       queryResults = [
         // 1. requests
-        [{ id: 1, userId: 10, original: "test", sourceLangCode: "en", createdAt: now }],
+        [
+          {
+            id: 1,
+            userId: 10,
+            original: "test",
+            sourceLangCode: "en",
+            createdAt: now,
+          },
+        ],
         // 2. target langs — none
         [],
       ];

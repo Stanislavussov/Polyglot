@@ -1,7 +1,7 @@
 # Polyglot — Product Roadmap
 
 **Owner:** Product Owner  
-**Last updated:** 2026-03-28  
+**Last updated:** 2026-05-16  
 **Methodology:** Value × Feasibility prioritization. Defer, don't cut.
 
 ---
@@ -15,15 +15,22 @@
 
 ---
 
-## Current Status (as of 2026-03-28)
+## Current Status (as of 2026-05-16)
 
 | Layer | Status |
 |-------|--------|
 | Core AI translation pipeline | ✅ Live |
 | Input type detection (word / phrase / sentence) | ✅ Done (Task 27) |
 | Multi-language card rendering | ✅ Live |
-| Basic save to dictionary (no FK, no dedup) | ✅ Partial — see FEAT-30 |
-| FEAT-30 (Save to Dictionary — full) | 🟡 In Design |
+| Save to Dictionary (FEAT-30) | ✅ Complete |
+| Dictionary Browse & Delete | ✅ Complete (Task 40) |
+| Flash Cards | ✅ Complete (Task 33) |
+| Daily Word Notifications | ✅ Complete (Task 41) |
+| /settings Command | ✅ Complete (Task 37b) |
+| Localized Bot Commands | 🟡 Partial (Task 35) |
+| Composition Root & DI | ✅ Infrastructure done, incremental migration (Task 42) |
+| Decouple Adapters from Infra | ✅ Complete (Task 53) |
+| Docker Compose Build | ✅ Complete (Task 56) |
 
 ---
 
@@ -47,7 +54,7 @@ User can translate any word or phrase in multi-language mode, with CEFR, synonym
 
 ---
 
-## Milestone 1 — Personal Dictionary v1 (🟡 Active)
+## Milestone 1 — Personal Dictionary v1 (✅ Completed)
 
 **Theme:** Save words from translations → personal vocabulary. This is the retention anchor.
 
@@ -55,74 +62,35 @@ User can translate any word or phrase in multi-language mode, with CEFR, synonym
 
 ### Milestone 1.0 — Save to Dictionary (FEAT-30)
 
-**Status:** In Design → Implementation ready after this prioritization.
+**Status:** ✅ Complete
 
-**Must-have scope (see `docs/mvp-scope.md` §2 for full MoSCoW breakdown):**
-
-| # | Requirement | Description |
-|---|-------------|-------------|
-| 1 | REQ-3001 | One-tap inline button save (`tr:save` callback) |
-| 2 | REQ-3002 | `sourceLangId` FK to `languages.id` in `words` table |
-| 3 | REQ-3003 | `input_type` column (`'word'` \| `'phrase'`) in `words` table |
-| 4 | REQ-3004 | Duplicate detection — "Already in dictionary" toast; no new entry created |
-| 5 | REQ-3008 | DB migration `0005_words_dictionary_improvements` |
-| 6 | REQ-3009 | `wordRepository.findByOriginalAndSource()` |
-
-**Should-have scope (ship together with Must-haves):**
-
-| # | Requirement | Description |
-|---|-------------|-------------|
-| 7 | REQ-3005 | Content sanitization (strip `needsReview`, `dictionaryContext`) |
-| 8 | REQ-3006 | Contextual Save button labels: "💾 Save word" / "💾 Save phrase" |
-| 9 | REQ-3007 | Post-save regen-only keyboard (regen updates saved entry via `updateContent`) |
-
-**Product owner decisions on open questions:**
-
-| ID | Decision |
-|----|---------|
-| C1 | Breaking migration: YES. Nullable FK → backfill → NOT NULL. Keep old `source_lang` until verified. |
-| C2 | Target lang FK: Option B (JSONB key validation at write time). Junction table deferred to FEAT-30.1. |
-| C3 | Duplicate behavior: Option A — "Already saved" toast, no new entry, no silent update. |
-| C4 | Phrase card layout: button label only for now. Full layout differentiation (examples-first) deferred to v1.1. |
-| C5 | Post-save regen: Option A — auto-update saved entry silently via `updateContent`. No re-save prompt. |
-| C6 | Existing entries default to `inputType = 'word'` — acceptable approximation. |
-
-**Delivery criteria:**  
-A user can save a translated word or phrase with one tap. Duplicates are detected. The entry is stored with source language FK, input type, and sanitized learning content. Regen buttons remain after save to allow translation refinement.
+**Delivered:**
+- One-tap inline button save (`tr:save` callback)
+- `sourceLangId` FK to `languages.id` in `words` table
+- `input_type` column (`'word'` | `'phrase'`) in `words` table
+- Duplicate detection — "Already in dictionary" toast
+- DB migration `0005_words_dictionary_improvements`
+- `wordRepository.findByOriginalAndSource()`
+- Content sanitization (strip `needsReview`, `dictionaryContext`)
+- Contextual Save button labels
+- Post-save regen-only keyboard
+- Dictionary word pipeline + flash cards (Task 33)
+- Dictionary browse, search, delete (Task 40)
+- Daily word notifications (Task 41)
+- /settings command (Task 37b)
 
 ---
 
-### Milestone 1.1 — Dictionary Browse (FEAT-29, planned)
+### Milestone 1.1 — Dictionary Polish (planned)
 
-**Status:** Planned — depends on FEAT-30 being live.
-
-**Theme:** Complete the save→browse loop. Users can see what they've saved.
-
-**Scope (planned, not yet in requirements):**
-- `/dictionary` command — paginated list of saved words
-- Each entry: original + translations summary + CEFR + date saved
-- Delete entry from list
-- Basic search by text
-- `word_target_langs` junction table migration (FEAT-30/C2 follow-up — Option A)
-- Phrase card visual differentiation: examples-first layout for phrase entries
-- Input normalization hardening (REQ-3010: case-insensitive dedup via `LOWER()`)
-
-**Won't have in 1.1:**
-- Filter by language pair — *deferred to v1.2; need user data to understand demand*
-- Edit translation — *deferred to v1.2; BRD open question #2 (edit sentences?) must resolve first*
-- "Word lists" / collections — *deferred to v2.0 (Topics milestone)*
-
----
-
-### Milestone 1.2 — Dictionary Polish (planned)
-
-**Status:** Planned — depends on Milestone 1.1.
+**Status:** Planned — depends on Milestone 1.0 being live.
 
 **Scope (planned):**
 - Edit saved translation (user override, does not affect shared cache) — resolves BRD open question #2
 - Filter dictionary by language pair, CEFR level, register
 - "Difficult words" flag — auto-populated from quiz failures (post-SRS)
 - Search history (Reverso-style) — convenient but not critical
+- Case-insensitive duplicate detection via `LOWER()` (REQ-3010)
 
 ---
 
@@ -261,12 +229,11 @@ These items were evaluated and explicitly rejected, not just deferred.
 | Milestone | Theme | Status | Key Blocker |
 |-----------|-------|--------|-------------|
 | **0** | Foundation + Core Translation | ✅ Complete | — |
-| **1.0** | Save to Dictionary (FEAT-30) | 🟡 In Design | PO decisions documented in this roadmap |
-| **1.1** | Dictionary Browse | 📋 Planned | Depends on 1.0 live |
-| **1.2** | Dictionary Polish + Edit | 📋 Planned | BRD open question #2 (edit sentences?) |
-| **2.0** | Spaced Repetition (SRS) | 🔭 Future | Needs 1.0 + 1.1 + real user data |
+| **1.0** | Save to Dictionary (FEAT-30) | ✅ Complete | — |
+| **1.1** | Dictionary Polish | 📋 Planned | BRD open question #2 (edit sentences?) |
+| **2.0** | Spaced Repetition (SRS) | 🔭 Future | Needs real user data + SRS schema (Task 50) |
 | **2.1** | Quizzes | 🔭 Future | Needs 2.0 |
-| **2.2** | Daily Notifications | 🔭 Future | Needs 2.0 |
-| **3.0** | Ready-Made Topic Sets | 🔭 Future | Needs 1.0 |
+| **2.2** | Daily Notifications (SRS) | 🔭 Future | Needs 2.0 |
+| **3.0** | Ready-Made Topic Sets | 🔭 Future | Needs topic cache wired (Task 52) |
 | **3.1** | AI-Generated Topics | 🔭 Future | Needs 3.0 |
 | **4+** | Audio, Native App, Social | ❄️ Long-term | Needs user base + v2 data |

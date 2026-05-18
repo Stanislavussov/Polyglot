@@ -2,7 +2,7 @@
 
 | Layer             | Technology                                           | Reason                                                                                                |
 | ----------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Runtime           | Node.js 22 LTS                                       | Stable, native fetch, good ecosystem for bots                                                         |
+| Runtime           | Node.js 26 LTS                                       | Stable, native fetch, good ecosystem for bots                                                         |
 | Language          | TypeScript 5.x                                       | Strict typing, mandatory for reliability                                                              |
 | Telegram Bot      | grammY 1.x                                           | Modern alternative to telegraf, middleware/scenes support                                             |
 | DB                | PostgreSQL 16 (Railway managed)                      | Built into Railway, single deployment for everything                                                  |

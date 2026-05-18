@@ -22,7 +22,6 @@ let lastUpdateSet: unknown = null;
 function makeThenable(resultFn: () => unknown[]) {
   const promise = Promise.resolve().then(() => resultFn());
   return {
-    // biome-ignore lint/suspicious/noThenProperty: mimicking Drizzle's thenable query builder for tests
     then: promise.then.bind(promise),
     catch: promise.catch.bind(promise),
     limit: vi.fn(() => makeThenable(resultFn)),
@@ -361,7 +360,9 @@ describe("vocabularyRepository", () => {
       const updated = makeTranslation({ text: "nazdar" });
       insertResultQueue.push([updated]);
 
-      const result = await vocabularyRepository.updateTranslation(1, 3, { text: "nazdar" });
+      const result = await vocabularyRepository.updateTranslation(1, 3, {
+        text: "nazdar",
+      });
 
       expect(updateFn).toHaveBeenCalledOnce();
       expect(result.text).toBe("nazdar");
@@ -388,7 +389,9 @@ describe("vocabularyRepository", () => {
       const inserted = makeTranslation({ text: "new" });
       insertResultQueue.push([inserted]);
 
-      const result = await vocabularyRepository.updateTranslation(1, 99, { text: "new" });
+      const result = await vocabularyRepository.updateTranslation(1, 99, {
+        text: "new",
+      });
 
       expect(updateFn).toHaveBeenCalledOnce();
       expect(insertFn).toHaveBeenCalledOnce();

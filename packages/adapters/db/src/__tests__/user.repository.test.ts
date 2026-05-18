@@ -561,21 +561,21 @@ describe("userRepository", () => {
     it("updates all notification preferences and returns settings", async () => {
       const settings = makeSettings({
         notificationEnabled: true,
-        notificationTime: "evening",
+        notificationTime: "20:00",
         notificationType: "srs",
       });
       updateReturningFn.mockResolvedValueOnce([settings]);
 
       const result = await userRepository.updateNotificationPrefs(1, {
         notificationEnabled: true,
-        notificationTime: "evening",
+        notificationTime: "20:00",
         notificationType: "srs",
       });
 
       expect(result).toEqual(settings);
       expect(updateFn).toHaveBeenCalledOnce();
       expect(lastUpdateSet).toHaveProperty("notificationEnabled", true);
-      expect(lastUpdateSet).toHaveProperty("notificationTime", "evening");
+      expect(lastUpdateSet).toHaveProperty("notificationTime", "20:00");
       expect(lastUpdateSet).toHaveProperty("notificationType", "srs");
       expect(lastUpdateSet).toHaveProperty("updatedAt");
     });
@@ -611,7 +611,7 @@ describe("userRepository", () => {
       updateReturningFn.mockResolvedValueOnce([settings]);
 
       await userRepository.updateNotificationPrefs(1, {
-        notificationTime: "morning",
+        notificationTime: "08:00",
       });
 
       const after = new Date();

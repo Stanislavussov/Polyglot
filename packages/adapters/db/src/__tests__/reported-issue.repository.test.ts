@@ -8,7 +8,6 @@ let insertResultQueue: unknown[][] = [];
 function makeThenable(resultFn: () => unknown[]) {
   const promise = Promise.resolve().then(() => resultFn());
   return {
-    // biome-ignore lint/suspicious/noThenProperty: mimicking Drizzle's thenable query builder for tests
     then: promise.then.bind(promise),
     catch: promise.catch.bind(promise),
     limit: vi.fn(() => makeThenable(resultFn)),
@@ -36,7 +35,9 @@ const insertReturningFn = vi.fn(() => {
   return Promise.resolve(result);
 });
 
-const insertValuesFn = vi.fn((_values: unknown) => ({ returning: insertReturningFn }));
+const insertValuesFn = vi.fn((_values: unknown) => ({
+  returning: insertReturningFn,
+}));
 const insertFn = vi.fn(() => ({ values: insertValuesFn }));
 
 const updateReturningFn = vi.fn(() => {
@@ -44,7 +45,9 @@ const updateReturningFn = vi.fn(() => {
   return Promise.resolve(result);
 });
 
-const updateSetFn = vi.fn(() => ({ where: vi.fn(() => ({ returning: updateReturningFn })) }));
+const updateSetFn = vi.fn(() => ({
+  where: vi.fn(() => ({ returning: updateReturningFn })),
+}));
 const updateFn = vi.fn(() => ({ set: updateSetFn }));
 
 const mockDb = {

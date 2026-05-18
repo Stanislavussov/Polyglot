@@ -17,7 +17,6 @@ let deleteWhereArgs: unknown[] = [];
 function makeThenable(resultFn: () => unknown[]) {
   const promise = Promise.resolve().then(() => resultFn());
   return {
-    // biome-ignore lint/suspicious/noThenProperty: mimicking Drizzle's thenable query builder for tests
     then: promise.then.bind(promise),
     catch: promise.catch.bind(promise),
     limit: vi.fn((_n: number) => makeThenable(resultFn)),
@@ -184,7 +183,12 @@ describe("vocabularyRepository — pagination & hardDelete", () => {
     it("returns entries with multiple translations", async () => {
       const entry = makeEntry({ id: 1 });
       const t1 = makeTranslation({ entryId: 1, targetLangId: 3, text: "ahoj" });
-      const t2 = makeTranslation({ id: 11, entryId: 1, targetLangId: 7, text: "hallo" });
+      const t2 = makeTranslation({
+        id: 11,
+        entryId: 1,
+        targetLangId: 7,
+        text: "hallo",
+      });
       selectResultQueue.push([entry], [t1, t2]);
 
       const result = await vocabularyRepository.findByUserPaginated(42, 0, 15);
@@ -208,7 +212,11 @@ describe("vocabularyRepository — pagination & hardDelete", () => {
     it("returns only active translations for entries", async () => {
       const entry = makeEntry({ id: 1 });
       // Only active translations will be queried (mock simulates WHERE isActive = true)
-      const activeTrans = makeTranslation({ entryId: 1, text: "ahoj", isActive: true });
+      const activeTrans = makeTranslation({
+        entryId: 1,
+        text: "ahoj",
+        isActive: true,
+      });
       selectResultQueue.push([entry], [activeTrans]);
 
       const result = await vocabularyRepository.findByUserPaginated(42, 0, 15);

@@ -34,7 +34,7 @@ export function createNotificationService(deps: NotificationServiceDeps) {
    * @param userId — internal user ID
    * @returns SuggestedWord or null if no word could be picked
    */
-  async function pickSuggestedWord(userId: number): Promise<SuggestedWord | null> {
+  async function pickSuggestedWord(userId: number, recentWords: string[] = []): Promise<SuggestedWord | null> {
     // Step 1: Fetch user settings
     const user = await deps.getUserSettings(userId);
     if (!user || user.learningLangs.length === 0) {
@@ -65,8 +65,10 @@ export function createNotificationService(deps: NotificationServiceDeps) {
       return null;
     }
 
-    // Step 4: Pick a random word
-    const word = words[Math.floor(Math.random() * words.length)]!;
+    // Step 4: Pick a random word not in recentWords
+    const available = words.filter((w) => !recentWords.includes(w.original));
+    const pool = available.length > 0 ? available : words;
+    const word = pool[Math.floor(Math.random() * pool.length)]!;
 
     // Step 5–6: Check each learning lang and regenerate if missing
     const translations: Record<string, string> = {};
@@ -130,13 +132,12 @@ export function createNotificationService(deps: NotificationServiceDeps) {
    * @param userId — internal user ID
    * @returns SuggestedWord or null if dictionary is empty
    */
-  async function pickDictionaryWord(userId: number): Promise<SuggestedWord | null> {
-    if (!deps.getUserVocabulary || !deps.getReviewCounts || !deps.getLangCode) {
-      logger.warn({ userId }, "pickDictionaryWord: missing deps (getUserVocabulary/getReviewCounts/getLangCode)");
+  async function pickDictionaryWord(userId: number, recentWords: string[] = []): Promise<SuggestedWord | null> {
+    if (!deps.getUserVocabulary || !deps.getLangCode) {
+      logger.warn({ userId }, "pickDictionaryWord: missing deps (getUserVocabulary/getLangCode)");
       return null;
     }
 
-    // Step 1: Get user's vocabulary entries
     let entries: Awaited<ReturnType<NonNullable<typeof deps.getUserVocabulary>>>;
     try {
       entries = await deps.getUserVocabulary(userId);
@@ -150,26 +151,14 @@ export function createNotificationService(deps: NotificationServiceDeps) {
       return null;
     }
 
-    // Step 2: Get review counts
-    let reviewCounts: Map<number, number>;
-    try {
-      reviewCounts = await deps.getReviewCounts(userId);
-    } catch (err) {
-      logger.error({ err, userId }, "pickDictionaryWord: failed to get review counts");
-      return null;
+    const filtered = entries.filter((e) => !recentWords.includes(e.original));
+    if (filtered.length === 0) {
+      logger.info({ userId }, "pickDictionaryWord: all words recently sent — picking from full set");
     }
 
-    // Step 3: Sort by fewest reviews (tie-break: oldest createdAt)
-    const sorted = [...entries].sort((a, b) => {
-      const aCount = reviewCounts.get(a.id) ?? 0;
-      const bCount = reviewCounts.get(b.id) ?? 0;
-      if (aCount !== bCount) return aCount - bCount;
-      return a.createdAt.getTime() - b.createdAt.getTime();
-    });
+    const candidates = filtered.length > 0 ? filtered : entries;
+    const entry = candidates[Math.floor(Math.random() * candidates.length)]!;
 
-    const entry = sorted[0]!;
-
-    // Step 4: Build translations map (langId → langCode → text)
     const translations: Record<string, string> = {};
     for (const t of entry.translations) {
       const code = deps.getLangCode(t.targetLangId);

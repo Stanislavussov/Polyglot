@@ -5,6 +5,8 @@
 **Priority:** High — regen translations miss dictionary context, producing lower quality than initial translations  
 **Effort:** ~1–2 hours
 
+> **Note:** Number collision with `38-fix-onboarding-demo-translation.md`. This task is the regen helper fix; the onboarding demo task is separate.
+
 ---
 
 ## Goal

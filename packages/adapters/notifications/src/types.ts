@@ -4,30 +4,25 @@
  * Defines public types for notification scheduling, delivery,
  * and word suggestion payloads.
  */
-import type { DictionaryContext, LanguageTranslationEntry, TopicMeta, TopicWord } from "@polyglot/core";
+import type {
+  DictionaryContext,
+  LanguageTranslationEntry,
+  NotificationType,
+  NotificationUser,
+  TopicMeta,
+  TopicWord,
+  User,
+  UserLanguageSettings,
+} from "@polyglot/core";
 
-// ─────────────────────────────────────────────
-// Public types
-// ─────────────────────────────────────────────
-
-/**
- * Notification type — matches BRD §2.5 notification categories.
- * - 'suggested': AI-suggested word based on user's saved topics
- * - 'srs': Word from dictionary due for review according to SRS schedule
- */
-export type NotificationType = "suggested" | "srs";
+export type { NotificationType, NotificationUser };
 
 /** Injected send function — the notifications module never imports the bot. */
 export type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
 
 /** User data needed for notification scheduling and delivery. */
-export interface UserForNotification {
-  id: number;
-  telegramId: number;
-  timezone: string;
-  nativeLang: string;
-  learningLangs: string[];
-}
+export type UserForNotification = Pick<User, "id" | "telegramId"> &
+  Pick<UserLanguageSettings, "timezone" | "nativeLang" | "learningLangs">;
 
 /** Notification payload sent to the user. */
 export interface NotificationPayload {
@@ -68,18 +63,6 @@ export interface VocabEntry {
 // Scheduler types
 // ─────────────────────────────────────────────
 
-/** User data returned by the DB notification repository for scheduling. */
-export interface NotificationUser {
-  userId: number;
-  telegramId: number;
-  interfaceLang: string;
-  nativeLang: string;
-  learningLangs: string[];
-  timezone: string;
-  notificationTime: string;
-  notificationType: string;
-}
-
 /** Send function for re-engagement messages (plain text). */
 export type ReEngagementSendFn = (telegramId: number, message: string) => Promise<void>;
 
@@ -116,9 +99,6 @@ export interface NotificationServiceDeps {
   /** Get all vocabulary entries for a user (for pickDictionaryWord). */
   getUserVocabulary?: (userId: number) => Promise<VocabEntry[]>;
 
-  /** Get review counts per vocabulary entry (entryId → count). */
-  getReviewCounts?: (userId: number) => Promise<Map<number, number>>;
-
   /** Resolve language ID → language code. */
   getLangCode?: (langId: number) => string | undefined;
 }
@@ -128,8 +108,8 @@ export interface NotificationServiceDeps {
  * Separates scheduling concerns from word-picking concerns.
  */
 export interface SchedulerDeps {
-  /** Get users eligible for notification at the given UTC hour. */
-  getUsersForWindow: (hour: number) => Promise<NotificationUser[]>;
+  /** Get users eligible for notification at the given UTC hour/minute. */
+  getUsersForWindow: (hour: number, minute?: number) => Promise<NotificationUser[]>;
 
   /** Get users with notifications enabled but inactive for > INACTIVITY_DAYS. */
   getInactiveUsers: () => Promise<NotificationUser[]>;
@@ -137,11 +117,17 @@ export interface SchedulerDeps {
   /** Disable notifications for a user (e.g., due to inactivity). */
   disableNotifications: (userId: number) => Promise<void>;
 
+  /** Get recent sent words for a user (to avoid repeats). */
+  getRecentSentWords: (userId: number, limit?: number) => Promise<string[]>;
+
+  /** Record a sent word in history. */
+  recordSentWord: (userId: number, original: string, source: string) => Promise<void>;
+
   /** Pick a word from AI topic suggestions. */
-  pickSuggestedWord: (userId: number) => Promise<SuggestedWord | null>;
+  pickSuggestedWord: (userId: number, recentWords?: string[]) => Promise<SuggestedWord | null>;
 
   /** Pick a word from user's dictionary (SRS review). */
-  pickDictionaryWord: (userId: number) => Promise<SuggestedWord | null>;
+  pickDictionaryWord: (userId: number, recentWords?: string[]) => Promise<SuggestedWord | null>;
 
   /** Get i18n text. */
   t: (key: string, lang: string, params?: Record<string, string>) => string;
