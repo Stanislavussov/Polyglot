@@ -7,10 +7,10 @@ description: Testing and documentation conventions for all technical agents. Cov
 
 ## ⚠️ Mandatory Quality Gate — Run After EVERY Iteration
 
-**Every subagent MUST run the full quality gate after each round of code changes.**
+**Every subagent MUST run the full quality gate after each round of code changes, no matter how small.**
 No exceptions. Do not skip steps. Do not defer to "later". Fix issues before moving on.
 
-Run these commands **in order** after every code change:
+Run these commands **in order** after every code change, including small features:
 
 ### 1. TypeScript type-check (build)
 
@@ -19,7 +19,7 @@ pnpm build
 ```
 
 - Runs `tsc` across all packages/apps in dependency order
-- **Fix all type errors before proceeding** — do not leave `// @ts-ignore` or `any` hacks
+- **Fix all type errors before proceeding** — never use `any`, `// @ts-ignore`, or `// @ts-expect-error`
 - If a type error is in another package, fix it there first
 
 ### 2. Linting & Formatting (Biome)
@@ -68,6 +68,36 @@ Do NOT proceed to documentation updates or mark tasks done until all four pass.
 - Cover: happy path, edge cases, error handling
 - Mock external dependencies — tests run without real DB/API
 - Use `.js` extensions in all imports
+
+## Database Handling (Drizzle Kit)
+
+All database schema changes, migrations, and introspection **must be done through `drizzle-kit`**. Never modify migration files manually or interact with the database directly.
+
+### Allowed commands
+
+```bash
+# Generate migrations from schema changes
+pnpm db:generate
+
+# Push schema changes directly (development only)
+pnpm db:push
+
+# Run pending migrations
+pnpm db:migrate
+
+# Check for schema drift
+pnpm db:check
+
+# Open Drizzle Studio (visual db explorer)
+pnpm db:studio
+```
+
+### Rules
+
+- Schema changes flow: edit `packages/adapters/db/src/schema.ts` → run `pnpm db:generate` → review generated migrations → run `pnpm db:migrate`
+- Never hand-edit files in `packages/adapters/db/drizzle/`
+- Never use raw SQL or external tools to modify the database structure
+- Always commit generated migration files alongside the schema changes
 
 ## Documentation Updates
 
