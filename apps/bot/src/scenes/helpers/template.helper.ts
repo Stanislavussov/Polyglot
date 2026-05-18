@@ -56,7 +56,7 @@ export async function handleCustomizeCallback(ctx: BotContext): Promise<void> {
 
   ctx.session.templateWizard = { fields: { ...tpl.fields } };
   const kb = buildToggleKeyboard(ctx.session.templateWizard.fields, lang);
-  const text = t("templateConstructor" as any, lang);
+  const text = t("templateConstructor", lang);
 
   try {
     await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
@@ -73,7 +73,7 @@ export async function handleToggleCallback(ctx: BotContext): Promise<void> {
   if (!ctx.session.templateWizard) {
     const lang = await getLang(ctx);
     await ctx.answerCallbackQuery({
-      text: t("templateSessionExpired" as any, lang),
+      text: t("templateSessionExpired", lang),
       show_alert: true,
     });
     return;
@@ -87,7 +87,7 @@ export async function handleToggleCallback(ctx: BotContext): Promise<void> {
   ctx.session.templateWizard.fields[key] = !ctx.session.templateWizard.fields[key];
   const lang = await getLang(ctx);
   const kb = buildToggleKeyboard(ctx.session.templateWizard.fields, lang);
-  await ctx.editMessageText(t("templateConstructor" as any, lang), {
+  await ctx.editMessageText(t("templateConstructor", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
   });
@@ -99,15 +99,15 @@ export async function handlePreviewCallback(ctx: BotContext): Promise<void> {
   if (!ctx.session.templateWizard) {
     const lang = await getLang(ctx);
     await ctx.answerCallbackQuery({
-      text: t("templateSessionExpired" as any, lang),
+      text: t("templateSessionExpired", lang),
       show_alert: true,
     });
     return;
   }
   const lang = await getLang(ctx);
   const card = renderTranslation(MOCK_PREVIEW_OUTPUT, lang, ctx.session.templateWizard.fields);
-  const text = `${t("templatePreviewHeader" as any, lang)}\n\n${card}`;
-  const kb = new InlineKeyboard().text(t("templateBack" as any, lang), "tpl:back");
+  const text = `${t("templatePreviewHeader", lang)}\n\n${card}`;
+  const kb = new InlineKeyboard().text(t("templateBack", lang), "tpl:back");
   await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
   await ctx.answerCallbackQuery();
 }
@@ -117,14 +117,14 @@ export async function handleBackCallback(ctx: BotContext): Promise<void> {
   if (!ctx.session.templateWizard) {
     const lang = await getLang(ctx);
     await ctx.answerCallbackQuery({
-      text: t("templateSessionExpired" as any, lang),
+      text: t("templateSessionExpired", lang),
       show_alert: true,
     });
     return;
   }
   const lang = await getLang(ctx);
   const kb = buildToggleKeyboard(ctx.session.templateWizard.fields, lang);
-  await ctx.editMessageText(t("templateConstructor" as any, lang), {
+  await ctx.editMessageText(t("templateConstructor", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
   });
@@ -136,7 +136,7 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
   if (!ctx.session.templateWizard) {
     const lang = await getLang(ctx);
     await ctx.answerCallbackQuery({
-      text: t("templateSessionExpired" as any, lang),
+      text: t("templateSessionExpired", lang),
       show_alert: true,
     });
     return;
@@ -144,7 +144,7 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
   const lang = await getLang(ctx);
   await translationTemplateRepository.upsert(ctx.user.id, "Custom", ctx.session.templateWizard.fields);
   ctx.session.templateWizard = undefined;
-  await ctx.editMessageText(t("templateSaved" as any, lang), {
+  await ctx.editMessageText(t("templateSaved", lang), {
     parse_mode: "HTML",
   });
   await ctx.answerCallbackQuery();
@@ -154,7 +154,7 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
 export async function handleCancelCallback(ctx: BotContext): Promise<void> {
   ctx.session.templateWizard = undefined;
   const lang = await getLang(ctx);
-  await ctx.editMessageText(t("templateCancelled" as any, lang), {
+  await ctx.editMessageText(t("templateCancelled", lang), {
     parse_mode: "HTML",
   });
   await ctx.answerCallbackQuery();
@@ -165,7 +165,7 @@ export async function handleResetCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   await translationTemplateRepository.deleteByUserId(ctx.user.id);
   ctx.session.templateWizard = undefined;
-  await ctx.editMessageText(t("templateResetDone" as any, lang), {
+  await ctx.editMessageText(t("templateResetDone", lang), {
     parse_mode: "HTML",
   });
   await ctx.answerCallbackQuery();

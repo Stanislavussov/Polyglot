@@ -18,15 +18,15 @@ export async function handleTemplateCommand(ctx: BotContext): Promise<void> {
   const tpl = resolveTemplate(saved ? { name: saved.name, fields: saved.fields } : null);
 
   const lines: string[] = [
-    t("templateTitle" as any, lang),
-    t("templateCurrent" as any, lang, { name: tpl.name }),
+    t("templateTitle", lang),
+    t("templateCurrent", lang, { name: tpl.name }),
     "",
-    saved ? t("templateCustom" as any, lang) : t("templateDefault" as any, lang),
+    saved ? t("templateCustom", lang) : t("templateDefault", lang),
   ];
 
   const kb = new InlineKeyboard();
-  kb.text(t("templateCustomize" as any, lang), "tpl:customize");
-  kb.text(t("templateReset" as any, lang), "tpl:reset");
+  kb.text(t("templateCustomize", lang), "tpl:customize");
+  kb.text(t("templateReset", lang), "tpl:reset");
 
   await ctx.reply(lines.join("\n"), { reply_markup: kb, parse_mode: "HTML" });
 }

@@ -114,7 +114,7 @@ const DEFAULT_SETTINGS = {
   timezone: "UTC",
   lastSourceLang: null,
   notificationEnabled: false,
-  notificationTime: "8",
+  notificationTime: "08:00",
   notificationType: "both",
 };
 
@@ -151,12 +151,12 @@ describe("buildSettingsText — notifications", () => {
   });
 
   it("shows notification section with enabled state and details", () => {
-    const text = buildSettingsText("en", ["cs"], "en", "en", true, "morning", "both", "Europe/Prague");
+    const text = buildSettingsText("en", ["cs"], "en", "en", true, "08:00", "both", "Europe/Prague");
     expect(text).toMatch(/notification/i);
   });
 
   it("does not show time/type/timezone when disabled", () => {
-    const text = buildSettingsText("en", ["cs"], "en", "en", false, "morning", "both", "UTC");
+    const text = buildSettingsText("en", ["cs"], "en", "en", false, "08:00", "both", "UTC");
     // Should not contain notification time/type details when disabled
     expect(text).not.toMatch(/time|08:00/i);
   });
@@ -203,7 +203,7 @@ describe("handleSettingsCommand — notifications", () => {
     mockUserRepository.getSettings.mockResolvedValue({
       ...DEFAULT_SETTINGS,
       notificationEnabled: true,
-      notificationTime: "20",
+      notificationTime: "20:00",
       notificationType: "srs",
       timezone: "Europe/Prague",
     } as any);
@@ -233,7 +233,7 @@ describe("handleSetNotifToggleCallback", () => {
     mockUserRepository.getSettings.mockResolvedValue({
       ...DEFAULT_SETTINGS,
       notificationEnabled: true,
-      notificationTime: "8",
+      notificationTime: "08:00",
     } as any);
     const ctx = createMockCtx("set:notif:toggle");
 

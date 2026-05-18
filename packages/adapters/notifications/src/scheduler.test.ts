@@ -221,6 +221,33 @@ describe("checkAndSend", () => {
     expect(mockLogger.error).toHaveBeenCalled();
   });
 
+  it("retries failed sends up to 3 times before giving up", { timeout: 15000 }, async () => {
+    const failSend = vi.fn().mockRejectedValue(new Error("Telegram API error"));
+    const deps = buildSchedulerDeps();
+
+    await checkAndSend(failSend, deps);
+
+    expect(failSend).toHaveBeenCalledTimes(3);
+    expect(mockLogger.warn).toHaveBeenCalledTimes(2);
+  });
+
+  it("succeeds on retry when transient error resolves", { timeout: 15000 }, async () => {
+    let callCount = 0;
+    const transientFailSend = vi.fn().mockImplementation(async () => {
+      callCount++;
+      if (callCount < 3) {
+        throw new Error("Telegram API error");
+      }
+    });
+    const deps = buildSchedulerDeps();
+
+    const result = await checkAndSend(transientFailSend, deps);
+
+    expect(transientFailSend).toHaveBeenCalledTimes(3);
+    expect(result.sent).toBe(1);
+    expect(result.errors).toBe(0);
+  });
+
   it("skips user when no word could be picked", async () => {
     const deps = buildSchedulerDeps({
       pickSuggestedWord: vi.fn().mockResolvedValue(null),
