@@ -30,15 +30,16 @@ const ETC_GMT_OFFSETS: Record<string, number> = {
   "Etc/GMT+12": -12,
 };
 
+// DST-aware offsets (values represent current season, not necessarily standard time)
 const IANA_OFFSETS: Record<string, number> = {
   UTC: 0,
-  "Europe/Prague": 1,
-  "Europe/London": 0,
+  "Europe/Prague": 2, // CEST (UTC+2) in summer; CET (UTC+1) in winter
+  "Europe/London": 1, // BST (UTC+1) in summer; GMT (UTC+0) in winter
   "Europe/Moscow": 3,
-  "America/New_York": -5,
-  "America/Chicago": -6,
-  "America/Denver": -7,
-  "America/Los_Angeles": -8,
+  "America/New_York": -4, // EDT (UTC-4) in summer; EST (UTC-5) in winter
+  "America/Chicago": -5, // CDT in summer; CST in winter
+  "America/Denver": -6, // MDT in summer; MST in winter
+  "America/Los_Angeles": -7, // PDT in summer; PST in winter
   "Asia/Tokyo": 9,
   "Asia/Shanghai": 8,
   "Australia/Sydney": 11,
@@ -51,6 +52,9 @@ function getUtcOffsetHours(timezone: string): number {
 }
 
 vi.stubGlobal("Temporal", {
+  Now: {
+    zonedDateTimeISO: () => ({ year: 2026, month: 7, day: 15 }),
+  },
   Instant: {
     from: (iso: string) => {
       const match = iso.match(/T(\d{2}):(\d{2}):(\d{2})Z/);
@@ -239,6 +243,21 @@ describe("getLocalMinutes", () => {
     // UTC 22:00, timezone UTC+5 → local 03:00 next day
     const result = getLocalMinutes("Etc/GMT-5", 22, 0);
     expect(result).toBe(3 * 60);
+  });
+
+  it("applies DST offset for Europe/Prague in summer (UTC+2, not UTC+1)", () => {
+    // Prague in summer: CEST = UTC+2
+    // UTC 18:15 → local 20:15
+    const result = getLocalMinutes("Europe/Prague", 18, 15);
+    expect(result).toBe(20 * 60 + 15);
+  });
+
+  it("matches user notification time under DST (the original bug)", () => {
+    // User sets notification for 20:15 local (Prague summer = CEST UTC+2)
+    // Scheduler ticks at UTC 18:15 (which IS 20:15 CEST)
+    const localMinutes = getLocalMinutes("Europe/Prague", 18, 15);
+    const targetMinutes = parseNotificationMinutes("20:15");
+    expect(localMinutes).toBe(targetMinutes);
   });
 });
 

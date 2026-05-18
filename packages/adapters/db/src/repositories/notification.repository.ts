@@ -55,9 +55,12 @@ export function formatNotificationTime(totalMinutes: number): string {
  */
 export function getLocalMinutes(timezone: string, utcHour: number, utcMinute: number): number {
   try {
+    // Use today's date so DST offsets are correct (1970-01-01 lacks DST data)
+    const now = Temporal.Now.zonedDateTimeISO("UTC");
+    const dateStr = `${now.year}-${String(now.month).padStart(2, "0")}-${String(now.day).padStart(2, "0")}`;
     const h = String(utcHour).padStart(2, "0");
     const m = String(utcMinute).padStart(2, "0");
-    const instant = Temporal.Instant.from(`1970-01-01T${h}:${m}:00Z`);
+    const instant = Temporal.Instant.from(`${dateStr}T${h}:${m}:00Z`);
     const zoned = instant.toZonedDateTimeISO(timezone);
     return zoned.hour * 60 + zoned.minute;
   } catch {
