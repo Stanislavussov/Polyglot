@@ -48,8 +48,6 @@ export function formatNotificationTime(totalMinutes: number): string {
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 }
 
-const NOTIFICATION_TIME_TOLERANCE_MINUTES = 1;
-
 /**
  * Get the local time in minutes since midnight for a given timezone and UTC time.
  * Uses Temporal API for reliable timezone conversion (handles DST).
@@ -91,14 +89,6 @@ const notificationUserSelect = {
 /* ------------------------------------------------------------------ */
 
 export const notificationRepository = {
-  /**
-   * Get users eligible for notification at the given UTC hour and minute.
-   * Returns users where:
-   * - notification_enabled = true
-   * - is_active = true
-   * - last_interaction_at within INACTIVITY_DAYS or NULL (unknown = include)
-   * - local time matches their preferred notification time (within 30-min window)
-   */
   async getUsersForWindow(utcHour: number, utcMinute = 0): Promise<NotificationUser[]> {
     const db = getDb();
     const cutoff = new Date();
@@ -120,7 +110,7 @@ export const notificationRepository = {
       const localMinutes = getLocalMinutes(user.timezone, utcHour, utcMinute);
       if (localMinutes < 0) return false;
       const targetMinutes = parseNotificationMinutes(user.notificationTime);
-      return Math.abs(localMinutes - targetMinutes) <= NOTIFICATION_TIME_TOLERANCE_MINUTES;
+      return localMinutes === targetMinutes;
     });
   },
 

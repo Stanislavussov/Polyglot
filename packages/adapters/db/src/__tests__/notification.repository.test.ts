@@ -292,31 +292,26 @@ describe("notificationRepository", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("matches users within ±1 minute tolerance", async () => {
+    it("matches users only at exact preferred time", async () => {
+      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      queryResults = [[user]];
+      queryIndex = 0;
+
+      const exact = await notificationRepository.getUsersForWindow(8, 0);
+      expect(exact).toHaveLength(1);
+    });
+
+    it("excludes users one minute before or after preferred time", async () => {
       const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
       queryResults = [[user]];
       queryIndex = 0;
 
       const before = await notificationRepository.getUsersForWindow(7, 59);
-      expect(before).toHaveLength(1);
-
-      queryResults = [[user]];
-      queryIndex = 0;
-      const after = await notificationRepository.getUsersForWindow(8, 1);
-      expect(after).toHaveLength(1);
-    });
-
-    it("excludes users outside tolerance window", async () => {
-      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
-      queryResults = [[user]];
-      queryIndex = 0;
-
-      const before = await notificationRepository.getUsersForWindow(7, 58);
       expect(before).toHaveLength(0);
 
       queryResults = [[user]];
       queryIndex = 0;
-      const after = await notificationRepository.getUsersForWindow(8, 2);
+      const after = await notificationRepository.getUsersForWindow(8, 1);
       expect(after).toHaveLength(0);
     });
 
