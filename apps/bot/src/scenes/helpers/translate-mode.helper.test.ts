@@ -131,16 +131,16 @@ describe("handleTranslateText — context enrichment", () => {
   it("calls translateWithContext with correct input and deps", async () => {
     const ctx = createMockCtx();
     // Mock detectLanguage returns "ru" (candidates[0]) for Latin text
-    // "ru" is native lang → standard direction: sourceLang=ru, targets=[cs, de]
+    // "ru" is native lang → standard direction: sourceLang=ru, targets=[ru, cs, de]
     await handleTranslateText(ctx, "hello");
 
     expect(translateWithContext).toHaveBeenCalledWith(
       expect.objectContaining({
         word: "hello",
         // detectLanguage returns "ru" (first candidate, Latin text), which is nativeLang
-        // nativeLang in candidates → standard direction: source=native, targets=learningLangs
+        // nativeLang in candidates → standard direction: source=native, targets=[native, ...learningLangs]
         sourceLang: "ru",
-        targetLangs: ["cs", "de"],
+        targetLangs: ["ru", "cs", "de"],
       }),
       expect.objectContaining({
         lookupContext: mockLookupContext,

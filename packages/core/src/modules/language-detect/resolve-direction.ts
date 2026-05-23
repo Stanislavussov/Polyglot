@@ -26,17 +26,17 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
   if (detectedLang === undefined || detectedLang === nativeLang) {
     return {
       sourceLang: nativeLang,
-      targetLangs: learningLangs,
+      targetLangs: [nativeLang, ...learningLangs],
       detectedLang,
     };
   }
 
   // Case 3: Detected one of the learning languages → reverse direction
-  // Target = remaining learning languages only (no native language translations)
+  // Target = native language + remaining learning languages
   if (learningLangs.includes(detectedLang)) {
     return {
       sourceLang: detectedLang,
-      targetLangs: learningLangs.filter((l) => l !== detectedLang),
+      targetLangs: [nativeLang, ...learningLangs.filter((l) => l !== detectedLang)],
       detectedLang,
     };
   }
@@ -45,7 +45,7 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
   // but fallback to standard direction for safety.
   return {
     sourceLang: nativeLang,
-    targetLangs: learningLangs,
+    targetLangs: [nativeLang, ...learningLangs],
     detectedLang: undefined,
   };
 }
@@ -73,17 +73,17 @@ export function resolveDirectionFromSource(input: ResolveFromSourceInput): Trans
   if (sourceLang === nativeLang) {
     return {
       sourceLang: nativeLang,
-      targetLangs: learningLangs,
+      targetLangs: [nativeLang, ...learningLangs],
       detectedLang: undefined,
     };
   }
 
   // Source is one of the learning languages → reverse direction
-  // Target = remaining learning languages only (no native language translations)
+  // Target = native language + remaining learning languages
   if (learningLangs.includes(sourceLang)) {
     return {
       sourceLang,
-      targetLangs: learningLangs.filter((l) => l !== sourceLang),
+      targetLangs: [nativeLang, ...learningLangs.filter((l) => l !== sourceLang)],
       detectedLang: undefined,
     };
   }

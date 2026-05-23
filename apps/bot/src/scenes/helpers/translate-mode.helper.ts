@@ -132,9 +132,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     detectedLang = preDetectLang;
   } else if (preDetectLang === "en") {
     // AI detected English (lingua franca) but "en" is not in user config.
-    // Treat as learning language → translate from English to user's learning languages only.
+    // Treat as learning language → translate from English to native + learning languages.
     sourceLang = "en";
-    targetLangs = [...learningLangs];
+    targetLangs = [nativeLang, ...learningLangs];
     detectedLang = "en";
   } else {
     // Detected lang is no longer in config — use fallback
