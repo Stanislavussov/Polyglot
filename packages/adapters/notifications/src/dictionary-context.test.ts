@@ -1,29 +1,8 @@
-/**
- * Tests for notification service after context-enrichment refactor.
- *
- * After Task 15, dictionary context lookup is no longer in the notification service.
- * Context enrichment is handled by the context-enrichment layer at the translation level.
- *
- * These tests verify:
- * - SuggestedWord no longer includes dictionaryContext from the notification service
- * - NotificationServiceDeps no longer has lookupDictionaryContext
- * - Existing functionality still works without lookupDictionaryContext dep
- */
-
-import type { LanguageTranslationEntry, TopicMeta, TopicWord } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { NotificationServiceDeps, UserForNotification } from "./types.js";
-
-// ─────────────────────────────────────────────
-// Mock logger (hoisted to avoid TDZ issues)
-// ─────────────────────────────────────────────
+import type { NotificationServiceDeps, VocabEntry } from "./types.js";
 
 const { mockLogger, mockChild } = vi.hoisted(() => ({
-  mockLogger: {
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  },
+  mockLogger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
   mockChild: vi.fn(() => mockLogger),
 }));
 
@@ -38,120 +17,49 @@ vi.mock("@polyglot/core", () => ({
 
 import { createNotificationService } from "./notification.service.js";
 
-// ─────────────────────────────────────────────
-// Fixtures
-// ─────────────────────────────────────────────
-
-const mockUser: UserForNotification = {
+const mockEntry: VocabEntry = {
   id: 1,
-  telegramId: 12345,
-  timezone: "Europe/Prague",
-  nativeLang: "en",
-  learningLangs: ["cs", "de"],
+  original: "hello",
+  emoji: "👋",
+  createdAt: new Date(),
+  translations: [{ targetLangId: 1, text: "ahoj" }],
 };
 
-const mockTopicMeta: TopicMeta = {
-  id: "food",
-  name: "Food & Cooking",
-  emoji: "🍕",
-  wordCount: 3,
-};
-
-const makeLangEntry = (text: string): LanguageTranslationEntry => ({
-  text,
-  synonyms: [{ text: `${text}-syn` }],
-  examples: [{ context: "neutral", target: text }],
-});
-
-const mockTopicWord: TopicWord = {
-  original: "apple",
-  translations: {
-    cs: makeLangEntry("jablko"),
-    de: makeLangEntry("Apfel"),
-  },
-};
-
-// ─────────────────────────────────────────────
-// Helper to build deps
-// ─────────────────────────────────────────────
-
-function buildDeps(overrides: Partial<NotificationServiceDeps> = {}): NotificationServiceDeps {
+function buildDeps(): NotificationServiceDeps {
   return {
-    getTopicWords: vi.fn().mockResolvedValue([mockTopicWord]),
-    regenerateTopicWord: vi.fn().mockResolvedValue(makeLangEntry("regenerated")),
-    getBuiltinTopics: vi.fn().mockReturnValue([mockTopicMeta]),
-    getUserSettings: vi.fn().mockResolvedValue(mockUser),
-    ...overrides,
+    getUserVocabulary: vi.fn().mockResolvedValue([mockEntry]),
+    getLangCode: vi.fn().mockReturnValue("cs"),
   };
 }
 
-// ─────────────────────────────────────────────
-// Tests: Post context-enrichment refactor
-// ─────────────────────────────────────────────
-
-describe("createNotificationService — post context-enrichment refactor", () => {
+describe("createNotificationService — dictionary only", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(Math, "random").mockReturnValue(0);
   });
 
-  describe("SuggestedWord without dictionaryContext", () => {
-    it("returns SuggestedWord without dictionaryContext field", async () => {
-      const deps = buildDeps();
-      const service = createNotificationService(deps);
+  it("returns a dictionary word with source: srs", async () => {
+    const service = createNotificationService(buildDeps());
+    const result = await service.pickDictionaryWord(1);
 
-      const result = await service.pickSuggestedWord(1);
-
-      expect(result).toEqual({
-        original: "apple",
-        emoji: "🍕",
-        translations: { cs: "jablko", de: "Apfel" },
-        source: "suggested",
-      });
-      expect(result?.dictionaryContext).toBeUndefined();
-    });
-
-    it("does not include dictionaryContext key in result", async () => {
-      const deps = buildDeps();
-      const service = createNotificationService(deps);
-
-      const result = await service.pickSuggestedWord(1);
-
-      expect(result).not.toBeNull();
-      expect("dictionaryContext" in result!).toBe(false);
+    expect(result).toEqual({
+      original: "hello",
+      emoji: "👋",
+      translations: { cs: "ahoj" },
+      source: "srs",
     });
   });
 
-  describe("backward compatibility", () => {
-    it("deps no longer require lookupDictionaryContext", () => {
-      // This compiles without lookupDictionaryContext — verifies the type change
-      const deps: NotificationServiceDeps = {
-        getTopicWords: vi.fn().mockResolvedValue([mockTopicWord]),
-        getBuiltinTopics: vi.fn().mockReturnValue([mockTopicMeta]),
-        getUserSettings: vi.fn().mockResolvedValue(mockUser),
-      };
+  it("has no pickSuggestedWord method", () => {
+    const service = createNotificationService(buildDeps());
+    expect("pickSuggestedWord" in service).toBe(false);
+  });
 
-      // Should not throw
-      const service = createNotificationService(deps);
-      expect(service).toBeDefined();
-    });
+  it("SuggestedWord has no dictionaryContext", async () => {
+    const service = createNotificationService(buildDeps());
+    const result = await service.pickDictionaryWord(1);
 
-    it("existing callers still work", async () => {
-      const deps: NotificationServiceDeps = {
-        getTopicWords: vi.fn().mockResolvedValue([mockTopicWord]),
-        getBuiltinTopics: vi.fn().mockReturnValue([mockTopicMeta]),
-        getUserSettings: vi.fn().mockResolvedValue(mockUser),
-      };
-      const service = createNotificationService(deps);
-
-      const result = await service.pickSuggestedWord(1);
-
-      expect(result).toEqual({
-        original: "apple",
-        emoji: "🍕",
-        translations: { cs: "jablko", de: "Apfel" },
-        source: "suggested",
-      });
-    });
+    expect(result).not.toBeNull();
+    expect("dictionaryContext" in result!).toBe(false);
   });
 });

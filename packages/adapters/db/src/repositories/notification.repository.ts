@@ -8,11 +8,11 @@ import { notificationHistory, userLanguageSettings, users } from "../schema.js";
 /* ------------------------------------------------------------------ */
 
 /** Valid notification type strategies */
-export const NOTIFICATION_TYPES = ["suggested", "srs", "both"] as const;
+export const NOTIFICATION_TYPES = ["suggested", "srs"] as const;
 /** Default notification time (08:00 local). Stored as "HH:MM" string in DB. */
 export const DEFAULT_NOTIFICATION_TIME = "08:00";
 /** Default notification type (schema default) */
-export const DEFAULT_NOTIFICATION_TYPE = "both" as const;
+export const DEFAULT_NOTIFICATION_TYPE = "srs" as const;
 /** Days of inactivity before pausing notifications */
 export const INACTIVITY_DAYS = 14;
 
@@ -48,6 +48,8 @@ export function formatNotificationTime(totalMinutes: number): string {
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 }
 
+const NOTIFICATION_TIME_TOLERANCE_MINUTES = 1;
+
 /**
  * Get the local time in minutes since midnight for a given timezone and UTC time.
  * Uses Temporal API for reliable timezone conversion (handles DST).
@@ -55,9 +57,12 @@ export function formatNotificationTime(totalMinutes: number): string {
  */
 export function getLocalMinutes(timezone: string, utcHour: number, utcMinute: number): number {
   try {
+    // Use today's date so DST offsets are correct (1970-01-01 lacks DST data)
+    const now = Temporal.Now.zonedDateTimeISO("UTC");
+    const dateStr = `${now.year}-${String(now.month).padStart(2, "0")}-${String(now.day).padStart(2, "0")}`;
     const h = String(utcHour).padStart(2, "0");
     const m = String(utcMinute).padStart(2, "0");
-    const instant = Temporal.Instant.from(`1970-01-01T${h}:${m}:00Z`);
+    const instant = Temporal.Instant.from(`${dateStr}T${h}:${m}:00Z`);
     const zoned = instant.toZonedDateTimeISO(timezone);
     return zoned.hour * 60 + zoned.minute;
   } catch {
@@ -115,7 +120,7 @@ export const notificationRepository = {
       const localMinutes = getLocalMinutes(user.timezone, utcHour, utcMinute);
       if (localMinutes < 0) return false;
       const targetMinutes = parseNotificationMinutes(user.notificationTime);
-      return localMinutes === targetMinutes;
+      return Math.abs(localMinutes - targetMinutes) <= NOTIFICATION_TIME_TOLERANCE_MINUTES;
     });
   },
 

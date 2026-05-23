@@ -24,7 +24,7 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const notifEnabled = settings?.notificationEnabled ?? false;
   const notifTime = settings?.notificationTime ?? "08:00";
-  const notifType = settings?.notificationType ?? "both";
+  const notifType = settings?.notificationType ?? "srs";
   const timezone = settings?.timezone ?? "UTC";
 
   const text = buildSettingsText(

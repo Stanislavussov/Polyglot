@@ -30,15 +30,16 @@ const ETC_GMT_OFFSETS: Record<string, number> = {
   "Etc/GMT+12": -12,
 };
 
+// DST-aware offsets (values represent current season, not necessarily standard time)
 const IANA_OFFSETS: Record<string, number> = {
   UTC: 0,
-  "Europe/Prague": 1,
-  "Europe/London": 0,
+  "Europe/Prague": 2, // CEST (UTC+2) in summer; CET (UTC+1) in winter
+  "Europe/London": 1, // BST (UTC+1) in summer; GMT (UTC+0) in winter
   "Europe/Moscow": 3,
-  "America/New_York": -5,
-  "America/Chicago": -6,
-  "America/Denver": -7,
-  "America/Los_Angeles": -8,
+  "America/New_York": -4, // EDT (UTC-4) in summer; EST (UTC-5) in winter
+  "America/Chicago": -5, // CDT in summer; CST in winter
+  "America/Denver": -6, // MDT in summer; MST in winter
+  "America/Los_Angeles": -7, // PDT in summer; PST in winter
   "Asia/Tokyo": 9,
   "Asia/Shanghai": 8,
   "Australia/Sydney": 11,
@@ -51,6 +52,9 @@ function getUtcOffsetHours(timezone: string): number {
 }
 
 vi.stubGlobal("Temporal", {
+  Now: {
+    zonedDateTimeISO: () => ({ year: 2026, month: 7, day: 15 }),
+  },
   Instant: {
     from: (iso: string) => {
       const match = iso.match(/T(\d{2}):(\d{2}):(\d{2})Z/);
@@ -162,15 +166,15 @@ function makeNotifUser(overrides: Record<string, unknown> = {}) {
 
 describe("domain constants", () => {
   it("NOTIFICATION_TYPES contains valid type strategies", () => {
-    expect(NOTIFICATION_TYPES).toEqual(["suggested", "srs", "both"]);
+    expect(NOTIFICATION_TYPES).toEqual(["suggested", "srs"]);
   });
 
   it("DEFAULT_NOTIFICATION_TIME is 08:00", () => {
     expect(DEFAULT_NOTIFICATION_TIME).toBe("08:00");
   });
 
-  it("DEFAULT_NOTIFICATION_TYPE is both", () => {
-    expect(DEFAULT_NOTIFICATION_TYPE).toBe("both");
+  it("DEFAULT_NOTIFICATION_TYPE is srs", () => {
+    expect(DEFAULT_NOTIFICATION_TYPE).toBe("srs");
   });
 
   it("INACTIVITY_DAYS is 14", () => {
@@ -240,6 +244,21 @@ describe("getLocalMinutes", () => {
     const result = getLocalMinutes("Etc/GMT-5", 22, 0);
     expect(result).toBe(3 * 60);
   });
+
+  it("applies DST offset for Europe/Prague in summer (UTC+2, not UTC+1)", () => {
+    // Prague in summer: CEST = UTC+2
+    // UTC 18:15 → local 20:15
+    const result = getLocalMinutes("Europe/Prague", 18, 15);
+    expect(result).toBe(20 * 60 + 15);
+  });
+
+  it("matches user notification time under DST (the original bug)", () => {
+    // User sets notification for 20:15 local (Prague summer = CEST UTC+2)
+    // Scheduler ticks at UTC 18:15 (which IS 20:15 CEST)
+    const localMinutes = getLocalMinutes("Europe/Prague", 18, 15);
+    const targetMinutes = parseNotificationMinutes("20:15");
+    expect(localMinutes).toBe(targetMinutes);
+  });
 });
 
 describe("notificationRepository", () => {
@@ -271,6 +290,34 @@ describe("notificationRepository", () => {
       const result = await notificationRepository.getUsersForWindow(10, 0);
 
       expect(result).toHaveLength(0);
+    });
+
+    it("matches users within ±1 minute tolerance", async () => {
+      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      queryResults = [[user]];
+      queryIndex = 0;
+
+      const before = await notificationRepository.getUsersForWindow(7, 59);
+      expect(before).toHaveLength(1);
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      const after = await notificationRepository.getUsersForWindow(8, 1);
+      expect(after).toHaveLength(1);
+    });
+
+    it("excludes users outside tolerance window", async () => {
+      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      queryResults = [[user]];
+      queryIndex = 0;
+
+      const before = await notificationRepository.getUsersForWindow(7, 58);
+      expect(before).toHaveLength(0);
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      const after = await notificationRepository.getUsersForWindow(8, 2);
+      expect(after).toHaveLength(0);
     });
 
     it("handles timezone offset filtering", async () => {

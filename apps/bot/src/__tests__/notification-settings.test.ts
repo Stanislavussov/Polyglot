@@ -115,7 +115,7 @@ const DEFAULT_SETTINGS = {
   lastSourceLang: null,
   notificationEnabled: false,
   notificationTime: "08:00",
-  notificationType: "both",
+  notificationType: "srs",
 };
 
 function createMockCtx(callbackData?: string) {
@@ -156,7 +156,7 @@ describe("buildSettingsText — notifications", () => {
   });
 
   it("does not show time/type/timezone when disabled", () => {
-    const text = buildSettingsText("en", ["cs"], "en", "en", false, "08:00", "both", "UTC");
+    const text = buildSettingsText("en", ["cs"], "en", "en", false, "08:00", "srs", "UTC");
     // Should not contain notification time/type details when disabled
     expect(text).not.toMatch(/time|08:00/i);
   });

@@ -23,6 +23,5 @@ export type {
   SchedulerDeps,
   SendFn,
   SuggestedWord,
-  UserForNotification,
   VocabEntry,
 } from "./types.js";

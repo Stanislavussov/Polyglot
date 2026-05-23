@@ -44,42 +44,11 @@ async function sendWithRetry(sendFn: SendFn, telegramId: number, payload: Notifi
   }
 }
 
-/**
- * Pick a word for a user based on their notification type preference.
- *
- * Strategy:
- * - 'srs' → try dictionary word, fallback to suggested
- * - 'suggested' → AI-suggested word only
- * - 'both' → randomly alternate between the two
- */
 async function pickWordForUser(
   user: NotificationUser,
   deps: SchedulerDeps,
   recentWords: string[],
 ): Promise<SuggestedWord | null> {
-  const { notificationType } = user;
-
-  if (notificationType === "suggested") {
-    return deps.pickSuggestedWord(user.userId, recentWords);
-  }
-
-  if (notificationType === "srs") {
-    const dictWord = await deps.pickDictionaryWord(user.userId, recentWords);
-    if (dictWord) return dictWord;
-    // Fallback to suggested if no dictionary words
-    getLogger().info({ userId: user.userId }, "No dictionary word — falling back to AI suggestion");
-    return deps.pickSuggestedWord(user.userId, recentWords);
-  }
-
-  // 'both' — randomly pick between the two strategies
-  const useSrs = Math.random() < 0.5;
-  if (useSrs) {
-    const dictWord = await deps.pickDictionaryWord(user.userId, recentWords);
-    if (dictWord) return dictWord;
-    return deps.pickSuggestedWord(user.userId, recentWords);
-  }
-  const suggested = await deps.pickSuggestedWord(user.userId, recentWords);
-  if (suggested) return suggested;
   return deps.pickDictionaryWord(user.userId, recentWords);
 }
 
@@ -135,13 +104,28 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
   let users: NotificationUser[];
   try {
     users = await deps.getUsersForWindow(utcHour, utcMinute);
+    logger.info({ utcHour, utcMinute, userCount: users.length }, "Users fetched for notification window");
+    if (users.length > 0) {
+      for (const u of users) {
+        logger.info(
+          {
+            userId: u.userId,
+            telegramId: u.telegramId,
+            timezone: u.timezone,
+            notificationTime: u.notificationTime,
+            notificationEnabled: u.notificationEnabled,
+          },
+          "Eligible user details",
+        );
+      }
+    }
   } catch (err) {
     logger.error({ err, utcHour, utcMinute }, "Failed to query users for notification window");
     return { sent: 0, errors: 1 };
   }
 
   if (users.length === 0) {
-    logger.debug({ utcHour, utcMinute }, "No users eligible for notification at this time");
+    logger.info({ utcHour, utcMinute }, "No users eligible for notification at this time");
     return { sent: 0, errors: 0 };
   }
 
@@ -150,13 +134,16 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
   // Step 2: For each user, pick a word and send
   for (const user of users) {
     try {
+      logger.info({ userId: user.userId }, "Processing user");
       const recentWords = await deps.getRecentSentWords(user.userId);
       const word = await pickWordForUser(user, deps, recentWords);
       if (!word) {
-        logger.warn({ userId: user.userId }, "Could not pick a word for user — skipping");
+        logger.info({ userId: user.userId }, "No word picked — sending empty dictionary prompt");
+        await deps.sendDictionaryEmptyPrompt(user.telegramId, user.interfaceLang);
         continue;
       }
 
+      logger.info({ userId: user.userId, word: word.original }, "Word picked, sending notification");
       const payload = buildNotificationPayload(user, word, deps.t);
       await sendWithRetry(sendFn, user.telegramId, payload);
 
