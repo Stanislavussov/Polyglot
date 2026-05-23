@@ -4,25 +4,12 @@
  * Defines public types for notification scheduling, delivery,
  * and word suggestion payloads.
  */
-import type {
-  DictionaryContext,
-  LanguageTranslationEntry,
-  NotificationType,
-  NotificationUser,
-  TopicMeta,
-  TopicWord,
-  User,
-  UserLanguageSettings,
-} from "@polyglot/core";
+import type { DictionaryContext, NotificationType, NotificationUser } from "@polyglot/core";
 
 export type { NotificationType, NotificationUser };
 
 /** Injected send function — the notifications module never imports the bot. */
 export type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
-
-/** User data needed for notification scheduling and delivery. */
-export type UserForNotification = Pick<User, "id" | "telegramId"> &
-  Pick<UserLanguageSettings, "timezone" | "nativeLang" | "learningLangs">;
 
 /** Notification payload sent to the user. */
 export interface NotificationPayload {
@@ -37,7 +24,7 @@ export interface SuggestedWord {
   original: string;
   emoji: string;
   translations: Record<string, string>; // lang code -> translation text
-  /** Source of the word: 'srs' (from dictionary) or 'suggested' (AI topic). */
+  /** Source of the word: 'srs' (from dictionary). */
   source?: NotificationType;
   /** Wiktionary dictionary context for the suggested word (if available). */
   dictionaryContext?: DictionaryContext;
@@ -75,27 +62,6 @@ export type ReEngagementSendFn = (telegramId: number, message: string) => Promis
  * Keeps the adapter independent of concrete implementations.
  */
 export interface NotificationServiceDeps {
-  /** Get words for a builtin topic (cache-first, then AI batch). */
-  getTopicWords: (topicId: string, sourceLang: string, targetLangs: string[]) => Promise<TopicWord[]>;
-
-  /**
-   * Regenerate a single language translation for a topic word.
-   * Used for partial regeneration when a cached word is missing a language.
-   * Optional — if not provided, words with missing languages are skipped.
-   */
-  regenerateTopicWord?: (
-    topicId: string,
-    original: string,
-    sourceLang: string,
-    targetLang: string,
-  ) => Promise<LanguageTranslationEntry>;
-
-  /** Get metadata for all built-in topics. */
-  getBuiltinTopics: () => TopicMeta[];
-
-  /** Get user's language settings for building the suggested word. */
-  getUserSettings: (userId: number) => Promise<UserForNotification | null>;
-
   /** Get all vocabulary entries for a user (for pickDictionaryWord). */
   getUserVocabulary?: (userId: number) => Promise<VocabEntry[]>;
 
@@ -123,11 +89,11 @@ export interface SchedulerDeps {
   /** Record a sent word in history. */
   recordSentWord: (userId: number, original: string, source: string) => Promise<void>;
 
-  /** Pick a word from AI topic suggestions. */
-  pickSuggestedWord: (userId: number, recentWords?: string[]) => Promise<SuggestedWord | null>;
-
   /** Pick a word from user's dictionary (SRS review). */
   pickDictionaryWord: (userId: number, recentWords?: string[]) => Promise<SuggestedWord | null>;
+
+  /** Send a prompt when user has no dictionary words at notification time. */
+  sendDictionaryEmptyPrompt: (telegramId: number, lang: string) => Promise<void>;
 
   /** Get i18n text. */
   t: (key: string, lang: string, params?: Record<string, string>) => string;

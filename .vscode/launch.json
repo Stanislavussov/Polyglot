@@ -5,7 +5,7 @@
       "type": "node",
       "request": "launch",
       "name": "Debug bot",
-      "runtimeExecutable": "node",
+      "runtimeExecutable": "${userHome}/.local/share/mise/installs/node/26.1.0/bin/node",
       "runtimeArgs": ["--import", "tsx", "apps/bot/src/index.ts"],
       "cwd": "${workspaceFolder}",
       "env": {

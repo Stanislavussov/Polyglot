@@ -66,26 +66,7 @@ const mockUser: NotificationUser = {
   timezone: "Europe/Prague",
   notificationEnabled: true,
   notificationTime: "08:00",
-  notificationType: "both",
-};
-
-const mockUser2: NotificationUser = {
-  userId: 2,
-  telegramId: 67890,
-  interfaceLang: "ru",
-  nativeLang: "ru",
-  learningLangs: ["en"],
-  timezone: "America/New_York",
-  notificationEnabled: true,
-  notificationTime: "20:00",
-  notificationType: "suggested",
-};
-
-const mockSuggestedWord: SuggestedWord = {
-  original: "apple",
-  emoji: "🍕",
-  translations: { cs: "jablko", de: "Apfel" },
-  source: "suggested",
+  notificationType: "srs",
 };
 
 const mockDictWord: SuggestedWord = {
@@ -112,8 +93,8 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
     disableNotifications: vi.fn().mockResolvedValue(undefined),
     getRecentSentWords: vi.fn().mockResolvedValue([]),
     recordSentWord: vi.fn().mockResolvedValue(undefined),
-    pickSuggestedWord: vi.fn().mockResolvedValue(mockSuggestedWord),
     pickDictionaryWord: vi.fn().mockResolvedValue(mockDictWord),
+    sendDictionaryEmptyPrompt: vi.fn().mockResolvedValue(undefined),
     t: mockT,
     ...overrides,
   };
@@ -125,15 +106,15 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
 
 describe("buildNotificationPayload", () => {
   it("builds a payload with user's preferred time", () => {
-    const payload = buildNotificationPayload(mockUser, mockSuggestedWord, mockT);
+    const payload = buildNotificationPayload(mockUser, mockDictWord, mockT);
 
     expect(payload.hour).toBe(8);
-    expect(payload.word).toBe(mockSuggestedWord);
-    expect(payload.message).toContain("🍕");
-    expect(payload.message).toContain("<b>apple</b>");
-    expect(payload.message).toContain("AI suggestion");
-    expect(payload.message).toContain("jablko");
-    expect(payload.message).toContain("Apfel");
+    expect(payload.word).toBe(mockDictWord);
+    expect(payload.message).toContain("🏠");
+    expect(payload.message).toContain("<b>house</b>");
+    expect(payload.message).toContain("From your dictionary");
+    expect(payload.message).toContain("dům");
+    expect(payload.message).toContain("Haus");
   });
 
   it("builds a payload with custom time (20:00)", () => {
@@ -146,16 +127,16 @@ describe("buildNotificationPayload", () => {
 
   it("defaults to hour 8 for invalid notificationTime", () => {
     const badUser = { ...mockUser, notificationTime: "invalid" };
-    const payload = buildNotificationPayload(badUser, mockSuggestedWord, mockT);
+    const payload = buildNotificationPayload(badUser, mockDictWord, mockT);
 
     expect(payload.hour).toBe(8);
   });
 
   it("uses user's interface language for i18n", () => {
-    buildNotificationPayload(mockUser, mockSuggestedWord, mockT);
+    buildNotificationPayload(mockUser, mockDictWord, mockT);
 
     expect(mockT).toHaveBeenCalledWith("notifTitle", "en");
-    expect(mockT).toHaveBeenCalledWith("notifAiSuggested", "en");
+    expect(mockT).toHaveBeenCalledWith("notifWordFromDict", "en");
   });
 
   it("uses notifWordFromDict label for srs source", () => {
@@ -188,8 +169,15 @@ describe("checkAndSend", () => {
   });
 
   it("handles multiple users", async () => {
+    const user2: NotificationUser = {
+      ...mockUser,
+      userId: 2,
+      telegramId: 67890,
+      interfaceLang: "ru",
+      notificationTime: "20:00",
+    };
     const deps = buildSchedulerDeps({
-      getUsersForWindow: vi.fn().mockResolvedValue([mockUser, mockUser2]),
+      getUsersForWindow: vi.fn().mockResolvedValue([mockUser, user2]),
     });
     const result = await checkAndSend(mockSendFn, deps);
 
@@ -210,8 +198,15 @@ describe("checkAndSend", () => {
 
   it("logs and continues on send error", { timeout: 15000 }, async () => {
     const failSend = vi.fn().mockRejectedValue(new Error("Telegram API error"));
+    const user2: NotificationUser = {
+      ...mockUser,
+      userId: 2,
+      telegramId: 67890,
+      interfaceLang: "ru",
+      notificationTime: "20:00",
+    };
     const deps = buildSchedulerDeps({
-      getUsersForWindow: vi.fn().mockResolvedValue([mockUser, mockUser2]),
+      getUsersForWindow: vi.fn().mockResolvedValue([mockUser, user2]),
     });
 
     const result = await checkAndSend(failSend, deps);
@@ -248,20 +243,16 @@ describe("checkAndSend", () => {
     expect(result.errors).toBe(0);
   });
 
-  it("skips user when no word could be picked", async () => {
+  it("sends empty dictionary prompt when no word could be picked", async () => {
     const deps = buildSchedulerDeps({
-      pickSuggestedWord: vi.fn().mockResolvedValue(null),
       pickDictionaryWord: vi.fn().mockResolvedValue(null),
     });
 
     const result = await checkAndSend(mockSendFn, deps);
 
     expect(mockSendFn).not.toHaveBeenCalled();
+    expect(deps.sendDictionaryEmptyPrompt).toHaveBeenCalledWith(12345, "en");
     expect(result.sent).toBe(0);
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: 1 }),
-      expect.stringContaining("Could not pick a word"),
-    );
   });
 
   it("returns error when getUsersForWindow throws", async () => {
@@ -276,69 +267,12 @@ describe("checkAndSend", () => {
   });
 
   describe("word picking strategy", () => {
-    it("uses pickSuggestedWord for 'suggested' type users", async () => {
-      const suggestedUser = { ...mockUser, notificationType: "suggested" };
-      const deps = buildSchedulerDeps({
-        getUsersForWindow: vi.fn().mockResolvedValue([suggestedUser]),
-      });
-
-      await checkAndSend(mockSendFn, deps);
-
-      expect(deps.pickSuggestedWord).toHaveBeenCalledWith(1, []);
-      expect(deps.pickDictionaryWord).not.toHaveBeenCalled();
-    });
-
-    it("uses pickDictionaryWord for 'srs' type users", async () => {
-      const srsUser = { ...mockUser, notificationType: "srs" };
-      const deps = buildSchedulerDeps({
-        getUsersForWindow: vi.fn().mockResolvedValue([srsUser]),
-      });
+    it("uses pickDictionaryWord for all users", async () => {
+      const deps = buildSchedulerDeps();
 
       await checkAndSend(mockSendFn, deps);
 
       expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
-    });
-
-    it("falls back to suggested when srs has no words", async () => {
-      const srsUser = { ...mockUser, notificationType: "srs" };
-      const deps = buildSchedulerDeps({
-        getUsersForWindow: vi.fn().mockResolvedValue([srsUser]),
-        pickDictionaryWord: vi.fn().mockResolvedValue(null),
-      });
-
-      await checkAndSend(mockSendFn, deps);
-
-      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
-      expect(deps.pickSuggestedWord).toHaveBeenCalledWith(1, []);
-    });
-
-    it("alternates between strategies for 'both' type", async () => {
-      const bothUser = { ...mockUser, notificationType: "both" };
-      const deps = buildSchedulerDeps({
-        getUsersForWindow: vi.fn().mockResolvedValue([bothUser]),
-      });
-
-      // Mock random to pick SRS (< 0.5)
-      vi.spyOn(Math, "random").mockReturnValue(0.3);
-      await checkAndSend(mockSendFn, deps);
-
-      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
-    });
-
-    it("falls back to other strategy for 'both' when primary returns null", async () => {
-      const bothUser = { ...mockUser, notificationType: "both" };
-      const deps = buildSchedulerDeps({
-        getUsersForWindow: vi.fn().mockResolvedValue([bothUser]),
-        pickDictionaryWord: vi.fn().mockResolvedValue(null),
-      });
-
-      // Mock random to pick SRS first (< 0.5), but it returns null → falls back to suggested
-      vi.spyOn(Math, "random").mockReturnValue(0.3);
-      await checkAndSend(mockSendFn, deps);
-
-      expect(deps.pickDictionaryWord).toHaveBeenCalled();
-      expect(deps.pickSuggestedWord).toHaveBeenCalled();
-      expect(mockSendFn).toHaveBeenCalled();
     });
   });
 });
@@ -372,8 +306,14 @@ describe("processInactiveUsers", () => {
   });
 
   it("processes multiple inactive users", async () => {
+    const user2: NotificationUser = {
+      ...mockUser,
+      userId: 2,
+      telegramId: 67890,
+      interfaceLang: "ru",
+    };
     const deps = buildSchedulerDeps({
-      getInactiveUsers: vi.fn().mockResolvedValue([mockUser, mockUser2]),
+      getInactiveUsers: vi.fn().mockResolvedValue([mockUser, user2]),
     });
 
     const result = await processInactiveUsers(mockReEngagementSend, deps);
@@ -416,8 +356,14 @@ describe("processInactiveUsers", () => {
   });
 
   it("uses user interface language for re-engagement message", async () => {
+    const ruUser: NotificationUser = {
+      ...mockUser,
+      userId: 2,
+      telegramId: 67890,
+      interfaceLang: "ru",
+    };
     const deps = buildSchedulerDeps({
-      getInactiveUsers: vi.fn().mockResolvedValue([mockUser2]),
+      getInactiveUsers: vi.fn().mockResolvedValue([ruUser]),
     });
 
     await processInactiveUsers(mockReEngagementSend, deps);

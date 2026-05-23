@@ -133,6 +133,7 @@
   "notifTranslations": "🌍 Překlady:",
   "notifOpenDict": "📖 Otevřít slovník",
   "notifSkip": "⏭ Přeskočit",
+  "notifNoDictionary": "📬 Čas na vaše denní slovo!\n\nVáš slovník je prázdný — pošlete jakékoliv slovo do /translate pro jeho vytvoření.",
   "notifTypeSrs": "📖 Slovník (SRS)",
   "notifTypeSuggested": "✨ Návrhy AI",
   "notifTypeBoth": "🔀 Obojí",

@@ -133,6 +133,7 @@
   "notifTranslations": "🌍 Translations:",
   "notifOpenDict": "📖 Open dictionary",
   "notifSkip": "⏭ Skip",
+  "notifNoDictionary": "📬 Time for your daily word!\n\nYour dictionary is empty — send any word to /translate to start building it.",
   "notifTypeSrs": "📖 Dictionary (SRS)",
   "notifTypeSuggested": "✨ AI suggestions",
   "notifTypeBoth": "🔀 Both",

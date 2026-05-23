@@ -166,15 +166,15 @@ function makeNotifUser(overrides: Record<string, unknown> = {}) {
 
 describe("domain constants", () => {
   it("NOTIFICATION_TYPES contains valid type strategies", () => {
-    expect(NOTIFICATION_TYPES).toEqual(["suggested", "srs", "both"]);
+    expect(NOTIFICATION_TYPES).toEqual(["suggested", "srs"]);
   });
 
   it("DEFAULT_NOTIFICATION_TIME is 08:00", () => {
     expect(DEFAULT_NOTIFICATION_TIME).toBe("08:00");
   });
 
-  it("DEFAULT_NOTIFICATION_TYPE is both", () => {
-    expect(DEFAULT_NOTIFICATION_TYPE).toBe("both");
+  it("DEFAULT_NOTIFICATION_TYPE is srs", () => {
+    expect(DEFAULT_NOTIFICATION_TYPE).toBe("srs");
   });
 
   it("INACTIVITY_DAYS is 14", () => {
@@ -290,6 +290,34 @@ describe("notificationRepository", () => {
       const result = await notificationRepository.getUsersForWindow(10, 0);
 
       expect(result).toHaveLength(0);
+    });
+
+    it("matches users within ±1 minute tolerance", async () => {
+      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      queryResults = [[user]];
+      queryIndex = 0;
+
+      const before = await notificationRepository.getUsersForWindow(7, 59);
+      expect(before).toHaveLength(1);
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      const after = await notificationRepository.getUsersForWindow(8, 1);
+      expect(after).toHaveLength(1);
+    });
+
+    it("excludes users outside tolerance window", async () => {
+      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      queryResults = [[user]];
+      queryIndex = 0;
+
+      const before = await notificationRepository.getUsersForWindow(7, 58);
+      expect(before).toHaveLength(0);
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      const after = await notificationRepository.getUsersForWindow(8, 2);
+      expect(after).toHaveLength(0);
     });
 
     it("handles timezone offset filtering", async () => {

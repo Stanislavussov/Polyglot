@@ -8,11 +8,11 @@ import { notificationHistory, userLanguageSettings, users } from "../schema.js";
 /* ------------------------------------------------------------------ */
 
 /** Valid notification type strategies */
-export const NOTIFICATION_TYPES = ["suggested", "srs", "both"] as const;
+export const NOTIFICATION_TYPES = ["suggested", "srs"] as const;
 /** Default notification time (08:00 local). Stored as "HH:MM" string in DB. */
 export const DEFAULT_NOTIFICATION_TIME = "08:00";
 /** Default notification type (schema default) */
-export const DEFAULT_NOTIFICATION_TYPE = "both" as const;
+export const DEFAULT_NOTIFICATION_TYPE = "srs" as const;
 /** Days of inactivity before pausing notifications */
 export const INACTIVITY_DAYS = 14;
 
@@ -47,6 +47,8 @@ export function formatNotificationTime(totalMinutes: number): string {
   const m = totalMinutes % 60;
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 }
+
+const NOTIFICATION_TIME_TOLERANCE_MINUTES = 1;
 
 /**
  * Get the local time in minutes since midnight for a given timezone and UTC time.
@@ -118,7 +120,7 @@ export const notificationRepository = {
       const localMinutes = getLocalMinutes(user.timezone, utcHour, utcMinute);
       if (localMinutes < 0) return false;
       const targetMinutes = parseNotificationMinutes(user.notificationTime);
-      return localMinutes === targetMinutes;
+      return Math.abs(localMinutes - targetMinutes) <= NOTIFICATION_TIME_TOLERANCE_MINUTES;
     });
   },
 

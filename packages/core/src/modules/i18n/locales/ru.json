@@ -133,6 +133,7 @@
   "notifTranslations": "🌍 Переводы:",
   "notifOpenDict": "📖 Открыть словарь",
   "notifSkip": "⏭ Пропустить",
+  "notifNoDictionary": "📬 Время для вашего ежедневного слова!\n\nВаш словарь пуст — отправьте любое слово в /translate, чтобы начать его заполнять.",
   "notifTypeSrs": "📖 Словарь (SRS)",
   "notifTypeSuggested": "✨ Предложения AI",
   "notifTypeBoth": "🔀 Оба",

@@ -37,7 +37,7 @@ export function buildSettingsText(
   if (notifEnabled) {
     const displayTime = formatNotificationTime(parseNotificationMinutes(notifTime));
     lines.push(t("settingsNotifTime", lang, { time: displayTime }));
-    lines.push(t("settingsNotifType", lang, { type: notifType ?? "both" }));
+    lines.push(t("settingsNotifType", lang, { type: notifType ?? "srs" }));
     lines.push(t("settingsNotifTimezone", lang, { timezone: timezone ?? "UTC" }));
   }
   return lines.join("\n");
