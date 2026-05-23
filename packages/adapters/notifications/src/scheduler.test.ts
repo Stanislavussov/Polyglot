@@ -67,6 +67,7 @@ const mockUser: NotificationUser = {
   notificationEnabled: true,
   notificationTime: "08:00",
   notificationType: "srs",
+  notificationContext: null,
 };
 
 const mockDictWord: SuggestedWord = {
@@ -81,6 +82,8 @@ const mockT = vi.fn((key: string, _lang: string, _params?: Record<string, string
     notifTitle: "Word of the day",
     notifWordFromDict: "From your dictionary",
     notifAiSuggested: "AI suggestion",
+    notifTypeContextual: "AI + Context",
+    notifContextualSentence: "Contextual sentence:",
     notifPaused: "We paused your notifications. Use /settings to re-enable.",
   };
   return keys[key] ?? key;
@@ -94,6 +97,7 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
     getRecentSentWords: vi.fn().mockResolvedValue([]),
     recordSentWord: vi.fn().mockResolvedValue(undefined),
     pickDictionaryWord: vi.fn().mockResolvedValue(mockDictWord),
+    pickContextualWord: vi.fn().mockResolvedValue(mockDictWord),
     sendDictionaryEmptyPrompt: vi.fn().mockResolvedValue(undefined),
     t: mockT,
     ...overrides,
@@ -175,6 +179,7 @@ describe("checkAndSend", () => {
       telegramId: 67890,
       interfaceLang: "ru",
       notificationTime: "20:00",
+      notificationContext: null,
     };
     const deps = buildSchedulerDeps({
       getUsersForWindow: vi.fn().mockResolvedValue([mockUser, user2]),
@@ -204,6 +209,7 @@ describe("checkAndSend", () => {
       telegramId: 67890,
       interfaceLang: "ru",
       notificationTime: "20:00",
+      notificationContext: null,
     };
     const deps = buildSchedulerDeps({
       getUsersForWindow: vi.fn().mockResolvedValue([mockUser, user2]),
@@ -311,6 +317,7 @@ describe("processInactiveUsers", () => {
       userId: 2,
       telegramId: 67890,
       interfaceLang: "ru",
+      notificationContext: null,
     };
     const deps = buildSchedulerDeps({
       getInactiveUsers: vi.fn().mockResolvedValue([mockUser, user2]),
@@ -361,6 +368,7 @@ describe("processInactiveUsers", () => {
       userId: 2,
       telegramId: 67890,
       interfaceLang: "ru",
+      notificationContext: null,
     };
     const deps = buildSchedulerDeps({
       getInactiveUsers: vi.fn().mockResolvedValue([ruUser]),

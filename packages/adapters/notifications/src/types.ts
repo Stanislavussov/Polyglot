@@ -67,6 +67,12 @@ export interface NotificationServiceDeps {
 
   /** Resolve language ID → language code. */
   getLangCode?: (langId: number) => string | undefined;
+
+  /** Generate typed object via AI (for contextual notifications). */
+  generateObject?: <T>(prompt: string, schema: any, model: string, options?: { userId?: number }) => Promise<T>;
+
+  /** AI model to use for contextual generation. */
+  contextualModel?: string;
 }
 
 /**
@@ -91,6 +97,14 @@ export interface SchedulerDeps {
 
   /** Pick a word from user's dictionary (SRS review). */
   pickDictionaryWord: (userId: number, recentWords?: string[]) => Promise<SuggestedWord | null>;
+
+  /** Generate a contextual sentence with translations (for 'contextual' type). */
+  pickContextualWord: (
+    userId: number,
+    context: string,
+    langs: { nativeLang: string; learningLangs: string[] },
+    recentWords?: string[],
+  ) => Promise<SuggestedWord | null>;
 
   /** Send a prompt when user has no dictionary words at notification time. */
   sendDictionaryEmptyPrompt: (telegramId: number, lang: string) => Promise<void>;

@@ -41,6 +41,10 @@ import {
   handleSetLearnToggleCallback,
   handleSetNativeCallback,
   handleSetNativeSelectCallback,
+  handleSetNotifBackCallback,
+  handleSetNotifCallback,
+  handleSetNotifContextCallback,
+  handleSetNotifContextCancelCallback,
   handleSetNotifTimeCallback,
   handleSetNotifTimeSelectCallback,
   handleSetNotifToggleCallback,
@@ -150,6 +154,7 @@ bot.callbackQuery("set:learning", handleSetLearningCallback);
 bot.callbackQuery(/^set:learn:/, handleSetLearnToggleCallback);
 bot.callbackQuery("set:interface", handleSetInterfaceCallback);
 bot.callbackQuery(/^set:iface:/, handleSetIfaceSelectCallback);
+bot.callbackQuery("set:notif", handleSetNotifCallback);
 bot.callbackQuery("set:notif:toggle", handleSetNotifToggleCallback);
 bot.callbackQuery("set:notif:time", handleSetNotifTimeCallback);
 bot.callbackQuery(/^set:notif:time:/, handleSetNotifTimeSelectCallback);
@@ -157,6 +162,9 @@ bot.callbackQuery("set:notif:type", handleSetNotifTypeCallback);
 bot.callbackQuery(/^set:notif:type:/, handleSetNotifTypeSelectCallback);
 bot.callbackQuery("set:notif:tz", handleSetNotifTzCallback);
 bot.callbackQuery(/^set:notif:tz:/, handleSetNotifTzSelectCallback);
+bot.callbackQuery("set:notif:context", handleSetNotifContextCallback);
+bot.callbackQuery("set:notif:context:cancel", handleSetNotifContextCancelCallback);
+bot.callbackQuery("set:notif:back", handleSetNotifBackCallback);
 bot.callbackQuery("set:back", handleSetBackCallback);
 bot.callbackQuery("set:close", handleSetCloseCallback);
 

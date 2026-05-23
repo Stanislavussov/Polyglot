@@ -8,7 +8,12 @@ import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import type { BotContext } from "../../types.js";
-import { buildSettingsKeyboard, buildSettingsText } from "../settings.scene.js";
+import {
+  buildNotifSubKeyboard,
+  buildNotifSubText,
+  buildSettingsKeyboard,
+  buildSettingsText,
+} from "../settings.scene.js";
 
 /** Resolve interface language from user settings */
 async function getLang(ctx: BotContext): Promise<SupportedLang> {
@@ -17,7 +22,7 @@ async function getLang(ctx: BotContext): Promise<SupportedLang> {
   return (isSupported(iLang) ? iLang : "en") as SupportedLang;
 }
 
-/** Re-render the settings main menu (after a change or back navigation) */
+/** Re-render the settings main menu */
 async function showSettingsMenu(ctx: BotContext): Promise<void> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
@@ -25,7 +30,6 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
   const notifEnabled = settings?.notificationEnabled ?? false;
   const notifTime = settings?.notificationTime ?? "08:00";
   const notifType = settings?.notificationType ?? "srs";
-  const timezone = settings?.timezone ?? "UTC";
 
   const text = buildSettingsText(
     settings?.nativeLang ?? "en",
@@ -35,9 +39,24 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
     notifEnabled,
     notifTime,
     notifType,
-    timezone,
   );
-  const kb = buildSettingsKeyboard(lang, notifEnabled);
+  const kb = buildSettingsKeyboard(lang);
+  await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
+}
+
+/** Re-render the notification sub-menu */
+async function showNotifSubMenu(ctx: BotContext): Promise<void> {
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const notifEnabled = settings?.notificationEnabled ?? false;
+  const notifTime = settings?.notificationTime ?? "08:00";
+  const notifType = settings?.notificationType ?? "srs";
+  const timezone = settings?.timezone ?? "UTC";
+  const notifContext = settings?.notificationContext ?? null;
+
+  const text = buildNotifSubText(lang, notifEnabled, notifTime, notifType, timezone, notifContext);
+  const kb = buildNotifSubKeyboard(lang, notifEnabled, notifType);
   await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
 }
 
@@ -141,7 +160,6 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
     });
   }
 
-  // Persist intermediate state so it's kept across callbacks
   await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
 
   const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
@@ -190,19 +208,23 @@ export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<voi
 
   await ctx.services.userRepository.updateInterfaceLang(ctx.user.id, code);
 
-  // Use the NEW interface language for the confirmation
   const newLang = (isSupported(code) ? code : "en") as SupportedLang;
   await ctx.answerCallbackQuery({
     text: t("settingsInterfaceUpdated", newLang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
   });
 
-  // Update bot commands for the user's new language
   const chatId = ctx.from?.id;
   if (chatId) {
     await setUserCommands(ctx.api, chatId, newLang);
   }
 
   await showSettingsMenu(ctx);
+}
+
+/** set:notif — show notification sub-menu */
+export async function handleSetNotifCallback(ctx: BotContext): Promise<void> {
+  await showNotifSubMenu(ctx);
+  await ctx.answerCallbackQuery();
 }
 
 /** set:notif:toggle — enable/disable notifications */
@@ -219,7 +241,7 @@ export async function handleSetNotifToggleCallback(ctx: BotContext): Promise<voi
   await ctx.answerCallbackQuery({
     text: newEnabled ? t("settingsNotifEnabled", lang) : t("settingsNotifDisabled", lang),
   });
-  await showSettingsMenu(ctx);
+  await showNotifSubMenu(ctx);
 }
 
 /** Build emoji icon for a given hour */
@@ -235,7 +257,6 @@ export async function handleSetNotifTimeCallback(ctx: BotContext): Promise<void>
   const lang = await getLang(ctx);
   const kb = new InlineKeyboard();
 
-  // Show 48 time slots (every 30 min) in rows of 4
   for (let slot = 0; slot < 48; slot++) {
     const totalMinutes = slot * 30;
     const label = `${hourIcon(Math.floor(totalMinutes / 60))} ${formatNotificationTime(totalMinutes)}`;
@@ -243,7 +264,7 @@ export async function handleSetNotifTimeCallback(ctx: BotContext): Promise<void>
     if ((slot + 1) % 4 === 0) kb.row();
   }
   kb.row();
-  kb.text(`⬅️ ${t("back", lang)}`, "set:back").row();
+  kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
 
   await ctx.editMessageText(t("settingsNotifChooseTime", lang), {
     reply_markup: kb,
@@ -272,7 +293,7 @@ export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise
   await ctx.answerCallbackQuery({
     text: t("settingsNotifTime", lang, { time: timeStr }),
   });
-  await showSettingsMenu(ctx);
+  await showNotifSubMenu(ctx);
 }
 
 /** set:notif:type — show notification type picker */
@@ -282,12 +303,12 @@ export async function handleSetNotifTypeCallback(ctx: BotContext): Promise<void>
   const typeLabels: Record<string, string> = {
     srs: t("notifTypeSrs", lang),
     suggested: t("notifTypeSuggested", lang),
-    both: t("notifTypeBoth", lang),
+    contextual: t("notifTypeContextual", lang),
   };
   for (const type of NOTIFICATION_TYPES) {
     kb.text(typeLabels[type] ?? type, `set:notif:type:${type}`).row();
   }
-  kb.text(`⬅️ ${t("back", lang)}`, "set:back").row();
+  kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
 
   await ctx.editMessageText(t("settingsNotifChooseType", lang), {
     reply_markup: kb,
@@ -309,13 +330,12 @@ export async function handleSetNotifTypeSelectCallback(ctx: BotContext): Promise
   await ctx.answerCallbackQuery({
     text: t("settingsNotifType", lang, { type }),
   });
-  await showSettingsMenu(ctx);
+  await showNotifSubMenu(ctx);
 }
 
 /** set:notif:tz — prompt for timezone input */
 export async function handleSetNotifTzCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
-  // Show common timezones as inline buttons
   const commonTz = [
     "UTC",
     "Europe/London",
@@ -332,7 +352,7 @@ export async function handleSetNotifTzCallback(ctx: BotContext): Promise<void> {
   for (const tz of commonTz) {
     kb.text(tz, `set:notif:tz:${tz}`).row();
   }
-  kb.text(`⬅️ ${t("back", lang)}`, "set:back").row();
+  kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
 
   await ctx.editMessageText(t("settingsNotifChooseTimezone", lang), {
     reply_markup: kb,
@@ -346,7 +366,6 @@ export async function handleSetNotifTzSelectCallback(ctx: BotContext): Promise<v
   const data = ctx.callbackQuery?.data ?? "";
   const timezone = data.replace("set:notif:tz:", "");
 
-  // Validate timezone by trying Intl
   try {
     Intl.DateTimeFormat("en-US", { timeZone: timezone });
   } catch {
@@ -357,7 +376,6 @@ export async function handleSetNotifTzSelectCallback(ctx: BotContext): Promise<v
     return;
   }
 
-  // Update timezone via updateSettings — pass existing fields + new timezone
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   await ctx.services.userRepository.updateSettings(ctx.user.id, {
     interfaceLang: settings?.interfaceLang ?? "en",
@@ -371,7 +389,56 @@ export async function handleSetNotifTzSelectCallback(ctx: BotContext): Promise<v
   await ctx.answerCallbackQuery({
     text: t("settingsNotifTimezone", lang, { timezone }),
   });
+  await showNotifSubMenu(ctx);
+}
+
+/** set:notif:context — prompt user to send context text */
+export async function handleSetNotifContextCallback(ctx: BotContext): Promise<void> {
+  const lang = await getLang(ctx);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const currentContext = settings?.notificationContext ?? null;
+
+  ctx.session.awaitingNotifContext = true;
+
+  const kb = new InlineKeyboard();
+  kb.text(t("settingsNotifContextCancel", lang), "set:notif:context:cancel").row();
+
+  await ctx.editMessageText(
+    t("settingsNotifContextPrompt", lang, {
+      current: currentContext || t("settingsNotifContextNotSet", lang),
+    }),
+    { reply_markup: kb, parse_mode: "HTML" },
+  );
+  await ctx.answerCallbackQuery();
+}
+
+/** set:notif:context:cancel — cancel context editing */
+export async function handleSetNotifContextCancelCallback(ctx: BotContext): Promise<void> {
+  ctx.session.awaitingNotifContext = false;
+  await showNotifSubMenu(ctx);
+  await ctx.answerCallbackQuery();
+}
+
+/** Handle text input when awaiting notification context */
+export async function handleNotifContextTextInput(ctx: BotContext): Promise<void> {
+  const text = ctx.message?.text?.trim();
+  if (!text) return;
+
+  ctx.session.awaitingNotifContext = false;
+
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
+    notificationContext: text,
+  });
+
+  const lang = await getLang(ctx);
+  await ctx.reply(t("settingsNotifContextSaved", lang, { context: text }), { parse_mode: "HTML" });
+  await showNotifSubMenu(ctx);
+}
+
+/** set:notif:back — return to settings main menu from notif sub-menu */
+export async function handleSetNotifBackCallback(ctx: BotContext): Promise<void> {
   await showSettingsMenu(ctx);
+  await ctx.answerCallbackQuery();
 }
 
 /** set:back — return to settings main menu */
@@ -385,7 +452,6 @@ export async function handleSetCloseCallback(ctx: BotContext): Promise<void> {
   try {
     await ctx.deleteMessage();
   } catch {
-    // Message might be too old to delete — just remove keyboard
     await ctx.editMessageReplyMarkup({ reply_markup: { inline_keyboard: [] } });
   }
   await ctx.answerCallbackQuery();

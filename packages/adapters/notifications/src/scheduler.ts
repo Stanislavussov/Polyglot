@@ -27,6 +27,29 @@ let cronTask: cron.ScheduledTask | null = null;
 const MAX_RETRIES = 3;
 const RETRY_DELAYS_MS = [1000, 2000, 4000];
 
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number,
+  baseDelayMs: number,
+  label: string,
+): Promise<T> {
+  const logger = getLogger();
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (attempt < maxRetries) {
+        const delay = baseDelayMs * 2 ** (attempt - 1);
+        logger.warn({ err, attempt, maxRetries, delayMs: delay, label }, `Retrying ${label} after error`);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
+  }
+  throw lastErr;
+}
+
 async function sendWithRetry(sendFn: SendFn, telegramId: number, payload: NotificationPayload): Promise<void> {
   const logger = getLogger();
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -49,6 +72,17 @@ async function pickWordForUser(
   deps: SchedulerDeps,
   recentWords: string[],
 ): Promise<SuggestedWord | null> {
+  if (user.notificationType === "contextual" && user.notificationContext) {
+    return deps.pickContextualWord(
+      user.userId,
+      user.notificationContext,
+      {
+        nativeLang: user.nativeLang,
+        learningLangs: user.learningLangs,
+      },
+      recentWords,
+    );
+  }
   return deps.pickDictionaryWord(user.userId, recentWords);
 }
 
@@ -66,27 +100,35 @@ export function buildNotificationPayload(
   const timeParts = (user.notificationTime || "08:00").split(":");
   const hour = Number.parseInt(timeParts[0], 10) || 8;
 
-  // Build a plain-text message with translations
   const title = t("notifTitle", lang);
-  const sourceLabel = word.source === "srs" ? t("notifWordFromDict", lang) : t("notifAiSuggested", lang);
+  const sourceLabel =
+    word.source === "srs"
+      ? t("notifWordFromDict", lang)
+      : word.source === "contextual"
+        ? t("notifTypeContextual", lang)
+        : t("notifAiSuggested", lang);
 
   const translationLines = Object.entries(word.translations)
     .map(([, text]) => `  • ${text}`)
     .join("\n");
 
-  const message = [
-    `${word.emoji} <b>${word.original}</b>`,
+  const lines = [
+    `${word.emoji} <b>${escapeHtml(word.original)}</b>`,
     `<i>${sourceLabel}</i>`,
     "",
     `${title}:`,
     translationLines,
-  ].join("\n");
+  ];
 
   return {
     hour,
     word,
-    message,
+    message: lines.join("\n"),
   };
+}
+
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /**
@@ -103,7 +145,7 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
   // Step 1: Get users whose local time matches their preferred notification window
   let users: NotificationUser[];
   try {
-    users = await deps.getUsersForWindow(utcHour, utcMinute);
+    users = await retryWithBackoff(() => deps.getUsersForWindow(utcHour, utcMinute), 3, 1000, "getUsersForWindow");
     logger.info({ utcHour, utcMinute, userCount: users.length }, "Users fetched for notification window");
     if (users.length > 0) {
       for (const u of users) {
@@ -120,7 +162,7 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
       }
     }
   } catch (err) {
-    logger.error({ err, utcHour, utcMinute }, "Failed to query users for notification window");
+    logger.error({ err, utcHour, utcMinute }, "Failed to query users for notification window after retries");
     return { sent: 0, errors: 1 };
   }
 
@@ -135,7 +177,12 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
   for (const user of users) {
     try {
       logger.info({ userId: user.userId }, "Processing user");
-      const recentWords = await deps.getRecentSentWords(user.userId);
+      const recentWords = await retryWithBackoff(
+        () => deps.getRecentSentWords(user.userId),
+        2,
+        500,
+        "getRecentSentWords",
+      );
       const word = await pickWordForUser(user, deps, recentWords);
       if (!word) {
         logger.info({ userId: user.userId }, "No word picked — sending empty dictionary prompt");
@@ -147,7 +194,12 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
       const payload = buildNotificationPayload(user, word, deps.t);
       await sendWithRetry(sendFn, user.telegramId, payload);
 
-      await deps.recordSentWord(user.userId, word.original, word.source ?? "suggested");
+      await retryWithBackoff(
+        () => deps.recordSentWord(user.userId, word.original, word.source ?? "suggested"),
+        2,
+        500,
+        "recordSentWord",
+      );
       logNotificationSent({
         userId: user.userId,
         type: word.source ?? "suggested",

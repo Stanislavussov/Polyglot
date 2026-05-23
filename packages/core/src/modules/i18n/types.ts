@@ -140,6 +140,8 @@ export type I18nKey =
   | "notifTypeSrs"
   | "notifTypeSuggested"
   | "notifTypeBoth"
+  | "notifTypeContextual"
+  | "notifContextualSentence"
   | "settingsNotifSection"
   | "settingsNotifEnabled"
   | "settingsNotifDisabled"
@@ -147,9 +149,21 @@ export type I18nKey =
   | "settingsNotifType"
   | "settingsNotifTimezone"
   | "settingsNotifToggle"
+  | "settingsNotifManage"
+  | "settingsNotifSubTitle"
+  | "settingsNotifStatusOn"
+  | "settingsNotifStatusOff"
+  | "settingsNotifEnable"
+  | "settingsNotifDisable"
   | "settingsNotifChooseTime"
   | "settingsNotifChooseType"
   | "settingsNotifChooseTimezone"
+  | "settingsNotifChooseContext"
+  | "settingsNotifContext"
+  | "settingsNotifContextNotSet"
+  | "settingsNotifContextPrompt"
+  | "settingsNotifContextCancel"
+  | "settingsNotifContextSaved"
   | "notifPaused"
   | "notifReEngagement"
   | "cmdDescReport"
@@ -217,6 +231,9 @@ export interface I18nParams {
   settingsNotifTime: { time: string };
   settingsNotifType: { type: string };
   settingsNotifTimezone: { timezone: string };
+  settingsNotifContext: { context: string };
+  settingsNotifContextPrompt: { current: string };
+  settingsNotifContextSaved: { context: string };
   mistypeWarning: { word: string };
 }
 

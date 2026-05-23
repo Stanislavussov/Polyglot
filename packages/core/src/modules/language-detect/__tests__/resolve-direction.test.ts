@@ -15,7 +15,7 @@ describe("resolveTranslationDirection", () => {
       text: "привет мир это тест",
     });
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["cs", "en"]);
+    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
     expect(result.detectedLang).toBe("ru");
   });
 
@@ -27,9 +27,9 @@ describe("resolveTranslationDirection", () => {
       text: "hello world this is a test",
     });
     expect(result.sourceLang).toBe("en");
+    expect(result.targetLangs).toContain("ru");
     expect(result.targetLangs).toContain("cs");
     expect(result.targetLangs).not.toContain("en");
-    expect(result.targetLangs).not.toContain("ru");
     expect(result.detectedLang).toBe("en");
   });
 
@@ -39,9 +39,9 @@ describe("resolveTranslationDirection", () => {
       text: "dobrý den jak se máte dnes",
     });
     expect(result.sourceLang).toBe("cs");
+    expect(result.targetLangs).toContain("ru");
     expect(result.targetLangs).toContain("en");
     expect(result.targetLangs).not.toContain("cs");
-    expect(result.targetLangs).not.toContain("ru");
     expect(result.detectedLang).toBe("cs");
   });
 
@@ -55,7 +55,7 @@ describe("resolveTranslationDirection", () => {
     });
     // Falls back to native → learning
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["cs", "en"]);
+    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
     expect(result.detectedLang).toBeUndefined();
   });
 
@@ -65,7 +65,7 @@ describe("resolveTranslationDirection", () => {
       text: "",
     });
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["cs", "en"]);
+    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
     expect(result.detectedLang).toBeUndefined();
   });
 
@@ -75,31 +75,31 @@ describe("resolveTranslationDirection", () => {
       text: "12345",
     });
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["cs", "en"]);
+    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
     expect(result.detectedLang).toBeUndefined();
   });
 
   // === Single learning language ===
 
-  it("handles single learning language: detected=learning → targets=[]", () => {
+  it("handles single learning language: detected=learning → targets=[native]", () => {
     const result = resolveTranslationDirection({
       text: "hello world this is a test",
       nativeLang: "ru",
       learningLangs: ["en"],
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual([]);
+    expect(result.targetLangs).toEqual(["ru"]);
     expect(result.detectedLang).toBe("en");
   });
 
-  it("handles single learning language: native input → targets=[learning]", () => {
+  it("handles single learning language: native input → targets=[native, learning]", () => {
     const result = resolveTranslationDirection({
       text: "привет мир это тест",
       nativeLang: "ru",
       learningLangs: ["en"],
     });
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["en"]);
+    expect(result.targetLangs).toEqual(["ru", "en"]);
     expect(result.detectedLang).toBe("ru");
   });
 
@@ -112,7 +112,7 @@ describe("resolveTranslationDirection", () => {
       learningLangs: ["cs", "en", "de"],
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual(["cs", "de"]);
+    expect(result.targetLangs).toEqual(["ru", "cs", "de"]);
     expect(result.detectedLang).toBe("en");
   });
 
@@ -125,7 +125,7 @@ describe("resolveTranslationDirection", () => {
     });
     // "ru" is the only Cyrillic candidate → detected as "ru"
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["cs", "en"]);
+    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
     expect(result.detectedLang).toBe("ru");
   });
 
@@ -138,7 +138,7 @@ describe("resolveTranslationDirection", () => {
       learningLangs: [],
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual([]);
+    expect(result.targetLangs).toEqual(["en"]);
     // Single candidate "en" → detected as "en"
     expect(result.detectedLang).toBe("en");
   });

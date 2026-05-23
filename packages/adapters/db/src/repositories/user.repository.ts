@@ -140,6 +140,7 @@ export const userRepository = {
       notificationEnabled?: boolean;
       notificationTime?: string;
       notificationType?: string;
+      notificationContext?: string | null;
     },
   ): Promise<UserLanguageSettings | null> {
     const db = getDb();
@@ -147,6 +148,7 @@ export const userRepository = {
     if (prefs.notificationEnabled !== undefined) set.notificationEnabled = prefs.notificationEnabled;
     if (prefs.notificationTime !== undefined) set.notificationTime = prefs.notificationTime;
     if (prefs.notificationType !== undefined) set.notificationType = prefs.notificationType;
+    if (prefs.notificationContext !== undefined) set.notificationContext = prefs.notificationContext;
 
     const rows = await db
       .update(userLanguageSettings)

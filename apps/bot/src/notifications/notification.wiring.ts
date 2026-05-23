@@ -1,3 +1,4 @@
+import { generateObject } from "@polyglot/adapter-ai";
 import { getAllLangs, notificationRepository, userRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import {
   createNotificationService,
@@ -7,10 +8,12 @@ import {
   stopScheduler,
 } from "@polyglot/adapter-notifications";
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
+import { loadConfig } from "@polyglot/infra";
 import type { Api, RawApi } from "grammy";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
 
 export function wireNotificationScheduler(api: Api<RawApi>): void {
+  const config = loadConfig();
   const notifService = createNotificationService({
     getUserVocabulary: async (userId: number) => {
       const entries = await vocabularyRepository.findByUser(userId);
@@ -29,6 +32,10 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
       const all = getAllLangs();
       return all.find((l) => l.id === langId)?.code;
     },
+    generateObject: async (prompt: string, schema: any, model: string, options?: { userId?: number }) => {
+      return generateObject(prompt, schema, model, options);
+    },
+    contextualModel: config.AI_MODEL,
   });
 
   const sendFn = async (telegramId: number, payload: NotificationPayload): Promise<void> => {
@@ -61,6 +68,8 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
     recordSentWord: (userId: number, original: string, source: string) =>
       notificationRepository.recordSentWord(userId, original, source),
     pickDictionaryWord: (userId: number, recentWords) => notifService.pickDictionaryWord(userId, recentWords),
+    pickContextualWord: (userId: number, context: string, langs, recentWords) =>
+      notifService.pickContextualWord(userId, context, langs, recentWords),
     sendDictionaryEmptyPrompt: async (telegramId: number, lang: string) => {
       await api.sendMessage(
         telegramId,

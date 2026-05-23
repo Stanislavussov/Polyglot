@@ -8,7 +8,7 @@ import { notificationHistory, userLanguageSettings, users } from "../schema.js";
 /* ------------------------------------------------------------------ */
 
 /** Valid notification type strategies */
-export const NOTIFICATION_TYPES = ["suggested", "srs"] as const;
+export const NOTIFICATION_TYPES = ["suggested", "srs", "contextual"] as const;
 /** Default notification time (08:00 local). Stored as "HH:MM" string in DB. */
 export const DEFAULT_NOTIFICATION_TIME = "08:00";
 /** Default notification type (schema default) */
@@ -82,6 +82,7 @@ const notificationUserSelect = {
   notificationEnabled: userLanguageSettings.notificationEnabled,
   notificationTime: userLanguageSettings.notificationTime,
   notificationType: userLanguageSettings.notificationType,
+  notificationContext: userLanguageSettings.notificationContext,
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -155,6 +156,7 @@ export const notificationRepository = {
       notificationEnabled?: boolean;
       notificationTime?: string;
       notificationType?: NotificationType;
+      notificationContext?: string | null;
     },
   ): Promise<void> {
     const db = getDb();
@@ -162,6 +164,7 @@ export const notificationRepository = {
     if (prefs.notificationEnabled !== undefined) set.notificationEnabled = prefs.notificationEnabled;
     if (prefs.notificationTime !== undefined) set.notificationTime = prefs.notificationTime;
     if (prefs.notificationType !== undefined) set.notificationType = prefs.notificationType;
+    if (prefs.notificationContext !== undefined) set.notificationContext = prefs.notificationContext;
     set.updatedAt = new Date();
 
     await db.update(userLanguageSettings).set(set).where(eq(userLanguageSettings.userId, userId));
