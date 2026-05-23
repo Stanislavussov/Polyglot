@@ -98,6 +98,12 @@ export interface SessionData {
     targetLangs: string[];
   };
   /**
+   * Flag indicating the bot is awaiting notification context text input.
+   * Set when user taps "set:notif:context" in settings.
+   * Cleared after context is saved or cancelled.
+   */
+  awaitingNotifContext?: boolean;
+  /**
    * Flash card session state (Task 33).
    * Active during a flashcard session. Cleared on quit/close or session loss.
    */

@@ -134,6 +134,13 @@
       "when": 1778923250841,
       "tag": "0017_cuddly_slipstream",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1779538869349,
+      "tag": "0019_panoramic_timeslip",
+      "breakpoints": true
     }
   ]
 }

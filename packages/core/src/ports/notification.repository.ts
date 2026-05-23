@@ -1,7 +1,7 @@
 /**
  * Notification Repository Port.
  */
-export type NotificationType = "srs" | "suggested";
+export type NotificationType = "srs" | "suggested" | "contextual";
 
 export interface NotificationUser {
   userId: number;
@@ -13,6 +13,7 @@ export interface NotificationUser {
   notificationEnabled: boolean;
   notificationTime: string;
   notificationType: NotificationType;
+  notificationContext: string | null;
 }
 
 export interface NotificationRepository {
@@ -23,6 +24,11 @@ export interface NotificationRepository {
   getRecentSentWords(userId: number, limit?: number): Promise<string[]>;
   updatePrefs(
     userId: number,
-    prefs: { notificationEnabled?: boolean; notificationTime?: string; notificationType?: NotificationType },
+    prefs: {
+      notificationEnabled?: boolean;
+      notificationTime?: string;
+      notificationType?: NotificationType;
+      notificationContext?: string | null;
+    },
   ): Promise<void>;
 }

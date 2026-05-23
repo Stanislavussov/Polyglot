@@ -1,5 +1,13 @@
 import { getLogger } from "@polyglot/core";
+import { z } from "zod";
 import type { NotificationServiceDeps, SuggestedWord } from "./types.js";
+
+const contextualSentenceSchema = z.object({
+  sentence: z.string().describe("A natural sentence in the target language"),
+  translations: z
+    .record(z.string(), z.string())
+    .describe("Translations of the sentence into other languages, keyed by language code"),
+});
 
 export function createNotificationService(deps: NotificationServiceDeps) {
   const logger = getLogger();
@@ -52,5 +60,77 @@ export function createNotificationService(deps: NotificationServiceDeps) {
     };
   }
 
-  return { pickDictionaryWord };
+  async function pickContextualWord(
+    userId: number,
+    context: string,
+    langs: { nativeLang: string; learningLangs: string[] },
+    _recentWords: string[] = [],
+  ): Promise<SuggestedWord | null> {
+    if (!deps.generateObject) {
+      logger.warn({ userId }, "pickContextualWord: missing generateObject dep");
+      return null;
+    }
+
+    const allLangs = [langs.nativeLang, ...langs.learningLangs].filter(Boolean);
+    if (allLangs.length === 0) {
+      logger.warn({ userId }, "pickContextualWord: no languages configured");
+      return null;
+    }
+
+    const langList = allLangs.join(", ");
+    const primaryLang = allLangs[0]!;
+
+    const prompt = `You are a language learning assistant. Generate a useful, natural sentence relevant to this context: "${context}"
+
+Requirements:
+- The sentence should be 8-15 words
+- It should be practical and useful for everyday communication
+- Write the sentence in ${primaryLang}
+- Then translate it into these languages: ${langList}
+
+Return ONLY valid JSON with this structure:
+{
+  "sentence": "the sentence in ${primaryLang}",
+  "translations": {
+    "${primaryLang}": "the sentence in ${primaryLang}",
+    "lang_code": "translation"
+  }
+}
+
+Do NOT include any text outside the JSON.`;
+
+    try {
+      const model = deps.contextualModel;
+      if (!model) {
+        logger.warn({ userId }, "pickContextualWord: no contextualModel configured");
+        return null;
+      }
+      const result = await deps.generateObject<z.infer<typeof contextualSentenceSchema>>(
+        prompt,
+        contextualSentenceSchema,
+        model,
+        { userId },
+      );
+
+      const translations = result.translations;
+      const sentence = result.sentence;
+
+      if (Object.keys(translations).length === 0) {
+        logger.warn({ userId }, "pickContextualWord: no translations returned");
+        return null;
+      }
+
+      return {
+        original: sentence,
+        emoji: "🎯",
+        translations,
+        source: "contextual" as const,
+      };
+    } catch (err) {
+      logger.error({ err, userId }, "pickContextualWord: AI generation failed");
+      return null;
+    }
+  }
+
+  return { pickDictionaryWord, pickContextualWord };
 }

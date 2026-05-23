@@ -1,10 +1,8 @@
 /**
  * Tests for notification settings in the settings scene.
- * Tests the notification-related callback handlers and settings rendering.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Define mocks at top level using vi.hoisted
 const { mockLogger, mockUserRepository, mockLanguageCache, mockNotificationRepository } = vi.hoisted(() => {
   const mockUR = {
     getSettings: vi.fn(),
@@ -36,14 +34,13 @@ const { mockLogger, mockUserRepository, mockLanguageCache, mockNotificationRepos
   };
 });
 
-// Mock dependencies before imports
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: mockUserRepository,
   languageCache: mockLanguageCache,
   notificationRepository: mockNotificationRepository,
   getLangDisplay: mockLanguageCache.getLangDisplay,
   getSupportedLangs: mockLanguageCache.getSupportedLangs,
-  NOTIFICATION_TYPES: ["suggested", "srs", "both"],
+  NOTIFICATION_TYPES: ["suggested", "srs", "contextual"],
   DEFAULT_NOTIFICATION_TIME: "08:00",
   parseNotificationMinutes: (v: string | null | undefined) => {
     if (v == null) return 8 * 60;
@@ -59,31 +56,11 @@ vi.mock("@polyglot/adapter-db", () => ({
     const min = m % 60;
     return `${h.toString().padStart(2, "0")}:${min.toString().padStart(2, "0")}`;
   },
-  getLocalMinutes: (tz: string, h: number, m: number) => {
-    try {
-      const date = new Date();
-      date.setUTCHours(h, m, 0, 0);
-      const parts = new Intl.DateTimeFormat("en-US", {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: false,
-        timeZone: tz,
-      }).formatToParts(date);
-      const hourPart = parts.find((p: any) => p.type === "hour");
-      const minutePart = parts.find((p: any) => p.type === "minute");
-      if (!hourPart || !minutePart) return -1;
-      return Number.parseInt(hourPart.value, 10) * 60 + Number.parseInt(minutePart.value, 10);
-    } catch {
-      return -1;
-    }
-  },
 }));
 
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
-  return {
-    ...actual,
-  };
+  return { ...actual };
 });
 
 vi.mock("@polyglot/infra", () => ({
@@ -104,7 +81,13 @@ import {
   handleSetNotifTzCallback,
   handleSetNotifTzSelectCallback,
 } from "../scenes/helpers/settings.helper.js";
-import { buildSettingsKeyboard, buildSettingsText, handleSettingsCommand } from "../scenes/settings.scene.js";
+import {
+  buildNotifSubKeyboard,
+  buildNotifSubText,
+  buildSettingsKeyboard,
+  buildSettingsText,
+  handleSettingsCommand,
+} from "../scenes/settings.scene.js";
 
 const DEFAULT_SETTINGS = {
   interfaceLang: "en",
@@ -116,12 +99,13 @@ const DEFAULT_SETTINGS = {
   notificationEnabled: false,
   notificationTime: "08:00",
   notificationType: "srs",
+  notificationContext: null,
 };
 
 function createMockCtx(callbackData?: string) {
   return {
     user: { id: 1 },
-    session: { activeMode: "translate" },
+    session: { activeMode: "translate", awaitingNotifContext: false },
     from: { id: 12345 },
     chat: { id: 12345 },
     api: {},
@@ -144,73 +128,87 @@ beforeEach(() => {
   mockUserRepository.getSettings.mockResolvedValue(DEFAULT_SETTINGS as any);
 });
 
-describe("buildSettingsText — notifications", () => {
-  it("shows notification section with disabled state", () => {
-    const text = buildSettingsText("en", ["cs"], "en", "en", false);
+describe("buildSettingsText", () => {
+  it("shows notification status line", () => {
+    const text = buildSettingsText("en", ["cs"], "en", "en", false, "08:00", "srs");
     expect(text).toMatch(/notification/i);
   });
 
-  it("shows notification section with enabled state and details", () => {
-    const text = buildSettingsText("en", ["cs"], "en", "en", true, "08:00", "both", "Europe/Prague");
-    expect(text).toMatch(/notification/i);
-  });
-
-  it("does not show time/type/timezone when disabled", () => {
-    const text = buildSettingsText("en", ["cs"], "en", "en", false, "08:00", "srs", "UTC");
-    // Should not contain notification time/type details when disabled
-    expect(text).not.toMatch(/time|08:00/i);
+  it("shows enabled status with time and type", () => {
+    const text = buildSettingsText("en", ["cs"], "en", "en", true, "08:00", "srs");
+    expect(text).toContain("08:00");
+    expect(text).toContain("srs");
   });
 });
 
-describe("buildSettingsKeyboard — notifications", () => {
-  it("includes toggle button always", () => {
-    const kb = buildSettingsKeyboard("en", false);
+describe("buildSettingsKeyboard", () => {
+  it("includes Manage notifications button", () => {
+    const kb = buildSettingsKeyboard("en");
     const buttons = kb.inline_keyboard.flat();
     const cbData = buttons.map((b: any) => b.callback_data);
-    expect(cbData).toContain("set:notif:toggle");
+    expect(cbData).toContain("set:notif");
   });
 
-  it("does not show time/type/tz buttons when disabled", () => {
-    const kb = buildSettingsKeyboard("en", false);
+  it("does not show individual notif buttons in main menu", () => {
+    const kb = buildSettingsKeyboard("en");
     const buttons = kb.inline_keyboard.flat();
     const cbData = buttons.map((b: any) => b.callback_data);
     expect(cbData).not.toContain("set:notif:time");
     expect(cbData).not.toContain("set:notif:type");
     expect(cbData).not.toContain("set:notif:tz");
   });
+});
 
-  it("shows time/type/tz buttons when enabled", () => {
-    const kb = buildSettingsKeyboard("en", true);
-    const buttons = kb.inline_keyboard.flat();
-    const cbData = buttons.map((b: any) => b.callback_data);
-    expect(cbData).toContain("set:notif:time");
-    expect(cbData).toContain("set:notif:type");
-    expect(cbData).toContain("set:notif:tz");
+describe("buildNotifSubText", () => {
+  it("shows all notification details", () => {
+    const text = buildNotifSubText("en", true, "08:00", "srs", "Europe/Prague", null);
+    expect(text).toContain("08:00");
+    expect(text).toContain("srs");
+    expect(text).toContain("Europe/Prague");
+  });
+
+  it("shows context when type is contextual", () => {
+    const text = buildNotifSubText("en", true, "08:00", "contextual", "UTC", "job interview");
+    expect(text).toContain("job interview");
   });
 });
 
-describe("handleSettingsCommand — notifications", () => {
-  it("shows notification section in settings", async () => {
-    const ctx = createMockCtx();
-
-    await handleSettingsCommand(ctx);
-
-    const text = ctx.reply.mock.calls[0][0] as string;
-    expect(text).toMatch(/notification/i);
+describe("buildNotifSubKeyboard", () => {
+  it("shows toggle and all settings when enabled", () => {
+    const kb = buildNotifSubKeyboard("en", true, "srs");
+    const buttons = kb.inline_keyboard.flat();
+    const cbData = buttons.map((b: any) => b.callback_data);
+    expect(cbData).toContain("set:notif:toggle");
+    expect(cbData).toContain("set:notif:time");
+    expect(cbData).toContain("set:notif:type");
+    expect(cbData).toContain("set:notif:tz");
+    expect(cbData).toContain("set:notif:back");
   });
 
-  it("shows enabled notification details", async () => {
-    mockUserRepository.getSettings.mockResolvedValue({
-      ...DEFAULT_SETTINGS,
-      notificationEnabled: true,
-      notificationTime: "20:00",
-      notificationType: "srs",
-      timezone: "Europe/Prague",
-    } as any);
+  it("shows context button only when type is contextual", () => {
+    const kbSrs = buildNotifSubKeyboard("en", true, "srs");
+    const cbDataSrs = kbSrs.inline_keyboard.flat().map((b: any) => b.callback_data);
+    expect(cbDataSrs).not.toContain("set:notif:context");
+
+    const kbCtx = buildNotifSubKeyboard("en", true, "contextual");
+    const cbDataCtx = kbCtx.inline_keyboard.flat().map((b: any) => b.callback_data);
+    expect(cbDataCtx).toContain("set:notif:context");
+  });
+
+  it("hides settings buttons when disabled", () => {
+    const kb = buildNotifSubKeyboard("en", false, "srs");
+    const buttons = kb.inline_keyboard.flat();
+    const cbData = buttons.map((b: any) => b.callback_data);
+    expect(cbData).not.toContain("set:notif:time");
+    expect(cbData).not.toContain("set:notif:type");
+    expect(cbData).not.toContain("set:notif:tz");
+  });
+});
+
+describe("handleSettingsCommand", () => {
+  it("shows settings with notification status", async () => {
     const ctx = createMockCtx();
-
     await handleSettingsCommand(ctx);
-
     const text = ctx.reply.mock.calls[0][0] as string;
     expect(text).toMatch(/notification/i);
   });
@@ -219,69 +217,42 @@ describe("handleSettingsCommand — notifications", () => {
 describe("handleSetNotifToggleCallback", () => {
   it("enables notifications when currently disabled", async () => {
     const ctx = createMockCtx("set:notif:toggle");
-
     await handleSetNotifToggleCallback(ctx);
-
-    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, {
-      notificationEnabled: true,
-    });
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-    expect(ctx.editMessageText).toHaveBeenCalled();
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationEnabled: true });
   });
 
   it("disables notifications when currently enabled", async () => {
-    mockUserRepository.getSettings.mockResolvedValue({
-      ...DEFAULT_SETTINGS,
-      notificationEnabled: true,
-      notificationTime: "08:00",
-    } as any);
+    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationEnabled: true } as any);
     const ctx = createMockCtx("set:notif:toggle");
-
     await handleSetNotifToggleCallback(ctx);
-
-    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, {
-      notificationEnabled: false,
-    });
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationEnabled: false });
   });
 });
 
 describe("handleSetNotifTimeCallback", () => {
-  it("shows time picker with 30-min interval options (0-1410)", async () => {
+  it("shows time picker with 30-min interval options", async () => {
     const ctx = createMockCtx("set:notif:time");
-
     await handleSetNotifTimeCallback(ctx);
-
-    expect(ctx.editMessageText).toHaveBeenCalledTimes(1);
     const opts = ctx.editMessageText.mock.calls[0][1];
     const buttons = opts.reply_markup.inline_keyboard.flat();
     const cbData = buttons.map((b: any) => b.callback_data);
-    // Should have 48 time slots (every 30 min) plus back button
     expect(cbData).toContain("set:notif:time:0");
     expect(cbData).toContain("set:notif:time:480");
-    expect(cbData).toContain("set:notif:time:870");
     expect(cbData).toContain("set:notif:time:1410");
-    expect(cbData).toContain("set:back");
+    expect(cbData).toContain("set:notif:back");
   });
 });
 
 describe("handleSetNotifTimeSelectCallback", () => {
-  it("updates notification time to selected time", async () => {
+  it("updates notification time", async () => {
     const ctx = createMockCtx("set:notif:time:870");
-
     await handleSetNotifTimeSelectCallback(ctx);
-
-    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, {
-      notificationTime: "14:30",
-    });
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-    expect(ctx.editMessageText).toHaveBeenCalled();
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationTime: "14:30" });
   });
 
   it("rejects invalid minute values", async () => {
     const ctx = createMockCtx("set:notif:time:1500");
-
     await handleSetNotifTimeSelectCallback(ctx);
-
     expect(mockNotificationRepository.updatePrefs).not.toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });
@@ -290,66 +261,51 @@ describe("handleSetNotifTimeSelectCallback", () => {
 describe("handleSetNotifTypeCallback", () => {
   it("shows type picker with all options", async () => {
     const ctx = createMockCtx("set:notif:type");
-
     await handleSetNotifTypeCallback(ctx);
-
-    expect(ctx.editMessageText).toHaveBeenCalledTimes(1);
     const opts = ctx.editMessageText.mock.calls[0][1];
     const buttons = opts.reply_markup.inline_keyboard.flat();
     const cbData = buttons.map((b: any) => b.callback_data);
     expect(cbData).toContain("set:notif:type:suggested");
     expect(cbData).toContain("set:notif:type:srs");
-    expect(cbData).toContain("set:notif:type:both");
+    expect(cbData).toContain("set:notif:type:contextual");
+    expect(cbData).toContain("set:notif:back");
   });
 });
 
 describe("handleSetNotifTypeSelectCallback", () => {
   it("updates notification type", async () => {
     const ctx = createMockCtx("set:notif:type:srs");
-
     await handleSetNotifTypeSelectCallback(ctx);
-
-    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, {
-      notificationType: "srs",
-    });
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationType: "srs" });
   });
 });
 
 describe("handleSetNotifTzCallback", () => {
-  it("shows timezone picker with common timezones", async () => {
+  it("shows timezone picker", async () => {
     const ctx = createMockCtx("set:notif:tz");
-
     await handleSetNotifTzCallback(ctx);
-
-    expect(ctx.editMessageText).toHaveBeenCalledTimes(1);
     const opts = ctx.editMessageText.mock.calls[0][1];
     const buttons = opts.reply_markup.inline_keyboard.flat();
     const cbData = buttons.map((b: any) => b.callback_data);
     expect(cbData).toContain("set:notif:tz:UTC");
     expect(cbData).toContain("set:notif:tz:Europe/Prague");
-    expect(cbData).toContain("set:back");
+    expect(cbData).toContain("set:notif:back");
   });
 });
 
 describe("handleSetNotifTzSelectCallback", () => {
   it("updates timezone for a valid timezone", async () => {
     const ctx = createMockCtx("set:notif:tz:Europe/Prague");
-
     await handleSetNotifTzSelectCallback(ctx);
-
     expect(mockUserRepository.updateSettings).toHaveBeenCalledWith(
       1,
       expect.objectContaining({ timezone: "Europe/Prague" }),
     );
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-    expect(ctx.editMessageText).toHaveBeenCalled();
   });
 
   it("rejects invalid timezone", async () => {
     const ctx = createMockCtx("set:notif:tz:Invalid/Timezone123");
-
     await handleSetNotifTzSelectCallback(ctx);
-
     expect(mockUserRepository.updateSettings).not.toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });

@@ -94,8 +94,10 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   notificationEnabled: boolean("notification_enabled").default(false).notNull(),
   /** Preferred notification time in user's local time ("HH:MM", e.g. "08:00", "14:30"). Default 08:00. */
   notificationTime: text("notification_time").default("08:00").notNull(),
-  /** Notification word source: 'suggested' (AI) | 'srs' (dictionary review) */
-  notificationType: text("notification_type").$type<"suggested" | "srs">().default("srs").notNull(),
+  /** Notification word source: 'suggested' (AI) | 'srs' (dictionary review) | 'contextual' (AI + user context) */
+  notificationType: text("notification_type").$type<"suggested" | "srs" | "contextual">().default("srs").notNull(),
+  /** User-provided context for AI-generated contextual notifications (e.g., "preparing for job interview") */
+  notificationContext: text("notification_context"),
   /** Last bot interaction timestamp — used for 14-day inactivity pause */
   lastInteractionAt: timestamp("last_interaction_at"),
   isActive: boolean("is_active").default(true).notNull(),

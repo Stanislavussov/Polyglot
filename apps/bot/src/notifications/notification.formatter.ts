@@ -20,7 +20,12 @@ import { InlineKeyboard } from "grammy";
  */
 export function formatNotificationMessage(payload: NotificationPayload, lang: SupportedLang): string {
   const { word } = payload;
-  const sourceLabel = word.source === "srs" ? t("notifWordFromDict", lang) : t("notifAiSuggested", lang);
+  const sourceLabel =
+    word.source === "srs"
+      ? t("notifWordFromDict", lang)
+      : word.source === "contextual"
+        ? t("notifTypeContextual", lang)
+        : t("notifAiSuggested", lang);
 
   const translationLines = Object.entries(word.translations)
     .map(([code, text]) => {

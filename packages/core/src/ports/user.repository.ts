@@ -28,6 +28,7 @@ export interface UserLanguageSettings {
   notificationEnabled: boolean;
   notificationTime: string;
   notificationType: string;
+  notificationContext: string | null;
   lastInteractionAt: Date | null;
   isActive: boolean;
   updatedAt: Date;

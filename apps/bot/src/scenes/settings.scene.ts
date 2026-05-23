@@ -1,7 +1,7 @@
 /**
  * Settings scene — /settings command handler.
- * Shows current language configuration + notification preferences
- * with inline buttons to change each setting.
+ * Main menu shows language config + notification status line.
+ * Notification details are in a sub-menu (set:notif).
  * Callback handlers are in helpers/settings.helper.ts.
  */
 import { formatNotificationTime, getLangDisplay, parseNotificationMinutes, userRepository } from "@polyglot/adapter-db";
@@ -10,7 +10,8 @@ import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../types.js";
 
 /**
- * Build the settings main menu text showing current configuration.
+ * Build the settings main menu text.
+ * Notifications shown as a single status line.
  */
 export function buildSettingsText(
   nativeLang: string,
@@ -20,9 +21,12 @@ export function buildSettingsText(
   notifEnabled?: boolean,
   notifTime?: string,
   notifType?: string,
-  timezone?: string,
 ): string {
-  const lines: string[] = [
+  const notifStatus = notifEnabled
+    ? `🔔 ${t("settingsNotifEnabled", lang)} · ${formatNotificationTime(parseNotificationMinutes(notifTime))} · ${notifType ?? "srs"}`
+    : `🔕 ${t("settingsNotifDisabled", lang)}`;
+
+  return [
     t("settingsTitle", lang),
     "",
     t("settingsNativeLang", lang, { lang: getLangDisplay(nativeLang) }),
@@ -31,33 +35,71 @@ export function buildSettingsText(
     }),
     t("settingsInterfaceLang", lang, { lang: getLangDisplay(interfaceLang) }),
     "",
-    t("settingsNotifSection", lang),
-    notifEnabled ? t("settingsNotifEnabled", lang) : t("settingsNotifDisabled", lang),
-  ];
-  if (notifEnabled) {
-    const displayTime = formatNotificationTime(parseNotificationMinutes(notifTime));
-    lines.push(t("settingsNotifTime", lang, { time: displayTime }));
-    lines.push(t("settingsNotifType", lang, { type: notifType ?? "srs" }));
-    lines.push(t("settingsNotifTimezone", lang, { timezone: timezone ?? "UTC" }));
-  }
-  return lines.join("\n");
+    notifStatus,
+  ].join("\n");
 }
 
 /**
- * Build the settings main menu keyboard with Change buttons.
+ * Build the settings main menu keyboard.
  */
-export function buildSettingsKeyboard(lang: SupportedLang, notifEnabled?: boolean): InlineKeyboard {
+export function buildSettingsKeyboard(lang: SupportedLang): InlineKeyboard {
   const kb = new InlineKeyboard();
   kb.text(t("settingsChangeNative", lang), "set:native").row();
   kb.text(t("settingsChangeLearning", lang), "set:learning").row();
   kb.text(t("settingsChangeInterface", lang), "set:interface").row();
-  kb.text(t("settingsNotifToggle", lang), "set:notif:toggle").row();
+  kb.text(t("settingsNotifManage", lang), "set:notif").row();
+  kb.text(t("settingsClose", lang), "set:close").row();
+  return kb;
+}
+
+/**
+ * Build the notification sub-menu text with all details.
+ */
+export function buildNotifSubText(
+  lang: SupportedLang,
+  notifEnabled: boolean,
+  notifTime: string,
+  notifType: string,
+  timezone: string,
+  notifContext: string | null,
+): string {
+  const statusLine = notifEnabled ? t("settingsNotifStatusOn", lang) : t("settingsNotifStatusOff", lang);
+
+  const lines = [
+    t("settingsNotifSubTitle", lang),
+    "",
+    statusLine,
+    t("settingsNotifTime", lang, { time: formatNotificationTime(parseNotificationMinutes(notifTime)) }),
+    t("settingsNotifType", lang, { type: notifType }),
+    t("settingsNotifTimezone", lang, { timezone }),
+  ];
+
+  if (notifType === "contextual") {
+    lines.push(
+      t("settingsNotifContext", lang, {
+        context: notifContext || t("settingsNotifContextNotSet", lang),
+      }),
+    );
+  }
+
+  return lines.join("\n");
+}
+
+/**
+ * Build the notification sub-menu keyboard.
+ */
+export function buildNotifSubKeyboard(lang: SupportedLang, notifEnabled: boolean, notifType: string): InlineKeyboard {
+  const kb = new InlineKeyboard();
+  kb.text(notifEnabled ? t("settingsNotifDisable", lang) : t("settingsNotifEnable", lang), "set:notif:toggle").row();
   if (notifEnabled) {
     kb.text(t("settingsNotifChooseTime", lang), "set:notif:time").row();
     kb.text(t("settingsNotifChooseType", lang), "set:notif:type").row();
     kb.text(t("settingsNotifChooseTimezone", lang), "set:notif:tz").row();
+    if (notifType === "contextual") {
+      kb.text(t("settingsNotifChooseContext", lang), "set:notif:context").row();
+    }
   }
-  kb.text(t("settingsClose", lang), "set:close").row();
+  kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
   return kb;
 }
 
@@ -72,20 +114,10 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   const interfaceLang = settings?.interfaceLang ?? "en";
   const notifEnabled = settings?.notificationEnabled ?? false;
   const notifTime = settings?.notificationTime ?? "08:00";
-  const notifType = settings?.notificationType ?? "both";
-  const timezone = settings?.timezone ?? "UTC";
+  const notifType = settings?.notificationType ?? "srs";
 
-  const text = buildSettingsText(
-    nativeLang,
-    learningLangs,
-    interfaceLang,
-    lang,
-    notifEnabled,
-    notifTime,
-    notifType,
-    timezone,
-  );
-  const kb = buildSettingsKeyboard(lang, notifEnabled);
+  const text = buildSettingsText(nativeLang, learningLangs, interfaceLang, lang, notifEnabled, notifTime, notifType);
+  const kb = buildSettingsKeyboard(lang);
 
   await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
 }
