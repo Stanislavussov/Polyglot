@@ -99,6 +99,7 @@ bot.use(
       lastTranslation: undefined,
       lastInputType: undefined,
       savedWordId: undefined,
+      translationMap: {},
       needsTranslateReminder: true,
       templateWizard: undefined,
       dictionary: undefined,
@@ -173,8 +174,8 @@ bot.callbackQuery("notif:open", handleNotifOpenCallback);
 bot.callbackQuery("notif:skip", handleNotifSkipCallback);
 
 // ── Register callback handlers for translate mode ──
-bot.callbackQuery("tr:save", handleSaveCallback);
-bot.callbackQuery("tr:skip", handleSkipCallback);
+bot.callbackQuery(/^tr:save:/, handleSaveCallback);
+bot.callbackQuery(/^tr:skip:/, handleSkipCallback);
 bot.callbackQuery(/^tr:regen:/, handleRegenCallback);
 bot.callbackQuery(/^tr:srclang:/, handleSourceLangCallback);
 bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);

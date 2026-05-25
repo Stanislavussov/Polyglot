@@ -87,7 +87,7 @@ vi.mock("@polyglot/infra", () => ({
 import type { BotContext, SessionData } from "../../../types.js";
 import { handleSaveCallback, handleSkipCallback, handleTranslateText } from "../translate-mode.helper.js";
 
-function createMockCtx(nextSourceLang?: string | null): BotContext {
+function createMockCtx(nextSourceLang?: string | null, callbackData?: string): BotContext {
   const session: SessionData = {
     activeMode: "translate",
     pendingTranslation: undefined,
@@ -96,6 +96,7 @@ function createMockCtx(nextSourceLang?: string | null): BotContext {
     lastTranslation: undefined,
     lastInputType: undefined,
     savedWordId: undefined,
+    translationMap: {},
     needsTranslateReminder: true,
     pendingDetectedLang: undefined,
     pendingWord: undefined,
@@ -106,11 +107,13 @@ function createMockCtx(nextSourceLang?: string | null): BotContext {
     from: { id: 123456789 },
     chat: { id: 123456789 },
     session,
+    callbackQuery: callbackData ? { data: callbackData } : undefined,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
     },
     user: { id: 1, telegramTelegramId: 123456789 },
     services: {
@@ -200,41 +203,53 @@ describe("handleSaveCallback — FEAT-30 save flow", () => {
   });
 
   it("edits card in place with savedToDict text and post-save keyboard", async () => {
-    const ctx = createMockCtx(null);
-    ctx.session.pendingTranslation = {
-      original: "test",
-      sourceLang: "ru",
-      emoji: "🏠",
-      nativeSynonyms: [],
-      translations: {},
-    } as any;
+    const msgId = 123;
+    const ctx = createMockCtx(null, `tr:save:${msgId}`);
+    ctx.session.translationMap = {
+      [String(msgId)]: {
+        output: {
+          original: "test",
+          sourceLang: "ru",
+          emoji: "🏠",
+          nativeSynonyms: [],
+          translations: {},
+        } as any,
+        inputType: "word",
+      },
+    };
     mockVocabularyRepository.create = vi.fn().mockResolvedValue({ id: 42 });
     mockVocabularyRepository.findByOriginalAndSource = vi.fn().mockResolvedValue(null);
 
     await handleSaveCallback(ctx);
 
     expect(mockVocabularyRepository.create).toHaveBeenCalled();
-    expect(ctx.session.savedWordId).toBe(42);
+    expect(ctx.session.translationMap?.[String(msgId)]?.savedWordId).toBe(42);
     expect(ctx.editMessageText).toHaveBeenCalledWith(
       expect.stringContaining("Saved to dictionary"),
       expect.any(Object),
     );
   });
 
-  it("sets savedWordId in session after save", async () => {
-    const ctx = createMockCtx(null);
-    ctx.session.pendingTranslation = {
-      original: "test",
-      sourceLang: "ru",
-      emoji: "🏠",
-      nativeSynonyms: [],
-      translations: {},
-    } as any;
+  it("sets savedWordId in translation entry after save", async () => {
+    const msgId = 456;
+    const ctx = createMockCtx(null, `tr:save:${msgId}`);
+    ctx.session.translationMap = {
+      [String(msgId)]: {
+        output: {
+          original: "test",
+          sourceLang: "ru",
+          emoji: "🏠",
+          nativeSynonyms: [],
+          translations: {},
+        } as any,
+        inputType: "word",
+      },
+    };
     mockVocabularyRepository.create = vi.fn().mockResolvedValue({ id: 99 });
 
     await handleSaveCallback(ctx);
 
-    expect(ctx.session.savedWordId).toBe(99);
+    expect(ctx.session.translationMap?.[String(msgId)]?.savedWordId).toBe(99);
   });
 });
 
@@ -250,48 +265,65 @@ describe("handleSkipCallback — source lang menu", () => {
 
   // Task 58: sendSourceLangMenu removed from handleSkipCallback
   it("does not show source lang menu after skip", async () => {
-    const ctx = createMockCtx(null);
-    ctx.session.pendingTranslation = {
-      original: "test",
-      sourceLang: "ru",
-      emoji: "🏠",
-      nativeSynonyms: [],
-      translations: {},
-    } as any;
+    const msgId = 789;
+    const ctx = createMockCtx(null, `tr:skip:${msgId}`);
+    ctx.session.translationMap = {
+      [String(msgId)]: {
+        output: {
+          original: "test",
+          sourceLang: "ru",
+          emoji: "🏠",
+          nativeSynonyms: [],
+          translations: {},
+        } as any,
+        inputType: "word",
+      },
+    };
 
     await handleSkipCallback(ctx);
 
-    // Only editMessageText called — no ctx.reply for source lang menu
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.reply).not.toHaveBeenCalled();
   });
 
-  it("clears pendingTranslation and pendingCardMsgId after skip", async () => {
-    const ctx = createMockCtx(null);
-    ctx.session.pendingTranslation = {
-      original: "test",
-      sourceLang: "ru",
-      emoji: "🏠",
-      nativeSynonyms: [],
-      translations: {},
-    } as any;
+  it("edits message to remove keyboard after skip", async () => {
+    const msgId = 790;
+    const ctx = createMockCtx(null, `tr:skip:${msgId}`);
+    ctx.session.translationMap = {
+      [String(msgId)]: {
+        output: {
+          original: "test",
+          sourceLang: "ru",
+          emoji: "🏠",
+          nativeSynonyms: [],
+          translations: {},
+        } as any,
+        inputType: "word",
+      },
+    };
     ctx.session.pendingCardMsgId = 999;
 
     await handleSkipCallback(ctx);
 
-    expect(ctx.session.pendingTranslation).toBeUndefined();
-    expect(ctx.session.pendingCardMsgId).toBeUndefined();
+    expect(ctx.editMessageText).toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
   });
 
   it("answers callback query after skip", async () => {
-    const ctx = createMockCtx(null);
-    ctx.session.pendingTranslation = {
-      original: "test",
-      sourceLang: "ru",
-      emoji: "🏠",
-      nativeSynonyms: [],
-      translations: {},
-    } as any;
+    const msgId = 791;
+    const ctx = createMockCtx(null, `tr:skip:${msgId}`);
+    ctx.session.translationMap = {
+      [String(msgId)]: {
+        output: {
+          original: "test",
+          sourceLang: "ru",
+          emoji: "🏠",
+          nativeSynonyms: [],
+          translations: {},
+        } as any,
+        inputType: "word",
+      },
+    };
 
     await handleSkipCallback(ctx);
 
