@@ -37,13 +37,28 @@ export interface SessionData {
    */
   nextSourceLang?: string | null;
   /**
+   * Per-message translation entry — allows multiple translation messages
+   * to coexist without overwriting each other's state.
+   * Keyed by message ID in the translationMap.
+   */
+  translationMap?: Record<
+    string,
+    {
+      output: TranslateOutput;
+      inputType: InputType;
+      savedWordId?: number;
+    }
+  >;
+  /**
    * Last translation output — stored for regen (both words and sentences).
    * Separate from pendingTranslation which is for Save/Skip only.
+   * @deprecated Use translationMap instead for per-message state.
    */
   lastTranslation?: TranslateOutput;
   /**
    * Input type of the last translation — determines which preset/keyboard
    * to use on regeneration. When 'sentence', uses SENTENCE_OUTPUT + regen-only keyboard.
+   * @deprecated Use translationMap instead for per-message state.
    */
   lastInputType?: InputType;
   /**
@@ -51,6 +66,7 @@ export interface SessionData {
    * Set after a successful tr:save — enables regen handler to call
    * updateContent() instead of silently ignoring the regen update.
    * Cleared when a new translation is started.
+   * @deprecated Use translationMap instead for per-message state.
    */
   savedWordId?: number;
   /**

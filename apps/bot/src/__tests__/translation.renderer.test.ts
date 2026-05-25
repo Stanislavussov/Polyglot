@@ -308,11 +308,11 @@ describe("buildTranslationKeyboard", () => {
     expect(rows[0]).toHaveLength(3);
   });
 
-  it("uses correct callback data format tr:regen:<code>", () => {
+  it("uses correct callback data format tr:regen:<code>:<msgId>", () => {
     const kb = buildTranslationKeyboard(["cs", "de"], "word", "en");
     const regenRow = kb.inline_keyboard[0]!;
-    expect(cbData(regenRow[0])).toBe("tr:regen:cs");
-    expect(cbData(regenRow[1])).toBe("tr:regen:de");
+    expect(cbData(regenRow[0])).toBe("tr:regen:cs:0");
+    expect(cbData(regenRow[1])).toBe("tr:regen:de:0");
   });
 
   it("includes all language codes as buttons", () => {
@@ -320,21 +320,21 @@ describe("buildTranslationKeyboard", () => {
     const kb = buildTranslationKeyboard(codes, "word", "en");
     const regenRow = kb.inline_keyboard[0]!;
     const callbackDatas = regenRow.map(cbData);
-    expect(callbackDatas).toEqual(codes.map((c) => `tr:regen:${c}`));
+    expect(callbackDatas).toEqual(codes.map((c) => `tr:regen:${c}:0`));
   });
 
   it("has save and skip buttons in second row", () => {
     const kb = buildTranslationKeyboard(["cs"], "word", "en");
     const saveRow = kb.inline_keyboard[1]!;
     expect(saveRow).toHaveLength(2);
-    expect(cbData(saveRow[0])).toBe("tr:save");
-    expect(cbData(saveRow[1])).toBe("tr:skip");
+    expect(cbData(saveRow[0])).toBe("tr:save:0");
+    expect(cbData(saveRow[1])).toBe("tr:skip:0");
   });
 
-  it("uses i18n regenerateLang key for button text", () => {
+  it("uses flag emoji for regen button text", () => {
     const kb = buildTranslationKeyboard(["cs"], "word", "en");
     const regenBtn = kb.inline_keyboard[0]![0]!;
-    expect(regenBtn.text).toBe("🔄 CS");
+    expect(regenBtn.text).toBe("🇨🇿");
   });
 
   it("uses generic save label regardless of input type", () => {
@@ -353,10 +353,10 @@ describe("buildTranslationKeyboard", () => {
     expect(skipBtn.text).toContain("No");
   });
 
-  it("renders button text using Russian locale", () => {
+  it("renders button text using flag emoji regardless of locale", () => {
     const kb = buildTranslationKeyboard(["de"], "word", "ru");
     const regenBtn = kb.inline_keyboard[0]![0]!;
-    expect(regenBtn.text).toBe("🔄 DE");
+    expect(regenBtn.text).toBe("🇩🇪");
     const skipBtn = kb.inline_keyboard[1]![1]!;
     expect(skipBtn.text).toContain("Нет");
   });
@@ -370,13 +370,13 @@ describe("buildTranslationKeyboard", () => {
   it("works with single language code", () => {
     const kb = buildTranslationKeyboard(["fr"], "word", "en");
     expect(kb.inline_keyboard[0]).toHaveLength(1);
-    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr");
+    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr:0");
   });
 
-  it("uppercases language codes in button labels", () => {
+  it("shows flag emojis for multiple languages", () => {
     const kb = buildTranslationKeyboard(["cs", "de"], "word", "en");
     const labels = kb.inline_keyboard[0]!.map((b) => b.text);
-    expect(labels).toEqual(["🔄 CS", "🔄 DE"]);
+    expect(labels).toEqual(["🇨🇿", "🇩🇪"]);
   });
 });
 
@@ -851,18 +851,18 @@ describe("buildSentenceKeyboard", () => {
     expect(rows[0]).toHaveLength(3);
   });
 
-  it("uses correct callback data format tr:regen:<code>", () => {
+  it("uses correct callback data format tr:regen:<code>:<msgId>", () => {
     const kb = buildSentenceKeyboard(["cs", "de"], "en");
     const regenRow = kb.inline_keyboard[0]!;
-    expect(cbData(regenRow[0])).toBe("tr:regen:cs");
-    expect(cbData(regenRow[1])).toBe("tr:regen:de");
+    expect(cbData(regenRow[0])).toBe("tr:regen:cs:0");
+    expect(cbData(regenRow[1])).toBe("tr:regen:de:0");
   });
 
   it("does NOT include save/skip buttons", () => {
     const kb = buildSentenceKeyboard(["cs", "de"], "en");
     const allCallbacks = kb.inline_keyboard.flatMap((row) => row.map(cbData));
-    expect(allCallbacks).not.toContain("tr:save");
-    expect(allCallbacks).not.toContain("tr:skip");
+    expect(allCallbacks).not.toContain("tr:save:");
+    expect(allCallbacks).not.toContain("tr:skip:");
   });
 
   it("has only one row (regen buttons only)", () => {
@@ -870,22 +870,22 @@ describe("buildSentenceKeyboard", () => {
     expect(kb.inline_keyboard).toHaveLength(1);
   });
 
-  it("uses i18n regenerateLang key for button text", () => {
+  it("uses flag emoji for button text", () => {
     const kb = buildSentenceKeyboard(["cs"], "en");
     const btn = kb.inline_keyboard[0]![0]!;
-    expect(btn.text).toBe("🔄 CS");
+    expect(btn.text).toBe("🇨🇿");
   });
 
-  it("renders button text using Russian locale", () => {
+  it("renders flag emoji regardless of locale", () => {
     const kb = buildSentenceKeyboard(["de"], "ru");
     const btn = kb.inline_keyboard[0]![0]!;
-    expect(btn.text).toBe("🔄 DE");
+    expect(btn.text).toBe("🇩🇪");
   });
 
   it("works with single language code", () => {
     const kb = buildSentenceKeyboard(["fr"], "en");
     expect(kb.inline_keyboard[0]).toHaveLength(1);
-    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr");
+    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr:0");
   });
 });
 
@@ -898,20 +898,20 @@ describe("buildPostSaveKeyboard", () => {
     const kb = buildPostSaveKeyboard(["cs", "de"], "en");
     const regenRow = kb.inline_keyboard[0]!;
     expect(regenRow).toHaveLength(2);
-    expect(cbData(regenRow[0])).toBe("tr:regen:cs");
-    expect(cbData(regenRow[1])).toBe("tr:regen:de");
+    expect(cbData(regenRow[0])).toBe("tr:regen:cs:0");
+    expect(cbData(regenRow[1])).toBe("tr:regen:de:0");
   });
 
   it("has no Save/Skip buttons", () => {
     const kb = buildPostSaveKeyboard(["cs", "de"], "en");
     const allCallbacks = kb.inline_keyboard.flatMap((row) => row.map(cbData));
-    expect(allCallbacks).not.toContain("tr:save");
-    expect(allCallbacks).not.toContain("tr:skip");
+    expect(allCallbacks).not.toContain("tr:save:");
+    expect(allCallbacks).not.toContain("tr:skip:");
   });
 
-  it("uses tr:regen:<code> callback data format", () => {
+  it("uses tr:regen:<code>:<msgId> callback data format", () => {
     const kb = buildPostSaveKeyboard(["fr"], "en");
-    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr");
+    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:regen:fr:0");
   });
 
   it("has only one row (regen buttons only)", () => {
@@ -919,10 +919,10 @@ describe("buildPostSaveKeyboard", () => {
     expect(kb.inline_keyboard).toHaveLength(1);
   });
 
-  it("uses i18n regenerateLang key for button text", () => {
+  it("uses flag emoji for button text", () => {
     const kb = buildPostSaveKeyboard(["cs"], "en");
     const btn = kb.inline_keyboard[0]![0]!;
-    expect(btn.text).toBe("🔄 CS");
+    expect(btn.text).toBe("🇨🇿");
   });
 });
 

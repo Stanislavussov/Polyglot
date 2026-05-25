@@ -5,4 +5,5 @@ coverage
 *.tsbuildinfo
 .pi/ai-sdk-debug.log
 **/.pi-lens/*
-.sisyphus
+.sisyphus/*
+.omo/*

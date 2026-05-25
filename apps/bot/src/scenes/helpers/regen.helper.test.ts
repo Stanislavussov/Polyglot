@@ -128,9 +128,9 @@ describe("handleRegenLoop", () => {
     const allCallbacks = opts.reply_markup.inline_keyboard.flatMap((row: any[]) =>
       row.map((b: any) => b.callback_data),
     );
-    expect(allCallbacks).toContain("tr:regen:cs");
-    expect(allCallbacks).not.toContain("tr:save");
-    expect(allCallbacks).not.toContain("tr:skip");
+    expect(allCallbacks).toContain("tr:regen:cs:0");
+    expect(allCallbacks).not.toContain("tr:save:");
+    expect(allCallbacks).not.toContain("tr:skip:");
   });
 
   it("removes keyboard on tr:skip", async () => {
