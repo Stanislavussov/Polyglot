@@ -111,7 +111,9 @@ export const notificationRepository = {
       const localMinutes = getLocalMinutes(user.timezone, utcHour, utcMinute);
       if (localMinutes < 0) return false;
       const targetMinutes = parseNotificationMinutes(user.notificationTime);
-      return localMinutes === targetMinutes;
+      // Match within a 30-minute window (scheduler fires at :00 and :30)
+      const diff = Math.abs(localMinutes - targetMinutes);
+      return diff <= 30 || diff >= 1410; // 1410 = 1440 - 30, handles midnight wrap
     });
   },
 

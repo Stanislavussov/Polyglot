@@ -282,9 +282,9 @@ export function startScheduler(sendFn: SendFn, reEngagementSendFn: ReEngagementS
     return;
   }
 
-  logger.info({}, "Starting notification scheduler (* * * * *)");
+  logger.info({}, "Starting notification scheduler (*/30 * * * *)");
 
-  cronTask = cron.schedule("* * * * *", async () => {
+  cronTask = cron.schedule("*/30 * * * *", async () => {
     const now = Temporal.Now.zonedDateTimeISO("UTC");
     logger.info({ utcHour: now.hour, utcMinute: now.minute }, "Scheduler tick");
     try {

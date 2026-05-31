@@ -402,7 +402,7 @@ describe("startScheduler / stopScheduler", () => {
 
     startScheduler(sendFn, reEngagementSendFn, deps);
 
-    expect(mockSchedule).toHaveBeenCalledWith("* * * * *", expect.any(Function));
+    expect(mockSchedule).toHaveBeenCalledWith("*/30 * * * *", expect.any(Function));
   });
 
   it("does not register duplicate cron jobs", () => {
