@@ -301,17 +301,35 @@ describe("notificationRepository", () => {
       expect(exact).toHaveLength(1);
     });
 
-    it("excludes users one minute before or after preferred time", async () => {
+    it("matches users within 30-minute window of preferred time", async () => {
       const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
       queryResults = [[user]];
       queryIndex = 0;
 
-      const before = await notificationRepository.getUsersForWindow(7, 59);
+      // 7:31 is 29 min before 08:00 → within window
+      const before = await notificationRepository.getUsersForWindow(7, 31);
+      expect(before).toHaveLength(1);
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      // 8:29 is 29 min after 08:00 → within window
+      const after = await notificationRepository.getUsersForWindow(8, 29);
+      expect(after).toHaveLength(1);
+    });
+
+    it("excludes users outside 30-minute window", async () => {
+      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      queryResults = [[user]];
+      queryIndex = 0;
+
+      // 7:29 is 31 min before 08:00 → outside window
+      const before = await notificationRepository.getUsersForWindow(7, 29);
       expect(before).toHaveLength(0);
 
       queryResults = [[user]];
       queryIndex = 0;
-      const after = await notificationRepository.getUsersForWindow(8, 1);
+      // 8:31 is 31 min after 08:00 → outside window
+      const after = await notificationRepository.getUsersForWindow(8, 31);
       expect(after).toHaveLength(0);
     });
 
