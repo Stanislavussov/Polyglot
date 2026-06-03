@@ -68,6 +68,11 @@ export function getLocalMinutes(timezone: string, utcHour: number, utcMinute: nu
   }
 }
 
+function isWithinCurrentNotificationSlot(localMinutes: number, targetMinutes: number): boolean {
+  const elapsedMinutes = (localMinutes - targetMinutes + 1440) % 1440;
+  return elapsedMinutes < 30;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Select shape (shared across queries)                               */
 /* ------------------------------------------------------------------ */
@@ -111,9 +116,7 @@ export const notificationRepository = {
       const localMinutes = getLocalMinutes(user.timezone, utcHour, utcMinute);
       if (localMinutes < 0) return false;
       const targetMinutes = parseNotificationMinutes(user.notificationTime);
-      // Match within a 30-minute window (scheduler fires at :00 and :30)
-      const diff = Math.abs(localMinutes - targetMinutes);
-      return diff <= 30 || diff >= 1410; // 1410 = 1440 - 30, handles midnight wrap
+      return isWithinCurrentNotificationSlot(localMinutes, targetMinutes);
     });
   },
 

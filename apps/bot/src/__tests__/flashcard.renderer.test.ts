@@ -41,7 +41,7 @@ const sampleWord: WordDisplayData = {
       text: "яблоко",
       transcription: "ˈjabləkə",
       synonyms: [{ text: "яблочко" }],
-      examples: [{ context: "neutral", target: "Я ем яблоко." }],
+      examples: [{ context: "neutral", target: "Я ем яблоко.", native: "I eat an apple." }],
     },
     cs: {
       text: "jablko",
@@ -133,7 +133,7 @@ describe("renderFlashCardBack", () => {
 
   it("contains examples when present", () => {
     const result = renderFlashCardBack(sampleWord, 1, 10, "en");
-    expect(result).toContain("Я ем яблоко.");
+    expect(result).toContain("💬 <i>Я ем яблоко.</i> (I eat an apple.)");
   });
 
   it("renders without synonyms when they are absent", () => {

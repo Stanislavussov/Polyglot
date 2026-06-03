@@ -480,6 +480,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
         sourceLang: lastOutput.sourceLang,
         targetLangs: [regenLang],
         targetLang: regenLang,
+        nativeLang,
         model: config.AI_MODEL,
         userId: ctx.user.id,
         outputConfig,

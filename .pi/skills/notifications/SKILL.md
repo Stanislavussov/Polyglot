@@ -21,9 +21,9 @@ description: Notification scheduling and delivery with cron, timezone-aware send
 - `createNotificationService(deps)` — factory that returns `{ pickSuggestedWord, pickDictionaryWord }`. ✅
   - `pickSuggestedWord(userId)` — picks a random word from a random built-in topic with partial regeneration support. ✅
   - `pickDictionaryWord(userId)` — picks the least-reviewed word from user's vocabulary (tie-break: oldest createdAt). Falls back to null if dictionary empty. ✅
-- `startScheduler(sendFn, reEngagementSendFn, deps)` — starts a single cron job (0 * * * *) that checks all users each hour. ✅
+- `startScheduler(sendFn, reEngagementSendFn, deps)` — starts a single cron job (`*/30 * * * *`) that checks all users every 30 minutes. ✅
 - `stopScheduler()` — graceful shutdown of the cron job. ✅
-- `checkAndSend(sendFn, deps)` — processes one hourly tick: queries eligible users, picks words, sends notifications. ✅
+- `checkAndSend(sendFn, deps)` — processes one half-hour tick: queries eligible users, picks words, sends notifications. ✅
 - `buildNotificationPayload(user, word, t)` — builds NotificationPayload with HTML message. ✅
 - `processInactiveUsers(reEngagementSendFn, deps)` — sends re-engagement message and disables notifications for inactive users. ✅
 - Word picking respects user's `notificationType` preference: `'srs'`, `'suggested'`, or `'both'` (random alternation). ✅
@@ -51,8 +51,8 @@ description: Notification scheduling and delivery with cron, timezone-aware send
 ## Cron Schedule
 
 ```typescript
-// Single cron checks all users — filters by their timezone
-cron.schedule("0 * * * *", () => checkAndSend());  // Run every hour
+// Single cron checks all users — DB filters by timezone and current 30-minute slot
+cron.schedule("*/30 * * * *", () => checkAndSend());
 // At midnight UTC, also processes inactive users for re-engagement
 ```
 
@@ -147,7 +147,7 @@ interface NotificationServiceDeps {
 }
 
 interface SchedulerDeps {
-  getUsersForWindow: (hour: number) => Promise<NotificationUser[]>;
+  getUsersForWindow: (hour: number, minute?: number) => Promise<NotificationUser[]>;
   getInactiveUsers: () => Promise<NotificationUser[]>;
   disableNotifications: (userId: number) => Promise<void>;
   pickSuggestedWord: (userId: number) => Promise<SuggestedWord | null>;
@@ -174,9 +174,9 @@ packages/adapters/notifications/src/
 ## Data Flow: Notification Delivery
 
 ```
-Cron tick (every hour)
+Cron tick (every 30 minutes)
   → checkAndSend(sendFn, deps)
-    → deps.getUsersForWindow(utcHour)  // DB filters by timezone + preferences
+    → deps.getUsersForWindow(utcHour, utcMinute)  // DB filters by timezone + current notification slot
     → for each user:
       → pickWordForUser(user, deps)
         → based on notificationType: 'srs' | 'suggested' | 'both'

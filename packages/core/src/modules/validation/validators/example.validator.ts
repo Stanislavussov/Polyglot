@@ -9,6 +9,7 @@ export type ExpressionType = "literal" | "idiomatic_equivalent";
 export interface ExampleInput {
   context: string;
   target: string;
+  native?: string | null;
 }
 
 /**

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SENTENCE_OUTPUT } from "../translation-output.presets.js";
+import { RELIABLE_OUTPUT, SENTENCE_OUTPUT } from "../translation-output.presets.js";
 import {
   MAX_TRANSCRIPTION_INPUT_LENGTH,
   resolveOutputConfig,
@@ -20,14 +20,14 @@ describe("DEFAULT_TEMPLATE", () => {
     expect(DEFAULT_TEMPLATE.name).toBe("Default");
   });
 
-  it("has all 6 fields set to true", () => {
+  it("has reliable-first fields", () => {
     const { fields } = DEFAULT_TEMPLATE;
     expect(fields.transcription).toBe(true);
-    expect(fields.synonyms).toBe(true);
-    expect(fields.examples).toBe(true);
-    expect(fields.alternatives).toBe(true);
-    expect(fields.equivalentNote).toBe(true);
-    expect(fields.connotationWarning).toBe(true);
+    expect(fields.synonyms).toBe(false);
+    expect(fields.examples).toBe(false);
+    expect(fields.alternatives).toBe(false);
+    expect(fields.equivalentNote).toBe(false);
+    expect(fields.connotationWarning).toBe(false);
   });
 
   it("has exactly 6 field keys", () => {
@@ -65,15 +65,9 @@ describe("TEMPLATE_FIELD_KEYS", () => {
 // templateToOutputConfig()
 // ---------------------------------------------------------------------------
 describe("templateToOutputConfig", () => {
-  it("converts default template to config matching FULL_OUTPUT pattern", () => {
+  it("converts default template to RELIABLE_OUTPUT pattern", () => {
     const config = templateToOutputConfig(DEFAULT_TEMPLATE);
-    expect(config.includeExamples).toBe(true);
-    expect(config.includeTranscription).toBe(true);
-    expect(config.includeSynonyms).toBe(true);
-    expect(config.includeAlternatives).toBe(true);
-    expect(config.includeEquivalentNote).toBe(true);
-    expect(config.includeConnotationWarning).toBe(true);
-    // System-controlled flag is always false
+    expect(config).toEqual(RELIABLE_OUTPUT);
   });
 
   it("maps examples: false → includeExamples: false", () => {
@@ -83,9 +77,8 @@ describe("templateToOutputConfig", () => {
     };
     const config = templateToOutputConfig(template);
     expect(config.includeExamples).toBe(false);
-    // Other fields still true
     expect(config.includeTranscription).toBe(true);
-    expect(config.includeSynonyms).toBe(true);
+    expect(config.includeSynonyms).toBe(false);
   });
 
   it("maps synonyms: false → includeSynonyms: false", () => {
@@ -151,7 +144,7 @@ describe("templateToOutputConfig", () => {
 
   it("uses system defaults for default template", () => {
     const config = templateToOutputConfig(DEFAULT_TEMPLATE);
-    expect(config.includeNativeSynonyms).toBe(true);
+    expect(config.includeNativeSynonyms).toBe(false);
   });
 });
 
@@ -175,14 +168,7 @@ describe("resolveOutputConfig", () => {
 
   it("returns default config when user template is null and input is word", () => {
     const config = resolveOutputConfig(null, "word");
-    // Should match templateToOutputConfig(DEFAULT_TEMPLATE)
-    expect(config.includeExamples).toBe(true);
-    expect(config.includeTranscription).toBe(true);
-    expect(config.includeSynonyms).toBe(true);
-    expect(config.includeAlternatives).toBe(true);
-    expect(config.includeEquivalentNote).toBe(true);
-    expect(config.includeConnotationWarning).toBe(true);
-    expect(config.includeNativeSynonyms).toBe(true);
+    expect(config).toEqual(RELIABLE_OUTPUT);
   });
 
   it("returns custom config when user template is set and input is word", () => {
@@ -197,9 +183,8 @@ describe("resolveOutputConfig", () => {
     const config = resolveOutputConfig(customTemplate, "word");
     expect(config.includeSynonyms).toBe(false);
     expect(config.includeExamples).toBe(false);
-    // Other fields still true
     expect(config.includeTranscription).toBe(true);
-    expect(config.includeAlternatives).toBe(true);
+    expect(config.includeAlternatives).toBe(false);
   });
 
   it("returns custom config for phrase input (same as word)", () => {
@@ -209,7 +194,7 @@ describe("resolveOutputConfig", () => {
     };
     const config = resolveOutputConfig(customTemplate, "phrase");
     expect(config.includeAlternatives).toBe(false);
-    expect(config.includeExamples).toBe(true);
+    expect(config.includeExamples).toBe(false);
   });
 
   it("phrase and word behave identically with same template", () => {
@@ -228,7 +213,7 @@ describe("resolveOutputConfig", () => {
 
   it("returns default config for phrase with null template", () => {
     const config = resolveOutputConfig(null, "phrase");
-    expect(config.includeExamples).toBe(true);
+    expect(config.includeExamples).toBe(false);
     expect(config.includeTranscription).toBe(true);
   });
 

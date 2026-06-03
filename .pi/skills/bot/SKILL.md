@@ -142,20 +142,20 @@ Translation is always active for onboarded users. Multiple layers ensure no text
 
 ### Translation Output Config Presets (Task 21, updated by Task 32)
 
-Bot callers use `resolveOutputConfig()` from `@polyglot/core` to determine which sections appear in AI translation responses. For words/phrases, the user's custom template (from DB) is used when available; for sentences, `SENTENCE_OUTPUT` is always used regardless of template.
+Bot callers use `resolveOutputConfig()` from `@polyglot/core` to determine which sections appear in AI translation responses. For words/phrases, the user's custom template (from DB) is used when available; otherwise the reliable default template is used (translation text + transcription only). For sentences, `SENTENCE_OUTPUT` is always used regardless of template.
 
 **Caller → preset mapping:**
 
 | Caller | Preset | Rationale |
 |---|---|---|
-| `translate-mode.helper.ts` (`handleTranslateText`, word/phrase) | User template (via `resolveOutputConfig`) | Interactive translation — user-customized cards |
+| `translate-mode.helper.ts` (`handleTranslateText`, word/phrase) | User template or reliable default (via `resolveOutputConfig`) | Cheap-model reliable by default, user-customized when saved |
 | `translate-mode.helper.ts` (`handleTranslateText`, sentence) | `SENTENCE_OUTPUT` (via `resolveOutputConfig`) | Sentence translation — compact, no learning metadata |
-| `translate-mode.helper.ts` (`handleRegenCallback`, word/phrase) | User template (via `resolveOutputConfig`) | Regeneration — user-customized detail |
+| `translate-mode.helper.ts` (`handleRegenCallback`, word/phrase) | User template or reliable default (via `resolveOutputConfig`) | Regeneration matches initial detail level |
 | `translate-mode.helper.ts` (`handleRegenCallback`, sentence) | `SENTENCE_OUTPUT` (via `resolveOutputConfig`) | Sentence regen — compact output |
-| `regen.helper.ts` (`handleRegenLoop`, word/phrase) | User template (via `resolveOutputConfig`) | Conversation-based regen — user-customized |
+| `regen.helper.ts` (`handleRegenLoop`, word/phrase) | User template or reliable default (via `resolveOutputConfig`) | Conversation-based regen matches initial detail level |
 | `regen.helper.ts` (`handleRegenLoop`, sentence) | `SENTENCE_OUTPUT` (via `resolveOutputConfig`) | Conversation-based regen — compact |
 
-All callers use `resolveOutputConfig()` from `@polyglot/core` (Task 32) instead of importing named presets directly. This routes through the user's custom template when one is saved. Sentences always use `SENTENCE_OUTPUT` regardless of user template.
+All callers use `resolveOutputConfig()` from `@polyglot/core` (Task 32) instead of importing named presets directly. This routes through the user's custom template when one is saved, otherwise through reliable default fields. Sentences always use `SENTENCE_OUTPUT` regardless of user template.
 
 ### Persistent activeMode in Database (Task 20)
 
@@ -552,7 +552,7 @@ The bot uses a **persistent mode system** for translate. Once the user enters tr
   ├─ Classify input: classifyInput(word) → word / phrase / sentence (Task 27)
   ├─ Load user template: translationTemplateRepository.getByUserId() (Task 32)
   ├─ Resolve output config: resolveOutputConfig(userTpl, classification.type)
-  │   (sentences → SENTENCE_OUTPUT, words/phrases → user template or DEFAULT_TEMPLATE)
+  │   (sentences → SENTENCE_OUTPUT, words/phrases → user template or reliable DEFAULT_TEMPLATE)
   ├─ Show "Translating..." indicator
   ├─ Call translateWithContext() with resolved direction + generateObject
   │   (sentences skip dictionary lookup via no-op lookupContext)

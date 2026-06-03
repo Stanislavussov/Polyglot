@@ -129,7 +129,8 @@ export function renderDictionaryEntry(
       // Examples
       if (details.examples && details.examples.length > 0) {
         for (const ex of details.examples) {
-          lines.push(`💬 <i>${esc(ex.target)}</i>`);
+          const native = ex.native ? ` (${esc(ex.native)})` : "";
+          lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
         }
       }
     }

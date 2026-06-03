@@ -33,10 +33,11 @@ export interface Synonym {
   text: string;
 }
 
-/** An example sentence with context and target language */
+/** An example sentence with context, target language, and optional native translation */
 export interface Example {
   context: string;
   target: string;
+  native?: string | null;
 }
 
 /** A single translation variant */

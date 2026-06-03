@@ -118,7 +118,9 @@ export function validate(
     // Skipped when: inputType='sentence', or outputConfig disabled examples.
     // The entire pipeline (prompt → schema → validation) respects the config —
     // no point validating fields the AI was never asked to produce.
-    const examples = langData.examples as Array<{ context: string; target: string; register: string }> | undefined;
+    const examples = langData.examples as
+      | Array<{ context: string; target: string; native?: string | null }>
+      | undefined;
     const expressionType = langData.expressionType as ExpressionType | undefined;
     const skipExamples = isSentence || options?.includeExamples === false;
 

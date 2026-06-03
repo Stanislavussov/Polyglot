@@ -74,7 +74,7 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
 
   // Step 1: Build prompt and call AI
   // Use dynamic schema with required language keys so AI SDK enforces their presence
-  const schema = buildTranslationResultSchema(input.targetLangs, input.outputConfig);
+  const schema = buildTranslationResultSchema(input.targetLangs, input.outputConfig, input.nativeLang !== undefined);
   let prompt = buildTranslationPrompt(request);
   let result: TranslationResult;
   let lastErrors: string[] = [];
@@ -171,11 +171,13 @@ export async function translateOne(
       word: input.word,
       sourceLang: input.sourceLang,
       targetLangs: [input.targetLang],
+      nativeLang: input.nativeLang,
       model: input.model,
       topic: input.topic,
       userId: input.userId,
       dictionaryContext: input.dictionaryContext,
       outputConfig: input.outputConfig,
+      inputType: input.inputType,
     },
     generateObjectFn,
   );
@@ -294,19 +296,18 @@ function stripDisabledFields(
   translations: Record<string, LanguageTranslation>,
   config?: TranslationOutputConfig,
 ): Record<string, LanguageTranslation> {
-  if (!config) return translations;
-
   const stripped: Record<string, import("./types.js").LanguageTranslation> = {};
 
   for (const [lang, lt] of Object.entries(translations)) {
     stripped[lang] = {
       ...lt,
-      ...(config.includeExamples === false && { examples: [] }),
-      ...(config.includeSynonyms === false && { synonyms: [] }),
-      ...(config.includeAlternatives === false && { alternatives: null }),
-      ...(config.includeTranscription === false && { transcription: null }),
-      ...(config.includeEquivalentNote === false && { expressionType: null, equivalentNote: null }),
-      ...(config.includeConnotationWarning === false && { connotationWarning: null }),
+      synonyms: config?.includeSynonyms === false ? [] : (lt.synonyms ?? []),
+      examples: config?.includeExamples === false ? [] : (lt.examples ?? []),
+      alternatives: config?.includeAlternatives === false ? null : (lt.alternatives ?? null),
+      transcription: config?.includeTranscription === false ? null : (lt.transcription ?? null),
+      expressionType: config?.includeEquivalentNote === false ? null : (lt.expressionType ?? null),
+      equivalentNote: config?.includeEquivalentNote === false ? null : (lt.equivalentNote ?? null),
+      connotationWarning: config?.includeConnotationWarning === false ? null : (lt.connotationWarning ?? null),
     };
   }
 

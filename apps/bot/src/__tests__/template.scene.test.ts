@@ -139,14 +139,14 @@ describe("handleCustomizeCallback", () => {
 
 describe("handleToggleCallback", () => {
   it("toggles a field from true to false", async () => {
-    const ctx = createMockCtx("tpl:toggle:synonyms");
+    const ctx = createMockCtx("tpl:toggle:transcription");
     ctx.session.templateWizard = {
       fields: { ...DEFAULT_TEMPLATE.fields },
     };
 
     await handleToggleCallback(ctx);
 
-    expect(ctx.session.templateWizard!.fields.synonyms).toBe(false);
+    expect(ctx.session.templateWizard!.fields.transcription).toBe(false);
   });
 
   it("toggles a field from false to true", async () => {

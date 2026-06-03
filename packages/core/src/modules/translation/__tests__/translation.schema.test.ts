@@ -114,6 +114,23 @@ describe("exampleSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("validates an example with native translation", () => {
+    const result = exampleSchema.safeParse({
+      context: "neutral",
+      target: "Ahoj, jak se máš?",
+      native: "Привет, как дела?",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("allows native translation to be omitted for old saved examples", () => {
+    const result = exampleSchema.safeParse({
+      context: "neutral",
+      target: "Ahoj, jak se máš?",
+    });
+    expect(result.success).toBe(true);
+  });
+
   it("rejects empty target", () => {
     const result = exampleSchema.safeParse({
       context: "neutral",
@@ -315,5 +332,30 @@ describe("buildTranslationResultSchema", () => {
       translations: { cs: { text: "ahoj" } },
     });
     expect(result.success).toBe(false);
+  });
+
+  it("requires native example translation when requested for AI output", () => {
+    const schema = buildTranslationResultSchema(["cs"], undefined, true);
+    const result = schema.safeParse({
+      emoji: "👋",
+      nativeSynonyms: [{ text: "привет" }],
+      translations: { cs: langEntry },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts native example translation when requested for AI output", () => {
+    const schema = buildTranslationResultSchema(["cs"], undefined, true);
+    const result = schema.safeParse({
+      emoji: "👋",
+      nativeSynonyms: [{ text: "привет" }],
+      translations: {
+        cs: {
+          ...langEntry,
+          examples: [{ context: "neutral", target: "Ahoj, jak se máš?", native: "Привет, как дела?" }],
+        },
+      },
+    });
+    expect(result.success).toBe(true);
   });
 });

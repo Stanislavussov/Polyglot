@@ -179,9 +179,9 @@ describe("Prompt — idiomatic rule", () => {
     expect(prompt).toContain("equivalentNote");
   });
 
-  it("mentions expressionType in the JSON template", () => {
+  it("mentions expressionType in the prompt", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain('"expressionType"');
+    expect(prompt).toContain("expressionType");
   });
 
   it("instructs to NEVER return meaningless word-for-word rendering", () => {

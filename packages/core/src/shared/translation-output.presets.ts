@@ -24,6 +24,17 @@ export const FULL_OUTPUT: TranslationOutputConfig = {
   includeNativeSynonyms: true,
 };
 
+/** Reliable default — one translation per language, minimal metadata for small models */
+export const RELIABLE_OUTPUT: TranslationOutputConfig = {
+  includeExamples: false,
+  includeTranscription: true,
+  includeSynonyms: false,
+  includeAlternatives: false,
+  includeEquivalentNote: false,
+  includeConnotationWarning: false,
+  includeNativeSynonyms: false,
+};
+
 /** Lightweight — for bulk topic translation, caching pipelines */
 export const MINIMAL_OUTPUT: TranslationOutputConfig = {
   includeExamples: false,

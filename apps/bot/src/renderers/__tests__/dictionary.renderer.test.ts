@@ -99,7 +99,7 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
       connotationWarning: null,
       details: {
         synonyms: [{ text: "яблочко" }],
-        examples: [{ context: "neutral", target: "Я ем яблоко." }],
+        examples: [{ context: "neutral", target: "Я ем яблоко.", native: "I eat an apple." }],
       },
       isActive: true,
       createdAt: new Date("2025-01-01"),
@@ -221,7 +221,7 @@ describe("renderDictionaryEntry", () => {
 
   it("shows examples from details", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("💬 <i>Я ем яблоко.</i>");
+    expect(html).toContain("💬 <i>Я ем яблоко.</i> (I eat an apple.)");
   });
 
   it("falls back to 🔤 when langResolver returns undefined", () => {

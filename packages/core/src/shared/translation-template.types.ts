@@ -44,16 +44,16 @@ export interface UserTranslationTemplate {
   name: string;
 }
 
-/** System default template — matches current FULL_OUTPUT behavior */
+/** System default template — reliable-first for cheap/small models */
 export const DEFAULT_TEMPLATE: UserTranslationTemplate = {
   name: "Default",
   fields: {
     transcription: true,
-    synonyms: true,
-    examples: true,
-    alternatives: true,
-    equivalentNote: true,
-    connotationWarning: true,
+    synonyms: false,
+    examples: false,
+    alternatives: false,
+    equivalentNote: false,
+    connotationWarning: false,
   },
 };
 
@@ -69,7 +69,7 @@ export function templateToOutputConfig(template: UserTranslationTemplate): Trans
     includeAlternatives: template.fields.alternatives,
     includeEquivalentNote: template.fields.equivalentNote,
     includeConnotationWarning: template.fields.connotationWarning,
-    includeNativeSynonyms: true,
+    includeNativeSynonyms: template.fields.synonyms,
   };
 }
 
