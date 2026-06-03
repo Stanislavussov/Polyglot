@@ -114,6 +114,17 @@ export function validate(
       }
     }
 
+    const connotationWarning = langData.connotationWarning as string | null | undefined;
+    if (connotationWarning && options?.includeConnotationWarning !== false && options?.nativeLang) {
+      const warningLangResult = validateNativeConnotationWarning(connotationWarning, options.nativeLang);
+      for (const err of warningLangResult.errors) {
+        allErrors.push({
+          ...err,
+          field: `translations.${lang}.${err.field ?? "connotationWarning"}`,
+        });
+      }
+    }
+
     // Step 4: Example validation
     // Skipped when: inputType='sentence', or outputConfig disabled examples.
     // The entire pipeline (prompt → schema → validation) respects the config —
@@ -158,5 +169,29 @@ export function validate(
   return {
     valid: allErrors.length === 0,
     errors: allErrors,
+  };
+}
+
+function validateNativeConnotationWarning(warning: string, nativeLang: string): ValidationResult {
+  if (nativeLang !== "ru") {
+    return { valid: true, errors: [] };
+  }
+
+  const hasCyrillic = /[А-Яа-яЁё]/u.test(warning);
+  const hasLetters = /\p{L}/u.test(warning);
+
+  if (!hasLetters || hasCyrillic) {
+    return { valid: true, errors: [] };
+  }
+
+  return {
+    valid: false,
+    errors: [
+      {
+        rule: "language",
+        message: "connotationWarning must be written in the user's native language: Russian",
+        field: "connotationWarning",
+      },
+    ],
   };
 }

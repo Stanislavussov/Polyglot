@@ -61,7 +61,13 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
     );
   }
   if (cfg.includeEquivalentNote) requestedFields.push("idiom/equivalent metadata only when needed");
-  if (cfg.includeConnotationWarning) requestedFields.push("connotation warning only for risky meanings");
+  if (cfg.includeConnotationWarning) {
+    requestedFields.push(
+      nativeLangName
+        ? `connotation warning in ${nativeLangName} only for risky meanings`
+        : "connotation warning only for risky meanings",
+    );
+  }
   if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
 
   return `${intro}${dictionaryHint}${topicHint}
@@ -113,7 +119,11 @@ Rules:${
   }${
     cfg.includeConnotationWarning
       ? `
-- Warn about dangerous or misleading connotations ONLY if they exist. Most words should NOT have a warning. Omit the "connotationWarning" field entirely if the word has no dangerous connotations.`
+- Warn about dangerous or misleading connotations ONLY if they exist. Most words should NOT have a warning. Omit the "connotationWarning" field entirely if the word has no dangerous connotations.${
+          nativeLangName
+            ? ` When present, every "connotationWarning" value in every target language block MUST be written in ${nativeLangName}, not in the target language. For example, if the user native language is ${nativeLangName}, translations.cs.connotationWarning and translations.en.connotationWarning are both written in ${nativeLangName}.`
+            : ""
+        }`
       : ""
   }
 ${
@@ -149,6 +159,7 @@ Idiomatic & Proverb Rule:
 export function buildStrictPrompt(request: TranslationRequest, errors: string[]): string {
   const base = buildTranslationPrompt(request);
   const cfg = resolveConfig(request.outputConfig);
+  const nativeLangName = request.nativeLang ? getLanguageName(request.nativeLang) : null;
 
   const errorFeedback = errors.map((e) => `  - ${e}`).join("\n");
 
@@ -168,7 +179,9 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   }
   if (cfg.includeConnotationWarning) {
     checkItems.push(
-      "- connotationWarning is present ONLY for words with genuinely dangerous/misleading meanings — omit for most words",
+      nativeLangName
+        ? `- connotationWarning is present ONLY for words with genuinely dangerous/misleading meanings, and every connotationWarning in every target language block is written in ${nativeLangName}`
+        : "- connotationWarning is present ONLY for words with genuinely dangerous/misleading meanings — omit for most words",
     );
   }
 
