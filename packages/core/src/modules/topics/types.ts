@@ -42,7 +42,7 @@ export interface LanguageTranslationEntry {
   text: string;
   transcription?: string;
   synonyms: Array<{ text: string }>;
-  examples: Array<{ context: string; target: string }>;
+  examples: Array<{ context: string; target: string; native?: string | null }>;
   /** Signals whether the translation is literal or an idiomatic equivalent */
   expressionType?: TopicExpressionType;
   /** Short note in the source language explaining why an equivalent was chosen */

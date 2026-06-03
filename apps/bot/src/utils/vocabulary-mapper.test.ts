@@ -26,7 +26,7 @@ const sampleOutput: TranslateOutput = {
       text: "ahoj",
       transcription: "ˈahoj",
       synonyms: [{ text: "nazdar" }],
-      examples: [{ context: "colloquial", target: "Ahoj!" }],
+      examples: [{ context: "colloquial", target: "Ahoj!", native: "Привет!" }],
       expressionType: "literal",
       equivalentNote: "Standard greeting",
       connotationWarning: "Very informal",
@@ -93,7 +93,7 @@ describe("toVocabularyInput", () => {
 
     const cs = result.translations.find((t) => t.targetLangId === 3)!;
     expect(cs.details.synonyms).toEqual([{ text: "nazdar" }]);
-    expect(cs.details.examples).toEqual([{ context: "colloquial", target: "Ahoj!" }]);
+    expect(cs.details.examples).toEqual([{ context: "colloquial", target: "Ahoj!", native: "Привет!" }]);
 
     const de = result.translations.find((t) => t.targetLangId === 4)!;
     expect(de.details.synonyms).toEqual([]);

@@ -249,6 +249,50 @@ describe("translateOne", () => {
     expect(prompt).toContain("travel");
   });
 
+  it("passes nativeLang and inputType through to translate()", async () => {
+    const resultWithNativeExamples = makeValidResult({
+      translations: {
+        cs: {
+          text: "ahoj",
+          synonyms: [{ text: "čau" }],
+          examples: [
+            { context: "neutral", target: "Řekl ahoj svému kolegovi.", native: "Он сказал привет коллеге." },
+            { context: "colloquial", target: "Ahoj, jak se máš?", native: "Привет, как дела?" },
+            {
+              context: "professional",
+              target: "Ahoj, vítejte na schůzce.",
+              native: "Здравствуйте, добро пожаловать на встречу.",
+            },
+          ],
+          transcription: null,
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+    const mockGenerate = vi.fn().mockResolvedValue(resultWithNativeExamples);
+
+    await translateOne(
+      {
+        word: "ahoj",
+        sourceLang: "cs",
+        targetLangs: ["cs"],
+        targetLang: "cs",
+        nativeLang: "ru",
+        inputType: "word",
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    const prompt = mockGenerate.mock.calls[0][0] as string;
+    expect(prompt).toContain('"native"');
+    expect(prompt).toContain("translated into Russian");
+    expect(prompt).toContain("same-language learning details/examples");
+  });
+
   it("passes userId through to translate()", async () => {
     const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
 

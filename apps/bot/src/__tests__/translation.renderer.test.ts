@@ -93,6 +93,34 @@ describe("renderTranslation", () => {
     expect(result).toContain("💬 <i>Dobrý den, kolegové.</i>");
   });
 
+  it("renders native example translation in parentheses when present", () => {
+    const output: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          examples: [{ context: "colloquial", target: "Ahoj, jak se máš?", native: "Привет, как дела?" }],
+        },
+      },
+    };
+    const result = renderTranslation(output, "ru");
+    expect(result).toContain("💬 <i>Ahoj, jak se máš?</i> (Привет, как дела?)");
+  });
+
+  it("escapes HTML in native example translation", () => {
+    const output: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs!,
+          examples: [{ context: "neutral", target: "Target", native: "A < B & C" }],
+        },
+      },
+    };
+    const result = renderTranslation(output, "en");
+    expect(result).toContain("(A &lt; B &amp; C)");
+  });
+
   it("renders example sentences in italic", () => {
     const result = renderTranslation(sampleOutput, "en");
     expect(result).toContain("<i>Dobrý den, pane!</i>");
@@ -658,8 +686,8 @@ describe("renderTranslation — backward compat with old examples", () => {
       translations: {
         cs: {
           ...sampleOutput.translations.cs!,
-          // Simulate old data from DB that has no register field
-          examples: [{ context: "neutral", target: "Old example sentence." } as any],
+          // Simulate old data from DB that has no native field
+          examples: [{ context: "neutral", target: "Old example sentence." }],
         },
       },
     };
@@ -669,19 +697,18 @@ describe("renderTranslation — backward compat with old examples", () => {
     expect(result).not.toContain("→");
   });
 
-  it("ignores native field from old examples (not rendered)", () => {
+  it("renders native field from examples when present", () => {
     const oldFormatOutput: TranslateOutput = {
       ...sampleOutput,
       translations: {
         cs: {
           ...sampleOutput.translations.cs!,
+          examples: [{ context: "neutral", target: "Good day!", native: "Добрый день!" }],
         },
       },
     };
     const result = renderTranslation(oldFormatOutput, "en");
-    expect(result).toContain("💬 <i>Dobrý den, pane!</i>");
-    // Native sentence must NOT appear
-    expect(result).not.toContain("Good day!");
+    expect(result).toContain("💬 <i>Good day!</i> (Добрый день!)");
   });
 });
 

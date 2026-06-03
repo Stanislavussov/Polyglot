@@ -70,7 +70,8 @@ export function renderFlashCardBack(
     // Examples
     if (tr.examples && tr.examples.length > 0) {
       for (const ex of tr.examples) {
-        lines.push(`💬 <i>${esc(ex.target)}</i>`);
+        const native = ex.native ? ` (${esc(ex.native)})` : "";
+        lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
       }
     }
 

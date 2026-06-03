@@ -43,6 +43,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   const sourceLangName = getLanguageName(sourceLang);
   const targetLangNames = targetLangs.map((l) => getLanguageName(l)).join(", ");
   const nativeLangName = nativeLang ? getLanguageName(nativeLang) : null;
+  const includesSourceTarget = targetLangs.includes(sourceLang);
 
   const intro = isSentence
     ? `Translate the following sentence from ${sourceLangName} to ${targetLangNames}:\n"${text}"`
@@ -52,7 +53,13 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   if (cfg.includeTranscription) requestedFields.push("short IPA transcription when useful, otherwise null");
   if (cfg.includeSynonyms) requestedFields.push("2-3 close synonyms");
   if (cfg.includeAlternatives) requestedFields.push("exactly 2 alternative translations");
-  if (cfg.includeExamples) requestedFields.push("exactly 3 short examples");
+  if (cfg.includeExamples) {
+    requestedFields.push(
+      nativeLangName
+        ? `exactly 3 short examples with native translations in ${nativeLangName}`
+        : "exactly 3 short examples",
+    );
+  }
   if (cfg.includeEquivalentNote) requestedFields.push("idiom/equivalent metadata only when needed");
   if (cfg.includeConnotationWarning) requestedFields.push("connotation warning only for risky meanings");
   if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
@@ -65,14 +72,23 @@ Also include one relevant emoji.
 Prefer ONE natural, accurate main translation. Do not invent extra nuance.
 
 Rules:${
+    includesSourceTarget
+      ? `
+- If a target language is the same as the source language, keep the main expression in that language and provide same-language learning details/examples for it.`
+      : ""
+  }${
     cfg.includeExamples
       ? `
 - VARIETY IN EXAMPLES IS MANDATORY: Each of the 3 example sentences MUST use a DIFFERENT word or expression. Specifically:
   * Example 1: use the main translation ("text" field).
   * Example 2: use the first alternative translation or a synonym — NOT the main translation.
   * Example 3: use the second alternative translation or a different synonym — NOT the main translation and NOT the same as example 2.
-  This applies to the "target" sentences. NEVER repeat the same word/phrase across all 3 examples.
-- The "register" field in each example is a ONE-WORD label in ${sourceLangName} describing the register of that example.`
+  This applies to the "target" sentences. NEVER repeat the same word/phrase across all 3 examples.${
+    nativeLangName
+      ? `
+- Each example MUST include "native": the same example sentence translated into ${nativeLangName}.`
+      : ""
+  }`
       : ""
   }${
     cfg.includeSynonyms
@@ -141,7 +157,9 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
     checkItems.push(
       "- Each of the 3 examples uses a DIFFERENT word: example 1 uses the main translation, example 2 uses an alternative/synonym, example 3 uses another alternative/synonym — in target sentences",
     );
-    checkItems.push("- Each example has a one-word register label in the source language");
+    if (request.nativeLang) {
+      checkItems.push("- Each example includes a native translation of the target sentence");
+    }
   }
   checkItems.push("- Translations are actual translations, not the original word repeated");
   checkItems.push("- All required fields are present");

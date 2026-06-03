@@ -94,7 +94,8 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
   // Examples: omit when fields?.examples === false
   if (fields?.examples !== false && lt.examples.length > 0) {
     for (const ex of lt.examples) {
-      lines.push(`💬 <i>${esc(ex.target)}</i>`);
+      const native = ex.native ? ` (${esc(ex.native)})` : "";
+      lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
     }
   }
 
@@ -162,8 +163,7 @@ function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string 
  * Build inline keyboard for sentence translations.
  * Only regenerate buttons — no Save/Skip (sentences aren't saved to dictionary).
  */
-export function buildSentenceKeyboard(langCodes: string[], interfaceLang?: string, msgId?: number): InlineKeyboard {
-  const lang = toLang(interfaceLang);
+export function buildSentenceKeyboard(langCodes: string[], _interfaceLang?: string, msgId?: number): InlineKeyboard {
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
 
@@ -209,8 +209,7 @@ export function buildTranslationKeyboard(
  * Build inline keyboard for post-save state — regen buttons only, no Save/Skip.
  * Used after a word/phrase has been saved to the dictionary.
  */
-export function buildPostSaveKeyboard(langCodes: string[], interfaceLang?: string, msgId?: number): InlineKeyboard {
-  const lang = toLang(interfaceLang);
+export function buildPostSaveKeyboard(langCodes: string[], _interfaceLang?: string, msgId?: number): InlineKeyboard {
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
 

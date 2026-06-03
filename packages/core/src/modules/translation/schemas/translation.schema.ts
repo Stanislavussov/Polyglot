@@ -19,7 +19,18 @@ export const synonymSchema = z.object({
 export const exampleSchema = z.object({
   context: z.string().min(1, "Example context is required"),
   target: z.string().min(1, "Example target sentence is required"),
+  native: z.string().min(1, "Example native sentence is required").nullish(),
 });
+
+function buildExampleSchema(requireNative: boolean) {
+  return z.object({
+    context: z.string().min(1, "Example context is required"),
+    target: z.string().min(1, "Example target sentence is required"),
+    native: requireNative
+      ? z.string().min(1, "Example native sentence is required")
+      : z.string().min(1, "Example native sentence is required").nullish(),
+  });
+}
 
 /** Zod schema for a translation variant (alternative translation) */
 export const translationVariantSchema = z.object({
@@ -86,7 +97,7 @@ export const translationResultSchema = z.object({
  * @param config - Optional output config to relax disabled fields
  * @returns Zod schema for a single language translation entry
  */
-export function buildLanguageTranslationSchema(config?: TranslationOutputConfig) {
+export function buildLanguageTranslationSchema(config?: TranslationOutputConfig, requireExampleNative = false) {
   const includeExamples = config?.includeExamples !== false;
   const includeSynonyms = config?.includeSynonyms !== false;
   const includeTranscription = config?.includeTranscription !== false;
@@ -100,7 +111,9 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig)
       transcription: z.string().max(100, "Transcription too long — possible repetition loop").nullable(),
     }),
     ...(includeSynonyms && { synonyms: z.array(synonymSchema) }),
-    ...(includeExamples && { examples: z.array(exampleSchema).min(1, "At least one example is required") }),
+    ...(includeExamples && {
+      examples: z.array(buildExampleSchema(requireExampleNative)).min(1, "At least one example is required"),
+    }),
     ...(includeEquivalentNote && {
       expressionType: expressionTypeEnum.nullable(),
       equivalentNote: z.string().nullable(),
@@ -124,8 +137,12 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig)
  * @param config - Optional output config to relax disabled fields
  * @returns Zod schema with explicit required language keys
  */
-export function buildTranslationResultSchema(targetLangs: string[], config?: TranslationOutputConfig) {
-  const langSchema = buildLanguageTranslationSchema(config);
+export function buildTranslationResultSchema(
+  targetLangs: string[],
+  config?: TranslationOutputConfig,
+  requireExampleNative = false,
+) {
+  const langSchema = buildLanguageTranslationSchema(config, requireExampleNative);
   const langEntries: Record<string, typeof langSchema> = {};
   for (const lang of targetLangs) {
     langEntries[lang] = langSchema;

@@ -82,6 +82,17 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).not.toContain("(cs, de)");
   });
 
+  it("instructs same-language learning details when target includes source", () => {
+    const prompt = buildTranslationPrompt({
+      text: "ahoj",
+      sourceLang: "cs",
+      targetLangs: ["cs"],
+      nativeLang: "ru",
+    });
+    expect(prompt).toContain("same as the source language");
+    expect(prompt).toContain("same-language learning details/examples");
+  });
+
   it("works with four target languages", () => {
     const prompt = buildTranslationPrompt({
       text: "world",
@@ -101,15 +112,15 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("second alternative translation or a different synonym");
   });
 
-  it("includes register label instruction for examples in source language", () => {
+  it("does not request stale register labels for examples", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("ONE-WORD label in English");
+    expect(prompt).not.toContain("register");
   });
 
-  it("does not request native sentence in examples (removed for token savings)", () => {
-    const prompt = buildTranslationPrompt(baseRequest);
-    // The old format had: "native": "<same sentence in English>"
-    expect(prompt).not.toContain('"native"');
+  it("requests native sentence in examples when native language is provided", () => {
+    const prompt = buildTranslationPrompt({ ...baseRequest, nativeLang: "ru" });
+    expect(prompt).toContain('"native"');
+    expect(prompt).toContain("translated into Russian");
   });
 
   it("includes alternatives guidance when enabled", () => {
@@ -178,9 +189,9 @@ describe("buildStrictPrompt", () => {
     expect(prompt).toContain("Double-check");
   });
 
-  it("includes register label check for examples", () => {
-    const prompt = buildStrictPrompt(baseRequest, ["error"]);
-    expect(prompt).toContain("one-word register label");
+  it("includes native example check when native language is present", () => {
+    const prompt = buildStrictPrompt({ ...baseRequest, nativeLang: "ru" }, ["error"]);
+    expect(prompt).toContain("native translation of the target sentence");
   });
 
   it("includes connotation warning check in strict prompt", () => {
