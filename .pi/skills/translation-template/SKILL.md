@@ -17,7 +17,7 @@ description: Translation output configuration — templates, presets, and field 
 
 ## Current State
 
-Fully implemented with template types, output presets, resolution logic, and shared error classes.
+Fully implemented with template types, output presets, resolution logic, and shared error classes. Default word/phrase template is now reliable-first for cheap models: transcription on, synonyms/examples/alternatives/equivalent notes/connotation/native synonyms off. Users can still enable rich sections via custom templates.
 
 ## File Structure
 
@@ -26,7 +26,7 @@ packages/core/src/shared/
 ├── __tests__/
 │   └── translation-template.test.ts
 ├── errors.ts                        # AppError, NotFoundError, ValidationFailedError
-├── translation-output.presets.ts    # FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT
+├── translation-output.presets.ts    # FULL_OUTPUT, RELIABLE_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT
 ├── translation-template.service.ts  # resolveOutputConfig(), resolveTemplate()
 ├── translation-template.types.ts    # TemplateFields, UserTranslationTemplate, DEFAULT_TEMPLATE
 └── types.ts                         # TranslationOutputConfig interface
@@ -49,8 +49,9 @@ Returns the user's template or `DEFAULT_TEMPLATE` if null.
 
 | Preset | Examples | Transcription | Synonyms | Alternatives | Use Case |
 |---|---|---|---|---|---|
-| `FULL_OUTPUT` | ✅ | ✅ | ✅ | ✅ | Default word/phrase |
-| `MINIMAL_OUTPUT` | ❌ | ❌ | ❌ | ❌ | Minimal response |
+| `FULL_OUTPUT` | ✅ | ✅ | ✅ | ✅ | Rich/detail response |
+| `RELIABLE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | Default word/phrase |
+| `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | Minimal response |
 | `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | Scheduled notifications |
 | `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | Sentence translations |
 
@@ -85,7 +86,7 @@ interface UserTranslationTemplate {
   name: string;
 }
 
-// DEFAULT_TEMPLATE — all fields enabled, name "default"
+// DEFAULT_TEMPLATE — reliable-first fields, name "Default"
 // TEMPLATE_FIELD_KEYS — array of TemplateFields keys
 
 // Shared errors

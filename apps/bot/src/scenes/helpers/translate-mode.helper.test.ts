@@ -105,6 +105,7 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
     },
     user: { id: 1, telegramId: 123456789 },
     services: {
@@ -149,19 +150,19 @@ describe("handleTranslateText — context enrichment", () => {
     );
   });
 
-  it("passes FULL_OUTPUT preset as outputConfig", async () => {
+  it("passes reliable default outputConfig", async () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "hello");
 
     const inputArg = vi.mocked(translateWithContext).mock.calls[0]![0];
     expect(inputArg.outputConfig).toEqual({
-      includeExamples: true,
+      includeExamples: false,
       includeTranscription: true,
-      includeSynonyms: true,
-      includeAlternatives: true,
-      includeEquivalentNote: true,
-      includeConnotationWarning: true,
-      includeNativeSynonyms: true,
+      includeSynonyms: false,
+      includeAlternatives: false,
+      includeEquivalentNote: false,
+      includeConnotationWarning: false,
+      includeNativeSynonyms: false,
     });
   });
 

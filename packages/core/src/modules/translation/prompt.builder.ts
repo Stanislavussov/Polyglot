@@ -38,7 +38,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
 
   const topicHint = topic ? `\nThe ${isSentence ? "sentence" : "word"} is used in the context of: "${topic}".` : "";
 
-  const dictionaryHint = dictionaryContext ? buildDictionaryHint(dictionaryContext) : "";
+  const dictionaryHint = dictionaryContext ? buildDictionaryHint(dictionaryContext, cfg) : "";
 
   const sourceLangName = getLanguageName(sourceLang);
   const targetLangNames = targetLangs.map((l) => getLanguageName(l)).join(", ");
@@ -48,58 +48,21 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
     ? `Translate the following sentence from ${sourceLangName} to ${targetLangNames}:\n"${text}"`
     : `Translate "${text}" from ${sourceLangName} to ${targetLangNames}.`;
 
+  const requestedFields = ["translation text"];
+  if (cfg.includeTranscription) requestedFields.push("short IPA transcription when useful, otherwise null");
+  if (cfg.includeSynonyms) requestedFields.push("2-3 close synonyms");
+  if (cfg.includeAlternatives) requestedFields.push("exactly 2 alternative translations");
+  if (cfg.includeExamples) requestedFields.push("exactly 3 short examples");
+  if (cfg.includeEquivalentNote) requestedFields.push("idiom/equivalent metadata only when needed");
+  if (cfg.includeConnotationWarning) requestedFields.push("connotation warning only for risky meanings");
+  if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
+
   return `${intro}${dictionaryHint}${topicHint}
 
-Return ONLY valid JSON, no markdown, no explanation, no code fences.
-The JSON must have this exact structure:
-{
-  "emoji": "<one relevant emoji>",${
-    cfg.includeNativeSynonyms && nativeLangName
-      ? `
-  "nativeSynonyms": [
-    { "text": "<synonym in ${nativeLangName}>" }
-  ],`
-      : ""
-  }
-  "translations": {
-${targetLangs
-  .map((lang) => {
-    const lines: string[] = [`      "text": "<translation in ${getLanguageName(lang)}>"`];
-    if (cfg.includeTranscription) {
-      lines.push(`      "transcription": "<IPA transcription if applicable, otherwise omit>"`);
-    }
-    if (cfg.includeEquivalentNote) {
-      lines.push(
-        `      "expressionType": "<literal | idiomatic_equivalent — omit or set to literal for direct translations>"`,
-      );
-      lines.push(
-        `      "equivalentNote": "<brief note explaining why an idiomatic equivalent was chosen — omit for literal>"`,
-      );
-    }
-    if (cfg.includeSynonyms) {
-      lines.push(`      "synonyms": [\n        { "text": "<synonym>" }\n      ]`);
-    }
-    if (cfg.includeAlternatives) {
-      const synPart = cfg.includeSynonyms ? `, "synonyms": [{ "text": "<syn>" }]` : "";
-      lines.push(
-        `      "alternatives": [\n        { "text": "<alternative translation 1>"${synPart} },\n        { "text": "<alternative translation 2>"${synPart} }\n      ]`,
-      );
-    }
-    if (cfg.includeExamples) {
-      lines.push(
-        `      "examples": [\n        { "context": "<context label>", "target": "<example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" },\n        { "context": "<context label>", "target": "<example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" },\n        { "context": "<context label>", "target": "<example sentence in ${getLanguageName(lang)}>", "register": "<register label in ${sourceLangName}, one word>" }\n      ]`,
-      );
-    }
-    if (cfg.includeConnotationWarning) {
-      lines.push(
-        `      "connotationWarning": "<optional: warn about dangerous/misleading meanings, e.g. 'to arouse — sexual connotation'>"`,
-      );
-    }
-    return `    "${lang}": {\n${lines.join(",\n")}\n    }`;
-  })
-  .join(",\n")}
-  }
-}
+Return ONLY valid JSON matching the provided schema. No markdown, no explanation, no code fences.
+For each target language (${targetLangs.join(", ")}), provide: ${requestedFields.join("; ")}.
+Also include one relevant emoji.
+Prefer ONE natural, accurate main translation. Do not invent extra nuance.
 
 Rules:${
     cfg.includeExamples
@@ -207,10 +170,10 @@ ${checkItems.join("\n")}`;
  * Inserts Wiktionary offline data (POS, glosses) to guide the AI
  * toward the correct sense of the word and improve translation quality.
  *
- * Placed BEFORE the JSON template so the AI sees authoritative definitions
+ * Placed before output instructions so the AI sees authoritative definitions
  * before forming its translation.
  */
-function buildDictionaryHint(ctx: DictionaryContext): string {
+function buildDictionaryHint(ctx: DictionaryContext, config: Required<TranslationOutputConfig>): string {
   const lines: string[] = [
     "",
     "IMPORTANT — Authoritative Dictionary Context (Wiktionary):",
@@ -218,16 +181,16 @@ function buildDictionaryHint(ctx: DictionaryContext): string {
   ];
 
   if (ctx.glosses.length > 0) {
+    const maxGlosses = config.includeAlternatives || config.includeExamples ? 5 : 2;
     const glossList = ctx.glosses
-      .slice(0, 5) // Limit to avoid prompt bloat
+      .slice(0, maxGlosses)
       .map((g) => `"${g}"`)
       .join(", ");
     lines.push(`The verified meaning of this word is: ${glossList}.`);
-    lines.push(
-      "You MUST use these definitions as the PRIMARY basis for your translation. " +
-        "The main translation, alternatives, and synonyms should all reflect these meanings. " +
-        "If the word has multiple senses listed above, each alternative should capture a different sense.",
-    );
+    lines.push("Use these definitions as the PRIMARY basis for the main translation.");
+    if (config.includeAlternatives || config.includeSynonyms) {
+      lines.push("Alternatives and synonyms should reflect these meanings.");
+    }
   }
 
   if (ctx.formTags && ctx.formTags.length > 0) {

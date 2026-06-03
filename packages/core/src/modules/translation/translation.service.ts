@@ -294,19 +294,18 @@ function stripDisabledFields(
   translations: Record<string, LanguageTranslation>,
   config?: TranslationOutputConfig,
 ): Record<string, LanguageTranslation> {
-  if (!config) return translations;
-
   const stripped: Record<string, import("./types.js").LanguageTranslation> = {};
 
   for (const [lang, lt] of Object.entries(translations)) {
     stripped[lang] = {
       ...lt,
-      ...(config.includeExamples === false && { examples: [] }),
-      ...(config.includeSynonyms === false && { synonyms: [] }),
-      ...(config.includeAlternatives === false && { alternatives: null }),
-      ...(config.includeTranscription === false && { transcription: null }),
-      ...(config.includeEquivalentNote === false && { expressionType: null, equivalentNote: null }),
-      ...(config.includeConnotationWarning === false && { connotationWarning: null }),
+      synonyms: config?.includeSynonyms === false ? [] : (lt.synonyms ?? []),
+      examples: config?.includeExamples === false ? [] : (lt.examples ?? []),
+      alternatives: config?.includeAlternatives === false ? null : (lt.alternatives ?? null),
+      transcription: config?.includeTranscription === false ? null : (lt.transcription ?? null),
+      expressionType: config?.includeEquivalentNote === false ? null : (lt.expressionType ?? null),
+      equivalentNote: config?.includeEquivalentNote === false ? null : (lt.equivalentNote ?? null),
+      connotationWarning: config?.includeConnotationWarning === false ? null : (lt.connotationWarning ?? null),
     };
   }
 

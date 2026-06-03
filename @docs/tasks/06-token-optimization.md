@@ -1,6 +1,6 @@
 # Task 06: AI Token Usage Optimization
 
-**Status:** 🔲 To Do
+**Status:** 🟡 Partial
 
 ## Description
 
@@ -10,6 +10,27 @@ Reduce AI token consumption per translation request. Current measurement shows *
 - `tech-reqs/07-ai-validation.md` (validation pipeline)
 - `tech-reqs/08-ai-prompt.md` (prompt structure)
 - `tech-reqs/14-agents.md` (agent contracts)
+
+---
+
+## 2026-06-03 Partial Implementation
+
+Implemented reliable-first default translation for cheap/small models:
+
+- Added `RELIABLE_OUTPUT` preset.
+- Changed `DEFAULT_TEMPLATE` to request only translation text + transcription by default.
+- Kept `FULL_OUTPUT` for rich/detail custom templates.
+- Rewrote translation prompt to remove the full JSON template and rely on `generateObject` schema for structure.
+- Changed config-aware AI-facing schema so disabled fields are omitted instead of required as `null`/`[]`.
+- Kept public output stable by normalizing disabled fields after generation.
+- Capped dictionary glosses to 2 for compact/reliable requests; rich requests can still use up to 5.
+
+Still not done:
+
+- Soft language/example validation warnings.
+- Skipping redundant schema validation.
+- Reducing `MAX_RETRIES`.
+- Real token measurement against production models.
 
 ---
 
@@ -82,7 +103,7 @@ The current `word.slice(0, -1)` approach fails for inflected languages. Use a mo
 
 The prompt currently contains a full JSON template with placeholders for every language (~400–500 tokens). Since `generateObject` sends the Zod schema as JSON Schema, the template is redundant.
 
-- [ ] In `packages/core/src/modules/translation/prompt.builder.ts`, rewrite `buildTranslationPrompt()`:
+- [x] In `packages/core/src/modules/translation/prompt.builder.ts`, rewrite `buildTranslationPrompt()`:
   ```typescript
   export function buildTranslationPrompt(request: TranslationRequest): string {
     const { text, sourceLang, targetLangs, topic } = request;
@@ -103,7 +124,7 @@ Also provide one relevant emoji and the overall register for the word.`;
   ```
   - ~150 tokens instead of ~600 tokens — the Zod JSON Schema handles the structure
   - Keeps all semantic requirements (examples, synonyms) as natural language
-- [ ] Rewrite `buildStrictPrompt()` similarly — shorter base + error feedback:
+- [x] Rewrite `buildStrictPrompt()` similarly — shorter base + error feedback:
   ```typescript
   export function buildStrictPrompt(request: TranslationRequest, errors: string[]): string {
     const base = buildTranslationPrompt(request);
@@ -115,7 +136,7 @@ IMPORTANT: Fix these errors from your previous response:
 ${errorList}`;
   }
   ```
-- [ ] Update tests in `packages/core/src/modules/translation/__tests__/prompt.builder.test.ts`
+- [x] Update tests in `packages/core/src/modules/translation/__tests__/prompt.builder.test.ts`
 
 ### Step 5: Reduce MAX_RETRIES from 2 to 1
 
@@ -138,15 +159,24 @@ With softer validation (Steps 1–2), most false positives won't trigger retries
 
 ---
 
-## Files Modified
+## Files Modified In Partial Implementation
+
+- `packages/core/src/modules/translation/prompt.builder.ts` — slim prompt, shorter strict prompt
+- `packages/core/src/modules/translation/schemas/translation.schema.ts` — omit disabled fields from AI-facing schema
+- `packages/core/src/modules/translation/translation.service.ts` — normalize omitted disabled fields in public output
+- `packages/core/src/shared/translation-output.presets.ts` — add `RELIABLE_OUTPUT`
+- `packages/core/src/shared/translation-template.types.ts` — reliable-first `DEFAULT_TEMPLATE`
+- `apps/bot/src/scenes/helpers/translate-mode.helper.test.ts` — default output config expectation
+- `apps/bot/src/scenes/helpers/regen.helper.test.ts` — default regen config expectation
+- `.pi/skills/translation*.md`, `.pi/skills/bot/SKILL.md` — project skill context updates
+
+## Still Planned Files
 
 - `packages/core/src/modules/validation/types.ts` — add `warnings` to `ValidationResult`
 - `packages/core/src/modules/validation/index.ts` — language → warnings, skip schema check
 - `packages/core/src/modules/validation/validators/language.validator.ts` — return warnings
 - `packages/core/src/modules/validation/validators/example.validator.ts` — better stem matching, soft warnings
-- `packages/core/src/modules/translation/prompt.builder.ts` — slim prompt, shorter strict prompt
-- `packages/core/src/modules/translation/translation.service.ts` — handle warnings, MAX_RETRIES = 1
-- Test files for all above modules
+- `packages/core/src/modules/translation/translation.service.ts` — handle warnings, reduce `MAX_RETRIES` to 1
 
 ---
 

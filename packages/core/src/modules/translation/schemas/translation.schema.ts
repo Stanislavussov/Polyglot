@@ -89,19 +89,27 @@ export const translationResultSchema = z.object({
 export function buildLanguageTranslationSchema(config?: TranslationOutputConfig) {
   const includeExamples = config?.includeExamples !== false;
   const includeSynonyms = config?.includeSynonyms !== false;
+  const includeTranscription = config?.includeTranscription !== false;
+  const includeAlternatives = config?.includeAlternatives !== false;
+  const includeEquivalentNote = config?.includeEquivalentNote !== false;
+  const includeConnotationWarning = config?.includeConnotationWarning !== false;
 
-  return z.object({
+  const shape = {
     text: z.string().min(1, "Translation text is required"),
-    transcription: z.string().max(100, "Transcription too long — possible repetition loop").nullable(),
-    synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema),
-    examples: includeExamples
-      ? z.array(exampleSchema).min(1, "At least one example is required")
-      : z.array(exampleSchema),
-    expressionType: expressionTypeEnum.nullable(),
-    equivalentNote: z.string().nullable(),
-    alternatives: z.array(translationVariantSchema).nullable(),
-    connotationWarning: z.string().nullable(),
-  });
+    ...(includeTranscription && {
+      transcription: z.string().max(100, "Transcription too long — possible repetition loop").nullable(),
+    }),
+    ...(includeSynonyms && { synonyms: z.array(synonymSchema) }),
+    ...(includeExamples && { examples: z.array(exampleSchema).min(1, "At least one example is required") }),
+    ...(includeEquivalentNote && {
+      expressionType: expressionTypeEnum.nullable(),
+      equivalentNote: z.string().nullable(),
+    }),
+    ...(includeAlternatives && { alternatives: z.array(translationVariantSchema).nullable() }),
+    ...(includeConnotationWarning && { connotationWarning: z.string().nullable() }),
+  };
+
+  return z.object(shape);
 }
 
 /**
@@ -123,9 +131,10 @@ export function buildTranslationResultSchema(targetLangs: string[], config?: Tra
     langEntries[lang] = langSchema;
   }
 
+  const includeNativeSynonyms = config?.includeNativeSynonyms !== false;
   return z.object({
     emoji: z.string().min(1, "Emoji is required"),
-    nativeSynonyms: z.array(synonymSchema),
+    ...(includeNativeSynonyms && { nativeSynonyms: z.array(synonymSchema) }),
     translations: z.object(langEntries),
   });
 }

@@ -17,7 +17,7 @@ description: Word and phrase translation via AI with prompt building, response p
 
 ## Current State
 
-Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints). Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow. Task 09 translate session loop: no translation module changes needed — persistent translate mode is a bot-layer routing concern; the bot's mode router calls `translate()` for each plain text message while in translate mode; i18n keys (`translateModeOn`, `translateModeHint`) were added to support mode confirmation/hint messages. Task 10 idiomatic equivalents: added `ExpressionType` type (`'literal' | 'idiomatic_equivalent'`), `expressionType` and `equivalentNote` optional fields to `LanguageTranslation` and the Zod schema, added Idiomatic & Proverb Rule block to prompt builder, and `ExpressionType` is re-exported from the module index. Task 13 Wiktionary integration: added `DictionaryContext` type for offline dictionary enrichment, optional `dictionaryContext` field on `TranslateInput`/`TranslateOutput`/`TranslationRequest`, prompt builder enrichment with Wiktionary glosses/POS/form tags, phrase/idiom detection hints, and `translateOne()` passthrough. Context is injected by caller (e.g., bot layer) — core never calls DB directly. Task 15 context-enrichment layer: `dictionaryContext` is now managed by the context-enrichment module (`translateWithContext`, `translateOneWithContext`, `translateBatchWithContext`). Callers should use the enrichment layer instead of manually looking up and injecting `dictionaryContext`. See `.pi/skills/context-enrichment/SKILL.md`. Task 16 auto-detect input language: no translation module changes needed — `translate()`, `translateOne()`, and `translateBatch()` already accept arbitrary `sourceLang`/`targetLangs` parameters. Language detection and direction resolution live in the sibling `language-detect` module (`detectLanguage()`, `resolveTranslationDirection()`), which the bot layer calls before invoking translation. The translation pipeline remains direction-agnostic — it translates whatever `sourceLang → targetLangs` it receives. Task 17 post-translation source language selection menu: no translation module changes needed — the feature is a bot-layer UI concern (session state, inline keyboards, callbacks). The translation pipeline continues to accept whatever `sourceLang → targetLangs` it receives. i18n keys (`nextTranslationFrom`, `nextSourceSet`) were added to support the source language menu UI. The sibling `language-detect` module gained `resolveDirectionFromSource()` for explicit source language direction resolution (no auto-detection), used by the bot layer when a user has manually selected a source language. Task 21: Added `TranslationOutputConfig` with centralized presets (`FULL_OUTPUT`, `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT`). Prompt builder and schema builder are config-aware — disabled fields are omitted from the AI prompt and relaxed in the Zod schema. All callers reference a preset — output is managed in one place (`translation-output.presets.ts`), not in user settings.
+Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints). Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow. Task 09 translate session loop: no translation module changes needed — persistent translate mode is a bot-layer routing concern; the bot's mode router calls `translate()` for each plain text message while in translate mode; i18n keys (`translateModeOn`, `translateModeHint`) were added to support mode confirmation/hint messages. Task 10 idiomatic equivalents: added `ExpressionType` type (`'literal' | 'idiomatic_equivalent'`), `expressionType` and `equivalentNote` optional fields to `LanguageTranslation` and the Zod schema, added Idiomatic & Proverb Rule block to prompt builder, and `ExpressionType` is re-exported from the module index. Task 13 Wiktionary integration: added `DictionaryContext` type for offline dictionary enrichment, optional `dictionaryContext` field on `TranslateInput`/`TranslateOutput`/`TranslationRequest`, prompt builder enrichment with Wiktionary glosses/POS/form tags, phrase/idiom detection hints, and `translateOne()` passthrough. Context is injected by caller (e.g., bot layer) — core never calls DB directly. Task 15 context-enrichment layer: `dictionaryContext` is now managed by the context-enrichment module (`translateWithContext`, `translateOneWithContext`, `translateBatchWithContext`). Callers should use the enrichment layer instead of manually looking up and injecting `dictionaryContext`. See `.pi/skills/context-enrichment/SKILL.md`. Task 16 auto-detect input language: no translation module changes needed — `translate()`, `translateOne()`, and `translateBatch()` already accept arbitrary `sourceLang`/`targetLangs` parameters. Language detection and direction resolution live in the sibling `language-detect` module (`detectLanguage()`, `resolveTranslationDirection()`), which the bot layer calls before invoking translation. The translation pipeline remains direction-agnostic — it translates whatever `sourceLang → targetLangs` it receives. Task 17 post-translation source language selection menu: no translation module changes needed — the feature is a bot-layer UI concern (session state, inline keyboards, callbacks). The translation pipeline continues to accept whatever `sourceLang → targetLangs` it receives. i18n keys (`nextTranslationFrom`, `nextSourceSet`) were added to support the source language menu UI. The sibling `language-detect` module gained `resolveDirectionFromSource()` for explicit source language direction resolution (no auto-detection), used by the bot layer when a user has manually selected a source language. Task 21: Added `TranslationOutputConfig` with centralized presets (`FULL_OUTPUT`, `RELIABLE_OUTPUT`, `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT`). Prompt builder and schema builder are config-aware — disabled fields are omitted from the AI prompt and omitted from the AI-facing schema. Public output normalization fills disabled arrays/nulls after generation.
 
 ### Unified expression handling & 3 translation variants
 
@@ -202,12 +202,13 @@ function parseResponse(raw: unknown): TranslationResult;
 Centralized named presets in `translation-output.presets.ts` — single source of truth. Callers must always import a preset, never construct `TranslationOutputConfig` inline.
 
 ```typescript
-import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT } from "@polyglot/core";
+import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, RELIABLE_OUTPUT, SENTENCE_OUTPUT } from "@polyglot/core";
 ```
 
 | Preset | Examples | Transcription | Synonyms | Alternatives | EquivalentNote | Register | ConnotationWarning |
 |---|---|---|---|---|---|---|---|
 | `FULL_OUTPUT` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
+| `RELIABLE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -216,8 +217,10 @@ import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT } fro
 
 | Caller | Preset | Rationale |
 |---|---|---|
-| `translate-mode.helper.ts` (bot interactive) | `FULL_OUTPUT` | Rich cards with all details |
-| `regen.helper.ts` (regeneration) | `FULL_OUTPUT` | Same as interactive |
+| `translate-mode.helper.ts` (bot interactive, no custom template) | `RELIABLE_OUTPUT` via `DEFAULT_TEMPLATE` | Cheap-model reliable default |
+| `translate-mode.helper.ts` (bot interactive, custom template) | Template-derived config | User-requested detail |
+| `regen.helper.ts` (regeneration, no custom template) | `RELIABLE_OUTPUT` via `DEFAULT_TEMPLATE` | Same reliable contract as initial translation |
+| `regen.helper.ts` (regeneration, custom template) | Template-derived config | Same detail as user's template |
 | `translate-mode.helper.ts` (sentence) | `SENTENCE_OUTPUT` | Minimal output for sentences — no learning metadata |
 | `regen.helper.ts` (sentence regen) | `SENTENCE_OUTPUT` | Sentence regen uses same minimal preset |
 | `topic.service.ts` (bulk topic translation) | `MINIMAL_OUTPUT` | Token savings for batch jobs |
@@ -248,8 +251,8 @@ When `dictionaryContext` is provided in `TranslateInput`:
 
 - `translationRequestSchema` — validates TranslationRequest (targetLangs 1–4)
 - `translationResultSchema` — validates full AI response (emoji, register, translations map)
-- `buildTranslationResultSchema(targetLangs, config?)` — builds dynamic schema with required language keys; optional `config` relaxes disabled fields (e.g. `includeExamples: false` → `examples` defaults to `[]`)
-- `buildLanguageTranslationSchema(config?)` — builds per-language schema, relaxing validation for disabled fields
+- `buildTranslationResultSchema(targetLangs, config?)` — builds dynamic schema with required language keys; optional `config` omits disabled fields from the AI-facing schema
+- `buildLanguageTranslationSchema(config?)` — builds per-language schema, omitting disabled fields
 - `languageTranslationSchema` — validates per-language translation entry (includes optional `expressionType` defaulting to `'literal'`, optional `equivalentNote`, optional `alternatives`)
 - `translationVariantSchema` — validates alternative translation variant { text, register, synonyms }
 - `synonymSchema` — validates synonym { text, register }
@@ -262,7 +265,7 @@ packages/core/src/modules/translation/
 ├── index.ts                           # Re-exports: translate, translateOne, translateBatch, schemas, types, ExpressionType, InputType, DictionaryContext, TranslationVariant, TranslationOutputConfig, presets (incl. SENTENCE_OUTPUT)
 ├── types.ts                           # TranslateInput, TranslateOutput, TranslationOutputConfig, InputType, ExpressionType, DictionaryContext, etc.
 ├── translation.service.ts             # translate(), translateOne(), translateBatch(), parseResponse() — passes inputType to validate()
-├── translation-output.presets.ts      # FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT presets
+├── translation-output.presets.ts      # FULL_OUTPUT, RELIABLE_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT presets
 ├── prompt.builder.ts                  # buildTranslationPrompt(), buildStrictPrompt(), buildDictionaryHint() — config-aware, sentence-aware
 ├── schemas/
 │   └── translation.schema.ts          # Zod schemas for AI response, buildLanguageTranslationSchema(config?)

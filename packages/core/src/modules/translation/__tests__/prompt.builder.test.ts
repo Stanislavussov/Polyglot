@@ -25,19 +25,17 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("to Czech, German");
   });
 
-  it("includes JSON structure template for each target language", () => {
+  it("names each target language code for the schema keys", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain('"cs"');
-    expect(prompt).toContain('"de"');
-    expect(prompt).toContain('"text"');
-    expect(prompt).toContain('"register"');
-    expect(prompt).toContain('"synonyms"');
-    expect(prompt).toContain('"examples"');
+    expect(prompt).toContain("(cs, de)");
+    expect(prompt).toContain("translation text");
+    expect(prompt).toContain("synonyms");
+    expect(prompt).toContain("examples");
   });
 
   it("requests emoji in the output", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain('"emoji"');
+    expect(prompt).toContain("emoji");
   });
 
   it("does not specify specific register values", () => {
@@ -49,7 +47,7 @@ describe("buildTranslationPrompt", () => {
   it("requests flexible example contexts", () => {
     const prompt = buildTranslationPrompt(baseRequest);
     // Examples now use flexible context labels instead of fixed neutral/colloquial/professional
-    expect(prompt).toContain('"context": "<context label>"');
+    expect(prompt).toContain("exactly 3 short examples");
     expect(prompt).not.toContain('"context": "neutral"');
     expect(prompt).not.toContain('"context": "colloquial"');
     expect(prompt).not.toContain('"context": "professional"');
@@ -58,7 +56,7 @@ describe("buildTranslationPrompt", () => {
   it("requests JSON only, no markdown", () => {
     const prompt = buildTranslationPrompt(baseRequest);
     expect(prompt).toContain("ONLY valid JSON");
-    expect(prompt).toContain("no markdown");
+    expect(prompt).toContain("No markdown");
   });
 
   it("includes topic hint when provided", () => {
@@ -80,8 +78,8 @@ describe("buildTranslationPrompt", () => {
       sourceLang: "en",
       targetLangs: ["cs"],
     });
-    expect(prompt).toContain('"cs"');
-    expect(prompt).not.toContain('"de"');
+    expect(prompt).toContain("(cs)");
+    expect(prompt).not.toContain("(cs, de)");
   });
 
   it("works with four target languages", () => {
@@ -91,10 +89,7 @@ describe("buildTranslationPrompt", () => {
       targetLangs: ["cs", "de", "fr", "es"],
     });
     expect(prompt).toContain("to Czech, German, French, Spanish");
-    expect(prompt).toContain('"cs"');
-    expect(prompt).toContain('"de"');
-    expect(prompt).toContain('"fr"');
-    expect(prompt).toContain('"es"');
+    expect(prompt).toContain("(cs, de, fr, es)");
   });
 
   it("includes rule about variety in examples using different words", () => {
@@ -108,7 +103,6 @@ describe("buildTranslationPrompt", () => {
 
   it("includes register label instruction for examples in source language", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("register label in English, one word");
     expect(prompt).toContain("ONE-WORD label in English");
   });
 
@@ -118,11 +112,9 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).not.toContain('"native"');
   });
 
-  it("includes alternatives structure in JSON template", () => {
+  it("includes alternatives guidance when enabled", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain('"alternatives"');
-    expect(prompt).toContain("alternative translation 1");
-    expect(prompt).toContain("alternative translation 2");
+    expect(prompt).toContain("alternative translations");
   });
 
   it("includes rule about 2 alternative translations", () => {
@@ -130,9 +122,9 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("Provide exactly 2 alternative translations per language");
   });
 
-  it("includes connotation warning field in JSON template (default config)", () => {
+  it("includes connotation warning guidance (default config)", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain('"connotationWarning"');
+    expect(prompt).toContain("connotation warning");
   });
 
   it("includes connotation warning rule about dangerous meanings", () => {
@@ -146,7 +138,7 @@ describe("buildTranslationPrompt", () => {
       ...baseRequest,
       outputConfig: { includeConnotationWarning: false },
     });
-    expect(prompt).not.toContain('"connotationWarning"');
+    expect(prompt).not.toContain("connotation warning");
     expect(prompt).not.toContain("dangerous or misleading connotations");
   });
 });
@@ -223,16 +215,16 @@ describe("buildTranslationPrompt with inputType=sentence", () => {
 
   it("omits synonyms, alternatives, examples, equivalentNote (via SENTENCE_OUTPUT)", () => {
     const prompt = buildTranslationPrompt(sentenceRequest);
-    expect(prompt).not.toContain('"synonyms"');
-    expect(prompt).not.toContain('"alternatives"');
-    expect(prompt).not.toContain('"examples"');
+    expect(prompt).not.toContain("synonyms");
+    expect(prompt).not.toContain("alternative translations");
+    expect(prompt).not.toContain("examples");
     expect(prompt).not.toContain('"expressionType"');
     expect(prompt).not.toContain("Idiomatic & Proverb Rule");
   });
 
   it("keeps transcription in sentence prompt (SENTENCE_OUTPUT has includeTranscription: true)", () => {
     const prompt = buildTranslationPrompt(sentenceRequest);
-    expect(prompt).toContain('"transcription"');
+    expect(prompt).toContain("transcription");
   });
 
   it("topic hint says 'sentence' instead of 'word' for sentences", () => {

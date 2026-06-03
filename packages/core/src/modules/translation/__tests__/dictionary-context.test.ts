@@ -128,7 +128,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain("You MUST use these definitions as the PRIMARY basis for your translation");
+    expect(prompt).toContain("Use these definitions as the PRIMARY basis for the main translation");
   });
 
   it("includes instruction to reflect meanings in alternatives and synonyms", () => {
@@ -136,7 +136,7 @@ describe("buildTranslationPrompt — dictionary context", () => {
       ...baseRequest,
       dictionaryContext: sampleDictionaryContext,
     });
-    expect(prompt).toContain("each alternative should capture a different sense");
+    expect(prompt).toContain("Alternatives and synonyms should reflect these meanings");
   });
 
   it("does NOT include MUST-use instruction when glosses are empty", () => {

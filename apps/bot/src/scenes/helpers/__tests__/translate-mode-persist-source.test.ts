@@ -105,6 +105,7 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
     },
     user: { id: 1, telegramId: 123456789 },
     services: {

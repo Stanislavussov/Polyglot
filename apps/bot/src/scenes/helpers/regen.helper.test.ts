@@ -161,7 +161,7 @@ describe("handleRegenLoop", () => {
     expect(ctx.api.editMessageText).toHaveBeenCalled();
   });
 
-  it("passes FULL_OUTPUT preset as outputConfig to translateOne", async () => {
+  it("passes reliable default outputConfig to translateOne", async () => {
     const { conversation } = createMockConversation(["tr:regen:cs", "tr:skip"]);
     const ctx = createMockCtx();
 
@@ -169,13 +169,13 @@ describe("handleRegenLoop", () => {
 
     const call = vi.mocked(translateOne).mock.calls[0]!;
     expect(call[0].outputConfig).toEqual({
-      includeExamples: true,
+      includeExamples: false,
       includeTranscription: true,
-      includeSynonyms: true,
-      includeAlternatives: true,
-      includeEquivalentNote: true,
-      includeConnotationWarning: true,
-      includeNativeSynonyms: true,
+      includeSynonyms: false,
+      includeAlternatives: false,
+      includeEquivalentNote: false,
+      includeConnotationWarning: false,
+      includeNativeSynonyms: false,
     });
   });
 

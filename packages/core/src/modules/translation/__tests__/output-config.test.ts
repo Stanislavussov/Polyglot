@@ -2,7 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
 import { buildLanguageTranslationSchema, buildTranslationResultSchema } from "../schemas/translation.schema.js";
 import { translate } from "../translation.service.js";
-import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT } from "../translation-output.presets.js";
+import {
+  FULL_OUTPUT,
+  MINIMAL_OUTPUT,
+  NOTIFICATION_OUTPUT,
+  RELIABLE_OUTPUT,
+  SENTENCE_OUTPUT,
+} from "../translation-output.presets.js";
 import type { TranslateInput, TranslationOutputConfig, TranslationRequest } from "../types.js";
 
 // ─── Helpers ──────────────────────────────────────────────
@@ -52,6 +58,18 @@ describe("presets", () => {
 
   it("MINIMAL_OUTPUT has only includeTranscription: true, all others false", () => {
     expect(MINIMAL_OUTPUT).toEqual({
+      includeExamples: false,
+      includeTranscription: true,
+      includeSynonyms: false,
+      includeAlternatives: false,
+      includeEquivalentNote: false,
+      includeConnotationWarning: false,
+      includeNativeSynonyms: false,
+    });
+  });
+
+  it("RELIABLE_OUTPUT has only includeTranscription: true, all others false", () => {
+    expect(RELIABLE_OUTPUT).toEqual({
       includeExamples: false,
       includeTranscription: true,
       includeSynonyms: false,
@@ -156,8 +174,8 @@ describe("buildTranslationPrompt with outputConfig", () => {
 
   it("MINIMAL_OUTPUT preset → prompt has text, transcription but not register/examples/synonyms/alternatives/expressionType/connotationWarning", () => {
     const prompt = promptWith(MINIMAL_OUTPUT);
-    expect(prompt).toContain('"text"');
-    expect(prompt).toContain('"transcription"');
+    expect(prompt).toContain("translation text");
+    expect(prompt).toContain("transcription");
     expect(prompt).not.toContain('"register"');
     expect(prompt).not.toContain('"examples"');
     expect(prompt).not.toContain('"synonyms"');
@@ -168,12 +186,12 @@ describe("buildTranslationPrompt with outputConfig", () => {
 
   it("FULL_OUTPUT preset → prompt includes examples, connotationWarning, and all enabled sections", () => {
     const prompt = promptWith(FULL_OUTPUT);
-    expect(prompt).toContain('"text"');
-    expect(prompt).toContain('"transcription"');
-    expect(prompt).toContain('"synonyms"');
-    expect(prompt).toContain('"alternatives"');
-    expect(prompt).toContain('"examples"');
-    expect(prompt).toContain('"connotationWarning"');
+    expect(prompt).toContain("translation text");
+    expect(prompt).toContain("transcription");
+    expect(prompt).toContain("synonyms");
+    expect(prompt).toContain("alternative translations");
+    expect(prompt).toContain("examples");
+    expect(prompt).toContain("connotation warning");
     expect(prompt).toContain("VARIETY IN EXAMPLES IS MANDATORY");
     expect(prompt).toContain("dangerous or misleading connotations");
   });
@@ -186,7 +204,7 @@ describe("buildTranslationPrompt with outputConfig", () => {
 
   it("includeConnotationWarning: true → prompt has 'connotationWarning' field and warning rule", () => {
     const prompt = promptWith({ includeConnotationWarning: true });
-    expect(prompt).toContain('"connotationWarning"');
+    expect(prompt).toContain("connotation warning");
     expect(prompt).toContain("Warn about dangerous or misleading connotations ONLY if they exist");
   });
 });
@@ -224,13 +242,15 @@ describe("buildStrictPrompt with outputConfig", () => {
 // ─── Schema Builder Config-Aware Tests ────────────────────
 
 describe("buildTranslationResultSchema with config", () => {
-  it("includeExamples: false → schema accepts { examples: [] }", () => {
+  it("includeExamples: false → schema accepts missing examples", () => {
     const schema = buildTranslationResultSchema(["cs"], { includeExamples: false });
+    const entry = validLangEntry();
+    delete (entry as Record<string, unknown>).examples;
     const result = schema.safeParse({
       emoji: "👋",
       nativeSynonyms: [],
       translations: {
-        cs: validLangEntry({ examples: [] }),
+        cs: entry,
       },
     });
     expect(result.success).toBe(true);
@@ -248,13 +268,15 @@ describe("buildTranslationResultSchema with config", () => {
     expect(result.success).toBe(false);
   });
 
-  it("includeSynonyms: false → schema accepts { synonyms: [] }", () => {
+  it("includeSynonyms: false → schema accepts missing synonyms", () => {
     const schema = buildTranslationResultSchema(["cs"], { includeSynonyms: false });
+    const entry = validLangEntry();
+    delete (entry as Record<string, unknown>).synonyms;
     const result = schema.safeParse({
       emoji: "👋",
       nativeSynonyms: [],
       translations: {
-        cs: validLangEntry({ synonyms: [] }),
+        cs: entry,
       },
     });
     expect(result.success).toBe(true);
@@ -264,6 +286,7 @@ describe("buildTranslationResultSchema with config", () => {
     const schema = buildTranslationResultSchema(["cs"]);
     const result = schema.safeParse({
       emoji: "👋",
+      nativeSynonyms: [],
       translations: {
         cs: validLangEntry({ examples: [] }),
       },
@@ -279,15 +302,19 @@ describe("buildLanguageTranslationSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("includeExamples: false → accepts empty examples", () => {
+  it("includeExamples: false → accepts missing examples", () => {
     const schema = buildLanguageTranslationSchema({ includeExamples: false });
-    const result = schema.safeParse(validLangEntry({ examples: [] }));
+    const entry = validLangEntry();
+    delete (entry as Record<string, unknown>).examples;
+    const result = schema.safeParse(entry);
     expect(result.success).toBe(true);
   });
 
-  it("includeSynonyms: false → accepts empty synonyms", () => {
+  it("includeSynonyms: false → accepts missing synonyms", () => {
     const schema = buildLanguageTranslationSchema({ includeSynonyms: false });
-    const result = schema.safeParse(validLangEntry({ synonyms: [] }));
+    const entry = validLangEntry();
+    delete (entry as Record<string, unknown>).synonyms;
+    const result = schema.safeParse(entry);
     expect(result.success).toBe(true);
   });
 
