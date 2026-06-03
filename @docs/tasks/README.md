@@ -20,6 +20,7 @@
 | 40  | [Sync Username on Every Request](./40-sync-username-on-every-request.md) | 🔲 To Do |
 | 57  | [Source Language Examples](./57-source-lang-examples.md) | 🔲 To Do |
 | 58  | [Language Detection Pre-Request](./58-language-detection-pre-request.md) | 🔲 To Do |
+| 60  | [Context Hint Marker Mode](./60-context-hint-marker-mode.md) | ✅ Done |
 
 ## Architecture — Debt Reduction
 

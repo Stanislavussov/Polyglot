@@ -359,10 +359,10 @@ describe("buildTranslationKeyboard", () => {
     expect(cbData(saveRow[1])).toBe("tr:skip:0");
   });
 
-  it("uses flag emoji for regen button text", () => {
+  it("uses refresh and flag emoji for regen button text", () => {
     const kb = buildTranslationKeyboard(["cs"], "word", "en");
     const regenBtn = kb.inline_keyboard[0]![0]!;
-    expect(regenBtn.text).toBe("🇨🇿");
+    expect(regenBtn.text).toBe("🔄 🇨🇿");
   });
 
   it("uses generic save label regardless of input type", () => {
@@ -381,10 +381,10 @@ describe("buildTranslationKeyboard", () => {
     expect(skipBtn.text).toContain("No");
   });
 
-  it("renders button text using flag emoji regardless of locale", () => {
+  it("renders regen button text using refresh and flag emoji regardless of locale", () => {
     const kb = buildTranslationKeyboard(["de"], "word", "ru");
     const regenBtn = kb.inline_keyboard[0]![0]!;
-    expect(regenBtn.text).toBe("🇩🇪");
+    expect(regenBtn.text).toBe("🔄 🇩🇪");
     const skipBtn = kb.inline_keyboard[1]![1]!;
     expect(skipBtn.text).toContain("Нет");
   });
@@ -404,7 +404,7 @@ describe("buildTranslationKeyboard", () => {
   it("shows flag emojis for multiple languages", () => {
     const kb = buildTranslationKeyboard(["cs", "de"], "word", "en");
     const labels = kb.inline_keyboard[0]!.map((b) => b.text);
-    expect(labels).toEqual(["🇨🇿", "🇩🇪"]);
+    expect(labels).toEqual(["🔄 🇨🇿", "🔄 🇩🇪"]);
   });
 });
 
@@ -897,16 +897,16 @@ describe("buildSentenceKeyboard", () => {
     expect(kb.inline_keyboard).toHaveLength(1);
   });
 
-  it("uses flag emoji for button text", () => {
+  it("uses refresh and flag emoji for button text", () => {
     const kb = buildSentenceKeyboard(["cs"], "en");
     const btn = kb.inline_keyboard[0]![0]!;
-    expect(btn.text).toBe("🇨🇿");
+    expect(btn.text).toBe("🔄 🇨🇿");
   });
 
-  it("renders flag emoji regardless of locale", () => {
+  it("renders refresh and flag emoji regardless of locale", () => {
     const kb = buildSentenceKeyboard(["de"], "ru");
     const btn = kb.inline_keyboard[0]![0]!;
-    expect(btn.text).toBe("🇩🇪");
+    expect(btn.text).toBe("🔄 🇩🇪");
   });
 
   it("works with single language code", () => {
@@ -946,10 +946,10 @@ describe("buildPostSaveKeyboard", () => {
     expect(kb.inline_keyboard).toHaveLength(1);
   });
 
-  it("uses flag emoji for button text", () => {
+  it("uses refresh and flag emoji for button text", () => {
     const kb = buildPostSaveKeyboard(["cs"], "en");
     const btn = kb.inline_keyboard[0]![0]!;
-    expect(btn.text).toBe("🇨🇿");
+    expect(btn.text).toBe("🔄 🇨🇿");
   });
 });
 

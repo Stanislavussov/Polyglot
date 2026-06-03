@@ -130,6 +130,54 @@ describe("validate (orchestrator)", () => {
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.field?.startsWith("translations.cs."))).toBe(true);
   });
+
+  it("fails when connotationWarning is not in Russian for nativeLang=ru", () => {
+    const raw = {
+      emoji: "🙈",
+      translations: {
+        cs: {
+          text: "být slepý jako patrona",
+          connotationWarning: "Výraz je hovorový a může znít nezdvořile.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "биться в шары", ["cs"], "phrase", {
+      nativeLang: "ru",
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "language",
+          field: "translations.cs.connotationWarning",
+        }),
+      ]),
+    );
+  });
+
+  it("passes when connotationWarning is in Russian for nativeLang=ru", () => {
+    const raw = {
+      emoji: "🙈",
+      translations: {
+        cs: {
+          text: "být slepý jako patrona",
+          connotationWarning: "Выражение разговорное и может звучать невежливо.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "биться в шары", ["cs"], "phrase", {
+      nativeLang: "ru",
+    });
+
+    expect(result.errors.some((e) => e.field === "translations.cs.connotationWarning")).toBe(false);
+  });
 });
 
 /**

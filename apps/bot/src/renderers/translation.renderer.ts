@@ -24,6 +24,11 @@ function toLang(lang?: string): SupportedLang {
   return lang && isSupported(lang) ? lang : "en";
 }
 
+function regenButtonLabel(code: string): string {
+  const flag = getLangFlag(code) ?? "🔤";
+  return `🔄 ${flag}`;
+}
+
 /**
  * Render a full AI translation card for Telegram (HTML).
  *
@@ -168,8 +173,7 @@ export function buildSentenceKeyboard(langCodes: string[], _interfaceLang?: stri
   const mid = msgId ?? 0;
 
   for (const code of langCodes) {
-    const flag = getLangFlag(code) ?? "🔤";
-    kb.text(flag, `tr:regen:${code}:${mid}`);
+    kb.text(regenButtonLabel(code), `tr:regen:${code}:${mid}`);
   }
 
   return kb;
@@ -193,8 +197,7 @@ export function buildTranslationKeyboard(
 
   // Row 1: regenerate buttons (one per language)
   for (const code of langCodes) {
-    const flag = getLangFlag(code) ?? "🔤";
-    kb.text(flag, `tr:regen:${code}:${mid}`);
+    kb.text(regenButtonLabel(code), `tr:regen:${code}:${mid}`);
   }
   kb.row();
 
@@ -214,8 +217,7 @@ export function buildPostSaveKeyboard(langCodes: string[], _interfaceLang?: stri
   const mid = msgId ?? 0;
 
   for (const code of langCodes) {
-    const flag = getLangFlag(code) ?? "🔤";
-    kb.text(flag, `tr:regen:${code}:${mid}`);
+    kb.text(regenButtonLabel(code), `tr:regen:${code}:${mid}`);
   }
 
   return kb;
