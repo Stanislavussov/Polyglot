@@ -301,36 +301,49 @@ describe("notificationRepository", () => {
       expect(exact).toHaveLength(1);
     });
 
-    it("matches users within 30-minute window of preferred time", async () => {
+    it("matches users after preferred time to tolerate scheduler delay", async () => {
       const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
       queryResults = [[user]];
       queryIndex = 0;
 
-      // 7:31 is 29 min before 08:00 → within window
-      const before = await notificationRepository.getUsersForWindow(7, 31);
-      expect(before).toHaveLength(1);
-
-      queryResults = [[user]];
-      queryIndex = 0;
-      // 8:29 is 29 min after 08:00 → within window
+      // 8:29 is 29 min after 08:00, within the current scheduler slot.
       const after = await notificationRepository.getUsersForWindow(8, 29);
       expect(after).toHaveLength(1);
     });
 
-    it("excludes users outside 30-minute window", async () => {
+    it("excludes users before preferred time and at the next scheduler slot", async () => {
       const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
       queryResults = [[user]];
       queryIndex = 0;
 
-      // 7:29 is 31 min before 08:00 → outside window
-      const before = await notificationRepository.getUsersForWindow(7, 29);
+      // 7:59 is before 08:00, so the previous cron slot must not send early.
+      const before = await notificationRepository.getUsersForWindow(7, 59);
       expect(before).toHaveLength(0);
 
       queryResults = [[user]];
       queryIndex = 0;
-      // 8:31 is 31 min after 08:00 → outside window
-      const after = await notificationRepository.getUsersForWindow(8, 31);
+      // 8:30 is the next cron slot and must not duplicate the 08:00 notification.
+      const after = await notificationRepository.getUsersForWindow(8, 30);
       expect(after).toHaveLength(0);
+    });
+
+    it("does not match all adjacent half-hour ticks for a half-hour preference", async () => {
+      const user = makeNotifUser({ timezone: "UTC", notificationTime: "07:30" });
+      queryResults = [[user]];
+      queryIndex = 0;
+
+      const previousTick = await notificationRepository.getUsersForWindow(7, 0);
+      expect(previousTick).toHaveLength(0);
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      const preferredTick = await notificationRepository.getUsersForWindow(7, 30);
+      expect(preferredTick).toHaveLength(1);
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      const nextTick = await notificationRepository.getUsersForWindow(8, 0);
+      expect(nextTick).toHaveLength(0);
     });
 
     it("handles timezone offset filtering", async () => {
