@@ -24,6 +24,7 @@
   "translating": "⏳ Překládám...",
   "translationError": "❌ Překlad selhal. Zkuste to prosím později.",
   "translationUnavailable": "⚠️ Překlad je dočasně nedostupný. Zkuste to znovu.",
+  "contextMarkerNeedsText": "Před kontextovou značku zadejte slovo nebo frázi.",
   "translationNeedsReview": "⚠️ Tento překlad může obsahovat nepřesnosti.",
   "saveToDict": "💾 Uložit do slovníku?",
   "savedToDict": "✅ Uloženo do slovníku!",

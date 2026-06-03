@@ -879,6 +879,7 @@ describe("i18n — locale consistency", () => {
       "translating",
       "translationError",
       "translationUnavailable",
+      "contextMarkerNeedsText",
       "translationNeedsReview",
       "saveToDict",
       "savedToDict",

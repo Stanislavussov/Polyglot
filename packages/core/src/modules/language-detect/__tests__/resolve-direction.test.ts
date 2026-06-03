@@ -7,15 +7,15 @@ describe("resolveTranslationDirection", () => {
     learningLangs: ["cs", "en"],
   };
 
-  // === Native language input → standard direction ===
+  // === Native language input → learning-language targets ===
 
-  it("returns standard direction when native language is detected", () => {
+  it("returns learning-language targets when native language is detected", () => {
     const result = resolveTranslationDirection({
       ...base,
       text: "привет мир это тест",
     });
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
+    expect(result.targetLangs).toEqual(["cs", "en"]);
     expect(result.detectedLang).toBe("ru");
   });
 
@@ -45,7 +45,7 @@ describe("resolveTranslationDirection", () => {
 
   // === Unknown / inconclusive input → fallback ===
 
-  it("falls back to standard direction for ambiguous short input", () => {
+  it("falls back to native source and learning-language targets for ambiguous short input", () => {
     // "hello" is a single Latin word, both "en" and "cs" use Latin → ambiguous
     const result = resolveTranslationDirection({
       ...base,
@@ -53,7 +53,7 @@ describe("resolveTranslationDirection", () => {
     });
     // Falls back to native → learning
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
+    expect(result.targetLangs).toEqual(["cs", "en"]);
     expect(result.detectedLang).toBeUndefined();
   });
 
@@ -63,7 +63,7 @@ describe("resolveTranslationDirection", () => {
       text: "",
     });
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
+    expect(result.targetLangs).toEqual(["cs", "en"]);
     expect(result.detectedLang).toBeUndefined();
   });
 
@@ -73,7 +73,7 @@ describe("resolveTranslationDirection", () => {
       text: "12345",
     });
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
+    expect(result.targetLangs).toEqual(["cs", "en"]);
     expect(result.detectedLang).toBeUndefined();
   });
 
@@ -90,14 +90,14 @@ describe("resolveTranslationDirection", () => {
     expect(result.detectedLang).toBe("en");
   });
 
-  it("handles single learning language: native input → targets=[native, learning]", () => {
+  it("handles single learning language: native input → targets=[learning]", () => {
     const result = resolveTranslationDirection({
       text: "привет мир это тест",
       nativeLang: "ru",
       learningLangs: ["en"],
     });
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["ru", "en"]);
+    expect(result.targetLangs).toEqual(["en"]);
     expect(result.detectedLang).toBe("ru");
   });
 
@@ -123,7 +123,7 @@ describe("resolveTranslationDirection", () => {
     });
     // "ru" is the only Cyrillic candidate → detected as "ru"
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["ru", "cs", "en"]);
+    expect(result.targetLangs).toEqual(["cs", "en"]);
     expect(result.detectedLang).toBe("ru");
   });
 
@@ -136,7 +136,7 @@ describe("resolveTranslationDirection", () => {
       learningLangs: [],
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual(["en"]);
+    expect(result.targetLangs).toEqual([]);
     // Single candidate "en" → detected as "en"
     expect(result.detectedLang).toBe("en");
   });

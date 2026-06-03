@@ -162,6 +162,13 @@ describe("handleTranslateText — auto-detect language direction", () => {
     expect(callArgs.word).toBe("hello");
   });
 
+  it("detects language from clean text without trailing context marker", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "hello #finance");
+
+    expect(detectLanguage).toHaveBeenCalledWith("hello", expect.any(Array));
+  });
+
   it("calls translateWithContext with correct model and outputConfig", async () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "test");
@@ -234,6 +241,14 @@ describe("handleTranslateText — mistype warning (Task 58)", () => {
     expect(ctx.session.pendingDirection).toBeDefined();
   });
 
+  it("stores clean pending word and context hint when language cannot be detected", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "xyz123 #finance");
+
+    expect(ctx.session.pendingWord).toBe("xyz123");
+    expect(ctx.session.pendingContextHint).toBe("finance");
+  });
+
   it("does not call translateWithContext when language cannot be detected", async () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "xyz123");
@@ -262,13 +277,16 @@ describe("handleMistypeConfirmCallback — Task 58", () => {
   it("proceeds with translation when confirm callback is triggered", async () => {
     const ctx = createMockCtx();
     ctx.session.pendingWord = "xyz123";
+    ctx.session.pendingContextHint = "finance";
     ctx.session.pendingDirection = { sourceLang: "ru", targetLangs: ["cs", "en"] };
     ctx.session.pendingDetectedLang = undefined;
 
     await handleMistypeConfirmCallback(ctx);
 
     expect(translateWithContext).toHaveBeenCalled();
+    expect(vi.mocked(translateWithContext).mock.calls[0][0]).toEqual(expect.objectContaining({ topic: "finance" }));
     expect(ctx.session.pendingWord).toBeUndefined();
+    expect(ctx.session.pendingContextHint).toBeUndefined();
     expect(ctx.session.pendingDirection).toBeUndefined();
   });
 

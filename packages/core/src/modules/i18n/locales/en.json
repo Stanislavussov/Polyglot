@@ -24,6 +24,7 @@
   "translating": "⏳ Translating...",
   "translationError": "❌ Translation failed. Please try again later.",
   "translationUnavailable": "⚠️ Translation temporarily unavailable. Try again.",
+  "contextMarkerNeedsText": "Enter a word or phrase before the context marker.",
   "translationNeedsReview": "⚠️ This translation may contain inaccuracies.",
   "saveToDict": "💾 Save to dictionary?",
   "savedToDict": "✅ Saved to dictionary!",

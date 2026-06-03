@@ -46,6 +46,7 @@ export interface SessionData {
     {
       output: TranslateOutput;
       inputType: InputType;
+      contextHint?: string;
       savedWordId?: number;
     }
   >;
@@ -108,6 +109,8 @@ export interface SessionData {
   pendingDetectedLang?: string | undefined;
   /** Pending word awaiting mistype confirmation */
   pendingWord?: string;
+  /** Pending context hint awaiting mistype confirmation */
+  pendingContextHint?: string;
   /** Pending direction for mistype flow */
   pendingDirection?: {
     sourceLang: string;

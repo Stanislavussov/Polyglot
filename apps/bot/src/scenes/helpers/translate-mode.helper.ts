@@ -35,6 +35,7 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { classifyInput } from "../../utils/classify-input.js";
+import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
 /** Singleton lookup function — created once and reused. */
@@ -53,6 +54,14 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
   const learningLangs = settings?.learningLangs ?? [];
+  const parsed = parseTranslateInput(word, ctx.message?.entities);
+  const cleanWord = parsed.text;
+  const contextHint = parsed.contextHint;
+
+  if (cleanWord.length === 0) {
+    await ctx.reply(t("contextMarkerNeedsText", lang));
+    return;
+  }
 
   if (learningLangs.length === 0) {
     await ctx.reply(t("translationUnavailable", lang));
@@ -72,7 +81,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const candidatesWithEnglish = ["en", ...allCandidates];
 
   // Try fast sync detection first (script + diacritics + franc)
-  let preDetectLang: string | undefined = detectLanguage(word, allCandidates);
+  let preDetectLang: string | undefined = detectLanguage(cleanWord, allCandidates);
 
   // If sync detection fails, try async detection with AI (last resort)
   if (preDetectLang === undefined) {
@@ -82,7 +91,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       return result.trim();
     };
 
-    preDetectLang = await detectLanguageAsync(word, candidatesWithEnglish, {
+    preDetectLang = await detectLanguageAsync(cleanWord, candidatesWithEnglish, {
       contextLookup: lookupContext,
       aiGenerate,
     });
@@ -95,11 +104,12 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   if (preDetectLang === undefined) {
     // Cannot detect language — likely mistype. Store pending state and show warning.
     ctx.session.pendingDetectedLang = undefined;
-    ctx.session.pendingWord = word;
+    ctx.session.pendingWord = cleanWord;
+    ctx.session.pendingContextHint = contextHint;
 
     // Resolve fallback direction for pending state (standard direction)
     const fallbackDir = resolveTranslationDirection({
-      text: word,
+      text: cleanWord,
       nativeLang,
       learningLangs,
     });
@@ -109,7 +119,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     };
 
     const warningText = t("mistypeWarning", lang, {
-      word: word.length > 50 ? `${word.slice(0, 47)}...` : word,
+      word: cleanWord.length > 50 ? `${cleanWord.slice(0, 47)}...` : cleanWord,
     });
     const keyboard = new InlineKeyboard()
       .text(t("mistypeConfirm", lang), "tr:mistype:confirm")
@@ -132,14 +142,14 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     detectedLang = preDetectLang;
   } else if (preDetectLang === "en") {
     // AI detected English (lingua franca) but "en" is not in user config.
-    // Treat as learning language → translate from English to native + learning languages.
+    // Treat as source language → translate to learning languages.
     sourceLang = "en";
-    targetLangs = [nativeLang, ...learningLangs];
+    targetLangs = learningLangs;
     detectedLang = "en";
   } else {
     // Detected lang is no longer in config — use fallback
     const fallback = resolveTranslationDirection({
-      text: word,
+      text: cleanWord,
       nativeLang,
       learningLangs,
     });
@@ -148,12 +158,13 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     detectedLang = fallback.detectedLang;
   }
 
-  const classification = classifyInput(word);
+  const classification = classifyInput(cleanWord);
   const isSentence = classification.type === "sentence";
 
   logger.debug(
     {
-      word,
+      word: cleanWord,
+      contextHint,
       detectedLang,
       sourceLang,
       targetLangs,
@@ -172,7 +183,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     // Load user's template for template-aware output resolution (Task 32)
     const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-    const outputConfig = resolveOutputConfig(userTpl, classification.type, word.length);
+    const outputConfig = resolveOutputConfig(userTpl, classification.type, cleanWord.length);
     const effectiveTemplate = resolveTemplate(userTpl);
 
     // For sentences, skip dictionary context lookup (no learnable word to enrich)
@@ -181,11 +192,12 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     const stopTimer = translationDuration.startTimer();
     const output = await translateWithContext(
       {
-        word,
+        word: cleanWord,
         sourceLang,
         targetLangs,
         nativeLang,
         model: config.AI_MODEL,
+        topic: contextHint,
         userId: ctx.user.id,
         outputConfig,
         inputType: classification.type,
@@ -221,6 +233,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       ctx.session.translationMap[String(sentMsg.message_id)] = {
         output,
         inputType: classification.type,
+        contextHint,
       };
 
       ctx.session.pendingTranslation = undefined;
@@ -252,11 +265,12 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       ctx.session.translationMap[String(cardMsg.message_id)] = {
         output,
         inputType: classification.type,
+        contextHint,
       };
     }
   } catch (err) {
     translationCounter.inc({ status: "error" });
-    logger.error({ err, word, telegramId }, "Translation failed");
+    logger.error({ err, word: cleanWord, telegramId }, "Translation failed");
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
     await ctx.reply(t("translationError", lang));
   }
@@ -482,6 +496,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
         targetLang: regenLang,
         nativeLang,
         model: config.AI_MODEL,
+        topic: entry.contextHint,
         userId: ctx.user.id,
         outputConfig,
         inputType,
@@ -600,6 +615,7 @@ export async function handleSourceLangCallback(ctx: BotContext): Promise<void> {
  */
 export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<void> {
   const pendingWord = ctx.session.pendingWord;
+  const pendingContextHint = ctx.session.pendingContextHint;
   const pendingDirection = ctx.session.pendingDirection;
 
   if (!pendingWord || !pendingDirection) {
@@ -619,6 +635,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   // Clear pending state immediately
   ctx.session.pendingDetectedLang = undefined;
   ctx.session.pendingWord = undefined;
+  ctx.session.pendingContextHint = undefined;
   ctx.session.pendingDirection = undefined;
 
   // Classify input type
@@ -647,6 +664,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
         targetLangs,
         nativeLang,
         model: config.AI_MODEL,
+        topic: pendingContextHint,
         userId: ctx.user.id,
         outputConfig,
         inputType: classification.type,
@@ -673,6 +691,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
       ctx.session.translationMap[String(sentMsg.message_id)] = {
         output,
         inputType: classification.type,
+        contextHint: pendingContextHint,
       };
 
       ctx.session.pendingTranslation = undefined;
@@ -697,6 +716,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
       ctx.session.translationMap[String(cardMsg.message_id)] = {
         output,
         inputType: classification.type,
+        contextHint: pendingContextHint,
       };
     }
   } catch (err) {
@@ -716,6 +736,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
 export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void> {
   ctx.session.pendingDetectedLang = undefined;
   ctx.session.pendingWord = undefined;
+  ctx.session.pendingContextHint = undefined;
   ctx.session.pendingDirection = undefined;
 
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);

@@ -28,6 +28,7 @@ export type I18nKey =
   | "translating"
   | "translationError"
   | "translationUnavailable"
+  | "contextMarkerNeedsText"
   | "translationNeedsReview"
   | "saveToDict"
   | "savedToDict"

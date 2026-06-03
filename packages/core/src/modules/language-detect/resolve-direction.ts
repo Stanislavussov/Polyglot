@@ -21,12 +21,12 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
   const candidates = [nativeLang, ...learningLangs];
   const detectedLang = detectLanguage(text, candidates);
 
-  // Case 1: Detected native language → standard direction
-  // Case 4: Undefined → fallback to standard direction
+  // Case 1: Detected native language → translate to learning languages.
+  // Case 4: Undefined → fallback to native source and learning-language targets.
   if (detectedLang === undefined || detectedLang === nativeLang) {
     return {
       sourceLang: nativeLang,
-      targetLangs: [nativeLang, ...learningLangs],
+      targetLangs: learningLangs,
       detectedLang,
     };
   }
@@ -43,10 +43,10 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
   }
 
   // Shouldn't reach here since detectLanguage only returns candidates,
-  // but fallback to standard direction for safety.
+  // but fallback to native source and learning-language targets for safety.
   return {
     sourceLang: nativeLang,
-    targetLangs: [nativeLang, ...learningLangs],
+    targetLangs: learningLangs,
     detectedLang: undefined,
   };
 }
@@ -70,11 +70,11 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
 export function resolveDirectionFromSource(input: ResolveFromSourceInput): TranslationDirection | null {
   const { sourceLang, nativeLang, learningLangs } = input;
 
-  // Source is native language → standard direction
+  // Source is native language → translate to learning languages.
   if (sourceLang === nativeLang) {
     return {
       sourceLang: nativeLang,
-      targetLangs: [nativeLang, ...learningLangs],
+      targetLangs: learningLangs,
       detectedLang: undefined,
     };
   }

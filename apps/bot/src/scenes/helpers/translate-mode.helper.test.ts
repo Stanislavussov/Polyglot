@@ -53,6 +53,7 @@ vi.mock("@polyglot/core", async () => {
       original: "hello",
       sourceLang: "en",
       emoji: "👋",
+      nativeSynonyms: [],
       translations: {
         cs: {
           text: "ahoj",
@@ -60,6 +61,11 @@ vi.mock("@polyglot/core", async () => {
           examples: [],
         },
       },
+    }),
+    translateOneWithContext: vi.fn().mockResolvedValue({
+      text: "banka",
+      synonyms: [],
+      examples: [],
     }),
     detectLanguage: vi.fn((text: string, candidates: string[]) => {
       // Simulate real detection: Cyrillic → Russian, otherwise first candidate
@@ -75,11 +81,11 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { translateWithContext } from "@polyglot/core";
+import { translateOneWithContext, translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../types.js";
-import { handleTranslateText } from "./translate-mode.helper.js";
+import { handleRegenCallback, handleTranslateText } from "./translate-mode.helper.js";
 
-function createMockCtx(overrides?: Partial<SessionData>): BotContext {
+function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string): BotContext {
   const session: SessionData = {
     activeMode: "translate",
     pendingTranslation: undefined,
@@ -102,7 +108,10 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
     from: { id: 123456789 },
     chat: { id: 123456789 },
     session,
+    callbackQuery: callbackData ? { data: callbackData } : undefined,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
+    answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+    editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
@@ -132,16 +141,16 @@ describe("handleTranslateText — context enrichment", () => {
   it("calls translateWithContext with correct input and deps", async () => {
     const ctx = createMockCtx();
     // Mock detectLanguage returns "ru" (candidates[0]) for Latin text
-    // "ru" is native lang → standard direction: sourceLang=ru, targets=[ru, cs, de]
+    // "ru" is native lang → sourceLang=ru, targets=[cs, de]
     await handleTranslateText(ctx, "hello");
 
     expect(translateWithContext).toHaveBeenCalledWith(
       expect.objectContaining({
         word: "hello",
         // detectLanguage returns "ru" (first candidate, Latin text), which is nativeLang
-        // nativeLang in candidates → standard direction: source=native, targets=[native, ...learningLangs]
+        // nativeLang in candidates → source=native, targets=learningLangs
         sourceLang: "ru",
-        targetLangs: ["ru", "cs", "de"],
+        targetLangs: ["cs", "de"],
       }),
       expect.objectContaining({
         lookupContext: mockLookupContext,
@@ -189,6 +198,107 @@ describe("handleTranslateText — context enrichment", () => {
     expect(translateWithContext).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: 1,
+      }),
+      expect.anything(),
+    );
+  });
+
+  it("passes clean text and context hint to translateWithContext", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "bank #finance");
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "bank",
+        topic: "finance",
+      }),
+      expect.anything(),
+    );
+  });
+
+  it("passes free-form context description to translateWithContext", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "bank :: financial institution");
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "bank",
+        topic: "financial institution",
+      }),
+      expect.anything(),
+    );
+  });
+
+  it("does not request a native-language translation block for native source text", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "en"],
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "биться в шары :: не видеть");
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "биться в шары",
+        sourceLang: "ru",
+        targetLangs: ["cs", "en"],
+        topic: "не видеть",
+      }),
+      expect.anything(),
+    );
+  });
+
+  it("stores context hint in translationMap for regeneration", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "bank #finance");
+
+    expect(ctx.session.translationMap?.["1"]?.contextHint).toBe("finance");
+  });
+
+  it("rejects marker-only input before calling AI", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "#finance");
+
+    expect(ctx.reply).toHaveBeenCalledWith("Enter a word or phrase before the context marker.");
+    expect(translateWithContext).not.toHaveBeenCalled();
+  });
+
+  it("passes stored context hint to translateOneWithContext during regeneration", async () => {
+    const msgId = 99;
+    const ctx = createMockCtx(
+      {
+        translationMap: {
+          [String(msgId)]: {
+            output: {
+              original: "bank",
+              sourceLang: "en",
+              emoji: "🏦",
+              nativeSynonyms: [],
+              translations: {
+                cs: {
+                  text: "breh",
+                  synonyms: [],
+                  examples: [],
+                },
+              },
+            },
+            inputType: "word",
+            contextHint: "river",
+          },
+        },
+      },
+      `tr:regen:cs:${msgId}`,
+    );
+
+    await handleRegenCallback(ctx);
+
+    expect(translateOneWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "bank",
+        topic: "river",
+        targetLang: "cs",
       }),
       expect.anything(),
     );

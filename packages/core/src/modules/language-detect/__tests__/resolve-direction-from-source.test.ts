@@ -9,14 +9,14 @@ describe("resolveDirectionFromSource", () => {
 
   // === Source is native language → standard direction ===
 
-  it("returns standard direction when source is native language", () => {
+  it("returns learning-language targets when source is native language", () => {
     const result = resolveDirectionFromSource({
       ...base,
       sourceLang: "ru",
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("ru");
-    expect(result!.targetLangs).toEqual(["ru", "cs", "en"]);
+    expect(result!.targetLangs).toEqual(["cs", "en"]);
     expect(result!.detectedLang).toBeUndefined();
   });
 
@@ -64,7 +64,7 @@ describe("resolveDirectionFromSource", () => {
 
   // === Single learning language ===
 
-  it("handles single learning language: source=native → targets=[native, learning]", () => {
+  it("handles single learning language: source=native → targets=[learning]", () => {
     const result = resolveDirectionFromSource({
       sourceLang: "ru",
       nativeLang: "ru",
@@ -72,7 +72,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("ru");
-    expect(result!.targetLangs).toEqual(["ru", "en"]);
+    expect(result!.targetLangs).toEqual(["en"]);
   });
 
   it("handles single learning language: source=learning → targets=[learning]", () => {
@@ -109,7 +109,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["en"]);
+    expect(result!.targetLangs).toEqual([]);
   });
 
   it("returns null when source is not native and not in empty learning langs", () => {
@@ -144,7 +144,7 @@ describe("resolveDirectionFromSource", () => {
     expect(result!.targetLangs).toEqual(["cs", "en"]);
   });
 
-  it("scenario: user selects Russian → translates to ru + cs + en", () => {
+  it("scenario: user selects Russian → translates to cs + en", () => {
     const result = resolveDirectionFromSource({
       sourceLang: "ru",
       nativeLang: "ru",
@@ -152,7 +152,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("ru");
-    expect(result!.targetLangs).toEqual(["ru", "cs", "en"]);
+    expect(result!.targetLangs).toEqual(["cs", "en"]);
   });
 
   it("scenario: user selects English → translates to cs + en", () => {
