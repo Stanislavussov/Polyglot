@@ -341,3 +341,21 @@ export const notificationHistory = pgTable(
 );
 
 export type NotificationHistory = typeof notificationHistory.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Bot sessions — grammY session storage
+// Stores per-chat/user bot session state so interactions survive restarts.
+// ─────────────────────────────────────────────
+export const botSessions = pgTable(
+  "bot_sessions",
+  {
+    key: text("key").primaryKey(),
+    data: jsonb("data").$type<unknown>().notNull(),
+    version: integer("version").default(1).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [index("bot_sessions_updated_at_idx").on(t.updatedAt)],
+);
+
+export type BotSession = typeof botSessions.$inferSelect;

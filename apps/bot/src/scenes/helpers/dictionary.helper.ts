@@ -32,31 +32,31 @@ async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
   return lang && isSupported(lang) ? lang : "en";
 }
 
-/* ── Session check ─────────────────────────────────────────────── */
+/* ── Callback parsing ──────────────────────────────────────────── */
 
-async function answerExpired(ctx: BotContext): Promise<void> {
+function parsePositiveInteger(value: string | undefined): number | null {
+  if (!value) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) || parsed < 1 ? null : parsed;
+}
+
+async function answerNoResults(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
-  try {
-    await ctx.answerCallbackQuery({
-      text: t("dictionarySessionExpired", lang),
-    });
-  } catch {
-    /* ignore */
-  }
+  await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+}
+
+async function getOwnedEntry(ctx: BotContext, entryId: number) {
+  const entry = await vocabularyRepository.findById(entryId);
+  if (!entry || entry.userId !== ctx.user.id || !entry.isActive) return null;
+  return entry;
 }
 
 /* ── dict:page:{n} ─────────────────────────────────────────────── */
 
 export async function handleDictPage(ctx: BotContext): Promise<void> {
-  const dict = ctx.session.dictionary;
-  if (!dict) {
-    await answerExpired(ctx);
-    return;
-  }
-
   const data = ctx.callbackQuery?.data ?? "";
-  const page = parseInt(data.split(":")[2] ?? "1", 10);
-  if (Number.isNaN(page) || page < 1) return void ctx.answerCallbackQuery();
+  const page = parsePositiveInteger(data.split(":")[2]);
+  if (!page) return void ctx.answerCallbackQuery();
 
   const lang = await getUserLang(ctx);
   const total = await vocabularyRepository.countByUser(ctx.user.id);
@@ -87,26 +87,25 @@ export async function handleDictPage(ctx: BotContext): Promise<void> {
     logger.error({ err }, "Failed to edit dictionary message");
   }
 
-  dict.currentPage = safePage;
+  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: safePage };
   await ctx.answerCallbackQuery();
 }
 
 /* ── dict:view:{entryId} or dict:view:{entryId}:{page} ────────── */
 
 export async function handleDictView(ctx: BotContext): Promise<void> {
-  const dict = ctx.session.dictionary;
-  if (!dict) {
-    await answerExpired(ctx);
+  const data = ctx.callbackQuery?.data ?? "";
+  const parts = data.split(":");
+  const entryId = parsePositiveInteger(parts[2]);
+  const page = parsePositiveInteger(parts[3]) ?? ctx.session.dictionary?.currentPage ?? 1;
+
+  if (!entryId) {
+    await answerNoResults(ctx);
     return;
   }
 
-  const data = ctx.callbackQuery?.data ?? "";
-  const parts = data.split(":");
-  const entryId = parseInt(parts[2] ?? "0", 10);
-  const page = parts[3] ? parseInt(parts[3], 10) : dict.currentPage;
-
   const lang = await getUserLang(ctx);
-  const entry = await vocabularyRepository.findById(entryId);
+  const entry = await getOwnedEntry(ctx, entryId);
 
   if (!entry) {
     await ctx.answerCallbackQuery({ text: t("noResults", lang) });
@@ -121,25 +120,26 @@ export async function handleDictView(ctx: BotContext): Promise<void> {
   } catch (err) {
     logger.error({ err }, "Failed to edit dictionary message");
   }
+  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page };
   await ctx.answerCallbackQuery();
 }
 
-/* ── dict:delete:{entryId} ─────────────────────────────────────── */
+/* ── dict:delete:{entryId} or dict:delete:{entryId}:{page} ─────── */
 
 export async function handleDictDelete(ctx: BotContext): Promise<void> {
-  const dict = ctx.session.dictionary;
-  if (!dict) {
-    await answerExpired(ctx);
+  const data = ctx.callbackQuery?.data ?? "";
+  const parts = data.split(":");
+  const entryId = parsePositiveInteger(parts[2]);
+  const page = parsePositiveInteger(parts[3]) ?? ctx.session.dictionary?.currentPage ?? 1;
 
+  if (!entryId) {
+    await answerNoResults(ctx);
     return;
   }
 
-  const data = ctx.callbackQuery?.data ?? "";
-  const entryId = parseInt(data.split(":")[2] ?? "0", 10);
-
   const lang = await getUserLang(ctx);
 
-  const entry = await vocabularyRepository.findById(entryId);
+  const entry = await getOwnedEntry(ctx, entryId);
 
   if (!entry) {
     await ctx.answerCallbackQuery({ text: t("noResults", lang) });
@@ -148,31 +148,37 @@ export async function handleDictDelete(ctx: BotContext): Promise<void> {
   }
 
   const text = t("dictionaryDeleteConfirm", lang, { word: entry.original });
-  const kb = buildDeleteConfirmKeyboard(entryId, dict.currentPage, lang);
+  const kb = buildDeleteConfirmKeyboard(entryId, page, lang);
 
   try {
     await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
   } catch (err) {
     logger.error({ err }, "Failed to edit dictionary message");
   }
+  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page };
   await ctx.answerCallbackQuery();
 }
 
 /* ── dict:confirm-delete:{entryId}:{page} ──────────────────────── */
 
 export async function handleDictConfirmDelete(ctx: BotContext): Promise<void> {
-  const dict = ctx.session.dictionary;
-  if (!dict) {
-    await answerExpired(ctx);
+  const data = ctx.callbackQuery?.data ?? "";
+  const parts = data.split(":");
+  const entryId = parsePositiveInteger(parts[2]);
+  const page = parsePositiveInteger(parts[3]) ?? 1;
+
+  if (!entryId) {
+    await answerNoResults(ctx);
     return;
   }
 
-  const data = ctx.callbackQuery?.data ?? "";
-  const parts = data.split(":");
-  const entryId = parseInt(parts[2] ?? "0", 10);
-  const page = parseInt(parts[3] ?? "1", 10);
-
   const lang = await getUserLang(ctx);
+  const entry = await getOwnedEntry(ctx, entryId);
+
+  if (!entry) {
+    await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+    return;
+  }
 
   await vocabularyRepository.hardDelete(entryId);
   await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
@@ -207,7 +213,7 @@ export async function handleDictConfirmDelete(ctx: BotContext): Promise<void> {
     logger.error({ err }, "Failed to edit dictionary message");
   }
 
-  dict.currentPage = safePage;
+  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: safePage };
 }
 
 /* ── dict:close ────────────────────────────────────────────────── */

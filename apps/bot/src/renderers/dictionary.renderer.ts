@@ -158,7 +158,7 @@ export function buildDictionaryListKeyboard(
     const label = emoji
       ? `${emoji} ${truncate(entry.original, MAX_WORD_LENGTH)}`
       : truncate(entry.original, MAX_WORD_LENGTH);
-    kb.text(label, `dict:view:${entry.id}`).row();
+    kb.text(label, `dict:view:${entry.id}:${page}`).row();
   }
 
   // Navigation row (only if > 1 page)
@@ -185,7 +185,7 @@ export function buildDictionaryListKeyboard(
 export function buildDictionaryEntryKeyboard(entryId: number, page: number, lang: SupportedLang): InlineKeyboard {
   const l = toLang(lang);
   return new InlineKeyboard()
-    .text(t("dictionaryDelete", l), `dict:delete:${entryId}`)
+    .text(t("dictionaryDelete", l), `dict:delete:${entryId}:${page}`)
     .row()
     .text(t("dictionaryBack", l), `dict:page:${page}`);
 }

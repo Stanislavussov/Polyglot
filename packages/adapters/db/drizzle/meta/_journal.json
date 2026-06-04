@@ -155,6 +155,13 @@
       "when": 1780596415418,
       "tag": "0021_common_pet_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1780598445678,
+      "tag": "0022_complex_lionheart",
+      "breakpoints": true
     }
   ]
 }

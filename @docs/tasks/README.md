@@ -41,6 +41,7 @@
 | 54  | [Fix Core Barrel Export Conflicts](./54-fix-barrel-export-conflicts.md) | 🔲 To Do | 🟡 Medium |
 | 55  | [Health Check & Basic Observability](./55-health-check-and-observability.md) | 🔲 To Do | 🟡 Medium |
 | 56  | [Docker Compose Build](./56-docker-compose-build.md) | ✅ Done (files in `deploy/`) | ✅ Done |
+| 61  | [Restart-Safe Bot Interactions & Deploy Continuity](./61-restart-safe-bot-interactions.md) | 🔲 To Do | 🔴 Critical |
 
 ## Finished
 

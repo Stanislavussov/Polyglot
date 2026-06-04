@@ -246,13 +246,13 @@ describe("renderDictionaryEntry", () => {
 /* ── buildDictionaryListKeyboard ───────────────────────────────── */
 
 describe("buildDictionaryListKeyboard", () => {
-  it("has one button per entry with dict:view:{id} callback", () => {
+  it("has one button per entry with dict:view:{id}:{page} callback", () => {
     const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en");
     const rows = kb.inline_keyboard;
     // First 3 rows should be entry buttons
-    expect(cbData(rows[0]![0])).toBe("dict:view:1");
-    expect(cbData(rows[1]![0])).toBe("dict:view:2");
-    expect(cbData(rows[2]![0])).toBe("dict:view:3");
+    expect(cbData(rows[0]![0])).toBe("dict:view:1:1");
+    expect(cbData(rows[1]![0])).toBe("dict:view:2:1");
+    expect(cbData(rows[2]![0])).toBe("dict:view:3:1");
   });
 
   it("has navigation buttons when > 1 page", () => {
@@ -316,7 +316,7 @@ describe("buildDictionaryEntryKeyboard", () => {
     const kb = buildDictionaryEntryKeyboard(42, 2, "en");
     const rows = kb.inline_keyboard;
     expect(rows.length).toBe(2);
-    expect(cbData(rows[0]![0])).toBe("dict:delete:42");
+    expect(cbData(rows[0]![0])).toBe("dict:delete:42:2");
     expect(cbData(rows[1]![0])).toBe("dict:page:2");
   });
 

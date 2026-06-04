@@ -3,6 +3,7 @@
  */
 import type { VocabularyEntryWithTranslations } from "@polyglot/adapter-db";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { BotContext } from "../../../types.js";
 
 /* ── Mocks ─────────────────────────────────────────────────────── */
 
@@ -84,17 +85,23 @@ function makeEntry(id: number, original: string): VocabularyEntryWithTranslation
   };
 }
 
-function createMockCtx(opts: { callbackData?: string; dictionary?: { currentPage: number; msgId?: number } } = {}) {
+function createMockCtx(
+  opts: { callbackData?: string; dictionary?: { currentPage: number; msgId?: number } | undefined } = {},
+) {
   return {
     user: { id: 1 },
     session: {
-      dictionary: opts.dictionary ?? { currentPage: 1 },
+      dictionary: "dictionary" in opts ? opts.dictionary : { currentPage: 1 },
     },
     callbackQuery: opts.callbackData ? { data: opts.callbackData, message: { message_id: 100 } } : undefined,
     editMessageText: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
-  } as any;
+  } as unknown as BotContext & {
+    editMessageText: ReturnType<typeof vi.fn>;
+    deleteMessage: ReturnType<typeof vi.fn>;
+    answerCallbackQuery: ReturnType<typeof vi.fn>;
+  };
 }
 
 /* ── Setup ─────────────────────────────────────────────────────── */
@@ -132,7 +139,7 @@ describe("handleDictPage", () => {
 
     await handleDictPage(ctx);
 
-    expect(ctx.session.dictionary.currentPage).toBe(2);
+    expect(ctx.session.dictionary?.currentPage).toBe(2);
   });
 
   it("shows emptyDictionary when total is 0", async () => {
@@ -198,7 +205,7 @@ describe("handleDictDelete", () => {
   it("shows confirmation with word name", async () => {
     const entry = makeEntry(42, "hello");
     mockFindById.mockResolvedValue(entry);
-    const ctx = createMockCtx({ callbackData: "dict:delete:42" });
+    const ctx = createMockCtx({ callbackData: "dict:delete:42:1" });
 
     await handleDictDelete(ctx);
 
@@ -221,6 +228,7 @@ describe("handleDictDelete", () => {
 
 describe("handleDictConfirmDelete", () => {
   it("calls hardDelete and returns to list", async () => {
+    mockFindById.mockResolvedValue(makeEntry(42, "hello"));
     mockHardDelete.mockResolvedValue(undefined);
     mockCountByUser.mockResolvedValue(5);
     mockFindByUserPaginated.mockResolvedValue([makeEntry(2, "remaining")]);
@@ -236,6 +244,7 @@ describe("handleDictConfirmDelete", () => {
   });
 
   it("goes to previous page when current page becomes empty", async () => {
+    mockFindById.mockResolvedValue(makeEntry(42, "hello"));
     mockHardDelete.mockResolvedValue(undefined);
     // After deletion, only 15 entries left → 1 page, but we're on page 2
     mockCountByUser.mockResolvedValue(15);
@@ -246,10 +255,11 @@ describe("handleDictConfirmDelete", () => {
 
     // Should go to page 1 (totalPages = 1 < page 2)
     expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 0, 15);
-    expect(ctx.session.dictionary.currentPage).toBe(1);
+    expect(ctx.session.dictionary?.currentPage).toBe(1);
   });
 
   it("shows emptyDictionary when last word deleted", async () => {
+    mockFindById.mockResolvedValue(makeEntry(42, "hello"));
     mockHardDelete.mockResolvedValue(undefined);
     mockCountByUser.mockResolvedValue(0);
     const ctx = createMockCtx({ callbackData: "dict:confirm-delete:42:1" });
@@ -290,58 +300,56 @@ describe("handleDictNoop", () => {
   });
 });
 
-/* ── Session expired ───────────────────────────────────────────── */
+/* ── Restart recovery and ownership ────────────────────────────── */
 
-describe("session expired", () => {
-  it("handleDictPage returns dictionarySessionExpired when no session", async () => {
-    const ctx = createMockCtx({ callbackData: "dict:page:1" });
-    ctx.session.dictionary = undefined;
+describe("restart recovery and ownership", () => {
+  it("handleDictPage re-renders from DB when session is missing", async () => {
+    mockCountByUser.mockResolvedValue(20);
+    mockFindByUserPaginated.mockResolvedValue([makeEntry(1, "w")]);
+    const ctx = createMockCtx({ callbackData: "dict:page:2", dictionary: undefined });
 
     await handleDictPage(ctx);
 
-    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text: expect.stringContaining("expired"),
-      }),
-    );
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15);
+    expect(ctx.editMessageText).toHaveBeenCalled();
+    expect(ctx.session.dictionary?.currentPage).toBe(2);
   });
 
-  it("handleDictView returns dictionarySessionExpired when no session", async () => {
-    const ctx = createMockCtx({ callbackData: "dict:view:1" });
-    ctx.session.dictionary = undefined;
+  it("handleDictView re-renders owned entries when session is missing", async () => {
+    mockFindById.mockResolvedValue(makeEntry(42, "hello"));
+    const ctx = createMockCtx({ callbackData: "dict:view:42:3", dictionary: undefined });
 
     await handleDictView(ctx);
 
-    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text: expect.stringContaining("expired"),
-      }),
-    );
+    expect(ctx.editMessageText).toHaveBeenCalled();
+    expect(ctx.session.dictionary?.currentPage).toBe(3);
   });
 
-  it("handleDictDelete returns dictionarySessionExpired when no session", async () => {
-    const ctx = createMockCtx({ callbackData: "dict:delete:1" });
-    ctx.session.dictionary = undefined;
+  it("handleDictDelete rejects entries owned by another user", async () => {
+    mockFindById.mockResolvedValue({ ...makeEntry(42, "hello"), userId: 2 });
+    const ctx = createMockCtx({ callbackData: "dict:delete:42:1", dictionary: undefined });
 
     await handleDictDelete(ctx);
 
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: expect.stringContaining("expired"),
+        text: expect.stringContaining("No results"),
       }),
     );
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
   });
 
-  it("handleDictConfirmDelete returns dictionarySessionExpired when no session", async () => {
-    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:1:1" });
-    ctx.session.dictionary = undefined;
+  it("handleDictConfirmDelete validates ownership before deleting", async () => {
+    mockFindById.mockResolvedValue({ ...makeEntry(42, "hello"), userId: 2 });
+    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:42:1", dictionary: undefined });
 
     await handleDictConfirmDelete(ctx);
 
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: expect.stringContaining("expired"),
+        text: expect.stringContaining("No results"),
       }),
     );
+    expect(mockHardDelete).not.toHaveBeenCalled();
   });
 });

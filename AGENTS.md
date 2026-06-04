@@ -19,18 +19,20 @@ Never use `any`, `// @ts-ignore`, or `// @ts-expect-error`. Fix the underlying t
 
 ### 3. Database Handling via Drizzle Kit
 
-All database schema work goes through `drizzle-kit`:
+All database schema work goes through `drizzle-kit`, but agents must not run production-style migrations from a local run.
 
 ```bash
 pnpm db:generate   # generate migrations from schema changes
-pnpm db:push       # push schema (dev only)
-pnpm db:migrate    # run pending migrations
+pnpm db:push       # push schema changes to the local/dev database
 pnpm db:check      # check for schema drift
-pnpm db:studio     # visual db explorer
 ```
 
 - Edit `packages/adapters/db/src/schema.ts`, then generate migrations
 - Never hand-edit migration files or use raw SQL
+- `pnpm db:push` is allowed and often necessary for local/dev databases
+- Do **not** run `pnpm db:migrate` locally as an agent
+- Production/staging migration application must happen through the deployment pipeline
+- Local `pnpm db:migrate` requires an explicit, separate user request for that exact command
 
 ### 4. No Logic in Index Files
 
