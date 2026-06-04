@@ -19,6 +19,8 @@ export {
   loadLanguageCache,
   normalizeToIso1,
 } from "./language-cache.js";
+export type { StoredBotSession } from "./repositories/bot-session.repository.js";
+export { BOT_SESSION_VERSION, botSessionRepository } from "./repositories/bot-session.repository.js";
 export type {
   Language,
   NewLanguage,

@@ -71,7 +71,9 @@ Do NOT proceed to documentation updates or mark tasks done until all four pass.
 
 ## Database Handling (Drizzle Kit)
 
-All database schema changes, migrations, and introspection **must be done through `drizzle-kit`**. Never modify migration files manually or interact with the database directly.
+All database schema changes and migration generation **must be done through `drizzle-kit`**. Never modify migration files manually or interact with the database directly.
+
+Agents must not run production-style migrations from a local run. Migration application via `pnpm db:migrate` belongs to the deployment pipeline unless the user makes an explicit, separate request for that exact command.
 
 ### Allowed commands
 
@@ -79,25 +81,22 @@ All database schema changes, migrations, and introspection **must be done throug
 # Generate migrations from schema changes
 pnpm db:generate
 
-# Push schema changes directly (development only)
+# Push schema changes to the local/dev database
 pnpm db:push
-
-# Run pending migrations
-pnpm db:migrate
 
 # Check for schema drift
 pnpm db:check
-
-# Open Drizzle Studio (visual db explorer)
-pnpm db:studio
 ```
 
 ### Rules
 
-- Schema changes flow: edit `packages/adapters/db/src/schema.ts` → run `pnpm db:generate` → review generated migrations → run `pnpm db:migrate`
+- Schema changes flow for agents: edit `packages/adapters/db/src/schema.ts` → run `pnpm db:generate` → review generated migrations → use `pnpm db:push` when the local/dev database needs the new schema
 - Never hand-edit files in `packages/adapters/db/drizzle/`
 - Never use raw SQL or external tools to modify the database structure
 - Always commit generated migration files alongside the schema changes
+- `pnpm db:push` is allowed and often necessary for local/dev databases
+- Do **not** run `pnpm db:migrate` locally as an agent
+- Production/staging migration application must happen through the deployment pipeline
 
 ## Documentation Updates
 
