@@ -67,6 +67,7 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   telegramId: bigint("telegram_id", { mode: "number" }).unique().notNull(),
   username: text("username"),
+  subscriptionPlan: text("subscription_plan").$type<"free" | "plus" | "pro" | "unlimited">().default("free").notNull(),
   onboardingStep: integer("onboarding_step").default(0).notNull(),
   onboarded: boolean("onboarded").default(false).notNull(),
   isActive: boolean("is_active").default(true).notNull(),
@@ -208,6 +209,7 @@ export const translationRequests = pgTable(
       .notNull(),
     original: text("original").notNull(),
     sourceLangId: integer("source_lang_id").references(() => languages.id),
+    creditCost: integer("credit_cost").default(1).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (t) => [

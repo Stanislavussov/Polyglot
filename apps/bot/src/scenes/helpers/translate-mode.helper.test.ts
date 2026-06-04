@@ -14,6 +14,7 @@ const {
   mockUserRepository,
   mockVocabularyRepository,
   mockTranslationTemplateRepository,
+  mockTranslationRequestRepository,
   mockLanguageCache,
   mockAi,
 } = vi.hoisted(() => ({
@@ -28,6 +29,10 @@ const {
   },
   mockTranslationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),
+  },
+  mockTranslationRequestRepository: {
+    getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
+    logTranslationRequest: vi.fn().mockResolvedValue(1),
   },
   mockLanguageCache: {
     getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
@@ -121,6 +126,7 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string):
       userRepository: mockUserRepository,
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
+      translationRequestRepository: mockTranslationRequestRepository,
       languageCache: mockLanguageCache,
       ai: mockAi,
     },
@@ -136,6 +142,7 @@ describe("handleTranslateText — context enrichment", () => {
       nativeLang: "ru",
       learningLangs: ["cs", "de"],
     });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
   });
 
   it("calls translateWithContext with correct input and deps", async () => {
@@ -157,6 +164,30 @@ describe("handleTranslateText — context enrichment", () => {
         generateObjectFn: expect.any(Function),
       }),
     );
+  });
+
+  it("logs one credit after successful incoming translation request", async () => {
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "hello");
+
+    expect(mockTranslationRequestRepository.logTranslationRequest).toHaveBeenCalledWith(
+      1,
+      "hello",
+      "ru",
+      ["cs", "de"],
+      1,
+    );
+  });
+
+  it("does not call AI when daily credits are exhausted", async () => {
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(50);
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "hello");
+
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining("Daily translation limit"));
   });
 
   it("passes reliable default outputConfig", async () => {
@@ -301,6 +332,45 @@ describe("handleTranslateText — context enrichment", () => {
         targetLang: "cs",
       }),
       expect.anything(),
+    );
+  });
+
+  it("does not apply user-facing rate limits to regeneration", async () => {
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(49);
+    const msgId = 99;
+    const ctx = createMockCtx(
+      {
+        translationMap: {
+          [String(msgId)]: {
+            output: {
+              original: "bank",
+              sourceLang: "en",
+              emoji: "🏦",
+              nativeSynonyms: [],
+              translations: {
+                cs: {
+                  text: "breh",
+                  synonyms: [],
+                  examples: [],
+                },
+              },
+            },
+            inputType: "word",
+          },
+        },
+      },
+      `tr:regen:cs:${msgId}`,
+    );
+
+    await handleRegenCallback(ctx);
+
+    expect(translateOneWithContext).toHaveBeenCalled();
+    expect(mockTranslationRequestRepository.logTranslationRequest).not.toHaveBeenCalledWith(
+      1,
+      "bank",
+      "en",
+      ["cs"],
+      expect.any(Number),
     );
   });
 });

@@ -46,6 +46,7 @@ export type { SavedTranslationTemplate } from "./repositories/translation-templa
 export { translationTemplateRepository } from "./repositories/translation-template.repository.js";
 export type {
   NewUser,
+  SubscriptionPlan,
   User,
   UserLanguageSettings,
 } from "./repositories/user.repository.js";

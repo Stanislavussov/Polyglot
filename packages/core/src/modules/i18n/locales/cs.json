@@ -133,6 +133,8 @@
   "settingsNativeLang": "🗣 Mateřský jazyk: {lang}",
   "settingsLearningLangs": "📚 Učím se: {langs}",
   "settingsInterfaceLang": "🌐 Rozhraní: {lang}",
+  "settingsPlan": "💳 Tarif: {plan} · dnes zbývá {remaining}/{limit} kreditů",
+  "settingsPlanUnlimited": "💳 Tarif: {plan} · neomezené překlady",
   "settingsChangeNative": "🗣 Změnit mateřský",
   "settingsChangeLearning": "📚 Změnit učení",
   "settingsChangeInterface": "🌐 Změnit rozhraní",
@@ -196,5 +198,6 @@
   "reportTooLong": "⚠️ Vaše popis je příliš dlouhý (max 1000 znaků). Prosím, zkraťte ho.",
   "mistypeWarning": "⚠️ Nemohu určit jazyk \"{word}\". Neudělal/a jste překlep?",
   "mistypeConfirm": "Ano, přeložit",
-  "mistypeCancel": "Zkusit znovu"
+  "mistypeCancel": "Zkusit znovu",
+  "rateLimitExceeded": "⚠️ Denní limit překladů byl vyčerpán. Otevřete /settings a zkontrolujte svůj tarif."
 }

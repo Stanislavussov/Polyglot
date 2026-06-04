@@ -30,7 +30,7 @@ vi.mock("@polyglot/adapter-db", () => ({
   },
   translationRequestRepository: {
     logTranslationRequest: vi.fn().mockResolvedValue(1),
-    getUserRequestsInWindow: vi.fn().mockResolvedValue(0),
+    getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
     getRecentRequests: vi.fn().mockResolvedValue([]),
   },
   loadLanguageCache: vi.fn().mockResolvedValue(undefined),

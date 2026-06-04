@@ -46,6 +46,7 @@ const FAKE_USER = {
   id: 1,
   telegramId: 123456,
   username: "testuser",
+  subscriptionPlan: "free",
   onboardingStep: 4,
   onboarded: true,
   isActive: true,

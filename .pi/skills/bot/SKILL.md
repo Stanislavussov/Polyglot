@@ -26,7 +26,7 @@ Already implemented:
 - `commands/start.ts` — /start handler (onboarding or main menu); restores translate mode for onboarded users (persisted to DB)
 - `scenes/onboarding.scene.ts` — 3-step onboarding conversation (BRD §5); infers interface language from native language; sets activeMode = "translate" on completion (persisted to DB)
 - `scenes/translate.scene.ts` — mode-based: /translate sets mode and shows confirmation (persisted to DB)
-- `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks with FEAT-30 flow (FK resolution, dedup detection via `vocabularyRepository`, save via `toVocabularyInput()` + `vocabularyRepository.create()`); regen updates single language row via `vocabularyRepository.updateTranslation()`; uses `translateWithContext()` from context-enrichment layer
+- `scenes/helpers/translate-mode.helper.ts` — handles translation text, Save/Skip callbacks with FEAT-30 flow (FK resolution, dedup detection via `vocabularyRepository`, save via `toVocabularyInput()` + `vocabularyRepository.create()`); checks subscription-plan translation credits before incoming user translation requests; logs successful incoming translations to `translationRequestRepository`; regen updates single language row via `vocabularyRepository.updateTranslation()` and is not user-metered; uses `translateWithContext()` from context-enrichment layer
 - `scenes/helpers/regen.helper.ts` — regeneration loop helper (per-language regen, save with `vocabularyRepository.create()` + `toVocabularyInput()`, skip)
 - `renderers/translation.renderer.ts` — renderTranslation (HTML, template-aware), renderTopicWord (HTML), buildTranslationKeyboard (inline keyboard with inputType-aware save labels), buildPostSaveKeyboard (regen-only post-save keyboard), buildSourceLangKeyboard (source language selection keyboard)
 - `scenes/template.scene.ts` — /template command handler (shows current template status with Customize/Reset buttons)
@@ -107,7 +107,7 @@ The `/flashcard` command starts a flash card session using the config-driven dic
 
 The `/settings` command shows current language configuration with inline buttons to change each setting:
 
-1. **Command**: `/settings` → shows settings menu with current native, learning, and interface language configuration
+1. **Command**: `/settings` → shows settings menu with current native, learning, interface language configuration, subscription plan, and remaining daily translation credits
 2. **Native language** (`set:native`): Opens language picker → `set:native:{code}` selects → `userRepository.updateNativeLang()` persists
 3. **Learning languages** (`set:learning`): Opens multi-select → `set:learn:{code}` toggles → `userRepository.updateLearningLangs()` persists on each toggle. `set:learn:done` returns to menu. Enforces 1–4 language limit (MAX_LEARNING_LANGS).
 4. **Interface language** (`set:interface`): Opens language picker → `set:iface:{code}` selects → `userRepository.updateInterfaceLang()` persists → `setUserCommands()` updates bot command menu for new language

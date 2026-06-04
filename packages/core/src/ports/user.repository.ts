@@ -1,3 +1,5 @@
+export type SubscriptionPlan = "free" | "plus" | "pro" | "unlimited";
+
 /**
  * Port interface for UserRepository.
  */
@@ -5,6 +7,7 @@ export interface User {
   id: number;
   telegramId: number;
   username: string | null;
+  subscriptionPlan: SubscriptionPlan;
   onboardingStep: number;
   onboarded: boolean;
   isActive: boolean;

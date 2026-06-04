@@ -18,7 +18,7 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 ## Current State
 
 Fully implemented. All tables, repositories, singleton connection, and context-lookup factory in place.
-- `schema.ts` — tables: `users`, `userLanguageSettings` (incl. notification_enabled, notification_time, notification_type, last_interaction_at), `vocabularyEntries`, `vocabularyTranslations` (incl. per-translation SRS state: `srs_ease_factor`, `srs_interval`, `srs_due_date`, `srs_review_count`), `wordReviewLog`, `translationRequests`, `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
+- `schema.ts` — tables: `users` (incl. subscription_plan), `userLanguageSettings` (incl. notification_enabled, notification_time, notification_type, last_interaction_at), `vocabularyEntries`, `vocabularyTranslations` (incl. per-translation SRS state: `srs_ease_factor`, `srs_interval`, `srs_due_date`, `srs_review_count`), `wordReviewLog`, `translationRequests` (incl. credit_cost), `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
 - `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `vocabularyRepository`, `translationRequestRepository`, `wordReviewRepository`, `notificationRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
 - `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded, updateNotificationPrefs, updateLastInteraction
@@ -150,8 +150,8 @@ findAll(): Promise<Language[]>;
 ### TranslationRequestRepository
 
 ```typescript
-logTranslationRequest(userId: number, original: string, sourceLangCode: string | null, targetLangCodes: string[]): Promise<number>;
-getUserRequestsInWindow(userId: number, windowStart: Date): Promise<number>;
+logTranslationRequest(userId: number, original: string, sourceLangCode: string | null, targetLangCodes: string[], creditCost?: number): Promise<number>;
+getUserCreditsInWindow(userId: number, windowStart: Date): Promise<number>;
 getRecentRequests(userId: number, limit: number): Promise<TranslationRequestDTO[]>;
 ```
 
@@ -309,7 +309,7 @@ type UpdateTranslationData = { text?: string; register?: string; transcription?:
 ```
 packages/adapters/db/src/
 ├── index.ts                              # getDb(), closeDb(), re-exports (incl. createContextLookup + language cache)
-├── schema.ts                             # Drizzle table definitions (users, userLanguageSettings, vocabularyEntries, vocabularyTranslations, wordReviewLog, translationRequests, translationRequestTargetLangs, topicTranslationCache, languages, wordContext, userTranslationTemplates)
+├── schema.ts                             # Drizzle table definitions (users incl. subscriptionPlan, userLanguageSettings, vocabularyEntries, vocabularyTranslations, wordReviewLog, translationRequests incl. creditCost, translationRequestTargetLangs, topicTranslationCache, languages, wordContext, userTranslationTemplates)
 ├── context-lookup.ts                     # ✅ createContextLookup() factory — DB→DictionaryContext transform, fail-open
 ├── language-cache.ts                     # ✅ loadLanguageCache(), getLang(), getLangDisplay(), getSupportedLangs(), normalizeToIso1(), etc. — in-memory cache loaded from languages table at startup
 ├── repositories/
@@ -317,7 +317,7 @@ packages/adapters/db/src/
 │   ├── vocabulary.repository.ts          # ✅ implemented (Task 39+40 — normalized CRUD: create, find*, countByUser, findByUserPaginated, update*, delete, hardDelete, search)
 │   ├── topic.repository.ts               # ✅ implemented
 │   ├── language.repository.ts            # ✅ implemented (findByCode, create, getOrCreate, findAll)
-│   ├── translation-request.repository.ts  # ✅ implemented (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)
+│   ├── translation-request.repository.ts  # ✅ implemented (logTranslationRequest, getUserCreditsInWindow, getRecentRequests)
 │   ├── translation-template.repository.ts # ✅ implemented (getByUserId, upsert, deleteByUserId — Task 32)
 │   ├── word-review.repository.ts         # ✅ implemented (logReview, getReviewCounts, getReviewsForWord, getReviewsBySessionType — Task 33)
 │   ├── word-context.repository.ts        # ✅ implemented (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
@@ -330,7 +330,7 @@ packages/adapters/db/src/
     ├── topic.repository.test.ts          # 4 tests
     ├── language.repository.test.ts       # 7 tests (findByCode, create, getOrCreate, findAll)
     ├── word-context.repository.test.ts   # 13 tests (findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById)
-    ├── translation-request.repository.test.ts # 11 tests (logTranslationRequest, getUserRequestsInWindow, getRecentRequests)
+    ├── translation-request.repository.test.ts # 11 tests (logTranslationRequest, getUserCreditsInWindow, getRecentRequests)
     ├── translation-template.repository.test.ts # 12 tests (getByUserId, upsert, deleteByUserId, field normalization, validation — Task 32)
     ├── word-review.repository.test.ts    # 13 tests (logReview, getReviewCounts, getReviewsForWord, getReviewsBySessionType — Task 33)
     ├── notification.repository.test.ts   # tests for constants, notification time parsing, timezone filtering, getUsersForWindow slot matching, getInactiveUsers, disableNotifications — Task 41)

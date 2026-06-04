@@ -11,6 +11,7 @@ export type {
 export type { TranslationRequest, TranslationRequestRepository } from "./ports/translation-request.repository.js";
 export type {
   NewUser,
+  SubscriptionPlan,
   User,
   UserLanguageSettings,
 } from "./ports/user.repository.js";
@@ -57,6 +58,7 @@ export {
   sourceExpressionTypeSchema,
 } from "./modules/idiom-analysis/index.js";
 export * from "./modules/language-detect/index.js";
+export * from "./modules/rate-limit/index.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";

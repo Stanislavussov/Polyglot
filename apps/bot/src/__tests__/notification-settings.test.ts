@@ -3,7 +3,13 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockLogger, mockUserRepository, mockLanguageCache, mockNotificationRepository } = vi.hoisted(() => {
+const {
+  mockLogger,
+  mockUserRepository,
+  mockLanguageCache,
+  mockNotificationRepository,
+  mockTranslationRequestRepository,
+} = vi.hoisted(() => {
   const mockUR = {
     getSettings: vi.fn(),
     updateNotificationPrefs: vi.fn().mockResolvedValue({}),
@@ -31,6 +37,7 @@ const { mockLogger, mockUserRepository, mockLanguageCache, mockNotificationRepos
     mockUserRepository: mockUR,
     mockLanguageCache: mockLC,
     mockNotificationRepository: mockNR,
+    mockTranslationRequestRepository: { getUserCreditsInWindow: vi.fn().mockResolvedValue(10) },
   };
 });
 
@@ -104,7 +111,7 @@ const DEFAULT_SETTINGS = {
 
 function createMockCtx(callbackData?: string) {
   return {
-    user: { id: 1 },
+    user: { id: 1, subscriptionPlan: "free" },
     session: { activeMode: "translate", awaitingNotifContext: false },
     from: { id: 12345 },
     chat: { id: 12345 },
@@ -113,6 +120,7 @@ function createMockCtx(callbackData?: string) {
       userRepository: mockUserRepository,
       languageCache: mockLanguageCache,
       notificationRepository: mockNotificationRepository,
+      translationRequestRepository: mockTranslationRequestRepository,
     },
     callbackQuery: callbackData ? { data: callbackData, message: { message_id: 100 } } : undefined,
     reply: vi.fn().mockResolvedValue({ message_id: 200 }),
@@ -126,6 +134,7 @@ function createMockCtx(callbackData?: string) {
 beforeEach(() => {
   vi.clearAllMocks();
   mockUserRepository.getSettings.mockResolvedValue(DEFAULT_SETTINGS as any);
+  mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(10);
 });
 
 describe("buildSettingsText", () => {

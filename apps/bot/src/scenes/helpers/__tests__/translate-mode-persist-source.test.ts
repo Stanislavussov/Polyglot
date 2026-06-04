@@ -13,6 +13,7 @@ const {
   mockUserRepository,
   mockVocabularyRepository,
   mockTranslationTemplateRepository,
+  mockTranslationRequestRepository,
   mockLanguageCache,
   mockAi,
 } = vi.hoisted(() => ({
@@ -28,6 +29,10 @@ const {
   },
   mockTranslationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),
+  },
+  mockTranslationRequestRepository: {
+    getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
+    logTranslationRequest: vi.fn().mockResolvedValue(1),
   },
   mockLanguageCache: {
     getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
@@ -112,6 +117,7 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
       userRepository: mockUserRepository,
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
+      translationRequestRepository: mockTranslationRequestRepository,
       languageCache: mockLanguageCache,
       ai: mockAi,
     },
@@ -127,6 +133,7 @@ describe("Persist source lang — lazy hydration (Task 36)", () => {
       learningLangs: ["cs", "en"],
       lastSourceLang: null,
     });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
   });
 
   it("hydrates nextSourceLang from DB when session is empty", async () => {

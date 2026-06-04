@@ -3,7 +3,7 @@
  * Manages native/learning/interface language pickers, notification prefs, and close.
  */
 import { formatNotificationTime, NOTIFICATION_TYPES } from "@polyglot/adapter-db";
-import { isSupported, type NotificationType, type SupportedLang, t } from "@polyglot/core";
+import { getDailyWindowStart, isSupported, type NotificationType, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS } from "../../constants.js";
@@ -13,6 +13,7 @@ import {
   buildNotifSubText,
   buildSettingsKeyboard,
   buildSettingsText,
+  formatPlanUsage,
 } from "../settings.scene.js";
 
 /** Resolve interface language from user settings */
@@ -30,6 +31,11 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
   const notifEnabled = settings?.notificationEnabled ?? false;
   const notifTime = settings?.notificationTime ?? "08:00";
   const notifType = settings?.notificationType ?? "srs";
+  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
+    ctx.user.id,
+    getDailyWindowStart(),
+  );
+  const planUsage = formatPlanUsage(ctx.user.subscriptionPlan ?? "free", usedCredits, lang);
 
   const text = buildSettingsText(
     settings?.nativeLang ?? "en",
@@ -39,6 +45,7 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
     notifEnabled,
     notifTime,
     notifType,
+    planUsage,
   );
   const kb = buildSettingsKeyboard(lang);
   await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });

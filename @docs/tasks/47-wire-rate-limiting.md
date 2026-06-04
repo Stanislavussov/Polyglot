@@ -1,6 +1,6 @@
 # Task 47 — Wire Rate Limiting into Translation Flow
 
-**Status:** 🔲 To Do  
+**Status:** ✅ Done  
 **Category:** Architecture — Critical  
 **Blocks:** Cost control, monetization (Milestone 4+), abuse protection
 
@@ -8,13 +8,14 @@
 
 ## Goal
 
-Wire the existing (but completely unused) rate-limiting infrastructure into the translation flow. The DB layer already has full support that is **entirely dead code**:
+Wire the existing rate-limiting infrastructure into the translation flow. Implemented as subscription-plan credits over a rolling 24-hour window:
 
-- `translationRequests` table — exists, never populated
-- `translationRequestRepository.logTranslationRequest()` — exists, never called from app
-- `translationRequestRepository.getUserRequestsInWindow()` — exists, never called from app
+- `users.subscription_plan` stores the user's plan (`free`, `plus`, `pro`, `unlimited`)
+- `translation_requests.credit_cost` stores consumed translation credits
+- `translationRequestRepository.getUserCreditsInWindow()` sums credits for rate limiting
+- `translationRequestRepository.logTranslationRequest()` records successful translations
 
-No handler in the bot ever calls `logTranslationRequest()` or checks request counts. A single user can trigger unlimited AI calls with zero throttling.
+One incoming user translation request costs 1 credit, regardless of target language count, context enrichment, or regeneration. Regeneration is not user-metered. Current plan limits live in `packages/core/src/modules/rate-limit/index.ts`: Free 50/day, Plus 300/day, Pro 1500/day, Unlimited no cap.
 
 ## Problem Analysis
 
@@ -32,25 +33,27 @@ const output = await translateWithContext({ ... }, { generateObjectFn: generateO
 
 ## Required Behavior
 
-1. Before every translation, check user's request count in the current day
+1. Before every translation, check user's credit usage in the rolling 24-hour window
 2. If over limit, show localized "rate limit reached" message instead of translating
 3. After every successful translation, log the request to `translationRequests`
-4. Make the daily limit configurable via env var (`DAILY_TRANSLATION_LIMIT`, default: 50)
-5. Regeneration counts as a translation request (uses AI tokens)
+4. Show plan and remaining daily credits in `/settings`
+5. Regeneration does not count against user-facing translation credits
 
 ## Acceptance Criteria
 
-- [ ] `DAILY_TRANSLATION_LIMIT` added to `packages/infra/src/config.ts` env schema (default: 50)
-- [ ] `handleTranslateText()` checks `getUserRequestsInWindow()` before calling AI
-- [ ] If rate limit exceeded, reply with localized `t("rateLimitReached", lang, { limit })` message and return early
-- [ ] After successful translation, call `logTranslationRequest()` with userId, original, sourceLang, targetLangs
-- [ ] `handleRegenCallback()` also counts against the rate limit (check before + log after)
-- [ ] i18n key `rateLimitReached` added to all locale files (en, ru, cs)
-- [ ] Rate limit window is 24 hours rolling (midnight-to-midnight or rolling 24h — decide and document)
-- [ ] Existing tests pass
-- [ ] New test: user at limit gets rate limit message instead of translation
-- [ ] New test: user under limit gets normal translation + request logged
-- [ ] New test: regeneration counts against limit
+- [x] Subscription plans added to `users.subscription_plan`
+- [x] Credit cost added to `translation_requests.credit_cost`
+- [x] `handleTranslateText()` checks `getUserCreditsInWindow()` before calling AI
+- [x] If rate limit exceeded, reply with localized `t("rateLimitExceeded", lang)` message and return early
+- [x] After successful translation, call `logTranslationRequest()` with userId, original, sourceLang, targetLangs, creditCost
+- [x] `handleRegenCallback()` is not user-metered and does not consume translation credits
+- [x] i18n key `rateLimitExceeded` added to locale files (en, ru, cs)
+- [x] Rate limit window is rolling 24h
+- [x] `/settings` shows plan and remaining daily credits
+- [x] Existing tests pass
+- [x] New test: user at limit gets rate limit message instead of translation
+- [x] New test: user under limit gets normal translation + request logged
+- [x] New test: regeneration bypasses the user-facing limit
 
 ## Dependencies
 
@@ -62,10 +65,10 @@ None (infrastructure already exists in DB layer)
 
 ## Files Likely Affected
 
-- `packages/infra/src/config.ts` — add `DAILY_TRANSLATION_LIMIT` to env schema
-- `apps/bot/src/scenes/helpers/translate-mode.helper.ts` — add rate check + request logging
-- `apps/bot/src/scenes/helpers/regen.helper.ts` — add rate check + request logging
-- `packages/core/src/modules/i18n/locales/en.json` — add `rateLimitReached` key
-- `packages/core/src/modules/i18n/locales/ru.json` — add `rateLimitReached` key
-- `packages/core/src/modules/i18n/locales/cs.json` — add `rateLimitReached` key
-- Test files for translate-mode and regen helpers
+- `packages/core/src/modules/rate-limit/index.ts` — plan policy and rolling-window helpers
+- `packages/adapters/db/src/schema.ts` — `users.subscription_plan`, `translation_requests.credit_cost`
+- `packages/adapters/db/drizzle/0021_common_pet_avengers.sql` — generated migration
+- `apps/bot/src/scenes/helpers/translate-mode.helper.ts` — rate check + request logging
+- `apps/bot/src/scenes/settings.scene.ts` — plan/credit display
+- `packages/core/src/modules/i18n/locales/*.json` — rate-limit/settings plan copy
+- Tests for policy, repository, translate flow, settings, and regeneration

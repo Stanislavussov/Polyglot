@@ -4,7 +4,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Define mocks at top level using vi.hoisted
-const { mockLogger, mockUserRepository, mockLanguageCache } = vi.hoisted(() => {
+const { mockLogger, mockUserRepository, mockLanguageCache, mockTranslationRequestRepository } = vi.hoisted(() => {
   const mockUR = {
     getSettings: vi.fn(),
     updateNativeLang: vi.fn().mockResolvedValue({}),
@@ -27,6 +27,7 @@ const { mockLogger, mockUserRepository, mockLanguageCache } = vi.hoisted(() => {
     mockLogger: { debug: vi.fn(), error: vi.fn(), info: vi.fn(), warn: vi.fn() },
     mockUserRepository: mockUR,
     mockLanguageCache: mockLC,
+    mockTranslationRequestRepository: { getUserCreditsInWindow: vi.fn().mockResolvedValue(10) },
   };
 });
 
@@ -80,7 +81,7 @@ const DEFAULT_SETTINGS = {
 /** Create a minimal mock BotContext */
 function createMockCtx(callbackData?: string) {
   return {
-    user: { id: 1 },
+    user: { id: 1, subscriptionPlan: "free" },
     session: { activeMode: "translate" },
     from: { id: 12345 },
     chat: { id: 12345 },
@@ -88,6 +89,7 @@ function createMockCtx(callbackData?: string) {
     services: {
       userRepository: mockUserRepository,
       languageCache: mockLanguageCache,
+      translationRequestRepository: mockTranslationRequestRepository,
     },
     callbackQuery: callbackData ? { data: callbackData, message: { message_id: 100 } } : undefined,
     reply: vi.fn().mockResolvedValue({ message_id: 200 }),
@@ -101,6 +103,7 @@ function createMockCtx(callbackData?: string) {
 beforeEach(() => {
   vi.clearAllMocks();
   mockUserRepository.getSettings.mockResolvedValue(DEFAULT_SETTINGS as any);
+  mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(10);
 });
 
 describe("handleSettingsCommand", () => {
@@ -115,6 +118,7 @@ describe("handleSettingsCommand", () => {
     expect(text).toContain("🇬🇧 English");
     expect(text).toContain("🇨🇿 Čeština");
     expect(text).toContain("🇷🇺 Русский");
+    expect(text).toContain("40/50");
   });
 
   it("shows inline keyboard with change buttons", async () => {

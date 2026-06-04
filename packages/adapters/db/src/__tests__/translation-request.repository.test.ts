@@ -154,11 +154,11 @@ describe("translationRequestRepository", () => {
     });
   });
 
-  describe("getUserRequestsInWindow", () => {
-    it("returns count of requests since window start", async () => {
+  describe("getUserCreditsInWindow", () => {
+    it("returns credit sum since window start", async () => {
       queryResults = [[{ value: 5 }]];
 
-      const result = await translationRequestRepository.getUserRequestsInWindow(1, new Date("2025-01-01"));
+      const result = await translationRequestRepository.getUserCreditsInWindow(1, new Date("2025-01-01"));
 
       expect(result).toBe(5);
       expect(mockDb.select).toHaveBeenCalledOnce();
@@ -167,7 +167,7 @@ describe("translationRequestRepository", () => {
     it("returns 0 when no requests found", async () => {
       queryResults = [[{ value: 0 }]];
 
-      const result = await translationRequestRepository.getUserRequestsInWindow(1, new Date("2025-01-01"));
+      const result = await translationRequestRepository.getUserCreditsInWindow(1, new Date("2025-01-01"));
 
       expect(result).toBe(0);
     });
@@ -175,7 +175,7 @@ describe("translationRequestRepository", () => {
     it("returns 0 when query returns empty array", async () => {
       queryResults = [[]];
 
-      const result = await translationRequestRepository.getUserRequestsInWindow(1, new Date("2025-01-01"));
+      const result = await translationRequestRepository.getUserCreditsInWindow(1, new Date("2025-01-01"));
 
       expect(result).toBe(0);
     });
@@ -193,6 +193,7 @@ describe("translationRequestRepository", () => {
             userId: 10,
             original: "hello",
             sourceLangCode: "en",
+            creditCost: 3,
             createdAt: now,
           },
           {
@@ -200,6 +201,7 @@ describe("translationRequestRepository", () => {
             userId: 10,
             original: "world",
             sourceLangCode: null,
+            creditCost: 2,
             createdAt: now,
           },
         ],
@@ -220,6 +222,7 @@ describe("translationRequestRepository", () => {
         original: "hello",
         sourceLangCode: "en",
         targetLangCodes: ["ru", "cs"],
+        creditCost: 3,
         createdAt: now,
       });
       expect(result[1]).toEqual({
@@ -228,6 +231,7 @@ describe("translationRequestRepository", () => {
         original: "world",
         sourceLangCode: null,
         targetLangCodes: ["de"],
+        creditCost: 2,
         createdAt: now,
       });
     });
@@ -256,6 +260,7 @@ describe("translationRequestRepository", () => {
             userId: 10,
             original: "test",
             sourceLangCode: "en",
+            creditCost: 1,
             createdAt: now,
           },
         ],

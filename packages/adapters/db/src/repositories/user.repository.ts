@@ -1,9 +1,9 @@
-import type { NewUser, User, UserLanguageSettings } from "@polyglot/core";
+import type { NewUser, SubscriptionPlan, User, UserLanguageSettings } from "@polyglot/core";
 import { eq } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { userLanguageSettings, users } from "../schema.js";
 
-export type { NewUser, User, UserLanguageSettings };
+export type { NewUser, SubscriptionPlan, User, UserLanguageSettings };
 
 /** Internal insert type for Drizzle — kept local to avoid leaking DB-specific inference. */
 type InsertUserLanguageSettings = typeof userLanguageSettings.$inferInsert;
