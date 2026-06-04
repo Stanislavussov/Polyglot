@@ -3,6 +3,7 @@ import type {
   DictionaryWordConfig,
   InputType,
   ServiceContainer,
+  SrsDueVocabularyCard,
   TemplateFields,
   TranslateOutput,
   User,
@@ -135,6 +136,15 @@ export interface SessionData {
     cardMsgId?: number;
     /** Config used to generate this deck */
     config: DictionaryWordConfig;
+  };
+  /**
+   * SRS review session state.
+   * Stores due translation rows so each target language is reviewed independently.
+   */
+  srs?: {
+    deck: SrsDueVocabularyCard[];
+    currentIndex: number;
+    cardMsgId?: number;
   };
 }
 

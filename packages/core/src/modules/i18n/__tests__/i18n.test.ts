@@ -575,6 +575,13 @@ describe("i18n — t()", () => {
     expect(t("cmdDescFlashcard", "cs")).toBe("Začít relaci kartiček");
   });
 
+  it("returns SRS review keys in all locales", () => {
+    expect(t("cmdDescReview", "en")).toBe("Review due words with spaced repetition");
+    expect(t("srsProgress", "en", { current: 2, total: 5 })).toBe("Review 2 of 5");
+    expect(t("srsDone", "ru", { count: 3 })).toContain("3");
+    expect(t("srsReveal", "cs")).toBe("👁 Ukázat");
+  });
+
   it("falls back to English for flashcard keys when locale has no file", () => {
     expect(t("flashcardStart", "de", { count: 5 })).toBe("📚 Flash Cards — 5 words in your deck.");
     expect(t("flashcardStartBtn", "de")).toBe("▶️ Start");
@@ -589,6 +596,8 @@ describe("i18n — t()", () => {
     expect(t("flashcardNewDeckBtn", "de")).toBe("🔄 New Deck");
     expect(t("flashcardSessionExpired", "de")).toContain("Session expired");
     expect(t("cmdDescFlashcard", "de")).toBe("Start a flash card session");
+    expect(t("cmdDescReview", "de")).toBe("Review due words with spaced repetition");
+    expect(t("srsProgress", "de", { current: 1, total: 5 })).toBe("Review 1 of 5");
   });
 
   // Dictionary browse/delete keys (task 40)
@@ -955,6 +964,22 @@ describe("i18n — locale consistency", () => {
       "flashcardNewDeckBtn",
       "flashcardSessionExpired",
       "cmdDescFlashcard",
+      "cmdDescReview",
+      "srsEmpty",
+      "srsProgress",
+      "srsReveal",
+      "srsChooseRating",
+      "srsAgain",
+      "srsHard",
+      "srsGood",
+      "srsEasy",
+      "srsScheduled",
+      "srsDone",
+      "srsQuit",
+      "srsQuitBtn",
+      "srsNewSessionBtn",
+      "srsClose",
+      "srsSessionExpired",
       "dictionaryHeader",
       "dictionaryPage",
       "dictionaryPrev",

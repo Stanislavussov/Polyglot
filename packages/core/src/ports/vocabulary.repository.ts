@@ -19,6 +19,10 @@ export interface VocabularyTranslation {
   equivalentNote: string | null;
   connotationWarning: string | null;
   details: VocabTranslationDetails | null;
+  srsEaseFactor: number;
+  srsInterval: number;
+  srsDueDate: Date | null;
+  srsReviewCount: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -76,6 +80,33 @@ export interface UpdateTranslationData {
   details?: VocabTranslationDetails;
 }
 
+export interface SrsDueVocabularyCard {
+  translationId: number;
+  entryId: number;
+  original: string;
+  sourceLangId: number;
+  targetLangId: number;
+  inputType: "word" | "phrase";
+  emoji: string | null;
+  text: string;
+  transcription: string | null;
+  expressionType: string | null;
+  equivalentNote: string | null;
+  connotationWarning: string | null;
+  details: VocabTranslationDetails | null;
+  srsEaseFactor: number;
+  srsInterval: number;
+  srsDueDate: Date | null;
+  srsReviewCount: number;
+}
+
+export interface UpdateSrsStateInput {
+  easeFactor: number;
+  interval: number;
+  dueDate: Date;
+  reviewCount: number;
+}
+
 export interface VocabularyRepository {
   findById(id: number): Promise<VocabularyEntryWithTranslations | null>;
   findByUser(userId: number, page?: number, pageSize?: number): Promise<VocabularyEntryWithTranslations[]>;
@@ -90,6 +121,8 @@ export interface VocabularyRepository {
   ): Promise<VocabularyEntryWithSourceLang[]>;
   create(userId: number, input: CreateVocabularyInput): Promise<{ id: number }>;
   updateTranslation(entryId: number, targetLangId: number, data: UpdateTranslationData): Promise<void>;
+  findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
+  updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
   search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;
   countByUser(userId: number): Promise<number>;
   delete(entryId: number, userId: number): Promise<void>;

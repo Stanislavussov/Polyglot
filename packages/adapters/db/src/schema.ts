@@ -5,6 +5,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  real,
   serial,
   text,
   timestamp,
@@ -150,6 +151,14 @@ export const vocabularyTranslations = pgTable(
     equivalentNote: text("equivalent_note"),
     connotationWarning: text("connotation_warning"),
     details: jsonb("details").$type<VocabTranslationDetails>(),
+    /** SM-2 ease factor. Default 2.5 follows the standard initial value. */
+    srsEaseFactor: real("srs_ease_factor").default(2.5).notNull(),
+    /** Current SM-2 interval in days. 0 means the card has not been reviewed yet. */
+    srsInterval: integer("srs_interval").default(0).notNull(),
+    /** Next scheduled review date. NULL means unscheduled legacy row and is treated as due. */
+    srsDueDate: timestamp("srs_due_date"),
+    /** Number of SRS reviews completed for this translation row. */
+    srsReviewCount: integer("srs_review_count").default(0).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -157,6 +166,7 @@ export const vocabularyTranslations = pgTable(
   (t) => [
     index("vt_entry_id_idx").on(t.entryId),
     index("vt_target_lang_idx").on(t.targetLangId),
+    index("vt_srs_due_idx").on(t.srsDueDate),
     uniqueIndex("vt_entry_lang_idx").on(t.entryId, t.targetLangId),
   ],
 );
