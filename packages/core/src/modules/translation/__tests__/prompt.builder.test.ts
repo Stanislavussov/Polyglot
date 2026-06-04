@@ -67,6 +67,41 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("medicine");
   });
 
+  it("treats topic as a sense-selection hint, not source text", () => {
+    const prompt = buildTranslationPrompt({
+      ...baseRequest,
+      text: "bank",
+      topic: "river",
+    });
+
+    expect(prompt).toContain("IMPORTANT - User Context Hint:");
+    expect(prompt).toContain('The word should be understood in this context: "river".');
+    expect(prompt).toContain(
+      "The context hint is metadata for sense selection; do not translate it as part of the input.",
+    );
+    expect(prompt).toContain("Choose the meaning that best fits this context.");
+    expect(prompt).toContain(
+      "The requested fields (main translation, alternatives, synonyms, examples) must all fit this context.",
+    );
+  });
+
+  it("does not mention context-bound fields disabled by output config", () => {
+    const prompt = buildTranslationPrompt({
+      ...baseRequest,
+      text: "bank",
+      topic: "river",
+      outputConfig: {
+        includeAlternatives: false,
+        includeSynonyms: false,
+        includeExamples: false,
+      },
+    });
+
+    expect(prompt).toContain("The requested fields (main translation) must all fit this context.");
+    expect(prompt).not.toContain("main translation, alternatives");
+    expect(prompt).not.toContain("synonyms, examples");
+  });
+
   it("does not include topic hint when not provided", () => {
     const prompt = buildTranslationPrompt(baseRequest);
     expect(prompt).not.toContain("context of:");
@@ -261,8 +296,8 @@ describe("buildTranslationPrompt with inputType=sentence", () => {
 
   it("topic hint says 'sentence' instead of 'word' for sentences", () => {
     const prompt = buildTranslationPrompt({ ...sentenceRequest, topic: "travel" });
-    expect(prompt).toContain('The sentence is used in the context of: "travel"');
-    expect(prompt).not.toContain("The word is used");
+    expect(prompt).toContain('The sentence should be understood in this context: "travel"');
+    expect(prompt).not.toContain("The word should be understood");
   });
 });
 

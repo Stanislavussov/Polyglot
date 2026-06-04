@@ -18,12 +18,12 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 ## Current State
 
 Fully implemented. All tables, repositories, singleton connection, and context-lookup factory in place.
-- `schema.ts` — tables: `users`, `userLanguageSettings` (incl. notification_enabled, notification_time, notification_type, last_interaction_at), `vocabularyEntries`, `vocabularyTranslations`, `wordReviewLog`, `translationRequests`, `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
+- `schema.ts` — tables: `users`, `userLanguageSettings` (incl. notification_enabled, notification_time, notification_type, last_interaction_at), `vocabularyEntries`, `vocabularyTranslations` (incl. per-translation SRS state: `srs_ease_factor`, `srs_interval`, `srs_due_date`, `srs_review_count`), `wordReviewLog`, `translationRequests`, `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
 - `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `vocabularyRepository`, `translationRequestRepository`, `wordReviewRepository`, `notificationRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
 - `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded, updateNotificationPrefs, updateLastInteraction
 - `repositories/notification.repository.ts` — **Task 41**: getUsersForWindow, getInactiveUsers, disableNotifications, notification preference updates, notification history, and domain constants (NOTIFICATION_TYPES, DEFAULT_NOTIFICATION_TIME, DEFAULT_NOTIFICATION_TYPE, INACTIVITY_DAYS). `getUsersForWindow` accepts UTC hour/minute and matches the user's local `HH:MM` preference in the current 30-minute scheduler slot only.
-- `repositories/vocabulary.repository.ts` — **Task 39+40**: normalized vocabulary CRUD. create (transactional parent+children), findByOriginalAndSource, findByUser, findById, search, findByUserAndLang, updateTranslation (upsert), updateAllTranslations, delete (soft), hardDelete (permanent), countByUser, findByUserPaginated, findByUserWithSourceLang. Exports VocabularyEntry, VocabularyTranslation, VocabTranslationDetails, VocabularyEntryWithTranslations, VocabularyEntryWithSourceLang, CreateVocabularyInput, UpdateTranslationData types.
+- `repositories/vocabulary.repository.ts` — **Task 39+40+50**: normalized vocabulary CRUD and SRS scheduling. create (transactional parent+children, first SRS review scheduled for next day), findByOriginalAndSource, findByUser, findById, search, findByUserAndLang, updateTranslation (upsert), updateAllTranslations, delete (soft), hardDelete (permanent), countByUser, findByUserPaginated, findByUserWithSourceLang, findDueForSrs, updateSrsState. Exports VocabularyEntry, VocabularyTranslation, VocabTranslationDetails, VocabularyEntryWithTranslations, VocabularyEntryWithSourceLang, SrsDueVocabularyCard, CreateVocabularyInput, UpdateTranslationData, UpdateSrsStateInput types.
 - `repositories/topic.repository.ts` — getCached, setCached, markInvalid (topic translation caching)
 - `repositories/language.repository.ts` — findByCode, create, getOrCreate, findAll (normalized language codes)
 - `repositories/word-context.repository.ts` — findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById (offline dictionary data)
@@ -122,6 +122,10 @@ hardDelete(entryId: number): Promise<void>;
   // Hard delete: permanently removes entry + translations (CASCADE). For dictionary "delete" action.
 findByUserWithSourceLang(userId: number): Promise<VocabularyEntryWithSourceLang[]>;
   // Returns entries with sourceLangCode resolved via language cache
+findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
+  // Returns due vocabulary translation rows for /review, one row per target language.
+updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
+  // Updates SM-2 state on a vocabulary_translations row.
 ```
 
 

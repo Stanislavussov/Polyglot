@@ -269,17 +269,18 @@ describe("buildTranslationPrompt — dictionary context", () => {
     expect(prompt).toContain("part of speech: phrase");
   });
 
-  it("places dictionary context before topic hint and JSON template", () => {
+  it("places user context before dictionary context and JSON template", () => {
     const prompt = buildTranslationPrompt({
       ...baseRequest,
       topic: "medicine",
       dictionaryContext: sampleDictionaryContext,
     });
     const dictIdx = prompt.indexOf("Authoritative Dictionary Context");
-    const topicIdx = prompt.indexOf("medicine");
+    const topicIdx = prompt.indexOf("User Context Hint");
     const jsonIdx = prompt.indexOf("Return ONLY valid JSON");
     expect(dictIdx).toBeGreaterThan(-1);
-    expect(dictIdx).toBeLessThan(topicIdx);
+    expect(topicIdx).toBeGreaterThan(-1);
+    expect(topicIdx).toBeLessThan(dictIdx);
     expect(dictIdx).toBeLessThan(jsonIdx);
   });
 

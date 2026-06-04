@@ -16,6 +16,8 @@ export type {
 } from "./ports/user.repository.js";
 export type {
   CreateVocabularyInput,
+  SrsDueVocabularyCard,
+  UpdateSrsStateInput,
   UpdateTranslationData,
   VocabTranslationDetails,
   VocabularyEntry,
@@ -55,6 +57,7 @@ export {
   sourceExpressionTypeSchema,
 } from "./modules/idiom-analysis/index.js";
 export * from "./modules/language-detect/index.js";
+export * from "./modules/srs/index.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";
 export type {

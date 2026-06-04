@@ -54,6 +54,13 @@ import {
   handleSetNotifTzSelectCallback,
 } from "./scenes/helpers/settings.helper.js";
 import {
+  handleSrsClose,
+  handleSrsQuit,
+  handleSrsRate,
+  handleSrsRestart,
+  handleSrsReveal,
+} from "./scenes/helpers/srs.helper.js";
+import {
   handleBackCallback,
   handleCancelCallback,
   handleCustomizeCallback,
@@ -73,6 +80,7 @@ import {
 import { onboarding } from "./scenes/onboarding.scene.js";
 import { handleReportIssue } from "./scenes/report-issue.scene.js";
 import { handleSettingsCommand } from "./scenes/settings.scene.js";
+import { handleReviewCommand } from "./scenes/srs.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, SessionData } from "./types.js";
@@ -104,6 +112,7 @@ bot.use(
       templateWizard: undefined,
       dictionary: undefined,
       flashcard: undefined,
+      srs: undefined,
       pendingDetectedLang: undefined,
       pendingWord: undefined,
       pendingDirection: undefined,
@@ -143,6 +152,7 @@ bot.command("translate", handleTranslateCommand);
 bot.command("template", handleTemplateCommand);
 bot.command("dictionary", handleDictionaryCommand);
 bot.command("flashcard", handleFlashcardCommand);
+bot.command("review", handleReviewCommand);
 bot.command("settings", handleSettingsCommand);
 bot.command("report", async (ctx) => {
   await ctx.conversation.enter("handleReportIssue");
@@ -189,6 +199,13 @@ bot.callbackQuery("fc:done", handleFcDone);
 bot.callbackQuery("fc:restart", handleFcRestart);
 bot.callbackQuery("fc:quit", handleFcQuit);
 bot.callbackQuery("fc:close", handleFcClose);
+
+// ── Register callback handlers for SRS review ──
+bot.callbackQuery("srs:reveal", handleSrsReveal);
+bot.callbackQuery(/^srs:rate:(again|hard|good|easy)$/, handleSrsRate);
+bot.callbackQuery("srs:restart", handleSrsRestart);
+bot.callbackQuery("srs:quit", handleSrsQuit);
+bot.callbackQuery("srs:close", handleSrsClose);
 
 // ── Register callback handlers for dictionary browse (Task 40) ──
 bot.callbackQuery(/^dict:page:/, handleDictPage);

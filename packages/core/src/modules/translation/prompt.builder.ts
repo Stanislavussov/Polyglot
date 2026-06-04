@@ -36,7 +36,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   const cfg = resolveConfig(outputConfig);
   const isSentence = inputType === "sentence";
 
-  const topicHint = topic ? `\nThe ${isSentence ? "sentence" : "word"} is used in the context of: "${topic}".` : "";
+  const topicHint = topic ? buildTopicHint(topic, isSentence, cfg) : "";
 
   const dictionaryHint = dictionaryContext ? buildDictionaryHint(dictionaryContext, cfg) : "";
 
@@ -70,7 +70,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   }
   if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
 
-  return `${intro}${dictionaryHint}${topicHint}
+  return `${intro}${topicHint}${dictionaryHint}
 
 Return ONLY valid JSON matching the provided schema. No markdown, no explanation, no code fences.
 For each target language (${targetLangs.join(", ")}), provide: ${requestedFields.join("; ")}.
@@ -193,6 +193,35 @@ ${errorFeedback}
 Please fix these issues and return a corrected JSON response.
 Double-check that:
 ${checkItems.join("\n")}`;
+}
+
+function buildTopicHint(topic: string, isSentence: boolean, config: Required<TranslationOutputConfig>): string {
+  const unit = isSentence ? "sentence" : "word";
+  const lines = [
+    "",
+    "IMPORTANT - User Context Hint:",
+    `The ${unit} should be understood in this context: "${topic}".`,
+    "The context hint is metadata for sense selection; do not translate it as part of the input.",
+    "Choose the meaning that best fits this context.",
+  ];
+
+  if (isSentence) {
+    lines.push(
+      "The translated sentence must preserve the intended situation, domain, register, and wording implied by this context.",
+    );
+  } else {
+    const contextualFields = ["main translation"];
+    if (config.includeAlternatives) contextualFields.push("alternatives");
+    if (config.includeSynonyms) contextualFields.push("synonyms");
+    if (config.includeExamples) contextualFields.push("examples");
+
+    lines.push(
+      `The requested fields (${contextualFields.join(", ")}) must all fit this context.`,
+      "If dictionary definitions include multiple possible meanings, select the sense that best matches the user context.",
+    );
+  }
+
+  return `\n${lines.join("\n")}`;
 }
 
 /**

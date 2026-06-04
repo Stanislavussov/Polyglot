@@ -1,5 +1,7 @@
 import type {
   CreateVocabularyInput,
+  SrsDueVocabularyCard,
+  UpdateSrsStateInput,
   UpdateTranslationData,
   VocabTranslationDetails,
   VocabularyEntry,
@@ -7,12 +9,14 @@ import type {
   VocabularyEntryWithTranslations,
   VocabularyTranslation,
 } from "@polyglot/core";
-import { and, count, desc, eq, ilike, inArray } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { vocabularyEntries, vocabularyTranslations } from "../schema.js";
 
 export type {
   CreateVocabularyInput,
+  SrsDueVocabularyCard,
+  UpdateSrsStateInput,
   UpdateTranslationData,
   VocabTranslationDetails,
   VocabularyEntry,
@@ -42,6 +46,12 @@ function assembleEntriesWithTranslations(
     ...entry,
     translations: translationsByEntry.get(entry.id) ?? [],
   }));
+}
+
+function tomorrow(): Date {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return date;
 }
 
 /* ------------------------------------------------------------------ */
@@ -81,6 +91,7 @@ export const vocabularyRepository = {
               equivalentNote: t.equivalentNote,
               connotationWarning: t.connotationWarning,
               details: t.details,
+              srsDueDate: tomorrow(),
             })),
           )
           .returning();
@@ -258,6 +269,7 @@ export const vocabularyRepository = {
         equivalentNote: data.equivalentNote,
         connotationWarning: data.connotationWarning,
         details: data.details,
+        srsDueDate: tomorrow(),
       })
       .returning();
 
@@ -300,6 +312,7 @@ export const vocabularyRepository = {
             equivalentNote: t.equivalentNote,
             connotationWarning: t.connotationWarning,
             details: t.details,
+            srsDueDate: tomorrow(),
           })),
         )
         .returning();
@@ -318,6 +331,63 @@ export const vocabularyRepository = {
       .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true)));
 
     return result[0]?.value ?? 0;
+  },
+
+  /**
+   * Find SRS-due translation cards for a user.
+   * SRS state is per translation row, so a single vocabulary entry can appear
+   * once per due target language.
+   */
+  async findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]> {
+    const db = getDb();
+    const rows = await db
+      .select({
+        translationId: vocabularyTranslations.id,
+        entryId: vocabularyEntries.id,
+        original: vocabularyEntries.original,
+        sourceLangId: vocabularyEntries.sourceLangId,
+        targetLangId: vocabularyTranslations.targetLangId,
+        inputType: vocabularyEntries.inputType,
+        emoji: vocabularyEntries.emoji,
+        text: vocabularyTranslations.text,
+        transcription: vocabularyTranslations.transcription,
+        expressionType: vocabularyTranslations.expressionType,
+        equivalentNote: vocabularyTranslations.equivalentNote,
+        connotationWarning: vocabularyTranslations.connotationWarning,
+        details: vocabularyTranslations.details,
+        srsEaseFactor: vocabularyTranslations.srsEaseFactor,
+        srsInterval: vocabularyTranslations.srsInterval,
+        srsDueDate: vocabularyTranslations.srsDueDate,
+        srsReviewCount: vocabularyTranslations.srsReviewCount,
+      })
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(
+        and(
+          eq(vocabularyEntries.userId, userId),
+          eq(vocabularyEntries.isActive, true),
+          eq(vocabularyTranslations.isActive, true),
+          or(isNull(vocabularyTranslations.srsDueDate), lte(vocabularyTranslations.srsDueDate, now)),
+        ),
+      )
+      .orderBy(asc(vocabularyTranslations.srsDueDate), asc(vocabularyTranslations.createdAt))
+      .limit(limit);
+
+    return rows;
+  },
+
+  async updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void> {
+    const db = getDb();
+    await db
+      .update(vocabularyTranslations)
+      .set({
+        srsEaseFactor: state.easeFactor,
+        srsInterval: state.interval,
+        srsDueDate: state.dueDate,
+        srsReviewCount: state.reviewCount,
+        updatedAt: new Date(),
+      })
+      .where(eq(vocabularyTranslations.id, translationId));
   },
 
   /**

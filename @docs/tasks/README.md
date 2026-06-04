@@ -34,7 +34,7 @@
 | 47  | [Wire Rate Limiting into Translation Flow](./47-wire-rate-limiting.md) | 🔲 To Do | 🔴 Critical |
 | 48  | [Extract Notification Scheduler to Separate Process](./48-extract-notification-scheduler-process.md) | 🔲 To Do | 🟠 High |
 | 49  | [Centralize Adapter Configuration](./49-centralize-adapter-config.md) | 🔲 To Do | 🟡 Medium |
-| 50  | [SRS Schema Foundation](./50-srs-schema-foundation.md) | 🔲 To Do | 🟠 High |
+| 50  | [SRS Schema Foundation](./50-srs-schema-foundation.md) | ✅ Done | ✅ Done |
 | 51  | [Modular Bot Feature Registration](./51-modular-bot-registration.md) | 🔲 To Do | 🟡 Medium |
 | 52  | [Wire Topic Cache + Normalize FK](./52-topic-cache-fk-normalization.md) | 🔲 To Do | 🟡 Medium |
 | 53  | [Decouple Adapters from @polyglot/infra](./53-decouple-adapters-from-infra.md) | ✅ Done | ✅ Done |
