@@ -6,8 +6,12 @@
 // Note: createContextLookup is a factory function, not a repository — kept as direct import
 import { createContextLookup } from "@polyglot/adapter-db";
 import {
+  calculateTranslationCreditCost,
   detectLanguage,
   detectLanguageAsync,
+  evaluateRateLimit,
+  getDailyWindowReset,
+  getDailyWindowStart,
   getLangDisplay,
   getLanguageName,
   isSupported,
@@ -16,6 +20,7 @@ import {
   resolveOutputConfig,
   resolveTemplate,
   resolveTranslationDirection,
+  type SubscriptionPlan,
   type SupportedLang,
   t,
   translateOneWithContext,
@@ -41,6 +46,24 @@ import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
 
+async function ensureTranslationQuota(
+  ctx: BotContext,
+  plan: SubscriptionPlan,
+  lang: SupportedLang,
+): Promise<number | null> {
+  const creditCost = calculateTranslationCreditCost();
+  const windowStart = getDailyWindowStart();
+  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(ctx.user.id, windowStart);
+  const status = evaluateRateLimit(plan, usedCredits, creditCost, getDailyWindowReset());
+
+  if (!status.allowed) {
+    await ctx.reply(t("rateLimitExceeded", lang));
+    return null;
+  }
+
+  return creditCost;
+}
+
 /**
  * Handles a text message in translate mode.
  * Translates the text and shows the result with Save/Skip buttons.
@@ -54,6 +77,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
   const learningLangs = settings?.learningLangs ?? [];
+  const subscriptionPlan = ctx.user.subscriptionPlan ?? "free";
   const parsed = parseTranslateInput(word, ctx.message?.entities);
   const cleanWord = parsed.text;
   const contextHint = parsed.contextHint;
@@ -160,6 +184,10 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
   const classification = classifyInput(cleanWord);
   const isSentence = classification.type === "sentence";
+  const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
+  if (creditCost === null) {
+    return;
+  }
 
   logger.debug(
     {
@@ -209,6 +237,13 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     );
     stopTimer();
     translationCounter.inc({ status: "success" });
+    await ctx.services.translationRequestRepository.logTranslationRequest(
+      ctx.user.id,
+      cleanWord,
+      sourceLang,
+      targetLangs,
+      creditCost,
+    );
 
     // Delete loading message
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
@@ -631,6 +666,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
   const { sourceLang, targetLangs } = pendingDirection;
+  const subscriptionPlan = ctx.user.subscriptionPlan ?? "free";
 
   // Clear pending state immediately
   ctx.session.pendingDetectedLang = undefined;
@@ -641,6 +677,11 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   // Classify input type
   const classification = classifyInput(pendingWord);
   const isSentence = classification.type === "sentence";
+  const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
+  if (creditCost === null) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
 
   // Show loading message
   const loadingMsg = await ctx.reply(t("translating", lang));
@@ -676,6 +717,13 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     );
     stopTimer();
     translationCounter.inc({ status: "success" });
+    await ctx.services.translationRequestRepository.logTranslationRequest(
+      ctx.user.id,
+      pendingWord,
+      sourceLang,
+      targetLangs,
+      creditCost,
+    );
 
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 

@@ -133,6 +133,8 @@
   "settingsNativeLang": "🗣 Native language: {lang}",
   "settingsLearningLangs": "📚 Learning: {langs}",
   "settingsInterfaceLang": "🌐 Interface: {lang}",
+  "settingsPlan": "💳 Plan: {plan} · {remaining}/{limit} credits left today",
+  "settingsPlanUnlimited": "💳 Plan: {plan} · unlimited translations",
   "settingsChangeNative": "🗣 Change native",
   "settingsChangeLearning": "📚 Change learning",
   "settingsChangeInterface": "🌐 Change interface",
@@ -196,5 +198,6 @@
   "reportTooLong": "⚠️ Your description is too long (max 1000 characters). Please shorten it.",
   "mistypeWarning": "⚠️ I can't determine the language of \"{word}\". Did you make a typo?",
   "mistypeConfirm": "Yes, translate anyway",
-  "mistypeCancel": "Try again"
+  "mistypeCancel": "Try again",
+  "rateLimitExceeded": "⚠️ Daily translation limit reached. Open /settings to check your plan."
 }

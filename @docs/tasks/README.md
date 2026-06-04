@@ -31,7 +31,7 @@
 | 44  | [Unify Language Cache with TTL Refresh](./44-unify-language-cache.md) | 🔲 To Do | 🟠 High |
 | 45  | [Extract Domain Types from adapter-db to Core](./45-domain-types-in-core.md) | 🔲 To Do | 🔴 Critical |
 | 46  | [Split translate-mode.helper.ts God Module](./46-split-translate-mode-helper.md) | 🔲 To Do | 🟠 High |
-| 47  | [Wire Rate Limiting into Translation Flow](./47-wire-rate-limiting.md) | 🔲 To Do | 🔴 Critical |
+| 47  | [Wire Rate Limiting into Translation Flow](./47-wire-rate-limiting.md) | ✅ Done | ✅ Done |
 | 48  | [Extract Notification Scheduler to Separate Process](./48-extract-notification-scheduler-process.md) | 🔲 To Do | 🟠 High |
 | 49  | [Centralize Adapter Configuration](./49-centralize-adapter-config.md) | 🔲 To Do | 🟡 Medium |
 | 50  | [SRS Schema Foundation](./50-srs-schema-foundation.md) | ✅ Done | ✅ Done |

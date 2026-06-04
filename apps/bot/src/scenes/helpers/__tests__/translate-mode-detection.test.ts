@@ -13,6 +13,7 @@ const {
   mockUserRepository,
   mockVocabularyRepository,
   mockTranslationTemplateRepository,
+  mockTranslationRequestRepository,
   mockLanguageCache,
   mockAi,
   mockLogger,
@@ -28,6 +29,10 @@ const {
   },
   mockTranslationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),
+  },
+  mockTranslationRequestRepository: {
+    getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
+    logTranslationRequest: vi.fn().mockResolvedValue(1),
   },
   mockLanguageCache: {
     getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
@@ -134,6 +139,7 @@ function createMockCtx(): BotContext {
       userRepository: mockUserRepository,
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
+      translationRequestRepository: mockTranslationRequestRepository,
       languageCache: mockLanguageCache,
       ai: mockAi,
     },
@@ -148,6 +154,7 @@ describe("handleTranslateText — auto-detect language direction", () => {
       nativeLang: "ru",
       learningLangs: ["cs", "en"],
     });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
   });
 
   it("calls translateWithContext with userId and word", async () => {

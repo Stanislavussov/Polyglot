@@ -137,6 +137,8 @@ export type I18nKey =
   | "settingsNativeLang"
   | "settingsLearningLangs"
   | "settingsInterfaceLang"
+  | "settingsPlan"
+  | "settingsPlanUnlimited"
   | "settingsChangeNative"
   | "settingsChangeLearning"
   | "settingsChangeInterface"
@@ -199,7 +201,8 @@ export type I18nKey =
   | "reportTooLong"
   | "mistypeWarning"
   | "mistypeConfirm"
-  | "mistypeCancel";
+  | "mistypeCancel"
+  | "rateLimitExceeded";
 
 /**
  * Supported interface languages.
@@ -245,6 +248,8 @@ export interface I18nParams {
   settingsNativeLang: { lang: string };
   settingsLearningLangs: { langs: string };
   settingsInterfaceLang: { lang: string };
+  settingsPlan: { plan: string; remaining: string | number; limit: string | number };
+  settingsPlanUnlimited: { plan: string };
   settingsNativeUpdated: { lang: string };
   settingsInterfaceUpdated: { lang: string };
   settingsNotifTime: { time: string };

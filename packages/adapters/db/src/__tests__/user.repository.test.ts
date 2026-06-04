@@ -71,6 +71,7 @@ function makeUser(overrides: Record<string, unknown> = {}) {
     id: 1,
     telegramId: 123456,
     username: "testuser",
+    subscriptionPlan: "free",
     onboardingStep: 0,
     onboarded: false,
     isActive: true,

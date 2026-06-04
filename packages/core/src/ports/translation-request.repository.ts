@@ -7,6 +7,7 @@ export interface TranslationRequest {
   original: string;
   sourceLangCode: string | null;
   targetLangCodes: string[];
+  creditCost: number;
   createdAt: Date;
 }
 
@@ -16,6 +17,8 @@ export interface TranslationRequestRepository {
     original: string,
     sourceLangCode: string | null,
     targetLangCodes: string[],
+    creditCost?: number,
   ): Promise<number>;
+  getUserCreditsInWindow(userId: number, windowStart: Date): Promise<number>;
   getRecentRequests(userId: number, limit: number): Promise<TranslationRequest[]>;
 }

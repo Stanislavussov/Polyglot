@@ -1,5 +1,5 @@
 import type { TranslationRequest } from "@polyglot/core";
-import { and, count, desc, eq, gte, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, sum } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { languages, translationRequests, translationRequestTargetLangs } from "../schema.js";
 
@@ -16,6 +16,7 @@ export const translationRequestRepository = {
     original: string,
     sourceLangCode: string | null,
     targetLangCodes: string[],
+    creditCost = 1,
   ): Promise<number> {
     const db = getDb();
 
@@ -33,7 +34,7 @@ export const translationRequestRepository = {
     // Insert the request
     const [request] = await db
       .insert(translationRequests)
-      .values({ userId, original, sourceLangId })
+      .values({ userId, original, sourceLangId, creditCost })
       .returning({ id: translationRequests.id });
 
     const requestId = request!.id;
@@ -59,16 +60,17 @@ export const translationRequestRepository = {
   },
 
   /**
-   * Count how many translation requests a user has made since `windowStart`.
+   * Sum translation credits a user has consumed since `windowStart`.
    * Used for rate limiting.
    */
-  async getUserRequestsInWindow(userId: number, windowStart: Date): Promise<number> {
+  async getUserCreditsInWindow(userId: number, windowStart: Date): Promise<number> {
     const db = getDb();
     const rows = await db
-      .select({ value: count() })
+      .select({ value: sum(translationRequests.creditCost) })
       .from(translationRequests)
       .where(and(eq(translationRequests.userId, userId), gte(translationRequests.createdAt, windowStart)));
-    return rows[0]?.value ?? 0;
+    const value = rows[0]?.value;
+    return value ? Number(value) : 0;
   },
 
   /**
@@ -85,6 +87,7 @@ export const translationRequestRepository = {
         userId: translationRequests.userId,
         original: translationRequests.original,
         sourceLangCode: languages.code,
+        creditCost: translationRequests.creditCost,
         createdAt: translationRequests.createdAt,
       })
       .from(translationRequests)
@@ -121,6 +124,7 @@ export const translationRequestRepository = {
       original: r.original,
       sourceLangCode: r.sourceLangCode,
       targetLangCodes: targetsByRequestId.get(r.id) ?? [],
+      creditCost: r.creditCost,
       createdAt: r.createdAt,
     }));
   },

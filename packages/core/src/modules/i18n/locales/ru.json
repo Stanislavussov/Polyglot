@@ -133,6 +133,8 @@
   "settingsNativeLang": "🗣 Родной язык: {lang}",
   "settingsLearningLangs": "📚 Изучаю: {langs}",
   "settingsInterfaceLang": "🌐 Интерфейс: {lang}",
+  "settingsPlan": "💳 План: {plan} · осталось {remaining}/{limit} кредитов на сегодня",
+  "settingsPlanUnlimited": "💳 План: {plan} · переводы без лимита",
   "settingsChangeNative": "🗣 Сменить родной",
   "settingsChangeLearning": "📚 Сменить изучаемые",
   "settingsChangeInterface": "🌐 Сменить интерфейс",
@@ -196,5 +198,6 @@
   "reportTooLong": "⚠️ Ваше описание слишком длинное (макс. 1000 символов). Пожалуйста, сократите его.",
   "mistypeWarning": "⚠️ Не удалось определить язык \"{word}\". Это опечатка?",
   "mistypeConfirm": "Да, перевести",
-  "mistypeCancel": "Попробовать снова"
+  "mistypeCancel": "Попробовать снова",
+  "rateLimitExceeded": "⚠️ Дневной лимит переводов исчерпан. Откройте /settings, чтобы проверить план."
 }

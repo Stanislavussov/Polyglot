@@ -5,7 +5,16 @@
  * Callback handlers are in helpers/settings.helper.ts.
  */
 import { formatNotificationTime, getLangDisplay, parseNotificationMinutes, userRepository } from "@polyglot/adapter-db";
-import { isSupported, type SupportedLang, t } from "@polyglot/core";
+import {
+  evaluateRateLimit,
+  getDailyWindowReset,
+  getDailyWindowStart,
+  getPlanLimit,
+  isSupported,
+  type SubscriptionPlan,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../types.js";
 
@@ -21,6 +30,7 @@ export function buildSettingsText(
   notifEnabled?: boolean,
   notifTime?: string,
   notifType?: string,
+  planUsage?: string,
 ): string {
   const notifStatus = notifEnabled
     ? `🔔 ${t("settingsNotifEnabled", lang)} · ${formatNotificationTime(parseNotificationMinutes(notifTime))} · ${notifType ?? "srs"}`
@@ -34,6 +44,7 @@ export function buildSettingsText(
       langs: learningLangs.map(getLangDisplay).join(", ") || "—",
     }),
     t("settingsInterfaceLang", lang, { lang: getLangDisplay(interfaceLang) }),
+    planUsage ?? "",
     "",
     notifStatus,
   ].join("\n");
@@ -115,9 +126,37 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   const notifEnabled = settings?.notificationEnabled ?? false;
   const notifTime = settings?.notificationTime ?? "08:00";
   const notifType = settings?.notificationType ?? "srs";
+  const plan = ctx.user.subscriptionPlan ?? "free";
+  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
+    ctx.user.id,
+    getDailyWindowStart(),
+  );
+  const planUsage = formatPlanUsage(plan, usedCredits, lang);
 
-  const text = buildSettingsText(nativeLang, learningLangs, interfaceLang, lang, notifEnabled, notifTime, notifType);
+  const text = buildSettingsText(
+    nativeLang,
+    learningLangs,
+    interfaceLang,
+    lang,
+    notifEnabled,
+    notifTime,
+    notifType,
+    planUsage,
+  );
   const kb = buildSettingsKeyboard(lang);
 
   await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
+}
+
+export function formatPlanUsage(plan: SubscriptionPlan, usedCredits: number, lang: SupportedLang): string {
+  const limit = getPlanLimit(plan);
+  const status = evaluateRateLimit(plan, usedCredits, 0, getDailyWindowReset());
+  if (limit.creditsPerDay === null) {
+    return t("settingsPlanUnlimited", lang, { plan: limit.label });
+  }
+  return t("settingsPlan", lang, {
+    plan: limit.label,
+    remaining: status.remainingCredits ?? 0,
+    limit: limit.creditsPerDay,
+  });
 }
