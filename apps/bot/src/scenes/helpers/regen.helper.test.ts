@@ -72,6 +72,14 @@ function createMockConversation(callbackSequence: string[]) {
           editMessageText,
         });
       }),
+      waitUntil: vi.fn().mockImplementation(() => {
+        const data = callbackSequence[callIdx++] ?? "tr:skip";
+        return Promise.resolve({
+          callbackQuery: { data },
+          answerCallbackQuery,
+          editMessageText,
+        });
+      }),
       external: vi.fn().mockImplementation((fn: () => Promise<unknown>) => fn()),
     },
     answerCallbackQuery,

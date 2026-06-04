@@ -126,12 +126,15 @@ async function stepChooseNativeLang(
 
   await ctx.reply(t("chooseNativeLang", lang), { reply_markup: keyboard });
 
-  const response = await conversation.waitForCallbackQuery(/^lang:/, {
-    otherwise: async (ctx) => {
-      await ctx.reply(t("chooseNativeLang", lang));
-    },
+  const response = await conversation.waitUntil((ctx) => {
+    const text = ctx.message?.text;
+    if (text?.startsWith("/")) return false;
+    return ctx.callbackQuery?.data?.startsWith("lang:") ?? false;
   });
 
+  if (!response.callbackQuery?.data) {
+    throw new Error("Unexpected missing callback query data in onboarding language selection");
+  }
   const selectedCode = response.callbackQuery.data.replace("lang:", "");
   await response.answerCallbackQuery();
 
@@ -171,12 +174,15 @@ async function stepChooseLearningLangs(
   await ctx.reply(promptText, { reply_markup: buildKeyboard() });
 
   while (true) {
-    const response = await conversation.waitForCallbackQuery(/^learn:/, {
-      otherwise: async (ctx) => {
-        await ctx.reply(t("chooseLearningLangs", interfaceLang));
-      },
+    const response = await conversation.waitUntil((ctx) => {
+      const text = ctx.message?.text;
+      if (text?.startsWith("/")) return false;
+      return ctx.callbackQuery?.data?.startsWith("learn:") ?? false;
     });
 
+    if (!response.callbackQuery?.data) {
+      throw new Error("Unexpected missing callback query data in onboarding learning language selection");
+    }
     const data = response.callbackQuery.data.replace("learn:", "");
 
     if (data === "back") {
@@ -244,16 +250,11 @@ async function stepDemoTranslation(
   // Wait for either a text message (word) or the back button
   let word: string;
   while (true) {
-    const response = await conversation.waitUntil(
-      (ctx) => !!ctx.message?.text || ctx.callbackQuery?.data === "onb:back",
-      {
-        otherwise: async (ctx) => {
-          await ctx.reply(t("enterWord", interfaceLang), {
-            reply_markup: backKeyboard,
-          });
-        },
-      },
-    );
+    const response = await conversation.waitUntil((ctx) => {
+      const text = ctx.message?.text;
+      if (text?.startsWith("/")) return false;
+      return !!text || ctx.callbackQuery?.data === "onb:back";
+    });
 
     if (response.callbackQuery?.data === "onb:back") {
       await response.answerCallbackQuery();

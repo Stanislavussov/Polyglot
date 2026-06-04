@@ -6,6 +6,9 @@ import type { BotContext, ConversationContext } from "../types.js";
 
 type ReportConversation = Conversation<BotContext, ConversationContext>;
 
+const BACK = Symbol("back");
+type BackAction = typeof BACK;
+
 const MAX_DESCRIPTION_LENGTH = 1000;
 
 function typeToLabel(type: IssueType, lang: SupportedLang): string {
@@ -29,12 +32,15 @@ async function stepChooseType(
   await ctx.reply(t("reportTitle", lang));
   await ctx.reply(t("reportChooseType", lang), { reply_markup: keyboard });
 
-  const response = await conversation.waitForCallbackQuery(/^report:type:/, {
-    otherwise: async (ctx) => {
-      await ctx.reply(t("reportChooseType", lang), { reply_markup: keyboard });
-    },
+  const response = await conversation.waitUntil((ctx) => {
+    const text = ctx.message?.text;
+    if (text?.startsWith("/")) return false;
+    return ctx.callbackQuery?.data?.startsWith("report:type:") ?? false;
   });
 
+  if (!response.callbackQuery?.data) {
+    throw new Error("Unexpected missing callback query data in report type selection");
+  }
   const type = response.callbackQuery.data.replace("report:type:", "") as IssueType;
   await response.answerCallbackQuery();
   await response.editMessageText(`${t("reportTitle", lang)}\n\n✅ ${typeToLabel(type, lang)}`);
@@ -45,17 +51,22 @@ async function stepEnterDescription(
   conversation: ReportConversation,
   ctx: ConversationContext,
   lang: SupportedLang,
-): Promise<string> {
+): Promise<string | BackAction> {
   const backKeyboard = new InlineKeyboard().text(`⬅️ ${t("back", lang)}`, "report:back");
 
   await ctx.reply(t("reportEnterDescription", lang), { reply_markup: backKeyboard });
 
   while (true) {
-    const response = await conversation.waitFor("message:text", {
-      otherwise: async (ctx) => {
-        await ctx.reply(t("reportEnterDescription", lang), { reply_markup: backKeyboard });
-      },
+    const response = await conversation.waitUntil((ctx) => {
+      const text = ctx.message?.text;
+      if (text?.startsWith("/")) return false;
+      return !!text || ctx.callbackQuery?.data === "report:back";
     });
+
+    if (response.callbackQuery?.data === "report:back") {
+      await response.answerCallbackQuery();
+      return BACK;
+    }
 
     if (response.message?.text) {
       const text = response.message.text.trim();
@@ -88,12 +99,15 @@ async function stepPreview(
 
   await ctx.reply(preview, { parse_mode: "HTML", reply_markup: keyboard });
 
-  const response = await conversation.waitForCallbackQuery(/^report:/, {
-    otherwise: async (ctx) => {
-      await ctx.reply(preview, { parse_mode: "HTML", reply_markup: keyboard });
-    },
+  const response = await conversation.waitUntil((ctx) => {
+    const text = ctx.message?.text;
+    if (text?.startsWith("/")) return false;
+    return ["report:send", "report:edit", "report:cancel"].includes(ctx.callbackQuery?.data ?? "");
   });
 
+  if (!response.callbackQuery?.data) {
+    throw new Error("Unexpected missing callback query data in report preview");
+  }
   const action = response.callbackQuery.data.replace("report:", "");
   await response.answerCallbackQuery();
   return action as "send" | "edit" | "cancel";
@@ -124,7 +138,12 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
   let action: "send" | "edit" | "cancel";
 
   do {
-    description = await stepEnterDescription(conversation, ctx, lang);
+    const descriptionOrBack = await stepEnterDescription(conversation, ctx, lang);
+    if (descriptionOrBack === BACK) {
+      await ctx.reply(t("reportCancelled", lang));
+      return;
+    }
+    description = descriptionOrBack;
     action = await stepPreview(conversation, ctx, lang, type, description);
   } while (action === "edit");
 

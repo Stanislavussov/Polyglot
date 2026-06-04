@@ -69,12 +69,16 @@ export async function handleRegenLoop(
   const callbackPattern = isSentence ? /^tr:regen:.+$/ : /^tr:(save|skip|regen:.+)$/;
 
   while (true) {
-    const resp = await conversation.waitForCallbackQuery(callbackPattern, {
-      otherwise: async (c) => {
-        await c.reply(card, { reply_markup: keyboard, parse_mode: "HTML" });
-      },
+    const resp = await conversation.waitUntil((ctx) => {
+      const text = ctx.message?.text;
+      if (text?.startsWith("/")) return false;
+      const data = ctx.callbackQuery?.data ?? "";
+      return callbackPattern.test(data);
     });
     await resp.answerCallbackQuery();
+    if (!resp.callbackQuery?.data) {
+      throw new Error("Unexpected missing callback query data in regen loop");
+    }
     const data = resp.callbackQuery.data;
 
     if (!isSentence && data === "tr:save") {
