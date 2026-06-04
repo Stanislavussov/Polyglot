@@ -1,6 +1,6 @@
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { logger } from "@polyglot/core";
-import { Bot, type StorageAdapter, session } from "grammy";
+import { Bot, type NextFunction, type StorageAdapter, session } from "grammy";
 import { setBotCommands } from "./commands/commands.js";
 import { startCommand } from "./commands/start.js";
 import { createContainer } from "./container.js";
@@ -88,6 +88,38 @@ export interface CreatePolyglotBotOptions {
   apiRoot?: string;
 }
 
+/**
+ * Exits all active conversations when the user performs an external action
+ * (bot command or non-conversation callback query). This prevents stale
+ * conversations from blocking other commands and callbacks.
+ */
+async function exitActiveConversations(ctx: BotContext, next: NextFunction): Promise<void> {
+  const active = ctx.conversation?.active?.();
+  if (!active || Object.keys(active).length === 0) {
+    return next();
+  }
+
+  if (ctx.message?.text?.startsWith("/")) {
+    for (const id of Object.keys(active)) {
+      await ctx.conversation.exit(id);
+    }
+    return next();
+  }
+
+  if (ctx.callbackQuery?.data) {
+    const data = ctx.callbackQuery.data;
+    const isConversationCallback =
+      data.startsWith("report:") || data.startsWith("onb:") || data.startsWith("learn:") || data.startsWith("lang:");
+    if (!isConversationCallback) {
+      for (const id of Object.keys(active)) {
+        await ctx.conversation.exit(id);
+      }
+    }
+  }
+
+  return next();
+}
+
 export function createInitialSession(): SessionData {
   return {
     activeMode: "translate",
@@ -138,6 +170,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.use(authMiddleware);
   bot.use(createConversation(onboarding));
   bot.use(createConversation(handleReportIssue, { plugins: [conversationAuthPlugin()] }));
+  bot.use(exitActiveConversations);
 
   bot.command("start", startCommand);
   bot.command("translate", handleTranslateCommand);
