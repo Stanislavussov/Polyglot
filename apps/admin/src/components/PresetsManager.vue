@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Translation Presets</h1>
         <p class="mt-1 text-sm text-gray-500">Manage translation configuration presets</p>
@@ -17,8 +17,8 @@
       <AlertMessage v-if="error">{{ error }}</AlertMessage>
       <p v-else-if="loading" class="text-sm text-gray-400">Loading...</p>
       <p v-else-if="items.length === 0" class="text-sm text-gray-400">No presets configured</p>
-      <div v-else class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table class="min-w-full divide-y divide-gray-200">
+      <div v-else class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+        <table class="min-w-max divide-y divide-gray-200 sm:min-w-full">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Name</th>

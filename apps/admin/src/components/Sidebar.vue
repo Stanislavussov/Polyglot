@@ -1,18 +1,18 @@
 <template>
-  <aside class="flex h-full w-60 flex-col bg-sidebar text-gray-300">
-    <div class="flex h-16 items-center gap-2 border-b border-white/10 px-5">
-      <span class="text-xl font-bold tracking-tight text-white">Polyglot</span>
+  <aside class="flex w-full shrink-0 flex-col bg-sidebar text-gray-300 md:h-screen md:w-60">
+    <div class="flex h-14 items-center gap-2 border-b border-white/10 px-4 md:h-16 md:px-5">
+      <span class="text-lg font-bold tracking-tight text-white md:text-xl">Polyglot</span>
       <span class="rounded bg-indigo-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
         Admin
       </span>
     </div>
-    <nav class="flex-1 space-y-1 px-3 py-4">
+    <nav class="flex gap-1 overflow-x-auto px-3 py-3 md:flex-1 md:flex-col md:space-y-1 md:overflow-x-visible md:py-4">
       <a
         v-for="item in items"
         :key="item.href"
         :href="item.href"
         :class="[
-          'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+          'flex shrink-0 items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors md:gap-3',
           isActive(item.href)
             ? 'bg-sidebar-active text-white'
             : 'text-gray-400 hover:bg-sidebar-hover hover:text-white',
