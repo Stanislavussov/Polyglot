@@ -1,0 +1,60 @@
+# ── Stage 1: base ─────────────────────────────────────────────────────
+FROM node:26-alpine AS base
+RUN npm install -g pnpm@10.14.0
+WORKDIR /app
+
+# ── Stage 2: deps ─────────────────────────────────────────────────────
+FROM base AS deps
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/bot/package.json apps/bot/
+COPY apps/admin-api/package.json apps/admin-api/
+COPY apps/admin/package.json apps/admin/
+COPY packages/core/package.json packages/core/
+COPY packages/infra/package.json packages/infra/
+COPY packages/adapters/ai/package.json packages/adapters/ai/
+COPY packages/adapters/db/package.json packages/adapters/db/
+COPY packages/adapters/notifications/package.json packages/adapters/notifications/
+
+RUN pnpm install --frozen-lockfile
+
+# ── Stage 3: build ────────────────────────────────────────────────────
+FROM deps AS build
+
+ARG PUBLIC_API_URL=http://localhost:3001
+ENV PUBLIC_API_URL=$PUBLIC_API_URL
+
+COPY tsconfig.json ./
+COPY apps/admin/ apps/admin/
+
+RUN pnpm --filter @polyglot/admin run build
+
+# ── Stage 4: production ──────────────────────────────────────────────
+FROM base AS production
+
+ENV NODE_ENV=production
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/bot/package.json apps/bot/
+COPY apps/admin-api/package.json apps/admin-api/
+COPY apps/admin/package.json apps/admin/
+COPY packages/core/package.json packages/core/
+COPY packages/infra/package.json packages/infra/
+COPY packages/adapters/ai/package.json packages/adapters/ai/
+COPY packages/adapters/db/package.json packages/adapters/db/
+COPY packages/adapters/notifications/package.json packages/adapters/notifications/
+
+RUN pnpm install --frozen-lockfile --prod
+
+COPY --from=build /app/apps/admin/dist ./apps/admin/dist
+COPY --from=build /app/apps/admin/package.json ./apps/admin/
+COPY --from=build /app/apps/admin/astro.config.mjs ./apps/admin/
+
+USER node
+
+EXPOSE 4321
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- "http://localhost:${PORT:-4321}/" || exit 1
+
+CMD ["node", "apps/admin/dist/server/entry.mjs"]

@@ -6,6 +6,10 @@
 
   vars:
     deploy_user: deploy
+    admin_panel_domain: "{{ lookup('env', 'ADMIN_PANEL_DOMAIN') }}"
+    admin_api_domain: "{{ lookup('env', 'ADMIN_API_DOMAIN') }}"
+    acme_email: "{{ lookup('env', 'ACME_EMAIL') }}"
+    configure_public_routing: "{{ admin_panel_domain | length > 0 and admin_api_domain | length > 0 }}"
 
   tasks:
     - name: Install essential packages
@@ -16,6 +20,7 @@
           - curl
           - gnupg
           - ca-certificates
+          - cron
         state: present
         update_cache: true
 
@@ -73,7 +78,7 @@
         - { key: 'PasswordAuthentication', value: 'no' }
         - { key: 'PermitEmptyPasswords', value: 'no' }
         - { key: 'MaxAuthTries', value: '3' }
-      notify: Restart sshd
+      notify: Restart ssh
 
     - name: Add Docker GPG key
       ansible.builtin.apt_key:
@@ -126,8 +131,178 @@
         mode: '0440'
         validate: /usr/sbin/visudo -cf %s
 
+    - name: Install admin seed helper
+      ansible.builtin.copy:
+        dest: /usr/local/bin/polyglot-admin-seed
+        owner: root
+        group: root
+        mode: '0755'
+        content: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          : "${ADMIN_EMAIL:?ADMIN_EMAIL is required}"
+          : "${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}"
+
+          cd /opt/polyglot
+          docker compose exec -T \
+            -e ADMIN_EMAIL="${ADMIN_EMAIL}" \
+            -e ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
+            admin-api \
+            node apps/admin-api/dist/seed.js
+
+    - name: Install public routing packages
+      ansible.builtin.apt:
+        name:
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+        state: present
+        update_cache: true
+      when: configure_public_routing | bool
+
+    - name: Check admin TLS certificate
+      ansible.builtin.stat:
+        path: "/etc/letsencrypt/live/{{ admin_panel_domain }}/fullchain.pem"
+      register: admin_tls_certificate
+      when: configure_public_routing | bool
+
+    - name: Configure nginx reverse proxy
+      ansible.builtin.copy:
+        dest: /etc/nginx/sites-available/polyglot
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          {% if admin_tls_certificate.stat.exists | default(false) %}
+          server {
+              listen 80;
+              server_name {{ admin_panel_domain }} {{ admin_api_domain }};
+
+              location / {
+                  return 301 https://$host$request_uri;
+              }
+          }
+
+          server {
+              listen 443 ssl http2;
+              server_name {{ admin_panel_domain }};
+
+              ssl_certificate /etc/letsencrypt/live/{{ admin_panel_domain }}/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/{{ admin_panel_domain }}/privkey.pem;
+
+              location / {
+                  proxy_pass http://localhost:4321;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection "upgrade";
+              }
+          }
+
+          server {
+              listen 443 ssl http2;
+              server_name {{ admin_api_domain }};
+
+              ssl_certificate /etc/letsencrypt/live/{{ admin_panel_domain }}/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/{{ admin_panel_domain }}/privkey.pem;
+
+              location / {
+                  proxy_pass http://localhost:3001;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection "upgrade";
+              }
+          }
+          {% else %}
+          server {
+              listen 80;
+              server_name {{ admin_panel_domain }};
+
+              location / {
+                  proxy_pass http://localhost:4321;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection "upgrade";
+              }
+          }
+
+          server {
+              listen 80;
+              server_name {{ admin_api_domain }};
+
+              location / {
+                  proxy_pass http://localhost:3001;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection "upgrade";
+              }
+          }
+          {% endif %}
+      when: configure_public_routing | bool
+      notify: Reload nginx
+
+    - name: Enable nginx reverse proxy site
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/polyglot
+        dest: /etc/nginx/sites-enabled/polyglot
+        state: link
+      when: configure_public_routing | bool
+      notify: Reload nginx
+
+    - name: Remove default nginx site
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      when: configure_public_routing | bool
+      notify: Reload nginx
+
+    - name: Validate nginx config
+      ansible.builtin.command: nginx -t
+      changed_when: false
+      when: configure_public_routing | bool
+
+    - name: Start nginx
+      ansible.builtin.systemd:
+        name: nginx
+        enabled: true
+        state: started
+      when: configure_public_routing | bool
+
+    - name: Issue TLS certificates
+      ansible.builtin.command:
+        cmd: >-
+          certbot --nginx --non-interactive --agree-tos
+          --email {{ acme_email }}
+          -d {{ admin_panel_domain }}
+          -d {{ admin_api_domain }}
+        creates: "/etc/letsencrypt/live/{{ admin_panel_domain }}/fullchain.pem"
+      when:
+        - configure_public_routing | bool
+        - acme_email | length > 0
+
   handlers:
     - name: Restart ssh
       ansible.builtin.systemd:
         name: ssh
         state: restarted
+
+    - name: Reload nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: reloaded

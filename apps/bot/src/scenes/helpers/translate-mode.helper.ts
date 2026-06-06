@@ -9,6 +9,7 @@ import {
   calculateTranslationCreditCost,
   detectLanguage,
   detectLanguageAsync,
+  evaluatePlanRateLimit,
   evaluateRateLimit,
   getDailyWindowReset,
   getDailyWindowStart,
@@ -26,7 +27,6 @@ import {
   translateOneWithContext,
   translateWithContext,
 } from "@polyglot/core";
-import { loadConfig } from "@polyglot/infra";
 import { InlineKeyboard } from "grammy";
 import { translationCounter, translationDuration } from "../../metrics.js";
 import {
@@ -39,6 +39,7 @@ import {
   renderTranslation,
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
+import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
@@ -54,14 +55,23 @@ async function ensureTranslationQuota(
   const creditCost = calculateTranslationCreditCost();
   const windowStart = getDailyWindowStart();
   const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(ctx.user.id, windowStart);
-  const status = evaluateRateLimit(plan, usedCredits, creditCost, getDailyWindowReset());
+  const planLimit = (await ctx.services.settings?.getPlanLimit(plan)) ?? null;
+  const requestedCredits = planLimit?.creditCost ?? creditCost;
+  const status = planLimit
+    ? evaluatePlanRateLimit(
+        { plan: planLimit.name, label: planLimit.label, creditsPerDay: planLimit.creditsPerDay },
+        usedCredits,
+        requestedCredits,
+        getDailyWindowReset(),
+      )
+    : evaluateRateLimit(plan, usedCredits, creditCost, getDailyWindowReset());
 
   if (!status.allowed) {
     await ctx.reply(t("rateLimitExceeded", lang));
     return null;
   }
 
-  return creditCost;
+  return requestedCredits;
 }
 
 /**
@@ -109,9 +119,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
   // If sync detection fails, try async detection with AI (last resort)
   if (preDetectLang === undefined) {
-    const config = loadConfig();
+    const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
     const aiGenerate = async (prompt: string) => {
-      const result = await ctx.services.ai.generateText(prompt, config.AI_MODEL);
+      const result = await ctx.services.ai.generateText(prompt, model);
       return result.trim();
     };
 
@@ -206,7 +216,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const loadingMsg = await ctx.reply(t("translating", lang));
 
   try {
-    const config = loadConfig();
+    const model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
 
     // Load user's template for template-aware output resolution (Task 32)
     const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
@@ -224,7 +234,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         sourceLang,
         targetLangs,
         nativeLang,
-        model: config.AI_MODEL,
+        model,
         topic: contextHint,
         userId: ctx.user.id,
         outputConfig,
@@ -510,7 +520,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
   });
 
   try {
-    const config = loadConfig();
+    const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
 
     const savedTpl = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
@@ -530,7 +540,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
         targetLangs: [regenLang],
         targetLang: regenLang,
         nativeLang,
-        model: config.AI_MODEL,
+        model,
         topic: entry.contextHint,
         userId: ctx.user.id,
         outputConfig,
@@ -687,7 +697,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   const loadingMsg = await ctx.reply(t("translating", lang));
 
   try {
-    const config = loadConfig();
+    const model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
 
     // Load user's template
     const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
@@ -704,7 +714,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
         sourceLang,
         targetLangs,
         nativeLang,
-        model: config.AI_MODEL,
+        model,
         topic: pendingContextHint,
         userId: ctx.user.id,
         outputConfig,

@@ -8,7 +8,6 @@ const envSchema = z.object({
   BOT_TOKEN: z.string().min(1, "BOT_TOKEN is required"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   OPENROUTER_API_KEY: z.string().optional(),
-  AI_MODEL: z.string().default("openai/gpt-5-nano"),
   BETTERSTACK_TOKEN: z.string().optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });

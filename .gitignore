@@ -7,3 +7,4 @@ coverage
 **/.pi-lens/*
 .sisyphus/*
 .omo/*
+.env.prod

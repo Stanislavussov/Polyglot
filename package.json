@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "bot": "pnpm --filter @polyglot/bot run dev",
+    "admin-api": "pnpm --filter @polyglot/admin-api run dev",
+    "admin": "pnpm --filter @polyglot/admin run dev",
     "dev": "pnpm -r --parallel run dev",
     "build": "pnpm -r run build",
     "test": "vitest run",
@@ -20,13 +22,15 @@
     "clean": "pnpm -r run clean && rm -rf coverage .vitest",
     "docker:up": "docker compose -f deploy/docker-compose.yml up",
     "docker:dev": "docker compose -f deploy/docker-compose.override.yml up",
-    "docker:dev:build": "docker compose -f docker-compose.override.yml up --build",
+    "docker:dev:build": "docker compose -f deploy/docker-compose.override.yml up --build",
     "db:generate": "pnpm --filter @polyglot/adapter-db db:generate",
     "db:pull": "pnpm --filter @polyglot/adapter-db db:pull",
     "db:push": "pnpm --filter @polyglot/adapter-db db:push",
     "db:migrate": "pnpm --filter @polyglot/adapter-db db:migrate",
     "db:studio": "pnpm --filter @polyglot/adapter-db db:studio",
-    "db:check": "pnpm --filter @polyglot/adapter-db db:check"
+    "db:check": "pnpm --filter @polyglot/adapter-db db:check",
+    "admin:seed": "pnpm --filter @polyglot/admin-api run seed",
+    "ansible": "./scripts/run-ansible.sh"
   },
   "dependencies": {
     "@polyglot/adapter-db": "workspace:*",

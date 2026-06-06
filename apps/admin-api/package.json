@@ -1,0 +1,36 @@
+{
+  "name": "@polyglot/admin-api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "NODE_OPTIONS='--conditions source' tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "seed": "tsx src/seed.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.0.0",
+    "@fastify/jwt": "^9.0.0",
+    "@polyglot/adapter-db": "workspace:*",
+    "@polyglot/core": "workspace:*",
+    "@polyglot/infra": "workspace:*",
+    "bcryptjs": "^3.0.2",
+    "drizzle-orm": "^0.45.1",
+    "fastify": "^5.2.0",
+    "fastify-plugin": "^5.0.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "tsx": "^4.21.0"
+  }
+}

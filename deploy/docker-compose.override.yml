@@ -8,3 +8,32 @@ services:
       - NODE_ENV=development
     env_file:
       - ../.env
+
+  admin-api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.admin-api
+      target: production
+    env_file:
+      - ../.env
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=dev-jwt-secret-change-in-production
+      - ADMIN_PANEL_URL=http://localhost:4321
+      - PORT=3001
+    ports:
+      - "3001:3001"
+
+  admin:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.admin
+      target: production
+      args:
+        PUBLIC_API_URL: http://localhost:3001
+    environment:
+      - HOST=0.0.0.0
+      - PORT=4321
+      - PUBLIC_API_URL=http://localhost:3001
+    ports:
+      - "4321:4321"

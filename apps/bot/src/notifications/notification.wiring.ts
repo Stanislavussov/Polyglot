@@ -1,5 +1,11 @@
 import { generateObject } from "@polyglot/adapter-ai";
-import { getAllLangs, notificationRepository, userRepository, vocabularyRepository } from "@polyglot/adapter-db";
+import {
+  getAllLangs,
+  notificationRepository,
+  settingsAdapter,
+  userRepository,
+  vocabularyRepository,
+} from "@polyglot/adapter-db";
 import {
   createNotificationService,
   type NotificationPayload,
@@ -7,13 +13,14 @@ import {
   startScheduler,
   stopScheduler,
 } from "@polyglot/adapter-notifications";
-import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
-import { loadConfig } from "@polyglot/infra";
+import { isSupported, logger, SettingsService, type SupportedLang, t } from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
+import { resolveDefaultAIModel } from "../utils/ai-model.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
 
-export function wireNotificationScheduler(api: Api<RawApi>): void {
-  const config = loadConfig();
+export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void> {
+  const settings = new SettingsService(settingsAdapter);
+  const contextualModel = await resolveDefaultAIModel(settings);
   const notifService = createNotificationService({
     getUserVocabulary: async (userId: number) => {
       const entries = await vocabularyRepository.findByUser(userId);
@@ -35,7 +42,7 @@ export function wireNotificationScheduler(api: Api<RawApi>): void {
     generateObject: async (prompt: string, schema: any, model: string, options?: { userId?: number }) => {
       return generateObject(prompt, schema, model, options);
     },
-    contextualModel: config.AI_MODEL,
+    contextualModel,
   });
 
   const sendFn = async (telegramId: number, payload: NotificationPayload): Promise<void> => {

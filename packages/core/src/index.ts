@@ -8,7 +8,20 @@ export type {
   NotificationType,
   NotificationUser,
 } from "./ports/notification.repository.js";
-export type { TranslationRequest, TranslationRequestRepository } from "./ports/translation-request.repository.js";
+export type {
+  AIGenerationDefaults,
+  DictionaryConfig,
+  NotificationDefaults,
+  PlanLimitConfig,
+  SettingsPort,
+  SrsConfig,
+  TranslationConfig,
+  TranslationPresetConfig,
+} from "./ports/settings.port.js";
+export type {
+  TranslationRequest,
+  TranslationRequestRepository,
+} from "./ports/translation-request.repository.js";
 export type {
   NewUser,
   SubscriptionPlan,
@@ -59,6 +72,7 @@ export {
 } from "./modules/idiom-analysis/index.js";
 export * from "./modules/language-detect/index.js";
 export * from "./modules/rate-limit/index.js";
+export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";

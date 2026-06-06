@@ -20,13 +20,14 @@ import {
   loadLanguageCache,
   normalizeToIso1,
   notificationRepository,
+  settingsAdapter,
   translationRequestRepository,
   translationTemplateRepository,
   userRepository,
   vocabularyRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
-import type { ServiceContainer } from "@polyglot/core";
+import { type ServiceContainer, SettingsService } from "@polyglot/core";
 
 /**
  * Creates the full service container from adapter implementations.
@@ -35,8 +36,7 @@ import type { ServiceContainer } from "@polyglot/core";
  * The resulting container is injected into the bot context.
  */
 export function createContainer(): ServiceContainer {
-  // Using type assertion to bypass strict type checking for adapter wiring
-  // The adapter functions have the correct runtime behavior
+  const settings = new SettingsService(settingsAdapter);
   const container = {
     userRepository,
     vocabularyRepository,
@@ -63,6 +63,7 @@ export function createContainer(): ServiceContainer {
       getAvailableModels,
       estimateCost,
     },
+    settings,
   } as unknown as ServiceContainer;
   return container;
 }

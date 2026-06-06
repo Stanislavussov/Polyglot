@@ -9,6 +9,8 @@ FROM base AS deps
 # Copy only files needed for dependency resolution
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/bot/package.json apps/bot/
+COPY apps/admin-api/package.json apps/admin-api/
+COPY apps/admin/package.json apps/admin/
 COPY packages/core/package.json packages/core/
 COPY packages/infra/package.json packages/infra/
 COPY packages/adapters/ai/package.json packages/adapters/ai/
@@ -35,6 +37,8 @@ ENV NODE_ENV=production
 # Copy lockfile and workspace manifests for prod install
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/bot/package.json apps/bot/
+COPY apps/admin-api/package.json apps/admin-api/
+COPY apps/admin/package.json apps/admin/
 COPY packages/core/package.json packages/core/
 COPY packages/infra/package.json packages/infra/
 COPY packages/adapters/ai/package.json packages/adapters/ai/
@@ -56,7 +60,7 @@ USER node
 
 EXPOSE 9090
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD wget -qO- http://localhost:9090/healthz || exit 1
 
 CMD ["node", "apps/bot/dist/index.js"]
