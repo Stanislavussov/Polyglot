@@ -44,6 +44,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   const targetLangNames = targetLangs.map((l) => getLanguageName(l)).join(", ");
   const nativeLangName = nativeLang ? getLanguageName(nativeLang) : null;
   const includesSourceTarget = targetLangs.includes(sourceLang);
+  const isNativeSource = nativeLang !== undefined && sourceLang === nativeLang;
 
   const intro = isSentence
     ? `Translate the following sentence from ${sourceLangName} to ${targetLangNames}:\n"${text}"`
@@ -64,8 +65,8 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   if (cfg.includeConnotationWarning) {
     requestedFields.push(
       nativeLangName
-        ? `connotation warning in ${nativeLangName} only for risky meanings`
-        : "connotation warning only for risky meanings",
+        ? `target-side connotation note written in ${nativeLangName} only when relevant`
+        : "target-side connotation note only when relevant",
     );
   }
   if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
@@ -116,16 +117,7 @@ Rules:${
       ? `
 - Provide exactly 3 example sentences per language. Keep each sentence SHORT — one sentence only.`
       : ""
-  }${
-    cfg.includeConnotationWarning
-      ? `
-- Warn about dangerous or misleading connotations ONLY if they exist. Most words should NOT have a warning. Omit the "connotationWarning" field entirely if the word has no dangerous connotations.${
-          nativeLangName
-            ? ` When present, every "connotationWarning" value in every target language block MUST be written in ${nativeLangName}, not in the target language. For example, if the user native language is ${nativeLangName}, translations.cs.connotationWarning and translations.en.connotationWarning are both written in ${nativeLangName}.`
-            : ""
-        }`
-      : ""
-  }
+  }${cfg.includeConnotationWarning ? buildConnotationRule(nativeLangName, isNativeSource, sourceLangName) : ""}
 ${
   cfg.includeTranscription
     ? `
@@ -178,11 +170,7 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
     checkItems.push(`- For idiomatic expressions, set expressionType to "idiomatic_equivalent" with an equivalentNote`);
   }
   if (cfg.includeConnotationWarning) {
-    checkItems.push(
-      nativeLangName
-        ? `- connotationWarning is present ONLY for words with genuinely dangerous/misleading meanings, and every connotationWarning in every target language block is written in ${nativeLangName}`
-        : "- connotationWarning is present ONLY for words with genuinely dangerous/misleading meanings — omit for most words",
-    );
+    checkItems.push(buildConnotationCheck(nativeLangName, request.sourceLang === request.nativeLang));
   }
 
   return `${base}
@@ -222,6 +210,27 @@ function buildTopicHint(topic: string, isSentence: boolean, config: Required<Tra
   }
 
   return `\n${lines.join("\n")}`;
+}
+
+function buildConnotationRule(nativeLangName: string | null, isNativeSource: boolean, sourceLangName: string): string {
+  const languageRule = nativeLangName
+    ? ` When present, every "connotationWarning" value in every target language block MUST be written in ${nativeLangName}, but it MUST describe the target translation in that block.`
+    : "";
+  const nativeSourceRule = isNativeSource
+    ? `
+- Because the source language is the user's native language (${sourceLangName}), NEVER use "connotationWarning" to explain the source word itself. Assume the user already knows the source-language nuance.`
+    : "";
+
+  return `
+- Use "connotationWarning" as target-side metadata only: it must describe what the translated target word/expression implies in that target language, including nuance, usage context, register, or closest cultural/semantic connotation.
+- Omit "connotationWarning" when the target translation has no noteworthy risky, misleading, offensive, or register-specific connotation.${languageRule}
+- Decide "connotationWarning" independently for each target language. Do not copy the same source-language explanation across all target blocks.${nativeSourceRule}`;
+}
+
+function buildConnotationCheck(nativeLangName: string | null, isNativeSource: boolean): string {
+  const languageClause = nativeLangName ? ` and written in ${nativeLangName}` : "";
+  const nativeSourceClause = isNativeSource ? ", never as an explanation of the native source word" : "";
+  return `- connotationWarning is present only when the target translation has noteworthy connotations, is target-language specific${languageClause}${nativeSourceClause}`;
 }
 
 /**

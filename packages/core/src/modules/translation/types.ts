@@ -58,7 +58,7 @@ export interface LanguageTranslation {
   equivalentNote?: string | null;
   /** Up to 2 alternative translation variants */
   alternatives?: TranslationVariant[] | null;
-  /** Optional warning about dangerous or misleading connotations */
+  /** Optional target-side note about noteworthy connotation, register, or usage risk */
   connotationWarning?: string | null;
 }
 

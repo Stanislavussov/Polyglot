@@ -191,9 +191,9 @@ describe("buildTranslationPrompt with outputConfig", () => {
     expect(prompt).toContain("synonyms");
     expect(prompt).toContain("alternative translations");
     expect(prompt).toContain("examples");
-    expect(prompt).toContain("connotation warning");
+    expect(prompt).toContain("connotationWarning");
     expect(prompt).toContain("VARIETY IN EXAMPLES IS MANDATORY");
-    expect(prompt).toContain("dangerous or misleading connotations");
+    expect(prompt).toContain("target-side metadata");
   });
 
   it("includeConnotationWarning: false → prompt has no 'connotationWarning' field", () => {
@@ -204,8 +204,8 @@ describe("buildTranslationPrompt with outputConfig", () => {
 
   it("includeConnotationWarning: true → prompt has 'connotationWarning' field and warning rule", () => {
     const prompt = promptWith({ includeConnotationWarning: true });
-    expect(prompt).toContain("connotation warning");
-    expect(prompt).toContain("Warn about dangerous or misleading connotations ONLY if they exist");
+    expect(prompt).toContain("connotationWarning");
+    expect(prompt).toContain('Use "connotationWarning" as target-side metadata only');
   });
 });
 
@@ -235,7 +235,7 @@ describe("buildStrictPrompt with outputConfig", () => {
     const prompt = buildStrictPrompt({ ...baseRequest, outputConfig: { includeConnotationWarning: true } }, [
       "some error",
     ]);
-    expect(prompt).toContain("connotationWarning is present ONLY for words with genuinely dangerous");
+    expect(prompt).toContain("connotationWarning is present only when the target translation has noteworthy");
   });
 });
 
