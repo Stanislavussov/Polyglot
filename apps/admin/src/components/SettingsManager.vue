@@ -22,10 +22,30 @@
       <p v-if="loading" class="text-sm text-gray-400">Loading...</p>
       <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
       <form v-else class="space-y-4" @submit.prevent="save">
+        <p class="text-sm text-gray-500">{{ activeTabDescription }}</p>
         <div v-for="field in fields" :key="field.key" class="grid gap-2 sm:grid-cols-[180px_1fr] sm:items-start sm:gap-4">
-          <label :for="`s-${field.key}`" class="pt-2 text-sm font-medium text-gray-700 capitalize">
-            {{ formatLabel(field.key) }}
-          </label>
+          <div class="flex items-start gap-1.5 pt-2">
+            <label :for="`s-${field.key}`" class="text-sm font-medium text-gray-700 capitalize">
+              {{ formatLabel(field.key) }}
+            </label>
+            <button
+              type="button"
+              class="group relative inline-flex rounded-full text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              :aria-label="`${formatLabel(field.key)} description`"
+              :title="field.description"
+            >
+              <Info
+                class="mt-0.5 h-4 w-4 text-gray-400"
+                aria-hidden="true"
+              />
+              <span
+                role="tooltip"
+                class="pointer-events-none absolute left-1/2 top-6 z-10 hidden w-72 -translate-x-1/2 rounded-md bg-gray-900 px-3 py-2 text-xs font-normal leading-5 text-white shadow-lg group-hover:block group-focus-within:block"
+              >
+                {{ field.description }}
+              </span>
+            </button>
+          </div>
           <div v-if="typeof field.value === 'boolean'" class="flex items-center gap-2">
             <input
               :id="`s-${field.key}`"
@@ -63,12 +83,14 @@
 </template>
 
 <script setup lang="ts">
+import { Info } from "lucide-vue-next";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { settings } from "../lib/api";
 
 type SettingsValue = string | number | boolean;
 type SettingsRecord = Record<string, SettingsValue>;
 type SettingsGroup = "ai-defaults" | "notifications" | "srs" | "translation" | "dictionary";
+type FieldDescriptionMap = Record<SettingsGroup, Record<string, string>>;
 
 const tabs: Array<{ key: SettingsGroup; label: string }> = [
   { key: "ai-defaults", label: "AI Defaults" },
@@ -86,7 +108,49 @@ const loadError = ref("");
 const saveError = ref("");
 const success = ref(false);
 
-const fields = computed(() => Object.entries(original.value).map(([key, value]) => ({ key, value })));
+const fieldDescriptions: FieldDescriptionMap = {
+  "ai-defaults": {
+    maxTokens: "Maximum number of tokens the AI may generate in one response. Higher values allow longer answers but cost more and take longer.",
+    temperature: "Controls randomness in AI output from 0 to 2. Lower values are more consistent; higher values are more creative.",
+    frequencyPenalty: "Reduces repeated words and phrases in AI output. Use higher values when responses become repetitive.",
+    maxRetries: "How many times Polyglot retries an AI request after validation or provider failures before returning an error.",
+  },
+  notifications: {
+    defaultTime: "Default local time for scheduled user notifications. Use 24-hour HH:MM format.",
+    defaultType: "Default notification source for users who have not chosen one: suggested words, SRS reviews, or contextual prompts.",
+    inactivityDays: "Number of inactive days after which notification handling treats a user as inactive.",
+  },
+  srs: {
+    minEaseFactor: "Lowest allowed SRS ease factor. This prevents difficult cards from becoming too aggressively scheduled.",
+    defaultEaseFactor: "Starting SRS ease factor for new cards before the user has review history.",
+  },
+  translation: {
+    maxTranscriptionLength: "Maximum source-text length that still asks the AI for pronunciation or transcription details.",
+  },
+  dictionary: {
+    flashcardLimit: "Maximum number of dictionary entries shown when building flashcards.",
+    notificationDictLimit: "Maximum number of dictionary entries considered when selecting notification content.",
+    wordOfDayLimit: "Maximum number of dictionary entries considered for word-of-day style suggestions.",
+  },
+};
+
+const tabDescriptions: Record<SettingsGroup, string> = {
+  "ai-defaults": "Defaults applied to AI generation when a more specific model or workflow setting does not override them.",
+  notifications: "Defaults for scheduled notification timing, source selection, and inactivity handling.",
+  srs: "Scheduling parameters for spaced repetition cards and review intervals.",
+  translation: "Limits that shape translation output and pronunciation detail generation.",
+  dictionary: "Caps used when dictionary entries are selected for flashcards, notifications, and daily suggestions.",
+};
+
+const fields = computed(() =>
+  Object.entries(original.value).map(([key, value]) => ({
+    key,
+    value,
+    description: descriptionFor(activeTab.value, key),
+  })),
+);
+
+const activeTabDescription = computed(() => tabDescriptions[activeTab.value]);
 
 function toRecord(value: object): SettingsRecord {
   const record: SettingsRecord = {};
@@ -109,6 +173,14 @@ function syncForm(data: SettingsRecord): void {
 
 function formatLabel(key: string): string {
   return key.replace(/([A-Z])/g, " $1").replace(/_/g, " ").trim();
+}
+
+function descriptionFor(group: SettingsGroup, key: string): string {
+  return fieldDescriptions[group][key] ?? `${formatLabel(key)} setting for the ${tabLabel(group)} configuration group.`;
+}
+
+function tabLabel(group: SettingsGroup): string {
+  return tabs.find((tab) => tab.key === group)?.label ?? group;
 }
 
 async function loadTab(group: SettingsGroup): Promise<void> {

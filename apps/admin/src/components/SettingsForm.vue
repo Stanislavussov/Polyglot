@@ -5,9 +5,25 @@
       :key="key"
       class="grid grid-cols-[180px_1fr] items-start gap-4"
     >
-      <label :for="key" class="pt-2 text-sm font-medium text-gray-700 capitalize">
-        {{ formatLabel(key) }}
-      </label>
+      <div class="flex items-start gap-1.5 pt-2">
+        <label :for="key" class="text-sm font-medium text-gray-700 capitalize">
+          {{ formatLabel(key) }}
+        </label>
+        <button
+          type="button"
+          class="group relative inline-flex rounded-full text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          :aria-label="`${formatLabel(key)} description`"
+          :title="descriptionFor(key)"
+        >
+          <Info class="mt-0.5 h-4 w-4" aria-hidden="true" />
+          <span
+            role="tooltip"
+            class="pointer-events-none absolute left-1/2 top-6 z-10 hidden w-72 -translate-x-1/2 rounded-md bg-gray-900 px-3 py-2 text-xs font-normal leading-5 text-white shadow-lg group-hover:block group-focus-within:block"
+          >
+            {{ descriptionFor(key) }}
+          </span>
+        </button>
+      </div>
       <div class="flex items-center gap-2">
         <input
           :id="key"
@@ -30,11 +46,13 @@
 </template>
 
 <script setup lang="ts">
+import { Info } from "lucide-vue-next";
 import { ref, watch } from "vue";
 
 const props = defineProps<{
   modelValue: Record<string, string | number | boolean>;
   saveFn: (data: Record<string, string | number | boolean>) => Promise<unknown>;
+  descriptions?: Record<string, string>;
 }>();
 
 const emit = defineEmits<{
@@ -64,6 +82,10 @@ function inputType(value: string | number | boolean): string {
   if (typeof value === "boolean") return "checkbox";
   if (typeof value === "number") return "number";
   return "text";
+}
+
+function descriptionFor(key: string): string {
+  return props.descriptions?.[key] ?? `${formatLabel(key)} setting.`;
 }
 
 async function handleSave() {
