@@ -1,7 +1,7 @@
 <template>
   <div class="mt-6">
     <div class="border-b border-gray-200">
-      <nav class="-mb-px flex space-x-6" aria-label="Settings categories">
+      <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Settings categories">
         <button
           v-for="tab in tabs"
           :key="tab.key"
@@ -22,7 +22,7 @@
       <p v-if="loading" class="text-sm text-gray-400">Loading...</p>
       <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
       <form v-else class="space-y-4" @submit.prevent="save">
-        <div v-for="field in fields" :key="field.key" class="grid grid-cols-[180px_1fr] items-start gap-4">
+        <div v-for="field in fields" :key="field.key" class="grid gap-2 sm:grid-cols-[180px_1fr] sm:items-start sm:gap-4">
           <label :for="`s-${field.key}`" class="pt-2 text-sm font-medium text-gray-700 capitalize">
             {{ formatLabel(field.key) }}
           </label>

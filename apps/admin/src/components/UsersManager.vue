@@ -12,8 +12,8 @@
     <AlertMessage v-if="error">{{ error }}</AlertMessage>
     <p v-else-if="!loading && list.length === 0" class="text-sm text-gray-400">No users found</p>
     <p v-else-if="loading" class="text-sm text-gray-400">Loading...</p>
-    <div v-else class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-      <table class="min-w-full divide-y divide-gray-200">
+    <div v-else class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+      <table class="min-w-max divide-y divide-gray-200 sm:min-w-full">
         <thead class="bg-gray-50">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">User</th>
@@ -50,9 +50,9 @@
       </table>
     </div>
 
-    <div class="mt-4 flex items-center justify-between">
+    <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <span class="text-sm text-gray-500">{{ total }} user{{ total !== 1 ? "s" : "" }}</span>
-      <div v-if="totalPages > 1" class="flex gap-2">
+      <div v-if="totalPages > 1" class="flex flex-wrap items-center gap-2">
         <button
           :disabled="currentPage === 1"
           class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"

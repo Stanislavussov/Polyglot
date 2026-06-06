@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">AI Models</h1>
         <p class="mt-1 text-sm text-gray-500">Manage available AI models and set the default</p>
@@ -12,8 +12,8 @@
       <AlertMessage v-if="error" type="error" :message="error" />
       <p v-else-if="loading" class="text-sm text-gray-400">Loading...</p>
       <p v-else-if="models.length === 0" class="text-sm text-gray-400">No models configured</p>
-      <div v-else class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table class="min-w-full divide-y divide-gray-200">
+      <div v-else class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+        <table class="min-w-max divide-y divide-gray-200 sm:min-w-full">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Model</th>
@@ -91,7 +91,7 @@
           :options="modelOptions"
         />
 
-        <dl v-if="selectedOpenRouterModel" class="grid grid-cols-2 gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm">
+        <dl v-if="selectedOpenRouterModel" class="grid grid-cols-1 gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm sm:grid-cols-2">
           <div>
             <dt class="font-medium text-gray-500">Provider</dt>
             <dd class="mt-1 text-gray-900">{{ selectedOpenRouterModel.provider }}</dd>
@@ -115,7 +115,7 @@
         </dl>
         <div v-if="planOptions.length > 0" class="space-y-2">
           <p class="text-sm font-medium text-gray-700">Subscription Plans</p>
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <CheckboxField
               v-for="plan in planOptions"
               :key="plan.value"

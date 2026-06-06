@@ -5,7 +5,7 @@
       <DialogContent
         :class="
           cn(
-            'fixed left-1/2 top-1/2 z-50 mx-4 w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-2xl',
+            'fixed left-1/2 top-1/2 z-50 mx-4 max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-6',
             widthClass,
           )
         "
