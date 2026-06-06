@@ -17,12 +17,12 @@ description: Word and phrase translation via AI with prompt building, response p
 
 ## Current State
 
-Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging added: `console.warn` on each failed validation attempt and `console.error` after all retries exhausted (core stays infra-free per architecture constraints). Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow. Task 09 translate session loop: no translation module changes needed — persistent translate mode is a bot-layer routing concern; the bot's mode router calls `translate()` for each plain text message while in translate mode; i18n keys (`translateModeOn`, `translateModeHint`) were added to support mode confirmation/hint messages. Task 10 idiomatic equivalents: added `ExpressionType` type (`'literal' | 'idiomatic_equivalent'`), `expressionType` and `equivalentNote` optional fields to `LanguageTranslation` and the Zod schema, added Idiomatic & Proverb Rule block to prompt builder, and `ExpressionType` is re-exported from the module index. Task 13 Wiktionary integration: added `DictionaryContext` type for offline dictionary enrichment, optional `dictionaryContext` field on `TranslateInput`/`TranslateOutput`/`TranslationRequest`, prompt builder enrichment with Wiktionary glosses/POS/form tags, phrase/idiom detection hints, and `translateOne()` passthrough. Context is injected by caller (e.g., bot layer) — core never calls DB directly. Task 15 context-enrichment layer: `dictionaryContext` is now managed by the context-enrichment module (`translateWithContext`, `translateOneWithContext`, `translateBatchWithContext`). Callers should use the enrichment layer instead of manually looking up and injecting `dictionaryContext`. See `.pi/skills/context-enrichment/SKILL.md`. Task 16 auto-detect input language: no translation module changes needed — `translate()`, `translateOne()`, and `translateBatch()` already accept arbitrary `sourceLang`/`targetLangs` parameters. Language detection and direction resolution live in the sibling `language-detect` module (`detectLanguage()`, `resolveTranslationDirection()`), which the bot layer calls before invoking translation. The translation pipeline remains direction-agnostic — it translates whatever `sourceLang → targetLangs` it receives. Task 17 post-translation source language selection menu: no translation module changes needed — the feature is a bot-layer UI concern (session state, inline keyboards, callbacks). The translation pipeline continues to accept whatever `sourceLang → targetLangs` it receives. i18n keys (`nextTranslationFrom`, `nextSourceSet`) were added to support the source language menu UI. The sibling `language-detect` module gained `resolveDirectionFromSource()` for explicit source language direction resolution (no auto-detection), used by the bot layer when a user has manually selected a source language. Task 21: Added `TranslationOutputConfig` with centralized presets (`FULL_OUTPUT`, `RELIABLE_OUTPUT`, `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT`). Prompt builder and schema builder are config-aware — disabled fields are omitted from the AI prompt and omitted from the AI-facing schema. Public output normalization fills disabled arrays/nulls after generation.
+Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging records each failed validation attempt and the final exhausted-retry failure. Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow. Task 09 translate session loop: no translation module changes needed — persistent translate mode is a bot-layer routing concern; the bot's mode router calls `translate()` for each plain text message while in translate mode; i18n keys (`translateModeOn`, `translateModeHint`) were added to support mode confirmation/hint messages. Task 10 idiomatic equivalents: added `ExpressionType` type (`'literal' | 'idiomatic_equivalent'`), `expressionType` and `equivalentNote` optional fields to `LanguageTranslation` and the Zod schema, added Idiomatic & Proverb Rule block to prompt builder, and `ExpressionType` is re-exported from the module index. Task 13 Wiktionary integration: added `DictionaryContext` type for offline dictionary enrichment, optional `dictionaryContext` field on `TranslateInput`/`TranslateOutput`/`TranslationRequest`, prompt builder enrichment with Wiktionary glosses/POS/form tags, phrase/idiom detection hints, and `translateOne()` passthrough. Context is injected by caller (e.g., bot layer) — core never calls DB directly. Task 15 context-enrichment layer: `dictionaryContext` is now managed by the context-enrichment module (`translateWithContext`, `translateOneWithContext`, `translateBatchWithContext`). Callers should use the enrichment layer instead of manually looking up and injecting `dictionaryContext`. See `.pi/skills/context-enrichment/SKILL.md`. Task 16 auto-detect input language: no translation module changes needed — `translate()`, `translateOne()`, and `translateBatch()` already accept arbitrary `sourceLang`/`targetLangs` parameters. Language detection and direction resolution live in the sibling `language-detect` module (`detectLanguage()`, `resolveTranslationDirection()`), which the bot layer calls before invoking translation. The translation pipeline remains direction-agnostic — it translates whatever `sourceLang → targetLangs` it receives. Task 17 post-translation source language selection menu: no translation module changes needed — the feature is a bot-layer UI concern (session state, inline keyboards, callbacks). The translation pipeline continues to accept whatever `sourceLang → targetLangs` it receives. i18n keys (`nextTranslationFrom`, `nextSourceSet`) were added to support the source language menu UI. The sibling `language-detect` module gained `resolveDirectionFromSource()` for explicit source language direction resolution (no auto-detection), used by the bot layer when a user has manually selected a source language. Task 21: Added `TranslationOutputConfig` with centralized presets (`FULL_OUTPUT`, `RELIABLE_OUTPUT`, `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT`). Prompt builder and schema builder are config-aware — disabled fields are omitted from the AI prompt and omitted from the AI-facing schema. Public output normalization fills disabled arrays/nulls after generation. Native-source connotation handling: `connotationWarning` is target-side metadata only. For `sourceLang === nativeLang`, prompt and strict retry rules explicitly forbid explaining the native source word and require each target-language block to describe the translated target word/expression independently.
 
 ### Unified expression handling & 3 translation variants
 
 - **Unified phrase/idiom POS**: `phrase` and `idiom` POS values are treated identically in the UI/rendering layer. The i18n key `expressionDetected` (with `{expression}` param) replaces the former `phraseDetected`/`idiomDetected` keys. Data can still have `pos: "phrase"` or `pos: "idiom"` — unification is purely in the presentation layer.
-- **TranslationVariant & alternatives**: Each `LanguageTranslation` now has an optional `alternatives?: TranslationVariant[]` field (up to 2 additional translations beyond the main `text`). Each variant has its own `text`, `register`, and `synonyms`. The AI prompt requests exactly 2 alternatives per language. The Zod schema (`translationVariantSchema`) validates variant entries.
+- **TranslationVariant & alternatives**: Each `LanguageTranslation` now has an optional `alternatives?: TranslationVariant[]` field (up to 2 additional translations beyond the main `text`). Each variant has its own `text` and `synonyms`. The AI prompt requests exactly 2 alternatives per language. The Zod schema (`translationVariantSchema`) validates variant entries.
 - **Dictionary context multi-variant guidance**: When `dictionaryContext` has glosses, the prompt builder adds a hint to inform different translation variants — each alternative should capture a different sense or nuance if the word has multiple meanings.
 
 ### Task 27: Input type detection & sentence-aware translation
@@ -33,17 +33,15 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 - **Sentence-aware validation**: `inputType` is passed through to `validate()` — when `'sentence'`, semantic validation (translation ≠ original) and alternatives/examples checks are skipped. Schema and language detection still run.
 - **Backward compatible**: All changes are additive — `inputType` is optional, absent means full word/phrase behavior.
 
-### Task 31: Redesign translation card — examples + register labels + connotation warnings
+### Task 31: Redesign translation card — examples + connotation warnings
 
-- **`ExampleContext`**: Changed from `"formal" | "colloquial" | "professional"` to `"neutral" | "colloquial" | "professional"`. The "formal" label was misleading — these are everyday/neutral examples.
-- **`Example` type**: Removed `native: string` field (saves ~30% example tokens). Added `register: string` field — a one-word label in the source language describing the register of the example.
-- **`LanguageTranslation.connotationWarning`**: New optional string field for dangerous/misleading meaning warnings (e.g., "to arouse — sexual connotation").
+- **`Example` type**: `{ context, target, native? }`. `native` is optional for backward compatibility and contains the target example sentence translated into the user's native language when requested.
+- **`LanguageTranslation.connotationWarning`**: Optional target-side note for noteworthy connotation, register, usage context, or risky/misleading target-language meaning.
 - **`TranslationOutputConfig.includeConnotationWarning`**: New optional boolean to control connotation warnings in AI prompt and schema.
 - **`FULL_OUTPUT` preset**: `includeExamples` changed from `false` to `true`; `includeConnotationWarning: true` added. Interactive translations now show 3 example sentences per language.
 - **Other presets**: `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT`, `SENTENCE_OUTPUT` all gained `includeConnotationWarning: false`.
-- **Prompt builder**: Example template now requests `neutral/colloquial/professional` contexts with one-word register labels in the source language; no native sentence. Connotation warning field added to JSON template when enabled. Rules updated to specify register label format and warning behavior.
-- **Schema**: `exampleSchema` updated — `native` removed, `register` string added, `context` enum changed. `languageTranslationSchema` and `buildLanguageTranslationSchema` gained optional `connotationWarning` field.
-- **Service**: `stripDisabledFields` handles `connotationWarning` stripping when `includeConnotationWarning: false`.
+- **Prompt builder**: Example instructions request native translations when `nativeLang` is provided. Connotation rules define `connotationWarning` as target-side metadata only; native-source input must not produce a source-word connotation explanation copied across target blocks.
+- **Schema**: `exampleSchema` accepts optional/nullish `native`. `languageTranslationSchema` and `buildLanguageTranslationSchema` include optional `connotationWarning`.
 
 ## Boundary
 
@@ -68,16 +66,13 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 
 ```typescript
 type ExpressionType = "literal" | "idiomatic_equivalent";
-type Register = "slang" | "colloquial" | "neutral" | "literary" | "professional";
-type ExampleContext = "neutral" | "colloquial" | "professional";
 
-interface Synonym { text: string; register: Register; }
-interface Example { context: ExampleContext; target: string; register: string; }
+interface Synonym { text: string; }
+interface Example { context: string; target: string; native?: string | null; }
 
-/** A single alternative translation variant with its own register and synonyms */
+/** A single alternative translation variant with its own synonyms */
 interface TranslationVariant {
   text: string;
-  register: Register;
   synonyms: Synonym[];
 }
 
@@ -103,20 +98,19 @@ interface TranslationOutputConfig {
   includeSynonyms?: boolean;       // Default: true — 2–3 synonyms
   includeAlternatives?: boolean;   // Default: true — 2 alternative variants
   includeEquivalentNote?: boolean; // Default: true — idiomatic expression info
-  includeRegister?: boolean;       // Default: true — register (slang/colloquial/neutral/literary/professional)
-  includeConnotationWarning?: boolean; // Default: true — optional connotation warnings
+  includeConnotationWarning?: boolean; // Default: true — optional target-side connotation notes
+  includeNativeSynonyms?: boolean; // Default: true — source synonyms in native language
 }
 
 interface LanguageTranslation {
   text: string;
-  transcription?: string;
-  register: Register;
+  transcription?: string | null;
   synonyms: Synonym[];
   examples: Example[];
   expressionType?: ExpressionType;   // defaults to 'literal'
-  equivalentNote?: string;            // explanation for idiomatic equivalents
-  alternatives?: TranslationVariant[]; // up to 2 alternative translations with own register & synonyms
-  connotationWarning?: string;          // optional warning about dangerous/misleading connotations
+  equivalentNote?: string | null;     // explanation for idiomatic equivalents
+  alternatives?: TranslationVariant[] | null; // up to 2 alternative translations
+  connotationWarning?: string | null; // optional target-side connotation/register/usage note
 }
 
 /** Detected input type — drives prompt, schema, and validation behavior */
@@ -126,6 +120,7 @@ interface TranslationRequest {
   text: string;
   sourceLang: string;
   targetLangs: string[];   // array, 1–4 languages
+  nativeLang?: string;
   topic?: string;
   dictionaryContext?: DictionaryContext;  // optional Wiktionary enrichment
   outputConfig?: TranslationOutputConfig; // optional output config
@@ -134,7 +129,7 @@ interface TranslationRequest {
 
 interface TranslationResult {
   emoji: string;
-  register: Register;
+  nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
 }
 
@@ -142,6 +137,7 @@ interface TranslateInput {
   word: string;
   sourceLang: string;
   targetLangs: string[];
+  nativeLang?: string;
   model: string;
   topic?: string;
   userId?: number;
@@ -154,7 +150,7 @@ interface TranslateOutput {
   original: string;
   sourceLang: string;
   emoji: string;
-  register: Register;
+  nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
   needsReview?: boolean;           // true when validation failed after all retries
   dictionaryContext?: DictionaryContext;  // echoed back when used
@@ -250,13 +246,13 @@ When `dictionaryContext` is provided in `TranslateInput`:
 ## Zod Schemas
 
 - `translationRequestSchema` — validates TranslationRequest (targetLangs 1–4)
-- `translationResultSchema` — validates full AI response (emoji, register, translations map)
+- `translationResultSchema` — validates full AI response (emoji, nativeSynonyms, translations map)
 - `buildTranslationResultSchema(targetLangs, config?)` — builds dynamic schema with required language keys; optional `config` omits disabled fields from the AI-facing schema
 - `buildLanguageTranslationSchema(config?)` — builds per-language schema, omitting disabled fields
 - `languageTranslationSchema` — validates per-language translation entry (includes optional `expressionType` defaulting to `'literal'`, optional `equivalentNote`, optional `alternatives`)
-- `translationVariantSchema` — validates alternative translation variant { text, register, synonyms }
-- `synonymSchema` — validates synonym { text, register }
-- `exampleSchema` — validates example { context, target, register }
+- `translationVariantSchema` — validates alternative translation variant { text, synonyms }
+- `synonymSchema` — validates synonym { text }
+- `exampleSchema` — validates example { context, target, native? }
 
 ## File Structure
 
@@ -271,7 +267,7 @@ packages/core/src/modules/translation/
 │   └── translation.schema.ts          # Zod schemas for AI response, buildLanguageTranslationSchema(config?)
 └── __tests__/
     ├── translation.schema.test.ts     # 36 tests (incl. new example shape + connotationWarning)
-    ├── prompt.builder.test.ts         # 40 tests (incl. alternatives + variant guidance + sentence-aware prompt + connotation warning + register label)
+    ├── prompt.builder.test.ts         # prompt tests incl. alternatives + variant guidance + sentence-aware prompt + connotation warning
     ├── translation.service.test.ts    # 27 tests (incl. translateOne + validation logging + alternatives + dictionary context passthrough)
     ├── idiomatic-equivalents.test.ts  # 18 tests (schema + prompt idiomatic features)
     ├── dictionary-context.test.ts     # 30 tests (prompt enrichment + passthrough + edge cases + multi-variant guidance)

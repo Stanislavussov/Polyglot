@@ -149,7 +149,8 @@ describe("buildTranslationPrompt", () => {
 
   it("does not request stale register labels for examples", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).not.toContain("register");
+    expect(prompt).not.toContain("register labels");
+    expect(prompt).not.toContain('"register"');
   });
 
   it("requests native sentence in examples when native language is provided", () => {
@@ -170,29 +171,53 @@ describe("buildTranslationPrompt", () => {
 
   it("includes connotation warning guidance (default config)", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("connotation warning");
+    expect(prompt).toContain("connotationWarning");
   });
 
   it("includes connotation warning rule about dangerous meanings", () => {
     const prompt = buildTranslationPrompt(baseRequest);
-    expect(prompt).toContain("Warn about dangerous or misleading connotations ONLY if they exist");
-    expect(prompt).toContain("Most words should NOT have a warning");
+    expect(prompt).toContain('Use "connotationWarning" as target-side metadata only');
+    expect(prompt).toContain('Omit "connotationWarning" when the target translation has no noteworthy');
+    expect(prompt).toContain('Decide "connotationWarning" independently for each target language');
   });
 
-  it("requires connotation warnings in the user's native language when nativeLang is provided", () => {
+  it("writes connotation warnings in the user's native language while describing the target translation", () => {
     const prompt = buildTranslationPrompt({ ...baseRequest, nativeLang: "ru" });
-    expect(prompt).toContain("connotation warning in Russian only for risky meanings");
+    expect(prompt).toContain("target-side connotation note written in Russian only when relevant");
     expect(prompt).toContain(
       'every "connotationWarning" value in every target language block MUST be written in Russian',
     );
-    expect(prompt).toContain("not in the target language");
-    expect(prompt).toContain("translations.cs.connotationWarning and translations.en.connotationWarning");
+    expect(prompt).toContain("MUST describe the target translation in that block");
+  });
+
+  it("prevents native-source connotation from explaining the source word", () => {
+    const prompt = buildTranslationPrompt({
+      text: "ябеда",
+      sourceLang: "ru",
+      targetLangs: ["cs", "en"],
+      nativeLang: "ru",
+    });
+    expect(prompt).toContain("source language is the user's native language (Russian)");
+    expect(prompt).toContain('NEVER use "connotationWarning" to explain the source word itself');
+    expect(prompt).toContain("Assume the user already knows the source-language nuance");
+  });
+
+  it("does not apply the native-source connotation guard to learning-language source input", () => {
+    const prompt = buildTranslationPrompt({
+      text: "bonzák",
+      sourceLang: "cs",
+      targetLangs: ["cs", "en"],
+      nativeLang: "ru",
+    });
+    expect(prompt).toContain('Use "connotationWarning" as target-side metadata only');
+    expect(prompt).not.toContain("source language is the user's native language");
+    expect(prompt).not.toContain("Assume the user already knows the source-language nuance");
   });
 
   it("does not require a native connotation warning language when nativeLang is absent", () => {
     const prompt = buildTranslationPrompt(baseRequest);
     expect(prompt).not.toContain("MUST be written in");
-    expect(prompt).not.toContain("not in the target language");
+    expect(prompt).toContain("target-side connotation note only when relevant");
   });
 
   it("omits connotation warning when includeConnotationWarning is false", () => {
@@ -247,12 +272,20 @@ describe("buildStrictPrompt", () => {
 
   it("includes connotation warning check in strict prompt", () => {
     const prompt = buildStrictPrompt(baseRequest, ["error"]);
-    expect(prompt).toContain("connotationWarning is present ONLY for words with genuinely dangerous");
+    expect(prompt).toContain("connotationWarning is present only when the target translation has noteworthy");
+    expect(prompt).toContain("is target-language specific");
   });
 
   it("includes native-language connotation warning check in strict prompt", () => {
     const prompt = buildStrictPrompt({ ...baseRequest, nativeLang: "ru" }, ["error"]);
-    expect(prompt).toContain("every connotationWarning in every target language block is written in Russian");
+    expect(prompt).toContain("is target-language specific and written in Russian");
+  });
+
+  it("includes native-source connotation check in strict prompt", () => {
+    const prompt = buildStrictPrompt({ text: "ябеда", sourceLang: "ru", targetLangs: ["cs"], nativeLang: "ru" }, [
+      "error",
+    ]);
+    expect(prompt).toContain("never as an explanation of the native source word");
   });
 });
 
