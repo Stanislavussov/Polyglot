@@ -48,7 +48,7 @@ async function main(): Promise<void> {
 
   await installBotCommands(bot);
 
-  wireNotificationScheduler(bot.api);
+  await wireNotificationScheduler(bot.api);
   startMetricsServer();
 
   logger.info({ sessionStorage: "postgres", languageCacheReady: true, pollingMode: "long-polling" }, "Starting bot");

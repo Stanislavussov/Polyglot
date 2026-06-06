@@ -1,4 +1,4 @@
-export type SubscriptionPlan = "free" | "plus" | "pro" | "unlimited";
+export type SubscriptionPlan = string;
 
 /**
  * Port interface for UserRepository.

@@ -26,7 +26,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const TRANSLATION_REQUEST_CREDIT_COST = 1;
 
 export function getPlanLimit(plan: SubscriptionPlan): PlanLimit {
-  return PLAN_LIMITS[plan];
+  return PLAN_LIMITS[plan] ?? PLAN_LIMITS.free;
 }
 
 export function calculateTranslationCreditCost(): number {
@@ -47,7 +47,16 @@ export function evaluateRateLimit(
   requestedCredits: number,
   resetsAt: Date,
 ): RateLimitStatus {
-  const planLimit = getPlanLimit(plan);
+  const planLimit = PLAN_LIMITS[plan] ?? PLAN_LIMITS.free;
+  return evaluatePlanRateLimit(planLimit, usedCredits, requestedCredits, resetsAt);
+}
+
+export function evaluatePlanRateLimit(
+  planLimit: PlanLimit,
+  usedCredits: number,
+  requestedCredits: number,
+  resetsAt: Date,
+): RateLimitStatus {
   const remainingCredits = planLimit.creditsPerDay === null ? null : Math.max(0, planLimit.creditsPerDay - usedCredits);
 
   return {

@@ -4,12 +4,15 @@ import {
   index,
   integer,
   jsonb,
+  pgEnum,
   pgTable,
+  primaryKey,
   real,
   serial,
   text,
   timestamp,
   uniqueIndex,
+  varchar,
 } from "drizzle-orm/pg-core";
 import type { VocabTranslationDetails } from "./repositories/vocabulary.repository.js";
 
@@ -67,7 +70,7 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   telegramId: bigint("telegram_id", { mode: "number" }).unique().notNull(),
   username: text("username"),
-  subscriptionPlan: text("subscription_plan").$type<"free" | "plus" | "pro" | "unlimited">().default("free").notNull(),
+  subscriptionPlan: text("subscription_plan").default("free").notNull(),
   onboardingStep: integer("onboarding_step").default(0).notNull(),
   onboarded: boolean("onboarded").default(false).notNull(),
   isActive: boolean("is_active").default(true).notNull(),
@@ -359,3 +362,123 @@ export const botSessions = pgTable(
 );
 
 export type BotSession = typeof botSessions.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Admin roles
+// ─────────────────────────────────────────────
+export const adminRoleEnum = pgEnum("admin_role", ["superadmin", "admin"]);
+
+// ─────────────────────────────────────────────
+// Admin users — web panel authentication
+// ─────────────────────────────────────────────
+export const adminUsers = pgTable(
+  "admin_users",
+  {
+    id: serial("id").primaryKey(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    /** bcrypt hash */
+    passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+    role: adminRoleEnum("role").default("admin").notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    lastLoginAt: timestamp("last_login_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("admin_users_email_idx").on(t.email)],
+);
+
+export type AdminUser = typeof adminUsers.$inferSelect;
+
+// ─────────────────────────────────────────────
+// System settings — generic key-value store (JSONB values)
+// Covers: AI generation defaults, SRS params, notification defaults,
+// transcription thresholds, feature flags, etc.
+// ─────────────────────────────────────────────
+export const systemSettings = pgTable("system_settings", {
+  key: varchar("key", { length: 255 }).primaryKey(),
+  value: jsonb("value").notNull(),
+  description: text("description"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type SystemSetting = typeof systemSettings.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Rate limit plans — admin-configurable credit limits
+// ─────────────────────────────────────────────
+export const rateLimitPlans = pgTable("rate_limit_plans", {
+  /** Plan name: "free", "plus", "pro", "unlimited" */
+  name: varchar("name", { length: 50 }).primaryKey(),
+  label: varchar("label", { length: 100 }).notNull(),
+  /** Credits per daily window. null = unlimited */
+  creditsPerDay: integer("credits_per_day"),
+  /** Window size in ms (default 24h) */
+  windowMs: integer("window_ms").default(86_400_000).notNull(),
+  /** Cost per single translation request */
+  creditCost: integer("credit_cost").default(1).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  /** Users are reassigned here when another plan is deleted. Exactly one default is expected. */
+  isDefault: boolean("is_default").default(false).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type RateLimitPlan = typeof rateLimitPlans.$inferSelect;
+
+// ─────────────────────────────────────────────
+// AI models — admin-configurable model registry
+// ─────────────────────────────────────────────
+export const aiModels = pgTable("ai_models", {
+  /** OpenRouter model ID, e.g. "openai/gpt-4o" */
+  id: varchar("id", { length: 255 }).primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  provider: varchar("provider", { length: 100 }).notNull(),
+  maxTokens: integer("max_tokens").notNull(),
+  costPer1kInput: real("cost_per_1k_input").notNull(),
+  costPer1kOutput: real("cost_per_1k_output").notNull(),
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  /** Default cost fallback for unknown models */
+  isDefault: boolean("is_default").default(false).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type AIModelRow = typeof aiModels.$inferSelect;
+
+// ─────────────────────────────────────────────
+// AI model access — which subscription plans can use each model
+// ─────────────────────────────────────────────
+export const aiModelPlanAccess = pgTable(
+  "ai_model_plan_access",
+  {
+    modelId: varchar("model_id", { length: 255 })
+      .notNull()
+      .references(() => aiModels.id, { onDelete: "cascade" }),
+    planName: varchar("plan_name", { length: 50 })
+      .notNull()
+      .references(() => rateLimitPlans.name, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.modelId, t.planName] }), index("ai_model_plan_access_plan_idx").on(t.planName)],
+);
+
+export type AIModelPlanAccess = typeof aiModelPlanAccess.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Translation output presets — admin-configurable
+// ─────────────────────────────────────────────
+export const translationPresets = pgTable("translation_presets", {
+  name: varchar("name", { length: 100 }).primaryKey(),
+  label: varchar("label", { length: 255 }).notNull(),
+  config: jsonb("config")
+    .$type<{
+      transcription: boolean;
+      synonyms: boolean;
+      examples: boolean;
+      alternatives: boolean;
+      equivalentNote: boolean;
+      connotationWarning: boolean;
+    }>()
+    .notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type TranslationPreset = typeof translationPresets.$inferSelect;

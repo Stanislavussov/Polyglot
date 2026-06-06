@@ -16,7 +16,6 @@ import {
   t,
   translateOne,
 } from "@polyglot/core";
-import { loadConfig } from "@polyglot/infra";
 import {
   buildPostSaveKeyboard,
   buildSentenceKeyboard,
@@ -25,6 +24,7 @@ import {
   renderTranslation,
 } from "../../renderers/translation.renderer.js";
 import type { BotContext, ConversationContext } from "../../types.js";
+import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
 type TranslateConversation = Conversation<BotContext, ConversationContext>;
@@ -137,14 +137,14 @@ export async function handleRegenLoop(
 
     try {
       const newTranslation = await conversation.external(async () => {
-        const config = loadConfig();
+        const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user?.subscriptionPlan);
         return translateOne(
           {
             word: current.original,
             sourceLang: current.sourceLang,
             targetLangs: [regenLang],
             targetLang: regenLang,
-            model: config.AI_MODEL,
+            model,
             userId,
             outputConfig,
             inputType,

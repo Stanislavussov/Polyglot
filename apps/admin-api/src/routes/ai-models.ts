@@ -1,0 +1,148 @@
+import { aiModelRepository } from "@polyglot/adapter-db";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { z } from "zod";
+
+const modelSchema = z.object({
+  id: z.string().min(1).max(255),
+  name: z.string().min(1).max(255),
+  provider: z.string().min(1).max(100),
+  maxTokens: z.number().int().min(1),
+  costPer1kInput: z.number().min(0),
+  costPer1kOutput: z.number().min(0),
+  isEnabled: z.boolean().default(true),
+  isDefault: z.boolean().default(false),
+  allowedPlans: z.array(z.string().min(1).max(50)).default([]),
+});
+
+const updateModelSchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  provider: z.string().min(1).max(100).optional(),
+  maxTokens: z.number().int().min(1).optional(),
+  costPer1kInput: z.number().min(0).optional(),
+  costPer1kOutput: z.number().min(0).optional(),
+  isEnabled: z.boolean().optional(),
+  isDefault: z.boolean().optional(),
+  allowedPlans: z.array(z.string().min(1).max(50)).optional(),
+});
+
+const openRouterModelSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  context_length: z.number().int().positive().nullable().optional(),
+  pricing: z
+    .object({
+      prompt: z.string(),
+      completion: z.string(),
+    })
+    .optional(),
+});
+
+const openRouterModelsResponseSchema = z.object({
+  data: z.array(openRouterModelSchema),
+});
+
+function providerFromModelId(id: string): string {
+  return id.split("/")[0] ?? "unknown";
+}
+
+function costPer1k(value: string | undefined): number {
+  const parsed = Number(value ?? "0");
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return 0;
+  }
+  return parsed * 1000;
+}
+
+function purposeFromModel(model: { id: string; name: string }): string {
+  const value = `${model.id} ${model.name}`.toLowerCase();
+  if (
+    value.includes("coder") ||
+    value.includes("coding") ||
+    value.includes("codestral") ||
+    value.includes("devstral")
+  ) {
+    return "Coding";
+  }
+  if (value.includes("translate") || value.includes("translation") || value.includes("polyglot")) {
+    return "Translation";
+  }
+  if (value.includes("vision") || value.includes("vl") || value.includes("visual")) {
+    return "Vision";
+  }
+  if (value.includes("audio") || value.includes("whisper") || value.includes("transcribe")) {
+    return "Audio";
+  }
+  if (value.includes("reason") || value.includes("thinking") || value.includes(" o1") || value.includes(" o3")) {
+    return "Reasoning";
+  }
+  if (value.includes("embedding") || value.includes("embed")) {
+    return "Embeddings";
+  }
+  return "General / translation";
+}
+
+export async function aiModelRoutes(app: FastifyInstance) {
+  app.addHook("onRequest", async (request) => {
+    await request.jwtVerify();
+  });
+
+  app.get("/ai-models/openrouter", async () => {
+    const headers: Record<string, string> = {};
+    if (process.env.OPENROUTER_API_KEY) {
+      headers.Authorization = `Bearer ${process.env.OPENROUTER_API_KEY}`;
+    }
+
+    const response = await fetch("https://openrouter.ai/api/v1/models", { headers });
+    if (!response.ok) {
+      throw new Error(`OpenRouter models request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const body = openRouterModelsResponseSchema.parse(await response.json());
+    return body.data.map((model) => ({
+      id: model.id,
+      name: model.name,
+      provider: providerFromModelId(model.id),
+      purpose: purposeFromModel(model),
+      maxTokens: model.context_length ?? 1,
+      costPer1kInput: costPer1k(model.pricing?.prompt),
+      costPer1kOutput: costPer1k(model.pricing?.completion),
+    }));
+  });
+
+  app.get("/ai-models", async () => {
+    const models = await aiModelRepository.findAll();
+    return models;
+  });
+
+  app.post("/ai-models", async (request: FastifyRequest, reply: FastifyReply) => {
+    const body = modelSchema.parse(request.body);
+    const model = await aiModelRepository.upsert(body);
+    return reply.status(201).send(model);
+  });
+
+  app.put("/ai-models/:id", async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const body = updateModelSchema.parse(request.body);
+    const existing = await aiModelRepository.findById(id);
+    if (!existing) {
+      return reply.status(404).send({ error: "Model not found" });
+    }
+    return aiModelRepository.upsert({ ...existing, ...body });
+  });
+
+  app.put("/ai-models/:id/set-default", async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const existing = await aiModelRepository.findById(id);
+    if (!existing) {
+      return reply.status(404).send({ error: "Model not found" });
+    }
+    await aiModelRepository.setDefault(id);
+    return { success: true };
+  });
+
+  app.delete("/ai-models/:id", async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    await aiModelRepository.delete(id);
+    return reply.status(204).send();
+  });
+}

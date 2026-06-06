@@ -19,6 +19,10 @@ export {
   loadLanguageCache,
   normalizeToIso1,
 } from "./language-cache.js";
+export type { AdminUser } from "./repositories/admin-user.repository.js";
+export { adminUserRepository } from "./repositories/admin-user.repository.js";
+export type { AIModelRow } from "./repositories/ai-model.repository.js";
+export { aiModelRepository } from "./repositories/ai-model.repository.js";
 export type { StoredBotSession } from "./repositories/bot-session.repository.js";
 export { BOT_SESSION_VERSION, botSessionRepository } from "./repositories/bot-session.repository.js";
 export type {
@@ -36,12 +40,17 @@ export {
   notificationRepository,
   parseNotificationMinutes,
 } from "./repositories/notification.repository.js";
+export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
+export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 export { reportedIssueRepository } from "./repositories/reported-issue.repository.js";
+export { systemSettingsRepository } from "./repositories/system-settings.repository.js";
 export type {
   NewTopicTranslation,
   TopicTranslation,
 } from "./repositories/topic.repository.js";
 export { topicRepository } from "./repositories/topic.repository.js";
+export type { PresetConfig, TranslationPreset } from "./repositories/translation-preset.repository.js";
+export { translationPresetRepository } from "./repositories/translation-preset.repository.js";
 export type { TranslationRequest } from "./repositories/translation-request.repository.js";
 export { translationRequestRepository } from "./repositories/translation-request.repository.js";
 export type { SavedTranslationTemplate } from "./repositories/translation-template.repository.js";
@@ -70,4 +79,5 @@ export { wordReviewRepository } from "./repositories/word-review.repository.js";
 export type { IssueStatus, IssueType, NotificationHistory, ReportedIssue } from "./schema.js";
 export * from "./schema.js";
 export { notificationHistory } from "./schema.js";
+export { settingsAdapter } from "./settings-adapter.js";
 export { schema };

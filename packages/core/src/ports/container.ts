@@ -4,6 +4,7 @@
 import type { AIPort } from "./ai.port.js";
 import type { LanguageCachePort } from "./language-cache.port.js";
 import type { NotificationRepository } from "./notification.repository.js";
+import type { SettingsPort } from "./settings.port.js";
 import type { TranslationRequestRepository } from "./translation-request.repository.js";
 import type { TranslationTemplateRepository } from "./translation-template.repository.js";
 import type { UserRepository } from "./user.repository.js";
@@ -23,4 +24,5 @@ export interface ServiceContainer {
   translationRequestRepository: TranslationRequestRepository;
   languageCache: LanguageCachePort;
   ai: AIPort;
+  settings: SettingsPort;
 }

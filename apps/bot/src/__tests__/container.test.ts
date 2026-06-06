@@ -33,6 +33,25 @@ vi.mock("@polyglot/adapter-db", () => ({
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
     getRecentRequests: vi.fn().mockResolvedValue([]),
   },
+  settingsAdapter: {
+    getPlanLimits: vi.fn().mockResolvedValue([]),
+    getPlanLimit: vi.fn().mockResolvedValue(null),
+    getAIModels: vi.fn().mockResolvedValue([]),
+    getEnabledAIModels: vi.fn().mockResolvedValue([]),
+    getEnabledAIModelsForPlan: vi.fn().mockResolvedValue([]),
+    getDefaultAIModel: vi.fn().mockResolvedValue(null),
+    getDefaultAIModelForPlan: vi.fn().mockResolvedValue(null),
+    getAIGenerationDefaults: vi
+      .fn()
+      .mockResolvedValue({ maxTokens: 4096, temperature: 0.3, frequencyPenalty: 0.5, maxRetries: 2 }),
+    getSrsConfig: vi.fn().mockResolvedValue({ minEaseFactor: 1.3, defaultEaseFactor: 2.5 }),
+    getNotificationDefaults: vi
+      .fn()
+      .mockResolvedValue({ defaultTime: "08:00", defaultType: "srs", inactivityDays: 14 }),
+    getTranslationConfig: vi.fn().mockResolvedValue({ maxTranscriptionLength: 45 }),
+    getDictionaryConfig: vi.fn().mockResolvedValue({ flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 }),
+    getTranslationPresets: vi.fn().mockResolvedValue([]),
+  },
   loadLanguageCache: vi.fn().mockResolvedValue(undefined),
   isLanguageCacheLoaded: vi.fn().mockReturnValue(true),
   getLang: vi.fn().mockReturnValue({
@@ -79,6 +98,7 @@ describe("createContainer", () => {
     expect(container.translationRequestRepository).toBeDefined();
     expect(container.languageCache).toBeDefined();
     expect(container.ai).toBeDefined();
+    expect(container.settings).toBeDefined();
   });
 
   it("container has languageCache methods", () => {

@@ -1,0 +1,11 @@
+---
+import AdminLayout from "../layouts/AdminLayout.astro";
+import DashboardStats from "../components/DashboardStats.vue";
+---
+
+<AdminLayout title="Dashboard">
+  <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+  <p class="mt-1 text-sm text-gray-500">Overview of your Polyglot instance</p>
+
+  <DashboardStats client:idle />
+</AdminLayout>

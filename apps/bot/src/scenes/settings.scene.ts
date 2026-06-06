@@ -6,11 +6,13 @@
  */
 import { formatNotificationTime, getLangDisplay, parseNotificationMinutes, userRepository } from "@polyglot/adapter-db";
 import {
+  evaluatePlanRateLimit,
   evaluateRateLimit,
   getDailyWindowReset,
   getDailyWindowStart,
   getPlanLimit,
   isSupported,
+  type PlanLimitConfig,
   type SubscriptionPlan,
   type SupportedLang,
   t,
@@ -131,7 +133,10 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
     ctx.user.id,
     getDailyWindowStart(),
   );
-  const planUsage = formatPlanUsage(plan, usedCredits, lang);
+  const planLimit = (await ctx.services.settings?.getPlanLimit(plan)) ?? null;
+  const planUsage = planLimit
+    ? formatPlanUsageFromConfig(planLimit, usedCredits, lang)
+    : formatPlanUsage(plan, usedCredits, lang);
 
   const text = buildSettingsText(
     nativeLang,
@@ -158,5 +163,22 @@ export function formatPlanUsage(plan: SubscriptionPlan, usedCredits: number, lan
     plan: limit.label,
     remaining: status.remainingCredits ?? 0,
     limit: limit.creditsPerDay,
+  });
+}
+
+export function formatPlanUsageFromConfig(plan: PlanLimitConfig, usedCredits: number, lang: SupportedLang): string {
+  const status = evaluatePlanRateLimit(
+    { plan: plan.name, label: plan.label, creditsPerDay: plan.creditsPerDay },
+    usedCredits,
+    0,
+    getDailyWindowReset(),
+  );
+  if (plan.creditsPerDay === null) {
+    return t("settingsPlanUnlimited", lang, { plan: plan.label });
+  }
+  return t("settingsPlan", lang, {
+    plan: plan.label,
+    remaining: status.remainingCredits ?? 0,
+    limit: plan.creditsPerDay,
   });
 }
