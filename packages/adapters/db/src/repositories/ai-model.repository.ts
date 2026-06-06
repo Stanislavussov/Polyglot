@@ -65,6 +65,15 @@ export const aiModelRepository = {
     return rows[0] ?? null;
   },
 
+  async findByIdWithPlans(id: string): Promise<AIModelWithPlans | null> {
+    const model = await this.findById(id);
+    if (!model) {
+      return null;
+    }
+    const models = await attachAllowedPlans([model]);
+    return models[0] ?? null;
+  },
+
   async findDefault(): Promise<AIModelRow | null> {
     const db = getDb();
     const rows = await db.select().from(aiModels).where(eq(aiModels.isDefault, true)).limit(1);
