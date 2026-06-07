@@ -1,4 +1,4 @@
-import { getDb, translationRequests, users } from "@polyglot/adapter-db";
+import { aiRequestLatencyRepository, getDb, translationRequests, users } from "@polyglot/adapter-db";
 import { gte, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 
@@ -37,5 +37,9 @@ export async function statsRoutes(app: FastifyInstance) {
       translationsToday,
       totalTranslations,
     };
+  });
+
+  app.get("/stats/ai-latency", async () => {
+    return aiRequestLatencyRepository.getModelLatencySummary();
   });
 }

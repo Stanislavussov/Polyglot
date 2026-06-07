@@ -1,5 +1,6 @@
 ---
 import AdminLayout from "../layouts/AdminLayout.astro";
+import AIModelLatencyChart from "../components/AIModelLatencyChart.vue";
 import DashboardStats from "../components/DashboardStats.vue";
 ---
 
@@ -8,4 +9,5 @@ import DashboardStats from "../components/DashboardStats.vue";
   <p class="mt-1 text-sm text-gray-500">Overview of your Polyglot instance</p>
 
   <DashboardStats client:idle />
+  <AIModelLatencyChart client:idle />
 </AdminLayout>

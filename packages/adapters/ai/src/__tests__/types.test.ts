@@ -19,6 +19,7 @@ describe("types", () => {
   it("AIRequestLog interface supports success and failure", () => {
     const successLog: AIRequestLog = {
       model: "openai/gpt-4o",
+      requestKind: "object",
       tokens: { input: 100, output: 50 },
       cost_usd: 0.001,
       duration_ms: 1200,
@@ -29,6 +30,7 @@ describe("types", () => {
 
     const failLog: AIRequestLog = {
       model: "openai/gpt-4o",
+      requestKind: "object",
       tokens: { input: 0, output: 0 },
       cost_usd: 0,
       duration_ms: 500,
@@ -50,6 +52,7 @@ describe("types", () => {
   it("AIRequestLog supports optional userId", () => {
     const withUser: AIRequestLog = {
       model: "openai/gpt-4o",
+      requestKind: "text",
       tokens: { input: 100, output: 50 },
       cost_usd: 0.001,
       duration_ms: 1200,
@@ -60,6 +63,7 @@ describe("types", () => {
 
     const withoutUser: AIRequestLog = {
       model: "openai/gpt-4o",
+      requestKind: "object",
       tokens: { input: 100, output: 50 },
       cost_usd: 0.001,
       duration_ms: 1200,

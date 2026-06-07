@@ -126,6 +126,20 @@ export const stats = {
   get: () => get<Stats>("/api/stats"),
 };
 
+export interface AIRequestLatencySummary {
+  modelId: string;
+  requestCount: number;
+  averageDurationMs: number;
+  maxDurationMs: number;
+  successRate: number;
+  averageInputTokens: number;
+  averageOutputTokens: number;
+}
+
+export const aiLatencyStats = {
+  list: () => get<AIRequestLatencySummary[]>("/api/stats/ai-latency"),
+};
+
 // Rate Limits
 export interface PlanLimitConfig {
   name: string;

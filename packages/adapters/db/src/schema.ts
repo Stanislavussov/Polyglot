@@ -425,6 +425,34 @@ export const rateLimitPlans = pgTable("rate_limit_plans", {
 export type RateLimitPlan = typeof rateLimitPlans.$inferSelect;
 
 // ─────────────────────────────────────────────
+// AI request latency metrics — one row per AI adapter request
+// ─────────────────────────────────────────────
+export const aiRequestLatencies = pgTable(
+  "ai_request_latencies",
+  {
+    id: serial("id").primaryKey(),
+    /** OpenRouter model ID, e.g. "openai/gpt-4o" */
+    modelId: varchar("model_id", { length: 255 }).notNull(),
+    /** AI adapter method that produced the request */
+    requestKind: text("request_kind").$type<"object" | "text">().notNull(),
+    durationMs: integer("duration_ms").notNull(),
+    inputTokens: integer("input_tokens").default(0).notNull(),
+    outputTokens: integer("output_tokens").default(0).notNull(),
+    costUsd: real("cost_usd").default(0).notNull(),
+    success: boolean("success").notNull(),
+    userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+    error: text("error"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("ai_req_latency_model_date_idx").on(t.modelId, t.createdAt),
+    index("ai_req_latency_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export type AIRequestLatency = typeof aiRequestLatencies.$inferSelect;
+
+// ─────────────────────────────────────────────
 // AI models — admin-configurable model registry
 // ─────────────────────────────────────────────
 export const aiModels = pgTable("ai_models", {

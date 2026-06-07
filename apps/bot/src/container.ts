@@ -5,9 +5,16 @@
  * The container is then injected into the bot context via middleware.
  */
 
-import { estimateCost, generateObject, generateText, getAvailableModels } from "@polyglot/adapter-ai";
+import {
+  estimateCost,
+  generateObject,
+  generateText,
+  getAvailableModels,
+  setAIRequestMetricSink,
+} from "@polyglot/adapter-ai";
 // Re-export directly from adapters
 import {
+  aiRequestLatencyRepository,
   getAllLangs,
   getLang,
   getLangDisplay,
@@ -36,6 +43,20 @@ import { type ServiceContainer, SettingsService } from "@polyglot/core";
  * The resulting container is injected into the bot context.
  */
 export function createContainer(): ServiceContainer {
+  setAIRequestMetricSink((log) =>
+    aiRequestLatencyRepository.record({
+      modelId: log.model,
+      requestKind: log.requestKind,
+      durationMs: log.duration_ms,
+      inputTokens: log.tokens.input,
+      outputTokens: log.tokens.output,
+      costUsd: log.cost_usd,
+      success: log.success,
+      userId: log.userId,
+      error: log.error,
+    }),
+  );
+
   const settings = new SettingsService(settingsAdapter);
   const container = {
     userRepository,

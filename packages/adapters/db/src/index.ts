@@ -23,6 +23,12 @@ export type { AdminUser } from "./repositories/admin-user.repository.js";
 export { adminUserRepository } from "./repositories/admin-user.repository.js";
 export type { AIModelRow, AIModelWithPlans } from "./repositories/ai-model.repository.js";
 export { aiModelRepository } from "./repositories/ai-model.repository.js";
+export type {
+  AIRequestKind,
+  AIRequestLatencySummary,
+  RecordAIRequestLatencyInput,
+} from "./repositories/ai-request-latency.repository.js";
+export { aiRequestLatencyRepository } from "./repositories/ai-request-latency.repository.js";
 export type { StoredBotSession } from "./repositories/bot-session.repository.js";
 export { BOT_SESSION_VERSION, botSessionRepository } from "./repositories/bot-session.repository.js";
 export type {

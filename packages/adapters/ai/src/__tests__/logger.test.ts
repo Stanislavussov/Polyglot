@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Must use vi.hoisted to avoid the TDZ issue with vi.mock hoisting
-const { mockInfo, mockError, mockChild } = vi.hoisted(() => ({
+const { mockInfo, mockWarn, mockError, mockChild } = vi.hoisted(() => ({
   mockInfo: vi.fn(),
+  mockWarn: vi.fn(),
   mockError: vi.fn(),
   mockChild: vi.fn(() => ({
     info: mockInfo,
+    warn: mockWarn,
     error: mockError,
   })),
 }));
@@ -13,22 +15,26 @@ const { mockInfo, mockError, mockChild } = vi.hoisted(() => ({
 vi.mock("@polyglot/core", () => ({
   getLogger: vi.fn(() => ({
     info: mockInfo,
+    warn: mockWarn,
     error: mockError,
     child: mockChild,
   })),
 }));
 
-import { logRequest } from "../logger.js";
+import { logRequest, setAIRequestMetricSink } from "../logger.js";
 
 describe("logger", () => {
   beforeEach(() => {
     mockInfo.mockClear();
+    mockWarn.mockClear();
     mockError.mockClear();
+    setAIRequestMetricSink(null);
   });
 
   it("logs successful requests with info level", () => {
     logRequest({
       model: "openai/gpt-4o",
+      requestKind: "object",
       tokens: { input: 100, output: 50 },
       cost_usd: 0.000525,
       duration_ms: 1200,
@@ -39,6 +45,7 @@ describe("logger", () => {
     const [data, msg] = mockInfo.mock.calls[0];
     expect(msg).toBe("AI request completed");
     expect(data.model).toBe("openai/gpt-4o");
+    expect(data.requestKind).toBe("object");
     expect(data.inputTokens).toBe(100);
     expect(data.outputTokens).toBe(50);
     expect(data.duration_ms).toBe(1200);
@@ -48,6 +55,7 @@ describe("logger", () => {
   it("logs failed requests with error level", () => {
     logRequest({
       model: "openai/gpt-4o",
+      requestKind: "object",
       tokens: { input: 0, output: 0 },
       cost_usd: 0,
       duration_ms: 500,
@@ -65,6 +73,7 @@ describe("logger", () => {
   it("rounds cost_usd to 6 decimal places", () => {
     logRequest({
       model: "openai/gpt-4o",
+      requestKind: "object",
       tokens: { input: 100, output: 50 },
       cost_usd: 0.00052500001,
       duration_ms: 1000,
@@ -78,6 +87,7 @@ describe("logger", () => {
   it("does not call error logger for successful requests", () => {
     logRequest({
       model: "openai/gpt-4o",
+      requestKind: "text",
       tokens: { input: 10, output: 5 },
       cost_usd: 0.001,
       duration_ms: 100,
@@ -90,6 +100,7 @@ describe("logger", () => {
   it("does not call info logger for failed requests", () => {
     logRequest({
       model: "openai/gpt-4o",
+      requestKind: "text",
       tokens: { input: 0, output: 0 },
       cost_usd: 0,
       duration_ms: 100,
@@ -103,6 +114,7 @@ describe("logger", () => {
   it("includes userId in log when provided", () => {
     logRequest({
       model: "openai/gpt-4o",
+      requestKind: "object",
       tokens: { input: 100, output: 50 },
       cost_usd: 0.001,
       duration_ms: 1000,
@@ -117,6 +129,7 @@ describe("logger", () => {
   it("omits userId from log when not provided", () => {
     logRequest({
       model: "openai/gpt-4o",
+      requestKind: "object",
       tokens: { input: 100, output: 50 },
       cost_usd: 0.001,
       duration_ms: 1000,
@@ -130,6 +143,7 @@ describe("logger", () => {
   it("includes userId in error log when provided", () => {
     logRequest({
       model: "openai/gpt-4o",
+      requestKind: "text",
       tokens: { input: 0, output: 0 },
       cost_usd: 0,
       duration_ms: 500,
@@ -140,5 +154,44 @@ describe("logger", () => {
 
     const [data] = mockError.mock.calls[0];
     expect(data.userId).toBe(99);
+  });
+
+  it("passes request logs to the metric sink", () => {
+    const sink = vi.fn();
+    setAIRequestMetricSink(sink);
+
+    const log = {
+      model: "openai/gpt-4o",
+      requestKind: "object" as const,
+      tokens: { input: 8, output: 5 },
+      cost_usd: 0.001,
+      duration_ms: 320,
+      success: true,
+    };
+    logRequest(log);
+
+    expect(sink).toHaveBeenCalledWith(log);
+  });
+
+  it("logs a warning when the metric sink fails", async () => {
+    setAIRequestMetricSink(async () => {
+      throw new Error("sink failed");
+    });
+
+    logRequest({
+      model: "openai/gpt-4o",
+      requestKind: "object",
+      tokens: { input: 8, output: 5 },
+      cost_usd: 0.001,
+      duration_ms: 320,
+      success: true,
+    });
+
+    await vi.waitFor(() => {
+      expect(mockWarn).toHaveBeenCalledWith(
+        expect.objectContaining({ error: expect.any(Error) }),
+        "AI request metric sink failed",
+      );
+    });
   });
 });

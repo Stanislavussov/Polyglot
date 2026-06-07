@@ -33,6 +33,10 @@ vi.mock("@polyglot/adapter-db", () => ({
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
     getRecentRequests: vi.fn().mockResolvedValue([]),
   },
+  aiRequestLatencyRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+    getModelLatencySummary: vi.fn().mockResolvedValue([]),
+  },
   settingsAdapter: {
     getPlanLimits: vi.fn().mockResolvedValue([]),
     getPlanLimit: vi.fn().mockResolvedValue(null),
@@ -78,6 +82,7 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateText: vi.fn().mockResolvedValue("test"),
   getAvailableModels: vi.fn().mockReturnValue([]),
   estimateCost: vi.fn().mockReturnValue(0),
+  setAIRequestMetricSink: vi.fn(),
 }));
 
 describe("createContainer", () => {
