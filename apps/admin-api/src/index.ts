@@ -14,6 +14,7 @@ import { dictionaryRoutes } from "./routes/dictionary.js";
 import { notificationRoutes } from "./routes/notifications.js";
 import { presetRoutes } from "./routes/presets.js";
 import { rateLimitRoutes } from "./routes/rate-limits.js";
+import { reportedIssueRoutes } from "./routes/reported-issues.js";
 import { srsRoutes } from "./routes/srs.js";
 import { statsRoutes } from "./routes/stats.js";
 import { translationRoutes } from "./routes/translation.js";
@@ -52,6 +53,7 @@ export async function buildAdminApiApp() {
   await app.register(dictionaryRoutes, { prefix: "/api/settings" });
   await app.register(presetRoutes, { prefix: "/api/settings" });
   await app.register(userRoutes, { prefix: "/api" });
+  await app.register(reportedIssueRoutes, { prefix: "/api" });
   await app.register(statsRoutes, { prefix: "/api" });
 
   return app;

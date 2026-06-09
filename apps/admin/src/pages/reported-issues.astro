@@ -1,0 +1,15 @@
+---
+import AdminLayout from "../layouts/AdminLayout.astro";
+import ReportedIssuesManager from "../components/ReportedIssuesManager.vue";
+---
+
+<AdminLayout title="Reported Issues">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Reported Issues</h1>
+      <p class="mt-1 text-sm text-gray-500">Review bug reports, suggestions, and other user feedback</p>
+    </div>
+  </div>
+
+  <ReportedIssuesManager client:idle />
+</AdminLayout>

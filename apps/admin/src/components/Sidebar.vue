@@ -1,12 +1,12 @@
 <template>
-  <aside class="flex w-full shrink-0 flex-col bg-sidebar text-gray-300 md:h-screen md:w-60">
+  <aside class="flex w-full shrink-0 flex-col bg-sidebar text-gray-300 md:sticky md:top-0 md:h-screen md:w-60">
     <div class="flex h-14 items-center gap-2 border-b border-white/10 px-4 md:h-16 md:px-5">
       <span class="text-lg font-bold tracking-tight text-white md:text-xl">Polyglot</span>
       <span class="rounded bg-indigo-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
         Admin
       </span>
     </div>
-    <nav class="flex gap-1 overflow-x-auto px-3 py-3 md:flex-1 md:flex-col md:space-y-1 md:overflow-x-visible md:py-4">
+    <nav class="flex gap-1 overflow-x-auto px-3 py-3 md:min-h-0 md:flex-1 md:flex-col md:space-y-1 md:overflow-x-hidden md:overflow-y-auto md:py-4">
       <a
         v-for="item in items"
         :key="item.href"
@@ -44,6 +44,7 @@ const props = defineProps<{
 const items = [
   { href: "/", label: "Dashboard", icon: "📈" },
   { href: "/users", label: "Users", icon: "👥" },
+  { href: "/reported-issues", label: "Reports", icon: "📝" },
   { href: "/rate-limits", label: "Rate Limits", icon: "⏱️" },
   { href: "/ai-models", label: "AI Models", icon: "🤖" },
   { href: "/settings", label: "Settings", icon: "⚙️" },

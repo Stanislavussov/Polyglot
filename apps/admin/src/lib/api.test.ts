@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { type AIModel, aiModels } from "./api.js";
+import { type AIModel, aiModels, reportedIssues } from "./api.js";
 
 function stubFetch(
   response: Response,
@@ -43,5 +43,21 @@ describe("admin API client", () => {
     await aiModels.create(model);
 
     expect(fetchMock.mock.calls[0]?.[1]?.headers).toEqual({ "Content-Type": "application/json" });
+  });
+
+  it("builds reported issues query parameters", async () => {
+    const fetchMock = stubFetch(
+      new Response(JSON.stringify({ issues: [], total: 0, page: 2, limit: 50 }), { status: 200 }),
+    );
+
+    await reportedIssues.list(2, 50, "open", "broken flow");
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:3001/api/reported-issues?page=2&limit=50&status=open&search=broken+flow",
+      {
+        method: "GET",
+        headers: {},
+      },
+    );
   });
 });
