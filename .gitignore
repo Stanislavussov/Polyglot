@@ -8,3 +8,4 @@ coverage
 .sisyphus/*
 .omo/*
 .env.prod
+.pnpm-store/*
