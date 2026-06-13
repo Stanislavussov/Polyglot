@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { type AIModel, aiModels, reportedIssues } from "./api.js";
+import { type AIModel, aiModels, openRouter, reportedIssues } from "./api.js";
 
 function stubFetch(
   response: Response,
@@ -59,5 +59,22 @@ describe("admin API client", () => {
         headers: {},
       },
     );
+  });
+
+  it("fetches OpenRouter key status from settings", async () => {
+    const payload = {
+      configured: true,
+      label: "sk-or-v1-au7...890",
+      expiresAt: "2026-07-03T00:00:00Z",
+      status: "expiring_soon",
+      daysRemaining: 20,
+    };
+    const fetchMock = stubFetch(new Response(JSON.stringify(payload), { status: 200 }));
+
+    await expect(openRouter.key()).resolves.toEqual(payload);
+    expect(fetchMock).toHaveBeenCalledWith("http://localhost:3001/api/settings/openrouter/key", {
+      method: "GET",
+      headers: {},
+    });
   });
 });
