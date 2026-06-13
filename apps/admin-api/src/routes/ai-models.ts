@@ -41,6 +41,13 @@ const openRouterModelsResponseSchema = z.object({
   data: z.array(openRouterModelSchema),
 });
 
+const openRouterCurrentKeyResponseSchema = z.object({
+  data: z.object({
+    label: z.string().optional(),
+    expires_at: z.string().datetime().nullable().optional(),
+  }),
+});
+
 interface AdminActor {
   adminId: number;
   email: string;
@@ -48,6 +55,7 @@ interface AdminActor {
 }
 
 type AIModelChangeAction = "created" | "updated" | "default_changed" | "deleted";
+type OpenRouterKeyExpirationStatus = "active" | "expiring_soon" | "expired" | "unknown" | "not_configured";
 
 function logAiModelChange(
   request: FastifyRequest,
@@ -110,6 +118,29 @@ function purposeFromModel(model: { id: string; name: string }): string {
   return "General / translation";
 }
 
+function expirationStatus(expiresAt: string | null): {
+  status: OpenRouterKeyExpirationStatus;
+  daysRemaining: number | null;
+} {
+  if (!expiresAt) {
+    return { status: "unknown", daysRemaining: null };
+  }
+
+  const expiresAtMs = Date.parse(expiresAt);
+  if (!Number.isFinite(expiresAtMs)) {
+    return { status: "unknown", daysRemaining: null };
+  }
+
+  const daysRemaining = Math.ceil((expiresAtMs - Date.now()) / (24 * 60 * 60 * 1000));
+  if (daysRemaining <= 0) {
+    return { status: "expired", daysRemaining };
+  }
+  if (daysRemaining <= 30) {
+    return { status: "expiring_soon", daysRemaining };
+  }
+  return { status: "active", daysRemaining };
+}
+
 export async function aiModelRoutes(app: FastifyInstance) {
   app.addHook("onRequest", async (request) => {
     request.adminUser = await request.jwtVerify<AdminActor>();
@@ -136,6 +167,38 @@ export async function aiModelRoutes(app: FastifyInstance) {
       costPer1kInput: costPer1k(model.pricing?.prompt),
       costPer1kOutput: costPer1k(model.pricing?.completion),
     }));
+  });
+
+  app.get("/openrouter/key", async () => {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      return {
+        configured: false,
+        label: null,
+        expiresAt: null,
+        status: "not_configured" satisfies OpenRouterKeyExpirationStatus,
+        daysRemaining: null,
+      };
+    }
+
+    const response = await fetch("https://openrouter.ai/api/v1/key", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!response.ok) {
+      throw new Error(`OpenRouter key request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const body = openRouterCurrentKeyResponseSchema.parse(await response.json());
+    const expiresAt = body.data.expires_at ?? null;
+    const { status, daysRemaining } = expirationStatus(expiresAt);
+
+    return {
+      configured: true,
+      label: body.data.label ?? null,
+      expiresAt,
+      status,
+      daysRemaining,
+    };
   });
 
   app.get("/ai-models", async () => {

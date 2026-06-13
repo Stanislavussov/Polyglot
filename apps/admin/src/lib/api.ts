@@ -188,6 +188,20 @@ export const aiModels = {
   setDefault: (id: string) => put<void>(`/api/settings/ai-models/${modelPath(id)}/set-default`, {}),
 };
 
+export type OpenRouterKeyStatus = "active" | "expiring_soon" | "expired" | "unknown" | "not_configured";
+
+export interface OpenRouterKeyInfo {
+  configured: boolean;
+  label: string | null;
+  expiresAt: string | null;
+  status: OpenRouterKeyStatus;
+  daysRemaining: number | null;
+}
+
+export const openRouter = {
+  key: () => get<OpenRouterKeyInfo>("/api/settings/openrouter/key"),
+};
+
 // Settings
 export interface AIDefaults {
   maxTokens: number;
