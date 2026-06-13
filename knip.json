@@ -1,0 +1,47 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreFiles": ["scripts/import-wiktionary.ts"],
+  "workspaces": {
+    "apps/admin": {
+      "entry": ["src/pages/**/*.astro"],
+      "project": ["src/**/*.{astro,ts,vue}"],
+      "ignoreFiles": ["src/components/ConfirmDialog.vue", "src/components/SettingsForm.vue"]
+    },
+    "apps/admin-api": {
+      "project": ["src/**/*.ts"]
+    },
+    "apps/bot": {
+      "project": ["src/**/*.ts"]
+    },
+    "packages/adapters/ai": {
+      "project": ["src/**/*.ts"]
+    },
+    "packages/adapters/db": {
+      "project": ["src/**/*.ts"]
+    },
+    "packages/adapters/notifications": {
+      "project": ["src/**/*.ts"]
+    },
+    "packages/core": {
+      "project": ["src/**/*.ts"],
+      "ignoreFiles": ["src/ports/index.ts"]
+    },
+    "packages/infra": {
+      "project": ["src/**/*.ts"]
+    }
+  },
+  "ignoreDependencies": [
+    "@polyglot/adapter-db",
+    "@polyglot/core",
+    "@polyglot/infra",
+    "dotenv",
+    "pino",
+    "@types/bcryptjs",
+    "tsx"
+  ],
+  "ignoreBinaries": ["dot"],
+  "rules": {
+    "exports": "off",
+    "types": "off"
+  }
+}
