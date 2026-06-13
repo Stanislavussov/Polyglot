@@ -8,7 +8,7 @@ services:
       - path: .env
         required: false
     volumes:
-      - ../..:/workspace
+      - ${NANOCLAW_POLYGLOT_HOST_DIR:-../..}:/workspace
       - pnpm-store:/root/.local/share/pnpm/store
     environment:
       CI: "true"
