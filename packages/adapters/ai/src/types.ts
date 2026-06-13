@@ -5,6 +5,7 @@ export type { AIModel, GenerateOptions };
 /** Logged after every AI request */
 export interface AIRequestLog {
   model: string;
+  requestKind: "object" | "text";
   tokens: { input: number; output: number };
   cost_usd: number;
   duration_ms: number;
@@ -12,3 +13,5 @@ export interface AIRequestLog {
   userId?: number;
   error?: string;
 }
+
+export type AIRequestMetricSink = (log: AIRequestLog) => void | Promise<void>;

@@ -7,7 +7,9 @@
 
 import type { Logger } from "@polyglot/core";
 import { getLogger } from "@polyglot/core";
-import type { AIRequestLog } from "./types.js";
+import type { AIRequestLog, AIRequestMetricSink } from "./types.js";
+
+let requestMetricSink: AIRequestMetricSink | null = null;
 
 /**
  * Get the current logger (injected at composition root).
@@ -16,15 +18,37 @@ function getAiLogger(): Logger {
   return getLogger();
 }
 
+export function setAIRequestMetricSink(sink: AIRequestMetricSink | null): void {
+  requestMetricSink = sink;
+}
+
+function persistMetric(log: AIRequestLog, logger: Logger): void {
+  if (!requestMetricSink) {
+    return;
+  }
+
+  try {
+    const result = requestMetricSink(log);
+    if (result instanceof Promise) {
+      result.catch((error: unknown) => {
+        logger.warn({ error }, "AI request metric sink failed");
+      });
+    }
+  } catch (error) {
+    logger.warn({ error }, "AI request metric sink failed");
+  }
+}
+
 /**
  * Log a completed AI request (success or failure).
  */
 export function logRequest(log: AIRequestLog): void {
-  const { model, tokens, cost_usd, duration_ms, success, userId, error } = log;
+  const { model, requestKind, tokens, cost_usd, duration_ms, success, userId, error } = log;
   const logger = getAiLogger();
 
   const base = {
     model,
+    requestKind,
     inputTokens: tokens.input,
     outputTokens: tokens.output,
     cost_usd: Number(cost_usd.toFixed(6)),
@@ -37,4 +61,6 @@ export function logRequest(log: AIRequestLog): void {
   } else {
     logger.error({ ...base, error }, "AI request failed");
   }
+
+  persistMetric(log, logger);
 }

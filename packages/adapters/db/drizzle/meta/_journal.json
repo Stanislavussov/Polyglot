@@ -176,6 +176,13 @@
       "when": 1780730878373,
       "tag": "0024_fast_madame_web",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1780828776598,
+      "tag": "0025_fantastic_amphibian",
+      "breakpoints": true
     }
   ]
 }

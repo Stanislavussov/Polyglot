@@ -126,6 +126,20 @@ export const stats = {
   get: () => get<Stats>("/api/stats"),
 };
 
+export interface AIRequestLatencySummary {
+  modelId: string;
+  requestCount: number;
+  averageDurationMs: number;
+  maxDurationMs: number;
+  successRate: number;
+  averageInputTokens: number;
+  averageOutputTokens: number;
+}
+
+export const aiLatencyStats = {
+  list: () => get<AIRequestLatencySummary[]>("/api/stats/ai-latency"),
+};
+
 // Rate Limits
 export interface PlanLimitConfig {
   name: string;
@@ -274,6 +288,43 @@ export const users = {
     return get<UsersResponse>(`/api/users?${params}`);
   },
   changePlan: (id: number, plan: string) => put<void>(`/api/users/${id}/plan`, { plan }),
+};
+
+export type IssueType = "bug" | "suggestion" | "other";
+export type IssueStatus = "open" | "in_progress" | "resolved" | "rejected";
+
+export interface ReportedIssue {
+  id: number;
+  userId: number;
+  type: IssueType;
+  description: string;
+  status: IssueStatus;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: number;
+    telegramId: number;
+    username: string | null;
+  };
+}
+
+export interface ReportedIssuesResponse {
+  issues: ReportedIssue[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export const reportedIssues = {
+  list: (page = 1, limit = 20, status: IssueStatus | "" = "", search = "") => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      ...(status ? { status } : {}),
+      ...(search ? { search } : {}),
+    });
+    return get<ReportedIssuesResponse>(`/api/reported-issues?${params}`);
+  },
 };
 
 export { ApiError, clearToken, getToken };

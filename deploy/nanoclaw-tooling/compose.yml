@@ -1,0 +1,18 @@
+services:
+  polyglot-tooling:
+    build:
+      context: ../..
+      dockerfile: deploy/nanoclaw-tooling/Dockerfile
+    working_dir: /workspace
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ../..:/workspace
+      - pnpm-store:/root/.local/share/pnpm/store
+    environment:
+      CI: "true"
+      NODE_ENV: test
+
+volumes:
+  pnpm-store:

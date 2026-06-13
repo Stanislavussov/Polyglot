@@ -6,13 +6,26 @@ let selectResultQueue: unknown[][] = [];
 let insertResultQueue: unknown[][] = [];
 
 function makeThenable(resultFn: () => unknown[]) {
-  const promise = Promise.resolve().then(() => resultFn());
-  return {
-    then: promise.then.bind(promise),
-    catch: promise.catch.bind(promise),
+  const builder = {
+    then: (
+      onFulfilled?: ((value: unknown[]) => unknown) | null,
+      onRejected?: ((reason: unknown) => unknown) | null,
+    ): Promise<unknown> =>
+      Promise.resolve()
+        .then(() => resultFn())
+        .then(onFulfilled, onRejected),
+    catch: (onRejected?: ((reason: unknown) => unknown) | null): Promise<unknown> =>
+      Promise.resolve()
+        .then(() => resultFn())
+        .catch(onRejected),
     limit: vi.fn(() => makeThenable(resultFn)),
+    offset: vi.fn(() => makeThenable(resultFn)),
     orderBy: vi.fn(() => makeThenable(resultFn)),
+    where: vi.fn(() => makeThenable(resultFn)),
+    innerJoin: vi.fn(() => makeThenable(resultFn)),
+    $dynamic: vi.fn(() => makeThenable(resultFn)),
   };
+  return builder;
 }
 
 const selectWhereFn = vi.fn(() => {
@@ -22,10 +35,12 @@ const selectWhereFn = vi.fn(() => {
 
 const selectFromFn = vi.fn(() => ({
   where: selectWhereFn,
+  innerJoin: vi.fn(() => makeThenable(() => selectResultQueue.shift() ?? [])),
   orderBy: vi.fn(() => {
     const result = selectResultQueue.shift() ?? [];
     return makeThenable(() => result);
   }),
+  $dynamic: vi.fn(() => makeThenable(() => selectResultQueue.shift() ?? [])),
 }));
 
 const selectFn = vi.fn(() => ({ from: selectFromFn }));
@@ -136,6 +151,42 @@ describe("reportedIssueRepository", () => {
       const result = await reportedIssueRepository.findByStatus("open");
 
       expect(result).toEqual(mockIssues);
+    });
+  });
+
+  describe("list", () => {
+    it("returns paginated issues with user details and total count", async () => {
+      const mockIssues = [
+        {
+          id: 1,
+          userId: 10,
+          type: "bug",
+          description: "Fix Y",
+          status: "open",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          user: {
+            id: 10,
+            telegramId: 12345,
+            username: "polyglot_user",
+          },
+        },
+      ];
+      selectResultQueue.push(mockIssues, [{ count: 1 }]);
+
+      const result = await reportedIssueRepository.list({
+        page: 1,
+        limit: 20,
+        status: "open",
+        search: "Fix",
+      });
+
+      expect(result).toEqual({
+        issues: mockIssues,
+        total: 1,
+        page: 1,
+        limit: 20,
+      });
     });
   });
 

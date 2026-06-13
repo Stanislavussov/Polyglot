@@ -6,8 +6,10 @@
  *
  * Exports: generateObject, generateText, getAvailableModels, estimateCost
  */
+
+export { setAIRequestMetricSink } from "./logger.js";
 export { estimateCost, getAvailableModels } from "./models.js";
-export type { AIModel, AIRequestLog, GenerateOptions } from "./types.js";
+export type { AIModel, AIRequestLog, AIRequestMetricSink, GenerateOptions } from "./types.js";
 
 import type { GenerateOptions } from "@polyglot/core";
 import { generateObject as aiGenerateObject, generateText as aiGenerateText } from "ai";
@@ -54,6 +56,7 @@ export async function generateObject<T>(
 
     logRequest({
       model,
+      requestKind: "object",
       tokens: { input: inputTokens, output: outputTokens },
       cost_usd,
       duration_ms,
@@ -67,6 +70,7 @@ export async function generateObject<T>(
 
     logRequest({
       model,
+      requestKind: "object",
       tokens: { input: 0, output: 0 },
       cost_usd: 0,
       duration_ms,
@@ -105,6 +109,7 @@ export async function generateText(prompt: string, model: string, options?: Gene
 
     logRequest({
       model,
+      requestKind: "text",
       tokens: { input: inputTokens, output: outputTokens },
       cost_usd,
       duration_ms,
@@ -118,6 +123,7 @@ export async function generateText(prompt: string, model: string, options?: Gene
 
     logRequest({
       model,
+      requestKind: "text",
       tokens: { input: 0, output: 0 },
       cost_usd: 0,
       duration_ms,
