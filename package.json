@@ -18,6 +18,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "lint:deps": "depcruise --config .dependency-cruiser.cjs packages apps/bot/src",
+    "lint:knip": "knip",
     "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > docs/dependency-graph.svg",
     "clean": "pnpm -r run clean && rm -rf coverage .vitest",
     "docker:up": "docker compose -f deploy/docker-compose.yml up",
@@ -44,6 +45,7 @@
     "@types/node": "^25.5.0",
     "@vitest/coverage-v8": "^3.1.1",
     "dependency-cruiser": "^17.3.10",
+    "knip": "^6.16.1",
     "tsx": "^4.7.0",
     "typescript": "^5.8.2",
     "vitest": "^3.2.4"

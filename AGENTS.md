@@ -7,7 +7,7 @@
 After implementing any feature — no matter how small — run the full quality gate:
 
 ```bash
-pnpm build && pnpm lint && pnpm lint:deps && pnpm test
+pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test
 ```
 
 - Fix all failures before proceeding

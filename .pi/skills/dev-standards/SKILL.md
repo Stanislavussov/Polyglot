@@ -40,7 +40,17 @@ pnpm lint:deps
 - Enforces package boundary rules (no circular deps, correct layer imports)
 - **Fix all violations** — do not add exceptions without explicit user approval
 
-### 4. Tests
+### 4. Unused files/dependencies (Knip)
+
+```bash
+pnpm lint:knip
+```
+
+- Finds unused files, dependencies, binaries, and other dead-code signals
+- Keep `knip.json` baseline exceptions explicit and narrow
+- If Knip reports a new issue, remove the dead code/dependency or document a targeted exception in `knip.json`
+
+### 5. Tests
 
 ```bash
 pnpm test
@@ -53,11 +63,11 @@ pnpm test
 ### Summary checklist (copy-paste into your workflow)
 
 ```bash
-pnpm build && pnpm lint && pnpm lint:deps && pnpm test
+pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test
 ```
 
 **If any command fails → fix → re-run the full chain.**
-Do NOT proceed to documentation updates or mark tasks done until all four pass.
+Do NOT proceed to documentation updates or mark tasks done until all five pass.
 
 ---
 

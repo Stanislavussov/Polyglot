@@ -2,6 +2,6 @@
   "name": "@polyglot/types",
   "version": "0.0.1",
   "private": true,
-  "types": "./index.d.ts",
+  "types": "./temporal.d.ts",
   "description": "Temporal API type declarations only. Domain entity types live in @polyglot/core."
 }
