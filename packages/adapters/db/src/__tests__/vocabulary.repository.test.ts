@@ -117,6 +117,7 @@ function makeEntry(overrides: Partial<VocabularyEntry> = {}): VocabularyEntry {
     sourceLangId: 5,
     inputType: "word",
     emoji: "👋",
+    nativeMeaning: null,
     isActive: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),
@@ -148,6 +149,7 @@ function makeCreateInput(overrides: Partial<CreateVocabularyInput> = {}): Create
     sourceLangId: 5,
     inputType: "word",
     emoji: "👋",
+    nativeMeaning: "A greeting.",
     translations: [
       {
         targetLangId: 3,
@@ -202,6 +204,7 @@ describe("vocabularyRepository", () => {
         sourceLangId: 5,
         inputType: "word",
         emoji: "👋",
+        nativeMeaning: "A greeting.",
       });
     });
 

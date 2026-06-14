@@ -45,6 +45,7 @@ function makeEntry(
     sourceLangId: 1,
     inputType: "word",
     emoji,
+    nativeMeaning: null,
     isActive: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),
@@ -88,6 +89,7 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
   sourceLangId: 1,
   inputType: "word",
   emoji: "🍎",
+  nativeMeaning: "A fruit.",
   isActive: true,
   createdAt: new Date("2025-01-01"),
   updatedAt: new Date("2025-01-01"),
@@ -222,8 +224,8 @@ describe("renderDictionaryEntry", () => {
 
   it("contains translations with transcription", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("🇷🇺 <b>яблоко</b> [ˈjabləkə]");
-    expect(html).toContain("🇨🇿 <b>jablko</b> [ˈjablkɔ]");
+    expect(html).toContain("🇷🇺 RU: <b>яблоко</b> [ˈjabləkə]");
+    expect(html).toContain("🇨🇿 CS: <b>jablko</b> [ˈjablkɔ]");
   });
 
   it("shows synonyms from details", () => {

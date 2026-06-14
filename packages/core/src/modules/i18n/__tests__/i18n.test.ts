@@ -244,25 +244,25 @@ describe("i18n — t()", () => {
   // Connotation warning key (task 31)
   it("returns connotationWarning with {warning} interpolation in English", () => {
     expect(t("connotationWarning", "en", { warning: "to arouse — sexual connotation" })).toBe(
-      "⚠️ to arouse — sexual connotation",
+      "ℹ️ to arouse — sexual connotation",
     );
   });
 
   it("returns connotationWarning with {warning} interpolation in Russian", () => {
     expect(t("connotationWarning", "ru", { warning: "возбуждать — сексуальный подтекст" })).toBe(
-      "⚠️ возбуждать — сексуальный подтекст",
+      "ℹ️ возбуждать — сексуальный подтекст",
     );
   });
 
   it("returns connotationWarning with {warning} interpolation in Czech", () => {
     expect(t("connotationWarning", "cs", { warning: "vzrušit — sexuální konotace" })).toBe(
-      "⚠️ vzrušit — sexuální konotace",
+      "ℹ️ vzrušit — sexuální konotace",
     );
   });
 
   it("falls back to English for connotationWarning when locale has no file", () => {
     expect(t("connotationWarning", "de", { warning: "erregen — sexuelle Konnotation" })).toBe(
-      "⚠️ erregen — sexuelle Konnotation",
+      "ℹ️ erregen — sexuelle Konnotation",
     );
   });
 

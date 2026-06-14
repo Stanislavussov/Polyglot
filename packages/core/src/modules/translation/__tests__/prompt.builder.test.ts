@@ -156,7 +156,13 @@ describe("buildTranslationPrompt", () => {
   it("requests native sentence in examples when native language is provided", () => {
     const prompt = buildTranslationPrompt({ ...baseRequest, nativeLang: "ru" });
     expect(prompt).toContain('"native"');
-    expect(prompt).toContain("translated into Russian");
+    expect(prompt).toContain("translation of the target example sentence into Russian");
+  });
+
+  it("requests top-level nativeMeaning when native language is provided", () => {
+    const prompt = buildTranslationPrompt({ ...baseRequest, nativeLang: "ru" });
+    expect(prompt).toContain('"nativeMeaning"');
+    expect(prompt).toContain("written in Russian");
   });
 
   it("includes alternatives guidance when enabled", () => {
@@ -268,6 +274,7 @@ describe("buildStrictPrompt", () => {
   it("includes native example check when native language is present", () => {
     const prompt = buildStrictPrompt({ ...baseRequest, nativeLang: "ru" }, ["error"]);
     expect(prompt).toContain("native translation of the target sentence");
+    expect(prompt).toContain("nativeMeaning is present");
   });
 
   it("includes connotation warning check in strict prompt", () => {

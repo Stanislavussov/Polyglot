@@ -74,6 +74,7 @@ export const vocabularyRepository = {
           sourceLangId: input.sourceLangId,
           inputType: input.inputType,
           emoji: input.emoji,
+          nativeMeaning: input.nativeMeaning,
         })
         .returning();
 
@@ -349,6 +350,7 @@ export const vocabularyRepository = {
         targetLangId: vocabularyTranslations.targetLangId,
         inputType: vocabularyEntries.inputType,
         emoji: vocabularyEntries.emoji,
+        nativeMeaning: vocabularyEntries.nativeMeaning,
         text: vocabularyTranslations.text,
         transcription: vocabularyTranslations.transcription,
         expressionType: vocabularyTranslations.expressionType,

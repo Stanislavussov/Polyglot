@@ -118,6 +118,7 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
     const validation = validate(result, schema, input.word, input.targetLangs, input.inputType, {
       ...input.outputConfig,
       nativeLang: input.nativeLang,
+      sourceLang: input.sourceLang,
     });
 
     // Step 4: On PASS → return result
@@ -272,6 +273,7 @@ function toOutput(input: TranslateInput, result: TranslationResult, needsReview:
     original: input.word,
     sourceLang: input.sourceLang,
     emoji,
+    ...(input.nativeLang && result.nativeMeaning ? { nativeMeaning: result.nativeMeaning } : {}),
     nativeSynonyms: input.outputConfig?.includeNativeSynonyms === false ? [] : (result.nativeSynonyms ?? []),
     translations,
   };

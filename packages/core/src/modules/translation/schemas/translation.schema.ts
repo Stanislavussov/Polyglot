@@ -83,6 +83,7 @@ export const translationRequestSchema = z.object({
  */
 export const translationResultSchema = z.object({
   emoji: z.string().min(1, "Emoji is required"),
+  nativeMeaning: z.string().min(1, "Native meaning is required").nullish(),
   nativeSynonyms: z.array(synonymSchema),
   translations: z.object({}).catchall(languageTranslationSchema),
 });
@@ -140,9 +141,9 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig,
 export function buildTranslationResultSchema(
   targetLangs: string[],
   config?: TranslationOutputConfig,
-  requireExampleNative = false,
+  requireNative = false,
 ) {
-  const langSchema = buildLanguageTranslationSchema(config, requireExampleNative);
+  const langSchema = buildLanguageTranslationSchema(config, requireNative);
   const langEntries: Record<string, typeof langSchema> = {};
   for (const lang of targetLangs) {
     langEntries[lang] = langSchema;
@@ -151,6 +152,7 @@ export function buildTranslationResultSchema(
   const includeNativeSynonyms = config?.includeNativeSynonyms !== false;
   return z.object({
     emoji: z.string().min(1, "Emoji is required"),
+    ...(requireNative && { nativeMeaning: z.string().min(1, "Native meaning is required") }),
     ...(includeNativeSynonyms && { nativeSynonyms: z.array(synonymSchema) }),
     translations: z.object(langEntries),
   });

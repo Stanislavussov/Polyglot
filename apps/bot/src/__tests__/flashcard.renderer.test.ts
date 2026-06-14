@@ -32,6 +32,7 @@ import {
 const sampleWord: WordDisplayData = {
   id: 1,
   original: "apple",
+  nativeMeaning: "A round fruit.",
   sourceLang: "en",
   inputType: "word",
   emoji: "🍎",
@@ -70,6 +71,11 @@ describe("renderFlashCardFront", () => {
   it("contains the original word in bold", () => {
     const result = renderFlashCardFront(sampleWord, 1, 10, "en");
     expect(result).toContain("<b>apple</b>");
+  });
+
+  it("contains native meaning when available", () => {
+    const result = renderFlashCardFront(sampleWord, 1, 5, "en");
+    expect(result).toContain("A round fruit.");
   });
 
   it("contains the progress string", () => {

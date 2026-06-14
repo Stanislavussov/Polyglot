@@ -30,12 +30,13 @@ export function formatNotificationMessage(payload: NotificationPayload, lang: Su
   const translationLines = Object.entries(word.translations)
     .map(([code, text]) => {
       const flag = getLangFlag(code) ?? "🔤";
-      return `  ${flag} ${text}`;
+      return `  ${flag} ${escapeHtml(code.toUpperCase())}: ${escapeHtml(text)}`;
     })
     .join("\n");
 
   const lines = [
     `${word.emoji} <b>${escapeHtml(word.original)}</b>`,
+    ...(word.nativeMeaning ? [escapeHtml(word.nativeMeaning)] : []),
     `<i>${sourceLabel}</i>`,
     "",
     `${t("notifTranslations", lang)}`,

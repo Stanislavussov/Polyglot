@@ -21,12 +21,16 @@ export function renderSrsFront(
   const sourceFlag = getLangFlag(sourceLangCode) ?? "🔤";
   const targetFlag = getLangFlag(targetLangCode) ?? "🔤";
   const targetName = getLanguageName(targetLangCode);
-  return [
+  const lines = [
     esc(t("srsProgress", lang, { current, total })),
     "",
     `${esc(card.emoji ?? "🔤")} <b>${esc(card.original)}</b>`,
-    `<i>${esc(card.inputType)} · ${sourceFlag} → ${targetFlag} ${esc(targetName)}</i>`,
-  ].join("\n");
+  ];
+  if (card.nativeMeaning) {
+    lines.push(esc(card.nativeMeaning));
+  }
+  lines.push(`<i>${esc(card.inputType)} · ${sourceFlag} → ${targetFlag} ${esc(targetName)}</i>`);
+  return lines.join("\n");
 }
 
 export function renderSrsBack(
@@ -37,13 +41,13 @@ export function renderSrsBack(
   total: number,
   lang: SupportedLang,
 ): string {
-  const lines = [
-    renderSrsFront(card, sourceLangCode, targetLangCode, current, total, lang),
-    "",
-    `${getLangFlag(targetLangCode) ?? "🔤"} <b>${esc(card.text)}</b>${
+  const lines = [renderSrsFront(card, sourceLangCode, targetLangCode, current, total, lang), ""];
+
+  lines.push(
+    `${getLangFlag(targetLangCode) ?? "🔤"} ${esc(targetLangCode.toUpperCase())}: <b>${esc(card.text)}</b>${
       card.transcription ? ` [${esc(card.transcription)}]` : ""
     }`,
-  ];
+  );
 
   if (card.details?.examples && card.details.examples.length > 0) {
     const example = card.details.examples[0];

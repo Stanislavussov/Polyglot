@@ -29,6 +29,13 @@ function regenButtonLabel(code: string): string {
   return `🔄 ${flag}`;
 }
 
+function renderNativeMeaningLine(nativeLang: string | undefined, nativeMeaning: string | undefined): string | null {
+  if (!nativeMeaning) return null;
+  if (!nativeLang) return esc(nativeMeaning);
+  const flag = getLangFlag(nativeLang) ?? "🔤";
+  return `${flag} ${esc(nativeLang.toUpperCase())}: ${esc(nativeMeaning)}`;
+}
+
 /**
  * Render a full AI translation card for Telegram (HTML).
  *
@@ -52,6 +59,10 @@ export function renderTranslation(
     output.sourceLang !== nativeLang && templateFields?.synonyms !== false && output.nativeSynonyms.length > 0;
   const nativeSyns = showNativeSyns ? ` (${output.nativeSynonyms.map((s) => esc(s.text)).join(", ")})` : "";
   lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
+  const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
+  if (nativeMeaningLine) {
+    lines.push(nativeMeaningLine);
+  }
   lines.push("");
 
   for (const [code, translation] of Object.entries(output.translations)) {
@@ -138,11 +149,19 @@ export function renderTopicWord(word: TopicWord): string {
  * Shows only: emoji, original sentence, and per-language translations
  * with transcription. No synonyms, examples, or alternatives.
  */
-export function renderSentenceTranslation(output: TranslateOutput, interfaceLang?: string): string {
+export function renderSentenceTranslation(
+  output: TranslateOutput,
+  interfaceLang?: string,
+  nativeLang?: string,
+): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
 
   lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
+  const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
+  if (nativeMeaningLine) {
+    lines.push(nativeMeaningLine);
+  }
   lines.push("");
 
   for (const [code, translation] of Object.entries(output.translations)) {

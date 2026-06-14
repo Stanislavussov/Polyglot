@@ -338,6 +338,7 @@ describe("buildTranslationResultSchema", () => {
     const schema = buildTranslationResultSchema(["cs"], undefined, true);
     const result = schema.safeParse({
       emoji: "👋",
+      nativeMeaning: "Приветствие.",
       nativeSynonyms: [{ text: "привет" }],
       translations: { cs: langEntry },
     });
@@ -345,6 +346,22 @@ describe("buildTranslationResultSchema", () => {
   });
 
   it("accepts native example translation when requested for AI output", () => {
+    const schema = buildTranslationResultSchema(["cs"], undefined, true);
+    const result = schema.safeParse({
+      emoji: "👋",
+      nativeMeaning: "Приветствие.",
+      nativeSynonyms: [{ text: "привет" }],
+      translations: {
+        cs: {
+          ...langEntry,
+          examples: [{ context: "neutral", target: "Ahoj, jak se máš?", native: "Привет, как дела?" }],
+        },
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("requires nativeMeaning when native output is requested", () => {
     const schema = buildTranslationResultSchema(["cs"], undefined, true);
     const result = schema.safeParse({
       emoji: "👋",
@@ -356,6 +373,6 @@ describe("buildTranslationResultSchema", () => {
         },
       },
     });
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 });

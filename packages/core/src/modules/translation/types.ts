@@ -93,6 +93,7 @@ export interface TranslationRequest {
  */
 export interface TranslationResult {
   emoji: string;
+  nativeMeaning?: string | null;
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
 }
@@ -120,6 +121,7 @@ export interface TranslateOutput {
   original: string;
   sourceLang: string;
   emoji: string;
+  nativeMeaning?: string;
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
   needsReview?: boolean;

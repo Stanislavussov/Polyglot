@@ -37,7 +37,7 @@ describe("validateExamples", () => {
 
   it("accepts any context value", () => {
     const result = validateExamples(
-      [{ context: "any-context", target: "Hippokratova přísaha obsahuje důležitá slova." }],
+      [{ context: "any-context", target: "Ahoj, Hippokratova přísaha obsahuje důležitá slova." }],
       "ahoj",
     );
     expect(result.valid).toBe(true);
@@ -46,12 +46,12 @@ describe("validateExamples", () => {
   it("accepts all valid context values", () => {
     const contexts = ["neutral", "colloquial", "professional"] as const;
     for (const context of contexts) {
-      const result = validateExamples([{ context, target: "Some target text." }], "word");
+      const result = validateExamples([{ context, target: "Some word in target text." }], "word");
       expect(result.valid).toBe(true);
     }
   });
 
-  it("passes when target text does not contain the word (no word containment check)", () => {
+  it("fails when a simple literal first example does not contain the main translation", () => {
     const result = validateExamples(
       [
         {
@@ -60,6 +60,20 @@ describe("validateExamples", () => {
         },
       ],
       "ahoj",
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.field === "examples.0.target")).toBe(true);
+  });
+
+  it("skips exact containment for non-ASCII words to avoid inflection false positives", () => {
+    const result = validateExamples(
+      [
+        {
+          context: "neutral",
+          target: "Completely unrelated sentence here.",
+        },
+      ],
+      "chlebíček",
     );
     expect(result.valid).toBe(true);
   });

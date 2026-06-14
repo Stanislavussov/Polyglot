@@ -69,6 +69,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
         : "target-side connotation note only when relevant",
     );
   }
+  if (nativeLangName) requestedFields.push(`nativeMeaning: a concise meaning/explanation in ${nativeLangName}`);
   if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
 
   return `${intro}${topicHint}${dictionaryHint}
@@ -79,9 +80,14 @@ Also include one relevant emoji.
 Prefer ONE natural, accurate main translation. Do not invent extra nuance.
 
 Rules:${
+    nativeLangName
+      ? `
+- Include top-level "nativeMeaning" written in ${nativeLangName}. It must explain the original expression's meaning naturally in the user's native language, independent of the target-language translation blocks.`
+      : ""
+  }${
     includesSourceTarget
       ? `
-- If a target language is the same as the source language, keep the main expression in that language and provide same-language learning details/examples for it.`
+- If a target language is the same as the source language, keep the original expression as the main same-language learning block, provide same-language learning details/examples for it, and use "nativeMeaning" to explain it for the user.`
       : ""
   }${
     cfg.includeExamples
@@ -93,7 +99,7 @@ Rules:${
   This applies to the "target" sentences. NEVER repeat the same word/phrase across all 3 examples.${
     nativeLangName
       ? `
-- Each example MUST include "native": the same example sentence translated into ${nativeLangName}.`
+- Each example MUST include "native": a natural translation of the target example sentence into ${nativeLangName}. Do not force a literal back-translation.`
       : ""
   }`
       : ""
@@ -163,6 +169,9 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
     if (request.nativeLang) {
       checkItems.push("- Each example includes a native translation of the target sentence");
     }
+  }
+  if (request.nativeLang) {
+    checkItems.push(`- Top-level nativeMeaning is present and written in ${nativeLangName ?? request.nativeLang}`);
   }
   checkItems.push("- Translations are actual translations, not the original word repeated");
   checkItems.push("- All required fields are present");

@@ -55,6 +55,7 @@ export function createNotificationService(deps: NotificationServiceDeps) {
     return {
       original: entry.original,
       emoji: entry.emoji ?? "📖",
+      nativeMeaning: entry.nativeMeaning ?? undefined,
       translations,
       source: "srs" as const,
     };

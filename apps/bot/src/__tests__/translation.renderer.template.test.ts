@@ -73,7 +73,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
     expect(result).toContain("(dobrý den, nazdar)");
     expect(result).toContain("💬");
     expect(result).toContain("∙ zdravím");
-    expect(result).toContain("⚠️");
+    expect(result).toContain("ℹ️");
   });
 
   it("renders all sections when all fields are true", () => {
@@ -82,7 +82,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
     expect(result).toContain("(dobrý den, nazdar)");
     expect(result).toContain("💬");
     expect(result).toContain("∙ zdravím");
-    expect(result).toContain("⚠️");
+    expect(result).toContain("ℹ️");
   });
 
   it("omits transcription when transcription is false", () => {
@@ -116,7 +116,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
   it("omits connotation warning when connotationWarning is false", () => {
     const fields: TemplateFields = { ...allTrue, connotationWarning: false };
     const result = renderTranslation(sampleOutput, "en", fields);
-    expect(result).not.toContain("⚠️");
+    expect(result).not.toContain("ℹ️");
     expect(result).not.toContain("informal in professional settings");
   });
 
@@ -129,7 +129,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
     expect(result).not.toContain("(dobrý den");
     expect(result).not.toContain("💬");
     expect(result).not.toContain("∙");
-    expect(result).not.toContain("⚠️");
+    expect(result).not.toContain("ℹ️");
   });
 
   it("still renders needsReview regardless of template fields", () => {
@@ -152,6 +152,6 @@ describe("renderTranslation — template-aware (Task 32)", () => {
     expect(result).not.toContain("(dobrý den");
     expect(result).toContain("💬");
     expect(result).not.toContain("∙ zdravím");
-    expect(result).not.toContain("⚠️");
+    expect(result).not.toContain("ℹ️");
   });
 });

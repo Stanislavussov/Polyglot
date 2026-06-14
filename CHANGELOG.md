@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added native-language meanings to translation output, saved vocabulary entries, dictionary views, flashcards, SRS cards, and word notifications.
+- Added a `native_meaning` column to `vocabulary_entries` for persisted dictionary reuse.
+- Added pre-AI validation for translation input, accepting sentences up to 500 characters while rejecting empty, emoji-only, command-like, digits-only, and over-limit input.
 - Added Telegram-user audience groups for release announcements.
 - Added a post-deploy release announcement job that sends `Unreleased` changelog notes to `admin` and `tester` bot users.
 - Added a `/changes` bot command for tester and admin audience groups to view delivered changes.
@@ -18,6 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Prevented same-language learning blocks from drifting away from the detected source expression, so cases like Czech `kudlanka` cannot be accepted as Czech `klubko`.
+- Made connotation notes render as informational text instead of warning-style alerts.
 - Generated missing migration for `translation_request_timings` table that was preventing the Request Timing Breakdown chart from loading.
 - `requestTimingRepository.record()` now silently ignores missing-table errors instead of logging a warning, so the bot does not emit noise before the migration is applied.
 

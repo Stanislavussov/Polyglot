@@ -35,6 +35,7 @@ const sampleOutput: TranslateOutput = {
   original: "hello",
   sourceLang: "en",
   emoji: "👋",
+  nativeMeaning: "A greeting.",
   nativeSynonyms: [{ text: "привет" }],
   translations: {
     cs: {
@@ -54,6 +55,11 @@ describe("renderTranslation", () => {
   it("renders header with emoji and original word", () => {
     const result = renderTranslation(sampleOutput, "en");
     expect(result).toContain("👋 <b>hello</b>");
+  });
+
+  it("renders native meaning under the original with native language label", () => {
+    const result = renderTranslation(sampleOutput, "en", undefined, "ru");
+    expect(result).toContain("🇷🇺 RU: A greeting.");
   });
 
   it("does not render register label (disabled to save tokens)", () => {
@@ -607,12 +613,12 @@ describe("renderTranslation — connotation warnings", () => {
       },
     };
     const result = renderTranslation(output, "en");
-    expect(result).toContain("⚠️ to arouse — sexual connotation");
+    expect(result).toContain("ℹ️ to arouse — sexual connotation");
   });
 
   it("does not render connotation warning when absent", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).not.toContain("⚠️");
+    expect(result).not.toContain("ℹ️");
   });
 
   it("does not render connotation warning when field is undefined", () => {
@@ -626,7 +632,7 @@ describe("renderTranslation — connotation warnings", () => {
       },
     };
     const result = renderTranslation(output, "en");
-    expect(result).not.toContain("⚠️");
+    expect(result).not.toContain("ℹ️");
   });
 
   it("renders connotation warning after examples", () => {
@@ -641,7 +647,7 @@ describe("renderTranslation — connotation warnings", () => {
     };
     const result = renderTranslation(output, "en");
     const lastExampleIdx = result.lastIndexOf("💬");
-    const warningIdx = result.indexOf("⚠️");
+    const warningIdx = result.indexOf("ℹ️");
     expect(warningIdx).toBeGreaterThan(lastExampleIdx);
   });
 
@@ -656,7 +662,7 @@ describe("renderTranslation — connotation warnings", () => {
       },
     };
     const result = renderTranslation(output, "en");
-    expect(result).toContain("⚠️ danger &lt;b&gt;bold&lt;/b&gt; &amp; special");
+    expect(result).toContain("ℹ️ danger &lt;b&gt;bold&lt;/b&gt; &amp; special");
   });
 
   it("uses i18n connotationWarning key with locale", () => {
@@ -669,11 +675,11 @@ describe("renderTranslation — connotation warnings", () => {
         },
       },
     };
-    // All locales use same format "⚠️ {warning}"
+    // All locales use same informational format "ℹ️ {warning}"
     const resultEn = renderTranslation(output, "en");
     const resultRu = renderTranslation(output, "ru");
-    expect(resultEn).toContain("⚠️ warning text");
-    expect(resultRu).toContain("⚠️ warning text");
+    expect(resultEn).toContain("ℹ️ warning text");
+    expect(resultRu).toContain("ℹ️ warning text");
   });
 });
 
@@ -756,6 +762,7 @@ const sentenceOutput: TranslateOutput = {
   original: "Can you tell me where the nearest pharmacy is?",
   sourceLang: "en",
   emoji: "💊",
+  nativeMeaning: "A question asking for the location of the closest pharmacy.",
   nativeSynonyms: [],
   translations: {
     cs: {
@@ -776,6 +783,11 @@ describe("renderSentenceTranslation", () => {
   it("renders emoji and original sentence as bold header", () => {
     const result = renderSentenceTranslation(sentenceOutput, "en");
     expect(result).toContain("💊 <b>Can you tell me where the nearest pharmacy is?</b>");
+  });
+
+  it("renders native meaning for sentence translations", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en", "ru");
+    expect(result).toContain("🇷🇺 RU: A question asking for the location of the closest pharmacy.");
   });
 
   it("renders translation text as bold per language", () => {

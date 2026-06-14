@@ -208,6 +208,7 @@ The translate-mode helper now classifies user input as `word`, `phrase`, or `sen
 - **Output preset:** `SENTENCE_OUTPUT` (no synonyms, alternatives, examples, equivalent note)
 - **Dictionary context:** Skipped (no Wiktionary lookup for sentences)
 - **Rendering:** `renderSentenceTranslation()` — compact card: emoji, original, per-language text + transcription only. No synonyms, examples, alternatives.
+- **Validation:** Plain text is trimmed and rejected before AI calls when empty, emoji-only, command-like, digits-only, or longer than 500 characters. Sentences up to 500 characters remain translatable but are not saveable.
 - **Keyboard:** `buildSentenceKeyboard()` — regen buttons only, no Save/Skip
 - **Session:** No `pendingTranslation` stored for sentences (nothing to save to dictionary)
 - **Regen:** Uses `SENTENCE_OUTPUT` preset and sentence keyboard. Reads `lastTranslation` + `lastInputType` from session.
@@ -363,7 +364,7 @@ async function setUserCommands(api: Api<RawApi>, chatId: number, lang: Supported
 // Render a full translation card for Telegram (HTML)
 // Dictionary context (if present) is NOT rendered — used only for AI prompt enrichment
 // Optional templateFields controls which sections are rendered (Task 32)
-function renderTranslation(output: TranslateOutput, interfaceLang?: string, templateFields?: TemplateFields): string;
+function renderTranslation(output: TranslateOutput, interfaceLang?: string, templateFields?: TemplateFields, nativeLang?: string): string;
 
 // Render a single topic word card (HTML)
 function renderTopicWord(word: TopicWord): string;
@@ -384,7 +385,7 @@ type LangResolver = (code: string) => number | null;
 
 // Render a compact sentence translation card (Task 27)
 // No synonyms, examples, alternatives — just text + transcription
-function renderSentenceTranslation(output: TranslateOutput, interfaceLang?: string): string;
+function renderSentenceTranslation(output: TranslateOutput, interfaceLang?: string, nativeLang?: string): string;
 
 // Build inline keyboard for sentences — regen only, no Save/Skip (Task 27)
 function buildSentenceKeyboard(langCodes: string[], interfaceLang?: string): InlineKeyboard;
@@ -676,7 +677,8 @@ The translation card was redesigned for better usability:
 
 - **Inline synonyms**: Synonyms are shown compactly after the translation header: `🇬🇧 EN: <b>to excite</b> (syn1, syn2)` — text only, no register in parenthetical. No separate "Synonyms:" section block.
 - **Register-labeled examples**: All examples use `💬` icon (no per-context icons). Each example shows the target sentence in italic with an inline register label: `💬 <i>sentence</i>  → register`. No native (source language) translation rendered — only target language.
-- **Connotation warnings**: Optional `⚠️` line rendered after examples when `LanguageTranslation.connotationWarning` is present. Uses i18n key `connotationWarning` with `{warning}` param.
+- **Native meaning**: `TranslateOutput.nativeMeaning` is rendered directly below the original in translation and sentence cards, using dynamic language flag/code labels when `nativeLang` is known. Saved dictionary details, flashcards, SRS cards, and notifications render persisted native meaning when available.
+- **Connotation warnings**: Optional informational `ℹ️` line rendered after examples when `LanguageTranslation.connotationWarning` is present. Uses i18n key `connotationWarning` with `{warning}` param.
 - **Backward compatibility**: Renderer gracefully handles old example format from DB — examples without `register` field render without the `→ label` suffix; `native` field is silently ignored.
 - **Card layout order**: flag + lang code + translation (+ inline synonyms) → alternatives → examples (💬 + register) → connotation warning (⚠️).
 

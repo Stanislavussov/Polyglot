@@ -41,6 +41,7 @@ export interface VocabularyEntry {
   sourceLangId: number;
   inputType: "word" | "phrase";
   emoji: string | null;
+  nativeMeaning: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -60,6 +61,7 @@ export interface CreateVocabularyInput {
   sourceLangId: number;
   inputType: "word" | "phrase";
   emoji: string;
+  nativeMeaning?: string;
   translations: Array<{
     targetLangId: number;
     text: string;
@@ -88,6 +90,7 @@ export interface SrsDueVocabularyCard {
   targetLangId: number;
   inputType: "word" | "phrase";
   emoji: string | null;
+  nativeMeaning: string | null;
   text: string;
   transcription: string | null;
   expressionType: string | null;

@@ -34,7 +34,7 @@ describe("validateExamples — expressionType parameter", () => {
   });
 
   it("works without expressionType (backward compatible)", () => {
-    const result = validateExamples(validExamples, "word");
+    const result = validateExamples(validExamples, "cake");
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -68,8 +68,7 @@ describe("validateExamples — expressionType parameter", () => {
     expect(result.valid).toBe(true);
   });
 
-  it("literal examples that don't contain the word still pass (no word containment check)", () => {
-    // Word containment was already removed for all expression types
+  it("literal examples that don't contain simple words fail conservatively", () => {
     const examples = [
       {
         context: "neutral" as const,
@@ -77,6 +76,6 @@ describe("validateExamples — expressionType parameter", () => {
       },
     ];
     const result = validateExamples(examples, "hello", "literal");
-    expect(result.valid).toBe(true);
+    expect(result.valid).toBe(false);
   });
 });

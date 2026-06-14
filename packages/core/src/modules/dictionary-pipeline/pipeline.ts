@@ -185,6 +185,7 @@ function buildDisplayData(entry: PipelineEntry, config: DictionaryWordConfig): W
   return {
     id: entry.id,
     original: entry.original,
+    ...(entry.nativeMeaning ? { nativeMeaning: entry.nativeMeaning } : {}),
     sourceLang: entry.sourceLangCode,
     inputType: entry.inputType as "word" | "phrase",
     emoji: entry.emoji ?? "📝",

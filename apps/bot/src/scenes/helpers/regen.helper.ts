@@ -55,7 +55,7 @@ export async function handleRegenLoop(
   );
 
   const renderCard = isSentence
-    ? renderSentenceTranslation
+    ? (o: TranslateOutput, l: SupportedLang) => renderSentenceTranslation(o, l, nativeLang)
     : (o: TranslateOutput, l: SupportedLang) => renderTranslation(o, l, effectiveTemplate.fields, nativeLang);
   const buildKeyboard = isSentence
     ? buildSentenceKeyboard

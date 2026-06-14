@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detectNonTextContent, isEmojiOnly } from "./validate-text-input.js";
+import { detectNonTextContent, isEmojiOnly, validateTranslatableText } from "./validate-text-input.js";
 
 describe("isEmojiOnly", () => {
   it("returns true for a single emoji", () => {
@@ -72,6 +72,35 @@ describe("isEmojiOnly", () => {
 
   it("returns true for multiple diverse emojis", () => {
     expect(isEmojiOnly("🏠🔥💯✨🎵")).toBe(true);
+  });
+});
+
+describe("validateTranslatableText", () => {
+  it("accepts words, phrases, and sentences up to 500 trimmed characters", () => {
+    expect(validateTranslatableText("hello").valid).toBe(true);
+    expect(validateTranslatableText("how are you today?").valid).toBe(true);
+    expect(validateTranslatableText("a".repeat(500)).valid).toBe(true);
+  });
+
+  it("rejects empty and whitespace-only input", () => {
+    expect(validateTranslatableText("").reason).toBe("empty");
+    expect(validateTranslatableText("   ").reason).toBe("empty");
+  });
+
+  it("rejects emoji-only input", () => {
+    expect(validateTranslatableText("😀 🎉").reason).toBe("emoji");
+  });
+
+  it("rejects command-like input", () => {
+    expect(validateTranslatableText("/start").reason).toBe("command");
+  });
+
+  it("rejects digits-only input", () => {
+    expect(validateTranslatableText("123 456").reason).toBe("digits");
+  });
+
+  it("rejects input over 500 trimmed characters", () => {
+    expect(validateTranslatableText("a".repeat(501)).reason).toBe("tooLong");
   });
 });
 

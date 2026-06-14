@@ -83,7 +83,7 @@ describe("validate (orchestrator)", () => {
     expect(result.errors.every((e) => e.rule === "schema")).toBe(true);
   });
 
-  it("passes examples even when target does not contain the translated word", () => {
+  it("fails examples when first target example does not contain a simple main translation", () => {
     const raw = {
       emoji: "👋",
       translations: {
@@ -95,8 +95,51 @@ describe("validate (orchestrator)", () => {
       },
     };
     const result = validate(raw, translationResultSchema, "hello", ["cs"]);
-    expect(result.valid).toBe(true);
-    expect(result.errors.some((e) => e.rule === "examples")).toBe(false);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
+  });
+
+  it("fails when a same-language learning block changes the source expression", () => {
+    const raw = {
+      emoji: "🦗",
+      translations: {
+        cs: {
+          text: "klubko",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "Kočka si hrála s velkým klubkem." }],
+        },
+        en: {
+          text: "ball of yarn",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "The kitten played with a ball of yarn." }],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "kudlanka", ["cs", "en"], "word", { sourceLang: "cs" });
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "semantic",
+          field: "translations.cs.text",
+        }),
+      ]),
+    );
+  });
+
+  it("passes when a same-language learning block keeps the source expression", () => {
+    const raw = {
+      emoji: "🦗",
+      translations: {
+        cs: {
+          text: "kudlanka",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "Kudlanka seděla na listu." }],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "kudlanka", ["cs"], "word", { sourceLang: "cs" });
+    expect(result.errors.some((e) => e.field === "translations.cs.text")).toBe(false);
   });
 
   it("validates hallucination patterns", () => {
@@ -131,9 +174,10 @@ describe("validate (orchestrator)", () => {
     expect(result.errors.some((e) => e.field?.startsWith("translations.cs."))).toBe(true);
   });
 
-  it("fails when connotationWarning is not in Russian for nativeLang=ru", () => {
+  it("fails when nativeMeaning is missing for nativeLang", () => {
     const raw = {
       emoji: "🙈",
+      nativeSynonyms: [],
       translations: {
         cs: {
           text: "být slepý jako patrona",
@@ -152,20 +196,22 @@ describe("validate (orchestrator)", () => {
     expect(result.errors).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          rule: "language",
-          field: "translations.cs.connotationWarning",
+          rule: "schema",
+          field: "nativeMeaning",
         }),
       ]),
     );
   });
 
-  it("passes when connotationWarning is in Russian for nativeLang=ru", () => {
+  it("does not hardcode connotationWarning script validation for nativeLang", () => {
     const raw = {
       emoji: "🙈",
+      nativeMeaning: "Разговорное выражение о невнимательности.",
+      nativeSynonyms: [],
       translations: {
         cs: {
           text: "být slepý jako patrona",
-          connotationWarning: "Выражение разговорное и может звучать невежливо.",
+          connotationWarning: "Výraz je hovorový a může znít nezdvořile.",
           synonyms: [],
           examples: [],
         },
@@ -177,6 +223,7 @@ describe("validate (orchestrator)", () => {
     });
 
     expect(result.errors.some((e) => e.field === "translations.cs.connotationWarning")).toBe(false);
+    expect(result.errors.some((e) => e.field === "nativeMeaning")).toBe(false);
   });
 });
 
