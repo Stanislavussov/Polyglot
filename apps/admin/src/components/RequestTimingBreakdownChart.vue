@@ -120,14 +120,6 @@ const chartData = computed<ChartData<"bar">>(() => ({
       borderWidth: 1,
       borderRadius: 2,
     },
-    {
-      label: "P95 Total (ms)",
-      data: byDay.value.map((row) => row.p95TotalMs),
-      backgroundColor: "#ef4444",
-      borderColor: "#dc2626",
-      borderWidth: 1,
-      borderRadius: 2,
-    },
   ],
 }));
 
@@ -169,6 +161,7 @@ const chartOptions: ChartOptions<"bar"> = {
           return [
             `Total requests: ${row.requestCount}`,
             `Avg total: ${row.avgTotalMs}ms`,
+            `P95 total: ${row.p95TotalMs}ms`,
             `Success rate: ${(row.successRate * 100).toFixed(1)}%`,
           ];
         },

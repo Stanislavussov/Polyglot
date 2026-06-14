@@ -199,12 +199,14 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
   const classification = classifyInput(cleanWord);
   const isSentence = classification.type === "sentence";
+  let preflightMs = 0;
+  let dbLookupMs = 0;
   const preflightStart = Date.now();
   const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
   if (creditCost === null) {
     return;
   }
-  const preflightMs = Date.now() - preflightStart;
+  preflightMs = Date.now() - preflightStart;
 
   logger.debug(
     {
@@ -222,8 +224,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   // Show loading message
   const loadingMsg = await ctx.reply(t("translating", lang));
 
+  let model: string | undefined;
   try {
-    const model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
+    model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
 
     // Load user's template for template-aware output resolution (Task 32)
     const dbLookupStart = Date.now();
@@ -231,7 +234,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
     const outputConfig = resolveOutputConfig(userTpl, classification.type, cleanWord.length);
     const effectiveTemplate = resolveTemplate(userTpl);
-    const dbLookupMs = Date.now() - dbLookupStart;
+    dbLookupMs = Date.now() - dbLookupStart;
 
     // For sentences, skip dictionary context lookup (no learnable word to enrich)
     const lookupContextFn = isSentence ? async () => undefined : lookupContext;
@@ -353,9 +356,10 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         userId: ctx.user.id,
         requestType: "translate",
         preflightMs,
-        dbLookupMs: 0,
+        dbLookupMs,
         aiRequestMs: 0,
         totalMs,
+        modelId: model,
         sourceLang,
         targetLangs,
         inputType: classification.type,
