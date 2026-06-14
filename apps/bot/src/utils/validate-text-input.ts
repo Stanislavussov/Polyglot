@@ -21,6 +21,15 @@ const EMOJI_PATTERN =
   // biome-ignore lint/suspicious/noMisleadingCharacterClass: <fix>
   /[\p{Extended_Pictographic}\p{Emoji_Modifier}\u{FE0F}\u{FE0E}\u{200D}\u{20E3}\u{1F1E6}-\u{1F1FF}]/gu;
 
+export const MAX_TRANSLATE_INPUT_LENGTH = 500;
+
+export type TranslateInputValidationReason = "empty" | "emoji" | "command" | "digits" | "tooLong";
+
+export interface TranslateInputValidationResult {
+  valid: boolean;
+  reason?: TranslateInputValidationReason;
+}
+
 /**
  * Check whether a text message consists entirely of emoji characters
  * (with optional whitespace). Such messages cannot be translated.
@@ -39,6 +48,32 @@ export function isEmojiOnly(text: string): boolean {
 
   const stripped = trimmed.replace(EMOJI_PATTERN, "").replace(/\s+/g, "");
   return stripped.length === 0;
+}
+
+export function validateTranslatableText(text: string): TranslateInputValidationResult {
+  const trimmed = text.trim();
+
+  if (trimmed.length === 0) {
+    return { valid: false, reason: "empty" };
+  }
+
+  if (trimmed.length > MAX_TRANSLATE_INPUT_LENGTH) {
+    return { valid: false, reason: "tooLong" };
+  }
+
+  if (isEmojiOnly(trimmed)) {
+    return { valid: false, reason: "emoji" };
+  }
+
+  if (/^\/\S+/.test(trimmed)) {
+    return { valid: false, reason: "command" };
+  }
+
+  if (/^[\d\s.,:;+\-*/=()]+$/.test(trimmed) && /\d/.test(trimmed)) {
+    return { valid: false, reason: "digits" };
+  }
+
+  return { valid: true };
 }
 
 /**

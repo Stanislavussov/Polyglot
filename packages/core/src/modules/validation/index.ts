@@ -68,6 +68,17 @@ export function validate(
 
   // At this point raw is valid per schema — cast to inspectable shape
   const parsed = raw as Record<string, unknown>;
+  if (options?.nativeLang) {
+    const nativeMeaning = parsed.nativeMeaning;
+    if (typeof nativeMeaning !== "string" || nativeMeaning.trim().length === 0) {
+      allErrors.push({
+        rule: "schema",
+        message: "nativeMeaning is required when nativeLang is provided",
+        field: "nativeMeaning",
+      });
+    }
+  }
+
   const translations = parsed.translations as Record<string, Record<string, unknown>> | undefined;
 
   if (!translations || typeof translations !== "object") {
@@ -94,11 +105,24 @@ export function validate(
     // Skipped for sentences — sentence translations are naturally more similar
     // to originals and the "translation ≠ original" check is not meaningful.
     if (translationText && !isSentence) {
+      const isSameLanguageTarget = lang === options?.sourceLang;
+      const keepSameLanguageExpression = isSameLanguageTarget && sameExpression(original, translationText);
       const semanticResult = validateSemantic(original, translationText);
-      for (const err of semanticResult.errors) {
+      const semanticErrors = keepSameLanguageExpression
+        ? semanticResult.errors.filter((err) => err.message.includes("hallucination") || err.message.includes("empty"))
+        : semanticResult.errors;
+      for (const err of semanticErrors) {
         allErrors.push({
           ...err,
           field: `translations.${lang}.${err.field ?? "text"}`,
+        });
+      }
+
+      if (isSameLanguageTarget && !keepSameLanguageExpression) {
+        allErrors.push({
+          rule: "semantic",
+          message: `Same-language translation for "${lang}" must keep the original expression "${original}"`,
+          field: `translations.${lang}.text`,
         });
       }
     }
@@ -110,17 +134,6 @@ export function validate(
         allErrors.push({
           ...err,
           field: `translations.${lang}.${err.field ?? "text"}`,
-        });
-      }
-    }
-
-    const connotationWarning = langData.connotationWarning as string | null | undefined;
-    if (connotationWarning && options?.includeConnotationWarning !== false && options?.nativeLang) {
-      const warningLangResult = validateNativeConnotationWarning(connotationWarning, options.nativeLang);
-      for (const err of warningLangResult.errors) {
-        allErrors.push({
-          ...err,
-          field: `translations.${lang}.${err.field ?? "connotationWarning"}`,
         });
       }
     }
@@ -172,26 +185,10 @@ export function validate(
   };
 }
 
-function validateNativeConnotationWarning(warning: string, nativeLang: string): ValidationResult {
-  if (nativeLang !== "ru") {
-    return { valid: true, errors: [] };
-  }
+function sameExpression(original: string, translation: string): boolean {
+  return normalizeExpression(original) === normalizeExpression(translation);
+}
 
-  const hasCyrillic = /[А-Яа-яЁё]/u.test(warning);
-  const hasLetters = /\p{L}/u.test(warning);
-
-  if (!hasLetters || hasCyrillic) {
-    return { valid: true, errors: [] };
-  }
-
-  return {
-    valid: false,
-    errors: [
-      {
-        rule: "language",
-        message: "connotationWarning must be written in the user's native language: Russian",
-        field: "connotationWarning",
-      },
-    ],
-  };
+function normalizeExpression(value: string): string {
+  return value.trim().toLocaleLowerCase().replace(/\s+/g, " ");
 }

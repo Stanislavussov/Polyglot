@@ -4,7 +4,7 @@
  * Defines public types for notification scheduling, delivery,
  * and word suggestion payloads.
  */
-import type { DictionaryContext, NotificationType, NotificationUser } from "@polyglot/core";
+import type { DictionaryContext, GenerateObjectFn, NotificationType, NotificationUser } from "@polyglot/core";
 
 export type { NotificationType, NotificationUser };
 
@@ -23,6 +23,7 @@ export interface NotificationPayload {
 export interface SuggestedWord {
   original: string;
   emoji: string;
+  nativeMeaning?: string;
   translations: Record<string, string>; // lang code -> translation text
   /** Source of the word: 'srs' (from dictionary). */
   source?: NotificationType;
@@ -39,6 +40,7 @@ export interface VocabEntry {
   id: number;
   original: string;
   emoji: string | null;
+  nativeMeaning?: string | null;
   createdAt: Date;
   translations: Array<{
     targetLangId: number;
@@ -69,7 +71,7 @@ export interface NotificationServiceDeps {
   getLangCode?: (langId: number) => string | undefined;
 
   /** Generate typed object via AI (for contextual notifications). */
-  generateObject?: <T>(prompt: string, schema: any, model: string, options?: { userId?: number }) => Promise<T>;
+  generateObject?: GenerateObjectFn;
 
   /** AI model to use for contextual generation. */
   contextualModel?: string;

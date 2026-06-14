@@ -20,6 +20,7 @@ const sampleOutput: TranslateOutput = {
   original: "hello",
   sourceLang: "en",
   emoji: "👋",
+  nativeMeaning: "A greeting.",
   nativeSynonyms: [{ text: "привет" }],
   translations: {
     cs: {
@@ -63,6 +64,7 @@ describe("toVocabularyInput", () => {
     expect(result.sourceLangId).toBe(1);
     expect(result.inputType).toBe("word");
     expect(result.emoji).toBe("👋");
+    expect(result.nativeMeaning).toBe("A greeting.");
     expect(result.translations).toHaveLength(2);
   });
 

@@ -31,6 +31,9 @@ export function renderFlashCardFront(
   lines.push(esc(t("flashcardProgress", lang, { current: String(cardIndex), total: String(totalCards) })));
   lines.push("");
   lines.push(`${esc(word.emoji)} <b>${esc(word.original)}</b>`);
+  if (word.nativeMeaning) {
+    lines.push(esc(word.nativeMeaning));
+  }
   const flag = getLangFlag(word.sourceLang) ?? "🔤";
   lines.push(`<i>${esc(word.inputType)} · ${flag}</i>`);
   return lines.join("\n");
@@ -52,6 +55,9 @@ export function renderFlashCardBack(
   lines.push(esc(t("flashcardProgress", lang, { current: String(cardIndex), total: String(totalCards) })));
   lines.push("");
   lines.push(`${esc(word.emoji)} <b>${esc(word.original)}</b>`);
+  if (word.nativeMeaning) {
+    lines.push(esc(word.nativeMeaning));
+  }
   const srcFlag = getLangFlag(word.sourceLang) ?? "🔤";
   lines.push(`<i>${esc(word.inputType)} · ${srcFlag}</i>`);
   lines.push("");

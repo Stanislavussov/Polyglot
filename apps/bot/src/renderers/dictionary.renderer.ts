@@ -102,6 +102,9 @@ export function renderDictionaryEntry(
   const emoji = entry.emoji ?? "";
   const header = emoji ? `${emoji} <b>${esc(entry.original)}</b>` : `<b>${esc(entry.original)}</b>`;
   lines.push(header);
+  if (entry.nativeMeaning) {
+    lines.push(esc(entry.nativeMeaning));
+  }
 
   // Source language flag + input type
   const sourceLangCode = langResolver(entry.sourceLangId);
@@ -116,7 +119,8 @@ export function renderDictionaryEntry(
 
     // Translation header with transcription
     const transcriptionPart = tr.transcription ? ` [${esc(tr.transcription)}]` : "";
-    lines.push(`${flag} <b>${esc(tr.text)}</b>${transcriptionPart}`);
+    const codePart = langCode ? ` ${esc(langCode.toUpperCase())}:` : "";
+    lines.push(`${flag}${codePart} <b>${esc(tr.text)}</b>${transcriptionPart}`);
 
     // Details from JSONB
     const details = tr.details as VocabTranslationDetails | null;

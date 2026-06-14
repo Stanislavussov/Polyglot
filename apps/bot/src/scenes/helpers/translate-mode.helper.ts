@@ -42,6 +42,7 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
+import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
 /** Singleton lookup function — created once and reused. */
@@ -99,6 +100,20 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
   if (cleanWord.length === 0) {
     await ctx.reply(t("contextMarkerNeedsText", lang));
+    return;
+  }
+
+  const textValidation = validateTranslatableText(cleanWord);
+  if (!textValidation.valid) {
+    const reason = textValidation.reason ?? "empty";
+    const keyByReason = {
+      empty: "inputRejectedEmpty",
+      emoji: "emojiNotSupported",
+      command: "inputRejectedCommand",
+      digits: "inputRejectedDigits",
+      tooLong: "inputRejectedTooLong",
+    } as const;
+    await ctx.reply(t(keyByReason[reason], lang, { max: "500" }));
     return;
   }
 
@@ -295,7 +310,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
     if (isSentence) {
       // Sentence: compact card, regen-only keyboard, no Save/Skip, no pendingTranslation
-      let card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang)}`;
+      let card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`;
 
       // Show detected language when it differs from native
       if (detectedLang && detectedLang !== nativeLang) {
@@ -637,7 +652,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     const langCodes = Object.keys(updated.translations);
 
     if (isSentence) {
-      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang)}`;
+      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang, nativeLang)}`;
       const keyboard = buildSentenceKeyboard(langCodes, lang, msgId);
       await ctx.editMessageText(card, {
         reply_markup: keyboard,
@@ -794,7 +809,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     const langCodes = Object.keys(output.translations);
 
     if (isSentence) {
-      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang)}`;
+      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`;
       const sentMsg = await ctx.reply(card, { parse_mode: "HTML" });
       const sentenceKb = buildSentenceKeyboard(langCodes, lang, sentMsg.message_id);
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, sentMsg.message_id, { reply_markup: sentenceKb });

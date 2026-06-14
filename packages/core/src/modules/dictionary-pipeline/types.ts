@@ -103,6 +103,7 @@ export interface WordDisplayData {
   /** DB primary key — used to log reviews, link to saved entry */
   id: number;
   original: string;
+  nativeMeaning?: string;
   /** ISO 639-1 source language code (e.g. "en") */
   sourceLang: string;
   inputType: "word" | "phrase";
@@ -159,6 +160,7 @@ export interface PipelineTranslationRow {
 export interface PipelineEntry {
   id: number;
   original: string;
+  nativeMeaning?: string | null;
   sourceLangId: number;
   sourceLangCode: string;
   inputType: string;

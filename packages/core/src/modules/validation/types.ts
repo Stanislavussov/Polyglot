@@ -19,6 +19,8 @@ export interface ValidateOptions {
   includeConnotationWarning?: boolean;
   /** User's native language, used for native-language-only fields. */
   nativeLang?: string;
+  /** Source language, used to validate same-language learning blocks. */
+  sourceLang?: string;
 }
 
 /** Result of a validation check */

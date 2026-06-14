@@ -13,7 +13,7 @@ import {
   startScheduler,
   stopScheduler,
 } from "@polyglot/adapter-notifications";
-import { isSupported, logger, SettingsService, type SupportedLang, t } from "@polyglot/core";
+import { type GenerateObjectFn, isSupported, logger, SettingsService, type SupportedLang, t } from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
 import { resolveDefaultAIModel } from "../utils/ai-model.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
@@ -28,6 +28,7 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
         id: e.id,
         original: e.original,
         emoji: e.emoji,
+        nativeMeaning: e.nativeMeaning,
         createdAt: e.createdAt,
         translations: e.translations.map((tr) => ({
           targetLangId: tr.targetLangId,
@@ -39,9 +40,9 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
       const all = getAllLangs();
       return all.find((l) => l.id === langId)?.code;
     },
-    generateObject: async (prompt: string, schema: any, model: string, options?: { userId?: number }) => {
+    generateObject: ((prompt, schema, model, options) => {
       return generateObject(prompt, schema, model, options);
-    },
+    }) satisfies GenerateObjectFn,
     contextualModel,
   });
 

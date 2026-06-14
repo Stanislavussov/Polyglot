@@ -40,8 +40,9 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 - **`TranslationOutputConfig.includeConnotationWarning`**: New optional boolean to control connotation warnings in AI prompt and schema.
 - **`FULL_OUTPUT` preset**: `includeExamples` changed from `false` to `true`; `includeConnotationWarning: true` added. Interactive translations now show 3 example sentences per language.
 - **Other presets**: `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT`, `SENTENCE_OUTPUT` all gained `includeConnotationWarning: false`.
-- **Prompt builder**: Example instructions request native translations when `nativeLang` is provided. Connotation rules define `connotationWarning` as target-side metadata only; native-source input must not produce a source-word connotation explanation copied across target blocks.
+- **Prompt builder**: Example instructions request native translations when `nativeLang` is provided. Connotation rules define `connotationWarning` as target-side metadata only; native-source input must not produce a source-word connotation explanation copied across target blocks. Top-level `nativeMeaning` is requested whenever `nativeLang` is available and is written in the user's configured native language.
 - **Schema**: `exampleSchema` accepts optional/nullish `native`. `languageTranslationSchema` and `buildLanguageTranslationSchema` include optional `connotationWarning`.
+- **Validation**: Responses fail and retry when `nativeMeaning` is missing for native-language requests. Same-language target blocks must keep the original source expression, preventing source-language hallucinations such as Czech `kudlanka` being accepted as `klubko`.
 
 ## Boundary
 
@@ -129,6 +130,7 @@ interface TranslationRequest {
 
 interface TranslationResult {
   emoji: string;
+  nativeMeaning?: string;
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
 }
@@ -150,6 +152,7 @@ interface TranslateOutput {
   original: string;
   sourceLang: string;
   emoji: string;
+  nativeMeaning?: string;
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
   needsReview?: boolean;           // true when validation failed after all retries

@@ -69,6 +69,7 @@ export function toVocabularyInput(
     sourceLangId,
     inputType,
     emoji: output.emoji,
+    nativeMeaning: output.nativeMeaning,
     translations,
   };
 }

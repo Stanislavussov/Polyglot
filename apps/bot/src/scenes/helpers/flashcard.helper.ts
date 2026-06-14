@@ -46,6 +46,7 @@ function createPipelineDeps(ctx: BotContext): DictionaryPipelineDeps {
       return entries.map((e) => ({
         id: e.id,
         original: e.original,
+        nativeMeaning: e.nativeMeaning,
         sourceLangId: e.sourceLangId,
         sourceLangCode: e.sourceLangCode,
         inputType: e.inputType,

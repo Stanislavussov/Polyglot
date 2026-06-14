@@ -16,6 +16,7 @@ const mockLogger: Logger = {
 function makeValidResult(overrides?: Partial<TranslationResult>): TranslationResult {
   return {
     emoji: "👋",
+    nativeMeaning: "A greeting.",
     nativeSynonyms: [{ text: "привет" }],
     translations: {
       cs: {
@@ -53,6 +54,7 @@ describe("translate", () => {
     expect(result.original).toBe("hello");
     expect(result.sourceLang).toBe("en");
     expect(result.emoji).toBe("👋");
+    expect(result.nativeMeaning).toBeUndefined();
     expect(result.translations.cs.text).toBe("ahoj");
     expect(result.needsReview).toBeUndefined();
   });
@@ -251,6 +253,7 @@ describe("translateOne", () => {
 
   it("passes nativeLang and inputType through to translate()", async () => {
     const resultWithNativeExamples = makeValidResult({
+      nativeMeaning: "Приветствие.",
       translations: {
         cs: {
           text: "ahoj",
@@ -289,7 +292,7 @@ describe("translateOne", () => {
 
     const prompt = mockGenerate.mock.calls[0][0] as string;
     expect(prompt).toContain('"native"');
-    expect(prompt).toContain("translated into Russian");
+    expect(prompt).toContain("translation of the target example sentence into Russian");
     expect(prompt).toContain("same-language learning details/examples");
   });
 

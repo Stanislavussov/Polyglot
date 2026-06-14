@@ -131,6 +131,7 @@ export const vocabularyEntries = pgTable(
       .notNull(),
     inputType: text("input_type").$type<"word" | "phrase">().default("word").notNull(),
     emoji: text("emoji"),
+    nativeMeaning: text("native_meaning"),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

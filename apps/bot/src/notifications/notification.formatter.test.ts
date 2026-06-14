@@ -23,6 +23,7 @@ describe("formatNotificationMessage", () => {
     word: {
       original: "house",
       emoji: "🏠",
+      nativeMeaning: "A building where people live.",
       translations: { cs: "dům", ru: "дом" },
       source: "srs",
     },
@@ -59,8 +60,13 @@ describe("formatNotificationMessage", () => {
 
   it("renders translations with flag emojis", () => {
     const msg = formatNotificationMessage(srsPayload, "en");
-    expect(msg).toContain("🇨🇿 dům");
-    expect(msg).toContain("🇷🇺 дом");
+    expect(msg).toContain("🇨🇿 CS: dům");
+    expect(msg).toContain("🇷🇺 RU: дом");
+  });
+
+  it("renders persisted native meaning when available", () => {
+    const msg = formatNotificationMessage(srsPayload, "en");
+    expect(msg).toContain("A building where people live.");
   });
 
   it("uses fallback flag for unknown languages", () => {
@@ -74,7 +80,7 @@ describe("formatNotificationMessage", () => {
       message: "",
     };
     const msg = formatNotificationMessage(payload, "en");
-    expect(msg).toContain("🔤 test");
+    expect(msg).toContain("🔤 XX: test");
   });
 
   it("escapes HTML entities in original word", () => {
@@ -103,7 +109,7 @@ describe("buildNotificationKeyboard", () => {
   it("creates keyboard with Open dictionary and Skip buttons", () => {
     const kb = buildNotificationKeyboard("en");
     const buttons = kb.inline_keyboard.flat();
-    const cbData = buttons.map((b: any) => b.callback_data);
+    const cbData = buttons.map((b) => ("callback_data" in b ? b.callback_data : undefined));
     expect(cbData).toContain("notif:open");
     expect(cbData).toContain("notif:skip");
   });

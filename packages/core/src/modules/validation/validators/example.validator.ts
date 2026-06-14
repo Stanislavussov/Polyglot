@@ -23,8 +23,8 @@ export interface ExampleInput {
  */
 export function validateExamples(
   examples: ExampleInput[],
-  _word: string,
-  _expressionType?: ExpressionType,
+  word: string,
+  expressionType?: ExpressionType,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -47,11 +47,30 @@ export function validateExamples(
         field: `examples.${i}.target`,
       });
     }
+  }
 
-    // Word containment check removed — inflected forms, synonyms,
-    // and multi-word translations make this check too noisy
-    // (e.g. "chlebíček" → "chlebíčky", or model uses a synonym).
+  if (shouldValidateFirstExampleHeadword(word, expressionType)) {
+    const firstTarget = examples[0]?.target.toLocaleLowerCase() ?? "";
+    const normalizedWord = word.toLocaleLowerCase();
+    if (!firstTarget.includes(normalizedWord)) {
+      errors.push({
+        rule: "examples",
+        message: `First example should demonstrate the main translation "${word}"`,
+        field: "examples.0.target",
+      });
+    }
   }
 
   return { valid: errors.length === 0, errors };
+}
+
+function shouldValidateFirstExampleHeadword(word: string, expressionType?: ExpressionType): boolean {
+  if (expressionType === "idiomatic_equivalent") return false;
+
+  const trimmed = word.trim();
+  if (trimmed.length < 3) return false;
+  if (trimmed.includes(" ")) return false;
+  if (!/^[a-z]+$/i.test(trimmed)) return false;
+
+  return true;
 }
