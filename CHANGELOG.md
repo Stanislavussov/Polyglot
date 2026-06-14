@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Sentence translations (>6 words) can now be saved to the personal dictionary, removing the previous restriction that only allowed words and phrases. The database `text` columns (`vocabulary_entries.original` and `vocabulary_translations.text`) have no length limit, so the effective boundary is the existing 500-character input validation cap.
 - Admin users management now shows and updates each bot user's audience group.
 - Removed transcription feature from translation output, prompts, validation, and database schema.
 - Updated translation direction resolvers to exclude source language from targets, with guard against empty target arrays.
@@ -36,3 +37,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Agent implementation guidance now requires updating `CHANGELOG.md` after every implementation iteration.
 - Database-change guidance now requires `pnpm db:push` on `develop` after generated migrations, while keeping `pnpm db:migrate` CI/deploy-only.
 - Bot Docker builds now include `CHANGELOG.md` for the `/changes` command.
+- Added Task 62: Separate Deployment Environments (Prod/Dev/Testing) with environment-specific Docker Compose files, CI/CD workflows, and database isolation.
+- Added Task 63: Parameterize Bot by Environment (`production`, `development`, `testing`) including per-environment bot tokens, logging levels, error handling, and release announcement gating.
+- Added Task 64: Application Clustering into Core (bot), Management (admin-api + admin), and Data (migrations + scheduler) clusters with independent deploy scripts.

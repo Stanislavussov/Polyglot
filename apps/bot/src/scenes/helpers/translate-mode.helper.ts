@@ -31,7 +31,6 @@ import { InlineKeyboard } from "grammy";
 import { translationCounter, translationDuration } from "../../metrics.js";
 import {
   buildPostSaveKeyboard,
-  buildSentenceKeyboard,
   buildSourceLangKeyboard,
   buildTranslationKeyboard,
   type LangOption,
@@ -309,7 +308,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     const langCodes = Object.keys(output.translations);
 
     if (isSentence) {
-      // Sentence: compact card, regen-only keyboard, no Save/Skip, no pendingTranslation
+      // Sentence: compact card with Save/Skip/Regen keyboard
+      ctx.session.pendingTranslation = output;
+
       let card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`;
 
       // Show detected language when it differs from native
@@ -319,8 +320,10 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       }
 
       const sentMsg = await ctx.reply(card, { parse_mode: "HTML" });
-      const sentenceKb = buildSentenceKeyboard(langCodes, lang, sentMsg.message_id);
-      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, sentMsg.message_id, { reply_markup: sentenceKb });
+      const keyboard = buildTranslationKeyboard(langCodes, classification.type, lang, sentMsg.message_id);
+      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, sentMsg.message_id, { reply_markup: keyboard });
+
+      ctx.session.pendingCardMsgId = sentMsg.message_id;
 
       ctx.session.translationMap = ctx.session.translationMap ?? {};
       ctx.session.translationMap[String(sentMsg.message_id)] = {
@@ -328,9 +331,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         inputType: classification.type,
         contextHint,
       };
-
-      ctx.session.pendingTranslation = undefined;
-      ctx.session.pendingCardMsgId = undefined;
     } else {
       // Word/phrase: full card with Save/Skip/Regen keyboard
       ctx.session.pendingTranslation = output;
@@ -344,12 +344,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
       const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
 
-      const keyboard = buildTranslationKeyboard(
-        langCodes,
-        classification.type as "word" | "phrase",
-        lang,
-        cardMsg.message_id,
-      );
+      const keyboard = buildTranslationKeyboard(langCodes, classification.type, lang, cardMsg.message_id);
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
       ctx.session.pendingCardMsgId = cardMsg.message_id;
@@ -443,7 +438,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const vocabInput = toVocabularyInput(
     output,
     sourceLangId,
-    (inputType as "word" | "phrase") ?? "word",
+    (inputType as "word" | "phrase" | "sentence") ?? "word",
     (code) => ctx.services.languageCache.getLang(code)?.id ?? null,
   );
 
@@ -650,23 +645,25 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
 
     const langCodes = Object.keys(updated.translations);
 
-    if (isSentence) {
-      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang, nativeLang)}`;
-      const keyboard = buildSentenceKeyboard(langCodes, lang, msgId);
+    if (entry.savedWordId) {
+      const card = isSentence
+        ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang, nativeLang)}\n\n${t("savedToDict", lang)}`
+        : `${renderTranslation(updated, lang, effectiveTemplate.fields, nativeLang)}\n\n${t("savedToDict", lang)}`;
+      const keyboard = buildPostSaveKeyboard(langCodes, lang, msgId);
       await ctx.editMessageText(card, {
         reply_markup: keyboard,
         parse_mode: "HTML",
       });
-    } else if (entry.savedWordId) {
-      const card = `${renderTranslation(updated, lang, effectiveTemplate.fields, nativeLang)}\n\n${t("savedToDict", lang)}`;
-      const keyboard = buildPostSaveKeyboard(langCodes, lang, msgId);
+    } else if (isSentence) {
+      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang, nativeLang)}`;
+      const keyboard = buildTranslationKeyboard(langCodes, inputType ?? "word", lang, msgId);
       await ctx.editMessageText(card, {
         reply_markup: keyboard,
         parse_mode: "HTML",
       });
     } else {
       const card = renderTranslation(updated, lang, effectiveTemplate.fields, nativeLang);
-      const keyboard = buildTranslationKeyboard(langCodes, (inputType as "word" | "phrase") ?? "word", lang, msgId);
+      const keyboard = buildTranslationKeyboard(langCodes, inputType ?? "word", lang, msgId);
       await ctx.editMessageText(card, {
         reply_markup: keyboard,
         parse_mode: "HTML",
@@ -808,10 +805,14 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     const langCodes = Object.keys(output.translations);
 
     if (isSentence) {
+      ctx.session.pendingTranslation = output;
+
       const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`;
       const sentMsg = await ctx.reply(card, { parse_mode: "HTML" });
-      const sentenceKb = buildSentenceKeyboard(langCodes, lang, sentMsg.message_id);
-      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, sentMsg.message_id, { reply_markup: sentenceKb });
+      const keyboard = buildTranslationKeyboard(langCodes, classification.type, lang, sentMsg.message_id);
+      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, sentMsg.message_id, { reply_markup: keyboard });
+
+      ctx.session.pendingCardMsgId = sentMsg.message_id;
 
       ctx.session.translationMap = ctx.session.translationMap ?? {};
       ctx.session.translationMap[String(sentMsg.message_id)] = {
@@ -819,21 +820,13 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
         inputType: classification.type,
         contextHint: pendingContextHint,
       };
-
-      ctx.session.pendingTranslation = undefined;
-      ctx.session.pendingCardMsgId = undefined;
     } else {
       ctx.session.pendingTranslation = output;
 
       const card = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang);
       const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
 
-      const keyboard = buildTranslationKeyboard(
-        langCodes,
-        classification.type as "word" | "phrase",
-        lang,
-        cardMsg.message_id,
-      );
+      const keyboard = buildTranslationKeyboard(langCodes, classification.type, lang, cardMsg.message_id);
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
       ctx.session.pendingCardMsgId = cardMsg.message_id;

@@ -212,7 +212,7 @@ export function buildSentenceKeyboard(langCodes: string[], _interfaceLang?: stri
 export function buildTranslationKeyboard(
   langCodes: string[],
   // biome-ignore lint/correctness/noUnusedFunctionParameters: <temp fix>
-  inputType: "word" | "phrase",
+  inputType: "word" | "phrase" | "sentence",
   interfaceLang?: string,
   msgId?: number,
 ): InlineKeyboard {

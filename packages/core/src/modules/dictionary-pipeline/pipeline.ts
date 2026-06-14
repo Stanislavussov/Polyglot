@@ -33,7 +33,7 @@ function applyFilters(entries: PipelineEntry[], config: DictionaryWordConfig): P
   // inputType filter
   if (filter.inputType && filter.inputType.length > 0) {
     const allowed = new Set(filter.inputType);
-    result = result.filter((e) => allowed.has(e.inputType as "word" | "phrase"));
+    result = result.filter((e) => allowed.has(e.inputType as "word" | "phrase" | "sentence"));
   }
 
   // sourceLangId filter
@@ -183,7 +183,7 @@ function buildDisplayData(entry: PipelineEntry, config: DictionaryWordConfig): W
     original: entry.original,
     ...(entry.nativeMeaning ? { nativeMeaning: entry.nativeMeaning } : {}),
     sourceLang: entry.sourceLangCode,
-    inputType: entry.inputType as "word" | "phrase",
+    inputType: entry.inputType as "word" | "phrase" | "sentence",
     emoji: entry.emoji ?? "📝",
     createdAt: entry.createdAt,
     translations,

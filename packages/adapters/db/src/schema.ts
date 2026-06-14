@@ -129,7 +129,7 @@ export const vocabularyEntries = pgTable(
     sourceLangId: integer("source_lang_id")
       .references(() => languages.id)
       .notNull(),
-    inputType: text("input_type").$type<"word" | "phrase">().default("word").notNull(),
+    inputType: text("input_type").$type<"word" | "phrase" | "sentence">().default("word").notNull(),
     emoji: text("emoji"),
     nativeMeaning: text("native_meaning"),
     isActive: boolean("is_active").default(true).notNull(),

@@ -18,7 +18,6 @@ import {
 } from "@polyglot/core";
 import {
   buildPostSaveKeyboard,
-  buildSentenceKeyboard,
   buildTranslationKeyboard,
   renderSentenceTranslation,
   renderTranslation,
@@ -57,16 +56,12 @@ export async function handleRegenLoop(
   const renderCard = isSentence
     ? (o: TranslateOutput, l: SupportedLang) => renderSentenceTranslation(o, l, nativeLang)
     : (o: TranslateOutput, l: SupportedLang) => renderTranslation(o, l, effectiveTemplate.fields, nativeLang);
-  const buildKeyboard = isSentence
-    ? buildSentenceKeyboard
-    : (codes: string[], l: SupportedLang) =>
-        buildTranslationKeyboard(codes, (inputType as "word" | "phrase") ?? "word", l);
+  const buildKeyboard = (codes: string[], l: SupportedLang) => buildTranslationKeyboard(codes, inputType ?? "word", l);
 
   let card = renderCard(current, lang);
   let keyboard = buildKeyboard(langCodes, lang);
 
-  // For sentences, only support regen — no save/skip
-  const callbackPattern = isSentence ? /^tr:regen:.+$/ : /^tr:(save|skip|regen:.+)$/;
+  const callbackPattern = /^tr:(save|skip|regen:.+)$/;
 
   while (true) {
     const resp = await conversation.waitUntil((ctx) => {
@@ -81,7 +76,7 @@ export async function handleRegenLoop(
     }
     const data = resp.callbackQuery.data;
 
-    if (!isSentence && data === "tr:save") {
+    if (data === "tr:save") {
       // FEAT-30: FK resolution + dedup detection + sanitize
       const sourceLangEntry = getLang(current.sourceLang);
       const sourceLangId = sourceLangEntry?.id;
@@ -106,7 +101,7 @@ export async function handleRegenLoop(
       const vocabInput = toVocabularyInput(
         current,
         sourceLangId,
-        (inputType as "word" | "phrase") ?? "word",
+        inputType ?? "word",
         (code) => getLang(code)?.id ?? null,
       );
       await conversation.external(async () => {
@@ -120,7 +115,7 @@ export async function handleRegenLoop(
       return;
     }
 
-    if (!isSentence && data === "tr:skip") {
+    if (data === "tr:skip") {
       await resp.editMessageText(renderCard(current, lang), {
         parse_mode: "HTML",
       });
