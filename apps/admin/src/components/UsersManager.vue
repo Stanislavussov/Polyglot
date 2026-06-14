@@ -18,6 +18,7 @@
           <tr>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">User</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Telegram ID</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Audience Group</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Plan</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Languages</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Joined</th>
@@ -28,6 +29,18 @@
           <tr v-for="user in list" :key="user.id" class="transition-colors hover:bg-gray-50">
             <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">{{ userLabel(user) }}</td>
             <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-700">{{ user.telegramId }}</td>
+            <td class="whitespace-nowrap px-4 py-3 text-sm">
+              <select
+                :value="user.audienceGroup"
+                class="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm capitalize text-gray-700 shadow-sm transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-wait disabled:opacity-60"
+                :disabled="audienceUpdatingId === user.id"
+                @change="updateAudienceGroup(user, $event)"
+              >
+                <option v-for="option in audienceGroupOptions" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </td>
             <td class="whitespace-nowrap px-4 py-3 text-sm">
               <span
                 class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize"
@@ -94,8 +107,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import { type PlanLimitConfig, type User, rateLimits, users } from "../lib/api";
-import { subscriptionPlanSchema, zodErrorMessage } from "../lib/validation";
+import { type AudienceGroup, type PlanLimitConfig, type User, rateLimits, users } from "../lib/api";
+import { audienceGroupSchema, subscriptionPlanSchema, zodErrorMessage } from "../lib/validation";
 import AlertMessage from "./ui/AlertMessage.vue";
 import AppButton from "./ui/AppButton.vue";
 import AppModal from "./ui/AppModal.vue";
@@ -111,12 +124,18 @@ const planUser = ref<User | null>(null);
 const selectedPlan = ref("");
 const planError = ref("");
 const plans = ref<PlanLimitConfig[]>([]);
+const audienceUpdatingId = ref<number | null>(null);
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / 20)));
 const planOptions = computed(() =>
   plans.value.filter((plan) => plan.isActive).map((plan) => ({ value: plan.name, label: plan.label })),
 );
+const audienceGroupOptions = [
+  { value: "admin", label: "Admin" },
+  { value: "tester", label: "Tester" },
+  { value: "product", label: "Product" },
+] as const satisfies readonly { value: AudienceGroup; label: string }[];
 
 async function loadUsers(): Promise<void> {
   loading.value = true;
@@ -180,6 +199,34 @@ async function savePlan(): Promise<void> {
     await loadUsers();
   } catch (err) {
     planError.value = err instanceof Error ? err.message : "Failed to update plan";
+  }
+}
+
+async function updateAudienceGroup(user: User, event: Event): Promise<void> {
+  const select = event.target;
+  if (!(select instanceof HTMLSelectElement)) return;
+
+  const parsed = audienceGroupSchema.safeParse(select.value);
+  if (!parsed.success) {
+    select.value = user.audienceGroup;
+    error.value = zodErrorMessage(parsed.error);
+    return;
+  }
+
+  const previous = user.audienceGroup;
+  if (parsed.data === previous) return;
+
+  audienceUpdatingId.value = user.id;
+  error.value = "";
+  user.audienceGroup = parsed.data;
+  try {
+    await users.changeAudienceGroup(user.id, parsed.data);
+  } catch {
+    user.audienceGroup = previous;
+    select.value = previous;
+    error.value = "Failed to update audience group";
+  } finally {
+    audienceUpdatingId.value = null;
   }
 }
 

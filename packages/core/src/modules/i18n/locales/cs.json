@@ -183,6 +183,7 @@
   "notifPaused": "😴 Vaše denní notifikace byly pozastaveny kvůli 14 dnům neaktivity. Použijte /settings pro opětovné zapnutí.",
   "notifReEngagement": "👋 Dlouho jsme vás neviděli! Vaše notifikace byly pozastaveny. Vraťte se a použijte /settings pro jejich zapnutí.",
   "cmdDescReport": "Nahlásit chybu nebo navrhnout funkci",
+  "cmdDescChanges": "Zobrazit dodané změny produktu",
   "reportTitle": "🐛 Nahlásit problém",
   "reportChooseType": "Co chcete nahlásit?",
   "reportBug": "🐛 Chyba",

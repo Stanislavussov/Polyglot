@@ -5,10 +5,20 @@ description: Testing and documentation conventions for all technical agents. Cov
 
 # Development Standards
 
-## ⚠️ Mandatory Quality Gate — Run After EVERY Iteration
+## ⚠️ Mandatory Changelog + Quality Gate — Run After EVERY Iteration
 
-**Every subagent MUST run the full quality gate after each round of code changes, no matter how small.**
+**Every subagent MUST update the changelog and run the full quality gate after each round of code changes, no matter how small.**
 No exceptions. Do not skip steps. Do not defer to "later". Fix issues before moving on.
+
+### 0. Changelog
+
+```bash
+$EDITOR CHANGELOG.md
+```
+
+- Keep user-facing and operational changes under `## [Unreleased]`
+- Use Keep a Changelog sections such as `Added`, `Changed`, `Fixed`, and `Removed`
+- Update the changelog during the same implementation iteration as the code change
 
 Run these commands **in order** after every code change, including small features:
 
@@ -83,7 +93,7 @@ Do NOT proceed to documentation updates or mark tasks done until all five pass.
 
 All database schema changes and migration generation **must be done through `drizzle-kit`**. Never modify migration files manually or interact with the database directly.
 
-Agents must not run production-style migrations from a local run. Migration application via `pnpm db:migrate` belongs to the deployment pipeline unless the user makes an explicit, separate request for that exact command.
+Agents must not run production-style migrations from a local run. Migration application via `pnpm db:migrate` belongs only inside CI/deploy pipelines such as GitHub Actions or GitLab CI, unless the user makes an explicit, separate request for that exact command.
 
 ### Allowed commands
 
@@ -100,13 +110,14 @@ pnpm db:check
 
 ### Rules
 
-- Schema changes flow for agents: edit `packages/adapters/db/src/schema.ts` → run `pnpm db:generate` → review generated migrations → use `pnpm db:push` when the local/dev database needs the new schema
+- Schema changes flow for agents: edit `packages/adapters/db/src/schema.ts` → run `pnpm db:generate` → review generated migrations
+- When database structure changes on the `develop` branch, run `pnpm db:push` after `pnpm db:generate` to update the local/dev database
 - Never hand-edit files in `packages/adapters/db/drizzle/`
 - Never use raw SQL or external tools to modify the database structure
 - Always commit generated migration files alongside the schema changes
 - `pnpm db:push` is allowed and often necessary for local/dev databases
 - Do **not** run `pnpm db:migrate` locally as an agent
-- Production/staging migration application must happen through the deployment pipeline
+- Production/staging migration application via `pnpm db:migrate` must happen only inside CI/deploy pipelines such as GitHub Actions or GitLab CI
 
 ## Documentation Updates
 

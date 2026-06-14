@@ -1,4 +1,5 @@
 export type SubscriptionPlan = string;
+export type AudienceGroup = "admin" | "tester" | "product";
 
 /**
  * Port interface for UserRepository.
@@ -7,6 +8,7 @@ export interface User {
   id: number;
   telegramId: number;
   username: string | null;
+  audienceGroup: AudienceGroup;
   subscriptionPlan: SubscriptionPlan;
   onboardingStep: number;
   onboarded: boolean;
@@ -17,6 +19,7 @@ export interface User {
 export interface NewUser {
   telegramId: number;
   username?: string | null;
+  audienceGroup?: AudienceGroup;
 }
 
 export interface UserLanguageSettings {
@@ -52,5 +55,9 @@ export interface UserRepository {
     prefs: { notificationEnabled?: boolean; notificationTime?: string; notificationType?: string },
   ): Promise<void>;
   updateLastInteraction(userId: number): Promise<void>;
+  listActiveByAudienceGroups(audienceGroups: AudienceGroup[]): Promise<User[]>;
+  updateAudienceGroup(userId: number, audienceGroup: AudienceGroup): Promise<User | null>;
+  hasReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<boolean>;
+  recordReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<void>;
   markOnboarded(userId: number): Promise<void>;
 }

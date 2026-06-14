@@ -1,10 +1,21 @@
-import { getDb, rateLimitPlanRepository, userLanguageSettings, users } from "@polyglot/adapter-db";
+import {
+  AUDIENCE_GROUPS,
+  getDb,
+  rateLimitPlanRepository,
+  userLanguageSettings,
+  userRepository,
+  users,
+} from "@polyglot/adapter-db";
 import { eq, ilike, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 
 const updatePlanSchema = z.object({
   plan: z.string().min(1).max(50),
+});
+
+const updateAudienceGroupSchema = z.object({
+  audienceGroup: z.enum(AUDIENCE_GROUPS),
 });
 
 export async function userRoutes(app: FastifyInstance) {
@@ -34,6 +45,7 @@ export async function userRoutes(app: FastifyInstance) {
         id: users.id,
         telegramId: users.telegramId,
         username: users.username,
+        audienceGroup: users.audienceGroup,
         subscriptionPlan: users.subscriptionPlan,
         isActive: users.isActive,
         createdAt: users.createdAt,
@@ -79,6 +91,27 @@ export async function userRoutes(app: FastifyInstance) {
     });
 
     if (updated.length === 0) {
+      return reply.status(404).send({ error: "User not found" });
+    }
+
+    return { success: true };
+  });
+
+  app.put("/users/:id/audience-group", async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as { id: string };
+    const parsed = updateAudienceGroupSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.status(400).send({ error: "Invalid audience group" });
+    }
+
+    const userId = Number.parseInt(id, 10);
+    if (!Number.isInteger(userId)) {
+      return reply.status(400).send({ error: "Invalid user id" });
+    }
+
+    const updated = await userRepository.updateAudienceGroup(userId, parsed.data.audienceGroup);
+
+    if (!updated) {
       return reply.status(404).send({ error: "User not found" });
     }
 

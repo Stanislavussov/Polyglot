@@ -186,6 +186,7 @@ export type I18nKey =
   | "notifPaused"
   | "notifReEngagement"
   | "cmdDescReport"
+  | "cmdDescChanges"
   | "reportTitle"
   | "reportChooseType"
   | "reportBug"

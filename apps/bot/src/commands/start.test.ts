@@ -33,7 +33,12 @@ vi.mock("@polyglot/infra", () => ({
   logger: mockLogger,
 }));
 
+vi.mock("./commands.js", () => ({
+  setUserCommands: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { userRepository } from "@polyglot/adapter-db";
+import { setUserCommands } from "./commands.js";
 
 const repo = vi.mocked(userRepository);
 
@@ -48,11 +53,13 @@ function createMockCtx(overrides: { onboarded?: boolean; userId?: number } = {})
   return {
     from: { id: overrides.userId ?? 123456789 },
     chat: { id: 123456789 },
+    api: {},
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     user: {
       id: 1,
       telegramId: overrides.userId ?? 123456789,
+      audienceGroup: "tester",
       onboarded: overrides.onboarded ?? false,
     },
     conversation: {
@@ -72,6 +79,7 @@ describe("startCommand", () => {
     await startCommand(ctx);
 
     expect(ctx.session.activeMode).toBe("translate");
+    expect(setUserCommands).toHaveBeenCalledWith(ctx.api, 123456789, "en", "tester");
     expect(ctx.reply).toHaveBeenCalledWith("[welcomeBack]");
   });
 

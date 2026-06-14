@@ -1,15 +1,26 @@
-import type { NewUser, SubscriptionPlan, User, UserLanguageSettings } from "@polyglot/core";
-import { eq } from "drizzle-orm";
+import type { AudienceGroup, NewUser, SubscriptionPlan, User, UserLanguageSettings } from "@polyglot/core";
+import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "../connection.js";
-import { userLanguageSettings, users } from "../schema.js";
+import { releaseAnnouncementDeliveries, userLanguageSettings, users } from "../schema.js";
 
-export type { NewUser, SubscriptionPlan, User, UserLanguageSettings };
+export type { AudienceGroup, NewUser, SubscriptionPlan, User, UserLanguageSettings };
 
 /** Internal insert type for Drizzle — kept local to avoid leaking DB-specific inference. */
 type InsertUserLanguageSettings = typeof userLanguageSettings.$inferInsert;
 
 /** Maximum number of learning languages per user (BRD §5, §12). */
 export const MAX_LEARNING_LANGS = 4;
+export const AUDIENCE_GROUPS = ["admin", "tester", "product"] as const satisfies readonly AudienceGroup[];
+
+export function isAudienceGroup(value: string): value is AudienceGroup {
+  return AUDIENCE_GROUPS.includes(value as AudienceGroup);
+}
+
+function assertAudienceGroup(value: AudienceGroup): void {
+  if (!isAudienceGroup(value)) {
+    throw new Error(`Invalid audience group: ${value}`);
+  }
+}
 
 export const userRepository = {
   /** Find a user by their Telegram ID. */
@@ -165,6 +176,61 @@ export const userRepository = {
       .update(userLanguageSettings)
       .set({ lastInteractionAt: new Date(), updatedAt: new Date() })
       .where(eq(userLanguageSettings.userId, userId));
+  },
+
+  /** List active bot users by audience group. */
+  async listActiveByAudienceGroups(audienceGroups: AudienceGroup[]): Promise<User[]> {
+    for (const audienceGroup of audienceGroups) {
+      assertAudienceGroup(audienceGroup);
+    }
+    if (audienceGroups.length === 0) return [];
+
+    const db = getDb();
+    return db
+      .select()
+      .from(users)
+      .where(and(eq(users.isActive, true), inArray(users.audienceGroup, audienceGroups)));
+  },
+
+  /** Update a bot user's release announcement audience group. */
+  async updateAudienceGroup(userId: number, audienceGroup: AudienceGroup): Promise<User | null> {
+    assertAudienceGroup(audienceGroup);
+    const db = getDb();
+    const rows = await db.update(users).set({ audienceGroup }).where(eq(users.id, userId)).returning();
+    return rows[0] ?? null;
+  },
+
+  /** Check if a release announcement was already delivered to one user/group. */
+  async hasReleaseAnnouncementDelivery(
+    releaseId: string,
+    audienceGroup: AudienceGroup,
+    userId: number,
+  ): Promise<boolean> {
+    assertAudienceGroup(audienceGroup);
+    const db = getDb();
+    const rows = await db
+      .select({ userId: releaseAnnouncementDeliveries.userId })
+      .from(releaseAnnouncementDeliveries)
+      .where(
+        and(
+          eq(releaseAnnouncementDeliveries.releaseId, releaseId),
+          eq(releaseAnnouncementDeliveries.audienceGroup, audienceGroup),
+          eq(releaseAnnouncementDeliveries.userId, userId),
+        ),
+      )
+      .limit(1);
+    return rows.length > 0;
+  },
+
+  /** Record a successful release announcement delivery. */
+  async recordReleaseAnnouncementDelivery(
+    releaseId: string,
+    audienceGroup: AudienceGroup,
+    userId: number,
+  ): Promise<void> {
+    assertAudienceGroup(audienceGroup);
+    const db = getDb();
+    await db.insert(releaseAnnouncementDeliveries).values({ releaseId, audienceGroup, userId }).onConflictDoNothing();
   },
 
   /** Mark user as onboarded (3-step flow per BRD §5). */

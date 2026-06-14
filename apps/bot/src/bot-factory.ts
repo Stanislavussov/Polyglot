@@ -1,6 +1,7 @@
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { logger } from "@polyglot/core";
 import { Bot, type NextFunction, type StorageAdapter, session } from "grammy";
+import { changesCommand } from "./commands/changes.js";
 import { setBotCommands } from "./commands/commands.js";
 import { startCommand } from "./commands/start.js";
 import { createContainer } from "./container.js";
@@ -179,6 +180,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.command("flashcard", handleFlashcardCommand);
   bot.command("review", handleReviewCommand);
   bot.command("settings", handleSettingsCommand);
+  bot.command("changes", changesCommand);
   bot.command("report", async (ctx) => {
     await ctx.conversation.enter("handleReportIssue");
   });

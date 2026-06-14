@@ -47,6 +47,9 @@ COPY packages/adapters/notifications/package.json packages/adapters/notification
 
 RUN pnpm install --frozen-lockfile --prod
 
+# Runtime bot command reads delivered changes from the changelog.
+COPY CHANGELOG.md ./
+
 # Copy built artifacts from build stage
 COPY --from=build /app/apps/bot/dist apps/bot/dist
 COPY --from=build /app/packages/core/dist packages/core/dist

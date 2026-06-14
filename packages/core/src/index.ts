@@ -23,6 +23,7 @@ export type {
   TranslationRequestRepository,
 } from "./ports/translation-request.repository.js";
 export type {
+  AudienceGroup,
   NewUser,
   SubscriptionPlan,
   User,

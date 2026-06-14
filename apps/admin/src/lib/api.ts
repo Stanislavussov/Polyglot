@@ -275,10 +275,13 @@ export const presets = {
 };
 
 // Users
+export type AudienceGroup = "admin" | "tester" | "product";
+
 export interface User {
   id: number;
   telegramId: number;
   username: string | null;
+  audienceGroup: AudienceGroup;
   subscriptionPlan: string;
   isActive: boolean;
   createdAt: string;
@@ -302,6 +305,8 @@ export const users = {
     return get<UsersResponse>(`/api/users?${params}`);
   },
   changePlan: (id: number, plan: string) => put<void>(`/api/users/${id}/plan`, { plan }),
+  changeAudienceGroup: (id: number, audienceGroup: AudienceGroup) =>
+    put<void>(`/api/users/${id}/audience-group`, { audienceGroup }),
 };
 
 export type IssueType = "bug" | "suggestion" | "other";

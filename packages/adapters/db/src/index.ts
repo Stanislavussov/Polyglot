@@ -62,13 +62,19 @@ export { translationRequestRepository } from "./repositories/translation-request
 export type { SavedTranslationTemplate } from "./repositories/translation-template.repository.js";
 export { translationTemplateRepository } from "./repositories/translation-template.repository.js";
 export type {
+  AudienceGroup,
   NewUser,
   SubscriptionPlan,
   User,
   UserLanguageSettings,
 } from "./repositories/user.repository.js";
 // Re-export repositories and types
-export { MAX_LEARNING_LANGS, userRepository } from "./repositories/user.repository.js";
+export {
+  AUDIENCE_GROUPS,
+  isAudienceGroup,
+  MAX_LEARNING_LANGS,
+  userRepository,
+} from "./repositories/user.repository.js";
 export type {
   CreateVocabularyInput,
   UpdateTranslationData,
@@ -82,7 +88,13 @@ export { vocabularyRepository } from "./repositories/vocabulary.repository.js";
 export { wordContextRepository } from "./repositories/word-context.repository.js";
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
-export type { IssueStatus, IssueType, NotificationHistory, ReportedIssue } from "./schema.js";
+export type {
+  IssueStatus,
+  IssueType,
+  NotificationHistory,
+  ReleaseAnnouncementDelivery,
+  ReportedIssue,
+} from "./schema.js";
 export * from "./schema.js";
 export { notificationHistory } from "./schema.js";
 export { settingsAdapter } from "./settings-adapter.js";

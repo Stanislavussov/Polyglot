@@ -81,7 +81,7 @@ const DEFAULT_SETTINGS = {
 /** Create a minimal mock BotContext */
 function createMockCtx(callbackData?: string) {
   return {
-    user: { id: 1, subscriptionPlan: "free" },
+    user: { id: 1, audienceGroup: "tester", subscriptionPlan: "free" },
     session: { activeMode: "translate" },
     from: { id: 12345 },
     chat: { id: 12345 },
@@ -304,7 +304,7 @@ describe("handleSetIfaceSelectCallback", () => {
     await handleSetIfaceSelectCallback(ctx);
 
     expect(mockUserRepository.updateInterfaceLang).toHaveBeenCalledWith(1, "ru");
-    expect(setUserCommands).toHaveBeenCalledWith(ctx.api, 12345, "ru");
+    expect(setUserCommands).toHaveBeenCalledWith(ctx.api, 12345, "ru", "tester");
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         text: expect.stringContaining("🇷🇺 Русский"),

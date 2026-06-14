@@ -3,6 +3,7 @@ name: Deploy to VPS
 on:
   push:
     branches: [master]
+  workflow_dispatch:
 
 env:
   REGISTRY: docker.io
@@ -78,6 +79,29 @@ jobs:
         run: |
           cp deploy/docker-compose.yml ./docker-compose.yml
 
+          RELEASE_ANNOUNCEMENT_BASE64="$(python - <<'PY'
+          from pathlib import Path
+          import base64
+
+          text = Path("CHANGELOG.md").read_text(encoding="utf-8")
+          lines = text.splitlines()
+          in_unreleased = False
+          collected = []
+          for line in lines:
+              if line.startswith("## [Unreleased]"):
+                  in_unreleased = True
+                  continue
+              if in_unreleased and line.startswith("## ["):
+                  break
+              if in_unreleased:
+                  collected.append(line)
+
+          message = "\n".join(collected).strip()
+          if message:
+              print(base64.b64encode(message.encode("utf-8")).decode("ascii"))
+          PY
+          )"
+
           echo "BOT_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-bot:${{ github.sha }}" >> .env
           echo "MIGRATE_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot:migrate-${{ github.sha }}" >> .env
           echo "ADMIN_API_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ github.sha }}" >> .env
@@ -89,6 +113,9 @@ jobs:
           echo "ADMIN_PANEL_URL=https://${{ secrets.ADMIN_PANEL_DOMAIN }}" >> .env
           echo "PUBLIC_API_URL=https://${{ secrets.ADMIN_API_DOMAIN }}" >> .env
           echo "REPOSITORY=${{ secrets.REPOSITORY }}" >> .env
+          echo "RELEASE_ID=${{ github.sha }}" >> .env
+          echo "RELEASE_AUDIENCE_GROUPS=admin,tester" >> .env
+          echo "RELEASE_ANNOUNCEMENT_BASE64=${RELEASE_ANNOUNCEMENT_BASE64}" >> .env
 
       - name: Copy Compose and Env to VPS
         uses: appleboy/scp-action@v1.0.0
@@ -118,5 +145,11 @@ jobs:
             docker compose run --rm admin-api node apps/admin-api/dist/seed.js
 
             docker compose up -d --remove-orphans
+
+            if grep -q '^RELEASE_ANNOUNCEMENT_BASE64=.' .env; then
+              docker compose run --rm --no-deps bot node apps/bot/dist/release-announcement.cli.js
+            else
+              echo "no announcement content"
+            fi
 
             docker image prune -f
