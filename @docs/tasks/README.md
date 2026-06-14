@@ -43,6 +43,14 @@
 | 56  | [Docker Compose Build](./56-docker-compose-build.md) | ✅ Done (files in `deploy/`) | ✅ Done |
 | 61  | [Restart-Safe Bot Interactions & Deploy Continuity](./61-restart-safe-bot-interactions.md) | 🔲 To Do | 🔴 Critical |
 
+## Infrastructure — Deployment
+
+| #   | Task                                              | Status     | Priority |
+| --- | ------------------------------------------------- | ---------- | -------- |
+| 62  | [Separate Deployment Environments](./62-separate-deployment-environments.md) | 🔲 To Do | 🔴 Critical |
+| 63  | [Parameterize Bot by Environment](./63-parameterize-bot-by-environment.md) | 🔲 To Do | 🔴 Critical |
+| 64  | [Application Clustering](./64-application-clustering.md) | 🔲 To Do | 🔴 Critical |
+
 ## Finished
 
 | #   | Task                                              |

@@ -35,7 +35,7 @@ export type LangResolver = (code: string) => number | null;
 export function toVocabularyInput(
   output: TranslateOutput,
   sourceLangId: number,
-  inputType: "word" | "phrase",
+  inputType: "word" | "phrase" | "sentence",
   langResolver: LangResolver,
 ): CreateVocabularyInput {
   const translations: CreateVocabularyInput["translations"] = [];

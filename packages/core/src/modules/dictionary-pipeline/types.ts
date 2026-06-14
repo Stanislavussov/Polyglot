@@ -28,7 +28,7 @@ export type WordSelectionStrategy =
 /** Filters applied before strategy selects words */
 export interface WordFilter {
   /** Only include words of these input types */
-  inputType?: Array<"word" | "phrase">;
+  inputType?: Array<"word" | "phrase" | "sentence">;
   /** Only include words with this source language ID */
   sourceLangId?: number;
   /** Only include words that have a translation for this target language code */
@@ -105,7 +105,7 @@ export interface WordDisplayData {
   nativeMeaning?: string;
   /** ISO 639-1 source language code (e.g. "en") */
   sourceLang: string;
-  inputType: "word" | "phrase";
+  inputType: "word" | "phrase" | "sentence";
   emoji: string;
   createdAt: Date;
   /** Translations keyed by ISO 639-1 target language code */
