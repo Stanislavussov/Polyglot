@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added `/api/stats/request-timings` admin API endpoint for aggregated timing data.
 - Added Request Timing Breakdown chart to admin dashboard showing stacked bar chart of segment durations by day and by model.
 
+### Fixed
+
+- Generated missing migration for `translation_request_timings` table that was preventing the Request Timing Breakdown chart from loading.
+
 ### Changed
 
 - Admin users management now shows and updates each bot user's audience group.
