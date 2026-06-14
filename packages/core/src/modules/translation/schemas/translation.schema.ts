@@ -48,7 +48,6 @@ export const translationVariantSchema = z.object({
  */
 export const languageTranslationSchema = z.object({
   text: z.string().min(1, "Translation text is required"),
-  transcription: z.string().max(100, "Transcription too long — possible repetition loop").nullish(),
   synonyms: z.array(synonymSchema),
   examples: z.array(exampleSchema).min(1, "At least one example is required"),
   expressionType: expressionTypeEnum.nullish().default("literal"),
@@ -77,7 +76,7 @@ export const translationRequestSchema = z.object({
  *   emoji: "🩺",
  *   nativeSynonyms: [{ text: "хитрый" }, ...],
  *   translations: {
- *     "cs": { text, transcription?, synonyms, examples },
+ *     "cs": { text, synonyms, examples },
  *   }
  * }
  */
@@ -101,16 +100,12 @@ export const translationResultSchema = z.object({
 export function buildLanguageTranslationSchema(config?: TranslationOutputConfig, requireExampleNative = false) {
   const includeExamples = config?.includeExamples !== false;
   const includeSynonyms = config?.includeSynonyms !== false;
-  const includeTranscription = config?.includeTranscription !== false;
   const includeAlternatives = config?.includeAlternatives !== false;
   const includeEquivalentNote = config?.includeEquivalentNote !== false;
   const includeConnotationWarning = config?.includeConnotationWarning !== false;
 
   const shape = {
     text: z.string().min(1, "Translation text is required"),
-    ...(includeTranscription && {
-      transcription: z.string().max(100, "Transcription too long — possible repetition loop").nullable(),
-    }),
     ...(includeSynonyms && { synonyms: z.array(synonymSchema) }),
     ...(includeExamples && {
       examples: z.array(buildExampleSchema(requireExampleNative)).min(1, "At least one example is required"),

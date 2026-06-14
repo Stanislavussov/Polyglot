@@ -3,7 +3,7 @@
  *
  * Verifies that the topic service always passes MINIMAL_OUTPUT preset
  * to injected translateBatch and translateOne functions. Topics only
- * need core fields + transcription — no examples, synonyms, alternatives,
+ * need core fields — no examples, synonyms, alternatives,
  * or equivalent notes — to save tokens during bulk translation.
  */
 import { describe, expect, it, vi } from "vitest";
@@ -48,10 +48,9 @@ function createMockDeps(overrides?: Partial<TopicDeps>): TopicDeps {
 // ─────────────────────────────────────────────
 
 describe("MINIMAL_OUTPUT preset used by topics", () => {
-  it("MINIMAL_OUTPUT has includeTranscription: true, all others false", () => {
+  it("MINIMAL_OUTPUT has all fields false", () => {
     expect(MINIMAL_OUTPUT).toEqual({
       includeExamples: false,
-      includeTranscription: true,
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,

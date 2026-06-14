@@ -101,27 +101,31 @@ export function validate(
 
     const translationText = langData.text as string | undefined;
 
+    if ("transcription" in langData) {
+      allErrors.push({
+        rule: "schema",
+        message: "Transcription/pronunciation fields are not allowed",
+        field: `translations.${lang}.transcription`,
+      });
+    }
+
     // Step 2: Semantic validation
     // Skipped for sentences — sentence translations are naturally more similar
     // to originals and the "translation ≠ original" check is not meaningful.
     if (translationText && !isSentence) {
       const isSameLanguageTarget = lang === options?.sourceLang;
-      const keepSameLanguageExpression = isSameLanguageTarget && sameExpression(original, translationText);
       const semanticResult = validateSemantic(original, translationText);
-      const semanticErrors = keepSameLanguageExpression
-        ? semanticResult.errors.filter((err) => err.message.includes("hallucination") || err.message.includes("empty"))
-        : semanticResult.errors;
-      for (const err of semanticErrors) {
+      for (const err of semanticResult.errors) {
         allErrors.push({
           ...err,
           field: `translations.${lang}.${err.field ?? "text"}`,
         });
       }
 
-      if (isSameLanguageTarget && !keepSameLanguageExpression) {
+      if (isSameLanguageTarget && sameExpression(original, translationText)) {
         allErrors.push({
           rule: "semantic",
-          message: `Same-language translation for "${lang}" must keep the original expression "${original}"`,
+          message: `Same-language translation for "${lang}" must not repeat the original expression "${original}"`,
           field: `translations.${lang}.text`,
         });
       }

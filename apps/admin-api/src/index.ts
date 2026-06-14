@@ -17,7 +17,6 @@ import { rateLimitRoutes } from "./routes/rate-limits.js";
 import { reportedIssueRoutes } from "./routes/reported-issues.js";
 import { srsRoutes } from "./routes/srs.js";
 import { statsRoutes } from "./routes/stats.js";
-import { translationRoutes } from "./routes/translation.js";
 import { userRoutes } from "./routes/users.js";
 
 const PORT = Number.parseInt(process.env.PORT ?? "3001", 10);
@@ -49,7 +48,6 @@ export async function buildAdminApiApp() {
   await app.register(aiDefaultRoutes, { prefix: "/api/settings" });
   await app.register(notificationRoutes, { prefix: "/api/settings" });
   await app.register(srsRoutes, { prefix: "/api/settings" });
-  await app.register(translationRoutes, { prefix: "/api/settings" });
   await app.register(dictionaryRoutes, { prefix: "/api/settings" });
   await app.register(presetRoutes, { prefix: "/api/settings" });
   await app.register(userRoutes, { prefix: "/api" });

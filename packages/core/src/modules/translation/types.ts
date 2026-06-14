@@ -49,7 +49,6 @@ export interface TranslationVariant {
 /** Translation data for a single target language */
 export interface LanguageTranslation {
   text: string;
-  transcription?: string | null;
   synonyms: Synonym[];
   examples: Example[];
   /** Signals whether the translation is literal or an idiomatic equivalent */

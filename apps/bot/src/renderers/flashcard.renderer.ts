@@ -65,7 +65,7 @@ export function renderFlashCardBack(
   // Translations
   for (const [code, tr] of Object.entries(word.translations)) {
     const flag = getLangFlag(code) ?? "🔤";
-    const header = tr.transcription ? `<b>${esc(tr.text)}</b> [${esc(tr.transcription)}]` : `<b>${esc(tr.text)}</b>`;
+    const header = `<b>${esc(tr.text)}</b>`;
     lines.push(`${flag} ${header}`);
 
     // Synonyms

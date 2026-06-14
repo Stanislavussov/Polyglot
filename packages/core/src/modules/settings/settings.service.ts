@@ -6,7 +6,6 @@ import type {
   PlanLimitConfig,
   SettingsPort,
   SrsConfig,
-  TranslationConfig,
   TranslationPresetConfig,
 } from "../../ports/settings.port.js";
 import type { SubscriptionPlan } from "../../ports/user.repository.js";
@@ -131,8 +130,6 @@ const FALLBACK_NOTIFICATIONS: NotificationDefaults = {
   inactivityDays: 14,
 };
 
-const FALLBACK_TRANSLATION: TranslationConfig = { maxTranscriptionLength: 45 };
-
 const FALLBACK_DICTIONARY: DictionaryConfig = {
   flashcardLimit: 10,
   notificationDictLimit: 1,
@@ -144,7 +141,6 @@ const FALLBACK_PRESETS: TranslationPresetConfig[] = [
     name: "full",
     label: "Full Output",
     config: {
-      transcription: true,
       synonyms: true,
       examples: true,
       alternatives: true,
@@ -157,7 +153,6 @@ const FALLBACK_PRESETS: TranslationPresetConfig[] = [
     name: "reliable",
     label: "Reliable Output",
     config: {
-      transcription: true,
       synonyms: false,
       examples: false,
       alternatives: false,
@@ -170,7 +165,6 @@ const FALLBACK_PRESETS: TranslationPresetConfig[] = [
     name: "minimal",
     label: "Minimal Output",
     config: {
-      transcription: true,
       synonyms: false,
       examples: false,
       alternatives: false,
@@ -183,7 +177,6 @@ const FALLBACK_PRESETS: TranslationPresetConfig[] = [
     name: "notification",
     label: "Notification Output",
     config: {
-      transcription: false,
       synonyms: false,
       examples: true,
       alternatives: false,
@@ -196,7 +189,6 @@ const FALLBACK_PRESETS: TranslationPresetConfig[] = [
     name: "sentence",
     label: "Sentence Output",
     config: {
-      transcription: true,
       synonyms: false,
       examples: false,
       alternatives: false,
@@ -322,14 +314,6 @@ export class SettingsService implements SettingsPort {
     return dbDefaults;
   }
 
-  async getTranslationConfig(): Promise<TranslationConfig> {
-    const cached = this.getCached<TranslationConfig>("translationConfig");
-    if (cached) return cached;
-    const dbConfig = await this.port.getTranslationConfig();
-    this.setCache("translationConfig", dbConfig);
-    return dbConfig;
-  }
-
   async getDictionaryConfig(): Promise<DictionaryConfig> {
     const cached = this.getCached<DictionaryConfig>("dictionaryConfig");
     if (cached) return cached;
@@ -356,5 +340,4 @@ export {
   FALLBACK_PLAN_LIMITS,
   FALLBACK_PRESETS,
   FALLBACK_SRS,
-  FALLBACK_TRANSLATION,
 };

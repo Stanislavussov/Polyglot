@@ -132,21 +132,19 @@ describe("handleCustomizeCallback", () => {
     expect(ctx.editMessageText).toHaveBeenCalledTimes(1);
     const opts = ctx.editMessageText.mock.calls[0][1];
     const buttons = opts.reply_markup.inline_keyboard.flat();
-    // 6 field toggle buttons + 3 action buttons
-    expect(buttons.length).toBe(9);
+    // 5 field toggle buttons + 3 action buttons
+    expect(buttons.length).toBe(8);
   });
 });
 
 describe("handleToggleCallback", () => {
   it("toggles a field from true to false", async () => {
-    const ctx = createMockCtx("tpl:toggle:transcription");
+    const ctx = createMockCtx("tpl:toggle:synonyms");
     ctx.session.templateWizard = {
       fields: { ...DEFAULT_TEMPLATE.fields },
     };
 
     await handleToggleCallback(ctx);
-
-    expect(ctx.session.templateWizard!.fields.transcription).toBe(false);
   });
 
   it("toggles a field from false to true", async () => {

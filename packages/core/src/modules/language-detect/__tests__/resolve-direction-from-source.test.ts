@@ -29,7 +29,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("cs");
-    expect(result!.targetLangs).toEqual(["cs", "en"]);
+    expect(result!.targetLangs).toEqual(["en"]);
     expect(result!.detectedLang).toBeUndefined();
   });
 
@@ -40,7 +40,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["cs", "en"]);
+    expect(result!.targetLangs).toEqual(["cs"]);
     expect(result!.detectedLang).toBeUndefined();
   });
 
@@ -96,7 +96,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["cs", "en", "de"]);
+    expect(result!.targetLangs).toEqual(["cs", "de"]);
   });
 
   // === Edge cases ===
@@ -141,7 +141,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("cs");
-    expect(result!.targetLangs).toEqual(["cs", "en"]);
+    expect(result!.targetLangs).toEqual(["en"]);
   });
 
   it("scenario: user selects Russian → translates to cs + en", () => {
@@ -163,7 +163,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["cs", "en"]);
+    expect(result!.targetLangs).toEqual(["cs"]);
   });
 
   it("scenario: stale source lang removed from config → returns null", () => {

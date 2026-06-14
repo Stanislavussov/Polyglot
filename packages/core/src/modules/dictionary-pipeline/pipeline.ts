@@ -133,10 +133,6 @@ function buildDisplayTranslation(row: PipelineTranslationRow, config: Dictionary
     text: row.text,
   };
 
-  if (fields.transcription && row.transcription) {
-    result.transcription = row.transcription;
-  }
-
   if (fields.synonyms && row.details?.synonyms && row.details.synonyms.length > 0) {
     result.synonyms = row.details.synonyms;
   }

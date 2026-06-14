@@ -27,8 +27,9 @@ describe("resolveTranslationDirection", () => {
       text: "hello world this is a test",
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual(["cs", "en"]);
+    expect(result.targetLangs).toEqual(["cs"]);
     expect(result.targetLangs).not.toContain("ru");
+    expect(result.targetLangs).not.toContain("en");
     expect(result.detectedLang).toBe("en");
   });
 
@@ -38,8 +39,9 @@ describe("resolveTranslationDirection", () => {
       text: "dobrý den jak se máte dnes",
     });
     expect(result.sourceLang).toBe("cs");
-    expect(result.targetLangs).toEqual(["cs", "en"]);
+    expect(result.targetLangs).toEqual(["en"]);
     expect(result.targetLangs).not.toContain("ru");
+    expect(result.targetLangs).not.toContain("cs");
     expect(result.detectedLang).toBe("cs");
   });
 
@@ -110,7 +112,7 @@ describe("resolveTranslationDirection", () => {
       learningLangs: ["cs", "en", "de"],
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual(["cs", "en", "de"]);
+    expect(result.targetLangs).toEqual(["cs", "de"]);
     expect(result.detectedLang).toBe("en");
   });
 

@@ -107,7 +107,6 @@ describe("Schema — expressionType and equivalentNote", () => {
       translations: {
         en: {
           ...baseTranslation,
-          transcription: null,
           expressionType: "idiomatic_equivalent",
           equivalentNote: "Closest English idiom",
           alternatives: null,

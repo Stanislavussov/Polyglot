@@ -40,7 +40,6 @@ const sampleOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "ahoj",
-      transcription: "ˈahoj",
       synonyms: [{ text: "dobrý den" }, { text: "nazdar" }],
       examples: [
         { context: "neutral", target: "Dobrý den, pane!" },
@@ -77,9 +76,10 @@ describe("renderTranslation", () => {
     expect(result).toContain("<b>ahoj</b>");
   });
 
-  it("renders transcription in brackets", () => {
+  it("renders translation text without transcription", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("[ˈahoj]");
+    expect(result).toContain("<b>ahoj</b>");
+    expect(result).not.toContain("[");
   });
 
   it("renders synonyms inline after translation header", () => {
@@ -167,18 +167,8 @@ describe("renderTranslation", () => {
   });
 
   it("renders without transcription when absent", () => {
-    const noTranscription: TranslateOutput = {
-      ...sampleOutput,
-      translations: {
-        cs: {
-          ...sampleOutput.translations.cs!,
-          transcription: undefined,
-        },
-      },
-    };
-    const result = renderTranslation(noTranscription, "en");
+    const result = renderTranslation(sampleOutput, "en");
     expect(result).toContain("🇨🇿 CS: <b>ahoj</b>");
-    expect(result).not.toContain("[");
   });
 
   it("renders without inline synonyms when empty", () => {
@@ -267,7 +257,6 @@ describe("renderTopicWord", () => {
       },
       de: {
         text: "Apfel",
-        transcription: "ˈapfəl",
         synonyms: [],
         examples: [],
       },
@@ -300,18 +289,11 @@ describe("renderTopicWord", () => {
     expect(result).toContain("🔤 ZZ:");
   });
 
-  it("renders transcription when present", () => {
+  it("renders translation text without transcription", () => {
     const result = renderTopicWord(sampleWord);
-    expect(result).toContain("[ˈapfəl]");
-  });
-
-  it("renders without transcription when absent", () => {
-    const result = renderTopicWord(sampleWord);
-    // CS entry has no transcription
     expect(result).toContain("🇨🇿 CS: <b>jablko</b>");
-    // Make sure there's no spurious bracket after jablko
-    const csLine = result.split("\n").find((l) => l.includes("CS:"));
-    expect(csLine).not.toContain("[");
+    expect(result).toContain("🇩🇪 DE: <b>Apfel</b>");
+    expect(result).not.toContain("[");
   });
 
   it("escapes HTML in word text", () => {
@@ -725,7 +707,7 @@ describe("renderTranslation — inline synonyms", () => {
     const result = renderTranslation(sampleOutput, "en");
     // Header line should contain inline synonyms
     const csLine = result.split("\n").find((l) => l.includes("CS:"));
-    expect(csLine).toContain("<b>ahoj</b> [ˈahoj] (dobrý den, nazdar)");
+    expect(csLine).toContain("<b>ahoj</b> (dobrý den, nazdar)");
   });
 
   it("shows no parenthetical when zero synonyms", () => {
@@ -737,7 +719,7 @@ describe("renderTranslation — inline synonyms", () => {
     };
     const result = renderTranslation(noSyn, "en");
     const csLine = result.split("\n").find((l) => l.includes("CS:"));
-    expect(csLine).toMatch(/\[ˈahoj\]$/);
+    expect(csLine).toBe("🇨🇿 CS: <b>ahoj</b>");
   });
 
   it("shows single synonym in parenthetical", () => {
@@ -767,7 +749,6 @@ const sentenceOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "Můžete mi říct, kde je nejbližší lékárna?",
-      transcription: "ˈmuːʒɛtɛ mɪ ˈɾ̝iːt͡st kdɛ jɛ ˈnɛjblɪʃiː ˈlɛːkaːrna",
       synonyms: [],
       examples: [],
     },
@@ -796,16 +777,11 @@ describe("renderSentenceTranslation", () => {
     expect(result).toContain("<b>Können Sie mir sagen, wo die nächste Apotheke ist?</b>");
   });
 
-  it("renders transcription in brackets when present", () => {
+  it("renders sentence translations without transcription", () => {
     const result = renderSentenceTranslation(sentenceOutput, "en");
-    expect(result).toContain("[ˈmuːʒɛtɛ");
-  });
-
-  it("renders without transcription brackets when absent", () => {
-    const result = renderSentenceTranslation(sentenceOutput, "en");
-    // DE has no transcription
-    const deLine = result.split("\n").find((l) => l.includes("DE:"));
-    expect(deLine).not.toContain("[");
+    expect(result).toContain("🇨🇿 CS: <b>Můžete mi říct, kde je nejbližší lékárna?</b>");
+    expect(result).toContain("🇩🇪 DE: <b>Können Sie mir sagen, wo die nächste Apotheke ist?</b>");
+    expect(result).not.toContain("[");
   });
 
   it("renders language flags from DB", () => {

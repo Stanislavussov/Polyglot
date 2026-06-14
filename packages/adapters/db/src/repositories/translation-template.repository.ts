@@ -27,7 +27,6 @@ function toSavedTemplate(row: typeof userTranslationTemplates.$inferSelect): Sav
     userId: row.userId,
     name: row.name,
     fields: {
-      transcription: row.transcription,
       synonyms: row.synonyms,
       examples: row.examples,
       alternatives: row.alternatives,
@@ -69,7 +68,6 @@ export const translationTemplateRepository = {
       .values({
         userId,
         name,
-        transcription: fields.transcription,
         synonyms: fields.synonyms,
         examples: fields.examples,
         alternatives: fields.alternatives,
@@ -80,7 +78,6 @@ export const translationTemplateRepository = {
         target: userTranslationTemplates.userId,
         set: {
           name,
-          transcription: fields.transcription,
           synonyms: fields.synonyms,
           examples: fields.examples,
           alternatives: fields.alternatives,

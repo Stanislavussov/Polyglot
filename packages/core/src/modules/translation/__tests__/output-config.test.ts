@@ -32,7 +32,6 @@ function validLangEntry(overrides?: Record<string, unknown>) {
       { context: "colloquial", target: "Čau, co je?" },
       { context: "professional", target: "Dobrý den, vítejte." },
     ],
-    transcription: null,
     expressionType: null,
     equivalentNote: null,
     alternatives: null,
@@ -44,58 +43,45 @@ function validLangEntry(overrides?: Record<string, unknown>) {
 // ─── Preset Tests ─────────────────────────────────────────
 
 describe("presets", () => {
-  it("FULL_OUTPUT has examples and connotation warnings enabled", () => {
+  it("defines output presets without transcription fields", () => {
     expect(FULL_OUTPUT).toEqual({
       includeExamples: true,
-      includeTranscription: true,
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
       includeConnotationWarning: true,
       includeNativeSynonyms: true,
     });
-  });
 
-  it("MINIMAL_OUTPUT has only includeTranscription: true, all others false", () => {
     expect(MINIMAL_OUTPUT).toEqual({
       includeExamples: false,
-      includeTranscription: true,
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
-  });
 
-  it("RELIABLE_OUTPUT has only includeTranscription: true, all others false", () => {
     expect(RELIABLE_OUTPUT).toEqual({
       includeExamples: false,
-      includeTranscription: true,
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
-  });
 
-  it("NOTIFICATION_OUTPUT has includeExamples and includeTranscription true, others false", () => {
     expect(NOTIFICATION_OUTPUT).toEqual({
       includeExamples: true,
-      includeTranscription: true,
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
-  });
 
-  it("SENTENCE_OUTPUT has only includeTranscription: true, all others false", () => {
     expect(SENTENCE_OUTPUT).toEqual({
       includeExamples: false,
-      includeTranscription: true,
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
@@ -123,10 +109,10 @@ describe("buildTranslationPrompt with outputConfig", () => {
     expect(prompt).not.toContain("3 example sentences");
   });
 
-  it("includeTranscription: false → prompt has no 'transcription' in language block", () => {
-    const prompt = promptWith({ includeTranscription: false });
-    expect(prompt).not.toContain('"transcription"');
-    // Should also not have the transcription rule
+  it("prompt never asks for transcription or pronunciation", () => {
+    const prompt = promptWith(FULL_OUTPUT);
+    expect(prompt).not.toContain("transcription");
+    expect(prompt).not.toContain("pronunciation");
     expect(prompt).not.toContain("non-Latin scripts");
   });
 
@@ -172,10 +158,9 @@ describe("buildTranslationPrompt with outputConfig", () => {
     expect(withUndefined).toBe(withoutConfig);
   });
 
-  it("MINIMAL_OUTPUT preset → prompt has text, transcription but not register/examples/synonyms/alternatives/expressionType/connotationWarning", () => {
+  it("MINIMAL_OUTPUT preset → prompt includes only translation text", () => {
     const prompt = promptWith(MINIMAL_OUTPUT);
     expect(prompt).toContain("translation text");
-    expect(prompt).toContain("transcription");
     expect(prompt).not.toContain('"register"');
     expect(prompt).not.toContain('"examples"');
     expect(prompt).not.toContain('"synonyms"');
@@ -187,7 +172,6 @@ describe("buildTranslationPrompt with outputConfig", () => {
   it("FULL_OUTPUT preset → prompt includes examples, connotationWarning, and all enabled sections", () => {
     const prompt = promptWith(FULL_OUTPUT);
     expect(prompt).toContain("translation text");
-    expect(prompt).toContain("transcription");
     expect(prompt).toContain("synonyms");
     expect(prompt).toContain("alternative translations");
     expect(prompt).toContain("examples");
@@ -375,7 +359,6 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
       translations: {
         de: {
           text: "Können Sie mir sagen, wo die nächste Apotheke ist?",
-          transcription: "/kœnən ziː miːɐ̯ zaːɡn̩ voː diː nɛːçstə apoˈteːkə ɪst/",
           synonyms: [],
           examples: [],
           expressionType: "literal" as const,
@@ -419,7 +402,6 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
           // AI may still return these even when not asked
           synonyms: [{ text: "Drogerie" }],
           examples: [],
-          transcription: null,
           equivalentNote: "should be stripped",
           expressionType: "literal" as const,
           connotationWarning: null,

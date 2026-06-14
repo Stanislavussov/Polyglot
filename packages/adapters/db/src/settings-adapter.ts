@@ -6,7 +6,6 @@ import type {
   PlanLimitConfig,
   SettingsPort,
   SrsConfig,
-  TranslationConfig,
   TranslationPresetConfig,
 } from "@polyglot/core";
 import { aiModelRepository } from "./repositories/ai-model.repository.js";
@@ -18,13 +17,11 @@ const DEFAULTS: {
   ai: AIGenerationDefaults;
   srs: SrsConfig;
   notifications: NotificationDefaults;
-  translation: TranslationConfig;
   dictionary: DictionaryConfig;
 } = {
   ai: { maxTokens: 4096, temperature: 0.3, frequencyPenalty: 0.5, maxRetries: 2 },
   srs: { minEaseFactor: 1.3, defaultEaseFactor: 2.5 },
   notifications: { defaultTime: "08:00", defaultType: "srs", inactivityDays: 14 },
-  translation: { maxTranscriptionLength: 45 },
   dictionary: { flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 },
 };
 
@@ -117,10 +114,6 @@ export const settingsAdapter: SettingsPort = {
 
   async getNotificationDefaults(): Promise<NotificationDefaults> {
     return getWithFallback<NotificationDefaults>("notifications", DEFAULTS.notifications);
-  },
-
-  async getTranslationConfig(): Promise<TranslationConfig> {
-    return getWithFallback<TranslationConfig>("translation", DEFAULTS.translation);
   },
 
   async getDictionaryConfig(): Promise<DictionaryConfig> {

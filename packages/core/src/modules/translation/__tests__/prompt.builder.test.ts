@@ -124,8 +124,8 @@ describe("buildTranslationPrompt", () => {
       targetLangs: ["cs"],
       nativeLang: "ru",
     });
-    expect(prompt).toContain("same as the source language");
-    expect(prompt).toContain("same-language learning details/examples");
+    expect(prompt).toContain("source language (cs) must not be returned as a translation block");
+    expect(prompt).toContain("natural same-language paraphrase or concise explanation");
   });
 
   it("works with four target languages", () => {
@@ -327,11 +327,6 @@ describe("buildTranslationPrompt with inputType=sentence", () => {
     expect(prompt).not.toContain("examples");
     expect(prompt).not.toContain('"expressionType"');
     expect(prompt).not.toContain("Idiomatic & Proverb Rule");
-  });
-
-  it("keeps transcription in sentence prompt (SENTENCE_OUTPUT has includeTranscription: true)", () => {
-    const prompt = buildTranslationPrompt(sentenceRequest);
-    expect(prompt).toContain("transcription");
   });
 
   it("topic hint says 'sentence' instead of 'word' for sentences", () => {

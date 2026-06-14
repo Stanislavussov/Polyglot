@@ -30,6 +30,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Admin users management now shows and updates each bot user's audience group.
+- Removed transcription feature from translation output, prompts, validation, and database schema.
+- Updated translation direction resolvers to exclude source language from targets, with guard against empty target arrays.
+- Generated migration `0029_amusing_luckman.sql` to drop `transcription` columns from `user_translation_templates` and `vocabulary_translations`.
 - Agent implementation guidance now requires updating `CHANGELOG.md` after every implementation iteration.
 - Database-change guidance now requires `pnpm db:push` on `develop` after generated migrations, while keeping `pnpm db:migrate` CI/deploy-only.
 - Bot Docker builds now include `CHANGELOG.md` for the `/changes` command.

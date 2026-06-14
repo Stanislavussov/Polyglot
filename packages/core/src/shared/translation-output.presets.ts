@@ -16,7 +16,6 @@ import type { TranslationOutputConfig } from "./types.js";
 /** All sections enabled — default for interactive translation & regeneration */
 export const FULL_OUTPUT: TranslationOutputConfig = {
   includeExamples: true,
-  includeTranscription: true,
   includeSynonyms: true,
   includeAlternatives: true,
   includeEquivalentNote: true,
@@ -27,7 +26,6 @@ export const FULL_OUTPUT: TranslationOutputConfig = {
 /** Reliable default — one translation per language, minimal metadata for small models */
 export const RELIABLE_OUTPUT: TranslationOutputConfig = {
   includeExamples: false,
-  includeTranscription: true,
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
@@ -38,7 +36,6 @@ export const RELIABLE_OUTPUT: TranslationOutputConfig = {
 /** Lightweight — for bulk topic translation, caching pipelines */
 export const MINIMAL_OUTPUT: TranslationOutputConfig = {
   includeExamples: false,
-  includeTranscription: true,
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
@@ -49,7 +46,6 @@ export const MINIMAL_OUTPUT: TranslationOutputConfig = {
 /** Notification word-of-the-day — compact but still useful */
 export const NOTIFICATION_OUTPUT: TranslationOutputConfig = {
   includeExamples: true,
-  includeTranscription: true,
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
@@ -57,10 +53,9 @@ export const NOTIFICATION_OUTPUT: TranslationOutputConfig = {
   includeNativeSynonyms: false,
 };
 
-/** Sentence translation — just translation text + transcription, no learning metadata */
+/** Sentence translation — just translation text, no learning metadata */
 export const SENTENCE_OUTPUT: TranslationOutputConfig = {
   includeExamples: false,
-  includeTranscription: true,
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,

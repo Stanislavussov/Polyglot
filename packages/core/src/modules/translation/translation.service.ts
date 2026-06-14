@@ -309,7 +309,6 @@ function stripDisabledFields(
       synonyms: config?.includeSynonyms === false ? [] : (lt.synonyms ?? []),
       examples: config?.includeExamples === false ? [] : (lt.examples ?? []),
       alternatives: config?.includeAlternatives === false ? null : (lt.alternatives ?? null),
-      transcription: config?.includeTranscription === false ? null : (lt.transcription ?? null),
       expressionType: config?.includeEquivalentNote === false ? null : (lt.expressionType ?? null),
       equivalentNote: config?.includeEquivalentNote === false ? null : (lt.equivalentNote ?? null),
       connotationWarning: config?.includeConnotationWarning === false ? null : (lt.connotationWarning ?? null),

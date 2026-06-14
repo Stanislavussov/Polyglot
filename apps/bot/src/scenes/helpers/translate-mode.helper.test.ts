@@ -200,7 +200,6 @@ describe("handleTranslateText — context enrichment", () => {
     const inputArg = vi.mocked(translateWithContext).mock.calls[0]![0];
     expect(inputArg.outputConfig).toEqual({
       includeExamples: false,
-      includeTranscription: true,
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,

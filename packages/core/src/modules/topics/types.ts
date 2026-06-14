@@ -40,7 +40,6 @@ export interface TopicTranslationVariant {
  */
 export interface LanguageTranslationEntry {
   text: string;
-  transcription?: string;
   synonyms: Array<{ text: string }>;
   examples: Array<{ context: string; target: string; native?: string | null }>;
   /** Signals whether the translation is literal or an idiomatic equivalent */

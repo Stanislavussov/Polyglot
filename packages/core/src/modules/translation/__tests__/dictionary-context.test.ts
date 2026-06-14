@@ -52,7 +52,6 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
           { context: "colloquial", target: "Are you tired or something?" },
           { context: "professional", target: "Should we proceed or something else?" },
         ],
-        transcription: null,
         expressionType: null,
         equivalentNote: null,
         alternatives: null,

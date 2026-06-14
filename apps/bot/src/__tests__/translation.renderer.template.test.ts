@@ -29,7 +29,6 @@ const sampleOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "ahoj",
-      transcription: "ˈahoj",
       synonyms: [{ text: "dobrý den" }, { text: "nazdar" }],
       examples: [
         { context: "neutral", target: "Dobrý den, pane!" },
@@ -48,7 +47,6 @@ const sampleOutput: TranslateOutput = {
 
 /** All fields enabled (default behavior) */
 const allTrue: TemplateFields = {
-  transcription: true,
   synonyms: true,
   examples: true,
   alternatives: true,
@@ -58,7 +56,6 @@ const allTrue: TemplateFields = {
 
 /** All fields disabled */
 const allFalse: TemplateFields = {
-  transcription: false,
   synonyms: false,
   examples: false,
   alternatives: false,
@@ -69,7 +66,6 @@ const allFalse: TemplateFields = {
 describe("renderTranslation — template-aware (Task 32)", () => {
   it("renders all sections when templateFields is undefined (backward compat)", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("[ˈahoj]");
     expect(result).toContain("(dobrý den, nazdar)");
     expect(result).toContain("💬");
     expect(result).toContain("∙ zdravím");
@@ -78,17 +74,14 @@ describe("renderTranslation — template-aware (Task 32)", () => {
 
   it("renders all sections when all fields are true", () => {
     const result = renderTranslation(sampleOutput, "en", allTrue);
-    expect(result).toContain("[ˈahoj]");
     expect(result).toContain("(dobrý den, nazdar)");
     expect(result).toContain("💬");
     expect(result).toContain("∙ zdravím");
     expect(result).toContain("ℹ️");
   });
 
-  it("omits transcription when transcription is false", () => {
-    const fields: TemplateFields = { ...allTrue, transcription: false };
-    const result = renderTranslation(sampleOutput, "en", fields);
-    expect(result).not.toContain("[ˈahoj]");
+  it("renders translation text without transcription", () => {
+    const result = renderTranslation(sampleOutput, "en", allTrue);
     expect(result).toContain("<b>ahoj</b>");
   });
 
@@ -140,7 +133,6 @@ describe("renderTranslation — template-aware (Task 32)", () => {
 
   it("allows mixing enabled and disabled fields", () => {
     const fields: TemplateFields = {
-      transcription: true,
       synonyms: false,
       examples: true,
       alternatives: false,
@@ -148,7 +140,6 @@ describe("renderTranslation — template-aware (Task 32)", () => {
       connotationWarning: false,
     };
     const result = renderTranslation(sampleOutput, "en", fields);
-    expect(result).toContain("[ˈahoj]");
     expect(result).not.toContain("(dobrý den");
     expect(result).toContain("💬");
     expect(result).not.toContain("∙ zdravím");

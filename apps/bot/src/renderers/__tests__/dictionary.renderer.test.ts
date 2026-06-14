@@ -54,7 +54,6 @@ function makeEntry(
       entryId: id,
       targetLangId: t.targetLangId,
       text: t.text,
-      transcription: null,
       expressionType: null,
       equivalentNote: null,
       connotationWarning: null,
@@ -99,7 +98,6 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
       entryId: 10,
       targetLangId: 3,
       text: "яблоко",
-      transcription: "ˈjabləkə",
       expressionType: null,
       equivalentNote: null,
       connotationWarning: null,
@@ -120,7 +118,6 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
       entryId: 10,
       targetLangId: 2,
       text: "jablko",
-      transcription: "ˈjablkɔ",
       expressionType: null,
       equivalentNote: null,
       connotationWarning: null,
@@ -222,10 +219,11 @@ describe("renderDictionaryEntry", () => {
     expect(html).toContain("word · 🇬🇧");
   });
 
-  it("contains translations with transcription", () => {
+  it("contains translations without transcription", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("🇷🇺 RU: <b>яблоко</b> [ˈjabləkə]");
-    expect(html).toContain("🇨🇿 CS: <b>jablko</b> [ˈjablkɔ]");
+    expect(html).toContain("🇷🇺 RU: <b>яблоко</b>");
+    expect(html).toContain("🇨🇿 CS: <b>jablko</b>");
+    expect(html).not.toContain("[");
   });
 
   it("shows synonyms from details", () => {

@@ -89,14 +89,13 @@ import { settings } from "../lib/api";
 
 type SettingsValue = string | number | boolean;
 type SettingsRecord = Record<string, SettingsValue>;
-type SettingsGroup = "ai-defaults" | "notifications" | "srs" | "translation" | "dictionary";
+type SettingsGroup = "ai-defaults" | "notifications" | "srs" | "dictionary";
 type FieldDescriptionMap = Record<SettingsGroup, Record<string, string>>;
 
 const tabs: Array<{ key: SettingsGroup; label: string }> = [
   { key: "ai-defaults", label: "AI Defaults" },
   { key: "notifications", label: "Notifications" },
   { key: "srs", label: "SRS" },
-  { key: "translation", label: "Translation" },
   { key: "dictionary", label: "Dictionary" },
 ];
 
@@ -124,9 +123,6 @@ const fieldDescriptions: FieldDescriptionMap = {
     minEaseFactor: "Lowest allowed SRS ease factor. This prevents difficult cards from becoming too aggressively scheduled.",
     defaultEaseFactor: "Starting SRS ease factor for new cards before the user has review history.",
   },
-  translation: {
-    maxTranscriptionLength: "Maximum source-text length that still asks the AI for pronunciation or transcription details.",
-  },
   dictionary: {
     flashcardLimit: "Maximum number of dictionary entries shown when building flashcards.",
     notificationDictLimit: "Maximum number of dictionary entries considered when selecting notification content.",
@@ -138,7 +134,6 @@ const tabDescriptions: Record<SettingsGroup, string> = {
   "ai-defaults": "Defaults applied to AI generation when a more specific model or workflow setting does not override them.",
   notifications: "Defaults for scheduled notification timing, source selection, and inactivity handling.",
   srs: "Scheduling parameters for spaced repetition cards and review intervals.",
-  translation: "Limits that shape translation output and pronunciation detail generation.",
   dictionary: "Caps used when dictionary entries are selected for flashcards, notifications, and daily suggestions.",
 };
 
@@ -193,7 +188,6 @@ async function loadTab(group: SettingsGroup): Promise<void> {
     if (group === "ai-defaults") data = toRecord(await settings.aiDefaults.get());
     else if (group === "notifications") data = toRecord(await settings.notifications.get());
     else if (group === "srs") data = toRecord(await settings.srs.get());
-    else if (group === "translation") data = toRecord(await settings.translation.get());
     else data = toRecord(await settings.dictionary.get());
 
     original.value = data;
@@ -249,8 +243,6 @@ async function save(): Promise<void> {
         minEaseFactor: Number(payload.minEaseFactor),
         defaultEaseFactor: Number(payload.defaultEaseFactor),
       });
-    } else if (activeTab.value === "translation") {
-      await settings.translation.update(payload);
     } else {
       await settings.dictionary.update(payload);
     }

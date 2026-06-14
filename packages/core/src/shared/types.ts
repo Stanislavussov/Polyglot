@@ -13,8 +13,6 @@
 export interface TranslationOutputConfig {
   /** Include 3 contextual example sentences (formal/colloquial/professional). Default: true */
   includeExamples?: boolean;
-  /** Include IPA transcription (required for non-Latin scripts). Default: true */
-  includeTranscription?: boolean;
   /** Include 2–3 synonyms per language. Default: true */
   includeSynonyms?: boolean;
   /** Include up to 2 alternative translation variants. Default: true */

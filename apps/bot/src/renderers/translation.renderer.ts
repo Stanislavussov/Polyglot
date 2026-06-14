@@ -36,6 +36,10 @@ function renderNativeMeaningLine(nativeLang: string | undefined, nativeMeaning: 
   return `${flag} ${esc(nativeLang.toUpperCase())}: ${esc(nativeMeaning)}`;
 }
 
+function isReverseLearningTranslation(output: TranslateOutput, nativeLang: string | undefined): boolean {
+  return nativeLang !== undefined && output.sourceLang !== nativeLang;
+}
+
 /**
  * Render a full AI translation card for Telegram (HTML).
  *
@@ -54,11 +58,13 @@ export function renderTranslation(
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
+  const hideSourceText = isReverseLearningTranslation(output, nativeLang);
 
-  const showNativeSyns =
-    output.sourceLang !== nativeLang && templateFields?.synonyms !== false && output.nativeSynonyms.length > 0;
+  const showNativeSyns = !hideSourceText && templateFields?.synonyms !== false && output.nativeSynonyms.length > 0;
   const nativeSyns = showNativeSyns ? ` (${output.nativeSynonyms.map((s) => esc(s.text)).join(", ")})` : "";
-  lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
+  if (!hideSourceText) {
+    lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
+  }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   if (nativeMeaningLine) {
     lines.push(nativeMeaningLine);
@@ -66,6 +72,7 @@ export function renderTranslation(
   lines.push("");
 
   for (const [code, translation] of Object.entries(output.translations)) {
+    if (hideSourceText && code === output.sourceLang) continue;
     lines.push(renderLangBlock(code, translation, lang, templateFields));
     lines.push("");
   }
@@ -84,12 +91,7 @@ export function renderTranslation(
 function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedLang, fields?: TemplateFields): string {
   const lines: string[] = [];
 
-  // Transcription: omit when fields?.transcription === false
-  const showTranscription = fields?.transcription !== false;
-  const header =
-    lt.transcription && showTranscription
-      ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]`
-      : `<b>${esc(lt.text)}</b>`;
+  const header = `<b>${esc(lt.text)}</b>`;
 
   // Inline synonyms: omit when fields?.synonyms === false
   const showSynonyms = fields?.synonyms !== false;
@@ -135,7 +137,7 @@ export function renderTopicWord(word: TopicWord): string {
 
   for (const [code, entry] of Object.entries(word.translations)) {
     const e = entry as LanguageTranslationEntry;
-    const header = e.transcription ? `<b>${esc(e.text)}</b> [${esc(e.transcription)}]` : `<b>${esc(e.text)}</b>`;
+    const header = `<b>${esc(e.text)}</b>`;
     const flag = getLangFlag(code) ?? "🔤";
     lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}`);
   }
@@ -146,8 +148,8 @@ export function renderTopicWord(word: TopicWord): string {
 /**
  * Render a compact sentence translation card for Telegram (HTML).
  *
- * Shows only: emoji, original sentence, and per-language translations
- * with transcription. No synonyms, examples, or alternatives.
+ * Shows only: emoji, original sentence, and per-language translations.
+ * No synonyms, examples, or alternatives.
  */
 export function renderSentenceTranslation(
   output: TranslateOutput,
@@ -156,8 +158,11 @@ export function renderSentenceTranslation(
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
+  const hideSourceText = isReverseLearningTranslation(output, nativeLang);
 
-  lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
+  if (!hideSourceText) {
+    lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
+  }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   if (nativeMeaningLine) {
     lines.push(nativeMeaningLine);
@@ -165,6 +170,7 @@ export function renderSentenceTranslation(
   lines.push("");
 
   for (const [code, translation] of Object.entries(output.translations)) {
+    if (hideSourceText && code === output.sourceLang) continue;
     lines.push(renderSentenceLangBlock(code, translation));
     lines.push("");
   }
@@ -179,7 +185,7 @@ export function renderSentenceTranslation(
 /** Render a single language block for sentence translation (compact) */
 function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string {
   const flag = getLangFlag(code) ?? "🔤";
-  const header = lt.transcription ? `<b>${esc(lt.text)}</b> [${esc(lt.transcription)}]` : `<b>${esc(lt.text)}</b>`;
+  const header = `<b>${esc(lt.text)}</b>`;
   return `${flag} ${esc(code.toUpperCase())}: ${header}`;
 }
 

@@ -120,7 +120,6 @@ type PresetConfigKey = keyof Preset["config"];
 type PresetForm = Preset;
 
 const configFields: Array<{ key: PresetConfigKey; label: string }> = [
-  { key: "transcription", label: "Transcription" },
   { key: "synonyms", label: "Synonyms" },
   { key: "examples", label: "Examples" },
   { key: "alternatives", label: "Alternatives" },
@@ -132,7 +131,6 @@ const emptyForm = (): PresetForm => ({
   name: "",
   label: "",
   config: {
-    transcription: false,
     synonyms: false,
     examples: false,
     alternatives: false,

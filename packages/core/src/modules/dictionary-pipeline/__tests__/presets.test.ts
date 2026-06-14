@@ -3,92 +3,43 @@ import { FLASHCARD_CONFIG, NOTIFICATION_DICT_CONFIG, WORD_OF_DAY_DICT_CONFIG } f
 import type { DictionaryWordConfig } from "../types.js";
 
 describe("dictionary pipeline presets", () => {
-  describe("FLASHCARD_CONFIG", () => {
-    it("uses random strategy", () => {
-      expect(FLASHCARD_CONFIG.selection.strategy).toBe("random");
+  it("configures flashcards with all presentation fields enabled", () => {
+    expect(FLASHCARD_CONFIG.selection).toEqual({ strategy: "random", limit: 10 });
+    expect(FLASHCARD_CONFIG.presentation.fields).toEqual({
+      synonyms: true,
+      examples: true,
+      alternatives: true,
+      equivalentNote: true,
+      connotationWarning: true,
     });
+    expect(FLASHCARD_CONFIG.presentation.flashcard).toEqual({ frontSide: "original" });
+  });
 
-    it("has limit of 10", () => {
-      expect(FLASHCARD_CONFIG.selection.limit).toBe(10);
+  it("configures notification dictionary output as compact", () => {
+    expect(NOTIFICATION_DICT_CONFIG.selection).toEqual({ strategy: "least_reviewed", limit: 1 });
+    expect(NOTIFICATION_DICT_CONFIG.presentation.fields).toEqual({
+      synonyms: false,
+      examples: false,
+      alternatives: false,
+      equivalentNote: false,
+      connotationWarning: false,
     });
+    expect(NOTIFICATION_DICT_CONFIG.presentation.flashcard).toBeUndefined();
+  });
 
-    it("has all presentation fields enabled", () => {
-      expect(FLASHCARD_CONFIG.presentation.fields).toEqual({
-        transcription: true,
-        synonyms: true,
-        examples: true,
-        alternatives: true,
-        equivalentNote: true,
-        connotationWarning: true,
-      });
-    });
-
-    it("has flashcard config with original frontSide", () => {
-      expect(FLASHCARD_CONFIG.presentation.flashcard).toEqual({
-        frontSide: "original",
-      });
-    });
-
-    it("shows register", () => {});
-
-    it("is a valid DictionaryWordConfig", () => {
-      const config: DictionaryWordConfig = FLASHCARD_CONFIG;
-      expect(config.selection).toBeDefined();
-      expect(config.presentation).toBeDefined();
+  it("configures word-of-day dictionary output with synonyms and notes", () => {
+    expect(WORD_OF_DAY_DICT_CONFIG.selection).toEqual({ strategy: "oldest_first", limit: 1 });
+    expect(WORD_OF_DAY_DICT_CONFIG.presentation.fields).toEqual({
+      synonyms: true,
+      examples: false,
+      alternatives: false,
+      equivalentNote: true,
+      connotationWarning: true,
     });
   });
 
-  describe("NOTIFICATION_DICT_CONFIG", () => {
-    it("uses least_reviewed strategy", () => {
-      expect(NOTIFICATION_DICT_CONFIG.selection.strategy).toBe("least_reviewed");
-    });
-
-    it("has limit of 1", () => {
-      expect(NOTIFICATION_DICT_CONFIG.selection.limit).toBe(1);
-    });
-
-    it("has compact fields — only transcription enabled", () => {
-      expect(NOTIFICATION_DICT_CONFIG.presentation.fields.transcription).toBe(true);
-      expect(NOTIFICATION_DICT_CONFIG.presentation.fields.synonyms).toBe(false);
-      expect(NOTIFICATION_DICT_CONFIG.presentation.fields.examples).toBe(false);
-      expect(NOTIFICATION_DICT_CONFIG.presentation.fields.alternatives).toBe(false);
-    });
-
-    it("does not show register", () => {});
-
-    it("has no flashcard config", () => {
-      expect(NOTIFICATION_DICT_CONFIG.presentation.flashcard).toBeUndefined();
-    });
-
-    it("is a valid DictionaryWordConfig", () => {
-      const config: DictionaryWordConfig = NOTIFICATION_DICT_CONFIG;
-      expect(config.selection).toBeDefined();
-      expect(config.presentation).toBeDefined();
-    });
-  });
-
-  describe("WORD_OF_DAY_DICT_CONFIG", () => {
-    it("uses oldest_first strategy", () => {
-      expect(WORD_OF_DAY_DICT_CONFIG.selection.strategy).toBe("oldest_first");
-    });
-
-    it("has limit of 1", () => {
-      expect(WORD_OF_DAY_DICT_CONFIG.selection.limit).toBe(1);
-    });
-
-    it("shows transcription and synonyms but not examples/alternatives", () => {
-      expect(WORD_OF_DAY_DICT_CONFIG.presentation.fields.transcription).toBe(true);
-      expect(WORD_OF_DAY_DICT_CONFIG.presentation.fields.synonyms).toBe(true);
-      expect(WORD_OF_DAY_DICT_CONFIG.presentation.fields.examples).toBe(false);
-      expect(WORD_OF_DAY_DICT_CONFIG.presentation.fields.alternatives).toBe(false);
-    });
-
-    it("shows register", () => {});
-
-    it("is a valid DictionaryWordConfig", () => {
-      const config: DictionaryWordConfig = WORD_OF_DAY_DICT_CONFIG;
-      expect(config.selection).toBeDefined();
-      expect(config.presentation).toBeDefined();
-    });
+  it("presets satisfy DictionaryWordConfig", () => {
+    const configs: DictionaryWordConfig[] = [FLASHCARD_CONFIG, NOTIFICATION_DICT_CONFIG, WORD_OF_DAY_DICT_CONFIG];
+    expect(configs).toHaveLength(3);
   });
 });

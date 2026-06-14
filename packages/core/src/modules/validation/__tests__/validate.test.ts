@@ -9,7 +9,6 @@ const translationResultSchema = z.object({
     z.string(),
     z.object({
       text: z.string(),
-      transcription: z.string().optional(),
       expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
       equivalentNote: z.string().optional(),
       connotationWarning: z.string().optional(),
@@ -25,7 +24,6 @@ function makeValidResponse(_original: string) {
     translations: {
       cs: {
         text: "ahoj",
-        transcription: "[ˈahoj]",
         synonyms: [{ text: "nazdar" }],
         examples: [
           { context: "neutral" as const, target: "Řekl ahoj svému kolegovi při setkání v kanceláři." },
@@ -99,7 +97,7 @@ describe("validate (orchestrator)", () => {
     expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
   });
 
-  it("fails when a same-language learning block changes the source expression", () => {
+  it("passes when a same-language learning block changes the source expression", () => {
     const raw = {
       emoji: "🦗",
       translations: {
@@ -116,18 +114,10 @@ describe("validate (orchestrator)", () => {
       },
     };
     const result = validate(raw, translationResultSchema, "kudlanka", ["cs", "en"], "word", { sourceLang: "cs" });
-    expect(result.valid).toBe(false);
-    expect(result.errors).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          rule: "semantic",
-          field: "translations.cs.text",
-        }),
-      ]),
-    );
+    expect(result.errors.some((e) => e.field === "translations.cs.text" && e.rule === "semantic")).toBe(false);
   });
 
-  it("passes when a same-language learning block keeps the source expression", () => {
+  it("fails when a same-language learning block repeats the original expression", () => {
     const raw = {
       emoji: "🦗",
       translations: {
@@ -139,7 +129,14 @@ describe("validate (orchestrator)", () => {
       },
     };
     const result = validate(raw, translationResultSchema, "kudlanka", ["cs"], "word", { sourceLang: "cs" });
-    expect(result.errors.some((e) => e.field === "translations.cs.text")).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "semantic",
+          field: "translations.cs.text",
+        }),
+      ]),
+    );
   });
 
   it("validates hallucination patterns", () => {
@@ -586,14 +583,13 @@ describe("validate — alternatives semantic validation", () => {
  * skipped when those fields are empty arrays (SENTENCE_OUTPUT preset).
  */
 describe("validate — sentence inputType (Task 27)", () => {
-  /** Minimal sentence schema — only text + register + transcription */
+  /** Minimal sentence schema — only text */
   const sentenceSchema = z.object({
     emoji: z.string(),
     translations: z.record(
       z.string(),
       z.object({
         text: z.string(),
-        transcription: z.string().optional(),
         synonyms: z.array(z.unknown()).default([]),
         examples: z.array(z.unknown()).default([]),
       }),
@@ -607,7 +603,6 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         cs: {
           text: original, // same as original — would fail without sentence mode
-          transcription: "",
           synonyms: [],
           examples: [],
         },
@@ -735,13 +730,11 @@ describe("validate — sentence inputType (Task 27)", () => {
       translations: {
         cs: {
           text: "Kde je nejbližší lékárna?",
-          transcription: "[ɡdɛ jɛ nɛjblɪʃiː leːkaːrna]",
           synonyms: [],
           examples: [],
         },
         de: {
           text: "Wo ist die nächste Apotheke?",
-          transcription: "[voː ɪst diː nɛːçstə apoˈteːkə]",
           synonyms: [],
           examples: [],
         },

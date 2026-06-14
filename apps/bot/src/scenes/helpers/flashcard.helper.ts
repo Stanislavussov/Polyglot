@@ -55,7 +55,6 @@ function createPipelineDeps(ctx: BotContext): DictionaryPipelineDeps {
         translations: e.translations.map((tr) => ({
           targetLangCode: getLangCodeById(ctx, tr.targetLangId) ?? "unknown",
           text: tr.text,
-          transcription: tr.transcription,
           expressionType: tr.expressionType,
           equivalentNote: tr.equivalentNote,
           connotationWarning: tr.connotationWarning,

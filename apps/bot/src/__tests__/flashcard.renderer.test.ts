@@ -40,13 +40,11 @@ const sampleWord: WordDisplayData = {
   translations: {
     ru: {
       text: "яблоко",
-      transcription: "ˈjabləkə",
       synonyms: [{ text: "яблочко" }],
       examples: [{ context: "neutral", target: "Я ем яблоко.", native: "I eat an apple." }],
     },
     cs: {
       text: "jablko",
-      transcription: "ˈjablkɔ",
     },
   },
 };
@@ -120,10 +118,11 @@ describe("renderFlashCardBack", () => {
     expect(result).toContain("<b>jablko</b>");
   });
 
-  it("contains transcription in brackets", () => {
+  it("renders translation text without transcription", () => {
     const result = renderFlashCardBack(sampleWord, 1, 10, "en");
-    expect(result).toContain("[ˈjabləkə]");
-    expect(result).toContain("[ˈjablkɔ]");
+    expect(result).toContain("<b>яблоко</b>");
+    expect(result).toContain("<b>jablko</b>");
+    expect(result).not.toContain("[");
   });
 
   it("contains target language flags", () => {

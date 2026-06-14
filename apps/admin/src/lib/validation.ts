@@ -19,7 +19,6 @@ export const rateLimitPlanSchema = z.object({
 });
 
 export const presetConfigSchema = z.object({
-  transcription: z.boolean(),
   synonyms: z.boolean(),
   examples: z.boolean(),
   alternatives: z.boolean(),
@@ -76,10 +75,6 @@ export const notificationSettingsSchema = z.object({
 export const srsSettingsSchema = z.object({
   minEaseFactor: z.coerce.number().min(1, "Minimum ease factor must be at least 1").max(3),
   defaultEaseFactor: z.coerce.number().min(1, "Default ease factor must be at least 1").max(5),
-});
-
-export const translationSettingsSchema = z.object({
-  maxTranscriptionLength: z.coerce.number().int("Maximum transcription length must be an integer").min(1),
 });
 
 export const dictionarySettingsSchema = z.object({

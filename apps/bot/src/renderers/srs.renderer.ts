@@ -43,11 +43,7 @@ export function renderSrsBack(
 ): string {
   const lines = [renderSrsFront(card, sourceLangCode, targetLangCode, current, total, lang), ""];
 
-  lines.push(
-    `${getLangFlag(targetLangCode) ?? "🔤"} ${esc(targetLangCode.toUpperCase())}: <b>${esc(card.text)}</b>${
-      card.transcription ? ` [${esc(card.transcription)}]` : ""
-    }`,
-  );
+  lines.push(`${getLangFlag(targetLangCode) ?? "🔤"} ${esc(targetLangCode.toUpperCase())}: <b>${esc(card.text)}</b>`);
 
   if (card.details?.examples && card.details.examples.length > 0) {
     const example = card.details.examples[0];
