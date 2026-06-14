@@ -49,6 +49,12 @@ export {
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 export { reportedIssueRepository } from "./repositories/reported-issue.repository.js";
+export type {
+  RecordRequestTimingInput,
+  RequestTimingModelSummary,
+  RequestTimingSegmentSummary,
+} from "./repositories/request-timing.repository.js";
+export { requestTimingRepository } from "./repositories/request-timing.repository.js";
 export { systemSettingsRepository } from "./repositories/system-settings.repository.js";
 export type {
   NewTopicTranslation,

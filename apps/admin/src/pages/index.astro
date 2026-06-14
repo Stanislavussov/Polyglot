@@ -3,6 +3,7 @@ import AdminLayout from "../layouts/AdminLayout.astro";
 import AIModelLatencyChart from "../components/AIModelLatencyChart.vue";
 import DashboardStats from "../components/DashboardStats.vue";
 import OpenRouterKeyStatus from "../components/OpenRouterKeyStatus.vue";
+import RequestTimingBreakdownChart from "../components/RequestTimingBreakdownChart.vue";
 ---
 
 <AdminLayout title="Dashboard">
@@ -12,4 +13,5 @@ import OpenRouterKeyStatus from "../components/OpenRouterKeyStatus.vue";
   <DashboardStats client:idle />
   <OpenRouterKeyStatus client:idle />
   <AIModelLatencyChart client:idle />
+  <RequestTimingBreakdownChart client:idle />
 </AdminLayout>

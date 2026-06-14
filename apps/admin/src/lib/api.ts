@@ -140,6 +140,36 @@ export const aiLatencyStats = {
   list: () => get<AIRequestLatencySummary[]>("/api/stats/ai-latency"),
 };
 
+export interface RequestTimingSegmentSummary {
+  date: string;
+  requestCount: number;
+  avgPreflightMs: number;
+  avgDbLookupMs: number;
+  avgAiRequestMs: number;
+  avgTotalMs: number;
+  p95TotalMs: number;
+  successRate: number;
+}
+
+export interface RequestTimingModelSummary {
+  modelId: string;
+  requestCount: number;
+  avgPreflightMs: number;
+  avgDbLookupMs: number;
+  avgAiRequestMs: number;
+  avgTotalMs: number;
+  successRate: number;
+}
+
+export interface RequestTimingsResponse {
+  byDay: RequestTimingSegmentSummary[];
+  byModel: RequestTimingModelSummary[];
+}
+
+export const requestTimings = {
+  list: (days = 7) => get<RequestTimingsResponse>(`/api/stats/request-timings?days=${days}`),
+};
+
 // Rate Limits
 export interface PlanLimitConfig {
   name: string;

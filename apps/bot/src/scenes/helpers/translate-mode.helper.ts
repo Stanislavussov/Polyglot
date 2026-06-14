@@ -4,7 +4,7 @@
  */
 // Context lookup factory — utility function, not a repository (no DI needed)
 // Note: createContextLookup is a factory function, not a repository — kept as direct import
-import { createContextLookup } from "@polyglot/adapter-db";
+import { createContextLookup, requestTimingRepository } from "@polyglot/adapter-db";
 import {
   calculateTranslationCreditCost,
   detectLanguage,
@@ -47,6 +47,10 @@ import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
 
+function normalizeLearningLangs(nativeLang: string, learningLangs: readonly string[]): string[] {
+  return learningLangs.filter((code, index) => code !== nativeLang && learningLangs.indexOf(code) === index);
+}
+
 async function ensureTranslationQuota(
   ctx: BotContext,
   plan: SubscriptionPlan,
@@ -79,6 +83,7 @@ async function ensureTranslationQuota(
  * Translates the text and shows the result with Save/Skip buttons.
  */
 export async function handleTranslateText(ctx: BotContext, word: string): Promise<void> {
+  const totalStart = Date.now();
   const telegramId = ctx.from!.id;
 
   // Get user settings
@@ -86,7 +91,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
-  const learningLangs = settings?.learningLangs ?? [];
+  const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
   const subscriptionPlan = ctx.user.subscriptionPlan ?? "free";
   const parsed = parseTranslateInput(word, ctx.message?.entities);
   const cleanWord = parsed.text;
@@ -194,10 +199,14 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
   const classification = classifyInput(cleanWord);
   const isSentence = classification.type === "sentence";
+  let preflightMs = 0;
+  let dbLookupMs = 0;
+  const preflightStart = Date.now();
   const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
   if (creditCost === null) {
     return;
   }
+  preflightMs = Date.now() - preflightStart;
 
   logger.debug(
     {
@@ -215,19 +224,23 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   // Show loading message
   const loadingMsg = await ctx.reply(t("translating", lang));
 
+  let model: string | undefined;
   try {
-    const model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
+    model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
 
     // Load user's template for template-aware output resolution (Task 32)
+    const dbLookupStart = Date.now();
     const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
     const outputConfig = resolveOutputConfig(userTpl, classification.type, cleanWord.length);
     const effectiveTemplate = resolveTemplate(userTpl);
+    dbLookupMs = Date.now() - dbLookupStart;
 
     // For sentences, skip dictionary context lookup (no learnable word to enrich)
     const lookupContextFn = isSentence ? async () => undefined : lookupContext;
 
     const stopTimer = translationDuration.startTimer();
+    const aiStart = Date.now();
     const output = await translateWithContext(
       {
         word: cleanWord,
@@ -245,6 +258,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         generateObjectFn: ctx.services.ai.generateObject,
       },
     );
+    const aiRequestMs = Date.now() - aiStart;
     stopTimer();
     translationCounter.inc({ status: "success" });
     await ctx.services.translationRequestRepository.logTranslationRequest(
@@ -254,6 +268,25 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       targetLangs,
       creditCost,
     );
+
+    const totalMs = Date.now() - totalStart;
+    requestTimingRepository
+      .record({
+        userId: ctx.user.id,
+        requestType: "translate",
+        preflightMs,
+        dbLookupMs,
+        aiRequestMs,
+        totalMs,
+        modelId: model,
+        sourceLang,
+        targetLangs,
+        inputType: classification.type,
+        success: true,
+      })
+      .catch((err: unknown) => {
+        logger.warn({ err }, "Failed to record request timing");
+      });
 
     // Delete loading message
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
@@ -316,6 +349,27 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   } catch (err) {
     translationCounter.inc({ status: "error" });
     logger.error({ err, word: cleanWord, telegramId }, "Translation failed");
+
+    const totalMs = Date.now() - totalStart;
+    requestTimingRepository
+      .record({
+        userId: ctx.user.id,
+        requestType: "translate",
+        preflightMs,
+        dbLookupMs,
+        aiRequestMs: 0,
+        totalMs,
+        modelId: model,
+        sourceLang,
+        targetLangs,
+        inputType: classification.type,
+        success: false,
+        error: err instanceof Error ? err.message : String(err),
+      })
+      .catch((timingErr: unknown) => {
+        logger.warn({ err: timingErr }, "Failed to record request timing on error");
+      });
+
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
     await ctx.reply(t("translationError", lang));
   }

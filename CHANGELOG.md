@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added Telegram-user audience groups for release announcements.
 - Added a post-deploy release announcement job that sends `Unreleased` changelog notes to `admin` and `tester` bot users.
 - Added a `/changes` bot command for tester and admin audience groups to view delivered changes.
+- Added segment-level request timing instrumentation for translation requests (preflight, DB lookup, AI request, total duration).
+- Added `translation_request_timings` table to store per-request segment breakdowns.
+- Added `/api/stats/request-timings` admin API endpoint for aggregated timing data.
+- Added Request Timing Breakdown chart to admin dashboard showing stacked bar chart of segment durations by day and by model.
 
 ### Changed
 
