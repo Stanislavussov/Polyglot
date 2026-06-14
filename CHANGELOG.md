@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - Generated missing migration for `translation_request_timings` table that was preventing the Request Timing Breakdown chart from loading.
+- `requestTimingRepository.record()` now silently ignores missing-table errors instead of logging a warning, so the bot does not emit noise before the migration is applied.
 
 ### Changed
 

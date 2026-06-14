@@ -2,6 +2,33 @@ import { desc, gte, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { translationRequestTimings } from "../schema.js";
 
+/**
+ * PostgreSQL SQLSTATE for `undefined_table` — the table referenced by the
+ * query does not exist. Surfaced by postgres.js as `error.code = "42P01"`
+ * and wrapped by Drizzle as `DrizzleQueryError.cause`.
+ */
+const POSTGRES_UNDEFINED_TABLE = "42P01";
+
+/**
+ * Returns true if the thrown error means the translation_request_timings
+ * table is missing from the database. The admin API treats this as "no data
+ * yet" instead of a 500, so charts render an empty state until the
+ * migration is applied.
+ */
+function isMissingTableError(err: unknown): boolean {
+  if (!err || typeof err !== "object") {
+    return false;
+  }
+  // Drizzle wraps driver errors in DrizzleQueryError with a `cause` pointing
+  // to the underlying postgres.js error. We also accept the raw shape in
+  // case a non-drizzle caller bubbles the error up.
+  const candidate = (err as { cause?: unknown }).cause ?? err;
+  if (!candidate || typeof candidate !== "object") {
+    return false;
+  }
+  return (candidate as { code?: unknown }).code === POSTGRES_UNDEFINED_TABLE;
+}
+
 export interface RecordRequestTimingInput {
   userId?: number;
   requestType: string;
@@ -41,20 +68,27 @@ export interface RequestTimingModelSummary {
 export const requestTimingRepository = {
   async record(input: RecordRequestTimingInput): Promise<void> {
     const db = getDb();
-    await db.insert(translationRequestTimings).values({
-      userId: input.userId,
-      requestType: input.requestType,
-      preflightMs: input.preflightMs,
-      dbLookupMs: input.dbLookupMs,
-      aiRequestMs: input.aiRequestMs,
-      totalMs: input.totalMs,
-      modelId: input.modelId,
-      sourceLang: input.sourceLang,
-      targetLangs: input.targetLangs,
-      inputType: input.inputType,
-      success: input.success,
-      error: input.error,
-    });
+    try {
+      await db.insert(translationRequestTimings).values({
+        userId: input.userId,
+        requestType: input.requestType,
+        preflightMs: input.preflightMs,
+        dbLookupMs: input.dbLookupMs,
+        aiRequestMs: input.aiRequestMs,
+        totalMs: input.totalMs,
+        modelId: input.modelId,
+        sourceLang: input.sourceLang,
+        targetLangs: input.targetLangs,
+        inputType: input.inputType,
+        success: input.success,
+        error: input.error,
+      });
+    } catch (err) {
+      if (isMissingTableError(err)) {
+        return;
+      }
+      throw err;
+    }
   },
 
   async getSegmentSummaryByDay(days = 7): Promise<RequestTimingSegmentSummary[]> {
