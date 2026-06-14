@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { type AIModel, aiModels, openRouter, reportedIssues } from "./api.js";
+import { type AIModel, aiModels, openRouter, reportedIssues, users } from "./api.js";
 
 function stubFetch(
   response: Response,
@@ -75,6 +75,18 @@ describe("admin API client", () => {
     expect(fetchMock).toHaveBeenCalledWith("http://localhost:3001/api/settings/openrouter/key", {
       method: "GET",
       headers: {},
+    });
+  });
+
+  it("updates user audience groups", async () => {
+    const fetchMock = stubFetch(new Response(JSON.stringify({ success: true }), { status: 200 }));
+
+    await users.changeAudienceGroup(42, "tester");
+
+    expect(fetchMock).toHaveBeenCalledWith("http://localhost:3001/api/users/42/audience-group", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ audienceGroup: "tester" }),
     });
   });
 });

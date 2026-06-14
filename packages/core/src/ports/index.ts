@@ -10,7 +10,9 @@ export type { NotificationRepository, NotificationType, NotificationUser } from 
 export type { TranslationRequestRepository } from "./translation-request.repository.js";
 export type { TranslationTemplateRepository } from "./translation-template.repository.js";
 export type {
+  AudienceGroup,
   NewUser,
+  SubscriptionPlan,
   User,
   UserLanguageSettings,
   UserRepository,

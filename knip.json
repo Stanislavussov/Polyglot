@@ -11,6 +11,7 @@
       "project": ["src/**/*.ts"]
     },
     "apps/bot": {
+      "entry": ["src/release-announcement.cli.ts"],
       "project": ["src/**/*.ts"]
     },
     "packages/adapters/ai": {

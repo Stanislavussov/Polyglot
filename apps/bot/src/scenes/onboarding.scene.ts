@@ -106,7 +106,7 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
 
   // Set user-specific bot commands in their chosen interface language
   const chatId = ctx.from!.id;
-  await conversation.external(() => setUserCommands(ctx.api, chatId, interfaceLang));
+  await conversation.external(() => setUserCommands(ctx.api, chatId, interfaceLang, user.audienceGroup));
 
   logger.info({ userId }, "User completed onboarding");
 }

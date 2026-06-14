@@ -1,5 +1,6 @@
 import { logger, type SupportedLang, t } from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
+import { canUseChangesCommand } from "./changes.js";
 
 /** Locales that have dedicated i18n locale files. */
 const LOCALES_WITH_FILES: readonly SupportedLang[] = ["en", "ru", "cs"];
@@ -14,8 +15,8 @@ export interface BotCommand {
  * Returns the 7 bot commands with descriptions localized to the given language.
  * Uses i18n keys: cmdDescStart, cmdDescTranslate, cmdDescDictionary, cmdDescTemplate, cmdDescSettings, cmdDescFlashcard, cmdDescReview, cmdDescReport.
  */
-export function getLocalizedCommands(lang: SupportedLang): BotCommand[] {
-  return [
+export function getLocalizedCommands(lang: SupportedLang, options: { includeChanges?: boolean } = {}): BotCommand[] {
+  const commands = [
     { command: "start", description: t("cmdDescStart", lang) },
     { command: "translate", description: t("cmdDescTranslate", lang) },
     { command: "flashcard", description: t("cmdDescFlashcard", lang) },
@@ -25,6 +26,12 @@ export function getLocalizedCommands(lang: SupportedLang): BotCommand[] {
     { command: "settings", description: t("cmdDescSettings", lang) },
     { command: "report", description: t("cmdDescReport", lang) },
   ];
+
+  if (options.includeChanges) {
+    commands.push({ command: "changes", description: t("cmdDescChanges", lang) });
+  }
+
+  return commands;
 }
 
 /**
@@ -64,9 +71,14 @@ export async function setBotCommands(api: Api<RawApi>): Promise<void> {
  * Called after onboarding or when the user changes their interface language.
  * Errors are logged but never thrown — user flow is not blocked.
  */
-export async function setUserCommands(api: Api<RawApi>, chatId: number, lang: SupportedLang): Promise<void> {
+export async function setUserCommands(
+  api: Api<RawApi>,
+  chatId: number,
+  lang: SupportedLang,
+  audienceGroup: string,
+): Promise<void> {
   try {
-    await api.setMyCommands(getLocalizedCommands(lang), {
+    await api.setMyCommands(getLocalizedCommands(lang, { includeChanges: canUseChangesCommand(audienceGroup) }), {
       scope: { type: "chat", chat_id: chatId },
       language_code: lang,
     });

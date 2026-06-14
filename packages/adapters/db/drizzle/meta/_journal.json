@@ -183,6 +183,13 @@
       "when": 1780828776598,
       "tag": "0025_fantastic_amphibian",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1781425421795,
+      "tag": "0026_acoustic_meltdown",
+      "breakpoints": true
     }
   ]
 }

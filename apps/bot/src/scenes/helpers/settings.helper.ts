@@ -222,7 +222,7 @@ export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<voi
 
   const chatId = ctx.from?.id;
   if (chatId) {
-    await setUserCommands(ctx.api, chatId, newLang);
+    await setUserCommands(ctx.api, chatId, newLang, ctx.user.audienceGroup);
   }
 
   await showSettingsMenu(ctx);

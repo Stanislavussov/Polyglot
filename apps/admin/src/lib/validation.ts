@@ -6,6 +6,7 @@ export const loginSchema = z.object({
 });
 
 export const subscriptionPlanSchema = z.string().min(1, "Choose a plan").max(50, "Plan name is too long");
+export const audienceGroupSchema = z.enum(["admin", "tester", "product"]);
 
 export const rateLimitPlanSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),

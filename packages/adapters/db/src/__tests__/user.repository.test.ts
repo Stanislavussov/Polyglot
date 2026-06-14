@@ -7,21 +7,30 @@ let lastInsertValues: unknown = null;
 let lastUpdateSet: unknown = null;
 
 const returningFn = vi.fn(() => Promise.resolve([...mockRows]));
+const onConflictDoNothingFn = vi.fn(() => Promise.resolve([]));
 
 const onConflictDoUpdateFn = vi.fn(() => ({ returning: returningFn }));
 
 const insertValuesFn = vi.fn((values: unknown) => {
   lastInsertValues = values;
-  return { onConflictDoUpdate: onConflictDoUpdateFn, returning: returningFn };
+  return {
+    onConflictDoNothing: onConflictDoNothingFn,
+    onConflictDoUpdate: onConflictDoUpdateFn,
+    returning: returningFn,
+  };
 });
 
 const insertFn = vi.fn(() => ({ values: insertValuesFn }));
 
 const limitFn = vi.fn(() => Promise.resolve([...mockRows]));
 
-const selectWhereFn = vi.fn(() => ({
-  limit: limitFn,
-}));
+function queryResult() {
+  const result = Promise.resolve([...mockRows]);
+  (result as Promise<unknown[]> & { limit: typeof limitFn }).limit = limitFn;
+  return result;
+}
+
+const selectWhereFn = vi.fn(() => queryResult());
 
 const selectFromFn = vi.fn(() => ({
   where: selectWhereFn,
@@ -72,6 +81,7 @@ function makeUser(overrides: Record<string, unknown> = {}) {
     telegramId: 123456,
     username: "testuser",
     subscriptionPlan: "free",
+    audienceGroup: "product",
     onboardingStep: 0,
     onboarded: false,
     isActive: true,
@@ -133,6 +143,7 @@ describe("userRepository", () => {
         telegramId: 123456,
         username: "testuser",
       });
+      expect(lastInsertValues).not.toHaveProperty("audienceGroup");
       expect(returningFn).toHaveBeenCalled();
     });
   });
@@ -656,6 +667,77 @@ describe("userRepository", () => {
       expect(setKeys).toContain("lastInteractionAt");
       expect(setKeys).toContain("updatedAt");
       expect(setKeys).toHaveLength(2);
+    });
+  });
+
+  describe("audience groups", () => {
+    it("lists active users by audience groups", async () => {
+      const admin = makeUser({ id: 1, audienceGroup: "admin" });
+      const tester = makeUser({ id: 2, audienceGroup: "tester" });
+      mockRows.push(admin, tester);
+
+      const result = await userRepository.listActiveByAudienceGroups(["admin", "tester"]);
+
+      expect(result).toEqual([admin, tester]);
+      expect(selectFn).toHaveBeenCalledOnce();
+      expect(selectWhereFn).toHaveBeenCalledOnce();
+    });
+
+    it("returns an empty list without querying when no audience groups are requested", async () => {
+      const result = await userRepository.listActiveByAudienceGroups([]);
+
+      expect(result).toEqual([]);
+      expect(selectFn).not.toHaveBeenCalled();
+    });
+
+    it("updates a user audience group", async () => {
+      const user = makeUser({ audienceGroup: "tester" });
+      mockRows.push(user);
+
+      const result = await userRepository.updateAudienceGroup(1, "tester");
+
+      expect(result).toEqual(user);
+      expect(updateSetFn).toHaveBeenCalledWith({ audienceGroup: "tester" });
+      expect(updateReturningFn).toHaveBeenCalledOnce();
+    });
+
+    it("rejects an invalid audience group", async () => {
+      await expect(
+        userRepository.updateAudienceGroup(
+          1,
+          "segment" as unknown as Parameters<typeof userRepository.updateAudienceGroup>[1],
+        ),
+      ).rejects.toThrow("Invalid audience group: segment");
+
+      expect(updateFn).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("release announcement deliveries", () => {
+    it("detects an existing delivery for a release, group, and user", async () => {
+      mockRows.push({ userId: 1 });
+
+      const result = await userRepository.hasReleaseAnnouncementDelivery("release-1", "admin", 1);
+
+      expect(result).toBe(true);
+      expect(limitFn).toHaveBeenCalledWith(1);
+    });
+
+    it("returns false when no delivery was recorded", async () => {
+      const result = await userRepository.hasReleaseAnnouncementDelivery("release-1", "admin", 1);
+
+      expect(result).toBe(false);
+    });
+
+    it("records a delivery with conflict dedupe", async () => {
+      await userRepository.recordReleaseAnnouncementDelivery("release-1", "tester", 2);
+
+      expect(lastInsertValues).toEqual({
+        releaseId: "release-1",
+        audienceGroup: "tester",
+        userId: 2,
+      });
+      expect(onConflictDoNothingFn).toHaveBeenCalledOnce();
     });
   });
 

@@ -4,7 +4,7 @@
 
 ### 1. Quality Gate After Every Change
 
-After implementing any feature — no matter how small — run the full quality gate:
+After implementing any feature — no matter how small — update `CHANGELOG.md` and run the full quality gate:
 
 ```bash
 pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test
@@ -12,6 +12,7 @@ pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test
 
 - Fix all failures before proceeding
 - Do not defer fixes to "later"
+- Keep user-facing and operational changes under `## [Unreleased]` in `CHANGELOG.md`
 
 ### 2. No `any` Types
 
@@ -28,10 +29,11 @@ pnpm db:check      # check for schema drift
 ```
 
 - Edit `packages/adapters/db/src/schema.ts`, then generate migrations
+- When database structure changes on the `develop` branch, run `pnpm db:generate`, review the generated migration, then run `pnpm db:push` against the local/dev database
 - Never hand-edit migration files or use raw SQL
 - `pnpm db:push` is allowed and often necessary for local/dev databases
 - Do **not** run `pnpm db:migrate` locally as an agent
-- Production/staging migration application must happen through the deployment pipeline
+- Production/staging migration application via `pnpm db:migrate` must happen only inside CI/deploy pipelines such as GitHub Actions or GitLab CI
 - Local `pnpm db:migrate` requires an explicit, separate user request for that exact command
 
 ### 4. No Logic in Index Files

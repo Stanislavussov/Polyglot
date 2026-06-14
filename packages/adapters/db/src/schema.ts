@@ -66,16 +66,21 @@ export const wordContext = pgTable(
 // ─────────────────────────────────────────────
 // User identification — who the user is
 // ─────────────────────────────────────────────
+export const audienceGroupEnum = pgEnum("audience_group", ["admin", "tester", "product"]);
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   telegramId: bigint("telegram_id", { mode: "number" }).unique().notNull(),
   username: text("username"),
+  audienceGroup: audienceGroupEnum("audience_group").default("product").notNull(),
   subscriptionPlan: text("subscription_plan").default("free").notNull(),
   onboardingStep: integer("onboarding_step").default(0).notNull(),
   onboarded: boolean("onboarded").default(false).notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export type AudienceGroup = (typeof audienceGroupEnum.enumValues)[number];
 
 // ─────────────────────────────────────────────
 // User language settings (1-to-1 with users)
@@ -344,6 +349,27 @@ export const notificationHistory = pgTable(
 );
 
 export type NotificationHistory = typeof notificationHistory.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Release announcement deliveries — one successful send per release/user/group
+// ─────────────────────────────────────────────
+export const releaseAnnouncementDeliveries = pgTable(
+  "release_announcement_deliveries",
+  {
+    releaseId: text("release_id").notNull(),
+    audienceGroup: audienceGroupEnum("audience_group").notNull(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    deliveredAt: timestamp("delivered_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.releaseId, t.audienceGroup, t.userId] }),
+    index("release_announcement_deliveries_user_idx").on(t.userId),
+  ],
+);
+
+export type ReleaseAnnouncementDelivery = typeof releaseAnnouncementDeliveries.$inferSelect;
 
 // ─────────────────────────────────────────────
 // Bot sessions — grammY session storage
