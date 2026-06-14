@@ -56,6 +56,9 @@ vi.mock("@polyglot/adapter-db", () => ({
   getLang: mockLanguageCache.getLang,
   getLangDisplay: mockLanguageCache.getLangDisplay,
   translationTemplateRepository: mockTranslationTemplateRepository,
+  requestTimingRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+  },
 }));
 
 vi.mock("@polyglot/core", async () => {

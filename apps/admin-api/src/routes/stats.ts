@@ -1,4 +1,10 @@
-import { aiRequestLatencyRepository, getDb, translationRequests, users } from "@polyglot/adapter-db";
+import {
+  aiRequestLatencyRepository,
+  getDb,
+  requestTimingRepository,
+  translationRequests,
+  users,
+} from "@polyglot/adapter-db";
 import { gte, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 
@@ -41,5 +47,13 @@ export async function statsRoutes(app: FastifyInstance) {
 
   app.get("/stats/ai-latency", async () => {
     return aiRequestLatencyRepository.getModelLatencySummary();
+  });
+
+  app.get("/stats/request-timings", async (request) => {
+    const query = request.query as { days?: string };
+    const days = query.days ? parseInt(query.days, 10) : 7;
+    const byDay = await requestTimingRepository.getSegmentSummaryByDay(days);
+    const byModel = await requestTimingRepository.getSegmentSummaryByModel(days);
+    return { byDay, byModel };
   });
 }

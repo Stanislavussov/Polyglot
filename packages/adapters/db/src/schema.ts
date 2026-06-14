@@ -479,6 +479,48 @@ export const aiRequestLatencies = pgTable(
 export type AIRequestLatency = typeof aiRequestLatencies.$inferSelect;
 
 // ─────────────────────────────────────────────
+// Translation request timing — segment-level performance metrics
+// Tracks preflight, DB lookup, AI request, and total duration per request
+// ─────────────────────────────────────────────
+export const translationRequestTimings = pgTable(
+  "translation_request_timings",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+    /** Request type: 'translate', 'regen', 'mistype-confirm' */
+    requestType: text("request_type").notNull(),
+    /** Preflight: settings lookup, language detection, rate limit check (ms) */
+    preflightMs: integer("preflight_ms").notNull(),
+    /** DB lookup: dictionary context, template lookup (ms) */
+    dbLookupMs: integer("db_lookup_ms").notNull(),
+    /** AI request: OpenRouter API call (ms) */
+    aiRequestMs: integer("ai_request_ms").notNull(),
+    /** Total end-to-end duration (ms) */
+    totalMs: integer("total_ms").notNull(),
+    /** OpenRouter model used */
+    modelId: varchar("model_id", { length: 255 }),
+    /** Source language code */
+    sourceLang: text("source_lang"),
+    /** Target language codes */
+    targetLangs: text("target_langs").array(),
+    /** Input classification: 'word', 'phrase', 'sentence' */
+    inputType: text("input_type"),
+    /** Whether the request succeeded */
+    success: boolean("success").notNull(),
+    /** Error message on failure */
+    error: text("error"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("trt_user_id_idx").on(t.userId),
+    index("trt_created_at_idx").on(t.createdAt),
+    index("trt_request_type_idx").on(t.requestType),
+  ],
+);
+
+export type TranslationRequestTiming = typeof translationRequestTimings.$inferSelect;
+
+// ─────────────────────────────────────────────
 // AI models — admin-configurable model registry
 // ─────────────────────────────────────────────
 export const aiModels = pgTable("ai_models", {

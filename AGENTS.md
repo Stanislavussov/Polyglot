@@ -7,12 +7,13 @@
 After implementing any feature — no matter how small — update `CHANGELOG.md` and run the full quality gate:
 
 ```bash
-pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test
+pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm db:push
 ```
 
 - Fix all failures before proceeding
 - Do not defer fixes to "later"
 - Keep user-facing and operational changes under `## [Unreleased]` in `CHANGELOG.md`
+- `pnpm db:push` is the final step — applies schema changes to local/dev database
 
 ### 2. No `any` Types
 
