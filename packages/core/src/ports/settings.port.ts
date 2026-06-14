@@ -29,10 +29,6 @@ export interface NotificationDefaults {
   inactivityDays: number;
 }
 
-export interface TranslationConfig {
-  maxTranscriptionLength: number;
-}
-
 export interface DictionaryConfig {
   flashcardLimit: number;
   notificationDictLimit: number;
@@ -43,7 +39,6 @@ export interface TranslationPresetConfig {
   name: string;
   label: string;
   config: {
-    transcription: boolean;
     synonyms: boolean;
     examples: boolean;
     alternatives: boolean;
@@ -64,7 +59,6 @@ export interface SettingsPort {
   getAIGenerationDefaults(): Promise<AIGenerationDefaults>;
   getSrsConfig(): Promise<SrsConfig>;
   getNotificationDefaults(): Promise<NotificationDefaults>;
-  getTranslationConfig(): Promise<TranslationConfig>;
   getDictionaryConfig(): Promise<DictionaryConfig>;
   getTranslationPresets(): Promise<TranslationPresetConfig[]>;
 }

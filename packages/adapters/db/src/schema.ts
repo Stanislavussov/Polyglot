@@ -156,7 +156,6 @@ export const vocabularyTranslations = pgTable(
       .references(() => languages.id)
       .notNull(),
     text: text("text").notNull(),
-    transcription: text("transcription"),
     expressionType: text("expression_type"),
     equivalentNote: text("equivalent_note"),
     connotationWarning: text("connotation_warning"),
@@ -275,8 +274,7 @@ export const topicTranslationCache = pgTable(
 
 // ─────────────────────────────────────────────
 // User translation templates — customizable output fields
-// 1-to-1 with users. Controls which sections appear
-// in translation output (transcription, synonyms, etc.)
+// 1-to-1 with users. Controls which sections appear in translation output.
 // ─────────────────────────────────────────────
 export const userTranslationTemplates = pgTable(
   "user_translation_templates",
@@ -288,8 +286,6 @@ export const userTranslationTemplates = pgTable(
       .notNull(),
     /** User-given name for this template */
     name: text("name").notNull().default("Custom"),
-    /** IPA transcription toggle */
-    transcription: boolean("transcription").notNull().default(true),
     /** 2-3 synonyms per language toggle */
     synonyms: boolean("synonyms").notNull().default(true),
     /** 3 contextual example sentences toggle */
@@ -419,7 +415,7 @@ export type AdminUser = typeof adminUsers.$inferSelect;
 // ─────────────────────────────────────────────
 // System settings — generic key-value store (JSONB values)
 // Covers: AI generation defaults, SRS params, notification defaults,
-// transcription thresholds, feature flags, etc.
+// feature flags, etc.
 // ─────────────────────────────────────────────
 export const systemSettings = pgTable("system_settings", {
   key: varchar("key", { length: 255 }).primaryKey(),
@@ -566,7 +562,6 @@ export const translationPresets = pgTable("translation_presets", {
   label: varchar("label", { length: 255 }).notNull(),
   config: jsonb("config")
     .$type<{
-      transcription: boolean;
       synonyms: boolean;
       examples: boolean;
       alternatives: boolean;

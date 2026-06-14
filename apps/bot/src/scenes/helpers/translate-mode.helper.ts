@@ -633,7 +633,6 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
         if (targetLangEntry) {
           await ctx.services.vocabularyRepository.updateTranslation(entry.savedWordId, targetLangEntry.id, {
             text: newTranslation.text,
-            transcription: newTranslation.transcription ?? undefined,
             expressionType: newTranslation.expressionType ?? undefined,
             equivalentNote: newTranslation.equivalentNote ?? undefined,
             connotationWarning: newTranslation.connotationWarning ?? undefined,

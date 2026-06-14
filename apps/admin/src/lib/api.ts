@@ -251,10 +251,6 @@ export interface SRSSettings {
   defaultEaseFactor: number;
 }
 
-export interface TranslationSettings {
-  [key: string]: string | number | boolean;
-}
-
 export interface DictionarySettings {
   [key: string]: string | number | boolean;
 }
@@ -272,10 +268,6 @@ export const settings = {
     get: () => get<SRSSettings>("/api/settings/srs"),
     update: (s: SRSSettings) => put<SRSSettings>("/api/settings/srs", s),
   },
-  translation: {
-    get: () => get<TranslationSettings>("/api/settings/translation"),
-    update: (s: TranslationSettings) => put<TranslationSettings>("/api/settings/translation", s),
-  },
   dictionary: {
     get: () => get<DictionarySettings>("/api/settings/dictionary"),
     update: (s: DictionarySettings) => put<DictionarySettings>("/api/settings/dictionary", s),
@@ -287,7 +279,6 @@ export interface Preset {
   name: string;
   label: string;
   config: {
-    transcription: boolean;
     synonyms: boolean;
     examples: boolean;
     alternatives: boolean;

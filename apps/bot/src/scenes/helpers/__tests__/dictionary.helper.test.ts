@@ -69,7 +69,6 @@ function makeEntry(id: number, original: string): VocabularyEntryWithTranslation
         entryId: id,
         targetLangId: 2,
         text: `translation-${id}`,
-        transcription: null,
         expressionType: null,
         equivalentNote: null,
         connotationWarning: null,

@@ -178,7 +178,6 @@ describe("handleRegenLoop", () => {
     const call = vi.mocked(translateOne).mock.calls[0]!;
     expect(call[0].outputConfig).toEqual({
       includeExamples: false,
-      includeTranscription: true,
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,

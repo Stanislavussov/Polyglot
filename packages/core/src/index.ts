@@ -15,7 +15,6 @@ export type {
   PlanLimitConfig,
   SettingsPort,
   SrsConfig,
-  TranslationConfig,
   TranslationPresetConfig,
 } from "./ports/settings.port.js";
 export type {
@@ -97,7 +96,6 @@ export {
 export * from "./shared/errors.js";
 export type { InputContext } from "./shared/translation-template.service.js";
 export {
-  MAX_TRANSCRIPTION_INPUT_LENGTH,
   resolveOutputConfig,
   resolveTemplate,
 } from "./shared/translation-template.service.js";

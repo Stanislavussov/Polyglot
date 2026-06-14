@@ -56,7 +56,6 @@ export function toVocabularyInput(
     translations.push({
       targetLangId,
       text: lang.text,
-      transcription: lang.transcription ?? undefined,
       expressionType: lang.expressionType ?? undefined,
       equivalentNote: lang.equivalentNote ?? undefined,
       connotationWarning: lang.connotationWarning ?? undefined,

@@ -358,7 +358,6 @@ describe("i18n — t()", () => {
   });
 
   it("returns template field labels in English", () => {
-    expect(t("templateFieldTranscription", "en")).toBe("Transcription [IPA]");
     expect(t("templateFieldSynonyms", "en")).toBe("Synonyms");
     expect(t("templateFieldExamples", "en")).toBe("Examples (3 sentences)");
     expect(t("templateFieldAlternatives", "en")).toBe("Alternative translations");
@@ -367,7 +366,6 @@ describe("i18n — t()", () => {
   });
 
   it("returns template field labels in Russian", () => {
-    expect(t("templateFieldTranscription", "ru")).toBe("Транскрипция [IPA]");
     expect(t("templateFieldSynonyms", "ru")).toBe("Синонимы");
     expect(t("templateFieldExamples", "ru")).toBe("Примеры (3 предложения)");
     expect(t("templateFieldAlternatives", "ru")).toBe("Альтернативные переводы");
@@ -376,7 +374,6 @@ describe("i18n — t()", () => {
   });
 
   it("returns template field labels in Czech", () => {
-    expect(t("templateFieldTranscription", "cs")).toBe("Transkripce [IPA]");
     expect(t("templateFieldSynonyms", "cs")).toBe("Synonyma");
     expect(t("templateFieldExamples", "cs")).toBe("Příklady (3 věty)");
     expect(t("templateFieldAlternatives", "cs")).toBe("Alternativní překlady");
@@ -400,7 +397,6 @@ describe("i18n — t()", () => {
     expect(t("templateTitle", "de")).toBe("⚙️ Translation Template");
     expect(t("templateCurrent", "de", { name: "Test" })).toBe("Current template: <b>Test</b>");
     expect(t("templateCustomize", "de")).toBe("📝 Customize");
-    expect(t("templateFieldTranscription", "de")).toBe("Transcription [IPA]");
     expect(t("templateSessionExpired", "de")).toContain("Session expired");
   });
 
@@ -935,7 +931,6 @@ describe("i18n — locale consistency", () => {
       "templateSaved",
       "templateResetDone",
       "templateCancelled",
-      "templateFieldTranscription",
       "templateFieldSynonyms",
       "templateFieldExamples",
       "templateFieldAlternatives",

@@ -2,8 +2,7 @@
  * Prompt Builder — constructs AI prompts for translation requests.
  *
  * Builds multi-language prompts that produce output matching
- * translationResultSchema exactly. Requests emoji, transcription,
- * synonyms, and example sentences.
+ * translationResultSchema exactly. Requests emoji, synonyms, and example sentences.
  */
 
 import { getLanguageName } from "../i18n/language-registry.js";
@@ -16,7 +15,6 @@ import type { DictionaryContext, TranslationOutputConfig, TranslationRequest } f
 function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOutputConfig> {
   return {
     includeExamples: config?.includeExamples !== false,
-    includeTranscription: config?.includeTranscription !== false,
     includeSynonyms: config?.includeSynonyms !== false,
     includeAlternatives: config?.includeAlternatives !== false,
     includeEquivalentNote: config?.includeEquivalentNote !== false,
@@ -45,13 +43,13 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   const nativeLangName = nativeLang ? getLanguageName(nativeLang) : null;
   const includesSourceTarget = targetLangs.includes(sourceLang);
   const isNativeSource = nativeLang !== undefined && sourceLang === nativeLang;
+  const isLearningSource = nativeLang !== undefined && sourceLang !== nativeLang;
 
   const intro = isSentence
     ? `Translate the following sentence from ${sourceLangName} to ${targetLangNames}:\n"${text}"`
     : `Translate "${text}" from ${sourceLangName} to ${targetLangNames}.`;
 
   const requestedFields = ["translation text"];
-  if (cfg.includeTranscription) requestedFields.push("short IPA transcription when useful, otherwise null");
   if (cfg.includeSynonyms) requestedFields.push("2-3 close synonyms");
   if (cfg.includeAlternatives) requestedFields.push("exactly 2 alternative translations");
   if (cfg.includeExamples) {
@@ -87,7 +85,12 @@ Rules:${
   }${
     includesSourceTarget
       ? `
-- If a target language is the same as the source language, keep the original expression as the main same-language learning block, provide same-language learning details/examples for it, and use "nativeMeaning" to explain it for the user.`
+- The source language (${sourceLang}) must not be returned as a translation block. If it is present in the required JSON schema, do not echo "${text}" as its "text" value; return a natural same-language paraphrase or concise explanation instead.`
+      : ""
+  }${
+    isLearningSource
+      ? `
+- The user is translating from a learning language. Do not repeat the original input "${text}" as a displayed translation; use "nativeMeaning" for the user's native-language explanation and only translate into other target languages.`
       : ""
   }${
     cfg.includeExamples
@@ -124,12 +127,6 @@ Rules:${
 - Provide exactly 3 example sentences per language. Keep each sentence SHORT — one sentence only.`
       : ""
   }${cfg.includeConnotationWarning ? buildConnotationRule(nativeLangName, isNativeSource, sourceLangName) : ""}
-${
-  cfg.includeTranscription
-    ? `
-- Transcription: provide IPA for non-Latin scripts (e.g. Russian: [prʲɪˈvʲet], Chinese: [tɕʰýntsɯ̀]). Keep it SHORT — one bracketed transcription only, never repeat. Optional for Latin scripts.`
-    : ""
-}
 - Return ONLY the JSON object. No additional text before or after.${
     cfg.includeEquivalentNote
       ? `
@@ -172,6 +169,12 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   }
   if (request.nativeLang) {
     checkItems.push(`- Top-level nativeMeaning is present and written in ${nativeLangName ?? request.nativeLang}`);
+  }
+  checkItems.push(
+    "- No transcription, pronunciation, IPA, romanization, or bracketed sound-spelling fields are present",
+  );
+  if (request.nativeLang && request.sourceLang !== request.nativeLang) {
+    checkItems.push("- Learning-language source input is not repeated as a same-language translation block");
   }
   checkItems.push("- Translations are actual translations, not the original word repeated");
   checkItems.push("- All required fields are present");

@@ -79,7 +79,6 @@ export type I18nKey =
   | "templateSaved"
   | "templateResetDone"
   | "templateCancelled"
-  | "templateFieldTranscription"
   | "templateFieldSynonyms"
   | "templateFieldExamples"
   | "templateFieldAlternatives"

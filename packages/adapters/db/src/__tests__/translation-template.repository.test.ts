@@ -63,7 +63,6 @@ function makeTemplateRow(overrides: Record<string, unknown> = {}) {
     id: 1,
     userId: 42,
     name: "Custom",
-    transcription: true,
     synonyms: true,
     examples: true,
     alternatives: true,
@@ -77,7 +76,6 @@ function makeTemplateRow(overrides: Record<string, unknown> = {}) {
 
 function makeFields(overrides: Partial<TemplateFields> = {}): TemplateFields {
   return {
-    transcription: true,
     synonyms: true,
     examples: true,
     alternatives: true,
@@ -122,7 +120,6 @@ describe("translationTemplateRepository", () => {
       const result = await translationTemplateRepository.getByUserId(42);
 
       expect(result!.fields).toEqual({
-        transcription: true,
         synonyms: false,
         examples: false,
         alternatives: true,
@@ -133,7 +130,6 @@ describe("translationTemplateRepository", () => {
 
     it("all-false columns produce all-false fields", async () => {
       const row = makeTemplateRow({
-        transcription: false,
         synonyms: false,
         examples: false,
         alternatives: false,
@@ -146,7 +142,6 @@ describe("translationTemplateRepository", () => {
 
       expect(result!.fields).toEqual(
         makeFields({
-          transcription: false,
           synonyms: false,
           examples: false,
           alternatives: false,
@@ -177,7 +172,6 @@ describe("translationTemplateRepository", () => {
       expect(lastInsertValues).toMatchObject({
         userId: 42,
         name: "My Template",
-        transcription: true,
         synonyms: false,
         examples: true,
         alternatives: true,
@@ -198,7 +192,6 @@ describe("translationTemplateRepository", () => {
       const conflictCall = onConflictDoUpdateFn.mock.calls[0]![0] as unknown as Record<string, unknown>;
       const setObj = (conflictCall?.set ?? {}) as Record<string, unknown>;
       expect(setObj).toHaveProperty("name", "Custom");
-      expect(setObj).toHaveProperty("transcription", true);
       expect(setObj).toHaveProperty("synonyms", true);
       expect(setObj).toHaveProperty("examples", true);
       expect(setObj).toHaveProperty("alternatives", true);
@@ -226,8 +219,8 @@ describe("translationTemplateRepository", () => {
     });
 
     it("spreads fields into individual columns, not JSONB", async () => {
-      const fields = makeFields({ connotationWarning: false, transcription: false });
-      const row = makeTemplateRow({ connotationWarning: false, transcription: false });
+      const fields = makeFields({ connotationWarning: false });
+      const row = makeTemplateRow({ connotationWarning: false });
       mockRows.push(row);
 
       await translationTemplateRepository.upsert(42, "Custom", fields);
@@ -235,7 +228,6 @@ describe("translationTemplateRepository", () => {
       // Verify values were spread into individual columns
       expect(lastInsertValues).not.toHaveProperty("fields");
       expect(lastInsertValues).toMatchObject({
-        transcription: false,
         connotationWarning: false,
       });
     });

@@ -15,7 +15,6 @@ export const FLASHCARD_CONFIG: DictionaryWordConfig = {
   },
   presentation: {
     fields: {
-      transcription: true,
       synonyms: true,
       examples: true,
       alternatives: true,
@@ -34,7 +33,6 @@ export const NOTIFICATION_DICT_CONFIG: DictionaryWordConfig = {
   },
   presentation: {
     fields: {
-      transcription: true,
       synonyms: false,
       examples: false,
       alternatives: false,
@@ -52,7 +50,6 @@ export const WORD_OF_DAY_DICT_CONFIG: DictionaryWordConfig = {
   },
   presentation: {
     fields: {
-      transcription: true,
       synonyms: true,
       examples: false,
       alternatives: false,

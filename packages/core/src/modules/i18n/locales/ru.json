@@ -75,7 +75,6 @@
   "templateSaved": "✅ Шаблон сохранён! Все будущие переводы будут использовать этот формат.",
   "templateResetDone": "🔄 Шаблон сброшен. Все разделы снова видимы.",
   "templateCancelled": "Редактирование шаблона отменено.",
-  "templateFieldTranscription": "Транскрипция [IPA]",
   "templateFieldSynonyms": "Синонимы",
   "templateFieldExamples": "Примеры (3 предложения)",
   "templateFieldAlternatives": "Альтернативные переводы",

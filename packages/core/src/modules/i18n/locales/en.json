@@ -75,7 +75,6 @@
   "templateSaved": "✅ Template saved! All future translations will use this format.",
   "templateResetDone": "🔄 Template reset to default. All sections are now visible.",
   "templateCancelled": "Template editing cancelled.",
-  "templateFieldTranscription": "Transcription [IPA]",
   "templateFieldSynonyms": "Synonyms",
   "templateFieldExamples": "Examples (3 sentences)",
   "templateFieldAlternatives": "Alternative translations",

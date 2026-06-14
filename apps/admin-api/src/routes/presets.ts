@@ -3,7 +3,6 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 
 const presetConfigSchema = z.object({
-  transcription: z.boolean(),
   synonyms: z.boolean(),
   examples: z.boolean(),
   alternatives: z.boolean(),

@@ -14,7 +14,6 @@ export interface VocabularyTranslation {
   entryId: number;
   targetLangId: number;
   text: string;
-  transcription: string | null;
   expressionType: string | null;
   equivalentNote: string | null;
   connotationWarning: string | null;
@@ -65,7 +64,6 @@ export interface CreateVocabularyInput {
   translations: Array<{
     targetLangId: number;
     text: string;
-    transcription?: string;
     expressionType?: string;
     equivalentNote?: string;
     connotationWarning?: string;
@@ -75,7 +73,6 @@ export interface CreateVocabularyInput {
 
 export interface UpdateTranslationData {
   text?: string;
-  transcription?: string | null;
   expressionType?: string | null;
   equivalentNote?: string | null;
   connotationWarning?: string | null;
@@ -92,7 +89,6 @@ export interface SrsDueVocabularyCard {
   emoji: string | null;
   nativeMeaning: string | null;
   text: string;
-  transcription: string | null;
   expressionType: string | null;
   equivalentNote: string | null;
   connotationWarning: string | null;

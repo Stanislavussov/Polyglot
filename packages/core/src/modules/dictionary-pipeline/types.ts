@@ -90,7 +90,6 @@ export interface DictionaryWordConfig {
 /** Normalized translation data for a single target language (display-ready) */
 export interface WordDisplayTranslation {
   text: string;
-  transcription?: string;
   synonyms?: Synonym[];
   examples?: Example[];
   alternatives?: TranslationVariant[];
@@ -141,7 +140,6 @@ export interface WordPipelineResult {
 export interface PipelineTranslationRow {
   targetLangCode: string;
   text: string;
-  transcription?: string | null;
   register?: string | null;
   expressionType?: string | null;
   equivalentNote?: string | null;

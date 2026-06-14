@@ -25,7 +25,6 @@ const sampleOutput: TranslateOutput = {
   translations: {
     cs: {
       text: "ahoj",
-      transcription: "ˈahoj",
       synonyms: [{ text: "nazdar" }],
       examples: [{ context: "colloquial", target: "Ahoj!", native: "Привет!" }],
       expressionType: "literal",
@@ -81,7 +80,6 @@ describe("toVocabularyInput", () => {
 
     expect(cs).toBeDefined();
     expect(cs!.text).toBe("ahoj");
-    expect(cs!.transcription).toBe("ˈahoj");
     expect(cs!.expressionType).toBe("literal");
     expect(cs!.equivalentNote).toBe("Standard greeting");
     expect(cs!.connotationWarning).toBe("Very informal");
@@ -198,7 +196,6 @@ describe("toVocabularyInput", () => {
 
     const result = toVocabularyInput(minimal, 1, "word", langResolver);
     const cs = result.translations[0]!;
-    expect(cs.transcription).toBeUndefined();
     expect(cs.expressionType).toBeUndefined();
     expect(cs.equivalentNote).toBeUndefined();
     expect(cs.connotationWarning).toBeUndefined();

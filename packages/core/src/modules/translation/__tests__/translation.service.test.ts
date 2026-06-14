@@ -27,7 +27,6 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
           { context: "colloquial", target: "Ahoj, jak se máš?" },
           { context: "professional", target: "Ahoj, vítejte na schůzce." },
         ],
-        transcription: null,
         expressionType: null,
         equivalentNote: null,
         alternatives: null,
@@ -267,7 +266,6 @@ describe("translateOne", () => {
               native: "Здравствуйте, добро пожаловать на встречу.",
             },
           ],
-          transcription: null,
           expressionType: null,
           equivalentNote: null,
           alternatives: null,
@@ -292,8 +290,8 @@ describe("translateOne", () => {
 
     const prompt = mockGenerate.mock.calls[0][0] as string;
     expect(prompt).toContain('"native"');
-    expect(prompt).toContain("translation of the target example sentence into Russian");
-    expect(prompt).toContain("same-language learning details/examples");
+    expect(prompt).toContain("translation of the target example sentence");
+    expect(prompt).toContain("natural same-language paraphrase or concise explanation");
   });
 
   it("passes userId through to translate()", async () => {
@@ -351,7 +349,6 @@ describe("translateBatch", () => {
               text: "svět",
               synonyms: [{ text: "země" }],
               examples: [{ context: "neutral", target: "Svět je krásné místo." }],
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               alternatives: null,
@@ -482,7 +479,6 @@ describe("validation logging", () => {
           text: "hello",
           synonyms: [{ text: "čau" }],
           examples: [{ context: "neutral", target: "Hello world in Czech." }],
-          transcription: null,
           expressionType: null,
           equivalentNote: null,
           alternatives: null,
@@ -517,7 +513,6 @@ describe("validation logging", () => {
           text: "hello",
           synonyms: [{ text: "čau" }],
           examples: [{ context: "neutral", target: "Hello world in Czech." }],
-          transcription: null,
           expressionType: null,
           equivalentNote: null,
           alternatives: null,

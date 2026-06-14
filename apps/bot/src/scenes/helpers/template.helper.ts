@@ -19,7 +19,6 @@ import { MOCK_PREVIEW_OUTPUT } from "../template-preview.data.js";
 
 /** Map TemplateFields key → i18n key for field label */
 const FIELD_I18N_MAP: Record<keyof TemplateFields, I18nKey> = {
-  transcription: "templateFieldTranscription",
   synonyms: "templateFieldSynonyms",
   examples: "templateFieldExamples",
   alternatives: "templateFieldAlternatives",

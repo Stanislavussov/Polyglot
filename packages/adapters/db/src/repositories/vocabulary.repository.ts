@@ -87,7 +87,6 @@ export const vocabularyRepository = {
               entryId: entry!.id,
               targetLangId: t.targetLangId,
               text: t.text,
-              transcription: t.transcription,
               expressionType: t.expressionType,
               equivalentNote: t.equivalentNote,
               connotationWarning: t.connotationWarning,
@@ -265,7 +264,6 @@ export const vocabularyRepository = {
         entryId,
         targetLangId,
         text: data.text ?? "",
-        transcription: data.transcription,
         expressionType: data.expressionType,
         equivalentNote: data.equivalentNote,
         connotationWarning: data.connotationWarning,
@@ -286,7 +284,6 @@ export const vocabularyRepository = {
     translations: Array<{
       targetLangId: number;
       text: string;
-      transcription?: string;
       expressionType?: string;
       equivalentNote?: string;
       connotationWarning?: string;
@@ -308,7 +305,6 @@ export const vocabularyRepository = {
             entryId,
             targetLangId: t.targetLangId,
             text: t.text,
-            transcription: t.transcription,
             expressionType: t.expressionType,
             equivalentNote: t.equivalentNote,
             connotationWarning: t.connotationWarning,
@@ -352,7 +348,6 @@ export const vocabularyRepository = {
         emoji: vocabularyEntries.emoji,
         nativeMeaning: vocabularyEntries.nativeMeaning,
         text: vocabularyTranslations.text,
-        transcription: vocabularyTranslations.transcription,
         expressionType: vocabularyTranslations.expressionType,
         equivalentNote: vocabularyTranslations.equivalentNote,
         connotationWarning: vocabularyTranslations.connotationWarning,

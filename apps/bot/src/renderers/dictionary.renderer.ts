@@ -117,10 +117,8 @@ export function renderDictionaryEntry(
     const langCode = langResolver(tr.targetLangId);
     const flag = langCode ? (getLangFlag(langCode) ?? "🔤") : "🔤";
 
-    // Translation header with transcription
-    const transcriptionPart = tr.transcription ? ` [${esc(tr.transcription)}]` : "";
     const codePart = langCode ? ` ${esc(langCode.toUpperCase())}:` : "";
-    lines.push(`${flag}${codePart} <b>${esc(tr.text)}</b>${transcriptionPart}`);
+    lines.push(`${flag}${codePart} <b>${esc(tr.text)}</b>`);
 
     // Details from JSONB
     const details = tr.details as VocabTranslationDetails | null;

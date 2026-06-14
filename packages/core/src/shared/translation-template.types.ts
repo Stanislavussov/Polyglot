@@ -16,8 +16,6 @@ import type { TranslationOutputConfig } from "./types.js";
  * because some TranslationOutputConfig flags are always derived together.
  */
 export interface TemplateFields {
-  /** IPA transcription. Default: true */
-  transcription: boolean;
   /** 2-3 synonyms per language. Default: true */
   synonyms: boolean;
   /** 3 contextual example sentences. Default: true */
@@ -48,7 +46,6 @@ export interface UserTranslationTemplate {
 export const DEFAULT_TEMPLATE: UserTranslationTemplate = {
   name: "Default",
   fields: {
-    transcription: true,
     synonyms: false,
     examples: false,
     alternatives: false,
@@ -64,7 +61,6 @@ export const DEFAULT_TEMPLATE: UserTranslationTemplate = {
 export function templateToOutputConfig(template: UserTranslationTemplate): TranslationOutputConfig {
   return {
     includeExamples: template.fields.examples,
-    includeTranscription: template.fields.transcription,
     includeSynonyms: template.fields.synonyms,
     includeAlternatives: template.fields.alternatives,
     includeEquivalentNote: template.fields.equivalentNote,
@@ -75,7 +71,6 @@ export function templateToOutputConfig(template: UserTranslationTemplate): Trans
 
 /** All toggleable field keys, in display order for the wizard */
 export const TEMPLATE_FIELD_KEYS: Array<keyof TemplateFields> = [
-  "transcription",
   "synonyms",
   "examples",
   "alternatives",

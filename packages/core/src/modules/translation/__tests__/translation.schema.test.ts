@@ -175,14 +175,6 @@ describe("languageTranslationSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("allows optional transcription", () => {
-    const result = languageTranslationSchema.safeParse({
-      ...validTranslation,
-      transcription: "[ˈahoj]",
-    });
-    expect(result.success).toBe(true);
-  });
-
   it("rejects missing examples", () => {
     const result = languageTranslationSchema.safeParse({
       ...validTranslation,
@@ -288,7 +280,6 @@ describe("buildTranslationResultSchema", () => {
     text: "ahoj",
     synonyms: [{ text: "čau" }],
     examples: [{ context: "neutral", target: "Ahoj, jak se máš?" }],
-    transcription: null,
     expressionType: null,
     equivalentNote: null,
     alternatives: null,

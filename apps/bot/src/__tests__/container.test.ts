@@ -52,7 +52,6 @@ vi.mock("@polyglot/adapter-db", () => ({
     getNotificationDefaults: vi
       .fn()
       .mockResolvedValue({ defaultTime: "08:00", defaultType: "srs", inactivityDays: 14 }),
-    getTranslationConfig: vi.fn().mockResolvedValue({ maxTranscriptionLength: 45 }),
     getDictionaryConfig: vi.fn().mockResolvedValue({ flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 }),
     getTranslationPresets: vi.fn().mockResolvedValue([]),
   },

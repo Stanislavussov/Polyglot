@@ -175,7 +175,7 @@ describe("Persist source lang — lazy hydration (Task 36)", () => {
     expect(translateWithContext).toHaveBeenCalledWith(
       expect.objectContaining({
         sourceLang: "cs",
-        targetLangs: ["cs", "en"],
+        targetLangs: ["en"],
       }),
       expect.anything(),
     );

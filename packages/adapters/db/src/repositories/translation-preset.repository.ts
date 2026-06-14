@@ -6,7 +6,6 @@ import { translationPresets } from "../schema.js";
 export type { TranslationPreset };
 
 export type PresetConfig = {
-  transcription: boolean;
   synonyms: boolean;
   examples: boolean;
   alternatives: boolean;

@@ -26,7 +26,6 @@ function makeEntry(overrides: Partial<PipelineEntry> & { id: number }): Pipeline
       {
         targetLangCode: "cs",
         text: `překlad-${overrides.id}`,
-        transcription: "[test]",
         expressionType: null,
         equivalentNote: null,
         connotationWarning: null,
@@ -56,7 +55,6 @@ function makeConfig(overrides?: Partial<DictionaryWordConfig>): DictionaryWordCo
     },
     presentation: {
       fields: {
-        transcription: true,
         synonyms: true,
         examples: true,
         alternatives: true,
@@ -294,7 +292,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "x",
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               connotationWarning: null,
@@ -308,7 +305,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "de",
               text: "y",
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               connotationWarning: null,
@@ -322,7 +318,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "z",
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               connotationWarning: null,
@@ -331,7 +326,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "de",
               text: "w",
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               connotationWarning: null,
@@ -421,7 +415,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "čeština",
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               connotationWarning: null,
@@ -430,7 +423,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "de",
               text: "deutsch",
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               connotationWarning: null,
@@ -439,7 +431,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "fr",
               text: "français",
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               connotationWarning: null,
@@ -454,7 +445,6 @@ describe("createDictionaryPipeline", () => {
         selection: { strategy: "random", limit: 10 },
         presentation: {
           fields: {
-            transcription: true,
             synonyms: true,
             examples: true,
             alternatives: true,
@@ -478,7 +468,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "čeština",
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               connotationWarning: null,
@@ -493,7 +482,6 @@ describe("createDictionaryPipeline", () => {
         selection: { strategy: "random", limit: 10 },
         presentation: {
           fields: {
-            transcription: true,
             synonyms: true,
             examples: true,
             alternatives: true,
@@ -519,7 +507,6 @@ describe("createDictionaryPipeline", () => {
         selection: { strategy: "random", limit: 10 },
         presentation: {
           fields: {
-            transcription: true,
             synonyms: false,
             examples: true,
             alternatives: true,
@@ -543,7 +530,6 @@ describe("createDictionaryPipeline", () => {
         selection: { strategy: "random", limit: 10 },
         presentation: {
           fields: {
-            transcription: true,
             synonyms: true,
             examples: false,
             alternatives: true,
@@ -559,30 +545,6 @@ describe("createDictionaryPipeline", () => {
       expect(translation.examples).toBeUndefined();
     });
 
-    it("showTranscription: false → transcription absent", async () => {
-      const entries = [makeEntry({ id: 1 })];
-      const deps = makeDeps(entries);
-      const pipeline = createDictionaryPipeline(deps);
-      const config = makeConfig({
-        selection: { strategy: "random", limit: 10 },
-        presentation: {
-          fields: {
-            transcription: false,
-            synonyms: true,
-            examples: true,
-            alternatives: true,
-            equivalentNote: true,
-            connotationWarning: true,
-          },
-        },
-      });
-
-      const result = await pipeline.run(42, config);
-
-      const translation = Object.values(result.words[0]!.translations)[0]!;
-      expect(translation.transcription).toBeUndefined();
-    });
-
     it("showAlternatives: false → alternatives absent", async () => {
       const entries = [
         makeEntry({
@@ -591,7 +553,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "test",
-              transcription: null,
               expressionType: null,
               equivalentNote: null,
               connotationWarning: null,
@@ -610,7 +571,6 @@ describe("createDictionaryPipeline", () => {
         selection: { strategy: "random", limit: 10 },
         presentation: {
           fields: {
-            transcription: true,
             synonyms: true,
             examples: true,
             alternatives: false,
@@ -646,7 +606,6 @@ describe("createDictionaryPipeline", () => {
             {
               targetLangCode: "cs",
               text: "test",
-              transcription: null,
               expressionType: "idiomatic_equivalent",
               equivalentNote: "Idiomatic note",
               connotationWarning: null,
