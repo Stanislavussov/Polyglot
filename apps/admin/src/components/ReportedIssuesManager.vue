@@ -31,6 +31,7 @@
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Type</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Status</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Created</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -55,10 +56,51 @@
             <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
               {{ formatDate(issue.createdAt) }}
             </td>
+            <td class="whitespace-nowrap px-4 py-3 text-sm">
+              <button
+                class="rounded-md px-3 py-1.5 text-sm font-medium text-indigo-600 transition-colors hover:bg-indigo-50 hover:text-indigo-700"
+                @click="openIssueDetail(issue)"
+              >
+                View
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <AppModal v-if="selectedIssue" title="Issue Details" size="lg" @close="selectedIssue = null">
+      <div class="space-y-4">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-700 uppercase">Description</h3>
+          <p class="mt-1 whitespace-pre-wrap text-sm text-gray-900">{{ selectedIssue.description }}</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase">User</h3>
+            <p class="mt-1 text-sm text-gray-900">{{ userLabel(selectedIssue) }}</p>
+            <p class="text-xs text-gray-500">Telegram ID: {{ selectedIssue.user.telegramId }}</p>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase">Type</h3>
+            <span class="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize" :class="typeClass(selectedIssue.type)">
+              {{ typeLabel(selectedIssue.type) }}
+            </span>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase">Status</h3>
+            <span class="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize" :class="statusClass(selectedIssue.status)">
+              {{ statusLabel(selectedIssue.status) }}
+            </span>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase">Dates</h3>
+            <p class="mt-1 text-xs text-gray-500">Created: {{ formatDate(selectedIssue.createdAt) }}</p>
+            <p class="text-xs text-gray-500">Updated: {{ formatDate(selectedIssue.updatedAt) }}</p>
+          </div>
+        </div>
+      </div>
+    </AppModal>
 
     <div class="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
@@ -127,6 +169,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { type IssueStatus, type IssueType, type ReportedIssue, reportedIssues } from "../lib/api";
 import AlertMessage from "./ui/AlertMessage.vue";
+import AppModal from "./ui/AppModal.vue";
 
 const list = ref<ReportedIssue[]>([]);
 const total = ref(0);
@@ -136,6 +179,7 @@ const status = ref<IssueStatus | "">("");
 const loading = ref(false);
 const error = ref("");
 const pageSize = ref(20);
+const selectedIssue = ref<ReportedIssue | null>(null);
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)));
@@ -173,6 +217,10 @@ async function loadIssues(): Promise<void> {
 
 function userLabel(issue: ReportedIssue): string {
   return issue.user.username || `User #${issue.user.id}`;
+}
+
+function openIssueDetail(issue: ReportedIssue): void {
+  selectedIssue.value = issue;
 }
 
 function typeLabel(type: IssueType): string {

@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - Added synonyms context to word notifications — each translation line now shows synonyms below the translation text when available.
+- Added "View" button to admin reported issues table that opens a modal showing the full issue description and all details.
 - Added technical debt task docs for five architecture deepening opportunities: translation workflow, translation card lifecycle, dictionary decks, settings registry, and composition root typing.
 - Added native-language meanings to translation output, saved vocabulary entries, dictionary views, flashcards, SRS cards, and word notifications.
 - Added a `native_meaning` column to `vocabulary_entries` for persisted dictionary reuse.
