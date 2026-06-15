@@ -16,6 +16,10 @@ vi.mock("@polyglot/adapter-db", () => ({
     findByUser: vi.fn().mockResolvedValue([]),
     create: vi.fn().mockResolvedValue({ id: 1 }),
   },
+  vocabularyDictionaryRepository: {
+    getOrCreateDefault: vi.fn().mockResolvedValue({ id: 1, name: "My Words" }),
+    addEntryToDefault: vi.fn().mockResolvedValue({ id: 1, name: "My Words" }),
+  },
   translationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),
   },

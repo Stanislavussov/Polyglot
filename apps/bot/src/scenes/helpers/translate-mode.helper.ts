@@ -23,6 +23,7 @@ import {
   resolveTranslationDirection,
   type SubscriptionPlan,
   type SupportedLang,
+  type TranslateOutput,
   t,
   translateOneWithContext,
   translateWithContext,
@@ -40,6 +41,7 @@ import {
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
+import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
@@ -101,6 +103,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     await ctx.reply(t("contextMarkerNeedsText", lang));
     return;
   }
+
+  // Clean up previous technical messages before starting a new translation
+  await cleanupTechnicalMessages(ctx);
 
   const textValidation = validateTranslatableText(cleanWord);
   if (!textValidation.valid) {
@@ -316,7 +321,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
             sourceLangEntry.id,
           )
         : null;
-    const isAlreadySaved = !!existing;
+    const isAlreadySaved = existing
+      ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
+      : false;
 
     if (isSentence) {
       // Sentence: compact card with Save/Skip/Regen keyboard
@@ -450,10 +457,22 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
     sourceLangId,
   );
   if (existing) {
-    await ctx.answerCallbackQuery({
-      text: t("alreadySaved", lang),
-      show_alert: true,
-    });
+    const belongsToDefault = await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(
+      ctx.user.id,
+      existing.id,
+    );
+    if (belongsToDefault) {
+      await ctx.answerCallbackQuery({
+        text: t("alreadySaved", lang),
+        show_alert: true,
+      });
+      return;
+    }
+
+    await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(ctx.user.id, existing.id);
+    entry.savedWordId = existing.id;
+    await renderSavedTranslationCard(ctx, output, lang, nativeLang, msgId);
+    await ctx.answerCallbackQuery();
     return;
   }
 
@@ -467,11 +486,22 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
 
   // Step 5 — Persist
   const newEntry = await ctx.services.vocabularyRepository.create(ctx.user.id, vocabInput);
+  await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(ctx.user.id, newEntry.id);
 
   // Step 6 — Update this entry in the map
   entry.savedWordId = newEntry.id;
 
-  // Step 7 — Edit card in place (template-aware rendering)
+  await renderSavedTranslationCard(ctx, output, lang, nativeLang, msgId);
+  await ctx.answerCallbackQuery();
+}
+
+async function renderSavedTranslationCard(
+  ctx: BotContext,
+  output: TranslateOutput,
+  lang: SupportedLang,
+  nativeLang: string,
+  msgId: number,
+): Promise<void> {
   const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
   const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
@@ -487,9 +517,6 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   } catch (err) {
     logger.error({ err }, "Failed to edit message after save — save still succeeded");
   }
-
-  // Step 8
-  await ctx.answerCallbackQuery();
 }
 
 /**
@@ -564,9 +591,11 @@ export async function sendSourceLangMenu(
 
   if (keyboard) {
     const text = `${t("translateModeHint", lang)}\n\n${t("nextTranslationFrom", lang)}`;
-    await ctx.reply(text, { reply_markup: keyboard });
+    const msg = await ctx.reply(text, { reply_markup: keyboard });
+    trackTechnicalMessage(ctx, msg.message_id);
   } else {
-    await ctx.reply(t("translateModeHint", lang));
+    const msg = await ctx.reply(t("translateModeHint", lang));
+    trackTechnicalMessage(ctx, msg.message_id);
   }
 }
 
@@ -693,7 +722,9 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
             sourceLangEntry.id,
           )
         : null;
-      const isAlreadySaved = !!existing;
+      const isAlreadySaved = existing
+        ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
+        : false;
 
       const card = renderTranslation(updated, lang, effectiveTemplate.fields, nativeLang);
       const keyboard = buildTranslationKeyboard(langCodes, inputType ?? "word", lang, msgId, isAlreadySaved);
@@ -846,7 +877,9 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
             sourceLangEntry.id,
           )
         : null;
-    const isAlreadySaved = !!existing;
+    const isAlreadySaved = existing
+      ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
+      : false;
 
     if (isSentence) {
       ctx.session.pendingTranslation = output;
@@ -919,5 +952,6 @@ export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   await ctx.answerCallbackQuery();
-  await ctx.reply(t("translateModeHint", lang));
+  const msg = await ctx.reply(t("translateModeHint", lang));
+  trackTechnicalMessage(ctx, msg.message_id);
 }

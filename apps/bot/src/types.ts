@@ -98,7 +98,15 @@ export interface SessionData {
   dictionary?: {
     /** Current page (1-based) */
     currentPage: number;
+    /** Active dictionary being browsed */
+    dictionaryId?: number;
     /** Message ID of the dictionary message (for in-place editing) */
+    msgId?: number;
+  };
+  /** Pending dictionary create/rename text input. */
+  dictionaryWizard?: {
+    action: "create" | "rename";
+    dictionaryId?: number;
     msgId?: number;
   };
   /**
@@ -146,6 +154,11 @@ export interface SessionData {
     currentIndex: number;
     cardMsgId?: number;
   };
+  /**
+   * Technical message IDs to delete after scene ends or settings change.
+   * Translation cards and user words are never added here.
+   */
+  technicalMessages?: number[];
 }
 
 /** Custom context properties injected by auth middleware */

@@ -219,6 +219,12 @@ describe("renderDictionaryEntry", () => {
     expect(html).toContain("word · 🇬🇧");
   });
 
+  it("localizes source input type", () => {
+    const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
+    expect(html).toContain("слово · 🇬🇧");
+    expect(html).not.toContain("word · 🇬🇧");
+  });
+
   it("contains translations without transcription", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("🇷🇺 RU: <b>яблоко</b>");
@@ -246,64 +252,64 @@ describe("renderDictionaryEntry", () => {
 /* ── buildDictionaryListKeyboard ───────────────────────────────── */
 
 describe("buildDictionaryListKeyboard", () => {
-  it("has one button per entry with dict:view:{id}:{page} callback", () => {
-    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en");
+  it("has one button per entry with dict:view:{dictionaryId}:{id}:{page} callback", () => {
+    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en", 7);
     const rows = kb.inline_keyboard;
     // First 3 rows should be entry buttons
-    expect(cbData(rows[0]![0])).toBe("dict:view:1:1");
-    expect(cbData(rows[1]![0])).toBe("dict:view:2:1");
-    expect(cbData(rows[2]![0])).toBe("dict:view:3:1");
+    expect(cbData(rows[0]![0])).toBe("dict:view:7:1:1");
+    expect(cbData(rows[1]![0])).toBe("dict:view:7:2:1");
+    expect(cbData(rows[2]![0])).toBe("dict:view:7:3:1");
   });
 
   it("has navigation buttons when > 1 page", () => {
-    const kb = buildDictionaryListKeyboard(sampleEntries, 2, 3, "en");
+    const kb = buildDictionaryListKeyboard(sampleEntries, 2, 3, "en", 7);
     const rows = kb.inline_keyboard;
     // Navigation row is after the 3 entry rows
     const navRow = rows[3]!;
     expect(navRow.length).toBe(3); // prev, noop, next
-    expect(cbData(navRow[0])).toBe("dict:page:1");
+    expect(cbData(navRow[0])).toBe("dict:page:7:1");
     expect(cbData(navRow[1])).toBe("dict:noop");
-    expect(cbData(navRow[2])).toBe("dict:page:3");
+    expect(cbData(navRow[2])).toBe("dict:page:7:3");
   });
 
   it("no prev button on page 1", () => {
-    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 3, "en");
+    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 3, "en", 7);
     const rows = kb.inline_keyboard;
     const navRow = rows[3]!;
     // Should only have noop + next (2 buttons)
     expect(navRow.length).toBe(2);
     expect(cbData(navRow[0])).toBe("dict:noop");
-    expect(cbData(navRow[1])).toBe("dict:page:2");
+    expect(cbData(navRow[1])).toBe("dict:page:7:2");
   });
 
   it("no next button on last page", () => {
-    const kb = buildDictionaryListKeyboard(sampleEntries, 3, 3, "en");
+    const kb = buildDictionaryListKeyboard(sampleEntries, 3, 3, "en", 7);
     const rows = kb.inline_keyboard;
     const navRow = rows[3]!;
     // Should only have prev + noop (2 buttons)
     expect(navRow.length).toBe(2);
-    expect(cbData(navRow[0])).toBe("dict:page:2");
+    expect(cbData(navRow[0])).toBe("dict:page:7:2");
     expect(cbData(navRow[1])).toBe("dict:noop");
   });
 
   it("no navigation row when 1 page", () => {
-    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en");
+    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en", 7);
     const rows = kb.inline_keyboard;
-    // 3 entry rows + 1 close row = 4 total (no nav row)
-    expect(rows.length).toBe(4);
+    // 3 entry rows + switch row + close row = 5 total (no nav row)
+    expect(rows.length).toBe(5);
     // Last row is close
-    expect(cbData(rows[3]![0])).toBe("dict:close");
+    expect(cbData(rows[4]![0])).toBe("dict:close");
   });
 
   it("has close button", () => {
-    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en");
+    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en", 7);
     const rows = kb.inline_keyboard;
     const lastRow = rows[rows.length - 1]!;
     expect(cbData(lastRow[0])).toBe("dict:close");
   });
 
   it("entry buttons show emoji + original", () => {
-    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en");
+    const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en", 7);
     const firstBtn = kb.inline_keyboard[0]![0]!;
     expect(firstBtn.text).toBe("🍎 apple");
   });
@@ -313,17 +319,19 @@ describe("buildDictionaryListKeyboard", () => {
 
 describe("buildDictionaryEntryKeyboard", () => {
   it("has delete and back buttons", () => {
-    const kb = buildDictionaryEntryKeyboard(42, 2, "en");
+    const kb = buildDictionaryEntryKeyboard(42, 2, "en", 7);
     const rows = kb.inline_keyboard;
-    expect(rows.length).toBe(2);
-    expect(cbData(rows[0]![0])).toBe("dict:delete:42:2");
-    expect(cbData(rows[1]![0])).toBe("dict:page:2");
+    expect(rows.length).toBe(4);
+    expect(cbData(rows[0]![0])).toBe("dict:add-menu:7:42:2");
+    expect(cbData(rows[1]![0])).toBe("dict:move-menu:7:42:2");
+    expect(cbData(rows[2]![0])).toBe("dict:delete:7:42:2");
+    expect(cbData(rows[3]![0])).toBe("dict:page:7:2");
   });
 
   it("uses i18n for button labels", () => {
-    const kb = buildDictionaryEntryKeyboard(1, 1, "en");
-    expect(kb.inline_keyboard[0]![0]!.text).toContain("Delete");
-    expect(kb.inline_keyboard[1]![0]!.text).toContain("Back");
+    const kb = buildDictionaryEntryKeyboard(1, 1, "en", 7);
+    expect(kb.inline_keyboard[2]![0]!.text).toContain("Delete");
+    expect(kb.inline_keyboard[3]![0]!.text).toContain("Back");
   });
 });
 
@@ -331,15 +339,15 @@ describe("buildDictionaryEntryKeyboard", () => {
 
 describe("buildDeleteConfirmKeyboard", () => {
   it("has confirm-delete and cancel buttons", () => {
-    const kb = buildDeleteConfirmKeyboard(42, 2, "en");
+    const kb = buildDeleteConfirmKeyboard(42, 2, "en", 7);
     const rows = kb.inline_keyboard;
     expect(rows.length).toBe(2);
-    expect(cbData(rows[0]![0])).toBe("dict:confirm-delete:42:2");
-    expect(cbData(rows[1]![0])).toBe("dict:view:42:2");
+    expect(cbData(rows[0]![0])).toBe("dict:confirm-delete:7:42:2");
+    expect(cbData(rows[1]![0])).toBe("dict:view:7:42:2");
   });
 
   it("uses i18n for button labels", () => {
-    const kb = buildDeleteConfirmKeyboard(1, 1, "en");
+    const kb = buildDeleteConfirmKeyboard(1, 1, "en", 7);
     expect(kb.inline_keyboard[0]![0]!.text).toContain("Yes");
     expect(kb.inline_keyboard[1]![0]!.text).toContain("Cancel");
   });

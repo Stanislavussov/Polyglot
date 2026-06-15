@@ -1,24 +1,32 @@
 /**
  * Dictionary callback handlers — dict:* callbacks for dictionary browsing.
- *
- * Handles: page navigation, view entry, delete, confirm delete, close, noop.
- * All DB access through repositories. All text via i18n.
  */
 
-import { getAllLangs, userRepository, vocabularyRepository } from "@polyglot/adapter-db";
-import type { SupportedLang } from "@polyglot/core";
+import {
+  getAllLangs,
+  userRepository,
+  vocabularyDictionaryRepository,
+  vocabularyRepository,
+} from "@polyglot/adapter-db";
+import type { SupportedLang, VocabularyDictionaryWithCount } from "@polyglot/core";
 import { isSupported, logger, t } from "@polyglot/core";
 import {
   buildDeleteConfirmKeyboard,
+  buildDictionaryChoiceKeyboard,
+  buildDictionaryDeleteConfirmKeyboard,
   buildDictionaryEntryKeyboard,
   buildDictionaryListKeyboard,
+  buildDictionaryNamePromptKeyboard,
+  buildDictionarySwitcherKeyboard,
   DICTIONARY_PAGE_SIZE,
   renderDictionaryEntry,
   renderDictionaryList,
+  renderDictionarySwitcher,
 } from "../../renderers/dictionary.renderer.js";
 import type { BotContext } from "../../types.js";
+import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 
-/* ── Language resolution ───────────────────────────────────────── */
+const MAX_DICTIONARY_NAME_LENGTH = 32;
 
 function getLangCodeById(id: number): string | undefined {
   const all = getAllLangs();
@@ -31,8 +39,6 @@ async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
 
   return lang && isSupported(lang) ? lang : "en";
 }
-
-/* ── Callback parsing ──────────────────────────────────────────── */
 
 function parsePositiveInteger(value: string | undefined): number | null {
   if (!value) return null;
@@ -51,175 +57,379 @@ async function getOwnedEntry(ctx: BotContext, entryId: number) {
   return entry;
 }
 
-/* ── dict:page:{n} ─────────────────────────────────────────────── */
+async function getOwnedDictionary(ctx: BotContext, dictionaryId: number) {
+  return vocabularyDictionaryRepository.findOwnedById(ctx.user.id, dictionaryId);
+}
+
+async function showDictionaryList(ctx: BotContext, dictionaryId: number, page: number): Promise<void> {
+  const lang = await getUserLang(ctx);
+  const dictionary = await getOwnedDictionary(ctx, dictionaryId);
+  if (!dictionary) {
+    await answerNoResults(ctx);
+    return;
+  }
+
+  const total = await vocabularyRepository.countByUser(ctx.user.id, dictionary.id);
+  const totalPages = Math.max(1, Math.ceil(total / DICTIONARY_PAGE_SIZE));
+  const safePage = Math.min(Math.max(page, 1), totalPages);
+  const offset = (safePage - 1) * DICTIONARY_PAGE_SIZE;
+  const entries = await vocabularyRepository.findByUserPaginated(
+    ctx.user.id,
+    offset,
+    DICTIONARY_PAGE_SIZE,
+    dictionary.id,
+  );
+
+  const text = renderDictionaryList(entries, safePage, totalPages, total, lang, dictionary.name);
+  const kb = buildDictionaryListKeyboard(entries, safePage, totalPages, lang, dictionary.id);
+
+  try {
+    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
+  } catch (err) {
+    logger.error({ err }, "Failed to edit dictionary message");
+  }
+
+  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: safePage, dictionaryId: dictionary.id };
+}
+
+async function showSwitcher(ctx: BotContext): Promise<void> {
+  const lang = await getUserLang(ctx);
+  const dictionaries = await vocabularyDictionaryRepository.listByUser(ctx.user.id);
+  const text = renderDictionarySwitcher(dictionaries, lang);
+  const kb = buildDictionarySwitcherKeyboard(dictionaries, lang);
+
+  try {
+    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
+  } catch (err) {
+    logger.error({ err }, "Failed to edit dictionary switcher");
+  }
+}
+
+function validateDictionaryName(
+  name: string,
+  dictionaries: VocabularyDictionaryWithCount[],
+  currentDictionaryId?: number,
+): string | null {
+  const normalized = vocabularyDictionaryRepository.normalizeName(name);
+  if (normalized.length === 0) return null;
+  if (normalized.length > MAX_DICTIONARY_NAME_LENGTH) return null;
+  const lower = normalized.toLowerCase();
+  const duplicate = dictionaries.some(
+    (dictionary) => dictionary.id !== currentDictionaryId && dictionary.name.toLowerCase() === lower,
+  );
+  return duplicate ? null : normalized;
+}
+
+export async function handleDictionaryNameInput(ctx: BotContext): Promise<void> {
+  const wizard = ctx.session.dictionaryWizard;
+  const text = ctx.message?.text;
+  if (!wizard || !text) return;
+
+  const lang = await getUserLang(ctx);
+  const dictionaries = await vocabularyDictionaryRepository.listByUser(ctx.user.id);
+  const name = validateDictionaryName(text, dictionaries, wizard.dictionaryId);
+
+  if (!name) {
+    await ctx.reply(t("dictionaryNameInvalid", lang, { max: MAX_DICTIONARY_NAME_LENGTH }));
+    return;
+  }
+
+  if (wizard.action === "create") {
+    const dictionary = await vocabularyDictionaryRepository.create(ctx.user.id, name);
+    ctx.session.dictionaryWizard = undefined;
+    await ctx.reply(t("dictionaryCreated", lang, { name: dictionary.name }));
+    await showDictionaryList(ctx, dictionary.id, 1);
+    return;
+  }
+
+  if (!wizard.dictionaryId) {
+    ctx.session.dictionaryWizard = undefined;
+    await ctx.reply(t("dictionarySessionExpired", lang));
+    return;
+  }
+
+  const renamed = await vocabularyDictionaryRepository.rename(ctx.user.id, wizard.dictionaryId, name);
+  ctx.session.dictionaryWizard = undefined;
+  if (!renamed) {
+    await ctx.reply(t("dictionarySessionExpired", lang));
+    return;
+  }
+
+  await ctx.reply(t("dictionaryRenamed", lang, { name: renamed.name }));
+  await showDictionaryList(ctx, renamed.id, ctx.session.dictionary?.currentPage ?? 1);
+}
 
 export async function handleDictPage(ctx: BotContext): Promise<void> {
-  const data = ctx.callbackQuery?.data ?? "";
-  const page = parsePositiveInteger(data.split(":")[2]);
-  if (!page) return void ctx.answerCallbackQuery();
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const dictionaryId = parsePositiveInteger(parts[2]) ?? ctx.session.dictionary?.dictionaryId;
+  const page = parsePositiveInteger(parts[3]);
+  if (!dictionaryId || !page) return void ctx.answerCallbackQuery();
 
-  const lang = await getUserLang(ctx);
-  const total = await vocabularyRepository.countByUser(ctx.user.id);
-  const totalPages = Math.ceil(total / DICTIONARY_PAGE_SIZE);
-
-  if (total === 0) {
-    try {
-      await ctx.editMessageText(t("emptyDictionary", lang), {
-        reply_markup: undefined,
-      });
-    } catch (err) {
-      logger.error({ err }, "Failed to edit dictionary message");
-    }
-    ctx.session.dictionary = undefined;
-    return void ctx.answerCallbackQuery();
-  }
-
-  const safePage = Math.min(page, totalPages);
-  const offset = (safePage - 1) * DICTIONARY_PAGE_SIZE;
-  const entries = await vocabularyRepository.findByUserPaginated(ctx.user.id, offset, DICTIONARY_PAGE_SIZE);
-
-  const text = renderDictionaryList(entries, safePage, totalPages, total, lang);
-  const kb = buildDictionaryListKeyboard(entries, safePage, totalPages, lang);
-
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch (err) {
-    logger.error({ err }, "Failed to edit dictionary message");
-  }
-
-  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: safePage };
+  await showDictionaryList(ctx, dictionaryId, page);
   await ctx.answerCallbackQuery();
 }
-
-/* ── dict:view:{entryId} or dict:view:{entryId}:{page} ────────── */
 
 export async function handleDictView(ctx: BotContext): Promise<void> {
-  const data = ctx.callbackQuery?.data ?? "";
-  const parts = data.split(":");
-  const entryId = parsePositiveInteger(parts[2]);
-  const page = parsePositiveInteger(parts[3]) ?? ctx.session.dictionary?.currentPage ?? 1;
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const dictionaryId = parsePositiveInteger(parts[2]) ?? ctx.session.dictionary?.dictionaryId;
+  const entryId = parsePositiveInteger(parts[3]);
+  const page = parsePositiveInteger(parts[4]) ?? ctx.session.dictionary?.currentPage ?? 1;
 
-  if (!entryId) {
+  if (!dictionaryId || !entryId) {
     await answerNoResults(ctx);
     return;
   }
 
   const lang = await getUserLang(ctx);
-  const entry = await getOwnedEntry(ctx, entryId);
-
-  if (!entry) {
+  const [entry, dictionary] = await Promise.all([getOwnedEntry(ctx, entryId), getOwnedDictionary(ctx, dictionaryId)]);
+  if (!entry || !dictionary) {
     await ctx.answerCallbackQuery({ text: t("noResults", lang) });
     return;
   }
 
-  const text = renderDictionaryEntry(entry, getLangCodeById);
-  const kb = buildDictionaryEntryKeyboard(entryId, page, lang);
+  const belongs = await vocabularyDictionaryRepository.entryBelongsToDictionary(entryId, dictionaryId);
+  if (!belongs) {
+    await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+    return;
+  }
+
+  const text = renderDictionaryEntry(entry, getLangCodeById, lang);
+  const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId);
 
   try {
     await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
   } catch (err) {
     logger.error({ err }, "Failed to edit dictionary message");
   }
-  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page };
+  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page, dictionaryId };
   await ctx.answerCallbackQuery();
 }
 
-/* ── dict:delete:{entryId} or dict:delete:{entryId}:{page} ─────── */
-
 export async function handleDictDelete(ctx: BotContext): Promise<void> {
-  const data = ctx.callbackQuery?.data ?? "";
-  const parts = data.split(":");
-  const entryId = parsePositiveInteger(parts[2]);
-  const page = parsePositiveInteger(parts[3]) ?? ctx.session.dictionary?.currentPage ?? 1;
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const dictionaryId = parsePositiveInteger(parts[2]) ?? ctx.session.dictionary?.dictionaryId;
+  const entryId = parsePositiveInteger(parts[3]);
+  const page = parsePositiveInteger(parts[4]) ?? ctx.session.dictionary?.currentPage ?? 1;
 
-  if (!entryId) {
+  if (!dictionaryId || !entryId) {
     await answerNoResults(ctx);
     return;
   }
 
   const lang = await getUserLang(ctx);
-
   const entry = await getOwnedEntry(ctx, entryId);
-
   if (!entry) {
     await ctx.answerCallbackQuery({ text: t("noResults", lang) });
-
     return;
   }
 
   const text = t("dictionaryDeleteConfirm", lang, { word: entry.original });
-  const kb = buildDeleteConfirmKeyboard(entryId, page, lang);
+  const kb = buildDeleteConfirmKeyboard(entryId, page, lang, dictionaryId);
 
   try {
     await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
   } catch (err) {
     logger.error({ err }, "Failed to edit dictionary message");
   }
-  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page };
+  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page, dictionaryId };
   await ctx.answerCallbackQuery();
 }
 
-/* ── dict:confirm-delete:{entryId}:{page} ──────────────────────── */
-
 export async function handleDictConfirmDelete(ctx: BotContext): Promise<void> {
-  const data = ctx.callbackQuery?.data ?? "";
-  const parts = data.split(":");
-  const entryId = parsePositiveInteger(parts[2]);
-  const page = parsePositiveInteger(parts[3]) ?? 1;
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const dictionaryId = parsePositiveInteger(parts[2]) ?? ctx.session.dictionary?.dictionaryId;
+  const entryId = parsePositiveInteger(parts[3]);
+  const page = parsePositiveInteger(parts[4]) ?? 1;
 
-  if (!entryId) {
+  if (!dictionaryId || !entryId) {
     await answerNoResults(ctx);
     return;
   }
 
   const lang = await getUserLang(ctx);
   const entry = await getOwnedEntry(ctx, entryId);
-
   if (!entry) {
     await ctx.answerCallbackQuery({ text: t("noResults", lang) });
     return;
   }
 
-  await vocabularyRepository.hardDelete(entryId);
+  const remainingMemberships = await vocabularyDictionaryRepository.removeEntry(dictionaryId, entryId);
+  if (remainingMemberships === 0) {
+    await vocabularyRepository.hardDelete(entryId);
+  }
   await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
+  await showDictionaryList(ctx, dictionaryId, page);
+}
 
-  // Re-count and re-fetch
-  const total = await vocabularyRepository.countByUser(ctx.user.id);
+export async function handleDictList(ctx: BotContext): Promise<void> {
+  await showSwitcher(ctx);
+  await ctx.answerCallbackQuery();
+}
 
-  if (total === 0) {
-    try {
-      await ctx.editMessageText(t("emptyDictionary", lang), {
-        reply_markup: undefined,
-      });
-    } catch (err) {
-      logger.error({ err }, "Failed to edit dictionary message");
-    }
-    ctx.session.dictionary = undefined;
+export async function handleDictOpen(ctx: BotContext): Promise<void> {
+  const dictionaryId = parsePositiveInteger((ctx.callbackQuery?.data ?? "").split(":")[2]);
+  if (!dictionaryId) {
+    await answerNoResults(ctx);
+    return;
+  }
+  await showDictionaryList(ctx, dictionaryId, 1);
+  await ctx.answerCallbackQuery();
+}
+
+export async function handleDictCreate(ctx: BotContext): Promise<void> {
+  const lang = await getUserLang(ctx);
+  ctx.session.dictionaryWizard = {
+    action: "create",
+    msgId: ctx.callbackQuery?.message?.message_id,
+  };
+  await ctx.editMessageText(t("dictionaryCreatePrompt", lang), {
+    reply_markup: buildDictionaryNamePromptKeyboard(lang),
+    parse_mode: "HTML",
+  });
+  await ctx.answerCallbackQuery();
+}
+
+export async function handleDictRename(ctx: BotContext): Promise<void> {
+  const dictionaryId = parsePositiveInteger((ctx.callbackQuery?.data ?? "").split(":")[2]);
+  if (!dictionaryId) {
+    await answerNoResults(ctx);
+    return;
+  }
+  const dictionary = await getOwnedDictionary(ctx, dictionaryId);
+  if (!dictionary || dictionary.isDefault) {
+    await answerNoResults(ctx);
+    return;
+  }
+  const lang = await getUserLang(ctx);
+  ctx.session.dictionaryWizard = {
+    action: "rename",
+    dictionaryId,
+    msgId: ctx.callbackQuery?.message?.message_id,
+  };
+  await ctx.editMessageText(t("dictionaryRenamePrompt", lang, { name: dictionary.name }), {
+    reply_markup: buildDictionaryNamePromptKeyboard(lang),
+    parse_mode: "HTML",
+  });
+  await ctx.answerCallbackQuery();
+}
+
+export async function handleDictDeleteDictionary(ctx: BotContext): Promise<void> {
+  const dictionaryId = parsePositiveInteger((ctx.callbackQuery?.data ?? "").split(":")[2]);
+  if (!dictionaryId) {
+    await answerNoResults(ctx);
+    return;
+  }
+  const dictionary = await getOwnedDictionary(ctx, dictionaryId);
+  if (!dictionary || dictionary.isDefault) {
+    await answerNoResults(ctx);
+    return;
+  }
+  const lang = await getUserLang(ctx);
+  await ctx.editMessageText(t("dictionaryDeleteCollectionConfirm", lang, { name: dictionary.name }), {
+    reply_markup: buildDictionaryDeleteConfirmKeyboard(dictionaryId, lang),
+    parse_mode: "HTML",
+  });
+  await ctx.answerCallbackQuery();
+}
+
+export async function handleDictConfirmDeleteDictionary(ctx: BotContext): Promise<void> {
+  const dictionaryId = parsePositiveInteger((ctx.callbackQuery?.data ?? "").split(":")[2]);
+  if (!dictionaryId) {
+    await answerNoResults(ctx);
+    return;
+  }
+  const lang = await getUserLang(ctx);
+  const deleted = await vocabularyDictionaryRepository.delete(ctx.user.id, dictionaryId);
+  await ctx.answerCallbackQuery({ text: deleted ? t("wordDeleted", lang) : t("noResults", lang) });
+  await showSwitcher(ctx);
+}
+
+async function showEntryDictionaryChoices(ctx: BotContext, action: "add" | "move"): Promise<void> {
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const fromDictionaryId = parsePositiveInteger(parts[2]) ?? ctx.session.dictionary?.dictionaryId;
+  const entryId = parsePositiveInteger(parts[3]);
+  const page = parsePositiveInteger(parts[4]) ?? ctx.session.dictionary?.currentPage ?? 1;
+  if (!fromDictionaryId || !entryId) {
+    await answerNoResults(ctx);
     return;
   }
 
-  const totalPages = Math.ceil(total / DICTIONARY_PAGE_SIZE);
-  // If current page is now empty, go to previous page
-  const safePage = page > totalPages ? totalPages : page;
-  const offset = (safePage - 1) * DICTIONARY_PAGE_SIZE;
-  const entries = await vocabularyRepository.findByUserPaginated(ctx.user.id, offset, DICTIONARY_PAGE_SIZE);
+  const lang = await getUserLang(ctx);
+  const dictionaries =
+    action === "add"
+      ? await vocabularyDictionaryRepository.listOtherDictionaries(ctx.user.id, entryId)
+      : (await vocabularyDictionaryRepository.listByUser(ctx.user.id)).filter((dict) => dict.id !== fromDictionaryId);
 
-  const text = renderDictionaryList(entries, safePage, totalPages, total, lang);
-  const kb = buildDictionaryListKeyboard(entries, safePage, totalPages, lang);
-
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch (err) {
-    logger.error({ err }, "Failed to edit dictionary message");
+  if (dictionaries.length === 0) {
+    await ctx.answerCallbackQuery({ text: t("dictionaryNoOtherDictionaries", lang), show_alert: true });
+    return;
   }
 
-  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: safePage };
+  const text = action === "add" ? t("dictionaryAddToPrompt", lang) : t("dictionaryMoveToPrompt", lang);
+  const kb = buildDictionaryChoiceKeyboard(dictionaries, action, fromDictionaryId, entryId, page, lang);
+  await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
+  await ctx.answerCallbackQuery();
 }
 
-/* ── dict:close ────────────────────────────────────────────────── */
+export async function handleDictAddMenu(ctx: BotContext): Promise<void> {
+  await showEntryDictionaryChoices(ctx, "add");
+}
+
+export async function handleDictMoveMenu(ctx: BotContext): Promise<void> {
+  await showEntryDictionaryChoices(ctx, "move");
+}
+
+export async function handleDictAdd(ctx: BotContext): Promise<void> {
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const fromDictionaryId = parsePositiveInteger(parts[2]);
+  const entryId = parsePositiveInteger(parts[3]);
+  const toDictionaryId = parsePositiveInteger(parts[4]);
+  const page = parsePositiveInteger(parts[5]) ?? 1;
+  if (!fromDictionaryId || !entryId || !toDictionaryId) {
+    await answerNoResults(ctx);
+    return;
+  }
+
+  const lang = await getUserLang(ctx);
+  const toDictionary = await getOwnedDictionary(ctx, toDictionaryId);
+  const entry = await getOwnedEntry(ctx, entryId);
+  if (!toDictionary || !entry) {
+    await answerNoResults(ctx);
+    return;
+  }
+
+  await vocabularyDictionaryRepository.addEntry(toDictionaryId, entryId);
+  await ctx.answerCallbackQuery({ text: t("dictionaryEntryAdded", lang, { name: toDictionary.name }) });
+  await showDictionaryList(ctx, fromDictionaryId, page);
+}
+
+export async function handleDictMove(ctx: BotContext): Promise<void> {
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const fromDictionaryId = parsePositiveInteger(parts[2]);
+  const entryId = parsePositiveInteger(parts[3]);
+  const toDictionaryId = parsePositiveInteger(parts[4]);
+  const page = parsePositiveInteger(parts[5]) ?? 1;
+  if (!fromDictionaryId || !entryId || !toDictionaryId) {
+    await answerNoResults(ctx);
+    return;
+  }
+
+  const lang = await getUserLang(ctx);
+  const toDictionary = await getOwnedDictionary(ctx, toDictionaryId);
+  const moved = await vocabularyDictionaryRepository.moveEntry(ctx.user.id, fromDictionaryId, toDictionaryId, entryId);
+  if (!moved || !toDictionary) {
+    await answerNoResults(ctx);
+    return;
+  }
+
+  await ctx.answerCallbackQuery({ text: t("dictionaryEntryMoved", lang, { name: toDictionary.name }) });
+  await showDictionaryList(ctx, fromDictionaryId, page);
+}
 
 export async function handleDictClose(ctx: BotContext): Promise<void> {
   ctx.session.dictionary = undefined;
+  ctx.session.dictionaryWizard = undefined;
+  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.deleteMessage();
   } catch {
@@ -231,8 +441,6 @@ export async function handleDictClose(ctx: BotContext): Promise<void> {
     /* ignore */
   }
 }
-
-/* ── dict:noop ─────────────────────────────────────────────────── */
 
 export async function handleDictNoop(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();

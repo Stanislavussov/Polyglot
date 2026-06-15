@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveTranslationDirection } from "../resolve-direction.js";
+import { resolveDirectionFromSource, resolveTranslationDirection } from "../resolve-direction.js";
 
 describe("resolveTranslationDirection", () => {
   const base = {
@@ -81,14 +81,14 @@ describe("resolveTranslationDirection", () => {
 
   // === Single learning language ===
 
-  it("handles single learning language: detected=learning → targets=[learning]", () => {
+  it("handles single learning language: detected=learning → targets=[]", () => {
     const result = resolveTranslationDirection({
       text: "hello world this is a test",
       nativeLang: "ru",
       learningLangs: ["en"],
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual(["en"]);
+    expect(result.targetLangs).toEqual([]);
     expect(result.detectedLang).toBe("en");
   });
 
@@ -141,5 +141,44 @@ describe("resolveTranslationDirection", () => {
     expect(result.targetLangs).toEqual([]);
     // Single candidate "en" → detected as "en"
     expect(result.detectedLang).toBe("en");
+  });
+});
+
+describe("resolveDirectionFromSource", () => {
+  const base = {
+    nativeLang: "ru",
+    learningLangs: ["cs", "en"],
+  };
+
+  it("returns learning-lang targets when source is native", () => {
+    const result = resolveDirectionFromSource({ ...base, sourceLang: "ru" });
+    expect(result).not.toBeNull();
+    expect(result!.sourceLang).toBe("ru");
+    expect(result!.targetLangs).toEqual(["cs", "en"]);
+  });
+
+  it("excludes source from targets when source is a learning lang", () => {
+    const result = resolveDirectionFromSource({ ...base, sourceLang: "en" });
+    expect(result).not.toBeNull();
+    expect(result!.sourceLang).toBe("en");
+    expect(result!.targetLangs).toEqual(["cs"]);
+    expect(result!.targetLangs).not.toContain("en");
+  });
+
+  it("returns null when source not in config", () => {
+    const result = resolveDirectionFromSource({ ...base, sourceLang: "fr" });
+    expect(result).toBeNull();
+  });
+
+  it("guard does NOT include source back when single learning lang", () => {
+    const result = resolveDirectionFromSource({
+      sourceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["en"],
+    });
+    expect(result).not.toBeNull();
+    expect(result!.sourceLang).toBe("en");
+    expect(result!.targetLangs).not.toContain("en");
+    expect(result!.targetLangs).toEqual([]);
   });
 });

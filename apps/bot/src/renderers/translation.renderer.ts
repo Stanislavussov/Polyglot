@@ -66,7 +66,7 @@ export function renderTranslation(
     lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
-  if (nativeMeaningLine) {
+  if (nativeMeaningLine && nativeLang !== output.sourceLang) {
     lines.push(nativeMeaningLine);
   }
   lines.push("");
@@ -164,7 +164,7 @@ export function renderSentenceTranslation(
     lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
-  if (nativeMeaningLine) {
+  if (nativeMeaningLine && nativeLang !== output.sourceLang) {
     lines.push(nativeMeaningLine);
   }
   lines.push("");

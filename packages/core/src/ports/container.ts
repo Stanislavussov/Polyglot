@@ -9,6 +9,7 @@ import type { TranslationRequestRepository } from "./translation-request.reposit
 import type { TranslationTemplateRepository } from "./translation-template.repository.js";
 import type { UserRepository } from "./user.repository.js";
 import type { VocabularyRepository } from "./vocabulary.repository.js";
+import type { VocabularyDictionaryRepository } from "./vocabulary-dictionary.repository.js";
 import type { WordReviewRepository } from "./word-review.repository.js";
 
 /**
@@ -18,6 +19,7 @@ import type { WordReviewRepository } from "./word-review.repository.js";
 export interface ServiceContainer {
   userRepository: UserRepository;
   vocabularyRepository: VocabularyRepository;
+  vocabularyDictionaryRepository: VocabularyDictionaryRepository;
   translationTemplateRepository: TranslationTemplateRepository;
   wordReviewRepository: WordReviewRepository;
   notificationRepository: NotificationRepository;

@@ -15,6 +15,7 @@ import {
 import { InlineKeyboard } from "grammy";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
+import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import { MOCK_PREVIEW_OUTPUT } from "../template-preview.data.js";
 
 /** Map TemplateFields key → i18n key for field label */
@@ -143,6 +144,7 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
   const lang = await getLang(ctx);
   await translationTemplateRepository.upsert(ctx.user.id, "Custom", ctx.session.templateWizard.fields);
   ctx.session.templateWizard = undefined;
+  await cleanupTechnicalMessages(ctx);
   await ctx.editMessageText(t("templateSaved", lang), {
     parse_mode: "HTML",
   });
@@ -153,6 +155,7 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
 export async function handleCancelCallback(ctx: BotContext): Promise<void> {
   ctx.session.templateWizard = undefined;
   const lang = await getLang(ctx);
+  await cleanupTechnicalMessages(ctx);
   await ctx.editMessageText(t("templateCancelled", lang), {
     parse_mode: "HTML",
   });
@@ -164,6 +167,7 @@ export async function handleResetCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   await translationTemplateRepository.deleteByUserId(ctx.user.id);
   ctx.session.templateWizard = undefined;
+  await cleanupTechnicalMessages(ctx);
   await ctx.editMessageText(t("templateResetDone", lang), {
     parse_mode: "HTML",
   });

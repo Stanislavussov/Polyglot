@@ -13,6 +13,7 @@ const {
   mockLookupContext,
   mockUserRepository,
   mockVocabularyRepository,
+  mockVocabularyDictionaryRepository,
   mockTranslationTemplateRepository,
   mockLanguageCache,
   mockAi,
@@ -27,6 +28,10 @@ const {
     create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
     findByOriginalAndSource: vi.fn().mockResolvedValue(null),
     updateTranslation: vi.fn().mockResolvedValue({}),
+  },
+  mockVocabularyDictionaryRepository: {
+    addEntryToDefault: vi.fn().mockResolvedValue({ id: 1, name: "My Words" }),
+    entryBelongsToDefault: vi.fn().mockResolvedValue(true),
   },
   mockTranslationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),
@@ -48,6 +53,7 @@ const {
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: mockUserRepository,
   vocabularyRepository: mockVocabularyRepository,
+  vocabularyDictionaryRepository: mockVocabularyDictionaryRepository,
   createContextLookup: () => mockLookupContext,
   getLang: mockLanguageCache.getLang,
   translationTemplateRepository: mockTranslationTemplateRepository,
@@ -119,6 +125,7 @@ function createMockCtx(nextSourceLang?: string | null, callbackData?: string): B
     services: {
       userRepository: mockUserRepository,
       vocabularyRepository: mockVocabularyRepository,
+      vocabularyDictionaryRepository: mockVocabularyDictionaryRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
       languageCache: mockLanguageCache,
       ai: mockAi,

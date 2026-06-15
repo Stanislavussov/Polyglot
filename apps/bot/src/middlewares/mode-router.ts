@@ -9,9 +9,11 @@
 import { userRepository } from "@polyglot/adapter-db";
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
+import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
 import type { BotContext } from "../types.js";
+import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
 
 /**
@@ -49,7 +51,8 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       const nonTextType = detectNonTextContent(ctx.message as unknown as Record<string, unknown>);
       logger.debug({ nonTextType, userId: ctx.from?.id }, "Non-text message received from onboarded user");
       const lang = await resolveInterfaceLang(ctx);
-      await ctx.reply(t("textOnly", lang));
+      const msg = await ctx.reply(t("textOnly", lang));
+      trackTechnicalMessage(ctx, msg.message_id);
       return;
     }
     return next();
@@ -60,7 +63,8 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
     if (ctx.user?.onboarded) {
       logger.debug({ text, userId: ctx.from?.id }, "Emoji-only message received");
       const lang = await resolveInterfaceLang(ctx);
-      await ctx.reply(t("emojiNotSupported", lang));
+      const msg = await ctx.reply(t("emojiNotSupported", lang));
+      trackTechnicalMessage(ctx, msg.message_id);
       return;
     }
     return next();
@@ -69,6 +73,11 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   // Capture notification context text input
   if (ctx.session.awaitingNotifContext) {
     await handleNotifContextTextInput(ctx);
+    return;
+  }
+
+  if (ctx.session.dictionaryWizard) {
+    await handleDictionaryNameInput(ctx);
     return;
   }
 
@@ -100,7 +109,8 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       const settings = user ? await userRepository.getSettings(user.id) : null;
       const rawLang = settings?.interfaceLang ?? "en";
       const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
-      await ctx.reply(t("welcome", lang));
+      const msg = await ctx.reply(t("welcome", lang));
+      trackTechnicalMessage(ctx, msg.message_id);
       return;
     }
   }

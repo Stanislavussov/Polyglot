@@ -11,7 +11,7 @@ import type {
 } from "@polyglot/core";
 import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or } from "drizzle-orm";
 import { getDb } from "../connection.js";
-import { vocabularyEntries, vocabularyTranslations } from "../schema.js";
+import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations } from "../schema.js";
 
 export type {
   CreateVocabularyInput,
@@ -320,8 +320,24 @@ export const vocabularyRepository = {
    * Count active vocabulary entries for a user.
    * Returns 0 for users with no entries.
    */
-  async countByUser(userId: number): Promise<number> {
+  async countByUser(userId: number, dictionaryId?: number): Promise<number> {
     const db = getDb();
+    if (dictionaryId !== undefined) {
+      const result = await db
+        .select({ value: count() })
+        .from(vocabularyEntries)
+        .innerJoin(vocabularyDictionaryEntries, eq(vocabularyEntries.id, vocabularyDictionaryEntries.entryId))
+        .where(
+          and(
+            eq(vocabularyEntries.userId, userId),
+            eq(vocabularyEntries.isActive, true),
+            eq(vocabularyDictionaryEntries.dictionaryId, dictionaryId),
+          ),
+        );
+
+      return result[0]?.value ?? 0;
+    }
+
     const result = await db
       .select({ value: count() })
       .from(vocabularyEntries)
@@ -391,15 +407,47 @@ export const vocabularyRepository = {
    * Find active vocabulary entries for a user with pagination.
    * Returns entries with their active translations, ordered by createdAt DESC.
    */
-  async findByUserPaginated(userId: number, offset: number, limit: number): Promise<VocabularyEntryWithTranslations[]> {
+  async findByUserPaginated(
+    userId: number,
+    offset: number,
+    limit: number,
+    dictionaryId?: number,
+  ): Promise<VocabularyEntryWithTranslations[]> {
     const db = getDb();
-    const entries = await db
-      .select()
-      .from(vocabularyEntries)
-      .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true)))
-      .orderBy(desc(vocabularyEntries.createdAt))
-      .limit(limit)
-      .offset(offset);
+    const entries =
+      dictionaryId === undefined
+        ? await db
+            .select()
+            .from(vocabularyEntries)
+            .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true)))
+            .orderBy(desc(vocabularyEntries.createdAt))
+            .limit(limit)
+            .offset(offset)
+        : await db
+            .select({
+              id: vocabularyEntries.id,
+              userId: vocabularyEntries.userId,
+              original: vocabularyEntries.original,
+              sourceLangId: vocabularyEntries.sourceLangId,
+              inputType: vocabularyEntries.inputType,
+              emoji: vocabularyEntries.emoji,
+              nativeMeaning: vocabularyEntries.nativeMeaning,
+              isActive: vocabularyEntries.isActive,
+              createdAt: vocabularyEntries.createdAt,
+              updatedAt: vocabularyEntries.updatedAt,
+            })
+            .from(vocabularyEntries)
+            .innerJoin(vocabularyDictionaryEntries, eq(vocabularyEntries.id, vocabularyDictionaryEntries.entryId))
+            .where(
+              and(
+                eq(vocabularyEntries.userId, userId),
+                eq(vocabularyEntries.isActive, true),
+                eq(vocabularyDictionaryEntries.dictionaryId, dictionaryId),
+              ),
+            )
+            .orderBy(desc(vocabularyEntries.createdAt))
+            .limit(limit)
+            .offset(offset);
 
     if (entries.length === 0) return [];
 

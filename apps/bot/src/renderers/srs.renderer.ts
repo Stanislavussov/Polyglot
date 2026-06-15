@@ -1,6 +1,7 @@
 import type { SrsDueVocabularyCard, SupportedLang } from "@polyglot/core";
 import { getLangFlag, getLanguageName, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { formatInputType } from "./input-type-label.js";
 
 function esc(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -29,7 +30,7 @@ export function renderSrsFront(
   if (card.nativeMeaning) {
     lines.push(esc(card.nativeMeaning));
   }
-  lines.push(`<i>${esc(card.inputType)} · ${sourceFlag} → ${targetFlag} ${esc(targetName)}</i>`);
+  lines.push(`<i>${esc(formatInputType(card.inputType, lang))} · ${sourceFlag} → ${targetFlag} ${esc(targetName)}</i>`);
   return lines.join("\n");
 }
 

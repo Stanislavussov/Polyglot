@@ -75,7 +75,7 @@ describe("resolveDirectionFromSource", () => {
     expect(result!.targetLangs).toEqual(["en"]);
   });
 
-  it("handles single learning language: source=learning → targets=[learning]", () => {
+  it("handles single learning language: source=learning → targets=[]", () => {
     const result = resolveDirectionFromSource({
       sourceLang: "en",
       nativeLang: "ru",
@@ -83,7 +83,7 @@ describe("resolveDirectionFromSource", () => {
     });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["en"]);
+    expect(result!.targetLangs).toEqual([]);
   });
 
   // === Multiple learning languages ===

@@ -7,6 +7,7 @@ import {
   renderSrsFront,
 } from "../../renderers/srs.renderer.js";
 import type { BotContext } from "../../types.js";
+import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import { SRS_SESSION_LIMIT } from "../srs.scene.js";
 
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
@@ -88,6 +89,7 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
   if (srs.currentIndex >= srs.deck.length) {
     const text = t("srsDone", lang, { count: String(srs.deck.length) });
     ctx.session.srs = undefined;
+    await cleanupTechnicalMessages(ctx);
     try {
       await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: buildSrsDoneKeyboard(lang) });
     } catch {
@@ -152,6 +154,7 @@ export async function handleSrsRestart(ctx: BotContext): Promise<void> {
 export async function handleSrsQuit(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
   ctx.session.srs = undefined;
+  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.editMessageText(t("srsQuit", lang));
   } catch {
@@ -162,6 +165,7 @@ export async function handleSrsQuit(ctx: BotContext): Promise<void> {
 
 export async function handleSrsClose(ctx: BotContext): Promise<void> {
   ctx.session.srs = undefined;
+  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.deleteMessage();
   } catch {

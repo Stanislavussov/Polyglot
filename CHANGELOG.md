@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added multiple vocabulary dictionaries in the bot. `/dictionary` now opens the default `My Words` dictionary, users can create, rename, delete, switch between dictionaries, and add or move saved words between them.
+- Added automatic cleanup of technical messages — menus, settings, hints, onboarding prompts, and other non-translation bot messages are now deleted after a scene ends or settings change. Only translation result cards remain in the chat history.
 - Added pre-translation dictionary lookup — when a user translates a word or phrase that already exists in their personal dictionary, the Save button is shown as disabled ("✅ Saved") instead of the active "💾 Save" button.
 - Added synonyms context to word notifications — each translation line now shows synonyms below the translation text when available.
 - Added "View" button to admin reported issues table that opens a modal showing the full issue description and all details.
@@ -28,11 +30,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Localized dictionary item type labels in SRS review, flashcards, and dictionary details, so Russian UI shows `слово` instead of the raw English `word` enum.
 - Fixed "Open dictionary" notification button — now calls the dictionary handler directly instead of sending `/dictionary` as plain text.
 - Prevented same-language learning blocks from drifting away from the detected source expression, so cases like Czech `kudlanka` cannot be accepted as Czech `klubko`.
 - Made connotation notes render as informational text instead of warning-style alerts.
 - Generated missing migration for `translation_request_timings` table that was preventing the Request Timing Breakdown chart from loading.
 - `requestTimingRepository.record()` now silently ignores missing-table errors instead of logging a warning, so the bot does not emit noise before the migration is applied.
+- Fixed translation cards showing `nativeMeaning` when `nativeLang` equals `sourceLang` — users with native English inputting English words no longer see an English "translation" block.
+- Removed flawed guard from `resolveTranslationDirection` and `resolveDirectionFromSource` that re-included the source language into `targetLangs` when the user had only one learning language; this prevented empty cards caused by `hideSourceText` skipping the sole (same-language) target.
+- Fixed translation cards and flashcards not showing the user's native language when translating from a learning language — `resolveTranslationDirection` and `resolveDirectionFromSource` now include `nativeLang` in `targetLangs` (unless it equals the source language), so users see translations back to their native language alongside other learning languages.
 
 ### Changed
 

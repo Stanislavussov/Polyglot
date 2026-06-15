@@ -64,6 +64,9 @@ export type I18nKey =
   | "nextTranslationFrom"
   | "nextSourceSet"
   | "sentenceTranslation"
+  | "inputTypeWord"
+  | "inputTypePhrase"
+  | "inputTypeSentence"
   | "save"
   | "connotationWarning"
   | "templateTitle"
@@ -125,11 +128,32 @@ export type I18nKey =
   | "srsClose"
   | "srsSessionExpired"
   | "dictionaryHeader"
+  | "dictionaryNamedHeader"
   | "dictionaryPage"
   | "dictionaryPrev"
   | "dictionaryNext"
   | "dictionaryClose"
   | "dictionaryBack"
+  | "dictionarySwitch"
+  | "dictionarySwitcherTitle"
+  | "dictionarySwitcherItem"
+  | "dictionaryDefaultMark"
+  | "dictionaryCreate"
+  | "dictionaryCreatePrompt"
+  | "dictionaryCreated"
+  | "dictionaryRename"
+  | "dictionaryRenamePrompt"
+  | "dictionaryRenamed"
+  | "dictionaryNameInvalid"
+  | "dictionaryDeleteCollection"
+  | "dictionaryDeleteCollectionConfirm"
+  | "dictionaryAddTo"
+  | "dictionaryMoveTo"
+  | "dictionaryAddToPrompt"
+  | "dictionaryMoveToPrompt"
+  | "dictionaryNoOtherDictionaries"
+  | "dictionaryEntryAdded"
+  | "dictionaryEntryMoved"
   | "dictionaryDelete"
   | "dictionaryDeleteConfirm"
   | "dictionaryDeleteYes"
@@ -248,7 +272,16 @@ export interface I18nParams {
   srsDone: { count: string | number };
   srsProgress: { current: string | number; total: string | number };
   dictionaryHeader: { count: string | number };
+  dictionaryNamedHeader: { name: string; count: string | number };
   dictionaryPage: { page: string | number; total: string | number };
+  dictionarySwitcherItem: { name: string; count: string | number };
+  dictionaryCreated: { name: string };
+  dictionaryRenamePrompt: { name: string };
+  dictionaryRenamed: { name: string };
+  dictionaryNameInvalid: { max: string | number };
+  dictionaryDeleteCollectionConfirm: { name: string };
+  dictionaryEntryAdded: { name: string };
+  dictionaryEntryMoved: { name: string };
   dictionaryDeleteConfirm: { word: string };
   settingsNativeLang: { lang: string };
   settingsLearningLangs: { langs: string };

@@ -5,6 +5,7 @@ import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../commands/commands.js";
 import { MAX_LEARNING_LANGS } from "../constants.js";
 import type { BotContext, ConversationContext } from "../types.js";
+import { cleanupTechnicalMessages, trackTechnicalMessage } from "../utils/message-cleanup.js";
 
 type OnboardingConversation = Conversation<BotContext, ConversationContext>;
 
@@ -99,6 +100,9 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
 
   await conversation.external(() => userRepository.markOnboarded(userId));
 
+  // Clean up technical onboarding messages
+  await cleanupTechnicalMessages(ctx);
+
   // Activate translate mode and persist to DB so it survives restarts
   ctx.session.activeMode = "translate";
   ctx.session.nextSourceLang = null; // Clear on re-onboard (Task 36)
@@ -124,7 +128,8 @@ async function stepChooseNativeLang(
     keyboard.text(getLangDisplay(l.code), `lang:${l.code}`).row();
   }
 
-  await ctx.reply(t("chooseNativeLang", lang), { reply_markup: keyboard });
+  const msg = await ctx.reply(t("chooseNativeLang", lang), { reply_markup: keyboard });
+  trackTechnicalMessage(ctx, msg.message_id);
 
   const response = await conversation.waitUntil((ctx) => {
     const text = ctx.message?.text;
@@ -171,7 +176,8 @@ async function stepChooseLearningLangs(
   }
 
   const promptText = t("chooseLearningLangs", interfaceLang);
-  await ctx.reply(promptText, { reply_markup: buildKeyboard() });
+  const msg = await ctx.reply(promptText, { reply_markup: buildKeyboard() });
+  trackTechnicalMessage(ctx, msg.message_id);
 
   while (true) {
     const response = await conversation.waitUntil((ctx) => {
@@ -243,9 +249,10 @@ async function stepDemoTranslation(
 ): Promise<undefined | BackAction> {
   const backKeyboard = new InlineKeyboard().text(`⬅️ ${t("back", interfaceLang)}`, "onb:back").row();
 
-  await ctx.reply(t("enterWord", interfaceLang), {
+  const enterMsg = await ctx.reply(t("enterWord", interfaceLang), {
     reply_markup: backKeyboard,
   });
+  trackTechnicalMessage(ctx, enterMsg.message_id);
 
   // Wait for either a text message (word) or the back button
   let word: string;
@@ -269,8 +276,10 @@ async function stepDemoTranslation(
 
   // Show translation result immediately — no Save/Skip prompt
   const resultText = t("demoResult", interfaceLang, { word });
-  await ctx.reply(resultText, { parse_mode: "Markdown" });
+  const resultMsg = await ctx.reply(resultText, { parse_mode: "Markdown" });
+  trackTechnicalMessage(ctx, resultMsg.message_id);
 
   // Show onboarding complete message
-  await ctx.reply(t("onboardingComplete", interfaceLang));
+  const completeMsg = await ctx.reply(t("onboardingComplete", interfaceLang));
+  trackTechnicalMessage(ctx, completeMsg.message_id);
 }

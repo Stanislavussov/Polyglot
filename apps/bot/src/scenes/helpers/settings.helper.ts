@@ -8,6 +8,7 @@ import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import type { BotContext } from "../../types.js";
+import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import {
   buildNotifSubKeyboard,
   buildNotifSubText,
@@ -93,6 +94,7 @@ export async function handleSetNativeSelectCallback(ctx: BotContext): Promise<vo
   await ctx.answerCallbackQuery({
     text: t("settingsNativeUpdated", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
   });
+  await cleanupTechnicalMessages(ctx);
   await showSettingsMenu(ctx);
 }
 
@@ -189,6 +191,7 @@ async function handleSetLearnDoneCallback(ctx: BotContext): Promise<void> {
 
   const lang = await getLang(ctx);
   await ctx.answerCallbackQuery({ text: t("settingsLearningUpdated", lang) });
+  await cleanupTechnicalMessages(ctx);
   await showSettingsMenu(ctx);
 }
 
@@ -225,6 +228,7 @@ export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<voi
     await setUserCommands(ctx.api, chatId, newLang, ctx.user.audienceGroup);
   }
 
+  await cleanupTechnicalMessages(ctx);
   await showSettingsMenu(ctx);
 }
 
@@ -248,6 +252,7 @@ export async function handleSetNotifToggleCallback(ctx: BotContext): Promise<voi
   await ctx.answerCallbackQuery({
     text: newEnabled ? t("settingsNotifEnabled", lang) : t("settingsNotifDisabled", lang),
   });
+  await cleanupTechnicalMessages(ctx);
   await showNotifSubMenu(ctx);
 }
 
@@ -300,6 +305,7 @@ export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise
   await ctx.answerCallbackQuery({
     text: t("settingsNotifTime", lang, { time: timeStr }),
   });
+  await cleanupTechnicalMessages(ctx);
   await showNotifSubMenu(ctx);
 }
 
@@ -337,6 +343,7 @@ export async function handleSetNotifTypeSelectCallback(ctx: BotContext): Promise
   await ctx.answerCallbackQuery({
     text: t("settingsNotifType", lang, { type }),
   });
+  await cleanupTechnicalMessages(ctx);
   await showNotifSubMenu(ctx);
 }
 
@@ -396,6 +403,7 @@ export async function handleSetNotifTzSelectCallback(ctx: BotContext): Promise<v
   await ctx.answerCallbackQuery({
     text: t("settingsNotifTimezone", lang, { timezone }),
   });
+  await cleanupTechnicalMessages(ctx);
   await showNotifSubMenu(ctx);
 }
 
@@ -439,6 +447,7 @@ export async function handleNotifContextTextInput(ctx: BotContext): Promise<void
 
   const lang = await getLang(ctx);
   await ctx.reply(t("settingsNotifContextSaved", lang, { context: text }), { parse_mode: "HTML" });
+  await cleanupTechnicalMessages(ctx);
   await showNotifSubMenu(ctx);
 }
 
@@ -456,6 +465,7 @@ export async function handleSetBackCallback(ctx: BotContext): Promise<void> {
 
 /** set:close — dismiss the settings menu */
 export async function handleSetCloseCallback(ctx: BotContext): Promise<void> {
+  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.deleteMessage();
   } catch {

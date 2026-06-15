@@ -123,6 +123,12 @@ export interface VocabularyRepository {
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
   updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
   search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;
-  countByUser(userId: number): Promise<number>;
+  countByUser(userId: number, dictionaryId?: number): Promise<number>;
+  findByUserPaginated(
+    userId: number,
+    offset: number,
+    limit: number,
+    dictionaryId?: number,
+  ): Promise<VocabularyEntryWithTranslations[]>;
   delete(entryId: number, userId: number): Promise<void>;
 }

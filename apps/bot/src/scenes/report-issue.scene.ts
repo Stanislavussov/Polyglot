@@ -3,11 +3,12 @@ import { type IssueType, reportedIssueRepository, userRepository } from "@polygl
 import { logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext, ConversationContext } from "../types.js";
-
-type ReportConversation = Conversation<BotContext, ConversationContext>;
+import { cleanupTechnicalMessages, trackTechnicalMessage } from "../utils/message-cleanup.js";
 
 const BACK = Symbol("back");
 type BackAction = typeof BACK;
+
+type ReportConversation = Conversation<BotContext, ConversationContext>;
 
 const MAX_DESCRIPTION_LENGTH = 1000;
 
@@ -29,8 +30,10 @@ async function stepChooseType(
     .row()
     .text(t("reportOther", lang), "report:type:other");
 
-  await ctx.reply(t("reportTitle", lang));
-  await ctx.reply(t("reportChooseType", lang), { reply_markup: keyboard });
+  const titleMsg = await ctx.reply(t("reportTitle", lang));
+  trackTechnicalMessage(ctx, titleMsg.message_id);
+  const typeMsg = await ctx.reply(t("reportChooseType", lang), { reply_markup: keyboard });
+  trackTechnicalMessage(ctx, typeMsg.message_id);
 
   const response = await conversation.waitUntil((ctx) => {
     const text = ctx.message?.text;
@@ -54,7 +57,8 @@ async function stepEnterDescription(
 ): Promise<string | BackAction> {
   const backKeyboard = new InlineKeyboard().text(`⬅️ ${t("back", lang)}`, "report:back");
 
-  await ctx.reply(t("reportEnterDescription", lang), { reply_markup: backKeyboard });
+  const descMsg = await ctx.reply(t("reportEnterDescription", lang), { reply_markup: backKeyboard });
+  trackTechnicalMessage(ctx, descMsg.message_id);
 
   while (true) {
     const response = await conversation.waitUntil((ctx) => {
@@ -97,7 +101,8 @@ async function stepPreview(
     .row()
     .text(t("reportCancel", lang), "report:cancel");
 
-  await ctx.reply(preview, { parse_mode: "HTML", reply_markup: keyboard });
+  const previewMsg = await ctx.reply(preview, { parse_mode: "HTML", reply_markup: keyboard });
+  trackTechnicalMessage(ctx, previewMsg.message_id);
 
   const response = await conversation.waitUntil((ctx) => {
     const text = ctx.message?.text;
@@ -140,6 +145,7 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
   do {
     const descriptionOrBack = await stepEnterDescription(conversation, ctx, lang);
     if (descriptionOrBack === BACK) {
+      await cleanupTechnicalMessages(ctx);
       await ctx.reply(t("reportCancelled", lang));
       return;
     }
@@ -148,11 +154,13 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
   } while (action === "edit");
 
   if (action === "cancel") {
+    await cleanupTechnicalMessages(ctx);
     await ctx.reply(t("reportCancelled", lang));
     return;
   }
 
   // action === "send"
+  await cleanupTechnicalMessages(ctx);
   await conversation.external(async () => {
     await reportedIssueRepository.create(userId, type, description);
   });
