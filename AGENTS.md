@@ -15,6 +15,8 @@ pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm
 - Keep user-facing and operational changes under `## [Unreleased]` in `CHANGELOG.md`
 - `pnpm db:push` is the final step — applies schema changes to local/dev database
 
+**Exception — Documentation-only changes:** When the only files touched are Markdown (`.md`), task specs, readmes, or changelogs, skip the quality gate. Running `pnpm build`, `pnpm lint`, and `pnpm test` is useless if no source code changed. In that case, only verify that the Markdown renders correctly and `CHANGELOG.md` is updated if needed.
+
 ### 2. No `any` Types
 
 Never use `any`, `// @ts-ignore`, or `// @ts-expect-error`. Fix the underlying type issue instead.

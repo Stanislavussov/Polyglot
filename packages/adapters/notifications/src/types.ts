@@ -25,10 +25,17 @@ export interface SuggestedWord {
   emoji: string;
   nativeMeaning?: string;
   translations: Record<string, string>; // lang code -> translation text
+  /** Per-translation context (synonyms) for richer notification rendering. */
+  translationDetails?: Record<string, TranslationBrief>;
   /** Source of the word: 'srs' (from dictionary). */
   source?: NotificationType;
   /** Wiktionary dictionary context for the suggested word (if available). */
   dictionaryContext?: DictionaryContext;
+}
+
+/** Brief translation context for notification display. */
+export interface TranslationBrief {
+  synonyms: string[];
 }
 
 // ─────────────────────────────────────────────
@@ -45,6 +52,7 @@ export interface VocabEntry {
   translations: Array<{
     targetLangId: number;
     text: string;
+    synonyms?: string[];
   }>;
 }
 

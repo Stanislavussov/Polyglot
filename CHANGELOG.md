@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added synonyms context to word notifications — each translation line now shows synonyms below the translation text when available.
 - Added technical debt task docs for five architecture deepening opportunities: translation workflow, translation card lifecycle, dictionary decks, settings registry, and composition root typing.
 - Added native-language meanings to translation output, saved vocabulary entries, dictionary views, flashcards, SRS cards, and word notifications.
 - Added a `native_meaning` column to `vocabulary_entries` for persisted dictionary reuse.
@@ -22,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Fixed "Open dictionary" notification button — now calls the dictionary handler directly instead of sending `/dictionary` as plain text.
 - Prevented same-language learning blocks from drifting away from the detected source expression, so cases like Czech `kudlanka` cannot be accepted as Czech `klubko`.
 - Made connotation notes render as informational text instead of warning-style alerts.
 - Generated missing migration for `translation_request_timings` table that was preventing the Request Timing Breakdown chart from loading.
@@ -40,3 +42,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added Task 62: Separate Deployment Environments (Prod/Dev/Testing) with environment-specific Docker Compose files, CI/CD workflows, and database isolation.
 - Added Task 63: Parameterize Bot by Environment (`production`, `development`, `testing`) including per-environment bot tokens, logging levels, error handling, and release announcement gating.
 - Added Task 64: Application Clustering into Core (bot), Management (admin-api + admin), and Data (migrations + scheduler) clusters with independent deploy scripts.
+- Added Task 65: Dual Database Instance Separation on Single VPS — Docker Swarm-based production and testing database isolation with independent stacks, backup scripts, and resource limits.

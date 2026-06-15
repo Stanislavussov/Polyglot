@@ -2,15 +2,16 @@
  * Notification callback handlers — notif:* callbacks.
  *
  * Handles:
- * - notif:open → deep-link to /dictionary
+ * - notif:open → show user's dictionary directly
  * - notif:skip → dismiss notification message
  */
 import { logger } from "@polyglot/core";
+import { handleDictionaryCommand } from "../scenes/dictionary.scene.js";
 import type { BotContext } from "../types.js";
 
 /**
- * notif:open — open dictionary command.
- * Removes the notification keyboard and sends user to /dictionary.
+ * notif:open — open dictionary.
+ * Removes the notification keyboard and shows the dictionary directly.
  */
 export async function handleNotifOpenCallback(ctx: BotContext): Promise<void> {
   try {
@@ -20,14 +21,10 @@ export async function handleNotifOpenCallback(ctx: BotContext): Promise<void> {
   }
   await ctx.answerCallbackQuery();
 
-  // Trigger dictionary command by sending it as a message hint
   try {
-    const chatId = ctx.from?.id;
-    if (chatId) {
-      await ctx.api.sendMessage(chatId, "/dictionary");
-    }
+    await handleDictionaryCommand(ctx);
   } catch (err) {
-    logger.error({ err }, "Failed to send /dictionary deep-link after notification open");
+    logger.error({ err }, "Failed to open dictionary after notification");
   }
 }
 

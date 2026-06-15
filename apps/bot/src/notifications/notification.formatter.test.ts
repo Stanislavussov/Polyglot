@@ -69,6 +69,57 @@ describe("formatNotificationMessage", () => {
     expect(msg).toContain("A building where people live.");
   });
 
+  it("renders synonyms under translation when translationDetails present", () => {
+    const payload: NotificationPayload = {
+      hour: 8,
+      word: {
+        original: "inchoate",
+        emoji: "🌱",
+        translations: { ru: "незрелый", cs: "počínající" },
+        translationDetails: {
+          ru: { synonyms: ["начинающий", "зарождающийся"] },
+          cs: { synonyms: ["nastávající"] },
+        },
+        source: "srs",
+      },
+      message: "",
+    };
+    const msg = formatNotificationMessage(payload, "en");
+    expect(msg).toContain("≈ начинающий, зарождающийся");
+    expect(msg).toContain("≈ nastávající");
+  });
+
+  it("omits synonym line when no translationDetails for a language", () => {
+    const payload: NotificationPayload = {
+      hour: 8,
+      word: {
+        original: "test",
+        emoji: "📝",
+        translations: { en: "test", ru: "тест" },
+        translationDetails: { ru: { synonyms: ["проверка"] } },
+      },
+      message: "",
+    };
+    const msg = formatNotificationMessage(payload, "en");
+    expect(msg).toContain("≈ проверка");
+    expect(msg).not.toMatch(/≈.*test/);
+  });
+
+  it("escapes HTML entities in synonyms", () => {
+    const payload: NotificationPayload = {
+      hour: 8,
+      word: {
+        original: "test",
+        emoji: "📝",
+        translations: { en: "test" },
+        translationDetails: { en: { synonyms: ["a <b> & c"] } },
+      },
+      message: "",
+    };
+    const msg = formatNotificationMessage(payload, "en");
+    expect(msg).toContain("a &lt;b&gt; &amp; c");
+  });
+
   it("uses fallback flag for unknown languages", () => {
     const payload: NotificationPayload = {
       hour: 8,

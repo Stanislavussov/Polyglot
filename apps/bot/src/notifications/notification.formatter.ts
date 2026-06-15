@@ -30,7 +30,13 @@ export function formatNotificationMessage(payload: NotificationPayload, lang: Su
   const translationLines = Object.entries(word.translations)
     .map(([code, text]) => {
       const flag = getLangFlag(code) ?? "🔤";
-      return `  ${flag} ${escapeHtml(code.toUpperCase())}: ${escapeHtml(text)}`;
+      const lines = [`  ${flag} ${escapeHtml(code.toUpperCase())}: ${escapeHtml(text)}`];
+      const details = word.translationDetails?.[code];
+      if (details?.synonyms && details.synonyms.length > 0) {
+        const synonymText = details.synonyms.map(escapeHtml).join(", ");
+        lines.push(`    ≈ ${synonymText}`);
+      }
+      return lines.join("\n");
     })
     .join("\n");
 

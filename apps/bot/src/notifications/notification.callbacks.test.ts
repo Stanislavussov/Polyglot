@@ -7,6 +7,11 @@ vi.mock("@polyglot/infra", () => ({
   logger: { debug: vi.fn(), error: vi.fn(), info: vi.fn(), warn: vi.fn() },
 }));
 
+vi.mock("../scenes/dictionary.scene.js", () => ({
+  handleDictionaryCommand: vi.fn().mockResolvedValue(undefined),
+}));
+
+import { handleDictionaryCommand } from "../scenes/dictionary.scene.js";
 import { handleNotifOpenCallback, handleNotifSkipCallback } from "./notification.callbacks.js";
 
 function createMockCtx() {
@@ -19,6 +24,8 @@ function createMockCtx() {
     callbackQuery: { data: "", message: { message_id: 100 } },
     editMessageReplyMarkup: vi.fn().mockResolvedValue({}),
     answerCallbackQuery: vi.fn().mockResolvedValue({}),
+    reply: vi.fn().mockResolvedValue({ message_id: 200 }),
+    session: {},
   } as any;
 }
 
@@ -27,7 +34,7 @@ beforeEach(() => {
 });
 
 describe("handleNotifOpenCallback", () => {
-  it("removes keyboard and sends /dictionary deep-link", async () => {
+  it("removes keyboard and calls handleDictionaryCommand directly", async () => {
     const ctx = createMockCtx();
 
     await handleNotifOpenCallback(ctx);
@@ -36,22 +43,23 @@ describe("handleNotifOpenCallback", () => {
       reply_markup: { inline_keyboard: [] },
     });
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-    expect(ctx.api.sendMessage).toHaveBeenCalledWith(12345, "/dictionary");
-  });
-
-  it("handles missing from.id gracefully", async () => {
-    const ctx = createMockCtx();
-    ctx.from = undefined;
-
-    await handleNotifOpenCallback(ctx);
-
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+    expect(handleDictionaryCommand).toHaveBeenCalledWith(ctx);
     expect(ctx.api.sendMessage).not.toHaveBeenCalled();
   });
 
   it("handles editMessageReplyMarkup error gracefully", async () => {
     const ctx = createMockCtx();
     ctx.editMessageReplyMarkup.mockRejectedValue(new Error("too old"));
+
+    await handleNotifOpenCallback(ctx);
+
+    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+    expect(handleDictionaryCommand).toHaveBeenCalledWith(ctx);
+  });
+
+  it("handles handleDictionaryCommand error gracefully", async () => {
+    const ctx = createMockCtx();
+    vi.mocked(handleDictionaryCommand).mockRejectedValueOnce(new Error("db error"));
 
     await handleNotifOpenCallback(ctx);
 
