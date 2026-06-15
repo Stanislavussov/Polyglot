@@ -91,6 +91,14 @@ export type {
   VocabularyTranslation,
 } from "./repositories/vocabulary.repository.js";
 export { vocabularyRepository } from "./repositories/vocabulary.repository.js";
+export type {
+  VocabularyDictionary,
+  VocabularyDictionaryWithCount,
+} from "./repositories/vocabulary-dictionary.repository.js";
+export {
+  DEFAULT_DICTIONARY_NAME,
+  vocabularyDictionaryRepository,
+} from "./repositories/vocabulary-dictionary.repository.js";
 export { wordContextRepository } from "./repositories/word-context.repository.js";
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";

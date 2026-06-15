@@ -31,6 +31,7 @@ import {
   translationRequestRepository,
   translationTemplateRepository,
   userRepository,
+  vocabularyDictionaryRepository,
   vocabularyRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
@@ -61,6 +62,7 @@ export function createContainer(): ServiceContainer {
   const container = {
     userRepository,
     vocabularyRepository,
+    vocabularyDictionaryRepository,
     translationTemplateRepository,
     wordReviewRepository,
     notificationRepository,

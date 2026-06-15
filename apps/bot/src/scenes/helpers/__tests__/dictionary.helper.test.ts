@@ -13,6 +13,9 @@ const mockFindByUserPaginated = vi.fn();
 const mockFindById = vi.fn();
 const mockHardDelete = vi.fn();
 const mockGetAllLangs = vi.fn();
+const mockFindOwnedById = vi.fn();
+const mockEntryBelongsToDictionary = vi.fn();
+const mockRemoveEntry = vi.fn();
 
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: { getSettings: (...args: unknown[]) => mockGetSettings(...args) },
@@ -21,6 +24,11 @@ vi.mock("@polyglot/adapter-db", () => ({
     findByUserPaginated: (...args: unknown[]) => mockFindByUserPaginated(...args),
     findById: (...args: unknown[]) => mockFindById(...args),
     hardDelete: (...args: unknown[]) => mockHardDelete(...args),
+  },
+  vocabularyDictionaryRepository: {
+    findOwnedById: (...args: unknown[]) => mockFindOwnedById(...args),
+    entryBelongsToDictionary: (...args: unknown[]) => mockEntryBelongsToDictionary(...args),
+    removeEntry: (...args: unknown[]) => mockRemoveEntry(...args),
   },
   getAllLangs: () => mockGetAllLangs(),
 }));
@@ -86,12 +94,15 @@ function makeEntry(id: number, original: string): VocabularyEntryWithTranslation
 }
 
 function createMockCtx(
-  opts: { callbackData?: string; dictionary?: { currentPage: number; msgId?: number } | undefined } = {},
+  opts: {
+    callbackData?: string;
+    dictionary?: { currentPage: number; dictionaryId?: number; msgId?: number } | undefined;
+  } = {},
 ) {
   return {
     user: { id: 1 },
     session: {
-      dictionary: "dictionary" in opts ? opts.dictionary : { currentPage: 1 },
+      dictionary: "dictionary" in opts ? opts.dictionary : { currentPage: 1, dictionaryId: 7 },
     },
     callbackQuery: opts.callbackData ? { data: opts.callbackData, message: { message_id: 100 } } : undefined,
     editMessageText: vi.fn().mockResolvedValue(undefined),
@@ -114,6 +125,16 @@ beforeEach(() => {
     { id: 2, code: "cs" },
     { id: 3, code: "ru" },
   ]);
+  mockFindOwnedById.mockResolvedValue({
+    id: 7,
+    userId: 1,
+    name: "My Words",
+    isDefault: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  mockEntryBelongsToDictionary.mockResolvedValue(true);
+  mockRemoveEntry.mockResolvedValue(0);
 });
 
 /* ── handleDictPage ────────────────────────────────────────────── */
@@ -123,11 +144,11 @@ describe("handleDictPage", () => {
     const entries = [makeEntry(1, "word1")];
     mockCountByUser.mockResolvedValue(20);
     mockFindByUserPaginated.mockResolvedValue(entries);
-    const ctx = createMockCtx({ callbackData: "dict:page:2" });
+    const ctx = createMockCtx({ callbackData: "dict:page:7:2" });
 
     await handleDictPage(ctx);
 
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15);
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7);
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
   });
@@ -135,7 +156,7 @@ describe("handleDictPage", () => {
   it("updates session currentPage", async () => {
     mockCountByUser.mockResolvedValue(20);
     mockFindByUserPaginated.mockResolvedValue([makeEntry(1, "w")]);
-    const ctx = createMockCtx({ callbackData: "dict:page:2" });
+    const ctx = createMockCtx({ callbackData: "dict:page:7:2" });
 
     await handleDictPage(ctx);
 
@@ -144,15 +165,16 @@ describe("handleDictPage", () => {
 
   it("shows emptyDictionary when total is 0", async () => {
     mockCountByUser.mockResolvedValue(0);
-    const ctx = createMockCtx({ callbackData: "dict:page:1" });
+    mockFindByUserPaginated.mockResolvedValue([]);
+    const ctx = createMockCtx({ callbackData: "dict:page:7:1" });
 
     await handleDictPage(ctx);
 
     expect(ctx.editMessageText).toHaveBeenCalledWith(
       expect.stringContaining("empty"),
-      expect.objectContaining({ reply_markup: undefined }),
+      expect.objectContaining({ reply_markup: expect.any(Object) }),
     );
-    expect(ctx.session.dictionary).toBeUndefined();
+    expect(ctx.session.dictionary?.dictionaryId).toBe(7);
   });
 });
 
@@ -162,7 +184,7 @@ describe("handleDictView", () => {
   it("calls findById and edits message with entry view", async () => {
     const entry = makeEntry(42, "hello");
     mockFindById.mockResolvedValue(entry);
-    const ctx = createMockCtx({ callbackData: "dict:view:42" });
+    const ctx = createMockCtx({ callbackData: "dict:view:7:42" });
 
     await handleDictView(ctx);
 
@@ -173,7 +195,7 @@ describe("handleDictView", () => {
 
   it("shows noResults when entry not found", async () => {
     mockFindById.mockResolvedValue(null);
-    const ctx = createMockCtx({ callbackData: "dict:view:999" });
+    const ctx = createMockCtx({ callbackData: "dict:view:7:999" });
 
     await handleDictView(ctx);
 
@@ -186,7 +208,7 @@ describe("handleDictView", () => {
   it("uses page from callback data when provided", async () => {
     const entry = makeEntry(42, "hello");
     mockFindById.mockResolvedValue(entry);
-    const ctx = createMockCtx({ callbackData: "dict:view:42:3" });
+    const ctx = createMockCtx({ callbackData: "dict:view:7:42:3" });
 
     await handleDictView(ctx);
 
@@ -194,8 +216,8 @@ describe("handleDictView", () => {
     const editCall = ctx.editMessageText.mock.calls[0];
     const keyboard = editCall[1].reply_markup;
     // Check that the back button goes to page 3
-    const backRow = keyboard.inline_keyboard[1];
-    expect(backRow[0].callback_data).toBe("dict:page:3");
+    const backRow = keyboard.inline_keyboard[3];
+    expect(backRow[0].callback_data).toBe("dict:page:7:3");
   });
 });
 
@@ -205,7 +227,7 @@ describe("handleDictDelete", () => {
   it("shows confirmation with word name", async () => {
     const entry = makeEntry(42, "hello");
     mockFindById.mockResolvedValue(entry);
-    const ctx = createMockCtx({ callbackData: "dict:delete:42:1" });
+    const ctx = createMockCtx({ callbackData: "dict:delete:7:42:1" });
 
     await handleDictDelete(ctx);
 
@@ -214,7 +236,7 @@ describe("handleDictDelete", () => {
 
   it("shows noResults when entry not found", async () => {
     mockFindById.mockResolvedValue(null);
-    const ctx = createMockCtx({ callbackData: "dict:delete:999" });
+    const ctx = createMockCtx({ callbackData: "dict:delete:7:999" });
 
     await handleDictDelete(ctx);
 
@@ -232,7 +254,7 @@ describe("handleDictConfirmDelete", () => {
     mockHardDelete.mockResolvedValue(undefined);
     mockCountByUser.mockResolvedValue(5);
     mockFindByUserPaginated.mockResolvedValue([makeEntry(2, "remaining")]);
-    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:42:1" });
+    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:7:42:1" });
 
     await handleDictConfirmDelete(ctx);
 
@@ -249,12 +271,12 @@ describe("handleDictConfirmDelete", () => {
     // After deletion, only 15 entries left → 1 page, but we're on page 2
     mockCountByUser.mockResolvedValue(15);
     mockFindByUserPaginated.mockResolvedValue([makeEntry(1, "word")]);
-    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:42:2" });
+    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:7:42:2" });
 
     await handleDictConfirmDelete(ctx);
 
     // Should go to page 1 (totalPages = 1 < page 2)
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 0, 15);
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 0, 15, 7);
     expect(ctx.session.dictionary?.currentPage).toBe(1);
   });
 
@@ -262,15 +284,16 @@ describe("handleDictConfirmDelete", () => {
     mockFindById.mockResolvedValue(makeEntry(42, "hello"));
     mockHardDelete.mockResolvedValue(undefined);
     mockCountByUser.mockResolvedValue(0);
-    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:42:1" });
+    mockFindByUserPaginated.mockResolvedValue([]);
+    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:7:42:1" });
 
     await handleDictConfirmDelete(ctx);
 
     expect(ctx.editMessageText).toHaveBeenCalledWith(
       expect.stringContaining("empty"),
-      expect.objectContaining({ reply_markup: undefined }),
+      expect.objectContaining({ reply_markup: expect.any(Object) }),
     );
-    expect(ctx.session.dictionary).toBeUndefined();
+    expect(ctx.session.dictionary?.dictionaryId).toBe(7);
   });
 });
 
@@ -306,18 +329,18 @@ describe("restart recovery and ownership", () => {
   it("handleDictPage re-renders from DB when session is missing", async () => {
     mockCountByUser.mockResolvedValue(20);
     mockFindByUserPaginated.mockResolvedValue([makeEntry(1, "w")]);
-    const ctx = createMockCtx({ callbackData: "dict:page:2", dictionary: undefined });
+    const ctx = createMockCtx({ callbackData: "dict:page:7:2", dictionary: undefined });
 
     await handleDictPage(ctx);
 
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15);
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7);
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.session.dictionary?.currentPage).toBe(2);
   });
 
   it("handleDictView re-renders owned entries when session is missing", async () => {
     mockFindById.mockResolvedValue(makeEntry(42, "hello"));
-    const ctx = createMockCtx({ callbackData: "dict:view:42:3", dictionary: undefined });
+    const ctx = createMockCtx({ callbackData: "dict:view:7:42:3", dictionary: undefined });
 
     await handleDictView(ctx);
 
@@ -327,7 +350,7 @@ describe("restart recovery and ownership", () => {
 
   it("handleDictDelete rejects entries owned by another user", async () => {
     mockFindById.mockResolvedValue({ ...makeEntry(42, "hello"), userId: 2 });
-    const ctx = createMockCtx({ callbackData: "dict:delete:42:1", dictionary: undefined });
+    const ctx = createMockCtx({ callbackData: "dict:delete:7:42:1", dictionary: undefined });
 
     await handleDictDelete(ctx);
 
@@ -341,7 +364,7 @@ describe("restart recovery and ownership", () => {
 
   it("handleDictConfirmDelete validates ownership before deleting", async () => {
     mockFindById.mockResolvedValue({ ...makeEntry(42, "hello"), userId: 2 });
-    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:42:1", dictionary: undefined });
+    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:7:42:1", dictionary: undefined });
 
     await handleDictConfirmDelete(ctx);
 

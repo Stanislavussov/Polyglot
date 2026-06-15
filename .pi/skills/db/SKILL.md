@@ -18,12 +18,13 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 ## Current State
 
 Fully implemented. All tables, repositories, singleton connection, and context-lookup factory in place.
-- `schema.ts` — tables: `users` (incl. subscription_plan), `userLanguageSettings` (incl. notification_enabled, notification_time, notification_type, last_interaction_at), `vocabularyEntries`, `vocabularyTranslations` (incl. per-translation SRS state: `srs_ease_factor`, `srs_interval`, `srs_due_date`, `srs_review_count`), `wordReviewLog`, `translationRequests` (incl. credit_cost), `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
-- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `vocabularyRepository`, `translationRequestRepository`, `wordReviewRepository`, `notificationRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
+- `schema.ts` — tables: `users` (incl. subscription_plan), `userLanguageSettings` (incl. notification_enabled, notification_time, notification_type, last_interaction_at), `vocabularyEntries`, `vocabularyDictionaries`, `vocabularyDictionaryEntries`, `vocabularyTranslations` (incl. per-translation SRS state: `srs_ease_factor`, `srs_interval`, `srs_due_date`, `srs_review_count`), `wordReviewLog`, `translationRequests` (incl. credit_cost), `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
+- `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `vocabularyRepository`, `vocabularyDictionaryRepository`, `translationRequestRepository`, `wordReviewRepository`, `notificationRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
 - `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded, updateNotificationPrefs, updateLastInteraction
 - `repositories/notification.repository.ts` — **Task 41**: getUsersForWindow, getInactiveUsers, disableNotifications, notification preference updates, notification history, and domain constants (NOTIFICATION_TYPES, DEFAULT_NOTIFICATION_TIME, DEFAULT_NOTIFICATION_TYPE, INACTIVITY_DAYS). `getUsersForWindow` accepts UTC hour/minute and matches the user's local `HH:MM` preference in the current 30-minute scheduler slot only.
-- `repositories/vocabulary.repository.ts` — **Task 39+40+50**: normalized vocabulary CRUD and SRS scheduling. create (transactional parent+children, first SRS review scheduled for next day), findByOriginalAndSource, findByUser, findById, search, findByUserAndLang, updateTranslation (upsert), updateAllTranslations, delete (soft), hardDelete (permanent), countByUser, findByUserPaginated, findByUserWithSourceLang, findDueForSrs, updateSrsState. Vocabulary entries store nullable `nativeMeaning` for dictionary/notification reuse. Exports VocabularyEntry, VocabularyTranslation, VocabTranslationDetails, VocabularyEntryWithTranslations, VocabularyEntryWithSourceLang, SrsDueVocabularyCard, CreateVocabularyInput, UpdateTranslationData, UpdateSrsStateInput types.
+- `repositories/vocabulary.repository.ts` — **Task 39+40+50**: normalized vocabulary CRUD and SRS scheduling. create (transactional parent+children, first SRS review scheduled for next day), findByOriginalAndSource, findByUser, findById, search, findByUserAndLang, updateTranslation (upsert), updateAllTranslations, delete (soft), hardDelete (permanent), countByUser, findByUserPaginated, findByUserWithSourceLang, findDueForSrs, updateSrsState. `countByUser` and `findByUserPaginated` optionally filter by dictionary id. Vocabulary entries store nullable `nativeMeaning` for dictionary/notification reuse. Exports VocabularyEntry, VocabularyTranslation, VocabTranslationDetails, VocabularyEntryWithTranslations, VocabularyEntryWithSourceLang, SrsDueVocabularyCard, CreateVocabularyInput, UpdateTranslationData, UpdateSrsStateInput types.
+- `repositories/vocabulary-dictionary.repository.ts` — multiple user dictionaries. Exposes `DEFAULT_DICTIONARY_NAME = "My Words"`, default dictionary lazy creation/backfill, list/create/rename/delete dictionaries, add/remove/move entry memberships, and membership checks for default dictionary save behavior.
 - `repositories/topic.repository.ts` — getCached, setCached, markInvalid (topic translation caching)
 - `repositories/language.repository.ts` — findByCode, create, getOrCreate, findAll (normalized language codes)
 - `repositories/word-context.repository.ts` — findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById (offline dictionary data)
@@ -103,9 +104,9 @@ findByOriginalAndSource(userId: number, original: string, sourceLangId: number):
   // Duplicate detection — returns full entry with translations
 findByUser(userId: number): Promise<VocabularyEntryWithTranslations[]>;
   // Active entries with active translations, ordered by createdAt DESC
-countByUser(userId: number): Promise<number>;
+countByUser(userId: number, dictionaryId?: number): Promise<number>;
   // Count active vocabulary entries for a user. Returns 0 for users with no entries.
-findByUserPaginated(userId: number, offset: number, limit: number): Promise<VocabularyEntryWithTranslations[]>;
+findByUserPaginated(userId: number, offset: number, limit: number, dictionaryId?: number): Promise<VocabularyEntryWithTranslations[]>;
   // Active entries with active translations, ordered by createdAt DESC, with OFFSET/LIMIT pagination
 findById(entryId: number): Promise<VocabularyEntryWithTranslations | null>;
 search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;
@@ -126,6 +127,25 @@ findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabular
   // Returns due vocabulary translation rows for /review, one row per target language.
 updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
   // Updates SM-2 state on a vocabulary_translations row.
+```
+
+### VocabularyDictionaryRepository
+
+```typescript
+DEFAULT_DICTIONARY_NAME = "My Words";
+
+getOrCreateDefault(userId: number): Promise<VocabularyDictionary>;
+  // Lazily creates default dictionary and attaches existing active entries.
+listByUser(userId: number): Promise<VocabularyDictionaryWithCount[]>;
+findOwnedById(userId: number, dictionaryId: number): Promise<VocabularyDictionary | null>;
+create(userId: number, name: string): Promise<VocabularyDictionary>;
+rename(userId: number, dictionaryId: number, name: string): Promise<VocabularyDictionary | null>;
+delete(userId: number, dictionaryId: number): Promise<boolean>;
+addEntry(dictionaryId: number, entryId: number): Promise<void>;
+addEntryToDefault(userId: number, entryId: number): Promise<VocabularyDictionary>;
+entryBelongsToDefault(userId: number, entryId: number): Promise<boolean>;
+removeEntry(dictionaryId: number, entryId: number): Promise<number>;
+moveEntry(userId: number, fromDictionaryId: number, toDictionaryId: number, entryId: number): Promise<boolean>;
 ```
 
 
@@ -230,6 +250,8 @@ See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key
 - `users` — id, telegramId, username, onboardingStep, onboarded, isActive, createdAt
 - `userLanguageSettings` — 1-to-1 with users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode (default "translate"), lastSourceLang (nullable text — last explicitly selected source lang, survives restarts), notificationEnabled (boolean, default false), notificationTime (text: 'HH:MM', default '08:00'), notificationType (text: 'suggested'|'srs'|'contextual', default 'srs'), notificationContext (nullable text), lastInteractionAt (timestamp, nullable — for 14-day inactivity pause), isActive, updatedAt
 - `vocabularyEntries` — **(Task 39)** userId (FK → users, CASCADE), original, sourceLangId (FK → languages.id), inputType ('word'|'phrase'), emoji, nativeMeaning (nullable text), isActive, createdAt, updatedAt; unique index on (userId, original, sourceLangId). Replaces the parent data from old `words` table.
+- `vocabularyDictionaries` — user-owned collections: userId (FK → users, CASCADE), name, isDefault, createdAt, updatedAt; unique index on (userId, name).
+- `vocabularyDictionaryEntries` — collection membership: dictionaryId (FK → vocabularyDictionaries, CASCADE), entryId (FK → vocabularyEntries, CASCADE), createdAt; composite primary key on (dictionaryId, entryId).
 - `vocabularyTranslations` — **(Task 39)** entryId (FK → vocabularyEntries, CASCADE), targetLangId (FK → languages.id), text, register, transcription, expressionType, equivalentNote, connotationWarning, details (JSONB typed as VocabTranslationDetails), isActive, createdAt, updatedAt; unique index on (entryId, targetLangId). One row per target language per entry.
 
 - `translationRequests` — userId, original, sourceLangId (FK → languages.id, nullable), createdAt (for rate limiting)

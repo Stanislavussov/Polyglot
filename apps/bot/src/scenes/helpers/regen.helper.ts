@@ -5,7 +5,12 @@
  */
 import type { Conversation } from "@grammyjs/conversations";
 import { generateObject } from "@polyglot/adapter-ai";
-import { getLang, translationTemplateRepository, vocabularyRepository } from "@polyglot/adapter-db";
+import {
+  getLang,
+  translationTemplateRepository,
+  vocabularyDictionaryRepository,
+  vocabularyRepository,
+} from "@polyglot/adapter-db";
 import {
   type InputType,
   logger,
@@ -92,6 +97,18 @@ export async function handleRegenLoop(
       );
 
       if (existing) {
+        const belongsToDefault = await conversation.external(async () =>
+          vocabularyDictionaryRepository.entryBelongsToDefault(userId, existing.id),
+        );
+        if (!belongsToDefault) {
+          await conversation.external(async () => {
+            await vocabularyDictionaryRepository.addEntryToDefault(userId, existing.id);
+          });
+          const saved = `${renderCard(current, lang)}\n\n${t("savedToDict", lang)}`;
+          const postSaveKb = buildPostSaveKeyboard(langCodes, lang);
+          await resp.editMessageText(saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
+          return;
+        }
         const alreadySavedMsg = t("alreadySaved", lang);
         await resp.answerCallbackQuery({ text: alreadySavedMsg, show_alert: true });
         continue;
@@ -105,7 +122,8 @@ export async function handleRegenLoop(
         (code) => getLang(code)?.id ?? null,
       );
       await conversation.external(async () => {
-        await vocabularyRepository.create(userId, vocabInput);
+        const newEntry = await vocabularyRepository.create(userId, vocabInput);
+        await vocabularyDictionaryRepository.addEntryToDefault(userId, newEntry.id);
       });
 
       // Post-save card with regen-only keyboard

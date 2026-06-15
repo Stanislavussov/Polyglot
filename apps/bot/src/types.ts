@@ -98,7 +98,15 @@ export interface SessionData {
   dictionary?: {
     /** Current page (1-based) */
     currentPage: number;
+    /** Active dictionary being browsed */
+    dictionaryId?: number;
     /** Message ID of the dictionary message (for in-place editing) */
+    msgId?: number;
+  };
+  /** Pending dictionary create/rename text input. */
+  dictionaryWizard?: {
+    action: "create" | "rename";
+    dictionaryId?: number;
     msgId?: number;
   };
   /**

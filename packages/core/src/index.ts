@@ -40,6 +40,11 @@ export type {
   VocabularyRepository,
   VocabularyTranslation,
 } from "./ports/vocabulary.repository.js";
+export type {
+  VocabularyDictionary,
+  VocabularyDictionaryRepository,
+  VocabularyDictionaryWithCount,
+} from "./ports/vocabulary-dictionary.repository.js";
 
 // Logger
 

@@ -143,6 +143,38 @@ export const vocabularyEntries = pgTable(
 );
 
 // ─────────────────────────────────────────────
+// Vocabulary dictionaries — user-owned collections of saved entries
+// ─────────────────────────────────────────────
+export const vocabularyDictionaries = pgTable(
+  "vocabulary_dictionaries",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    name: text("name").notNull(),
+    isDefault: boolean("is_default").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [index("vd_user_id_idx").on(t.userId), uniqueIndex("vd_user_name_idx").on(t.userId, t.name)],
+);
+
+export const vocabularyDictionaryEntries = pgTable(
+  "vocabulary_dictionary_entries",
+  {
+    dictionaryId: integer("dictionary_id")
+      .references(() => vocabularyDictionaries.id, { onDelete: "cascade" })
+      .notNull(),
+    entryId: integer("entry_id")
+      .references(() => vocabularyEntries.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.dictionaryId, t.entryId] }), index("vde_entry_id_idx").on(t.entryId)],
+);
+
+// ─────────────────────────────────────────────
 // Vocabulary translations — one row per target language per entry
 // ─────────────────────────────────────────────
 export const vocabularyTranslations = pgTable(

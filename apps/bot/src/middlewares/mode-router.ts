@@ -9,6 +9,7 @@
 import { userRepository } from "@polyglot/adapter-db";
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
+import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
 import type { BotContext } from "../types.js";
@@ -72,6 +73,11 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   // Capture notification context text input
   if (ctx.session.awaitingNotifContext) {
     await handleNotifContextTextInput(ctx);
+    return;
+  }
+
+  if (ctx.session.dictionaryWizard) {
+    await handleDictionaryNameInput(ctx);
     return;
   }
 

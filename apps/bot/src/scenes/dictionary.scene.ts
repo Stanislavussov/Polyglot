@@ -5,9 +5,9 @@
  * All DB access through repositories. All text via i18n.
  */
 
-import { userRepository, vocabularyRepository } from "@polyglot/adapter-db";
+import { userRepository, vocabularyDictionaryRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import type { SupportedLang } from "@polyglot/core";
-import { isSupported, t } from "@polyglot/core";
+import { isSupported } from "@polyglot/core";
 import {
   buildDictionaryListKeyboard,
   DICTIONARY_PAGE_SIZE,
@@ -26,24 +26,21 @@ async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
 /** /dictionary command — show the user's personal dictionary. */
 export async function handleDictionaryCommand(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
-  const total = await vocabularyRepository.countByUser(ctx.user.id);
+  const dictionary = await vocabularyDictionaryRepository.getOrCreateDefault(ctx.user.id);
+  const total = await vocabularyRepository.countByUser(ctx.user.id, dictionary.id);
 
-  if (total === 0) {
-    await ctx.reply(t("emptyDictionary", lang));
-    return;
-  }
+  const entries = await vocabularyRepository.findByUserPaginated(ctx.user.id, 0, DICTIONARY_PAGE_SIZE, dictionary.id);
+  const totalPages = Math.max(1, Math.ceil(total / DICTIONARY_PAGE_SIZE));
 
-  const entries = await vocabularyRepository.findByUserPaginated(ctx.user.id, 0, DICTIONARY_PAGE_SIZE);
-  const totalPages = Math.ceil(total / DICTIONARY_PAGE_SIZE);
-
-  const text = renderDictionaryList(entries, 1, totalPages, total, lang);
-  const kb = buildDictionaryListKeyboard(entries, 1, totalPages, lang);
+  const text = renderDictionaryList(entries, 1, totalPages, total, lang, dictionary.name);
+  const kb = buildDictionaryListKeyboard(entries, 1, totalPages, lang, dictionary.id);
 
   const msg = await ctx.reply(text, { parse_mode: "HTML", reply_markup: kb });
   trackTechnicalMessage(ctx, msg.message_id);
 
   ctx.session.dictionary = {
     currentPage: 1,
+    dictionaryId: dictionary.id,
     msgId: msg.message_id,
   };
 }

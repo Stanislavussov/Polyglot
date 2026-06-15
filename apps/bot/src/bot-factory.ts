@@ -13,11 +13,21 @@ import { handleNotifOpenCallback, handleNotifSkipCallback } from "./notification
 import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
 import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
 import {
+  handleDictAdd,
+  handleDictAddMenu,
   handleDictClose,
   handleDictConfirmDelete,
+  handleDictConfirmDeleteDictionary,
+  handleDictCreate,
   handleDictDelete,
+  handleDictDeleteDictionary,
+  handleDictList,
+  handleDictMove,
+  handleDictMoveMenu,
   handleDictNoop,
+  handleDictOpen,
   handleDictPage,
+  handleDictRename,
   handleDictView,
 } from "./scenes/helpers/dictionary.helper.js";
 import {
@@ -134,6 +144,7 @@ export function createInitialSession(): SessionData {
     needsTranslateReminder: true,
     templateWizard: undefined,
     dictionary: undefined,
+    dictionaryWizard: undefined,
     flashcard: undefined,
     srs: undefined,
     pendingDetectedLang: undefined,
@@ -233,6 +244,16 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery(/^dict:view:/, handleDictView);
   bot.callbackQuery(/^dict:delete:/, handleDictDelete);
   bot.callbackQuery(/^dict:confirm-delete:/, handleDictConfirmDelete);
+  bot.callbackQuery("dict:list", handleDictList);
+  bot.callbackQuery(/^dict:open:/, handleDictOpen);
+  bot.callbackQuery("dict:create", handleDictCreate);
+  bot.callbackQuery(/^dict:rename:/, handleDictRename);
+  bot.callbackQuery(/^dict:delete-dict:/, handleDictDeleteDictionary);
+  bot.callbackQuery(/^dict:confirm-delete-dict:/, handleDictConfirmDeleteDictionary);
+  bot.callbackQuery(/^dict:add-menu:/, handleDictAddMenu);
+  bot.callbackQuery(/^dict:move-menu:/, handleDictMoveMenu);
+  bot.callbackQuery(/^dict:add:/, handleDictAdd);
+  bot.callbackQuery(/^dict:move:/, handleDictMove);
   bot.callbackQuery("dict:close", handleDictClose);
   bot.callbackQuery("dict:noop", handleDictNoop);
 
