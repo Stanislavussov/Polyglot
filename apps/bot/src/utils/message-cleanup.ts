@@ -6,13 +6,18 @@
  * and saved words must NEVER be added here.
  */
 import { logger } from "@polyglot/core";
-import type { BotContext } from "../types.js";
+import type { Context } from "grammy";
+import type { SessionData } from "../types.js";
+
+/** Any grammY context that carries our session shape. */
+type ContextWithSession = Context & { session: SessionData };
 
 /**
  * Register a bot message as technical — it will be deleted later by
  * `cleanupTechnicalMessages`. Returns the message id for convenience.
  */
-export function trackTechnicalMessage(ctx: BotContext, messageId: number): number {
+export function trackTechnicalMessage(ctx: ContextWithSession, messageId: number): number {
+  if (!ctx.session) return messageId;
   const ids = ctx.session.technicalMessages ?? [];
   if (!ids.includes(messageId)) {
     ids.push(messageId);
@@ -25,7 +30,8 @@ export function trackTechnicalMessage(ctx: BotContext, messageId: number): numbe
  * Delete all tracked technical messages and clear the list.
  * Silently ignores Telegram errors (message already deleted, etc.).
  */
-export async function cleanupTechnicalMessages(ctx: BotContext): Promise<void> {
+export async function cleanupTechnicalMessages(ctx: ContextWithSession): Promise<void> {
+  if (!ctx.session) return;
   const ids = ctx.session.technicalMessages ?? [];
   if (ids.length === 0) return;
 
@@ -54,10 +60,10 @@ export async function cleanupTechnicalMessages(ctx: BotContext): Promise<void> {
  * Use this for menus, prompts, hints, loading spinners — never for translation cards.
  */
 export async function replyTechnical(
-  ctx: BotContext,
+  ctx: ContextWithSession,
   text: string,
-  extra?: Parameters<BotContext["reply"]>[1],
-): Promise<ReturnType<BotContext["reply"]>> {
+  extra?: Parameters<Context["reply"]>[1],
+): Promise<ReturnType<Context["reply"]>> {
   const msg = await ctx.reply(text, extra);
   trackTechnicalMessage(ctx, msg.message_id);
   return msg;

@@ -18,8 +18,8 @@ import {
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
-import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 import type { BotContext } from "../types.js";
+import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 
 /**
  * Build the settings main menu text.

@@ -1,6 +1,7 @@
 import { userRepository } from "@polyglot/adapter-db";
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
+import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { setUserCommands } from "./commands.js";
 
 /**
@@ -29,7 +30,8 @@ export async function startCommand(ctx: BotContext): Promise<void> {
     if (chatId) {
       await setUserCommands(ctx.api, chatId, lang, user.audienceGroup);
     }
-    await ctx.reply(t("welcomeBack", lang));
+    const msg = await ctx.reply(t("welcomeBack", lang));
+    trackTechnicalMessage(ctx, msg.message_id);
   } else {
     // Start onboarding conversation
     await ctx.conversation.enter("onboarding");

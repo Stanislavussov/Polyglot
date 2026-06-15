@@ -40,10 +40,10 @@ import {
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
+import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
-import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
