@@ -18,6 +18,7 @@ import {
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 import type { BotContext } from "../types.js";
 
 /**
@@ -150,7 +151,8 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   );
   const kb = buildSettingsKeyboard(lang);
 
-  await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
+  const msg = await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
+  trackTechnicalMessage(ctx, msg.message_id);
 }
 
 export function formatPlanUsage(plan: SubscriptionPlan, usedCredits: number, lang: SupportedLang): string {

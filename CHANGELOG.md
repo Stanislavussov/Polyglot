@@ -28,11 +28,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Localized dictionary item type labels in SRS review, flashcards, and dictionary details, so Russian UI shows `слово` instead of the raw English `word` enum.
 - Fixed "Open dictionary" notification button — now calls the dictionary handler directly instead of sending `/dictionary` as plain text.
 - Prevented same-language learning blocks from drifting away from the detected source expression, so cases like Czech `kudlanka` cannot be accepted as Czech `klubko`.
 - Made connotation notes render as informational text instead of warning-style alerts.
 - Generated missing migration for `translation_request_timings` table that was preventing the Request Timing Breakdown chart from loading.
 - `requestTimingRepository.record()` now silently ignores missing-table errors instead of logging a warning, so the bot does not emit noise before the migration is applied.
+- Fixed translation cards showing `nativeMeaning` when `nativeLang` equals `sourceLang` — users with native English inputting English words no longer see an English "translation" block.
+- Removed flawed guard from `resolveTranslationDirection` and `resolveDirectionFromSource` that re-included the source language into `targetLangs` when the user had only one learning language; this prevented empty cards caused by `hideSourceText` skipping the sole (same-language) target.
 
 ### Changed
 

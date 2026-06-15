@@ -36,16 +36,6 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
   // same-language "translation". Native meaning is requested separately.
   if (learningLangs.includes(detectedLang)) {
     const targetLangs = learningLangs.filter((lang) => lang !== detectedLang);
-    // Guard: don't leave targetLangs empty — when the user has only one
-    // learning language and types in it, include it back so the AI can
-    // provide same-language learning details instead of returning nothing.
-    if (targetLangs.length === 0) {
-      return {
-        sourceLang: detectedLang,
-        targetLangs: learningLangs,
-        detectedLang,
-      };
-    }
     return {
       sourceLang: detectedLang,
       targetLangs,
@@ -95,16 +85,6 @@ export function resolveDirectionFromSource(input: ResolveFromSourceInput): Trans
   // same-language "translation". Native meaning is requested separately.
   if (learningLangs.includes(sourceLang)) {
     const targetLangs = learningLangs.filter((lang) => lang !== sourceLang);
-    // Guard: don't leave targetLangs empty — when the user has only one
-    // learning language and types in it, include it back so the AI can
-    // provide same-language learning details instead of returning nothing.
-    if (targetLangs.length === 0) {
-      return {
-        sourceLang,
-        targetLangs: learningLangs,
-        detectedLang: undefined,
-      };
-    }
     return {
       sourceLang,
       targetLangs,

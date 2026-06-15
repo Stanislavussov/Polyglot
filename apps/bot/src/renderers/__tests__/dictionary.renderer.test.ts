@@ -219,6 +219,12 @@ describe("renderDictionaryEntry", () => {
     expect(html).toContain("word · 🇬🇧");
   });
 
+  it("localizes source input type", () => {
+    const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
+    expect(html).toContain("слово · 🇬🇧");
+    expect(html).not.toContain("word · 🇬🇧");
+  });
+
   it("contains translations without transcription", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("🇷🇺 RU: <b>яблоко</b>");

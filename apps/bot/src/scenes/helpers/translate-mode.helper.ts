@@ -43,6 +43,7 @@ import { classifyInput } from "../../utils/classify-input.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
+import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
@@ -101,6 +102,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     await ctx.reply(t("contextMarkerNeedsText", lang));
     return;
   }
+
+  // Clean up previous technical messages before starting a new translation
+  await cleanupTechnicalMessages(ctx);
 
   const textValidation = validateTranslatableText(cleanWord);
   if (!textValidation.valid) {
@@ -564,9 +568,11 @@ export async function sendSourceLangMenu(
 
   if (keyboard) {
     const text = `${t("translateModeHint", lang)}\n\n${t("nextTranslationFrom", lang)}`;
-    await ctx.reply(text, { reply_markup: keyboard });
+    const msg = await ctx.reply(text, { reply_markup: keyboard });
+    trackTechnicalMessage(ctx, msg.message_id);
   } else {
-    await ctx.reply(t("translateModeHint", lang));
+    const msg = await ctx.reply(t("translateModeHint", lang));
+    trackTechnicalMessage(ctx, msg.message_id);
   }
 }
 
@@ -919,5 +925,6 @@ export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   await ctx.answerCallbackQuery();
-  await ctx.reply(t("translateModeHint", lang));
+  const msg = await ctx.reply(t("translateModeHint", lang));
+  trackTechnicalMessage(ctx, msg.message_id);
 }

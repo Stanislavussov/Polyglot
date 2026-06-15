@@ -578,6 +578,13 @@ describe("i18n — t()", () => {
     expect(t("srsReveal", "cs")).toBe("👁 Ukázat");
   });
 
+  it("returns localized input type labels", () => {
+    expect(t("inputTypeWord", "en")).toBe("word");
+    expect(t("inputTypeWord", "ru")).toBe("слово");
+    expect(t("inputTypePhrase", "ru")).toBe("фраза");
+    expect(t("inputTypeSentence", "cs")).toBe("věta");
+  });
+
   it("falls back to English for flashcard keys when locale has no file", () => {
     expect(t("flashcardStart", "de", { count: 5 })).toBe("📚 Flash Cards — 5 words in your deck.");
     expect(t("flashcardStartBtn", "de")).toBe("▶️ Start");

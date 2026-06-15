@@ -146,6 +146,11 @@ export interface SessionData {
     currentIndex: number;
     cardMsgId?: number;
   };
+  /**
+   * Technical message IDs to delete after scene ends or settings change.
+   * Translation cards and user words are never added here.
+   */
+  technicalMessages?: number[];
 }
 
 /** Custom context properties injected by auth middleware */

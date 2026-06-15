@@ -9,6 +9,7 @@ import type { VocabTranslationDetails, VocabularyEntryWithTranslations } from "@
 import type { SupportedLang } from "@polyglot/core";
 import { getLangFlag, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { formatInputType } from "./input-type-label.js";
 
 /** Page size for dictionary list */
 export const DICTIONARY_PAGE_SIZE = 15;
@@ -95,7 +96,9 @@ export function renderDictionaryList(
 export function renderDictionaryEntry(
   entry: VocabularyEntryWithTranslations,
   langResolver: (id: number) => string | undefined,
+  lang: SupportedLang = "en",
 ): string {
+  const l = toLang(lang);
   const lines: string[] = [];
 
   // Header
@@ -109,7 +112,7 @@ export function renderDictionaryEntry(
   // Source language flag + input type
   const sourceLangCode = langResolver(entry.sourceLangId);
   const srcFlag = sourceLangCode ? (getLangFlag(sourceLangCode) ?? "🔤") : "🔤";
-  lines.push(`<i>${esc(entry.inputType)} · ${srcFlag}</i>`);
+  lines.push(`<i>${esc(formatInputType(entry.inputType, l))} · ${srcFlag}</i>`);
 
   // Translations
   for (const tr of entry.translations) {

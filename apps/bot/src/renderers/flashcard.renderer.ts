@@ -6,6 +6,7 @@
 import type { SupportedLang, WordDisplayData } from "@polyglot/core";
 import { getLangFlag, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { formatInputType } from "./input-type-label.js";
 
 /** Escape HTML special characters for Telegram */
 function esc(text: string): string {
@@ -35,7 +36,7 @@ export function renderFlashCardFront(
     lines.push(esc(word.nativeMeaning));
   }
   const flag = getLangFlag(word.sourceLang) ?? "🔤";
-  lines.push(`<i>${esc(word.inputType)} · ${flag}</i>`);
+  lines.push(`<i>${esc(formatInputType(word.inputType, lang))} · ${flag}</i>`);
   return lines.join("\n");
 }
 
@@ -59,7 +60,7 @@ export function renderFlashCardBack(
     lines.push(esc(word.nativeMeaning));
   }
   const srcFlag = getLangFlag(word.sourceLang) ?? "🔤";
-  lines.push(`<i>${esc(word.inputType)} · ${srcFlag}</i>`);
+  lines.push(`<i>${esc(formatInputType(word.inputType, lang))} · ${srcFlag}</i>`);
   lines.push("");
 
   // Translations

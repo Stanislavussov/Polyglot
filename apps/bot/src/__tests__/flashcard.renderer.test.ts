@@ -97,6 +97,12 @@ describe("renderFlashCardFront", () => {
     expect(result).toContain("word");
   });
 
+  it("localizes input type", () => {
+    const result = renderFlashCardFront(sampleWord, 1, 10, "ru");
+    expect(result).toContain("слово · 🇬🇧");
+    expect(result).not.toContain("word · 🇬🇧");
+  });
+
   it("does NOT contain translation text", () => {
     const result = renderFlashCardFront(sampleWord, 1, 10, "en");
     expect(result).not.toContain("яблоко");

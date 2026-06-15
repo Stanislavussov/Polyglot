@@ -61,6 +61,12 @@ describe("renderTranslation", () => {
     expect(result).toContain("🇷🇺 RU: A greeting.");
   });
 
+  it("does NOT render native meaning when nativeLang equals sourceLang", () => {
+    const result = renderTranslation(sampleOutput, "en", undefined, "en");
+    expect(result).not.toContain("🇬🇧 EN:");
+    expect(result).not.toContain("A greeting.");
+  });
+
   it("does not render register label (disabled to save tokens)", () => {
     const result = renderTranslation(sampleOutput, "en");
     expect(result).not.toContain("Register:");
@@ -783,6 +789,12 @@ describe("renderSentenceTranslation", () => {
   it("renders native meaning for sentence translations", () => {
     const result = renderSentenceTranslation(sentenceOutput, "en", "ru");
     expect(result).toContain("🇷🇺 RU: A question asking for the location of the closest pharmacy.");
+  });
+
+  it("does NOT render native meaning when nativeLang equals sourceLang", () => {
+    const result = renderSentenceTranslation(sentenceOutput, "en", "en");
+    expect(result).not.toContain("🇬🇧 EN:");
+    expect(result).not.toContain("A question asking for the location of the closest pharmacy.");
   });
 
   it("renders translation text as bold per language", () => {

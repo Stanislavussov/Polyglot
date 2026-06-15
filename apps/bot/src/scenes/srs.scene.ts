@@ -2,6 +2,7 @@ import type { SupportedLang } from "@polyglot/core";
 import { isSupported, t } from "@polyglot/core";
 import { buildSrsFrontKeyboard, renderSrsFront } from "../renderers/srs.renderer.js";
 import type { BotContext } from "../types.js";
+import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 
 const SRS_SESSION_LIMIT = 20;
 
@@ -39,6 +40,7 @@ export async function handleReviewCommand(ctx: BotContext): Promise<void> {
     lang,
   );
   const msg = await ctx.reply(text, { parse_mode: "HTML", reply_markup: buildSrsFrontKeyboard(lang) });
+  trackTechnicalMessage(ctx, msg.message_id);
   ctx.session.srs.cardMsgId = msg.message_id;
 }
 

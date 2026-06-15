@@ -17,6 +17,7 @@ import {
   renderDictionaryList,
 } from "../../renderers/dictionary.renderer.js";
 import type { BotContext } from "../../types.js";
+import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 
 /* ── Language resolution ───────────────────────────────────────── */
 
@@ -220,6 +221,7 @@ export async function handleDictConfirmDelete(ctx: BotContext): Promise<void> {
 
 export async function handleDictClose(ctx: BotContext): Promise<void> {
   ctx.session.dictionary = undefined;
+  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.deleteMessage();
   } catch {

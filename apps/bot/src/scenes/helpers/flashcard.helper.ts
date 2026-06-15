@@ -14,6 +14,7 @@ import {
   renderFlashCardFront,
 } from "../../renderers/flashcard.renderer.js";
 import type { BotContext } from "../../types.js";
+import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 
 /* ── Language resolution ───────────────────────────────────────── */
 
@@ -171,6 +172,7 @@ export async function handleFcDone(ctx: BotContext): Promise<void> {
     /* ignore */
   }
   ctx.session.flashcard = undefined;
+  await cleanupTechnicalMessages(ctx);
   await ctx.answerCallbackQuery();
 }
 
@@ -225,6 +227,7 @@ export async function handleFcQuit(ctx: BotContext): Promise<void> {
   }
 
   ctx.session.flashcard = undefined;
+  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.editMessageText(t("flashcardQuit", lang));
   } catch {
@@ -237,6 +240,7 @@ export async function handleFcQuit(ctx: BotContext): Promise<void> {
 
 export async function handleFcClose(ctx: BotContext): Promise<void> {
   ctx.session.flashcard = undefined;
+  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.deleteMessage();
   } catch {
