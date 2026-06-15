@@ -33,6 +33,7 @@
   "saveToDict": "💾 Uložit do slovníku?",
   "savedToDict": "✅ Uloženo do slovníku!",
   "alreadySaved": "ℹ️ Toto slovo je již ve slovníku.",
+  "alreadySavedButton": "✅ Uloženo",
   "wordDeleted": "🗑 Slovo smazáno ze slovníku.",
   "emptyDictionary": "📖 Váš slovník je prázdný. Použijte /translate pro přidání slov!",
   "noResults": "🔍 Nic nenalezeno.",

@@ -33,6 +33,7 @@
   "saveToDict": "💾 Save to dictionary?",
   "savedToDict": "✅ Saved to dictionary!",
   "alreadySaved": "ℹ️ This word is already in your dictionary.",
+  "alreadySavedButton": "✅ Saved",
   "wordDeleted": "🗑 Word deleted from dictionary.",
   "emptyDictionary": "📖 Your dictionary is empty. Use /translate to add words!",
   "noResults": "🔍 No results found.",

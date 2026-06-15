@@ -44,14 +44,30 @@
               <div class="text-xs text-gray-500">{{ issue.user.telegramId }}</div>
             </td>
             <td class="whitespace-nowrap px-4 py-3 text-sm">
-              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize" :class="typeClass(issue.type)">
-                {{ typeLabel(issue.type) }}
-              </span>
+              <select
+                :value="issue.status"
+                :disabled="updatingId === issue.id"
+                class="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium capitalize shadow-sm transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+                @change="handleStatusChange(issue, ($event.target as HTMLSelectElement).value as IssueStatus)"
+              >
+                <option value="open">Open</option>
+                <option value="in_progress">In progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="rejected">Rejected</option>
+              </select>
             </td>
             <td class="whitespace-nowrap px-4 py-3 text-sm">
-              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize" :class="statusClass(issue.status)">
-                {{ statusLabel(issue.status) }}
-              </span>
+              <select
+                :value="issue.status"
+                class="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium capitalize shadow-sm transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                :disabled="updatingId === issue.id"
+                @change="(e) => updateIssueStatus(issue.id, (e.target as HTMLSelectElement).value as IssueStatus)"
+              >
+                <option value="open">Open</option>
+                <option value="in_progress">In progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="rejected">Rejected</option>
+              </select>
             </td>
             <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
               {{ formatDate(issue.createdAt) }}
@@ -82,16 +98,32 @@
             <p class="text-xs text-gray-500">Telegram ID: {{ selectedIssue.user.telegramId }}</p>
           </div>
           <div>
-            <h3 class="text-sm font-semibold text-gray-700 uppercase">Type</h3>
-            <span class="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize" :class="typeClass(selectedIssue.type)">
-              {{ typeLabel(selectedIssue.type) }}
-            </span>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase">Status</h3>
+            <select
+              :value="selectedIssue.status"
+              :disabled="updatingId === selectedIssue.id"
+              class="mt-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium capitalize shadow-sm transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+              @change="handleStatusChange(selectedIssue, ($event.target as HTMLSelectElement).value as IssueStatus)"
+            >
+              <option value="open">Open</option>
+              <option value="in_progress">In progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="rejected">Rejected</option>
+            </select>
           </div>
           <div>
             <h3 class="text-sm font-semibold text-gray-700 uppercase">Status</h3>
-            <span class="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize" :class="statusClass(selectedIssue.status)">
-              {{ statusLabel(selectedIssue.status) }}
-            </span>
+            <select
+              :value="selectedIssue.status"
+              class="mt-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium capitalize shadow-sm transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              :disabled="updatingId === selectedIssue.id"
+              @change="(e) => updateIssueStatus(selectedIssue.id, (e.target as HTMLSelectElement).value as IssueStatus)"
+            >
+              <option value="open">Open</option>
+              <option value="in_progress">In progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="rejected">Rejected</option>
+            </select>
           </div>
           <div>
             <h3 class="text-sm font-semibold text-gray-700 uppercase">Dates</h3>
@@ -180,6 +212,7 @@ const loading = ref(false);
 const error = ref("");
 const pageSize = ref(20);
 const selectedIssue = ref<ReportedIssue | null>(null);
+const updatingId = ref<number | null>(null);
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)));
@@ -221,6 +254,30 @@ function userLabel(issue: ReportedIssue): string {
 
 function openIssueDetail(issue: ReportedIssue): void {
   selectedIssue.value = issue;
+}
+
+function handleStatusChange(issue: ReportedIssue, newStatus: IssueStatus): void {
+  if (newStatus === issue.status) return;
+  void updateIssueStatus(issue.id, newStatus);
+}
+
+async function updateIssueStatus(id: number, status: IssueStatus): Promise<void> {
+  updatingId.value = id;
+  error.value = "";
+  try {
+    const updated = await reportedIssues.updateStatus(id, status);
+    const idx = list.value.findIndex((i) => i.id === id);
+    if (idx !== -1) {
+      list.value[idx] = updated;
+    }
+    if (selectedIssue.value?.id === id) {
+      selectedIssue.value = updated;
+    }
+  } catch {
+    error.value = "Failed to update status";
+  } finally {
+    updatingId.value = null;
+  }
 }
 
 function typeLabel(type: IssueType): string {

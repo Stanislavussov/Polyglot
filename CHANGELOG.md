@@ -8,15 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added pre-translation dictionary lookup — when a user translates a word or phrase that already exists in their personal dictionary, the Save button is shown as disabled ("✅ Saved") instead of the active "💾 Save" button.
 - Added synonyms context to word notifications — each translation line now shows synonyms below the translation text when available.
 - Added "View" button to admin reported issues table that opens a modal showing the full issue description and all details.
 - Added technical debt task docs for five architecture deepening opportunities: translation workflow, translation card lifecycle, dictionary decks, settings registry, and composition root typing.
 - Added native-language meanings to translation output, saved vocabulary entries, dictionary views, flashcards, SRS cards, and word notifications.
 - Added a `native_meaning` column to `vocabulary_entries` for persisted dictionary reuse.
+- Added status editing to admin reported issues — inline dropdown in the table and a dropdown in the detail modal, backed by a new `PUT /api/reported-issues/:id/status` endpoint.
 - Added pre-AI validation for translation input, accepting sentences up to 500 characters while rejecting empty, emoji-only, command-like, digits-only, and over-limit input.
 - Added Telegram-user audience groups for release announcements.
 - Added a post-deploy release announcement job that sends `Unreleased` changelog notes to `admin` and `tester` bot users.
 - Added a `/changes` bot command for tester and admin audience groups to view delivered changes.
+- Added `PUT /api/reported-issues/:id/status` endpoint to admin API for updating reported issue status.
+- Added inline status dropdown to admin reported issues table and modal for direct status changes.
 - Added segment-level request timing instrumentation for translation requests (preflight, DB lookup, AI request, total duration).
 - Added `translation_request_timings` table to store per-request segment breakdowns.
 - Added `/api/stats/request-timings` admin API endpoint for aggregated timing data.
