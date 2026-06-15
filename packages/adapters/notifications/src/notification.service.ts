@@ -40,10 +40,14 @@ export function createNotificationService(deps: NotificationServiceDeps) {
     const entry = candidates[Math.floor(Math.random() * candidates.length)]!;
 
     const translations: Record<string, string> = {};
+    const translationDetails: Record<string, { synonyms: string[] }> = {};
     for (const t of entry.translations) {
       const code = deps.getLangCode(t.targetLangId);
       if (code) {
         translations[code] = t.text;
+        if (t.synonyms && t.synonyms.length > 0) {
+          translationDetails[code] = { synonyms: t.synonyms };
+        }
       }
     }
 
@@ -57,6 +61,7 @@ export function createNotificationService(deps: NotificationServiceDeps) {
       emoji: entry.emoji ?? "📖",
       nativeMeaning: entry.nativeMeaning ?? undefined,
       translations,
+      ...(Object.keys(translationDetails).length > 0 ? { translationDetails } : {}),
       source: "srs" as const,
     };
   }

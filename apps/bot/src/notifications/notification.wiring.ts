@@ -33,6 +33,7 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
         translations: e.translations.map((tr) => ({
           targetLangId: tr.targetLangId,
           text: tr.text,
+          synonyms: tr.details?.synonyms?.map((s) => s.text) ?? [],
         })),
       }));
     },

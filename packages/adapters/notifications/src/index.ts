@@ -23,5 +23,6 @@ export type {
   SchedulerDeps,
   SendFn,
   SuggestedWord,
+  TranslationBrief,
   VocabEntry,
 } from "./types.js";

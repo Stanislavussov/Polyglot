@@ -124,6 +124,38 @@ describe("pickDictionaryWord", () => {
 
       expect(result?.source).toBe("srs");
     });
+
+    it("includes translationDetails when synonyms are present", async () => {
+      const entriesWithSynonyms: VocabEntry[] = [
+        {
+          id: 10,
+          original: "house",
+          emoji: "🏠",
+          createdAt: new Date("2025-01-01"),
+          translations: [
+            { targetLangId: 1, text: "dům", synonyms: ["budova", "stavení"] },
+            { targetLangId: 2, text: "Haus" },
+          ],
+        },
+      ];
+      const deps = buildDeps({ getUserVocabulary: vi.fn().mockResolvedValue(entriesWithSynonyms) });
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result?.translationDetails).toEqual({
+        cs: { synonyms: ["budova", "stavení"] },
+      });
+    });
+
+    it("omits translationDetails when no synonyms exist", async () => {
+      const deps = buildDeps();
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result?.translationDetails).toBeUndefined();
+    });
   });
 
   describe("edge cases", () => {

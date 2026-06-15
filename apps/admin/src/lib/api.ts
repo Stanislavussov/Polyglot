@@ -365,6 +365,8 @@ export const reportedIssues = {
     });
     return get<ReportedIssuesResponse>(`/api/reported-issues?${params}`);
   },
+  updateStatus: (id: number, status: IssueStatus) =>
+    put<ReportedIssue>(`/api/reported-issues/${id}/status`, { status }),
 };
 
 export { ApiError, clearToken, getToken };

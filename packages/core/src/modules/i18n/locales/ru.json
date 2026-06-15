@@ -33,6 +33,7 @@
   "saveToDict": "💾 Сохранить в словарь?",
   "savedToDict": "✅ Сохранено в словарь!",
   "alreadySaved": "ℹ️ Это слово уже есть в словаре.",
+  "alreadySavedButton": "✅ Сохранено",
   "wordDeleted": "🗑 Слово удалено из словаря.",
   "emptyDictionary": "📖 Ваш словарь пуст. Используйте /translate для добавления слов!",
   "noResults": "🔍 Ничего не найдено.",

@@ -8,13 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added pre-translation dictionary lookup — when a user translates a word or phrase that already exists in their personal dictionary, the Save button is shown as disabled ("✅ Saved") instead of the active "💾 Save" button.
+- Added synonyms context to word notifications — each translation line now shows synonyms below the translation text when available.
+- Added "View" button to admin reported issues table that opens a modal showing the full issue description and all details.
 - Added technical debt task docs for five architecture deepening opportunities: translation workflow, translation card lifecycle, dictionary decks, settings registry, and composition root typing.
 - Added native-language meanings to translation output, saved vocabulary entries, dictionary views, flashcards, SRS cards, and word notifications.
 - Added a `native_meaning` column to `vocabulary_entries` for persisted dictionary reuse.
+- Added status editing to admin reported issues — inline dropdown in the table and a dropdown in the detail modal, backed by a new `PUT /api/reported-issues/:id/status` endpoint.
 - Added pre-AI validation for translation input, accepting sentences up to 500 characters while rejecting empty, emoji-only, command-like, digits-only, and over-limit input.
 - Added Telegram-user audience groups for release announcements.
 - Added a post-deploy release announcement job that sends `Unreleased` changelog notes to `admin` and `tester` bot users.
 - Added a `/changes` bot command for tester and admin audience groups to view delivered changes.
+- Added `PUT /api/reported-issues/:id/status` endpoint to admin API for updating reported issue status.
+- Added inline status dropdown to admin reported issues table and modal for direct status changes.
 - Added segment-level request timing instrumentation for translation requests (preflight, DB lookup, AI request, total duration).
 - Added `translation_request_timings` table to store per-request segment breakdowns.
 - Added `/api/stats/request-timings` admin API endpoint for aggregated timing data.
@@ -22,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Fixed "Open dictionary" notification button — now calls the dictionary handler directly instead of sending `/dictionary` as plain text.
 - Prevented same-language learning blocks from drifting away from the detected source expression, so cases like Czech `kudlanka` cannot be accepted as Czech `klubko`.
 - Made connotation notes render as informational text instead of warning-style alerts.
 - Generated missing migration for `translation_request_timings` table that was preventing the Request Timing Breakdown chart from loading.
@@ -40,3 +47,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added Task 62: Separate Deployment Environments (Prod/Dev/Testing) with environment-specific Docker Compose files, CI/CD workflows, and database isolation.
 - Added Task 63: Parameterize Bot by Environment (`production`, `development`, `testing`) including per-environment bot tokens, logging levels, error handling, and release announcement gating.
 - Added Task 64: Application Clustering into Core (bot), Management (admin-api + admin), and Data (migrations + scheduler) clusters with independent deploy scripts.
+- Added Task 65: Dual Database Instance Separation on Single VPS — Docker Swarm-based production and testing database isolation with independent stacks, backup scripts, and resource limits.

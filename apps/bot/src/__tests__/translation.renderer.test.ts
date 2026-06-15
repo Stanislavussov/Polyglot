@@ -394,6 +394,20 @@ describe("buildTranslationKeyboard", () => {
     const labels = kb.inline_keyboard[0]!.map((b) => b.text);
     expect(labels).toEqual(["🔄 🇨🇿", "🔄 🇩🇪"]);
   });
+
+  it("shows disabled save button when isAlreadySaved is true", () => {
+    const kb = buildTranslationKeyboard(["cs"], "word", "en", 0, true);
+    const saveBtn = kb.inline_keyboard[1]![0]!;
+    expect(saveBtn.text).toContain("Saved");
+    expect(cbData(saveBtn)).toBe("tr:save:0");
+  });
+
+  it("shows active save button when isAlreadySaved is false", () => {
+    const kb = buildTranslationKeyboard(["cs"], "word", "en", 0, false);
+    const saveBtn = kb.inline_keyboard[1]![0]!;
+    expect(saveBtn.text).toContain("Save");
+    expect(cbData(saveBtn)).toBe("tr:save:0");
+  });
 });
 
 // ── Alternatives rendering tests ────────────────────────────────────

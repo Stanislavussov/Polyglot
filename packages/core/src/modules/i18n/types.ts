@@ -37,6 +37,7 @@ export type I18nKey =
   | "saveToDict"
   | "savedToDict"
   | "alreadySaved"
+  | "alreadySavedButton"
   | "wordDeleted"
   | "emptyDictionary"
   | "noResults"

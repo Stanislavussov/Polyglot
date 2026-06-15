@@ -208,6 +208,10 @@ export function buildSentenceKeyboard(langCodes: string[], _interfaceLang?: stri
  * Build inline keyboard with per-language regenerate buttons + save/skip.
  * Each regenerate button has callback data "tr:regen:<langCode>:<msgId>".
  * Save/skip buttons include msgId: "tr:save:<msgId>" / "tr:skip:<msgId>".
+ *
+ * When `isAlreadySaved` is true, the Save button is shown as disabled
+ * (still uses tr:save callback so handleSaveCallback can answer with
+ * alreadySaved popup if the user somehow clicks it).
  */
 export function buildTranslationKeyboard(
   langCodes: string[],
@@ -215,6 +219,7 @@ export function buildTranslationKeyboard(
   inputType: "word" | "phrase" | "sentence",
   interfaceLang?: string,
   msgId?: number,
+  isAlreadySaved?: boolean,
 ): InlineKeyboard {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
@@ -227,7 +232,11 @@ export function buildTranslationKeyboard(
   kb.row();
 
   // Row 2: save / skip
-  kb.text(t("save", lang), `tr:save:${mid}`);
+  if (isAlreadySaved) {
+    kb.text(t("alreadySavedButton", lang), `tr:save:${mid}`);
+  } else {
+    kb.text(t("save", lang), `tr:save:${mid}`);
+  }
   kb.text(t("no", lang), `tr:skip:${mid}`);
 
   return kb;

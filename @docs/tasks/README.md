@@ -50,6 +50,7 @@
 | 62  | [Separate Deployment Environments](./62-separate-deployment-environments.md) | 🔲 To Do | 🔴 Critical |
 | 63  | [Parameterize Bot by Environment](./63-parameterize-bot-by-environment.md) | 🔲 To Do | 🔴 Critical |
 | 64  | [Application Clustering](./64-application-clustering.md) | 🔲 To Do | 🔴 Critical |
+| 65  | [Dual Database Instance Separation](./65-dual-db-instance-separation.md) | 🔲 To Do | 🔴 Critical |
 
 ## Finished
 
