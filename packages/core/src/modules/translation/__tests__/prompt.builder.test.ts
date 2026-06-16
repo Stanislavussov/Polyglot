@@ -220,6 +220,35 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).not.toContain("Assume the user already knows the source-language nuance");
   });
 
+  it("requests source usage guidance for learning-language source words", () => {
+    const prompt = buildTranslationPrompt({
+      text: "kudlanka",
+      sourceLang: "cs",
+      targetLangs: ["en"],
+      nativeLang: "ru",
+      inputType: "word",
+    });
+
+    expect(prompt).toContain('Include top-level "sourceUsage"');
+    expect(prompt).toContain("meaning, nuance, register, and when a learner should use or avoid this word");
+    expect(prompt).toContain("2-3 close synonyms in Czech");
+    expect(prompt).toContain('exactly 3 short Czech sentences using "kudlanka"');
+    expect(prompt).toContain("collocations or lexical chunks");
+  });
+
+  it("does not request source usage guidance for learning-language source sentences", () => {
+    const prompt = buildTranslationPrompt({
+      text: "Kde je nejbližší lékárna?",
+      sourceLang: "cs",
+      targetLangs: ["en"],
+      nativeLang: "ru",
+      inputType: "sentence",
+    });
+
+    expect(prompt).not.toContain('Include top-level "sourceUsage"');
+    expect(prompt).not.toContain("collocations or lexical chunks");
+  });
+
   it("does not require a native connotation warning language when nativeLang is absent", () => {
     const prompt = buildTranslationPrompt(baseRequest);
     expect(prompt).not.toContain("MUST be written in");
@@ -275,6 +304,17 @@ describe("buildStrictPrompt", () => {
     const prompt = buildStrictPrompt({ ...baseRequest, nativeLang: "ru" }, ["error"]);
     expect(prompt).toContain("native translation of the target sentence");
     expect(prompt).toContain("nativeMeaning is present");
+  });
+
+  it("includes source usage check for learning-language source words", () => {
+    const prompt = buildStrictPrompt(
+      { text: "kudlanka", sourceLang: "cs", targetLangs: ["en"], nativeLang: "ru", inputType: "word" },
+      ["error"],
+    );
+
+    expect(prompt).toContain("sourceUsage is present");
+    expect(prompt).toContain("source-language synonyms");
+    expect(prompt).toContain('source-language examples for "kudlanka"');
   });
 
   it("includes connotation warning check in strict prompt", () => {

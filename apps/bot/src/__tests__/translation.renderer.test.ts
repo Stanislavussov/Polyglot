@@ -250,6 +250,68 @@ describe("renderTranslation", () => {
     const result = renderTranslation(unknownLang, "en");
     expect(result).toContain("🔤 XX:");
   });
+
+  it("renders source usage for learning-language source words", () => {
+    const output: TranslateOutput = {
+      original: "kudlanka",
+      sourceLang: "cs",
+      emoji: "🪲",
+      nativeMeaning: "Богомол; название насекомого.",
+      sourceUsage: {
+        explanation:
+          "Так называют насекомое; слово нейтральное и обычно используется в бытовом или биологическом контексте.",
+        synonyms: [{ text: "nábožná kudlanka" }],
+        examples: [{ context: "nature", target: "Na zahradě seděla kudlanka.", native: "В саду сидел богомол." }],
+      },
+      nativeSynonyms: [{ text: "богомол" }],
+      translations: {
+        en: {
+          text: "mantis",
+          synonyms: [{ text: "praying mantis" }],
+          examples: [{ context: "neutral", target: "I saw a mantis.", native: "Я увидел богомола." }],
+        },
+      },
+    };
+
+    const result = renderTranslation(output, "ru", undefined, "ru");
+
+    expect(result).toContain("🪲 🇨🇿 <b>kudlanka</b> (nábožná kudlanka)");
+    expect(result).toContain("🇷🇺 RU: Так называют насекомое");
+    expect(result).toContain("💬 <i>Na zahradě seděla kudlanka.</i> (В саду сидел богомол.)");
+    expect(result).toContain("🇬🇧 EN: <b>mantis</b> (praying mantis)");
+  });
+
+  it("respects template fields for source usage synonyms and examples", () => {
+    const output: TranslateOutput = {
+      original: "kudlanka",
+      sourceLang: "cs",
+      emoji: "🪲",
+      sourceUsage: {
+        explanation: "Богомол; нейтральное название насекомого.",
+        synonyms: [{ text: "nábožná kudlanka" }],
+        examples: [{ context: "nature", target: "Na zahradě seděla kudlanka.", native: "В саду сидел богомол." }],
+      },
+      nativeSynonyms: [],
+      translations: {
+        en: {
+          text: "mantis",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = renderTranslation(
+      output,
+      "ru",
+      { synonyms: false, examples: false, alternatives: true, equivalentNote: true, connotationWarning: true },
+      "ru",
+    );
+
+    expect(result).toContain("🪲 🇨🇿 <b>kudlanka</b>");
+    expect(result).not.toContain("nábožná kudlanka");
+    expect(result).not.toContain("Na zahradě seděla kudlanka");
+  });
 });
 
 describe("renderTopicWord", () => {

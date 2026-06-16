@@ -163,6 +163,48 @@ describe("translate", () => {
     expect(result.translations.de.text).toBe("hallo");
   });
 
+  it("preserves source usage for learning-language source words", async () => {
+    const sourceUsage = {
+      explanation:
+        "Так называют насекомое; слово нейтральное и обычно используется в бытовом или биологическом контексте.",
+      synonyms: [{ text: "nábožná kudlanka" }],
+      examples: [{ context: "nature", target: "Na zahradě seděla kudlanka.", native: "В саду сидел богомол." }],
+    };
+    const mockGenerate = vi.fn().mockResolvedValue(
+      makeValidResult({
+        nativeMeaning: "Богомол; название насекомого.",
+        sourceUsage,
+        nativeSynonyms: [{ text: "богомол" }],
+        translations: {
+          en: {
+            text: "mantis",
+            synonyms: [{ text: "praying mantis" }],
+            examples: [{ context: "neutral", target: "I saw a mantis.", native: "Я увидел богомола." }],
+            expressionType: null,
+            equivalentNote: null,
+            alternatives: null,
+            connotationWarning: null,
+          },
+        },
+      }),
+    );
+
+    const result = await translate(
+      {
+        word: "kudlanka",
+        sourceLang: "cs",
+        targetLangs: ["en"],
+        nativeLang: "ru",
+        inputType: "word",
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    expect(result.sourceUsage).toEqual(sourceUsage);
+    expect(result.nativeMeaning).toBe("Богомол; название насекомого.");
+  });
+
   it("propagates AI adapter errors", async () => {
     const mockGenerate = vi.fn().mockRejectedValue(new Error("API rate limit exceeded"));
 

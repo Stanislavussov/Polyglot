@@ -40,6 +40,37 @@ function isReverseLearningTranslation(output: TranslateOutput, nativeLang: strin
   return nativeLang !== undefined && output.sourceLang !== nativeLang;
 }
 
+function renderSourceUsageBlock(
+  output: TranslateOutput,
+  nativeLang: string | undefined,
+  fields?: TemplateFields,
+): string[] {
+  const usage = output.sourceUsage;
+  if (!usage) return [];
+
+  const lines: string[] = [];
+  const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
+  const showSynonyms = fields?.synonyms !== false && usage.synonyms.length > 0;
+  const synonyms = showSynonyms ? ` (${usage.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
+
+  lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(output.original)}</b>${synonyms}`);
+
+  if (usage.explanation) {
+    const nativeFlag = nativeLang ? (getLangFlag(nativeLang) ?? "🔤") : "🔤";
+    const label = nativeLang ? `${nativeFlag} ${esc(nativeLang.toUpperCase())}` : nativeFlag;
+    lines.push(`${label}: ${esc(usage.explanation)}`);
+  }
+
+  if (fields?.examples !== false && usage.examples.length > 0) {
+    for (const ex of usage.examples) {
+      const native = ex.native ? ` (${esc(ex.native)})` : "";
+      lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
+    }
+  }
+
+  return lines;
+}
+
 /**
  * Render a full AI translation card for Telegram (HTML).
  *
@@ -59,14 +90,17 @@ export function renderTranslation(
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);
+  const sourceUsageLines = hideSourceText ? renderSourceUsageBlock(output, nativeLang, templateFields) : [];
 
   const showNativeSyns = !hideSourceText && templateFields?.synonyms !== false && output.nativeSynonyms.length > 0;
   const nativeSyns = showNativeSyns ? ` (${output.nativeSynonyms.map((s) => esc(s.text)).join(", ")})` : "";
-  if (!hideSourceText) {
+  if (sourceUsageLines.length > 0) {
+    lines.push(...sourceUsageLines);
+  } else if (!hideSourceText) {
     lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
-  if (nativeMeaningLine && nativeLang !== output.sourceLang) {
+  if (nativeMeaningLine && nativeLang !== output.sourceLang && sourceUsageLines.length === 0) {
     lines.push(nativeMeaningLine);
   }
   lines.push("");

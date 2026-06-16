@@ -69,6 +69,11 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   }
   if (nativeLangName) requestedFields.push(`nativeMeaning: a concise meaning/explanation in ${nativeLangName}`);
   if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
+  if (isLearningSource && !isSentence) {
+    requestedFields.push(
+      `sourceUsage: usage guidance for "${text}" with explanation in ${nativeLangName ?? "the user's native language"}`,
+    );
+  }
 
   return `${intro}${topicHint}${dictionaryHint}
 
@@ -90,7 +95,16 @@ Rules:${
   }${
     isLearningSource
       ? `
-- The user is translating from a learning language. Do not repeat the original input "${text}" as a displayed translation; use "nativeMeaning" for the user's native-language explanation and only translate into other target languages.`
+- The user is translating from a learning language. Do not repeat the original input "${text}" as a displayed translation; use "nativeMeaning" for the user's native-language explanation and only translate into other target languages.${
+          isSentence
+            ? ""
+            : `
+- Include top-level "sourceUsage" for the source word "${text}":
+  * "explanation": written in ${nativeLangName ?? "the user's native language"}; explain the meaning, nuance, register, and when a learner should use or avoid this word.
+  * "synonyms": 2-3 close synonyms in ${sourceLangName}, not translations into another language.
+  * "examples": exactly 3 short ${sourceLangName} sentences using "${text}" or its normal inflected form in realistic contexts.${nativeLangName ? ` Each example MUST include "native": a natural ${nativeLangName} translation.` : ""}
+  * Prefer collocations or lexical chunks that show how the word naturally combines with other words.`
+        }`
       : ""
   }${
     cfg.includeExamples
@@ -175,6 +189,11 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   );
   if (request.nativeLang && request.sourceLang !== request.nativeLang) {
     checkItems.push("- Learning-language source input is not repeated as a same-language translation block");
+    if (request.inputType !== "sentence") {
+      checkItems.push(
+        `- sourceUsage is present with a native-language usage explanation, source-language synonyms, and source-language examples for "${request.text}"`,
+      );
+    }
   }
   checkItems.push("- Translations are actual translations, not the original word repeated");
   checkItems.push("- All required fields are present");

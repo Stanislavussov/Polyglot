@@ -366,4 +366,55 @@ describe("buildTranslationResultSchema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("requires sourceUsage when reverse-learning source usage is requested", () => {
+    const schema = buildTranslationResultSchema(["en"], undefined, true, true);
+
+    const result = schema.safeParse({
+      emoji: "🪲",
+      nativeMeaning: "Богомол; слово используют для названия насекомого.",
+      nativeSynonyms: [{ text: "богомол" }],
+      translations: {
+        en: {
+          text: "mantis",
+          synonyms: [{ text: "praying mantis" }],
+          examples: [{ context: "neutral", target: "I saw a mantis.", native: "Я увидел богомола." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts sourceUsage with source-language examples and native translations", () => {
+    const schema = buildTranslationResultSchema(["en"], undefined, true, true);
+
+    const result = schema.safeParse({
+      emoji: "🪲",
+      nativeMeaning: "Богомол; слово используют для названия насекомого.",
+      sourceUsage: {
+        explanation: "Так называют насекомое; слово нейтральное и уместно в бытовом или биологическом контексте.",
+        synonyms: [{ text: "nábožná kudlanka" }],
+        examples: [{ context: "nature", target: "Na zahradě seděla kudlanka.", native: "В саду сидел богомол." }],
+      },
+      nativeSynonyms: [{ text: "богомол" }],
+      translations: {
+        en: {
+          text: "mantis",
+          synonyms: [{ text: "praying mantis" }],
+          examples: [{ context: "neutral", target: "I saw a mantis.", native: "Я увидел богомола." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+
+    expect(result.success).toBe(true);
+  });
 });
