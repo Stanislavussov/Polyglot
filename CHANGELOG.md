@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added reverse-learning source usage details: when users translate from a learning language, word cards can now show source-language examples, source-language synonyms, and a native-language explanation of when to use the word.
 - Added multiple vocabulary dictionaries in the bot. `/dictionary` now opens the default `My Words` dictionary, users can create, rename, delete, switch between dictionaries, and add or move saved words between them.
 - Added automatic cleanup of technical messages — menus, settings, hints, onboarding prompts, and other non-translation bot messages are now deleted after a scene ends or settings change. Only translation result cards remain in the chat history.
 - Added pre-translation dictionary lookup — when a user translates a word or phrase that already exists in their personal dictionary, the Save button is shown as disabled ("✅ Saved") instead of the active "💾 Save" button.

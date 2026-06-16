@@ -40,6 +40,16 @@ export interface Example {
   native?: string | null;
 }
 
+/** Learning-language usage help for reverse translations */
+export interface SourceUsage {
+  /** Native-language explanation of meaning, nuance, and when to use the source word */
+  explanation: string;
+  /** Close synonyms in the source learning language */
+  synonyms: Synonym[];
+  /** Source-language examples with native-language translations when available */
+  examples: Example[];
+}
+
 /** A single translation variant */
 export interface TranslationVariant {
   text: string;
@@ -93,6 +103,7 @@ export interface TranslationRequest {
 export interface TranslationResult {
   emoji: string;
   nativeMeaning?: string | null;
+  sourceUsage?: SourceUsage | null;
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
 }
@@ -121,6 +132,7 @@ export interface TranslateOutput {
   sourceLang: string;
   emoji: string;
   nativeMeaning?: string;
+  sourceUsage?: SourceUsage;
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
   needsReview?: boolean;

@@ -22,6 +22,13 @@ export const exampleSchema = z.object({
   native: z.string().min(1, "Example native sentence is required").nullish(),
 });
 
+/** Zod schema for source-language usage help in reverse-learning translations */
+export const sourceUsageSchema = z.object({
+  explanation: z.string().min(1, "Source usage explanation is required"),
+  synonyms: z.array(synonymSchema),
+  examples: z.array(exampleSchema),
+});
+
 function buildExampleSchema(requireNative: boolean) {
   return z.object({
     context: z.string().min(1, "Example context is required"),
@@ -83,9 +90,23 @@ export const translationRequestSchema = z.object({
 export const translationResultSchema = z.object({
   emoji: z.string().min(1, "Emoji is required"),
   nativeMeaning: z.string().min(1, "Native meaning is required").nullish(),
+  sourceUsage: sourceUsageSchema.nullish(),
   nativeSynonyms: z.array(synonymSchema),
   translations: z.object({}).catchall(languageTranslationSchema),
 });
+
+function buildSourceUsageSchema(config?: TranslationOutputConfig, requireExampleNative = false) {
+  const includeExamples = config?.includeExamples !== false;
+  const includeSynonyms = config?.includeSynonyms !== false;
+
+  return z.object({
+    explanation: z.string().min(1, "Source usage explanation is required"),
+    synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema).optional(),
+    examples: includeExamples
+      ? z.array(buildExampleSchema(requireExampleNative)).min(1)
+      : z.array(exampleSchema).optional(),
+  });
+}
 
 /**
  * Build a per-language translation schema, optionally relaxing validation
@@ -137,6 +158,7 @@ export function buildTranslationResultSchema(
   targetLangs: string[],
   config?: TranslationOutputConfig,
   requireNative = false,
+  requireSourceUsage = false,
 ) {
   const langSchema = buildLanguageTranslationSchema(config, requireNative);
   const langEntries: Record<string, typeof langSchema> = {};
@@ -148,6 +170,7 @@ export function buildTranslationResultSchema(
   return z.object({
     emoji: z.string().min(1, "Emoji is required"),
     ...(requireNative && { nativeMeaning: z.string().min(1, "Native meaning is required") }),
+    ...(requireSourceUsage && { sourceUsage: buildSourceUsageSchema(config, requireNative) }),
     ...(includeNativeSynonyms && { nativeSynonyms: z.array(synonymSchema) }),
     translations: z.object(langEntries),
   });
@@ -160,3 +183,4 @@ export type LanguageTranslationInput = z.infer<typeof languageTranslationSchema>
 export type SynonymInput = z.infer<typeof synonymSchema>;
 export type TranslationExampleInput = z.infer<typeof exampleSchema>;
 export type TranslationVariantInput = z.infer<typeof translationVariantSchema>;
+export type SourceUsageInput = z.infer<typeof sourceUsageSchema>;
