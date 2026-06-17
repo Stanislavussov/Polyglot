@@ -83,6 +83,7 @@ import {
   handleSaveCallback,
   handleSkipCallback,
 } from "./scenes/helpers/translate-mode.helper.js";
+import { handleMentorCommand } from "./scenes/mentor.scene.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
 import { handleReportIssue } from "./scenes/report-issue.scene.js";
 import { handleSettingsCommand } from "./scenes/settings.scene.js";
@@ -146,6 +147,7 @@ export function createInitialSession(): SessionData {
     dictionaryWizard: undefined,
     flashcard: undefined,
     srs: undefined,
+    mentor: undefined,
     pendingDetectedLang: undefined,
     pendingWord: undefined,
     pendingDirection: undefined,
@@ -185,6 +187,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   bot.command("start", startCommand);
   bot.command("translate", handleTranslateCommand);
+  bot.command("mentor", handleMentorCommand);
   bot.command("template", handleTemplateCommand);
   bot.command("dictionary", handleDictionaryCommand);
   bot.command("flashcard", handleFlashcardCommand);

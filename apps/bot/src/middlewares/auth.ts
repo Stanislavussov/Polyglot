@@ -4,7 +4,7 @@ import type { NextFunction } from "grammy";
 import type { BotContext, UserMode } from "../types.js";
 
 /** Modes that are valid for the session (matches UserMode type). */
-const VALID_MODES = new Set<string>(["idle", "translate"]);
+const VALID_MODES = new Set<string>(["idle", "translate", "mentor"]);
 
 /**
  * Auth middleware: resolves the Telegram user from the database.

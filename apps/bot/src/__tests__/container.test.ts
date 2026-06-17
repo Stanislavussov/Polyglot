@@ -83,6 +83,7 @@ vi.mock("@polyglot/adapter-db", () => ({
 vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn().mockResolvedValue({}),
   generateText: vi.fn().mockResolvedValue("test"),
+  generateChat: vi.fn().mockResolvedValue("test"),
   getAvailableModels: vi.fn().mockReturnValue([]),
   estimateCost: vi.fn().mockReturnValue(0),
   setAIRequestMetricSink: vi.fn(),
@@ -124,6 +125,7 @@ describe("createContainer", () => {
 
     expect(typeof container.ai.generateObject).toBe("function");
     expect(typeof container.ai.generateText).toBe("function");
+    expect(typeof container.ai.generateChat).toBe("function");
     expect(typeof container.ai.getAvailableModels).toBe("function");
     expect(typeof container.ai.estimateCost).toBe("function");
   });

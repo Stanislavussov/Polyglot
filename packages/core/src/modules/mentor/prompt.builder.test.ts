@@ -1,0 +1,49 @@
+import { describe, expect, it } from "vitest";
+import { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./prompt.builder.js";
+
+describe("buildMentorSystemPrompt", () => {
+  const opts = {
+    nativeLang: "en",
+    learningLangs: ["cs", "ru"],
+    interfaceLang: "en",
+  };
+
+  it("includes the native language in the prompt", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toContain("en");
+  });
+
+  it("includes all learning languages", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toContain("cs");
+    expect(prompt).toContain("ru");
+  });
+
+  it("instructs the AI not to translate immediately", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toMatch(/not.*translate.*immediately/i);
+  });
+
+  it("instructs the AI to keep responses short", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toMatch(/short|2.?4 sentences/i);
+  });
+
+  it("includes the interface language so the AI responds in the right language", () => {
+    const prompt = buildMentorSystemPrompt({ ...opts, interfaceLang: "ru" });
+    expect(prompt).toContain("ru");
+  });
+
+  it("handles empty learning languages gracefully", () => {
+    const prompt = buildMentorSystemPrompt({ ...opts, learningLangs: [] });
+    expect(prompt).toBeTypeOf("string");
+    expect(prompt.length).toBeGreaterThan(50);
+  });
+});
+
+describe("MAX_MENTOR_HISTORY", () => {
+  it("is a positive even number (full user+assistant turns)", () => {
+    expect(MAX_MENTOR_HISTORY).toBeGreaterThan(0);
+    expect(MAX_MENTOR_HISTORY % 2).toBe(0);
+  });
+});

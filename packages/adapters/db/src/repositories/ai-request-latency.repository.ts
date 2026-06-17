@@ -2,7 +2,7 @@ import { desc, gte, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { aiRequestLatencies } from "../schema.js";
 
-export type AIRequestKind = "object" | "text";
+export type AIRequestKind = "object" | "text" | "chat";
 
 export interface RecordAIRequestLatencyInput {
   modelId: string;

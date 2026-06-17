@@ -1,6 +1,6 @@
 // Logger — singleton pino, also exported from here for convenience
 
-export type { AIModel, AIPort, GenerateOptions } from "./ports/ai.port.js";
+export type { AIModel, AIPort, ChatMessage, ChatOptions, GenerateOptions } from "./ports/ai.port.js";
 // Ports — service container for dependency injection
 export type { ServiceContainer } from "./ports/container.js";
 export type { CachedLanguage, LanguageCachePort } from "./ports/language-cache.port.js";
@@ -76,6 +76,8 @@ export {
   sourceExpressionTypeSchema,
 } from "./modules/idiom-analysis/index.js";
 export * from "./modules/language-detect/index.js";
+export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
+export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
 export * from "./modules/rate-limit/index.js";
 export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";

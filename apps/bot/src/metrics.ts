@@ -23,6 +23,18 @@ export const translationDuration = new Histogram({
   buckets: [0.5, 1, 2, 5, 10, 30],
 });
 
+export const mentorCounter = new Counter({
+  name: "bot_mentor_requests_total",
+  help: "Total mentor chat requests",
+  labelNames: ["status"] as const,
+});
+
+export const mentorDuration = new Histogram({
+  name: "bot_mentor_duration_seconds",
+  help: "Mentor chat request duration in seconds",
+  buckets: [0.5, 1, 2, 5, 10, 30],
+});
+
 export const telegramMessagesCounter = new Counter({
   name: "bot_telegram_messages_total",
   help: "Total Telegram messages received",

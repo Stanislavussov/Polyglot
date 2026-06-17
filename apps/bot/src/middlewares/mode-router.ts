@@ -10,6 +10,7 @@ import { userRepository } from "@polyglot/adapter-db";
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
+import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
 import type { BotContext } from "../types.js";
@@ -91,6 +92,9 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
     case "translate":
       await handleTranslateText(ctx, text);
       return; // Don't call next() — we handled it
+    case "mentor":
+      await handleMentorText(ctx, text);
+      return;
     default: {
       // Safety net: idle mode should not silently drop messages.
       // For onboarded users → fall back to translation and persist to DB.

@@ -88,6 +88,7 @@
   "templateSessionExpired": "Session expired. Use /template to restart.",
   "cmdDescStart": "Start the bot / restart onboarding",
   "cmdDescTranslate": "Translate a word or phrase",
+  "cmdDescMentor": "Chat with AI mentor to learn words",
   "cmdDescDictionary": "Open your personal dictionary",
   "cmdDescTemplate": "Customize translation template",
   "cmdDescSettings": "Language & notification settings",
@@ -228,5 +229,9 @@
   "mistypeWarning": "⚠️ I can't determine the language of \"{word}\". Did you make a typo?",
   "mistypeConfirm": "Yes, translate anyway",
   "mistypeCancel": "Try again",
-  "rateLimitExceeded": "⚠️ Daily translation limit reached. Open /settings to check your plan."
+  "rateLimitExceeded": "⚠️ Daily translation limit reached. Open /settings to check your plan.",
+  "mentorModeOn": "🧑‍🏫 Mentor mode active! Ask me about any word and I'll help you learn it — I won't just translate, I'll coach you.",
+  "mentorThinking": "🧠 Thinking...",
+  "mentorError": "❌ Mentor chat failed. Please try again later.",
+  "mentorInputTooLong": "⚠️ Please keep your message under {max} characters."
 }

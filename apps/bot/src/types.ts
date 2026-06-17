@@ -17,7 +17,7 @@ import { Context, SessionFlavor } from "grammy";
  * Persisted in DB (userLanguageSettings.activeMode) to survive bot restarts.
  * Extensible: add "mentor" | "quiz" when those features land.
  */
-export type UserMode = "idle" | "translate";
+export type UserMode = "idle" | "translate" | "mentor";
 
 /**
  * Session data stored per-user.
@@ -153,6 +153,16 @@ export interface SessionData {
     deck: SrsDueVocabularyCard[];
     currentIndex: number;
     cardMsgId?: number;
+  };
+  /**
+   * Mentor mode conversation history (Task 66).
+   * Stores the chat messages between user and AI mentor.
+   * Session-only — does not persist across bot restarts.
+   * The active mode itself persists in DB; history resets on restart.
+   * Cleared when the user re-enters /mentor.
+   */
+  mentor?: {
+    history: Array<{ role: "user" | "assistant"; content: string }>;
   };
   /**
    * Technical message IDs to delete after scene ends or settings change.
