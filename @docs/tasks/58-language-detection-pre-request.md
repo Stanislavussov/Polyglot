@@ -1,6 +1,6 @@
 # Task 58 — Language Detection Pre-Request with Mistype Validation
 
-**Status:** 🔲 To Do  
+**Status:** ✅ Done  
 **Type:** Feature (UX improvement)  
 **Priority:** High — improves translation UX by removing manual source language selection  
 **Effort Estimate:** 3–4 hours

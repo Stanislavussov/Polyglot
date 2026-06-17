@@ -170,6 +170,29 @@ export const requestTimings = {
   list: (days = 7) => get<RequestTimingsResponse>(`/api/stats/request-timings?days=${days}`),
 };
 
+export interface LanguageDetectionDaySummary {
+  date: string;
+  warningShown: number;
+  confirmed: number;
+  cancelled: number;
+}
+
+export interface LanguageDetectionOutcomeSummary {
+  totalWarnings: number;
+  totalConfirmed: number;
+  totalCancelled: number;
+  confirmRate: number;
+}
+
+export interface LanguageDetectionResponse {
+  byDay: LanguageDetectionDaySummary[];
+  outcome: LanguageDetectionOutcomeSummary;
+}
+
+export const languageDetection = {
+  list: (days = 7) => get<LanguageDetectionResponse>(`/api/stats/language-detection?days=${days}`),
+};
+
 // Rate Limits
 export interface PlanLimitConfig {
   name: string;

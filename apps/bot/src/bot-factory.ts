@@ -82,7 +82,6 @@ import {
   handleRegenCallback,
   handleSaveCallback,
   handleSkipCallback,
-  handleSourceLangCallback,
 } from "./scenes/helpers/translate-mode.helper.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
 import { handleReportIssue } from "./scenes/report-issue.scene.js";
@@ -222,7 +221,6 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery(/^tr:save:/, handleSaveCallback);
   bot.callbackQuery(/^tr:skip:/, handleSkipCallback);
   bot.callbackQuery(/^tr:regen:/, handleRegenCallback);
-  bot.callbackQuery(/^tr:srclang:/, handleSourceLangCallback);
   bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);
   bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
 

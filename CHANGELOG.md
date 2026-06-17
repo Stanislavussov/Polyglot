@@ -28,6 +28,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added `translation_request_timings` table to store per-request segment breakdowns.
 - Added `/api/stats/request-timings` admin API endpoint for aggregated timing data.
 - Added Request Timing Breakdown chart to admin dashboard showing stacked bar chart of segment durations by day and by model.
+- Added pre-request language detection with mistype validation — the bot detects the input language before running the AI translation and shows a confirm/cancel warning when the language cannot be identified (likely a typo), replacing the manual source language selection menu.
+- Added language detection event tracking — mistype warnings, confirmations, and cancellations are now recorded in a `language_detection_events` table and visualized in the admin dashboard with a stacked bar chart and confirm/cancel rate summary.
 
 ### Fixed
 
@@ -43,6 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Removed the post-translation source language selection menu (`sendSourceLangMenu`, `buildSourceLangKeyboard`, `handleSourceLangCallback`, `buildLangOptions`) — language detection now runs automatically on every translation request, so the manual source picker is no longer shown after Save/Skip/Regen or `/translate`.
 - Sentence translations (>6 words) can now be saved to the personal dictionary, removing the previous restriction that only allowed words and phrases. The database `text` columns (`vocabulary_entries.original` and `vocabulary_translations.text`) have no length limit, so the effective boundary is the existing 500-character input validation cap.
 - Admin users management now shows and updates each bot user's audience group.
 - Removed transcription feature from translation output, prompts, validation, and database schema.

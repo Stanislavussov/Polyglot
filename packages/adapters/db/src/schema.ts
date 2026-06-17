@@ -550,6 +550,34 @@ export const translationRequestTimings = pgTable(
 export type TranslationRequestTiming = typeof translationRequestTimings.$inferSelect;
 
 // ─────────────────────────────────────────────
+// Language detection events — mistype flow analytics (Task 58)
+// Tracks when detection fails (warning shown) and user outcome (confirmed/cancelled)
+// ─────────────────────────────────────────────
+export const languageDetectionEvents = pgTable(
+  "language_detection_events",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+    /** Event type: 'warning_shown', 'confirmed', 'cancelled' */
+    eventType: text("event_type").notNull(),
+    /** Input text that could not be detected */
+    word: text("word").notNull(),
+    /** Fallback source language used for the mistype flow */
+    sourceLang: text("source_lang"),
+    /** Fallback target languages */
+    targetLangs: text("target_langs").array(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("lde_user_id_idx").on(t.userId),
+    index("lde_created_at_idx").on(t.createdAt),
+    index("lde_event_type_idx").on(t.eventType),
+  ],
+);
+
+export type LanguageDetectionEvent = typeof languageDetectionEvents.$inferSelect;
+
+// ─────────────────────────────────────────────
 // AI models — admin-configurable model registry
 // ─────────────────────────────────────────────
 export const aiModels = pgTable("ai_models", {

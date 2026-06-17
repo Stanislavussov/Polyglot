@@ -55,6 +55,9 @@ vi.mock("@polyglot/adapter-db", () => ({
   requestTimingRepository: {
     record: vi.fn().mockResolvedValue(undefined),
   },
+  languageDetectionRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+  },
 }));
 
 vi.mock("@polyglot/core", async () => {

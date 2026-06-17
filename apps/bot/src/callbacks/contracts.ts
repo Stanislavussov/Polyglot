@@ -42,15 +42,6 @@ export const callbackContracts = [
   },
   {
     family: "translation",
-    prefix: "tr:srclang",
-    restartSafety: "stateless-restorable",
-    durableLookupKey: "language code",
-    dbSource: "user_language_settings.last_source_lang",
-    expiryBehavior: "ignore invalid language and answer callback",
-    maxExampleData: "tr:srclang:zh-Hant",
-  },
-  {
-    family: "translation",
     prefix: "tr:mistype",
     restartSafety: "intentionally-ephemeral",
     durableLookupKey: "none",
