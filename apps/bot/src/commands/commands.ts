@@ -19,6 +19,7 @@ export function getLocalizedCommands(lang: SupportedLang, options: { includeChan
   const commands = [
     { command: "start", description: t("cmdDescStart", lang) },
     { command: "translate", description: t("cmdDescTranslate", lang) },
+    { command: "mentor", description: t("cmdDescMentor", lang) },
     { command: "flashcard", description: t("cmdDescFlashcard", lang) },
     { command: "review", description: t("cmdDescReview", lang) },
     { command: "dictionary", description: t("cmdDescDictionary", lang) },

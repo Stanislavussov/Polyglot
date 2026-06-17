@@ -88,6 +88,7 @@
   "templateSessionExpired": "Relace vypršela. Použijte /template pro restart.",
   "cmdDescStart": "Spustit bota / restartovat onboarding",
   "cmdDescTranslate": "Přeložit slovo nebo frázi",
+  "cmdDescMentor": "Chatovat s AI mentorem a učit se slova",
   "cmdDescDictionary": "Otevřít osobní slovník",
   "cmdDescTemplate": "Přizpůsobit šablonu překladu",
   "cmdDescSettings": "Nastavení jazyků a notifikací",
@@ -228,5 +229,9 @@
   "mistypeWarning": "⚠️ Nemohu určit jazyk \"{word}\". Neudělal/a jste překlep?",
   "mistypeConfirm": "Ano, přeložit",
   "mistypeCancel": "Zkusit znovu",
-  "rateLimitExceeded": "⚠️ Denní limit překladů byl vyčerpán. Otevřete /settings a zkontrolujte svůj tarif."
+  "rateLimitExceeded": "⚠️ Denní limit překladů byl vyčerpán. Otevřete /settings a zkontrolujte svůj tarif.",
+  "mentorModeOn": "🧑‍🏫 Režim mentora aktivní! Zeptejte se mě na jakékoli slovo a pomůžu vám se ho naučit — nepřeložím ho jen tak, budu vás provázet.",
+  "mentorThinking": "🧠 Přemýšlím...",
+  "mentorError": "❌ Chat s mentorem selhal. Zkuste to prosím později.",
+  "mentorInputTooLong": "⚠️ Zkraťte prosím zprávu na maximum {max} znaků."
 }

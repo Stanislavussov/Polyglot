@@ -89,6 +89,7 @@ import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleReviewCommand } from "./scenes/srs.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
+import { handleMentorCommand } from "./scenes/mentor.scene.js";
 import type { BotContext, SessionData } from "./types.js";
 
 export interface CreatePolyglotBotOptions {
@@ -186,6 +187,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   bot.command("start", startCommand);
   bot.command("translate", handleTranslateCommand);
+  bot.command("mentor", handleMentorCommand);
   bot.command("template", handleTemplateCommand);
   bot.command("dictionary", handleDictionaryCommand);
   bot.command("flashcard", handleFlashcardCommand);
