@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("ai", () => ({
   generateText: vi.fn(),
@@ -62,9 +62,7 @@ describe("generateChat", () => {
 
     await generateChat([{ role: "user", content: "hi" }], "openai/gpt-4o");
 
-    expect(aiGenerateText).toHaveBeenCalledWith(
-      expect.objectContaining({ maxRetries: 2 }),
-    );
+    expect(aiGenerateText).toHaveBeenCalledWith(expect.objectContaining({ maxRetries: 2 }));
   });
 
   it("passes maxTokens through to the SDK when provided", async () => {
@@ -77,9 +75,7 @@ describe("generateChat", () => {
       maxTokens: 512,
     });
 
-    expect(aiGenerateText).toHaveBeenCalledWith(
-      expect.objectContaining({ maxTokens: 512 }),
-    );
+    expect(aiGenerateText).toHaveBeenCalledWith(expect.objectContaining({ maxTokens: 512 }));
   });
 
   it("omits maxTokens from SDK call when not provided", async () => {
@@ -100,11 +96,7 @@ describe("generateChat", () => {
       usage: { inputTokens: 10, outputTokens: 5 },
     } as never);
 
-    await generateChat(
-      [{ role: "user", content: "hi" }],
-      "openai/gpt-4o",
-      { userId: 42 },
-    );
+    await generateChat([{ role: "user", content: "hi" }], "openai/gpt-4o", { userId: 42 });
 
     expect(logRequest).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -120,9 +112,9 @@ describe("generateChat", () => {
     const error = new Error("API down");
     vi.mocked(aiGenerateText).mockRejectedValue(error);
 
-    await expect(
-      generateChat([{ role: "user", content: "hi" }], "openai/gpt-4o", { userId: 1 }),
-    ).rejects.toThrow("API down");
+    await expect(generateChat([{ role: "user", content: "hi" }], "openai/gpt-4o", { userId: 1 })).rejects.toThrow(
+      "API down",
+    );
 
     expect(logRequest).toHaveBeenCalledWith(
       expect.objectContaining({

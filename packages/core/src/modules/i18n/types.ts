@@ -92,6 +92,7 @@ export type I18nKey =
   | "templateSessionExpired"
   | "cmdDescStart"
   | "cmdDescTranslate"
+  | "cmdDescMentor"
   | "cmdDescDictionary"
   | "cmdDescTemplate"
   | "cmdDescSettings"
@@ -231,7 +232,11 @@ export type I18nKey =
   | "mistypeWarning"
   | "mistypeConfirm"
   | "mistypeCancel"
-  | "rateLimitExceeded";
+  | "rateLimitExceeded"
+  | "mentorModeOn"
+  | "mentorThinking"
+  | "mentorError"
+  | "mentorInputTooLong";
 
 /**
  * Supported interface languages.

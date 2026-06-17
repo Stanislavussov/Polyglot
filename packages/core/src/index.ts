@@ -76,13 +76,13 @@ export {
   sourceExpressionTypeSchema,
 } from "./modules/idiom-analysis/index.js";
 export * from "./modules/language-detect/index.js";
+export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
+export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
 export * from "./modules/rate-limit/index.js";
 export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";
-export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
-export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
 export type {
   ExampleInput,
   ValidateInput,

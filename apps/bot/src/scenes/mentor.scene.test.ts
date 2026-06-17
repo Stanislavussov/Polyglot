@@ -21,8 +21,8 @@ vi.mock("@polyglot/core", async () => {
   return { ...actual };
 });
 
-import { handleMentorCommand } from "./mentor.scene.js";
 import type { BotContext, SessionData } from "../types.js";
+import { handleMentorCommand } from "./mentor.scene.js";
 
 function createMockCtx(overrides?: Partial<SessionData>): BotContext {
   const session: SessionData = {

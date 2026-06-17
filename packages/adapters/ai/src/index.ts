@@ -148,11 +148,7 @@ export async function generateText(prompt: string, model: string, options?: Gene
  * @param options  - Optional: { maxRetries, userId, maxTokens }
  * @returns The generated text
  */
-export async function generateChat(
-  messages: ChatMessage[],
-  model: string,
-  options?: ChatOptions,
-): Promise<string> {
+export async function generateChat(messages: ChatMessage[], model: string, options?: ChatOptions): Promise<string> {
   const maxRetries = options?.maxRetries ?? DEFAULT_MAX_RETRIES;
   const start = Date.now();
 

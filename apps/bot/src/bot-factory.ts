@@ -83,13 +83,13 @@ import {
   handleSaveCallback,
   handleSkipCallback,
 } from "./scenes/helpers/translate-mode.helper.js";
+import { handleMentorCommand } from "./scenes/mentor.scene.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
 import { handleReportIssue } from "./scenes/report-issue.scene.js";
 import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleReviewCommand } from "./scenes/srs.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
-import { handleMentorCommand } from "./scenes/mentor.scene.js";
 import type { BotContext, SessionData } from "./types.js";
 
 export interface CreatePolyglotBotOptions {

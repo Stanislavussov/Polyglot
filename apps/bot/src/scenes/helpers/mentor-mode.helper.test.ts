@@ -1,10 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const {
-  mockUserRepository,
-  mockAi,
-  mockSettings,
-} = vi.hoisted(() => ({
+const { mockUserRepository, mockAi, mockSettings } = vi.hoisted(() => ({
   mockUserRepository: {
     getSettings: vi.fn().mockResolvedValue({
       interfaceLang: "en",
@@ -35,10 +31,10 @@ vi.mock("../../metrics.js", () => ({
   mentorDuration: { startTimer: vi.fn().mockReturnValue(() => undefined) },
 }));
 
-import { handleMentorText } from "./mentor-mode.helper.js";
-import { mentorCounter, mentorDuration } from "../../metrics.js";
-import { MAX_MENTOR_HISTORY, buildMentorSystemPrompt } from "@polyglot/core";
+import { MAX_MENTOR_HISTORY } from "@polyglot/core";
+import { mentorCounter } from "../../metrics.js";
 import type { BotContext, SessionData } from "../../types.js";
+import { handleMentorText } from "./mentor-mode.helper.js";
 
 function createMockCtx(overrides?: Partial<SessionData>): BotContext {
   const session: SessionData = {

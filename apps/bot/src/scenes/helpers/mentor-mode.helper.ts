@@ -8,16 +8,16 @@
  */
 import {
   buildMentorSystemPrompt,
+  type ChatMessage,
   isSupported,
   logger,
   MAX_MENTOR_HISTORY,
-  t,
-  type ChatMessage,
   type SupportedLang,
+  t,
 } from "@polyglot/core";
+import { mentorCounter, mentorDuration } from "../../metrics.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
-import { mentorCounter, mentorDuration } from "../../metrics.js";
 
 /** Maximum output tokens for mentor responses — keeps replies short. */
 const MENTOR_MAX_TOKENS = 300;
