@@ -146,6 +146,7 @@ export function createInitialSession(): SessionData {
     dictionaryWizard: undefined,
     flashcard: undefined,
     srs: undefined,
+    mentor: undefined,
     pendingDetectedLang: undefined,
     pendingWord: undefined,
     pendingDirection: undefined,

@@ -133,7 +133,7 @@ describe("authMiddleware", () => {
     repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
     repo.getSettings.mockResolvedValue({
       ...FAKE_SETTINGS,
-      activeMode: "mentor", // future mode not yet in UserMode type
+      activeMode: "quiz", // future mode not yet in UserMode type
     } as any);
     const ctx = createMockCtx({
       telegramId: 123456,
@@ -144,6 +144,23 @@ describe("authMiddleware", () => {
     await authMiddleware(ctx, next);
 
     expect(ctx.session.activeMode).toBe("translate");
+  });
+
+  it("hydrates mentor mode from DB without falling back", async () => {
+    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+    repo.getSettings.mockResolvedValue({
+      ...FAKE_SETTINGS,
+      activeMode: "mentor",
+    } as any);
+    const ctx = createMockCtx({
+      telegramId: 123456,
+      sessionActiveMode: "idle",
+    });
+    const next = vi.fn().mockResolvedValue(undefined);
+
+    await authMiddleware(ctx, next);
+
+    expect(ctx.session.activeMode).toBe("mentor");
   });
 
   it("does not hydrate activeMode for non-onboarded users", async () => {

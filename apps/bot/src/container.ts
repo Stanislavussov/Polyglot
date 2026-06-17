@@ -7,6 +7,7 @@
 
 import {
   estimateCost,
+  generateChat,
   generateObject,
   generateText,
   getAvailableModels,
@@ -83,6 +84,7 @@ export function createContainer(): ServiceContainer {
     ai: {
       generateObject,
       generateText,
+      generateChat,
       getAvailableModels,
       estimateCost,
     },
