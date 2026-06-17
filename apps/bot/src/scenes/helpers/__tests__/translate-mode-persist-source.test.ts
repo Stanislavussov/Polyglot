@@ -51,6 +51,9 @@ vi.mock("@polyglot/adapter-db", () => ({
   requestTimingRepository: {
     record: vi.fn().mockResolvedValue(undefined),
   },
+  languageDetectionRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+  },
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -83,7 +86,7 @@ vi.mock("@polyglot/infra", () => ({
 
 import { translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../../types.js";
-import { handleSourceLangCallback, handleTranslateText } from "../translate-mode.helper.js";
+import { handleTranslateText } from "../translate-mode.helper.js";
 
 function createMockCtx(overrides?: Partial<SessionData>): BotContext {
   const session: SessionData = {
@@ -223,24 +226,5 @@ describe("Persist source lang — lazy hydration (Task 36)", () => {
     // With simplified detection: detectLanguage returns undefined → mistype warning
     // Reply should be called at least once (either loading message or mistype warning)
     expect(ctx.reply).toHaveBeenCalled();
-  });
-
-  it("persists source lang to DB on callback selection", async () => {
-    const ctx = createMockCtx();
-    (ctx as any).callbackQuery = { data: "tr:srclang:cs" };
-
-    await handleSourceLangCallback(ctx);
-
-    expect(mockUserRepository.updateLastSourceLang).toHaveBeenCalledWith(1, "cs");
-  });
-
-  it("DB write failure does not break callback (fire-and-forget)", async () => {
-    mockUserRepository.updateLastSourceLang = vi.fn().mockRejectedValue(new Error("DB error"));
-
-    const ctx = createMockCtx();
-    (ctx as any).callbackQuery = { data: "tr:srclang:en" };
-
-    // Should not throw
-    await expect(handleSourceLangCallback(ctx)).resolves.not.toThrow();
   });
 });

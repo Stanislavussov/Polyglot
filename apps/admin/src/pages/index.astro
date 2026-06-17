@@ -3,6 +3,7 @@ import AdminLayout from "../layouts/AdminLayout.astro";
 import AIModelLatencyChart from "../components/AIModelLatencyChart.vue";
 import DashboardStats from "../components/DashboardStats.vue";
 import OpenRouterKeyStatus from "../components/OpenRouterKeyStatus.vue";
+import LanguageDetectionChart from "../components/LanguageDetectionChart.vue";
 import RequestTimingBreakdownChart from "../components/RequestTimingBreakdownChart.vue";
 ---
 
@@ -14,4 +15,5 @@ import RequestTimingBreakdownChart from "../components/RequestTimingBreakdownCha
   <OpenRouterKeyStatus client:idle />
   <AIModelLatencyChart client:idle />
   <RequestTimingBreakdownChart client:idle />
+  <LanguageDetectionChart client:idle />
 </AdminLayout>

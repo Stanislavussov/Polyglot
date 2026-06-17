@@ -73,11 +73,12 @@ pnpm test
 ### Summary checklist (copy-paste into your workflow)
 
 ```bash
-pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test
+pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm db:generate && pnpm db:push
 ```
 
 **If any command fails → fix → re-run the full chain.**
-Do NOT proceed to documentation updates or mark tasks done until all five pass.
+Do NOT proceed to documentation updates or mark tasks done until all steps pass.
+`pnpm db:generate` is a no-op (exits 0) when no schema changed, so it is safe to always include. Run it **before** `pnpm db:push` so migration files are committed alongside schema changes for CI/deploy.
 
 ---
 
@@ -110,7 +111,8 @@ pnpm db:check
 
 ### Rules
 
-- Schema changes flow for agents: edit `packages/adapters/db/src/schema.ts` → run `pnpm db:generate` → review generated migrations
+- Schema changes flow for agents: edit `packages/adapters/db/src/schema.ts` → run `pnpm db:generate` → review generated migrations → run `pnpm db:push`
+- `pnpm db:generate` runs **before** `pnpm db:push` — always. It is a no-op when schema is unchanged, so include it in every quality gate run without conditional checks
 - When database structure changes on the `develop` branch, run `pnpm db:push` after `pnpm db:generate` to update the local/dev database
 - Never hand-edit files in `packages/adapters/db/drizzle/`
 - Never use raw SQL or external tools to modify the database structure

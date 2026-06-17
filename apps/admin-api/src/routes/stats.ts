@@ -1,6 +1,7 @@
 import {
   aiRequestLatencyRepository,
   getDb,
+  languageDetectionRepository,
   requestTimingRepository,
   translationRequests,
   users,
@@ -55,5 +56,13 @@ export async function statsRoutes(app: FastifyInstance) {
     const byDay = await requestTimingRepository.getSegmentSummaryByDay(days);
     const byModel = await requestTimingRepository.getSegmentSummaryByModel(days);
     return { byDay, byModel };
+  });
+
+  app.get("/stats/language-detection", async (request) => {
+    const query = request.query as { days?: string };
+    const days = query.days ? parseInt(query.days, 10) : 7;
+    const byDay = await languageDetectionRepository.getSummaryByDay(days);
+    const outcome = await languageDetectionRepository.getSummaryByOutcome(days);
+    return { byDay, outcome };
   });
 }

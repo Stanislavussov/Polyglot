@@ -7,13 +7,14 @@
 After implementing any feature — no matter how small — update `CHANGELOG.md` and run the full quality gate:
 
 ```bash
-pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm db:push
+pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm db:generate && pnpm db:push
 ```
 
 - Fix all failures before proceeding
 - Do not defer fixes to "later"
 - Keep user-facing and operational changes under `## [Unreleased]` in `CHANGELOG.md`
-- `pnpm db:push` is the final step — applies schema changes to local/dev database
+- `pnpm db:generate` creates migration files from schema changes (no-op when schema is unchanged — exits 0). Run it **before** `pnpm db:push` so migrations are committed alongside schema changes for CI/deploy
+- `pnpm db:push` is the final step — applies schema changes to the local/dev database
 
 **Exception — Documentation-only changes:** When the only files touched are Markdown (`.md`), task specs, readmes, or changelogs, skip the quality gate. Running `pnpm build`, `pnpm lint`, and `pnpm test` is useless if no source code changed. In that case, only verify that the Markdown renders correctly and `CHANGELOG.md` is updated if needed.
 
