@@ -18,7 +18,7 @@ const {
   mockAi,
   mockLogger,
 } = vi.hoisted(() => ({
-  mockLookupContext: vi.fn(),
+  mockLookupContext: vi.fn().mockResolvedValue([]),
   mockUserRepository: {
     getSettings: vi.fn(),
   },

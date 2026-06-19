@@ -237,7 +237,7 @@ context. Keep `connotationWarning` optional and limited to exceptional risks.
 Type: AFK.
 Priority: P2.
 Blocked by: none.
-Status: planned.
+Status: completed.
 
 #### What to build
 
@@ -246,11 +246,11 @@ database row.
 
 #### Acceptance criteria
 
-- [ ] Lookup applies Unicode normalization, case folding, and whitespace trim.
-- [ ] Exact expression, known form, and lemma candidates are supported.
-- [ ] The context adapter no longer silently selects `results[0]`.
-- [ ] Candidate ordering is deterministic.
-- [ ] Existing fail-open behavior is preserved.
+- [x] Lookup applies Unicode normalization, case folding, and whitespace trim.
+- [x] Exact expression, known form, and lemma candidates are supported.
+- [x] The context adapter no longer silently selects `results[0]`.
+- [x] Candidate ordering is deterministic.
+- [x] Existing fail-open behavior is preserved.
 
 ### TQ-10 — Rank dictionary senses by context
 

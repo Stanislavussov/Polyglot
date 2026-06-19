@@ -17,7 +17,7 @@ vi.mock("@polyglot/adapter-db", () => ({
     updateActiveMode: vi.fn().mockResolvedValue({}),
   },
   getLangDisplay: vi.fn((code: string) => code.toUpperCase()),
-  createContextLookup: () => vi.fn(),
+  createContextLookup: () => vi.fn().mockResolvedValue([]),
   getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
   translationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),

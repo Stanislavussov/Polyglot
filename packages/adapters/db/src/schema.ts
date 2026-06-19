@@ -53,6 +53,7 @@ export const wordContext = pgTable(
       .references(() => languages.id)
       .notNull(),
     pos: text("pos").notNull(),
+    forms: text("forms").array().default([]),
     formTags: text("form_tags").array().default([]),
     glosses: text("glosses").array().default([]),
     createdAt: timestamp("created_at").defaultNow(),

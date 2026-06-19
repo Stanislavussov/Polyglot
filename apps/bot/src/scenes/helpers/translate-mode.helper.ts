@@ -264,7 +264,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     dbLookupMs = Date.now() - dbLookupStart;
 
     // For sentences, skip dictionary context lookup (no learnable word to enrich)
-    const lookupContextFn = isSentence ? async () => undefined : lookupContext;
+    const lookupContextFn = isSentence ? async () => [] : lookupContext;
 
     const stopTimer = translationDuration.startTimer();
     const aiStart = Date.now();
@@ -610,7 +610,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
     );
     const effectiveTemplate = resolveTemplate(userTpl);
 
-    const lookupContextFn = isSentence ? async () => undefined : lookupContext;
+    const lookupContextFn = isSentence ? async () => [] : lookupContext;
 
     const newTranslation = await translateOneWithContext(
       {
@@ -766,7 +766,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     const outputConfig = resolveOutputConfig(userTpl, classification.type, pendingWord.length);
     const effectiveTemplate = resolveTemplate(userTpl);
 
-    const lookupContextFn = isSentence ? async () => undefined : lookupContext;
+    const lookupContextFn = isSentence ? async () => [] : lookupContext;
 
     const stopTimer = translationDuration.startTimer();
     const output = await translateWithContext(

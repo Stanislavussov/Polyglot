@@ -6,7 +6,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DictionaryContext, LanguageTranslation, TranslateOutput } from "../../translation/types.js";
-import type { ContextEnrichmentDeps, EnrichedTranslateInput } from "../types.js";
+import type { ContextEnrichmentDeps, DictionaryContextCandidate, EnrichedTranslateInput } from "../types.js";
 
 // Mock the translation service
 vi.mock("../../translation/translation.service.js", () => ({
@@ -67,7 +67,8 @@ function makeLangTranslation(word: string, lang: string): LanguageTranslation {
 }
 
 function createMockDeps(lookupResult?: DictionaryContext | undefined, lookupError?: Error): ContextEnrichmentDeps {
-  const lookupContext = lookupError ? vi.fn().mockRejectedValue(lookupError) : vi.fn().mockResolvedValue(lookupResult);
+  const candidates: DictionaryContextCandidate[] = lookupResult ? [{ matchType: "lemma", context: lookupResult }] : [];
+  const lookupContext = lookupError ? vi.fn().mockRejectedValue(lookupError) : vi.fn().mockResolvedValue(candidates);
 
   return {
     lookupContext,
@@ -115,6 +116,29 @@ describe("translateWithContext", () => {
         targetLangs: ["cs", "de"],
         model: "test-model",
         dictionaryContext: ctx,
+      }),
+      deps.generateObjectFn,
+    );
+  });
+
+  it("does not select an ambiguous dictionary sense before ranking", async () => {
+    const first = makeDictionaryContext("bank");
+    const second = { ...makeDictionaryContext("bank"), glosses: ["river edge"] };
+    const deps: ContextEnrichmentDeps = {
+      lookupContext: vi.fn().mockResolvedValue([
+        { matchType: "lemma", context: first },
+        { matchType: "lemma", context: second },
+      ]),
+      generateObjectFn: vi.fn(),
+    };
+    vi.mocked(translate).mockResolvedValue(makeTranslateOutput("bank", ["cs", "de"]));
+
+    await translateWithContext({ ...baseInput, word: "bank" }, deps);
+
+    expect(translate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "bank",
+        dictionaryContext: undefined,
       }),
       deps.generateObjectFn,
     );
@@ -324,7 +348,9 @@ describe("translateBatchWithContext", () => {
     const deps: ContextEnrichmentDeps = {
       lookupContext: vi
         .fn()
-        .mockImplementation((word: string) => Promise.resolve(word === "apple" ? appleCtx : undefined)),
+        .mockImplementation((word: string) =>
+          Promise.resolve(word === "apple" ? [{ matchType: "lemma", context: appleCtx }] : []),
+        ),
       generateObjectFn: vi.fn(),
     };
     vi.mocked(translate).mockImplementation(async (input) =>

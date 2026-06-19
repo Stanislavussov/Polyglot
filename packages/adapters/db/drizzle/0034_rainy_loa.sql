@@ -1,0 +1,1 @@
+ALTER TABLE "word_context" ADD COLUMN "forms" text[] DEFAULT '{}';

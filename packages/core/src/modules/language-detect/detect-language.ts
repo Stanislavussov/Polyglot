@@ -1,5 +1,5 @@
 import { franc } from "franc";
-import type { DictionaryContext } from "../translation/types.js";
+import type { DictionaryContextCandidate } from "../context-enrichment/types.js";
 
 /**
  * Language Detection Strategy Interface
@@ -293,9 +293,9 @@ export class DiacriticsStrategy implements LanguageDetectionStrategy {
  */
 export class WiktionaryStrategy implements LanguageDetectionStrategy {
   readonly name = "wiktionary";
-  private readonly lookup: (word: string, langCode: string) => Promise<DictionaryContext | undefined>;
+  private readonly lookup: (word: string, langCode: string) => Promise<DictionaryContextCandidate[]>;
 
-  constructor(lookup: (word: string, langCode: string) => Promise<DictionaryContext | undefined>) {
+  constructor(lookup: (word: string, langCode: string) => Promise<DictionaryContextCandidate[]>) {
     this.lookup = lookup;
   }
 
@@ -305,8 +305,8 @@ export class WiktionaryStrategy implements LanguageDetectionStrategy {
 
     // Check each candidate language
     for (const candidate of candidates) {
-      const context = await this.lookup(word, candidate);
-      if (context) {
+      const contexts = await this.lookup(word, candidate);
+      if (contexts.length > 0) {
         return candidate;
       }
     }
@@ -426,7 +426,7 @@ export async function detectLanguageAsync(
   text: string,
   candidates: string[],
   deps: {
-    contextLookup?: (word: string, langCode: string) => Promise<DictionaryContext | undefined>;
+    contextLookup?: (word: string, langCode: string) => Promise<DictionaryContextCandidate[]>;
     aiGenerate?: AIGenerateFn;
   },
 ): Promise<string | undefined> {

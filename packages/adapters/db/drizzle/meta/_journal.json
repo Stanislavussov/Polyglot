@@ -239,6 +239,13 @@
       "when": 1781899863434,
       "tag": "0033_fair_mariko_yashida",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1781900583769,
+      "tag": "0034_rainy_loa",
+      "breakpoints": true
     }
   ]
 }

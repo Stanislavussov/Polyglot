@@ -4,8 +4,8 @@
  * Verifies:
  * - Factory returns a function
  * - Function calls findByWordAndLangCode and transforms result
- * - No results → returns undefined
- * - Repository throws → returns undefined (fail-open)
+ * - No results → returns an empty candidate array
+ * - Repository throws → returns an empty candidate array (fail-open)
  * - Null glosses/formTags handled gracefully
  * - Uses first result when multiple entries returned
  */
@@ -39,6 +39,15 @@ describe("createContextLookup", () => {
     expect(typeof lookup).toBe("function");
   });
 
+  it("normalizes Unicode, case, and whitespace before repository lookup", async () => {
+    mockFindByWordAndLangCode.mockResolvedValue([]);
+    const lookup = createContextLookup();
+
+    await lookup("  CAFÉ   AU  LAIT  ".normalize("NFD"), "fr");
+
+    expect(mockFindByWordAndLangCode).toHaveBeenCalledWith("café au lait", "fr");
+  });
+
   it("returned function calls findByWordAndLangCode with correct args", async () => {
     mockFindByWordAndLangCode.mockResolvedValue([]);
     const lookup = createContextLookup();
@@ -65,31 +74,36 @@ describe("createContextLookup", () => {
     const lookup = createContextLookup();
     const result = await lookup("что ли", "ru");
 
-    expect(result).toEqual({
-      word: "что ли",
-      pos: "phrase",
-      glosses: ["or something", "perhaps"],
-      formTags: ["canonical"],
-      langCode: "ru",
-    });
+    expect(result).toEqual([
+      {
+        matchType: "exact_expression",
+        context: {
+          word: "что ли",
+          pos: "phrase",
+          glosses: ["or something", "perhaps"],
+          formTags: ["canonical"],
+          langCode: "ru",
+        },
+      },
+    ]);
   });
 
-  it("returns undefined when no results found", async () => {
+  it("returns an empty array when no results found", async () => {
     mockFindByWordAndLangCode.mockResolvedValue([]);
 
     const lookup = createContextLookup();
     const result = await lookup("unknown", "en");
 
-    expect(result).toBeUndefined();
+    expect(result).toEqual([]);
   });
 
-  it("returns undefined when repository throws (fail-open)", async () => {
+  it("returns an empty array when repository throws (fail-open)", async () => {
     mockFindByWordAndLangCode.mockRejectedValue(new Error("DB connection failed"));
 
     const lookup = createContextLookup();
     const result = await lookup("hello", "en");
 
-    expect(result).toBeUndefined();
+    expect(result).toEqual([]);
   });
 
   it("handles null glosses and formTags gracefully", async () => {
@@ -108,17 +122,62 @@ describe("createContextLookup", () => {
     const lookup = createContextLookup();
     const result = await lookup("test", "en");
 
-    expect(result).toEqual({
-      word: "test",
-      pos: "noun",
-      glosses: [],
-      formTags: [],
-      langCode: "en",
-    });
+    expect(result).toEqual([
+      {
+        matchType: "lemma",
+        context: {
+          word: "test",
+          pos: "noun",
+          glosses: [],
+          formTags: [],
+          langCode: "en",
+        },
+      },
+    ]);
   });
 
-  it("uses the first result when multiple entries returned", async () => {
+  it("identifies a candidate matched through a known form", async () => {
     mockFindByWordAndLangCode.mockResolvedValue([
+      {
+        id: 1,
+        word: "run",
+        forms: ["ran", "running"],
+        languageId: 1,
+        pos: "verb",
+        formTags: ["canonical"],
+        glosses: ["move quickly"],
+        createdAt: new Date(),
+      },
+    ]);
+
+    const lookup = createContextLookup();
+    const result = await lookup("RAN", "en");
+
+    expect(result).toEqual([
+      {
+        matchType: "known_form",
+        context: {
+          word: "run",
+          pos: "verb",
+          glosses: ["move quickly"],
+          formTags: ["canonical"],
+          langCode: "en",
+        },
+      },
+    ]);
+  });
+
+  it("returns all senses in deterministic candidate order", async () => {
+    mockFindByWordAndLangCode.mockResolvedValue([
+      {
+        id: 2,
+        word: "bank",
+        languageId: 1,
+        pos: "verb",
+        formTags: ["canonical"],
+        glosses: ["to tilt"],
+        createdAt: new Date(),
+      },
       {
         id: 1,
         word: "bank",
@@ -128,21 +187,33 @@ describe("createContextLookup", () => {
         glosses: ["financial institution"],
         createdAt: new Date(),
       },
-      {
-        id: 2,
-        word: "bank",
-        languageId: 1,
-        pos: "noun",
-        formTags: ["canonical"],
-        glosses: ["riverbank"],
-        createdAt: new Date(),
-      },
     ]);
 
     const lookup = createContextLookup();
     const result = await lookup("bank", "en");
 
-    expect(result?.glosses).toEqual(["financial institution"]);
+    expect(result).toEqual([
+      {
+        matchType: "lemma",
+        context: {
+          word: "bank",
+          pos: "noun",
+          glosses: ["financial institution"],
+          formTags: ["canonical"],
+          langCode: "en",
+        },
+      },
+      {
+        matchType: "lemma",
+        context: {
+          word: "bank",
+          pos: "verb",
+          glosses: ["to tilt"],
+          formTags: ["canonical"],
+          langCode: "en",
+        },
+      },
+    ]);
   });
 
   it("each call to factory returns an independent function", () => {
@@ -170,6 +241,6 @@ describe("createContextLookup", () => {
     const lookup = createContextLookup();
     const result = await lookup("hola", "es");
 
-    expect(result?.langCode).toBe("es");
+    expect(result[0]?.context.langCode).toBe("es");
   });
 });
