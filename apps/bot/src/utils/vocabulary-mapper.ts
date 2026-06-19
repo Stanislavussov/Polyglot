@@ -58,6 +58,7 @@ export function toVocabularyInput(
       text: lang.text,
       expressionType: lang.expressionType ?? undefined,
       equivalentNote: lang.equivalentNote ?? undefined,
+      usageNote: lang.usageNote ?? undefined,
       connotationWarning: lang.connotationWarning ?? undefined,
       details,
     });
@@ -69,6 +70,7 @@ export function toVocabularyInput(
     inputType,
     emoji: output.emoji,
     nativeMeaning: output.nativeMeaning,
+    sourceUsage: output.sourceUsage,
     translations,
   };
 }

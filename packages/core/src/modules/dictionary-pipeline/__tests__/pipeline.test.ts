@@ -407,6 +407,19 @@ describe("createDictionaryPipeline", () => {
   });
 
   describe("presentation — targetLangs filter", () => {
+    it("preserves entry-level source usage for renderers", async () => {
+      const sourceUsage = {
+        explanation: "Used when greeting someone informally.",
+        synonyms: [{ text: "hi" }],
+        examples: [{ context: "neutral", target: "Hello, Anna!", native: "Привет, Анна!" }],
+      };
+      const pipeline = createDictionaryPipeline(makeDeps([makeEntry({ id: 1, sourceUsage })]));
+
+      const result = await pipeline.run(42, makeConfig());
+
+      expect(result.words[0]?.sourceUsage).toEqual(sourceUsage);
+    });
+
     it("output only includes requested languages", async () => {
       const entries = [
         makeEntry({

@@ -65,7 +65,7 @@ describe("validateExamples", () => {
     expect(result.errors.some((e) => e.field === "examples.0.target")).toBe(true);
   });
 
-  it("skips exact containment for non-ASCII words to avoid inflection false positives", () => {
+  it("rejects an unrelated first example for a non-ASCII main translation", () => {
     const result = validateExamples(
       [
         {
@@ -75,6 +75,49 @@ describe("validateExamples", () => {
       ],
       "chlebíček",
     );
+    expect(result.valid).toBe(false);
+  });
+
+  it("validates a multi-word main translation", () => {
+    const result = validateExamples(
+      [
+        {
+          context: "neutral",
+          target: "Vláda chce omezit používání plastů.",
+        },
+      ],
+      "postupně ukončit",
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((error) => error.field === "examples.0.target")).toBe(true);
+  });
+
+  it("accepts normal Czech inflection of a multi-word main translation", () => {
+    const result = validateExamples(
+      [
+        {
+          context: "neutral",
+          target: "Firma postupně ukončila výrobu starého modelu.",
+        },
+      ],
+      "postupně ukončit",
+    );
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("accepts normal Russian inflection of a multi-word main translation", () => {
+    const result = validateExamples(
+      [
+        {
+          context: "neutral",
+          target: "Компания постепенно откажется от устаревшей системы.",
+        },
+      ],
+      "постепенно отказаться",
+    );
+
     expect(result.valid).toBe(true);
   });
 

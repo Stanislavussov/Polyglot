@@ -1,0 +1,1 @@
+ALTER TABLE "vocabulary_translations" ADD COLUMN "usage_note" text;

@@ -206,6 +206,7 @@ describe("handleTranslateText — context enrichment", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
+      includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });

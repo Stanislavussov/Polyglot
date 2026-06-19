@@ -113,6 +113,7 @@ function makeTranslation(overrides: Partial<VocabularyTranslation> = {}): Vocabu
     text: "ahoj",
     expressionType: null,
     equivalentNote: null,
+    usageNote: null,
     connotationWarning: null,
     details: makeDetails(),
     isActive: true,

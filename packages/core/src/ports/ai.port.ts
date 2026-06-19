@@ -15,6 +15,7 @@ export interface AIModel {
 export interface GenerateOptions {
   maxRetries?: number;
   userId?: number;
+  frequencyPenalty?: number;
 }
 
 /** A single chat message with a role (system/user/assistant) and content. */

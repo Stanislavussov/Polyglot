@@ -37,7 +37,7 @@ export type GenerateObjectFn = <T>(
   prompt: string,
   schema: import("zod").ZodSchema<T>,
   model: string,
-  options?: { userId?: number },
+  options?: { userId?: number; frequencyPenalty?: number },
 ) => Promise<T>;
 
 /**
@@ -77,11 +77,15 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
   const requiresNativeOutput = input.nativeLang !== undefined;
   const requiresSourceUsage =
     requiresNativeOutput && input.sourceLang !== input.nativeLang && input.inputType !== "sentence";
+  const requiresUsageNote =
+    requiresNativeOutput && input.inputType !== "sentence" && input.outputConfig?.includeUsageNote !== false;
   const schema = buildTranslationResultSchema(
     input.targetLangs,
     input.outputConfig,
     requiresNativeOutput,
     requiresSourceUsage,
+    input.nativeLang,
+    requiresUsageNote,
   );
   let prompt = buildTranslationPrompt(request);
   let result: TranslationResult;
@@ -90,12 +94,10 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     // Step 2: Call AI adapter (catch generation/parse failures to allow retry)
     try {
-      result = (await generateObjectFn(
-        prompt,
-        schema,
-        input.model,
-        ...(input.userId !== undefined ? [{ userId: input.userId }] : []),
-      )) as TranslationResult;
+      result = (await generateObjectFn(prompt, schema, input.model, {
+        frequencyPenalty: 0,
+        ...(input.userId !== undefined ? { userId: input.userId } : {}),
+      })) as TranslationResult;
     } catch (generationError) {
       const errorMsg = generationError instanceof Error ? generationError.message : String(generationError);
 
@@ -320,6 +322,7 @@ function stripDisabledFields(
       alternatives: config?.includeAlternatives === false ? null : (lt.alternatives ?? null),
       expressionType: config?.includeEquivalentNote === false ? null : (lt.expressionType ?? null),
       equivalentNote: config?.includeEquivalentNote === false ? null : (lt.equivalentNote ?? null),
+      usageNote: config?.includeUsageNote === false ? null : (lt.usageNote ?? null),
       connotationWarning: config?.includeConnotationWarning === false ? null : (lt.connotationWarning ?? null),
     };
   }

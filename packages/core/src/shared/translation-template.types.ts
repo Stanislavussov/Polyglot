@@ -64,6 +64,7 @@ export function templateToOutputConfig(template: UserTranslationTemplate): Trans
     includeSynonyms: template.fields.synonyms,
     includeAlternatives: template.fields.alternatives,
     includeEquivalentNote: template.fields.equivalentNote,
+    includeUsageNote: true,
     includeConnotationWarning: template.fields.connotationWarning,
     includeNativeSynonyms: template.fields.synonyms,
   };

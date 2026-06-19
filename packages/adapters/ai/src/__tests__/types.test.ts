@@ -79,4 +79,10 @@ describe("types", () => {
     const noUser: GenerateOptions = { maxRetries: 3 };
     expect(noUser.userId).toBeUndefined();
   });
+
+  it("GenerateOptions supports a request-specific frequency penalty", () => {
+    const opts: GenerateOptions = { frequencyPenalty: 0 };
+
+    expect(opts.frequencyPenalty).toBe(0);
+  });
 });

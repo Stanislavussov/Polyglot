@@ -151,6 +151,10 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
     }
   }
 
+  if (lt.usageNote) {
+    lines.push(`💡 ${esc(lt.usageNote)}`);
+  }
+
   // Connotation warning: omit when fields?.connotationWarning === false
   if (fields?.connotationWarning !== false && lt.connotationWarning) {
     lines.push(t("connotationWarning", lang, { warning: esc(lt.connotationWarning) }));

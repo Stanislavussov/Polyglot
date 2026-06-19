@@ -18,7 +18,7 @@ description: Config-driven pipeline for reading words from a user's personal dic
 
 ## Current State
 
-Fully implemented with config-driven pipeline, preset configs, and word display types.
+Fully implemented with config-driven pipeline, preset configs, and word display types. The display model carries saved entry-level `sourceUsage` and per-target `usageNote` through the pipeline so renderers preserve both source guidance and target-specific usage guidance.
 
 ## File Structure
 
@@ -67,7 +67,7 @@ interface WordDisplayData {
   sourceLang: string;
   inputType: string;
   emoji: string | null;
-  register: Register | null;
+  sourceUsage?: SourceUsage;
   createdAt: Date;
   translations: WordDisplayTranslation[];
 }

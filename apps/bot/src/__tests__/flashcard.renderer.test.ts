@@ -33,6 +33,11 @@ const sampleWord: WordDisplayData = {
   id: 1,
   original: "apple",
   nativeMeaning: "A round fruit.",
+  sourceUsage: {
+    explanation: "Used for the fruit, not the technology company.",
+    synonyms: [{ text: "fruit" }],
+    examples: [{ context: "neutral", target: "This apple is sweet.", native: "Это яблоко сладкое." }],
+  },
   sourceLang: "en",
   inputType: "word",
   emoji: "🍎",
@@ -40,6 +45,7 @@ const sampleWord: WordDisplayData = {
   translations: {
     ru: {
       text: "яблоко",
+      usageNote: "Нейтральное общеупотребительное слово.",
       synonyms: [{ text: "яблочко" }],
       examples: [{ context: "neutral", target: "Я ем яблоко.", native: "I eat an apple." }],
     },
@@ -145,6 +151,20 @@ describe("renderFlashCardBack", () => {
   it("contains examples when present", () => {
     const result = renderFlashCardBack(sampleWord, 1, 10, "en");
     expect(result).toContain("💬 <i>Я ем яблоко.</i> (I eat an apple.)");
+  });
+
+  it("shows saved source-language usage guidance", () => {
+    const result = renderFlashCardBack(sampleWord, 1, 10, "ru");
+
+    expect(result).toContain("Used for the fruit, not the technology company.");
+    expect(result).toContain("fruit");
+    expect(result).toContain("💬 <i>This apple is sweet.</i> (Это яблоко сладкое.)");
+  });
+
+  it("shows regular target usage guidance separately", () => {
+    const result = renderFlashCardBack(sampleWord, 1, 10, "ru");
+
+    expect(result).toContain("💡 Нейтральное общеупотребительное слово.");
   });
 
   it("renders without synonyms when they are absent", () => {

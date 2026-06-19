@@ -50,9 +50,8 @@ export function validateExamples(
   }
 
   if (shouldValidateFirstExampleHeadword(word, expressionType)) {
-    const firstTarget = examples[0]?.target.toLocaleLowerCase() ?? "";
-    const normalizedWord = word.toLocaleLowerCase();
-    if (!firstTarget.includes(normalizedWord)) {
+    const firstTarget = examples[0]?.target ?? "";
+    if (!containsInflectedExpression(firstTarget, word)) {
       errors.push({
         rule: "examples",
         message: `First example should demonstrate the main translation "${word}"`,
@@ -66,11 +65,31 @@ export function validateExamples(
 
 function shouldValidateFirstExampleHeadword(word: string, expressionType?: ExpressionType): boolean {
   if (expressionType === "idiomatic_equivalent") return false;
+  return tokenize(word).some((token) => token.length >= 3);
+}
 
-  const trimmed = word.trim();
-  if (trimmed.length < 3) return false;
-  if (trimmed.includes(" ")) return false;
-  if (!/^[a-z]+$/i.test(trimmed)) return false;
+function containsInflectedExpression(target: string, expression: string): boolean {
+  const targetTokens = tokenize(target);
+  const expressionTokens = tokenize(expression).filter((token) => token.length >= 3);
 
-  return true;
+  return (
+    expressionTokens.length > 0 && expressionTokens.every((token) => targetTokens.some((item) => sameStem(token, item)))
+  );
+}
+
+function sameStem(left: string, right: string): boolean {
+  if (left === right) return true;
+  if (left.length < 5 || right.length < 5) return false;
+
+  const prefixLength = Math.min(4, left.length, right.length);
+  return left.slice(0, prefixLength) === right.slice(0, prefixLength);
+}
+
+function tokenize(value: string): string[] {
+  return (
+    value
+      .normalize("NFKC")
+      .toLocaleLowerCase()
+      .match(/[\p{L}\p{N}]+/gu) ?? []
+  );
 }

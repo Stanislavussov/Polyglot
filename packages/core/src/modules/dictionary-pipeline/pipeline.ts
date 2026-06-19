@@ -152,6 +152,9 @@ function buildDisplayTranslation(row: PipelineTranslationRow, config: Dictionary
   if (fields.equivalentNote && row.equivalentNote) {
     result.equivalentNote = row.equivalentNote;
   }
+  if (row.usageNote) {
+    result.usageNote = row.usageNote;
+  }
 
   return result;
 }
@@ -182,6 +185,7 @@ function buildDisplayData(entry: PipelineEntry, config: DictionaryWordConfig): W
     id: entry.id,
     original: entry.original,
     ...(entry.nativeMeaning ? { nativeMeaning: entry.nativeMeaning } : {}),
+    ...(entry.sourceUsage ? { sourceUsage: entry.sourceUsage } : {}),
     sourceLang: entry.sourceLangCode,
     inputType: entry.inputType as "word" | "phrase" | "sentence",
     emoji: entry.emoji ?? "📝",

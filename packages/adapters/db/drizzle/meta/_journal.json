@@ -225,6 +225,20 @@
       "when": 1781724966144,
       "tag": "0031_useful_wind_dancer",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1781881307377,
+      "tag": "0032_fearless_red_ghost",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1781899863434,
+      "tag": "0033_fair_mariko_yashida",
+      "breakpoints": true
     }
   ]
 }

@@ -19,6 +19,7 @@ export const FULL_OUTPUT: TranslationOutputConfig = {
   includeSynonyms: true,
   includeAlternatives: true,
   includeEquivalentNote: true,
+  includeUsageNote: true,
   includeConnotationWarning: true,
   includeNativeSynonyms: true,
 };
@@ -29,6 +30,7 @@ export const RELIABLE_OUTPUT: TranslationOutputConfig = {
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
+  includeUsageNote: true,
   includeConnotationWarning: false,
   includeNativeSynonyms: false,
 };
@@ -39,6 +41,7 @@ export const MINIMAL_OUTPUT: TranslationOutputConfig = {
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
+  includeUsageNote: false,
   includeConnotationWarning: false,
   includeNativeSynonyms: false,
 };
@@ -49,6 +52,7 @@ export const NOTIFICATION_OUTPUT: TranslationOutputConfig = {
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
+  includeUsageNote: true,
   includeConnotationWarning: false,
   includeNativeSynonyms: false,
 };
@@ -59,6 +63,7 @@ export const SENTENCE_OUTPUT: TranslationOutputConfig = {
   includeSynonyms: false,
   includeAlternatives: false,
   includeEquivalentNote: false,
+  includeUsageNote: false,
   includeConnotationWarning: false,
   includeNativeSynonyms: false,
 };

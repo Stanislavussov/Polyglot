@@ -40,10 +40,11 @@ AI Response
     ├─ 2. validateSemantic               — translation ≠ original, no hallucinations
     │                                       ⚠️ SKIPPED when inputType='sentence'
     ├─ 3. validateLanguage                — no-op (franc-min removed, see below)
-    ├─ 4. validateExamples               — examples well-formed + word matching
+    ├─ 4. validateNativeFields           — script, romanization, pronunciation, duplication
+    ├─ 5. validateExamples               — examples well-formed + phrase/inflection matching
     │                                       (relaxed for idiomatic equivalents)
     │                                       ⚠️ SKIPPED when inputType='sentence'
-    ├─ 5. validateAlternatives (semantic) — alternatives[].text ≠ original, no hallucinations
+    ├─ 6. validateAlternatives (semantic) — alternatives[].text ≠ original, no hallucinations
     │                                       ⚠️ SKIPPED when inputType='sentence'
     │
     ├─ PASS → return valid result
@@ -84,6 +85,25 @@ function validateSemantic(original: string, translation: string): ValidationResu
 // by AI prompt + Zod schema + semantic validation.
 // Function retained for API compatibility.
 function validateLanguage(text: string, expectedLang: string): ValidationResult;
+
+// Deterministic validation for fields that must use the native language.
+// Rejects duplicated target/native examples, copied notes, pronunciation/IPA,
+// and high-confidence Russian romanization without applying unreliable
+// short-text statistical detection.
+function validateNativeFields(
+  raw: Record<string, unknown>,
+  translations: Record<string, Record<string, unknown>>,
+  expectedLangs: string[],
+  nativeLang: string,
+): ValidationResult;
+
+// Example quality validation. The first literal example must contain the main
+// translation; Unicode phrases and conservative inflected forms are supported.
+function validateExamples(
+  examples: ExampleInput[],
+  word: string,
+  expressionType?: ExpressionType,
+): ValidationResult;
 
 // Helper to resolve language identifiers to ISO 639-3 codes
 function resolveToIso3(lang: string): string | undefined;
@@ -296,7 +316,8 @@ packages/core/src/modules/validation/
 │   ├── schema.validator.ts               # validateSchema()
 │   ├── semantic.validator.ts             # validateSemantic()
 │   ├── language.validator.ts             # validateLanguage(), resolveToIso3()
-│   ├── example.validator.ts              # validateExamples() + ExpressionType
+│   ├── field-language.validator.ts        # validateNativeFields()
+│   ├── example.validator.ts              # phrase/inflection-aware validateExamples()
 │   └── wiktionary.validator.ts           # validateWiktionaryEntry(), validateWordContext(), validateGlosses(), validatePos(), KNOWN_POS
 ├── lite-ai/                              # Task 37 — Lite AI second-pass semantic validator
 │   ├── index.ts                          # Re-exports all lite-ai symbols
@@ -338,7 +359,9 @@ Lite AI validation (Task 37) uses `getLogger()` from `packages/core/src/logger.t
 
 ## Current State
 
-- 4 active validators + 1 no-op + 4 Wiktionary validators + lite-ai sub-module (208 tests total across 12 test files in validation module)
+- 5 active validators + 1 no-op + 4 Wiktionary validators + lite-ai sub-module
+- **TQ-04 (partial)**: `validateExamples()` no longer skips phrases or non-ASCII translations. The first literal example must contain every significant token from the main translation, with conservative prefix matching for normal Czech and Russian inflections. Idiomatic equivalents retain their explicit relaxation. Assigned variants for examples 2 and 3 remain to be implemented.
+- **TQ-05/TQ-08**: `validateNativeFields()` rejects identical target/native examples, Latin-dominant Russian romanization, Russian-native explanatory fields (including `usageNote` and `connotationWarning`) without sufficient Cyrillic, embedded pronunciation/IPA markers, and notes copied across target-language blocks. Errors contain exact field paths and flow into retry prompts. Statistical short-text language detection remains intentionally disabled because low-confidence results are inconclusive rather than invalid.
 - **Task 37**: New `lite-ai/` sub-module — lightweight AI second-pass semantic validator for high-risk translations. Runs asynchronously (fire-and-forget), scores translations on 4 dimensions (meaningPreserved, naturalness, registerAccuracy, overallScore), flags for review when `overallScore < REVIEW_THRESHOLD (3)`. Risk detection heuristic (`isHighRisk()`) filters to only validate phrases, idioms, Wiktionary misses, idiomatic equivalents, and uncommon languages. Uses dependency injection for AI generation function (`LiteGenerateObjectFn`). Graceful degradation on failure. Structured Pino-compatible logging. 69 tests across 5 test files. Re-exported from `validation/index.ts` (not yet re-exported from core main `index.ts`).
 - **Task 31**: `ExampleInput.native` removed, `ExampleInput.register` added (inline register label). `ExampleContext` changed from `formal | colloquial | professional` to `neutral | colloquial | professional`. `validateExamples()` validates register is non-empty and context is a valid value. `VALID_EXAMPLE_CONTEXTS` constant and `ExampleContext` type exported. `connotationWarning` is optional — no validation needed beyond Zod schema.
 - **Task 27**: `validate()` accepts optional `inputType` parameter (`InputType = 'word' | 'phrase' | 'sentence'`). When `inputType === 'sentence'`, semantic validation (step 2), example validation (step 4), and alternatives semantic validation (step 5) are skipped — only schema validation and language detection run. `InputType` type exported from module. 9 sentence-specific tests in `validate.test.ts`.

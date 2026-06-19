@@ -1,5 +1,6 @@
 import type {
   CreateVocabularyInput,
+  SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
   UpdateTranslationData,
@@ -15,6 +16,7 @@ import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations 
 
 export type {
   CreateVocabularyInput,
+  SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
   UpdateTranslationData,
@@ -75,6 +77,7 @@ export const vocabularyRepository = {
           inputType: input.inputType,
           emoji: input.emoji,
           nativeMeaning: input.nativeMeaning,
+          sourceUsage: input.sourceUsage,
         })
         .returning();
 
@@ -89,6 +92,7 @@ export const vocabularyRepository = {
               text: t.text,
               expressionType: t.expressionType,
               equivalentNote: t.equivalentNote,
+              usageNote: t.usageNote,
               connotationWarning: t.connotationWarning,
               details: t.details,
               srsDueDate: tomorrow(),
@@ -266,6 +270,7 @@ export const vocabularyRepository = {
         text: data.text ?? "",
         expressionType: data.expressionType,
         equivalentNote: data.equivalentNote,
+        usageNote: data.usageNote,
         connotationWarning: data.connotationWarning,
         details: data.details,
         srsDueDate: tomorrow(),
@@ -286,6 +291,7 @@ export const vocabularyRepository = {
       text: string;
       expressionType?: string;
       equivalentNote?: string;
+      usageNote?: string;
       connotationWarning?: string;
       details: VocabTranslationDetails;
     }>,
@@ -307,6 +313,7 @@ export const vocabularyRepository = {
             text: t.text,
             expressionType: t.expressionType,
             equivalentNote: t.equivalentNote,
+            usageNote: t.usageNote,
             connotationWarning: t.connotationWarning,
             details: t.details,
             srsDueDate: tomorrow(),
@@ -363,9 +370,11 @@ export const vocabularyRepository = {
         inputType: vocabularyEntries.inputType,
         emoji: vocabularyEntries.emoji,
         nativeMeaning: vocabularyEntries.nativeMeaning,
+        sourceUsage: vocabularyEntries.sourceUsage,
         text: vocabularyTranslations.text,
         expressionType: vocabularyTranslations.expressionType,
         equivalentNote: vocabularyTranslations.equivalentNote,
+        usageNote: vocabularyTranslations.usageNote,
         connotationWarning: vocabularyTranslations.connotationWarning,
         details: vocabularyTranslations.details,
         srsEaseFactor: vocabularyTranslations.srsEaseFactor,
@@ -432,6 +441,7 @@ export const vocabularyRepository = {
               inputType: vocabularyEntries.inputType,
               emoji: vocabularyEntries.emoji,
               nativeMeaning: vocabularyEntries.nativeMeaning,
+              sourceUsage: vocabularyEntries.sourceUsage,
               isActive: vocabularyEntries.isActive,
               createdAt: vocabularyEntries.createdAt,
               updatedAt: vocabularyEntries.updatedAt,

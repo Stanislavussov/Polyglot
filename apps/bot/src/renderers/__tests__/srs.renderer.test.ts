@@ -14,7 +14,7 @@ vi.mock("@polyglot/core", async () => {
   };
 });
 
-import { renderSrsFront } from "../srs.renderer.js";
+import { renderSrsBack, renderSrsFront } from "../srs.renderer.js";
 
 const sampleCard: SrsDueVocabularyCard = {
   translationId: 10,
@@ -25,9 +25,17 @@ const sampleCard: SrsDueVocabularyCard = {
   inputType: "word",
   emoji: "📝",
   nativeMeaning: null,
+  sourceUsage: {
+    explanation: "Кратко представить основные стороны проблемы.",
+    synonyms: [{ text: "кратко описать" }],
+    examples: [
+      { context: "neutral", target: "Сначала обрисуем проблему.", native: "First, let us outline the problem." },
+    ],
+  },
   text: "outline the problem",
   expressionType: null,
   equivalentNote: null,
+  usageNote: "Употребляется для краткого изложения основных пунктов.",
   connotationWarning: null,
   details: null,
   srsEaseFactor: 2.5,
@@ -44,5 +52,26 @@ describe("renderSrsFront", () => {
     expect(html).toContain("<b>Обрисовать проблему</b>");
     expect(html).toContain("слово · 🇷🇺 → 🇬🇧 English");
     expect(html).not.toContain("word · 🇷🇺 → 🇬🇧 English");
+  });
+});
+
+describe("renderSrsBack", () => {
+  it("shows a compact source example before the target example", () => {
+    const card = {
+      ...sampleCard,
+      details: {
+        synonyms: [],
+        examples: [
+          { context: "neutral", target: "Let me outline the problem.", native: "Позвольте обрисовать проблему." },
+        ],
+      },
+    };
+
+    const html = renderSrsBack(card, "ru", "en", 2, 20, "ru");
+
+    expect(html).toContain("Сначала обрисуем проблему.");
+    expect(html).toContain("First, let us outline the problem.");
+    expect(html).toContain("Let me outline the problem.");
+    expect(html).toContain("💡 Употребляется для краткого изложения основных пунктов.");
   });
 });

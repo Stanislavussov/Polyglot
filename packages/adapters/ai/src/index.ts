@@ -46,7 +46,7 @@ export async function generateObject<T>(
       maxRetries,
       maxTokens: 4096,
       temperature: 0.3,
-      frequencyPenalty: 0.5,
+      frequencyPenalty: options?.frequencyPenalty ?? 0.5,
     });
 
     const duration_ms = Date.now() - start;

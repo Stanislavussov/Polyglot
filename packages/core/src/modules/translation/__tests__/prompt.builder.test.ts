@@ -159,6 +159,31 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("translation of the target example sentence into Russian");
   });
 
+  it("forbids IPA, pronunciation, romanization, and transliteration in every field", () => {
+    const prompt = buildTranslationPrompt({
+      text: "phase out",
+      sourceLang: "en",
+      targetLangs: ["cs", "ru"],
+      nativeLang: "ru",
+      inputType: "phrase",
+    });
+
+    expect(prompt).toContain("Do not include pronunciation, IPA, romanization, or transliteration in any field");
+  });
+
+  it("does not request a native example translation for the native target block", () => {
+    const prompt = buildTranslationPrompt({
+      text: "phase out",
+      sourceLang: "en",
+      targetLangs: ["cs", "ru"],
+      nativeLang: "ru",
+      inputType: "phrase",
+    });
+
+    expect(prompt).toContain('For target language "ru", omit the "native" field');
+    expect(prompt).toContain('For every other target language, "native"');
+  });
+
   it("requests top-level nativeMeaning when native language is provided", () => {
     const prompt = buildTranslationPrompt({ ...baseRequest, nativeLang: "ru" });
     expect(prompt).toContain('"nativeMeaning"');
@@ -194,6 +219,14 @@ describe("buildTranslationPrompt", () => {
       'every "connotationWarning" value in every target language block MUST be written in Russian',
     );
     expect(prompt).toContain("MUST describe the target translation in that block");
+  });
+
+  it("separates regular usage guidance from exceptional connotation warnings", () => {
+    const prompt = buildTranslationPrompt({ ...baseRequest, nativeLang: "ru" });
+
+    expect(prompt).toContain('Every target language block MUST include "usageNote" written in Russian');
+    expect(prompt).toContain("regular learner guidance, not a warning");
+    expect(prompt).toContain('Omit "connotationWarning" when the target translation has no noteworthy');
   });
 
   it("prevents native-source connotation from explaining the source word", () => {
@@ -333,6 +366,20 @@ describe("buildStrictPrompt", () => {
       "error",
     ]);
     expect(prompt).toContain("never as an explanation of the native source word");
+  });
+
+  it("states that connotationWarning must be written in the native language, not the target language", () => {
+    const prompt = buildTranslationPrompt({
+      text: "phase out",
+      sourceLang: "en",
+      targetLangs: ["cs", "de"],
+      nativeLang: "ru",
+    });
+
+    expect(prompt).toContain(
+      'every "connotationWarning" value in every target language block MUST be written in Russian',
+    );
+    expect(prompt).toContain("MUST describe the target translation in that block");
   });
 });
 

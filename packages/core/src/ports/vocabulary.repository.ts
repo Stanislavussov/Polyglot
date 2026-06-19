@@ -4,9 +4,9 @@
  */
 
 // Re-export from core types for use in port interface
-import type { Example, Synonym, TranslationVariant } from "../modules/translation/types.js";
+import type { Example, SourceUsage, Synonym, TranslationVariant } from "../modules/translation/types.js";
 
-export type { Example, Synonym, TranslationVariant } from "../modules/translation/types.js";
+export type { Example, SourceUsage, Synonym, TranslationVariant } from "../modules/translation/types.js";
 
 // Types matching the adapter implementation
 export interface VocabularyTranslation {
@@ -16,6 +16,7 @@ export interface VocabularyTranslation {
   text: string;
   expressionType: string | null;
   equivalentNote: string | null;
+  usageNote: string | null;
   connotationWarning: string | null;
   details: VocabTranslationDetails | null;
   srsEaseFactor: number;
@@ -41,6 +42,7 @@ export interface VocabularyEntry {
   inputType: "word" | "phrase" | "sentence";
   emoji: string | null;
   nativeMeaning: string | null;
+  sourceUsage: SourceUsage | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -61,11 +63,13 @@ export interface CreateVocabularyInput {
   inputType: "word" | "phrase" | "sentence";
   emoji: string;
   nativeMeaning?: string;
+  sourceUsage?: SourceUsage;
   translations: Array<{
     targetLangId: number;
     text: string;
     expressionType?: string;
     equivalentNote?: string;
+    usageNote?: string;
     connotationWarning?: string;
     details: VocabTranslationDetails;
   }>;
@@ -75,6 +79,7 @@ export interface UpdateTranslationData {
   text?: string;
   expressionType?: string | null;
   equivalentNote?: string | null;
+  usageNote?: string | null;
   connotationWarning?: string | null;
   details?: VocabTranslationDetails;
 }
@@ -88,9 +93,11 @@ export interface SrsDueVocabularyCard {
   inputType: "word" | "phrase" | "sentence";
   emoji: string | null;
   nativeMeaning: string | null;
+  sourceUsage: SourceUsage | null;
   text: string;
   expressionType: string | null;
   equivalentNote: string | null;
+  usageNote: string | null;
   connotationWarning: string | null;
   details: VocabTranslationDetails | null;
   srsEaseFactor: number;

@@ -44,7 +44,7 @@ describe("generateObject", () => {
       usage: { inputTokens: 50, outputTokens: 20 },
     });
 
-    await generateObject("test prompt", schema, "openai/gpt-4o", { maxRetries: 5 });
+    await generateObject("test prompt", schema, "openai/gpt-4o", { maxRetries: 5, frequencyPenalty: 0 });
 
     expect(mockAiGenerateObject).toHaveBeenCalledWith({
       model: mockModelInstance,
@@ -53,7 +53,7 @@ describe("generateObject", () => {
       maxRetries: 5,
       maxTokens: 4096,
       temperature: 0.3,
-      frequencyPenalty: 0.5,
+      frequencyPenalty: 0,
     });
   });
 

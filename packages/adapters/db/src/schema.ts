@@ -14,7 +14,7 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-import type { VocabTranslationDetails } from "./repositories/vocabulary.repository.js";
+import type { SourceUsage, VocabTranslationDetails } from "./repositories/vocabulary.repository.js";
 
 // ─────────────────────────────────────────────
 // Languages — single source of truth for all language metadata
@@ -132,6 +132,7 @@ export const vocabularyEntries = pgTable(
     inputType: text("input_type").$type<"word" | "phrase" | "sentence">().default("word").notNull(),
     emoji: text("emoji"),
     nativeMeaning: text("native_meaning"),
+    sourceUsage: jsonb("source_usage").$type<SourceUsage>(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -190,6 +191,7 @@ export const vocabularyTranslations = pgTable(
     text: text("text").notNull(),
     expressionType: text("expression_type"),
     equivalentNote: text("equivalent_note"),
+    usageNote: text("usage_note"),
     connotationWarning: text("connotation_warning"),
     details: jsonb("details").$type<VocabTranslationDetails>(),
     /** SM-2 ease factor. Default 2.5 follows the standard initial value. */

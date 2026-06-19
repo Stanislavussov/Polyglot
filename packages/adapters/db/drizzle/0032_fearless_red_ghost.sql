@@ -1,0 +1,1 @@
+ALTER TABLE "vocabulary_entries" ADD COLUMN "source_usage" jsonb;

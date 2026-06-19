@@ -645,6 +645,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
             text: newTranslation.text,
             expressionType: newTranslation.expressionType ?? undefined,
             equivalentNote: newTranslation.equivalentNote ?? undefined,
+            usageNote: newTranslation.usageNote ?? undefined,
             connotationWarning: newTranslation.connotationWarning ?? undefined,
             details: {
               synonyms: newTranslation.synonyms ?? [],

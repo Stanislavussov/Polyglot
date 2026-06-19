@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added a comprehensive translation-quality program and visual architecture roadmap covering model selection, field validation, dictionary sense selection, learning-data persistence, evaluation, and verified caching.
+- Added per-target `usageNote` guidance in the user's native language, persisted separately from exceptional `connotationWarning` metadata and rendered with a distinct marker.
+- Added vocabulary-entry `sourceUsage` persistence on the normalized dictionary path, plus flashcard, dictionary, and SRS rendering for saved source-language guidance.
+- Added deterministic response-field validation for duplicated target/native examples, Latin-script Russian romanization, wrong-script Russian explanations, embedded pronunciation/IPA markers, and notes copied across language blocks.
 - **Mentor mode** (`/mentor` command) — chat with an AI language-learning coach that helps you translate and learn words through guided conversation. The mentor coaches you instead of translating immediately, keeps responses short, and remembers conversation context within a session. Responses are capped at 300 tokens to stay concise.
 - Added reverse-learning source usage details: when users translate from a learning language, word cards can now show source-language examples, source-language synonyms, and a native-language explanation of when to use the word.
 - Added multiple vocabulary dictionaries in the bot. `/dictionary` now opens the default `My Words` dictionary, users can create, rename, delete, switch between dictionaries, and add or move saved words between them.
@@ -34,6 +38,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Saved source-usage explanations no longer label the interface language as though it were the user's native language.
+- Example validation now checks multi-word and Unicode translations instead of skipping them, with conservative inflection matching for Czech and Russian examples.
+- Fixed native-language target examples requiring a redundant same-language `native` translation, which could cause models to return duplicated sentences or romanized Russian text.
+- Translation prompts now forbid pronunciation, IPA, romanization, and transliteration in every response field from the first generation attempt.
 - Localized dictionary item type labels in SRS review, flashcards, and dictionary details, so Russian UI shows `слово` instead of the raw English `word` enum.
 - Fixed "Open dictionary" notification button — now calls the dictionary handler directly instead of sending `/dictionary` as plain text.
 - Prevented same-language learning blocks from drifting away from the detected source expression, so cases like Czech `kudlanka` cannot be accepted as Czech `klubko`.
@@ -46,6 +54,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Translation prompts now state more explicitly that `connotationWarning` must be written in the user's native language even inside non-native target blocks, not in the target language.
+- Translation structured-output requests now use `frequencyPenalty: 0` so example generation can repeat the assigned translation naturally; other AI requests retain the adapter default unless they explicitly override it.
 - Removed the post-translation source language selection menu (`sendSourceLangMenu`, `buildSourceLangKeyboard`, `handleSourceLangCallback`, `buildLangOptions`) — language detection now runs automatically on every translation request, so the manual source picker is no longer shown after Save/Skip/Regen or `/translate`.
 - Sentence translations (>6 words) can now be saved to the personal dictionary, removing the previous restriction that only allowed words and phrases. The database `text` columns (`vocabulary_entries.original` and `vocabulary_translations.text`) have no length limit, so the effective boundary is the existing 500-character input validation cap.
 - Admin users management now shows and updates each bot user's audience group.
