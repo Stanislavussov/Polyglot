@@ -16,15 +16,22 @@
 import type { GenerateObjectFn } from "../translation/translation.service.js";
 import type { DictionaryContext, TranslateInput } from "../translation/types.js";
 
+export type DictionaryContextMatchType = "exact_expression" | "known_form" | "lemma";
+
+export interface DictionaryContextCandidate {
+  matchType: DictionaryContextMatchType;
+  context: DictionaryContext;
+}
+
 /**
  * Lookup function that retrieves dictionary context for a word.
  * Injected from the DB adapter layer — core stays platform-independent.
  *
  * @param word - The word to look up
  * @param langCode - ISO 639-1 language code (e.g., "ru", "en")
- * @returns DictionaryContext if found, undefined otherwise
+ * @returns Deterministically ordered dictionary candidates, or an empty array
  */
-export type ContextLookupFn = (word: string, langCode: string) => Promise<DictionaryContext | undefined>;
+export type ContextLookupFn = (word: string, langCode: string) => Promise<DictionaryContextCandidate[]>;
 
 /**
  * Dependencies injected into the context enrichment service.

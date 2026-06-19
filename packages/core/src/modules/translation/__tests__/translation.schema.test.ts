@@ -201,6 +201,18 @@ describe("languageTranslationSchema", () => {
       expect(result.data.connotationWarning).toBeUndefined();
     }
   });
+
+  it("accepts optional usageNote in the generic stored-response schema", () => {
+    const result = languageTranslationSchema.safeParse({
+      ...validTranslation,
+      usageNote: "Нейтральный вариант для повседневной речи.",
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.usageNote).toBe("Нейтральный вариант для повседневной речи.");
+    }
+  });
 });
 
 describe("translationResultSchema", () => {
@@ -350,6 +362,68 @@ describe("buildTranslationResultSchema", () => {
       },
     });
     expect(result.success).toBe(true);
+  });
+
+  it("requires native examples only for targets different from the native language", () => {
+    const schema = buildTranslationResultSchema(["cs", "ru"], undefined, true, false, "ru");
+    const result = schema.safeParse({
+      emoji: "➡️",
+      nativeMeaning: "Постепенно прекратить использование.",
+      nativeSynonyms: [{ text: "постепенно отказаться" }],
+      translations: {
+        cs: {
+          ...langEntry,
+          text: "postupně ukončit",
+          examples: [
+            {
+              context: "policy",
+              target: "Vláda chce postupně ukončit používání plastů.",
+              native: "Правительство хочет постепенно отказаться от пластика.",
+            },
+          ],
+        },
+        ru: {
+          ...langEntry,
+          text: "постепенно отказаться",
+          examples: [
+            {
+              context: "policy",
+              target: "Правительство хочет постепенно отказаться от пластика.",
+            },
+          ],
+        },
+      },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("still rejects a missing native example for a non-native target", () => {
+    const schema = buildTranslationResultSchema(["cs", "ru"], undefined, true, false, "ru");
+    const result = schema.safeParse({
+      emoji: "➡️",
+      nativeMeaning: "Постепенно прекратить использование.",
+      nativeSynonyms: [{ text: "постепенно отказаться" }],
+      translations: {
+        cs: {
+          ...langEntry,
+          text: "postupně ukončit",
+          examples: [{ context: "policy", target: "Vláda chce postupně ukončit používání plastů." }],
+        },
+        ru: {
+          ...langEntry,
+          text: "постепенно отказаться",
+          examples: [
+            {
+              context: "policy",
+              target: "Правительство хочет постепенно отказаться от пластика.",
+            },
+          ],
+        },
+      },
+    });
+
+    expect(result.success).toBe(false);
   });
 
   it("requires nativeMeaning when native output is requested", () => {

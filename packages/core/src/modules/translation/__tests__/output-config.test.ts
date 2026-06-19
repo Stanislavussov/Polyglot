@@ -49,6 +49,7 @@ describe("presets", () => {
       includeSynonyms: true,
       includeAlternatives: true,
       includeEquivalentNote: true,
+      includeUsageNote: true,
       includeConnotationWarning: true,
       includeNativeSynonyms: true,
     });
@@ -58,6 +59,7 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
+      includeUsageNote: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
@@ -67,6 +69,7 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
+      includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
@@ -76,6 +79,7 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
+      includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
@@ -85,6 +89,7 @@ describe("presets", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
+      includeUsageNote: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });
@@ -109,10 +114,10 @@ describe("buildTranslationPrompt with outputConfig", () => {
     expect(prompt).not.toContain("3 example sentences");
   });
 
-  it("prompt never asks for transcription or pronunciation", () => {
+  it("prompt never requests transcription and explicitly forbids pronunciation metadata", () => {
     const prompt = promptWith(FULL_OUTPUT);
     expect(prompt).not.toContain("transcription");
-    expect(prompt).not.toContain("pronunciation");
+    expect(prompt).toContain("Do not include pronunciation, IPA, romanization, or transliteration in any field");
     expect(prompt).not.toContain("non-Latin scripts");
   });
 

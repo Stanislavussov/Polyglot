@@ -14,6 +14,7 @@ import type { SupportedLang } from "@polyglot/core";
 import { getLangFlag, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { formatInputType } from "./input-type-label.js";
+import { renderSourceUsage } from "./source-usage.renderer.js";
 
 /** Page size for dictionary list */
 export const DICTIONARY_PAGE_SIZE = 15;
@@ -130,6 +131,11 @@ export function renderDictionaryEntry(
   const srcFlag = sourceLangCode ? (getLangFlag(sourceLangCode) ?? "🔤") : "🔤";
   lines.push(`<i>${esc(formatInputType(entry.inputType, l))} · ${srcFlag}</i>`);
 
+  const sourceUsage = renderSourceUsage(entry.original, sourceLangCode ?? "", entry.sourceUsage);
+  if (sourceUsage.length > 0) {
+    lines.push("", ...sourceUsage);
+  }
+
   // Translations
   for (const tr of entry.translations) {
     lines.push("");
@@ -138,6 +144,14 @@ export function renderDictionaryEntry(
 
     const codePart = langCode ? ` ${esc(langCode.toUpperCase())}:` : "";
     lines.push(`${flag}${codePart} <b>${esc(tr.text)}</b>`);
+
+    if (tr.usageNote) {
+      lines.push(`💡 ${esc(tr.usageNote)}`);
+    }
+
+    if (tr.connotationWarning) {
+      lines.push(`⚠️ ${esc(tr.connotationWarning)}`);
+    }
 
     // Details from JSONB
     const details = tr.details as VocabTranslationDetails | null;

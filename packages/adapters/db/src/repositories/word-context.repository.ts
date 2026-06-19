@@ -1,4 +1,4 @@
-import { and, eq, ilike, sql } from "drizzle-orm";
+import { and, arrayContains, eq, ilike, or, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { languages, wordContext } from "../schema.js";
 
@@ -15,7 +15,7 @@ export const wordContextRepository = {
       .where(and(eq(wordContext.word, word), eq(wordContext.languageId, languageId)));
   },
 
-  /** Look up word context entries by word and language code (joins languages). */
+  /** Look up word context entries by normalized headword/expression or known form and language code. */
   async findByWordAndLangCode(word: string, langCode: string): Promise<WordContext[]> {
     const db = getDb();
     return db
@@ -24,13 +24,16 @@ export const wordContextRepository = {
         word: wordContext.word,
         languageId: wordContext.languageId,
         pos: wordContext.pos,
+        forms: wordContext.forms,
         formTags: wordContext.formTags,
         glosses: wordContext.glosses,
         createdAt: wordContext.createdAt,
       })
       .from(wordContext)
       .innerJoin(languages, eq(wordContext.languageId, languages.id))
-      .where(and(eq(wordContext.word, word), eq(languages.code, langCode)));
+      .where(
+        and(or(ilike(wordContext.word, word), arrayContains(wordContext.forms, [word])), eq(languages.code, langCode)),
+      );
   },
 
   /**

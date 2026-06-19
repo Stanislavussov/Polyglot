@@ -18,7 +18,7 @@ description: AI adapter using Vercel AI SDK with OpenRouter/multi-provider suppo
 ## Current State
 
 Fully implemented. All 4 source files + 5 test files in place. 47 tests passing.
-`userId` support added to `AIRequestLog`, `GenerateOptions`, and threaded through `generateObject`/`generateText` → `logRequest` → pino output (Task 05 — structured logging).
+`userId` support added to `AIRequestLog`, `GenerateOptions`, and threaded through `generateObject`/`generateText` → `logRequest` → pino output (Task 05 — structured logging). `GenerateOptions.frequencyPenalty` allows callers to override the structured-generation default per request; translation requests use `0` while other callers retain the adapter default.
 
 ## Boundary
 
@@ -52,7 +52,7 @@ async function generateObject<T>(
   prompt: string,
   schema: ZodSchema<T>,
   model: string,
-  options?: { maxRetries?: number; userId?: number }
+  options?: { maxRetries?: number; userId?: number; frequencyPenalty?: number }
 ): Promise<T>;
 
 // Generate free-form text
@@ -94,6 +94,7 @@ interface AIRequestLog {
 interface GenerateOptions {
   maxRetries?: number;
   userId?: number;
+  frequencyPenalty?: number;
 }
 ```
 

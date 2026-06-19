@@ -1,6 +1,7 @@
 export type { InputType, ValidateInput, ValidateOptions, ValidationError, ValidationResult } from "./types.js";
 export type { ExampleInput, ExpressionType } from "./validators/example.validator.js";
 export { validateExamples } from "./validators/example.validator.js";
+export { validateNativeFields } from "./validators/field-language.validator.js";
 export { validateLanguage } from "./validators/language.validator.js";
 export { validateSchema } from "./validators/schema.validator.js";
 export { validateSemantic } from "./validators/semantic.validator.js";
@@ -21,6 +22,7 @@ import type { ZodSchema } from "zod";
 import type { InputType, ValidateOptions, ValidationError, ValidationResult } from "./types.js";
 import type { ExpressionType } from "./validators/example.validator.js";
 import { validateExamples } from "./validators/example.validator.js";
+import { validateNativeFields } from "./validators/field-language.validator.js";
 import { validateLanguage } from "./validators/language.validator.js";
 import { validateSchema } from "./validators/schema.validator.js";
 import { validateSemantic } from "./validators/semantic.validator.js";
@@ -83,6 +85,11 @@ export function validate(
 
   if (!translations || typeof translations !== "object") {
     return { valid: allErrors.length === 0, errors: allErrors };
+  }
+
+  if (options?.nativeLang) {
+    const nativeFieldsResult = validateNativeFields(parsed, translations, expectedLangs, options.nativeLang);
+    allErrors.push(...nativeFieldsResult.errors);
   }
 
   const isSentence = inputType === "sentence";

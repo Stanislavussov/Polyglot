@@ -59,6 +59,7 @@ export const languageTranslationSchema = z.object({
   examples: z.array(exampleSchema).min(1, "At least one example is required"),
   expressionType: expressionTypeEnum.nullish().default("literal"),
   equivalentNote: z.string().nullish(),
+  usageNote: z.string().nullish(),
   alternatives: z.array(translationVariantSchema).nullish(),
   connotationWarning: z.string().nullish(),
 });
@@ -118,11 +119,16 @@ function buildSourceUsageSchema(config?: TranslationOutputConfig, requireExample
  * @param config - Optional output config to relax disabled fields
  * @returns Zod schema for a single language translation entry
  */
-export function buildLanguageTranslationSchema(config?: TranslationOutputConfig, requireExampleNative = false) {
+export function buildLanguageTranslationSchema(
+  config?: TranslationOutputConfig,
+  requireExampleNative = false,
+  requireUsageNote = false,
+) {
   const includeExamples = config?.includeExamples !== false;
   const includeSynonyms = config?.includeSynonyms !== false;
   const includeAlternatives = config?.includeAlternatives !== false;
   const includeEquivalentNote = config?.includeEquivalentNote !== false;
+  const includeUsageNote = config?.includeUsageNote !== false;
   const includeConnotationWarning = config?.includeConnotationWarning !== false;
 
   const shape = {
@@ -135,6 +141,7 @@ export function buildLanguageTranslationSchema(config?: TranslationOutputConfig,
       expressionType: expressionTypeEnum.nullable(),
       equivalentNote: z.string().nullable(),
     }),
+    ...(includeUsageNote && requireUsageNote && { usageNote: z.string().min(1, "Usage note is required") }),
     ...(includeAlternatives && { alternatives: z.array(translationVariantSchema).nullable() }),
     ...(includeConnotationWarning && { connotationWarning: z.string().nullable() }),
   };
@@ -159,11 +166,12 @@ export function buildTranslationResultSchema(
   config?: TranslationOutputConfig,
   requireNative = false,
   requireSourceUsage = false,
+  nativeLang?: string,
+  requireUsageNote = false,
 ) {
-  const langSchema = buildLanguageTranslationSchema(config, requireNative);
-  const langEntries: Record<string, typeof langSchema> = {};
+  const langEntries: Record<string, ReturnType<typeof buildLanguageTranslationSchema>> = {};
   for (const lang of targetLangs) {
-    langEntries[lang] = langSchema;
+    langEntries[lang] = buildLanguageTranslationSchema(config, requireNative && lang !== nativeLang, requireUsageNote);
   }
 
   const includeNativeSynonyms = config?.includeNativeSynonyms !== false;

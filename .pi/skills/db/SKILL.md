@@ -18,16 +18,16 @@ description: Database adapter using Drizzle ORM and PostgreSQL. Manages schema, 
 ## Current State
 
 Fully implemented. All tables, repositories, singleton connection, and context-lookup factory in place.
-- `schema.ts` — tables: `users` (incl. subscription_plan), `userLanguageSettings` (incl. notification_enabled, notification_time, notification_type, last_interaction_at), `vocabularyEntries`, `vocabularyDictionaries`, `vocabularyDictionaryEntries`, `vocabularyTranslations` (incl. per-translation SRS state: `srs_ease_factor`, `srs_interval`, `srs_due_date`, `srs_review_count`), `wordReviewLog`, `translationRequests` (incl. credit_cost), `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
+- `schema.ts` — tables: `users` (incl. subscription_plan), `userLanguageSettings` (incl. notification_enabled, notification_time, notification_type, last_interaction_at), `vocabularyEntries` (incl. nullable `nativeMeaning` and `sourceUsage` for saved source-language guidance), `vocabularyDictionaries`, `vocabularyDictionaryEntries`, `vocabularyTranslations` (incl. nullable per-target `usageNote`, `connotationWarning`, and SRS state), `wordReviewLog`, `translationRequests` (incl. credit_cost), `translationRequestTargetLangs`, `topicTranslationCache`, `languages`, `wordContext`, `userTranslationTemplates`
 - `index.ts` — singleton `getDb()`, `closeDb()`, re-exports all repositories (incl. `vocabularyRepository`, `vocabularyDictionaryRepository`, `translationRequestRepository`, `wordReviewRepository`, `notificationRepository`), types, `createContextLookup`, and language cache functions (`loadLanguageCache`, `getLangDisplay`, `getSupportedLangs`, etc.)
-- `context-lookup.ts` — `createContextLookup()` factory: wraps `wordContextRepository.findByWordAndLangCode()` + transforms DB rows to `DictionaryContext`. Fail-open (catches errors, returns `undefined`). Used by context-enrichment layer in core.
+- `context-lookup.ts` — `createContextLookup()` factory: normalizes lookup input (NFC, case, whitespace), wraps `wordContextRepository.findByWordAndLangCode()`, and transforms every matching DB row into a deterministically ordered `DictionaryContextCandidate`. Fail-open (catches errors, returns `[]`). Used by context-enrichment and language-detection layers in core.
 - `repositories/user.repository.ts` — findByTelegramId, create, updateSettings, getSettings, updateOnboardingStep, markOnboarded, updateNotificationPrefs, updateLastInteraction
 - `repositories/notification.repository.ts` — **Task 41**: getUsersForWindow, getInactiveUsers, disableNotifications, notification preference updates, notification history, and domain constants (NOTIFICATION_TYPES, DEFAULT_NOTIFICATION_TIME, DEFAULT_NOTIFICATION_TYPE, INACTIVITY_DAYS). `getUsersForWindow` accepts UTC hour/minute and matches the user's local `HH:MM` preference in the current 30-minute scheduler slot only.
-- `repositories/vocabulary.repository.ts` — **Task 39+40+50**: normalized vocabulary CRUD and SRS scheduling. create (transactional parent+children, first SRS review scheduled for next day), findByOriginalAndSource, findByUser, findById, search, findByUserAndLang, updateTranslation (upsert), updateAllTranslations, delete (soft), hardDelete (permanent), countByUser, findByUserPaginated, findByUserWithSourceLang, findDueForSrs, updateSrsState. `countByUser` and `findByUserPaginated` optionally filter by dictionary id. Vocabulary entries store nullable `nativeMeaning` for dictionary/notification reuse. Exports VocabularyEntry, VocabularyTranslation, VocabTranslationDetails, VocabularyEntryWithTranslations, VocabularyEntryWithSourceLang, SrsDueVocabularyCard, CreateVocabularyInput, UpdateTranslationData, UpdateSrsStateInput types.
+- `repositories/vocabulary.repository.ts` — **Task 39+40+50**: normalized vocabulary CRUD and SRS scheduling. create (transactional parent+children, first SRS review scheduled for next day), findByOriginalAndSource, findByUser, findById, search, findByUserAndLang, updateTranslation (upsert), updateAllTranslations, delete (soft), hardDelete (permanent), countByUser, findByUserPaginated, findByUserWithSourceLang, findDueForSrs, updateSrsState. `countByUser` and `findByUserPaginated` optionally filter by dictionary id. Vocabulary entries store nullable `nativeMeaning` and `sourceUsage` for dictionary/notification/reverse-learning reuse. Exports VocabularyEntry, VocabularyTranslation, VocabTranslationDetails, VocabularyEntryWithTranslations, VocabularyEntryWithSourceLang, SrsDueVocabularyCard, CreateVocabularyInput, UpdateTranslationData, UpdateSrsStateInput types.
 - `repositories/vocabulary-dictionary.repository.ts` — multiple user dictionaries. Exposes `DEFAULT_DICTIONARY_NAME = "My Words"`, default dictionary lazy creation/backfill, list/create/rename/delete dictionaries, add/remove/move entry memberships, and membership checks for default dictionary save behavior.
 - `repositories/topic.repository.ts` — getCached, setCached, markInvalid (topic translation caching)
 - `repositories/language.repository.ts` — findByCode, create, getOrCreate, findAll (normalized language codes)
-- `repositories/word-context.repository.ts` — findByWordAndLang, findByWordAndLangCode, search, createBatch, countByLanguage, findById (offline dictionary data)
+- `repositories/word-context.repository.ts` — findByWordAndLang, normalized headword/expression-or-known-form findByWordAndLangCode, search, createBatch, countByLanguage, findById (offline dictionary data)
 
 ## Boundary
 
@@ -233,16 +233,18 @@ deleteByUserId(userId: number): Promise<void>;
 ```typescript
 import type { ContextLookupFn } from "@polyglot/core";
 
-/** Creates a ContextLookupFn wrapping wordContextRepository.findByWordAndLangCode() + DB→DictionaryContext transform. Fail-open. */
+/** Creates a normalized, fail-open ContextLookupFn returning deterministic sense candidates. */
 createContextLookup(): ContextLookupFn;
 ```
 
 The returned function:
-1. Queries `word_context` table by word + language code
-2. Transforms the first result into `DictionaryContext` (`{ word, pos, glosses, formTags, langCode }`)
-3. Returns `undefined` if no results or on error (fail-open)
+1. Normalizes input with Unicode NFC, whitespace collapse/trim, and case folding.
+2. Queries `word_context` by lemma/expression or imported known form plus language code.
+3. Transforms all rows into `DictionaryContextCandidate` values with `exact_expression`, `known_form`, or `lemma` match metadata.
+4. Orders candidates deterministically by match type, headword, part of speech, and glosses.
+5. Returns `[]` if no results or on error (fail-open).
 
-This is the **single place** where DB → `DictionaryContext` transformation happens. All consumers use this factory via the context-enrichment layer instead of calling `wordContextRepository` directly for translation enrichment.
+This is the **single place** where DB → `DictionaryContextCandidate` transformation happens. Ambiguous candidates are intentionally not selected here; TQ-10 owns context-aware sense ranking.
 
 ## Schema (current)
 
@@ -259,7 +261,7 @@ See `packages/adapters/db/src/schema.ts` for full Drizzle table definitions. Key
 - `topicTranslationCache` — topicId, original, sourceLang, targetLang, content (JSONB), isValid, invalidReason, createdAt, updatedAt; unique index on (topicId, original, sourceLang, targetLang)
 - `languages` — id, code (unique), name, createdAt; unique index on code. Normalized lookup for language codes (e.g. "ru" → "Russian")
 - `wordReviewLog` — id, entryId (FK → vocabularyEntries.id, CASCADE), userId (FK → users.id, CASCADE), sessionType (text: 'flashcard'|'notification'|'quiz'|'srs'), reviewedAt (timestamp, default now); indexes on (entryId) and (userId, reviewedAt). Tracks flash card, notification, quiz reviews for 'least_reviewed' strategy and future SRS.
-- `wordContext` — id, word, languageId (FK → languages.id), pos, formTags (text[]), glosses (text[]), createdAt; indexes on (word, languageId) and (languageId). Offline dictionary data from Wiktionary JSONL
+- `wordContext` — id, word (normalized lemma/headword), languageId (FK → languages.id), pos, forms (normalized non-romanization known forms, text[]), formTags (text[]), glosses (text[]), createdAt; indexes on (word, languageId) and (languageId). Offline dictionary data from Wiktionary JSONL
 - `userTranslationTemplates` — id, userId (FK → users.id, unique, cascade), name (text, default 'Custom'), transcription (bool, default true), synonyms (bool, default true), examples (bool, default true), alternatives (bool, default true), equivalentNote (bool, default true), connotationWarning (bool, default true), createdAt, updatedAt; unique index on userId. 1-to-1 with users — customizable output template. Individual columns (not JSONB) for type safety and schema evolution.
 
 ## Vocabulary Translation Details (vocabulary_translations.details — typed as VocabTranslationDetails)
@@ -299,8 +301,8 @@ type TranslationRequestDTO = {
 };
 
 // WordContext types
-type WordContext = { id: number; word: string; languageId: number; pos: string; formTags: string[] | null; glosses: string[] | null; createdAt: Date | null };
-type NewWordContext = { word: string; languageId: number; pos: string; formTags?: string[]; glosses?: string[] };
+type WordContext = { id: number; word: string; languageId: number; pos: string; forms: string[] | null; formTags: string[] | null; glosses: string[] | null; createdAt: Date | null };
+type NewWordContext = { word: string; languageId: number; pos: string; forms?: string[]; formTags?: string[]; glosses?: string[] };
 
 // TemplateFields — imported from @polyglot/core (Task 32). DB stores as individual boolean columns, not JSONB.
 // TemplateFields = { transcription: boolean; synonyms: boolean; examples: boolean; alternatives: boolean; equivalentNote: boolean; connotationWarning: boolean };
@@ -356,7 +358,7 @@ packages/adapters/db/src/
     ├── translation-template.repository.test.ts # 12 tests (getByUserId, upsert, deleteByUserId, field normalization, validation — Task 32)
     ├── word-review.repository.test.ts    # 13 tests (logReview, getReviewCounts, getReviewsForWord, getReviewsBySessionType — Task 33)
     ├── notification.repository.test.ts   # tests for constants, notification time parsing, timezone filtering, getUsersForWindow slot matching, getInactiveUsers, disableNotifications — Task 41)
-    └── context-lookup.test.ts            # 9 tests (factory returns fn, transforms result, no results→undefined, error→undefined, null glosses/formTags, multiple entries, langCode from arg)
+    └── context-lookup.test.ts            # 11 tests (normalization, exact expression/lemma/known-form candidates, deterministic ordering, fail-open, null fields, langCode from arg)
 ```
 
 ## Migration

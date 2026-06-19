@@ -34,6 +34,7 @@ interface ParsedEntry {
   langCode: string;
   langName: string;
   pos: string;
+  forms: string[];
   formTags: string[];
   glosses: string[];
 }
@@ -44,6 +45,35 @@ interface ImportStats {
   skipped: number;
   errors: number;
   duration: number;
+}
+
+type JsonRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is JsonRecord {
+  return typeof value === "object" && value !== null;
+}
+
+function normalizeLookupValue(value: string): string {
+  return value.normalize("NFC").trim().replace(/\s+/gu, " ").toLowerCase();
+}
+
+function readStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function readForms(value: unknown): Array<{ form: string; tags: string[] }> {
+  if (!Array.isArray(value)) return [];
+
+  return value.flatMap((item) => {
+    if (!isRecord(item) || typeof item.form !== "string") return [];
+    return [{ form: normalizeLookupValue(item.form), tags: readStringArray(item.tags) }];
+  });
+}
+
+function readGlosses(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.flatMap((sense) => (isRecord(sense) ? readStringArray(sense.glosses) : []));
 }
 
 // ─────────────────────────────────────────────
@@ -72,25 +102,38 @@ async function* parseJsonl(filePath: string): AsyncGenerator<ParsedEntry> {
     if (!line.trim()) continue;
 
     try {
-      const entry = JSON.parse(line);
+      const parsed: unknown = JSON.parse(line);
+      if (!isRecord(parsed)) continue;
 
       // Skip entries without required fields
-      if (!entry.word || !entry.lang_code || !entry.pos) continue;
+      if (
+        typeof parsed.word !== "string" ||
+        typeof parsed.lang_code !== "string" ||
+        typeof parsed.pos !== "string"
+      ) {
+        continue;
+      }
 
       // Normalize lang_code to ISO 639-1 (e.g. "ces" → "cs", "ru" → "ru")
-      const rawCode: string = entry.lang_code;
+      const rawCode = parsed.lang_code;
       const normalizedCode = normalizeToIso1(rawCode) ?? rawCode;
       // Use canonical name from our registry, fall back to Wiktionary's lang field
       const langName = getLangName(normalizedCode);
-      const resolvedName = langName !== normalizedCode ? langName : (entry.lang ?? normalizedCode);
+      const resolvedName =
+        langName !== normalizedCode ? langName : typeof parsed.lang === "string" ? parsed.lang : normalizedCode;
+      const parsedForms = readForms(parsed.forms);
 
       yield {
-        word: entry.word,
+        word: normalizeLookupValue(parsed.word),
         langCode: normalizedCode,
         langName: resolvedName,
-        pos: entry.pos,
-        formTags: entry.forms?.[0]?.tags ?? [],
-        glosses: entry.senses?.flatMap((s: any) => s.glosses ?? []) ?? [],
+        pos: parsed.pos,
+        forms: parsedForms
+          .filter(({ tags }) => !tags.includes("romanization"))
+          .map(({ form }) => form)
+          .filter((form, index, forms) => form !== normalizeLookupValue(parsed.word) && forms.indexOf(form) === index),
+        formTags: parsedForms[0]?.tags ?? [],
+        glosses: readGlosses(parsed.senses),
       };
     } catch {
       // Skip malformed JSON lines
@@ -136,6 +179,7 @@ async function importFile(
     word: string;
     languageId: number;
     pos: string;
+    forms: string[];
     formTags: string[];
     glosses: string[];
   }> = [];
@@ -168,6 +212,7 @@ async function importFile(
         word: entry.word,
         languageId,
         pos: entry.pos,
+        forms: entry.forms,
         formTags: entry.formTags,
         glosses: entry.glosses,
       });

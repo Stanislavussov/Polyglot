@@ -118,6 +118,7 @@ function makeEntry(overrides: Partial<VocabularyEntry> = {}): VocabularyEntry {
     inputType: "word",
     emoji: "👋",
     nativeMeaning: null,
+    sourceUsage: null,
     isActive: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),
@@ -133,6 +134,7 @@ function makeTranslation(overrides: Partial<VocabularyTranslation> = {}): Vocabu
     text: "ahoj",
     expressionType: null,
     equivalentNote: null,
+    usageNote: null,
     connotationWarning: null,
     details: makeDetails(),
     isActive: true,
@@ -149,6 +151,11 @@ function makeCreateInput(overrides: Partial<CreateVocabularyInput> = {}): Create
     inputType: "word",
     emoji: "👋",
     nativeMeaning: "A greeting.",
+    sourceUsage: {
+      explanation: "A common informal greeting.",
+      synonyms: [{ text: "hi" }],
+      examples: [{ context: "neutral", target: "Hello there!", native: "Привет!" }],
+    },
     translations: [
       {
         targetLangId: 3,
@@ -204,6 +211,11 @@ describe("vocabularyRepository", () => {
         inputType: "word",
         emoji: "👋",
         nativeMeaning: "A greeting.",
+        sourceUsage: {
+          explanation: "A common informal greeting.",
+          synonyms: [{ text: "hi" }],
+          examples: [{ context: "neutral", target: "Hello there!", native: "Привет!" }],
+        },
       });
     });
 
@@ -244,6 +256,20 @@ describe("vocabularyRepository", () => {
   });
 
   describe("findByOriginalAndSource", () => {
+    it("preserves source usage from the parent entry", async () => {
+      const sourceUsage = {
+        explanation: "A common informal greeting.",
+        synonyms: [{ text: "hi" }],
+        examples: [{ context: "neutral", target: "Hello there!", native: "Привет!" }],
+      };
+      const entry = makeEntry({ id: 7, sourceUsage });
+      selectResultQueue.push([entry], [makeTranslation({ entryId: 7 })]);
+
+      const result = await vocabularyRepository.findByOriginalAndSource(42, "hello", 5);
+
+      expect(result?.sourceUsage).toEqual(sourceUsage);
+    });
+
     it("returns entry with translations when match exists", async () => {
       const entry = makeEntry({ id: 7, original: "hello", sourceLangId: 5 });
       const translation = makeTranslation({ entryId: 7 });

@@ -44,6 +44,7 @@ export type {
   ExpressionType,
   InputType,
   LanguageTranslation,
+  SourceUsage,
   Synonym,
   TranslateInput,
   TranslateOutput,

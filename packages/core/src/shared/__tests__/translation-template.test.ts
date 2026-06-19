@@ -57,6 +57,7 @@ describe("templateToOutputConfig", () => {
       includeExamples: true,
       includeAlternatives: false,
       includeEquivalentNote: true,
+      includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: true,
     });

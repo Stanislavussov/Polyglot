@@ -46,6 +46,7 @@ function makeEntry(
     inputType: "word",
     emoji,
     nativeMeaning: null,
+    sourceUsage: null,
     isActive: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),
@@ -56,6 +57,7 @@ function makeEntry(
       text: t.text,
       expressionType: null,
       equivalentNote: null,
+      usageNote: null,
       connotationWarning: null,
       details: null,
       srsEaseFactor: 2.5,
@@ -89,6 +91,11 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
   inputType: "word",
   emoji: "🍎",
   nativeMeaning: "A fruit.",
+  sourceUsage: {
+    explanation: "Used for the fruit, not the technology company.",
+    synonyms: [{ text: "fruit" }],
+    examples: [{ context: "neutral", target: "This apple is sweet.", native: "Это яблоко сладкое." }],
+  },
   isActive: true,
   createdAt: new Date("2025-01-01"),
   updatedAt: new Date("2025-01-01"),
@@ -100,6 +107,7 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
       text: "яблоко",
       expressionType: null,
       equivalentNote: null,
+      usageNote: "Нейтральное слово для обозначения фрукта.",
       connotationWarning: null,
       details: {
         synonyms: [{ text: "яблочко" }],
@@ -120,6 +128,7 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
       text: "jablko",
       expressionType: null,
       equivalentNote: null,
+      usageNote: null,
       connotationWarning: null,
       details: {
         synonyms: [],
@@ -240,6 +249,40 @@ describe("renderDictionaryEntry", () => {
   it("shows examples from details", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
     expect(html).toContain("💬 <i>Я ем яблоко.</i> (I eat an apple.)");
+  });
+
+  it("shows regular usage guidance separately from warnings", () => {
+    const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
+
+    expect(html).toContain("💡 Нейтральное слово для обозначения фрукта.");
+  });
+
+  it("preserves the full saved source-language learning card", () => {
+    const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
+
+    expect(html).toContain("Used for the fruit, not the technology company.");
+    expect(html).toContain("fruit");
+    expect(html).toContain("💬 <i>This apple is sweet.</i> (Это яблоко сладкое.)");
+  });
+
+  it("escapes HTML inside saved source usage", () => {
+    const html = renderDictionaryEntry(
+      {
+        ...entryWithDetails,
+        sourceUsage: {
+          explanation: "Use <carefully> & naturally.",
+          synonyms: [{ text: "<fruit>" }],
+          examples: [{ context: "neutral", target: "An <apple> & pear.", native: "Яблоко <и> груша." }],
+        },
+      },
+      langResolver,
+      "ru",
+    );
+
+    expect(html).toContain("Use &lt;carefully&gt; &amp; naturally.");
+    expect(html).toContain("&lt;fruit&gt;");
+    expect(html).toContain("An &lt;apple&gt; &amp; pear.");
+    expect(html).not.toContain("Use <carefully>");
   });
 
   it("falls back to 🔤 when langResolver returns undefined", () => {

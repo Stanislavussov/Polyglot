@@ -202,9 +202,14 @@ describe("WiktionaryStrategy", () => {
   it("detects 'kocour' as Czech when in dictionary", async () => {
     const mockLookup = async (word: string, lang: string) => {
       if (word === "kocour" && lang === "cs") {
-        return { word: "kocour", pos: "noun", glosses: ["cat"], formTags: [], langCode: "cs" };
+        return [
+          {
+            matchType: "lemma" as const,
+            context: { word: "kocour", pos: "noun", glosses: ["cat"], formTags: [], langCode: "cs" },
+          },
+        ];
       }
-      return undefined;
+      return [];
     };
 
     const strategy = new WiktionaryStrategy(mockLookup);
@@ -213,14 +218,19 @@ describe("WiktionaryStrategy", () => {
   });
 
   it("returns undefined when word not in any candidate language", async () => {
-    const mockLookup = async () => undefined;
+    const mockLookup = async () => [];
     const strategy = new WiktionaryStrategy(mockLookup);
     const result = await strategy.detect("xyznonexistent", ["en", "cs"]);
     expect(result).toBeUndefined();
   });
 
   it("returns undefined for multi-word text (Wiktionary is for single words)", async () => {
-    const mockLookup = async () => ({ word: "x", pos: "n", glosses: [], formTags: [], langCode: "cs" });
+    const mockLookup = async () => [
+      {
+        matchType: "lemma" as const,
+        context: { word: "x", pos: "n", glosses: [], formTags: [], langCode: "cs" },
+      },
+    ];
     const strategy = new WiktionaryStrategy(mockLookup);
     const result = await strategy.detect("hello world", ["en", "cs"]);
     expect(result).toBeUndefined();
@@ -258,9 +268,14 @@ describe("detectLanguageAsync", () => {
   it("detects 'kocour' as Czech using Wiktionary", async () => {
     const mockLookup = async (word: string, lang: string) => {
       if (word === "kocour" && lang === "cs") {
-        return { word: "kocour", pos: "noun", glosses: ["cat"], formTags: [], langCode: "cs" };
+        return [
+          {
+            matchType: "lemma" as const,
+            context: { word: "kocour", pos: "noun", glosses: ["cat"], formTags: [], langCode: "cs" },
+          },
+        ];
       }
-      return undefined;
+      return [];
     };
 
     const result = await detectLanguageAsync("kocour", ["en", "cs"], {
@@ -271,7 +286,7 @@ describe("detectLanguageAsync", () => {
   });
 
   it("falls back to AI when Wiktionary fails", async () => {
-    const mockLookup = async () => undefined;
+    const mockLookup = async () => [];
     const mockGenerate = async () => "cs";
 
     const result = await detectLanguageAsync("kocour", ["en", "cs"], {
@@ -283,7 +298,7 @@ describe("detectLanguageAsync", () => {
   });
 
   it("returns undefined when all strategies fail", async () => {
-    const mockLookup = async () => undefined;
+    const mockLookup = async () => [];
     const mockGenerate = async () => "de"; // Not in candidates
 
     const result = await detectLanguageAsync("xyzabc", ["en", "cs"], {

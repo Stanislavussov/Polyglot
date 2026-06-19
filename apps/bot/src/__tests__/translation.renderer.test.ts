@@ -666,6 +666,24 @@ describe("renderTopicWord — idiomatic equivalents", () => {
 // ── Task 31: Connotation warning tests ──────────────────────────
 
 describe("renderTranslation — connotation warnings", () => {
+  it("renders regular usage guidance with a distinct marker", () => {
+    const output: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        cs: {
+          ...sampleOutput.translations.cs,
+          usageNote: "Нейтральное разговорное приветствие.",
+          connotationWarning: "Может быть слишком неформальным в официальной переписке.",
+        },
+      },
+    };
+
+    const result = renderTranslation(output, "ru");
+
+    expect(result).toContain("💡 Нейтральное разговорное приветствие.");
+    expect(result).toContain("ℹ️ Может быть слишком неформальным в официальной переписке.");
+  });
+
   it("renders connotation warning when present", () => {
     const output: TranslateOutput = {
       ...sampleOutput,

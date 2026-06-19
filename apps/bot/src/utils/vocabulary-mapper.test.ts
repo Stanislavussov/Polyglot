@@ -21,6 +21,11 @@ const sampleOutput: TranslateOutput = {
   sourceLang: "en",
   emoji: "👋",
   nativeMeaning: "A greeting.",
+  sourceUsage: {
+    explanation: "A common informal greeting.",
+    synonyms: [{ text: "hi" }],
+    examples: [{ context: "neutral", target: "Hello, how are you?", native: "Привет, как дела?" }],
+  },
   nativeSynonyms: [{ text: "привет" }],
   translations: {
     cs: {
@@ -29,6 +34,7 @@ const sampleOutput: TranslateOutput = {
       examples: [{ context: "colloquial", target: "Ahoj!", native: "Привет!" }],
       expressionType: "literal",
       equivalentNote: "Standard greeting",
+      usageNote: "Обычное неформальное приветствие.",
       connotationWarning: "Very informal",
     },
     de: {
@@ -67,6 +73,12 @@ describe("toVocabularyInput", () => {
     expect(result.translations).toHaveLength(2);
   });
 
+  it("preserves source-language usage material", () => {
+    const result = toVocabularyInput(sampleOutput, 1, "word", langResolver);
+
+    expect(result.sourceUsage).toEqual(sampleOutput.sourceUsage);
+  });
+
   it("extracts emoji and register to parent level", () => {
     const result = toVocabularyInput(sampleOutput, 1, "word", langResolver);
     expect(result.emoji).toBe("👋");
@@ -82,6 +94,7 @@ describe("toVocabularyInput", () => {
     expect(cs!.text).toBe("ahoj");
     expect(cs!.expressionType).toBe("literal");
     expect(cs!.equivalentNote).toBe("Standard greeting");
+    expect(cs!.usageNote).toBe("Обычное неформальное приветствие.");
     expect(cs!.connotationWarning).toBe("Very informal");
 
     expect(de).toBeDefined();

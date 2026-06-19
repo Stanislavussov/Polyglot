@@ -185,6 +185,7 @@ describe("handleRegenLoop", () => {
       includeSynonyms: false,
       includeAlternatives: false,
       includeEquivalentNote: false,
+      includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
     });

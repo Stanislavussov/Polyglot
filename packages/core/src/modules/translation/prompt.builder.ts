@@ -18,6 +18,7 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
     includeSynonyms: config?.includeSynonyms !== false,
     includeAlternatives: config?.includeAlternatives !== false,
     includeEquivalentNote: config?.includeEquivalentNote !== false,
+    includeUsageNote: config?.includeUsageNote !== false,
     includeConnotationWarning: config?.includeConnotationWarning !== false,
     includeNativeSynonyms: config?.includeNativeSynonyms !== false,
   };
@@ -55,11 +56,14 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   if (cfg.includeExamples) {
     requestedFields.push(
       nativeLangName
-        ? `exactly 3 short examples with native translations in ${nativeLangName}`
+        ? `exactly 3 short examples with native translations in ${nativeLangName} when the target differs from the native language`
         : "exactly 3 short examples",
     );
   }
   if (cfg.includeEquivalentNote) requestedFields.push("idiom/equivalent metadata only when needed");
+  if (cfg.includeUsageNote && nativeLangName && !isSentence) {
+    requestedFields.push(`usageNote: concise usage guidance written in ${nativeLangName}`);
+  }
   if (cfg.includeConnotationWarning) {
     requestedFields.push(
       nativeLangName
@@ -116,9 +120,15 @@ Rules:${
   This applies to the "target" sentences. NEVER repeat the same word/phrase across all 3 examples.${
     nativeLangName
       ? `
-- Each example MUST include "native": a natural translation of the target example sentence into ${nativeLangName}. Do not force a literal back-translation.`
+- Except for the ${nativeLangName} target block itself, each example MUST include "native": a natural translation of the target example sentence into ${nativeLangName}. Do not force a literal back-translation.`
       : ""
   }`
+      : ""
+  }${
+    cfg.includeExamples && nativeLang
+      ? `
+- For target language "${nativeLang}", omit the "native" field because the target sentence is already in the user's native language.
+- For every other target language, "native" MUST be a natural ${nativeLangName ?? nativeLang} translation of the target example sentence.`
       : ""
   }${
     cfg.includeSynonyms
@@ -140,7 +150,13 @@ Rules:${
       ? `
 - Provide exactly 3 example sentences per language. Keep each sentence SHORT — one sentence only.`
       : ""
+  }${
+    cfg.includeUsageNote && nativeLangName && !isSentence
+      ? `
+- Every target language block MUST include "usageNote" written in ${nativeLangName}. Explain ordinary nuance, register, natural usage, and important differences from nearby alternatives. This is regular learner guidance, not a warning.`
+      : ""
   }${cfg.includeConnotationWarning ? buildConnotationRule(nativeLangName, isNativeSource, sourceLangName) : ""}
+- Do not include pronunciation, IPA, romanization, or transliteration in any field.
 - Return ONLY the JSON object. No additional text before or after.${
     cfg.includeEquivalentNote
       ? `
@@ -178,11 +194,18 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
       "- Each of the 3 examples uses a DIFFERENT word: example 1 uses the main translation, example 2 uses an alternative/synonym, example 3 uses another alternative/synonym — in target sentences",
     );
     if (request.nativeLang) {
-      checkItems.push("- Each example includes a native translation of the target sentence");
+      checkItems.push(
+        `- Each example outside the ${nativeLangName ?? request.nativeLang} target block includes a native translation of the target sentence`,
+      );
     }
   }
   if (request.nativeLang) {
     checkItems.push(`- Top-level nativeMeaning is present and written in ${nativeLangName ?? request.nativeLang}`);
+  }
+  if (cfg.includeUsageNote && request.nativeLang && request.inputType !== "sentence") {
+    checkItems.push(
+      `- Every target block has a usageNote written in ${nativeLangName ?? request.nativeLang}; usageNote is regular guidance, not a warning`,
+    );
   }
   checkItems.push(
     "- No transcription, pronunciation, IPA, romanization, or bracketed sound-spelling fields are present",
@@ -245,7 +268,7 @@ function buildTopicHint(topic: string, isSentence: boolean, config: Required<Tra
 
 function buildConnotationRule(nativeLangName: string | null, isNativeSource: boolean, sourceLangName: string): string {
   const languageRule = nativeLangName
-    ? ` When present, every "connotationWarning" value in every target language block MUST be written in ${nativeLangName}, but it MUST describe the target translation in that block.`
+    ? ` When present, every "connotationWarning" value in every target language block MUST be written in ${nativeLangName}, even inside non-${nativeLangName} target blocks, and it MUST describe the target translation in that block.`
     : "";
   const nativeSourceRule = isNativeSource
     ? `
@@ -259,7 +282,9 @@ function buildConnotationRule(nativeLangName: string | null, isNativeSource: boo
 }
 
 function buildConnotationCheck(nativeLangName: string | null, isNativeSource: boolean): string {
-  const languageClause = nativeLangName ? ` and written in ${nativeLangName}` : "";
+  const languageClause = nativeLangName
+    ? ` and written in ${nativeLangName}, not the target language, while still describing the target translation in that block`
+    : "";
   const nativeSourceClause = isNativeSource ? ", never as an explanation of the native source word" : "";
   return `- connotationWarning is present only when the target translation has noteworthy connotations, is target-language specific${languageClause}${nativeSourceClause}`;
 }

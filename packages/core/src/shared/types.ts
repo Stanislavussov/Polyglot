@@ -19,6 +19,8 @@ export interface TranslationOutputConfig {
   includeAlternatives?: boolean;
   /** Include expressionType and equivalentNote for idiomatic expressions. Default: true */
   includeEquivalentNote?: boolean;
+  /** Include regular native-language usage guidance for each target translation. Default: true */
+  includeUsageNote?: boolean;
   /** Include connotation warnings for dangerous/misleading meanings. Default: true */
   includeConnotationWarning?: boolean;
   /** Include native-language synonyms for the source word (shown inline with source). Default: true */

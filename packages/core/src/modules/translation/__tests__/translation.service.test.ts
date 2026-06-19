@@ -132,6 +132,14 @@ describe("translate", () => {
     expect(mockGenerate.mock.calls[0][2]).toBe("openai/gpt-4o");
   });
 
+  it("uses translation-safe generation settings", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    await translate(defaultInput, mockGenerate);
+
+    expect(mockGenerate.mock.calls[0][3]).toEqual({ frequencyPenalty: 0 });
+  });
+
   it("handles multi-language translations", async () => {
     const multiLangResult = makeValidResult({
       translations: {
@@ -182,6 +190,7 @@ describe("translate", () => {
             examples: [{ context: "neutral", target: "I saw a mantis.", native: "Я увидел богомола." }],
             expressionType: null,
             equivalentNote: null,
+            usageNote: "Нейтральный вариант для постепенного прекращения использования.",
             alternatives: null,
             connotationWarning: null,
           },
@@ -203,6 +212,115 @@ describe("translate", () => {
 
     expect(result.sourceUsage).toEqual(sourceUsage);
     expect(result.nativeMeaning).toBe("Богомол; название насекомого.");
+  });
+
+  it("retries when a target block connotation warning is written in the target language", async () => {
+    const badResult = makeValidResult({
+      nativeMeaning: "Постепенно прекратить использование.",
+      translations: {
+        cs: {
+          text: "postupně ukončit",
+          synonyms: [{ text: "zrušit postupně" }],
+          examples: [
+            {
+              context: "neutral",
+              target: "Vláda chce postupně ukončit používání plastů.",
+              native: "Правительство хочет постепенно отказаться от пластика.",
+            },
+          ],
+          expressionType: null,
+          equivalentNote: null,
+          usageNote: "Разговорный чешский вариант для неформальных ситуаций.",
+          alternatives: null,
+          connotationWarning: "Výraz je velmi neformální a může znít nezdvořile.",
+        },
+      },
+    });
+
+    const mockGenerate = vi.fn().mockResolvedValue(badResult);
+
+    const result = await translate(
+      {
+        word: "phase out",
+        sourceLang: "en",
+        targetLangs: ["cs"],
+        nativeLang: "ru",
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    expect(result.needsReview).toBe(true);
+  });
+
+  it("accepts phase-out examples without a redundant native field in the native target block", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(
+      makeValidResult({
+        nativeMeaning: "Постепенно прекратить использование.",
+        sourceUsage: {
+          explanation: "Фразовый глагол означает постепенное прекращение использования или производства.",
+          synonyms: [{ text: "discontinue" }],
+          examples: [
+            {
+              context: "policy",
+              target: "The government will phase out single-use plastics.",
+              native: "Правительство постепенно откажется от одноразового пластика.",
+            },
+          ],
+        },
+        nativeSynonyms: [{ text: "постепенно отказаться" }],
+        translations: {
+          cs: {
+            text: "postupně ukončit",
+            synonyms: [{ text: "postupně vyřadit" }],
+            examples: [
+              {
+                context: "policy",
+                target: "Vláda chce postupně ukončit používání plastů.",
+                native: "Правительство хочет постепенно отказаться от пластика.",
+              },
+            ],
+            expressionType: null,
+            equivalentNote: null,
+            usageNote: "Нейтральный чешский вариант для постепенного прекращения использования.",
+            alternatives: null,
+            connotationWarning: null,
+          },
+          ru: {
+            text: "постепенно отказаться",
+            synonyms: [{ text: "постепенно прекратить" }],
+            examples: [
+              {
+                context: "policy",
+                target: "Правительство хочет постепенно отказаться от пластика.",
+              },
+            ],
+            expressionType: null,
+            equivalentNote: null,
+            usageNote: "Естественный русский вариант; обычно сочетается с указанием того, от чего отказываются.",
+            alternatives: null,
+            connotationWarning: null,
+          },
+        },
+      }),
+    );
+
+    const result = await translate(
+      {
+        word: "phase out",
+        sourceLang: "en",
+        targetLangs: ["cs", "ru"],
+        nativeLang: "ru",
+        inputType: "phrase",
+        model: "google/gemini-3.5-flash",
+      },
+      mockGenerate,
+    );
+
+    expect(result.translations.cs.examples[0]?.native).toBe("Правительство хочет постепенно отказаться от пластика.");
+    expect(result.translations.ru.examples[0]?.native).toBeUndefined();
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
   });
 
   it("propagates AI adapter errors", async () => {
@@ -345,7 +463,10 @@ describe("translateOne", () => {
     );
 
     // userId is passed as 4th arg options
-    expect(mockGenerate).toHaveBeenCalledWith(expect.any(String), expect.anything(), "openai/gpt-4o", { userId: 42 });
+    expect(mockGenerate).toHaveBeenCalledWith(expect.any(String), expect.anything(), "openai/gpt-4o", {
+      frequencyPenalty: 0,
+      userId: 42,
+    });
   });
 
   it("works with needsReview results (validation exhausted)", async () => {

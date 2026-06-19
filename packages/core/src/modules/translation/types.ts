@@ -65,6 +65,8 @@ export interface LanguageTranslation {
   expressionType?: ExpressionType | null;
   /** Short note in the source language explaining why an equivalent was chosen */
   equivalentNote?: string | null;
+  /** Regular native-language guidance about nuance, register, and natural usage */
+  usageNote?: string | null;
   /** Up to 2 alternative translation variants */
   alternatives?: TranslationVariant[] | null;
   /** Optional target-side note about noteworthy connotation, register, or usage risk */

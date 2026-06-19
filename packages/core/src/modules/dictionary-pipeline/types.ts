@@ -12,7 +12,7 @@
  */
 
 import type { TemplateFields } from "../../shared/translation-template.types.js";
-import type { Example, ExpressionType, Synonym, TranslationVariant } from "../translation/types.js";
+import type { Example, ExpressionType, SourceUsage, Synonym, TranslationVariant } from "../translation/types.js";
 
 /* ------------------------------------------------------------------ */
 /*  Selection                                                          */
@@ -95,6 +95,7 @@ export interface WordDisplayTranslation {
   alternatives?: TranslationVariant[];
   expressionType?: ExpressionType;
   equivalentNote?: string;
+  usageNote?: string;
 }
 
 /** Normalized word data ready for any renderer (Telegram, export, quiz, etc.) */
@@ -103,6 +104,7 @@ export interface WordDisplayData {
   id: number;
   original: string;
   nativeMeaning?: string;
+  sourceUsage?: SourceUsage;
   /** ISO 639-1 source language code (e.g. "en") */
   sourceLang: string;
   inputType: "word" | "phrase" | "sentence";
@@ -143,6 +145,7 @@ export interface PipelineTranslationRow {
   register?: string | null;
   expressionType?: string | null;
   equivalentNote?: string | null;
+  usageNote?: string | null;
   connotationWarning?: string | null;
   details?: {
     synonyms?: Synonym[];
@@ -159,6 +162,7 @@ export interface PipelineEntry {
   id: number;
   original: string;
   nativeMeaning?: string | null;
+  sourceUsage?: SourceUsage | null;
   sourceLangId: number;
   sourceLangCode: string;
   inputType: string;

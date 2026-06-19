@@ -5,15 +5,36 @@ import { validate } from "../index.js";
 /** Minimal schema matching the BRD translation result structure (Task 31: updated examples) */
 const translationResultSchema = z.object({
   emoji: z.string(),
+  nativeMeaning: z.string().optional(),
+  sourceUsage: z
+    .object({
+      explanation: z.string(),
+      synonyms: z.array(z.object({ text: z.string() })),
+      examples: z.array(
+        z.object({
+          context: z.string(),
+          target: z.string(),
+          native: z.string().optional(),
+        }),
+      ),
+    })
+    .optional(),
   translations: z.record(
     z.string(),
     z.object({
       text: z.string(),
       expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
       equivalentNote: z.string().optional(),
+      usageNote: z.string().optional(),
       connotationWarning: z.string().optional(),
       synonyms: z.array(z.object({ text: z.string() })),
-      examples: z.array(z.object({ context: z.enum(["neutral", "colloquial", "professional"]), target: z.string() })),
+      examples: z.array(
+        z.object({
+          context: z.enum(["neutral", "colloquial", "professional"]),
+          target: z.string(),
+          native: z.string().optional(),
+        }),
+      ),
     }),
   ),
 });
@@ -200,7 +221,7 @@ describe("validate (orchestrator)", () => {
     );
   });
 
-  it("does not hardcode connotationWarning script validation for nativeLang", () => {
+  it("rejects a connotation warning written in the target language instead of the native language", () => {
     const raw = {
       emoji: "🙈",
       nativeMeaning: "Разговорное выражение о невнимательности.",
@@ -219,8 +240,190 @@ describe("validate (orchestrator)", () => {
       nativeLang: "ru",
     });
 
-    expect(result.errors.some((e) => e.field === "translations.cs.connotationWarning")).toBe(false);
+    expect(result.errors.some((e) => e.field === "translations.cs.connotationWarning")).toBe(true);
     expect(result.errors.some((e) => e.field === "nativeMeaning")).toBe(false);
+  });
+
+  it("rejects a usage note written in the target language instead of the native language", () => {
+    const raw = {
+      emoji: "🙈",
+      nativeMeaning: "Разговорное выражение.",
+      translations: {
+        cs: {
+          text: "prdnout si potichu",
+          usageNote: "Používá se jen ve velmi neformální konverzaci.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "пустить шептуна", ["cs"], "phrase", {
+      nativeLang: "ru",
+    });
+
+    expect(result.errors.some((e) => e.field === "translations.cs.usageNote")).toBe(true);
+  });
+
+  it("rejects a native example that duplicates the target sentence", () => {
+    const raw = {
+      emoji: "➡️",
+      nativeMeaning: "Постепенно прекратить использование.",
+      translations: {
+        cs: {
+          text: "postupně ukončit",
+          synonyms: [],
+          examples: [
+            {
+              context: "neutral",
+              target: "Vláda chce postupně ukončit používání plastů.",
+              native: "Vláda chce postupně ukončit používání plastů.",
+            },
+          ],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "phase out", ["cs"], "phrase", {
+      nativeLang: "ru",
+    });
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "language",
+          field: "translations.cs.examples.0.native",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects Latin romanization in a Russian native example", () => {
+    const raw = {
+      emoji: "➡️",
+      nativeMeaning: "Постепенно прекратить использование.",
+      translations: {
+        cs: {
+          text: "postupně ukončit",
+          synonyms: [],
+          examples: [
+            {
+              context: "neutral",
+              target: "Vláda chce postupně ukončit používání plastů.",
+              native: "Pravitel'stvo reshilо postepenno otkazat'sya ot plastika.",
+            },
+          ],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "phase out", ["cs"], "phrase", {
+      nativeLang: "ru",
+    });
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "language",
+          field: "translations.cs.examples.0.native",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects a non-Russian nativeMeaning when nativeLang is Russian", () => {
+    const raw = {
+      emoji: "➡️",
+      nativeMeaning: "To gradually stop using something.",
+      translations: {
+        cs: {
+          text: "postupně ukončit",
+          synonyms: [],
+          examples: [
+            {
+              context: "neutral",
+              target: "Vláda chce postupně ukončit používání plastů.",
+              native: "Правительство хочет постепенно отказаться от пластика.",
+            },
+          ],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "phase out", ["cs"], "phrase", {
+      nativeLang: "ru",
+    });
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "language",
+          field: "nativeMeaning",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects embedded IPA pronunciation in an ordinary response field", () => {
+    const raw = {
+      emoji: "➡️",
+      nativeMeaning: "Постепенно прекратить использование. IPA: /feɪz aʊt/",
+      translations: {
+        cs: {
+          text: "postupně ukončit",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "phase out", ["cs"], "phrase", {
+      nativeLang: "ru",
+    });
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "format",
+          field: "nativeMeaning",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects an identical note copied across target-language blocks", () => {
+    const duplicatedNote = "Употребляется преимущественно в официальной речи.";
+    const raw = {
+      emoji: "➡️",
+      nativeMeaning: "Постепенно прекратить использование.",
+      translations: {
+        cs: {
+          text: "postupně ukončit",
+          connotationWarning: duplicatedNote,
+          synonyms: [],
+          examples: [],
+        },
+        de: {
+          text: "schrittweise einstellen",
+          connotationWarning: duplicatedNote,
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "phase out", ["cs", "de"], "phrase", {
+      nativeLang: "ru",
+    });
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "duplication",
+          field: "translations.de.connotationWarning",
+        }),
+      ]),
+    );
   });
 });
 

@@ -9,5 +9,7 @@ export {
 export type {
   ContextEnrichmentDeps,
   ContextLookupFn,
+  DictionaryContextCandidate,
+  DictionaryContextMatchType,
   EnrichedTranslateInput,
 } from "./types.js";

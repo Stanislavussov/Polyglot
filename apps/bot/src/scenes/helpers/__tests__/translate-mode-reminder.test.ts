@@ -18,7 +18,7 @@ const {
   mockLanguageCache,
   mockAi,
 } = vi.hoisted(() => ({
-  mockLookupContext: vi.fn(),
+  mockLookupContext: vi.fn().mockResolvedValue([]),
   mockUserRepository: {
     getSettings: vi.fn(),
     updateActiveMode: vi.fn().mockResolvedValue({}),

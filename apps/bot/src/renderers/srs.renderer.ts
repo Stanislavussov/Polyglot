@@ -2,6 +2,7 @@ import type { SrsDueVocabularyCard, SupportedLang } from "@polyglot/core";
 import { getLangFlag, getLanguageName, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { formatInputType } from "./input-type-label.js";
+import { renderCompactSourceExample } from "./source-usage.renderer.js";
 
 function esc(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -44,7 +45,20 @@ export function renderSrsBack(
 ): string {
   const lines = [renderSrsFront(card, sourceLangCode, targetLangCode, current, total, lang), ""];
 
+  const sourceExample = renderCompactSourceExample(sourceLangCode, card.sourceUsage);
+  if (sourceExample) {
+    lines.push(sourceExample, "");
+  }
+
   lines.push(`${getLangFlag(targetLangCode) ?? "🔤"} ${esc(targetLangCode.toUpperCase())}: <b>${esc(card.text)}</b>`);
+
+  if (card.usageNote) {
+    lines.push(`💡 ${esc(card.usageNote)}`);
+  }
+
+  if (card.connotationWarning) {
+    lines.push(`⚠️ ${esc(card.connotationWarning)}`);
+  }
 
   if (card.details?.examples && card.details.examples.length > 0) {
     const example = card.details.examples[0];

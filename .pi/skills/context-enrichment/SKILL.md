@@ -18,9 +18,9 @@ description: Pre-AI dictionary context lookup layer. Enriches translation inputs
 
 ## Current State
 
-Fully implemented (Task 15). The context enrichment layer sits between translation callers and the AI adapter. It:
-1. Queries dictionary context via injected `ContextLookupFn`
-2. Merges retrieved context into the translation input
+Fully implemented (Task 15, TQ-09). The context enrichment layer sits between translation callers and the AI adapter. It:
+1. Queries deterministically ordered dictionary candidates via injected `ContextLookupFn`
+2. Merges a single unambiguous context into the translation input; ambiguous candidates wait for TQ-10 ranking
 3. Calls `translate()` / `translateOne()` from the translation module
 
 All 3 consumers migrated:
@@ -41,10 +41,10 @@ All 3 consumers migrated:
 
 1. Core module — never imports DB or AI adapters directly
 2. Dictionary context lookup is injected via `ContextLookupFn`
-3. Fail-open: lookup errors return `undefined`, translation proceeds without context
+3. Fail-open: lookup errors return no candidates, translation proceeds without context
 4. Sequential batch processing to avoid AI rate limits
 5. `EnrichedTranslateInput` omits `dictionaryContext` — the layer fills it
-6. `createContextLookup()` in DB adapter is the single DB → DictionaryContext transform
+6. `createContextLookup()` in DB adapter is the single DB → `DictionaryContextCandidate` transform
 
 ## Skills (Public API)
 
@@ -81,7 +81,17 @@ function createContextLookup(): ContextLookupFn;
 type ContextLookupFn = (
   word: string,
   langCode: string,
-) => Promise<DictionaryContext | undefined>;
+) => Promise<DictionaryContextCandidate[]>;
+
+type DictionaryContextMatchType =
+  | "exact_expression"
+  | "known_form"
+  | "lemma";
+
+interface DictionaryContextCandidate {
+  matchType: DictionaryContextMatchType;
+  context: DictionaryContext;
+}
 
 // Dependencies for the enrichment layer
 interface ContextEnrichmentDeps {
@@ -101,17 +111,17 @@ packages/core/src/modules/context-enrichment/
 ├── types.ts                           # ContextLookupFn, ContextEnrichmentDeps, EnrichedTranslateInput
 ├── context-enrichment.service.ts      # translateWithContext, translateOneWithContext, translateBatchWithContext
 └── __tests__/
-    └── context-enrichment.service.test.ts  # 21 tests
+    └── context-enrichment.service.test.ts  # 22 tests
 
 packages/adapters/db/src/
 ├── context-lookup.ts                  # createContextLookup() factory
 └── __tests__/
-    └── context-lookup.test.ts         # 9 tests
+    └── context-lookup.test.ts         # 11 tests
 ```
 
 ## Sentence Input Skip (Task 27)
 
-The context-enrichment module itself is **not aware of input types** (word/phrase/sentence). Sentence-type inputs should **not** receive Wiktionary dictionary context (no learnable word to enrich). This skip is handled at the **caller level** — the bot's `translate-mode.helper.ts` passes a no-op `lookupContext` function (`async () => undefined`) when `classifyInput()` returns `type: 'sentence'`. The enrichment module processes it normally, receiving `undefined` from the no-op lookup, and translation proceeds without dictionary context. This approach keeps the enrichment layer simple and unaware of input classification.
+The context-enrichment module itself is **not aware of input types** (word/phrase/sentence). Sentence-type inputs should **not** receive Wiktionary dictionary context (no learnable word to enrich). This skip is handled at the **caller level** — the bot's `translate-mode.helper.ts` passes a no-op `lookupContext` function (`async () => []`) when `classifyInput()` returns `type: 'sentence'`. The enrichment module processes it normally, receives no candidates, and translation proceeds without dictionary context. This approach keeps the enrichment layer simple and unaware of input classification.
 
 ## Reference
 

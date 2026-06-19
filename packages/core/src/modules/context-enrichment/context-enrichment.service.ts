@@ -15,7 +15,7 @@
  */
 
 import { translate, translateOne } from "../translation/translation.service.js";
-import type { LanguageTranslation, TranslateOutput } from "../translation/types.js";
+import type { DictionaryContext, LanguageTranslation, TranslateOutput } from "../translation/types.js";
 import type { ContextEnrichmentDeps, EnrichedTranslateInput } from "./types.js";
 
 /**
@@ -35,7 +35,7 @@ export async function translateWithContext(
   input: EnrichedTranslateInput,
   deps: ContextEnrichmentDeps,
 ): Promise<TranslateOutput> {
-  const dictionaryContext = await safeLookup(deps.lookupContext, input.word, input.sourceLang);
+  const dictionaryContext = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
 
   return translate({ ...input, dictionaryContext }, deps.generateObjectFn);
 }
@@ -53,7 +53,7 @@ export async function translateOneWithContext(
   input: EnrichedTranslateInput & { targetLang: string },
   deps: ContextEnrichmentDeps,
 ): Promise<LanguageTranslation> {
-  const dictionaryContext = await safeLookup(deps.lookupContext, input.word, input.sourceLang);
+  const dictionaryContext = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
 
   return translateOne({ ...input, dictionaryContext }, deps.generateObjectFn);
 }
@@ -96,13 +96,14 @@ export async function translateBatchWithContext(
  * Safe lookup wrapper — catches errors and returns undefined.
  * Fail-open: dictionary context is optional enrichment.
  */
-async function safeLookup(
+async function lookupUnambiguousContext(
   lookupContext: ContextEnrichmentDeps["lookupContext"],
   word: string,
   langCode: string,
-): Promise<import("../translation/types.js").DictionaryContext | undefined> {
+): Promise<DictionaryContext | undefined> {
   try {
-    return await lookupContext(word, langCode);
+    const candidates = await lookupContext(word, langCode);
+    return candidates.length === 1 ? candidates[0]?.context : undefined;
   } catch {
     // Fail-open: dictionary context lookup is optional enrichment.
     // On error, translation proceeds without context.

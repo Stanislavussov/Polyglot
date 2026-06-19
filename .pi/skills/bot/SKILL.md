@@ -35,6 +35,8 @@ Already implemented:
 - `scenes/flashcard.scene.ts` — /flashcard command handler (Task 33); runs dictionary pipeline with FLASHCARD_CONFIG, stores deck in session
 - `scenes/helpers/flashcard.helper.ts` — Flash card callback handlers (fc:start/reveal/next/done/restart/quit/close); wires pipeline deps to DB repositories; best-effort review logging
 - `renderers/flashcard.renderer.ts` — renderFlashCardFront, renderFlashCardBack, buildFlashCardFrontKeyboard, buildFlashCardBackKeyboard, buildFlashCardDoneKeyboard
+- `renderers/source-usage.renderer.ts` — shared source-language guidance block renderer used by flashcard, dictionary, and SRS views
+- Translation, flashcard, dictionary, and SRS renderers show regular per-target `usageNote` with `💡`, separately from exceptional `connotationWarning`.
 
 - `notifications/notification.formatter.ts` — formatNotificationMessage (HTML), buildNotificationKeyboard (Open dictionary / Skip)
 - `notifications/notification.callbacks.ts` — notif:open (deep-link to /dictionary), notif:skip (dismiss)
@@ -228,7 +230,7 @@ The translate-mode save flow implements the full FEAT-30 pipeline: FK resolution
 1. FK resolution: `getLang(sourceLang)` from language cache → `sourceLangId`
 2. Duplicate detection: `vocabularyRepository.findByOriginalAndSource(userId, original, sourceLangId)` → if exists, show "already saved" toast and return
 3. Map to normalized input: `toVocabularyInput(output, sourceLangId, inputType, langResolver)` builds `CreateVocabularyInput` with parent + per-language children
-4. Persist: `vocabularyRepository.create(userId, vocabInput)` — transactional insert of `vocabulary_entries` + N `vocabulary_translations` rows
+4. Persist: `vocabularyRepository.create(userId, vocabInput)` — transactional insert of `vocabulary_entries` + N `vocabulary_translations` rows, including saved `sourceUsage` on the parent entry
 5. Session: set `savedWordId`, clear `pendingTranslation` and `pendingCardMsgId`
 6. Edit card in-place: render with `savedToDict` text + `buildPostSaveKeyboard()` (regen-only)
 
@@ -709,6 +711,7 @@ apps/bot/src/
 ├── renderers/
 │   ├── translation.renderer.ts # renderTranslation, renderSentenceTranslation, renderTopicWord, renderQualityWarning, buildTranslationKeyboard(+inputType), buildPostSaveKeyboard, buildSentenceKeyboard, buildSourceLangKeyboard
 │   ├── flashcard.renderer.ts   # ✅ renderFlashCardFront, renderFlashCardBack, buildFlashCardFrontKeyboard, buildFlashCardBackKeyboard, buildFlashCardDoneKeyboard (Task 33)
+│   ├── source-usage.renderer.ts # shared source-language guidance renderer
 │   ├── dictionary.renderer.ts # ✅ renderDictionaryList, renderDictionaryEntry, buildDictionaryListKeyboard, buildDictionaryEntryKeyboard, buildDeleteConfirmKeyboard, DICTIONARY_PAGE_SIZE (Task 40)
 │   └── __tests__/
 │       ├── source-lang-menu.test.ts     # 8 tests (keyboard rendering, ✓ marks, suppression)
