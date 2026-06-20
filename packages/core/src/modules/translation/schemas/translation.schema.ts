@@ -117,13 +117,27 @@ function buildSourceUsageSchema(config?: TranslationOutputConfig, requireExample
  * accepts empty arrays / missing fields instead of requiring them.
  *
  * @param config - Optional output config to relax disabled fields
+ * @param requireExampleNative - Require "native" on examples (non-native targets)
+ * @param requireUsageNote - Require usageNote field
+ * @param isMinimalNativeTarget - When true, only "text" and "synonyms" are required;
+ *   examples, alternatives, usageNote, connotationWarning, expressionType and equivalentNote
+ *   are omitted. Used for the native-language target block when the source is a learning
+ *   language — the user already knows their native language, so examples and notes are redundant.
  * @returns Zod schema for a single language translation entry
  */
 export function buildLanguageTranslationSchema(
   config?: TranslationOutputConfig,
   requireExampleNative = false,
   requireUsageNote = false,
+  isMinimalNativeTarget = false,
 ) {
+  if (isMinimalNativeTarget) {
+    return z.object({
+      text: z.string().min(1, "Translation text is required"),
+      synonyms: z.array(synonymSchema),
+    });
+  }
+
   const includeExamples = config?.includeExamples !== false;
   const includeSynonyms = config?.includeSynonyms !== false;
   const includeAlternatives = config?.includeAlternatives !== false;
@@ -159,6 +173,13 @@ export function buildLanguageTranslationSchema(
  *
  * @param targetLangs - Language codes that must be present (e.g. ["cs", "en", "es"])
  * @param config - Optional output config to relax disabled fields
+ * @param requireNative - Require top-level nativeMeaning
+ * @param requireSourceUsage - Require top-level sourceUsage
+ * @param nativeLang - User's native language code (used to detect native target block)
+ * @param requireUsageNote - Require usageNote in each non-minimal target block
+ * @param sourceLang - Source language code; when it differs from nativeLang, the native
+ *   target block is built as minimal (text + synonyms only) since the user already knows
+ *   their native language and sourceUsage provides examples.
  * @returns Zod schema with explicit required language keys
  */
 export function buildTranslationResultSchema(
@@ -168,10 +189,18 @@ export function buildTranslationResultSchema(
   requireSourceUsage = false,
   nativeLang?: string,
   requireUsageNote = false,
+  sourceLang?: string,
 ) {
+  const isLearningSource = sourceLang !== undefined && nativeLang !== undefined && sourceLang !== nativeLang;
   const langEntries: Record<string, ReturnType<typeof buildLanguageTranslationSchema>> = {};
   for (const lang of targetLangs) {
-    langEntries[lang] = buildLanguageTranslationSchema(config, requireNative && lang !== nativeLang, requireUsageNote);
+    const isMinimalNativeTarget = isLearningSource && lang === nativeLang;
+    langEntries[lang] = buildLanguageTranslationSchema(
+      config,
+      requireNative && lang !== nativeLang,
+      requireUsageNote,
+      isMinimalNativeTarget,
+    );
   }
 
   const includeNativeSynonyms = config?.includeNativeSynonyms !== false;

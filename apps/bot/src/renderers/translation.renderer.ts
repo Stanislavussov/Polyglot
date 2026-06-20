@@ -55,7 +55,19 @@ function renderSourceUsageBlock(
 
   lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(output.original)}</b>${synonyms}`);
 
-  if (usage.explanation) {
+  const nativeTranslation = nativeLang ? output.translations[nativeLang] : undefined;
+
+  if (nativeTranslation && nativeLang) {
+    const nativeFlag = getLangFlag(nativeLang) ?? "🔤";
+    const nativeLabel = `${nativeFlag} ${esc(nativeLang.toUpperCase())}`;
+    const showNativeSyns = fields?.synonyms !== false && nativeTranslation.synonyms.length > 0;
+    const nativeSyns = showNativeSyns ? ` (${nativeTranslation.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
+    lines.push(`${nativeLabel}: <b>${esc(nativeTranslation.text)}</b>${nativeSyns}`);
+
+    if (usage.explanation) {
+      lines.push(`💡 ${esc(usage.explanation)}`);
+    }
+  } else if (usage.explanation) {
     const nativeFlag = nativeLang ? (getLangFlag(nativeLang) ?? "🔤") : "🔤";
     const label = nativeLang ? `${nativeFlag} ${esc(nativeLang.toUpperCase())}` : nativeFlag;
     lines.push(`${label}: ${esc(usage.explanation)}`);
@@ -100,13 +112,15 @@ export function renderTranslation(
     lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
-  if (nativeMeaningLine && nativeLang !== output.sourceLang && sourceUsageLines.length === 0) {
+  const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
+  if (nativeMeaningLine && nativeLang !== output.sourceLang && sourceUsageLines.length === 0 && !hasNativeTranslation) {
     lines.push(nativeMeaningLine);
   }
   lines.push("");
 
   for (const [code, translation] of Object.entries(output.translations)) {
     if (hideSourceText && code === output.sourceLang) continue;
+    if (hideSourceText && nativeLang && code === nativeLang && output.sourceUsage) continue;
     lines.push(renderLangBlock(code, translation, lang, templateFields));
     lines.push("");
   }
@@ -202,7 +216,8 @@ export function renderSentenceTranslation(
     lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
-  if (nativeMeaningLine && nativeLang !== output.sourceLang) {
+  const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
+  if (nativeMeaningLine && nativeLang !== output.sourceLang && !hasNativeTranslation) {
     lines.push(nativeMeaningLine);
   }
   lines.push("");

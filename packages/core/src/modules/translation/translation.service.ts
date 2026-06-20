@@ -86,6 +86,7 @@ export async function translate(input: TranslateInput, generateObjectFn: Generat
     requiresSourceUsage,
     input.nativeLang,
     requiresUsageNote,
+    input.sourceLang,
   );
   let prompt = buildTranslationPrompt(request);
   let result: TranslationResult;

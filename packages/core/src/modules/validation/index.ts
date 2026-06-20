@@ -108,6 +108,13 @@ export function validate(
 
     const translationText = langData.text as string | undefined;
 
+    // The native-language target block is minimal (text + synonyms only) when
+    // the source is a learning language: the user already knows their native
+    // language, so examples/alternatives/notes are not generated and must not
+    // be validated. Schema validation already enforced the minimal shape.
+    const isMinimalNativeTarget =
+      options?.nativeLang !== undefined && lang === options.nativeLang && options.sourceLang !== options.nativeLang;
+
     if ("transcription" in langData) {
       allErrors.push({
         rule: "schema",
@@ -139,7 +146,7 @@ export function validate(
     }
 
     // Step 3: Language detection
-    if (translationText) {
+    if (translationText && !isMinimalNativeTarget) {
       const langResult = validateLanguage(translationText, lang);
       for (const err of langResult.errors) {
         allErrors.push({
@@ -150,14 +157,13 @@ export function validate(
     }
 
     // Step 4: Example validation
-    // Skipped when: inputType='sentence', or outputConfig disabled examples.
-    // The entire pipeline (prompt → schema → validation) respects the config —
-    // no point validating fields the AI was never asked to produce.
+    // Skipped when: inputType='sentence', outputConfig disabled examples,
+    // or this is the minimal native target block (no examples generated).
     const examples = langData.examples as
       | Array<{ context: string; target: string; native?: string | null }>
       | undefined;
     const expressionType = langData.expressionType as ExpressionType | undefined;
-    const skipExamples = isSentence || options?.includeExamples === false;
+    const skipExamples = isSentence || options?.includeExamples === false || isMinimalNativeTarget;
 
     if (examples && Array.isArray(examples) && translationText && !skipExamples) {
       const exampleResult = validateExamples(examples, translationText, expressionType);
@@ -170,9 +176,10 @@ export function validate(
     }
 
     // Step 5: Alternatives semantic validation
-    // Skipped when: inputType='sentence', or outputConfig disabled alternatives.
+    // Skipped when: inputType='sentence', outputConfig disabled alternatives,
+    // or this is the minimal native target block (no alternatives generated).
     const alternatives = langData.alternatives as Array<{ text: string }> | undefined;
-    const skipAlternatives = isSentence || options?.includeAlternatives === false;
+    const skipAlternatives = isSentence || options?.includeAlternatives === false || isMinimalNativeTarget;
 
     if (alternatives && Array.isArray(alternatives) && !skipAlternatives) {
       for (let i = 0; i < alternatives.length; i++) {
