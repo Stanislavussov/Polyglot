@@ -10,6 +10,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/bot/package.json apps/bot/
 COPY apps/admin-api/package.json apps/admin-api/
 COPY apps/admin/package.json apps/admin/
+COPY apps/translation-benchmark/package.json apps/translation-benchmark/
 COPY packages/core/package.json packages/core/
 COPY packages/infra/package.json packages/infra/
 COPY packages/adapters/ai/package.json packages/adapters/ai/
