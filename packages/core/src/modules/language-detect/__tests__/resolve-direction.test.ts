@@ -27,8 +27,8 @@ describe("resolveTranslationDirection", () => {
       text: "hello world this is a test",
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual(["cs"]);
-    expect(result.targetLangs).not.toContain("ru");
+    expect(result.targetLangs).toEqual(["ru", "cs"]);
+    expect(result.targetLangs).toContain("ru");
     expect(result.targetLangs).not.toContain("en");
     expect(result.detectedLang).toBe("en");
   });
@@ -36,11 +36,11 @@ describe("resolveTranslationDirection", () => {
   it("reverses direction when Czech (learning) is detected", () => {
     const result = resolveTranslationDirection({
       ...base,
-      text: "dobrý den jak se máte dnes",
+      text: "dobrý den jak se máš dnes",
     });
     expect(result.sourceLang).toBe("cs");
-    expect(result.targetLangs).toEqual(["en"]);
-    expect(result.targetLangs).not.toContain("ru");
+    expect(result.targetLangs).toEqual(["ru", "en"]);
+    expect(result.targetLangs).toContain("ru");
     expect(result.targetLangs).not.toContain("cs");
     expect(result.detectedLang).toBe("cs");
   });
@@ -81,14 +81,14 @@ describe("resolveTranslationDirection", () => {
 
   // === Single learning language ===
 
-  it("handles single learning language: detected=learning → targets=[]", () => {
+  it("handles single learning language: detected=learning → targets=[native]", () => {
     const result = resolveTranslationDirection({
       text: "hello world this is a test",
       nativeLang: "ru",
       learningLangs: ["en"],
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual([]);
+    expect(result.targetLangs).toEqual(["ru"]);
     expect(result.detectedLang).toBe("en");
   });
 
@@ -112,7 +112,7 @@ describe("resolveTranslationDirection", () => {
       learningLangs: ["cs", "en", "de"],
     });
     expect(result.sourceLang).toBe("en");
-    expect(result.targetLangs).toEqual(["cs", "de"]);
+    expect(result.targetLangs).toEqual(["ru", "cs", "de"]);
     expect(result.detectedLang).toBe("en");
   });
 
@@ -161,7 +161,7 @@ describe("resolveDirectionFromSource", () => {
     const result = resolveDirectionFromSource({ ...base, sourceLang: "en" });
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
-    expect(result!.targetLangs).toEqual(["cs"]);
+    expect(result!.targetLangs).toEqual(["ru", "cs"]);
     expect(result!.targetLangs).not.toContain("en");
   });
 
@@ -179,6 +179,6 @@ describe("resolveDirectionFromSource", () => {
     expect(result).not.toBeNull();
     expect(result!.sourceLang).toBe("en");
     expect(result!.targetLangs).not.toContain("en");
-    expect(result!.targetLangs).toEqual([]);
+    expect(result!.targetLangs).toEqual(["ru"]);
   });
 });

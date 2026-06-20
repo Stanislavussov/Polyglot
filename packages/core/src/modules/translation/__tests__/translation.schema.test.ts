@@ -491,4 +491,100 @@ describe("buildTranslationResultSchema", () => {
 
     expect(result.success).toBe(true);
   });
+
+  it("builds the native target block as minimal when source is a learning language", () => {
+    const schema = buildTranslationResultSchema(["ru", "en"], undefined, true, true, "ru", false, "cs");
+
+    const result = schema.safeParse({
+      emoji: "🫐",
+      nativeMeaning: "Лесная ягода.",
+      sourceUsage: {
+        explanation: "Так называют лесную ягоду.",
+        synonyms: [{ text: "černice" }],
+        examples: [
+          { context: "nature", target: "V lese jsme nasbírali borůvky.", native: "В лесу мы набрали черники." },
+        ],
+      },
+      nativeSynonyms: [{ text: "черника" }],
+      translations: {
+        ru: { text: "черника", synonyms: [{ text: "черничка" }] },
+        en: {
+          text: "blueberries",
+          synonyms: [{ text: "bilberries" }],
+          examples: [{ context: "neutral", target: "I like blueberries.", native: "Я люблю чернику." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects extra fields on the minimal native target block when source is a learning language", () => {
+    const schema = buildTranslationResultSchema(["ru", "en"], undefined, true, true, "ru", false, "cs");
+
+    const result = schema.safeParse({
+      emoji: "🫐",
+      nativeMeaning: "Лесная ягода.",
+      sourceUsage: {
+        explanation: "Так называют лесную ягоду.",
+        synonyms: [],
+        examples: [],
+      },
+      nativeSynonyms: [],
+      translations: {
+        ru: {
+          text: "черника",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "Я люблю чернику." }],
+        },
+        en: {
+          text: "blueberries",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "I like blueberries.", native: "Я люблю чернику." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("does NOT build a minimal native target when source equals native language", () => {
+    const schema = buildTranslationResultSchema(["cs", "en"], undefined, true, false, "ru", false, "ru");
+
+    const result = schema.safeParse({
+      emoji: "🫐",
+      nativeMeaning: "Лесная ягода.",
+      nativeSynonyms: [{ text: "черника" }],
+      translations: {
+        cs: {
+          text: "borůvky",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "Mám rád borůvky.", native: "Я люблю чернику." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+        en: {
+          text: "blueberries",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "I like blueberries.", native: "Я люблю чернику." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+
+    expect(result.success).toBe(true);
+  });
 });

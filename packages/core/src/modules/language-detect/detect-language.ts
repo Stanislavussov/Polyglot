@@ -288,7 +288,7 @@ export class DiacriticsStrategy implements LanguageDetectionStrategy {
 
 /**
  * Wiktionary-based strategy: checks if word exists in dictionary.
- * Returns first candidate where word is found in Wiktionary data.
+ * Returns a language only when exactly one candidate contains the word.
  * Most accurate for single words like "kocour" (Czech) vs English.
  */
 export class WiktionaryStrategy implements LanguageDetectionStrategy {
@@ -299,19 +299,24 @@ export class WiktionaryStrategy implements LanguageDetectionStrategy {
     this.lookup = lookup;
   }
 
-  async detect(text: string, candidates: string[]): Promise<string | undefined> {
+  async findMatches(text: string, candidates: string[]): Promise<string[]> {
     const word = text.trim().toLowerCase();
-    if (!word || word.includes(" ")) return undefined; // Single word only
+    if (!word || word.includes(" ")) return []; // Single word only
 
-    // Check each candidate language
-    for (const candidate of candidates) {
-      const contexts = await this.lookup(word, candidate);
-      if (contexts.length > 0) {
-        return candidate;
-      }
-    }
+    const uniqueCandidates = [...new Set(candidates)];
+    const lookups = await Promise.all(
+      uniqueCandidates.map(async (candidate) => ({
+        candidate,
+        contexts: await this.lookup(word, candidate),
+      })),
+    );
 
-    return undefined;
+    return lookups.filter(({ contexts }) => contexts.length > 0).map(({ candidate }) => candidate);
+  }
+
+  async detect(text: string, candidates: string[]): Promise<string | undefined> {
+    const matches = await this.findMatches(text, candidates);
+    return matches.length === 1 ? matches[0] : undefined;
   }
 }
 
@@ -340,7 +345,7 @@ export class AIStrategy implements LanguageDetectionStrategy {
     const candidatesStr = candidates.join(", ");
     const prompt = `Detect the language of this text from these candidates: ${candidatesStr}.
 Text: "${text}"
-Respond with ONLY the ISO 639-1 language code (candidatesStr). No explanation.`;
+Respond with ONLY the ISO 639-1 language code. If the text is valid in multiple candidate languages and context does not disambiguate it, respond with "ambiguous". No explanation.`;
 
     try {
       const response = await this.generate(prompt);
@@ -455,8 +460,9 @@ export async function detectLanguageAsync(
   // 4. Wiktionary lookup
   if (deps.contextLookup) {
     const wiktionaryStrategy = new WiktionaryStrategy(deps.contextLookup);
-    const wiktionaryResult = await wiktionaryStrategy.detect(trimmed, candidates);
-    if (wiktionaryResult !== undefined) return wiktionaryResult;
+    const wiktionaryMatches = await wiktionaryStrategy.findMatches(trimmed, candidates);
+    if (wiktionaryMatches.length === 1) return wiktionaryMatches[0];
+    if (wiktionaryMatches.length > 1) return undefined;
   }
 
   // 5. AI fallback

@@ -99,7 +99,8 @@ Rules:${
   }${
     isLearningSource
       ? `
-- The user is translating from a learning language. Do not repeat the original input "${text}" as a displayed translation; use "nativeMeaning" for the user's native-language explanation and only translate into other target languages.${
+- The user is translating from a learning language. Do not repeat the original input "${text}" as a displayed translation. Translate into ALL target languages, including the user's native language (${nativeLangName ?? nativeLang}). Provide a natural, accurate main translation for each target language — the native-language translation must be the direct word in the user's native language, not a description. Use "nativeMeaning" for a concise native-language summary and "sourceUsage" for source-language usage guidance.
+- For the native-language target block (${nativeLang ?? ""}) ONLY: provide just "text" (the direct native translation word) and "synonyms" (2-3 native synonyms). OMIT "examples", "alternatives", "usageNote", and "connotationWarning" for the native target block — the source-language examples with native translations in "sourceUsage" already demonstrate usage, and the user already knows their native language.${
           isSentence
             ? ""
             : `

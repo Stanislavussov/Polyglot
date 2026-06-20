@@ -269,6 +269,44 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("collocations or lexical chunks");
   });
 
+  it("instructs AI to translate into the native language when source is a learning language", () => {
+    const prompt = buildTranslationPrompt({
+      text: "kudlanka",
+      sourceLang: "cs",
+      targetLangs: ["ru", "en"],
+      nativeLang: "ru",
+      inputType: "word",
+    });
+
+    expect(prompt).toContain("including the user's native language (Russian)");
+    expect(prompt).toContain("the native-language translation must be the direct word in the user's native language");
+  });
+
+  it("instructs AI to keep the native target block minimal (text + synonyms only)", () => {
+    const prompt = buildTranslationPrompt({
+      text: "kudlanka",
+      sourceLang: "cs",
+      targetLangs: ["ru", "en"],
+      nativeLang: "ru",
+      inputType: "word",
+    });
+
+    expect(prompt).toContain("For the native-language target block (ru) ONLY");
+    expect(prompt).toContain('OMIT "examples", "alternatives", "usageNote", and "connotationWarning"');
+  });
+
+  it("does not emit the minimal-native-target rule when source is the native language", () => {
+    const prompt = buildTranslationPrompt({
+      text: "богомол",
+      sourceLang: "ru",
+      targetLangs: ["cs", "en"],
+      nativeLang: "ru",
+      inputType: "word",
+    });
+
+    expect(prompt).not.toContain("For the native-language target block");
+  });
+
   it("does not request source usage guidance for learning-language source sentences", () => {
     const prompt = buildTranslationPrompt({
       text: "Kde je nejbližší lékárna?",

@@ -168,6 +168,28 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
 
+  apps/translation-benchmark:
+    dependencies:
+      '@polyglot/adapter-ai':
+        specifier: workspace:*
+        version: link:../../packages/adapters/ai
+      '@polyglot/adapter-db':
+        specifier: workspace:*
+        version: link:../../packages/adapters/db
+      '@polyglot/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      dotenv:
+        specifier: ^17.3.1
+        version: 17.3.1
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+
   packages/@types: {}
 
   packages/adapters/ai:
@@ -7862,7 +7884,7 @@ snapshots:
   tsx@4.21.0:
     dependencies:
       esbuild: 0.27.4
-      get-tsconfig: 4.13.6
+      get-tsconfig: 4.14.0
     optionalDependencies:
       fsevents: 2.3.3
 

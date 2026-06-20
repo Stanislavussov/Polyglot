@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added a benchmark CLI with 30 translation-quality scenarios and 24 source-language detection scenarios. It exercises the production translation, validation, retry, Wiktionary, and AI-detection paths through one selected OpenRouter model and saves analysis-ready JSON reports with raw attempts, expected quality risks, and ambiguity decisions.
 - Added a comprehensive translation-quality program and visual architecture roadmap covering model selection, field validation, dictionary sense selection, learning-data persistence, evaluation, and verified caching.
 - Added per-target `usageNote` guidance in the user's native language, persisted separately from exceptional `connotationWarning` metadata and rendered with a distinct marker.
 - Added vocabulary-entry `sourceUsage` persistence on the normalized dictionary path, plus flashcard, dictionary, and SRS rendering for saved source-language guidance.
@@ -38,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Language detection no longer chooses the first configured language when a single spelling exists in multiple Wiktionary languages; ambiguous homographs now remain unresolved instead of being sent to AI for a forced guess.
 - Saved source-usage explanations no longer label the interface language as though it were the user's native language.
 - Example validation now checks multi-word and Unicode translations instead of skipping them, with conservative inflection matching for Czech and Russian examples.
 - Fixed native-language target examples requiring a redundant same-language `native` translation, which could cause models to return duplicated sentences or romanized Russian text.
@@ -51,6 +53,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Fixed translation cards showing `nativeMeaning` when `nativeLang` equals `sourceLang` — users with native English inputting English words no longer see an English "translation" block.
 - Removed flawed guard from `resolveTranslationDirection` and `resolveDirectionFromSource` that re-included the source language into `targetLangs` when the user had only one learning language; this prevented empty cards caused by `hideSourceText` skipping the sole (same-language) target.
 - Fixed translation cards and flashcards not showing the user's native language when translating from a learning language — `resolveTranslationDirection` and `resolveDirectionFromSource` now include `nativeLang` in `targetLangs` (unless it equals the source language), so users see translations back to their native language alongside other learning languages.
+- The native-language target block is now minimal when translating from a learning language: the AI returns only the direct translation word and synonyms, omitting examples, alternatives, usage notes, and connotation warnings. The Zod schema, validation, and prompt all enforce this — source-language examples with native translations in `sourceUsage` already demonstrate usage, and the user already knows their native language.
+- Translation cards now render the native-language translation as a bold header inside the source-usage block (e.g. `🇷🇺 RU: черника (черничка)`) followed by the explanation as a `💡` note, instead of showing only a description line.
 
 ### Changed
 

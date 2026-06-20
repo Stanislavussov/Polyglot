@@ -265,6 +265,65 @@ describe("renderTranslation", () => {
       },
       nativeSynonyms: [{ text: "богомол" }],
       translations: {
+        ru: {
+          text: "богомол",
+          synonyms: [{ text: "богомоловые" }],
+          examples: [],
+        },
+        en: {
+          text: "mantis",
+          synonyms: [{ text: "praying mantis" }],
+          examples: [{ context: "neutral", target: "I saw a mantis.", native: "Я увидел богомола." }],
+        },
+      },
+    };
+
+    const result = renderTranslation(output, "ru", undefined, "ru");
+
+    expect(result).toContain("🪲 🇨🇿 <b>kudlanka</b> (nábožná kudlanka)");
+    expect(result).toContain("🇷🇺 RU: <b>богомол</b> (богомоловые)");
+    expect(result).toContain("💡 Так называют насекомое");
+    expect(result).toContain("💬 <i>Na zahradě seděla kudlanka.</i> (В саду сидел богомол.)");
+    expect(result).toContain("🇬🇧 EN: <b>mantis</b> (praying mantis)");
+  });
+
+  it("does not render a separate native translation block when native target is in sourceUsage", () => {
+    const output: TranslateOutput = {
+      original: "kudlanka",
+      sourceLang: "cs",
+      emoji: "🪲",
+      sourceUsage: {
+        explanation: "Так называют насекомое.",
+        synonyms: [],
+        examples: [],
+      },
+      nativeSynonyms: [],
+      translations: {
+        ru: { text: "богомол", synonyms: [], examples: [] },
+        en: { text: "mantis", synonyms: [], examples: [] },
+      },
+    };
+
+    const result = renderTranslation(output, "ru", undefined, "ru");
+
+    const ruHeaderMatches = result.match(/🇷🇺 RU: <b>богомол<\/b>/g);
+    expect(ruHeaderMatches).toHaveLength(1);
+  });
+
+  it("falls back to explanation-only when native translation is absent (legacy)", () => {
+    const output: TranslateOutput = {
+      original: "kudlanka",
+      sourceLang: "cs",
+      emoji: "🪲",
+      nativeMeaning: "Богомол; название насекомого.",
+      sourceUsage: {
+        explanation:
+          "Так называют насекомое; слово нейтральное и обычно используется в бытовом или биологическом контексте.",
+        synonyms: [{ text: "nábožná kudlanka" }],
+        examples: [{ context: "nature", target: "Na zahradě seděla kudlanka.", native: "В саду сидел богомол." }],
+      },
+      nativeSynonyms: [{ text: "богомол" }],
+      translations: {
         en: {
           text: "mantis",
           synonyms: [{ text: "praying mantis" }],

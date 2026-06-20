@@ -1,0 +1,21 @@
+{
+  "name": "@polyglot/translation-benchmark",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "benchmark": "NODE_OPTIONS='--conditions source' tsx src/cli.ts",
+    "build": "tsc",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@polyglot/adapter-ai": "workspace:*",
+    "@polyglot/adapter-db": "workspace:*",
+    "@polyglot/core": "workspace:*",
+    "dotenv": "^17.3.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}

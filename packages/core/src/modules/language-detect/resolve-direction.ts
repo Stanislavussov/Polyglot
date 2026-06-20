@@ -7,7 +7,7 @@ import type { ResolveDirectionInput, ResolveFromSourceInput, TranslationDirectio
  * Logic:
  * 1. Detect language of `text` from `[nativeLang, ...learningLangs]`
  * 2. If detected === nativeLang → translate to all learningLangs (standard)
- * 3. If detected is one of learningLangs → translate to the other learningLangs
+ * 3. If detected is one of learningLangs → translate to nativeLang + other learningLangs
  * 4. If undefined (inconclusive) → fallback to nativeLang → learningLangs
  *
  * @param input - Text, native language, and learning languages
@@ -31,11 +31,13 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
     };
   }
 
-  // Case 3: Detected one of the learning languages → learning-only direction.
+  // Case 3: Detected one of the learning languages → reverse direction.
   // Exclude the source language to avoid returning the user's input as a
-  // same-language "translation". Native meaning is requested separately.
+  // same-language "translation". Include the native language as the FIRST
+  // target so the user gets a direct translation into their native language
+  // (e.g. Czech "borůvky" → Russian "черника"), not just a description.
   if (learningLangs.includes(detectedLang)) {
-    const targetLangs = learningLangs.filter((lang) => lang !== detectedLang);
+    const targetLangs = [nativeLang, ...learningLangs.filter((lang) => lang !== detectedLang)];
     return {
       sourceLang: detectedLang,
       targetLangs,
@@ -60,7 +62,7 @@ export function resolveTranslationDirection(input: ResolveDirectionInput): Trans
  *
  * Logic:
  * 1. If sourceLang === nativeLang → targets = learningLangs
- * 2. If sourceLang is one of learningLangs → targets = other learningLangs
+ * 2. If sourceLang is one of learningLangs → targets = nativeLang + other learningLangs
  * 3. If sourceLang is not in config → returns null (invalid, caller should reset)
  *
  * @param input - Explicit source language, native language, and learning languages
@@ -80,11 +82,13 @@ export function resolveDirectionFromSource(input: ResolveFromSourceInput): Trans
     };
   }
 
-  // Source is one of the learning languages → learning-only direction.
+  // Source is one of the learning languages → reverse direction.
   // Exclude the source language to avoid returning the user's input as a
-  // same-language "translation". Native meaning is requested separately.
+  // same-language "translation". Include the native language as the FIRST
+  // target so the user gets a direct translation into their native language
+  // (e.g. Czech "borůvky" → Russian "черника"), not just a description.
   if (learningLangs.includes(sourceLang)) {
-    const targetLangs = learningLangs.filter((lang) => lang !== sourceLang);
+    const targetLangs = [nativeLang, ...learningLangs.filter((lang) => lang !== sourceLang)];
     return {
       sourceLang,
       targetLangs,

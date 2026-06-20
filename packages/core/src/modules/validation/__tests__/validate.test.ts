@@ -1082,3 +1082,98 @@ describe("validate with ValidateOptions", () => {
     expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
   });
 });
+
+describe("validate — minimal native target block (learning-language source)", () => {
+  const minimalNativeSchema = z.object({
+    emoji: z.string(),
+    nativeMeaning: z.string().optional(),
+    sourceUsage: z
+      .object({
+        explanation: z.string(),
+        synonyms: z.array(z.object({ text: z.string() })),
+        examples: z.array(
+          z.object({
+            context: z.string(),
+            target: z.string(),
+            native: z.string().optional(),
+          }),
+        ),
+      })
+      .optional(),
+    translations: z.record(
+      z.string(),
+      z.union([
+        z.object({
+          text: z.string(),
+          synonyms: z.array(z.object({ text: z.string() })),
+        }),
+        z.object({
+          text: z.string(),
+          expressionType: z.enum(["literal", "idiomatic_equivalent"]).optional().default("literal"),
+          equivalentNote: z.string().optional(),
+          usageNote: z.string().optional(),
+          connotationWarning: z.string().optional(),
+          synonyms: z.array(z.object({ text: z.string() })),
+          examples: z.array(
+            z.object({
+              context: z.enum(["neutral", "colloquial", "professional"]),
+              target: z.string(),
+              native: z.string().optional(),
+            }),
+          ),
+        }),
+      ]),
+    ),
+  });
+
+  it("skips example validation for the native target block when source is a learning language", () => {
+    const raw = {
+      emoji: "🫐",
+      nativeMeaning: "Лесная ягода.",
+      sourceUsage: {
+        explanation: "Так называют лесную ягоду.",
+        synonyms: [],
+        examples: [],
+      },
+      translations: {
+        ru: { text: "черника", synonyms: [] },
+        en: {
+          text: "blueberries",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "I like blueberries.", native: "Я люблю чернику." }],
+        },
+      },
+    };
+    const result = validate(raw, minimalNativeSchema, "borůvky", ["ru", "en"], "word", {
+      nativeLang: "ru",
+      sourceLang: "cs",
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it("still validates examples for non-native targets when source is a learning language", () => {
+    const raw = {
+      emoji: "🫐",
+      nativeMeaning: "Лесная ягода.",
+      sourceUsage: {
+        explanation: "Так называют лесную ягоду.",
+        synonyms: [],
+        examples: [],
+      },
+      translations: {
+        ru: { text: "черника", synonyms: [] },
+        en: {
+          text: "blueberries",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "Completely unrelated sentence" }],
+        },
+      },
+    };
+    const result = validate(raw, minimalNativeSchema, "borůvky", ["ru", "en"], "word", {
+      nativeLang: "ru",
+      sourceLang: "cs",
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
+  });
+});
