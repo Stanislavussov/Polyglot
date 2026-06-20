@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   AIStrategy,
   DiacriticsStrategy,
@@ -224,6 +224,25 @@ describe("WiktionaryStrategy", () => {
     expect(result).toBeUndefined();
   });
 
+  it("returns undefined when the same spelling exists in multiple candidate languages", async () => {
+    const mockLookup = async (word: string, lang: string) => {
+      if (word === "fast" && (lang === "en" || lang === "de")) {
+        return [
+          {
+            matchType: "lemma" as const,
+            context: { word: "fast", pos: "word", glosses: ["test"], formTags: [], langCode: lang },
+          },
+        ];
+      }
+      return [];
+    };
+
+    const strategy = new WiktionaryStrategy(mockLookup);
+
+    await expect(strategy.detect("fast", ["en", "de"])).resolves.toBeUndefined();
+    await expect(strategy.detect("fast", ["de", "en"])).resolves.toBeUndefined();
+  });
+
   it("returns undefined for multi-word text (Wiktionary is for single words)", async () => {
     const mockLookup = async () => [
       {
@@ -295,6 +314,29 @@ describe("detectLanguageAsync", () => {
     });
 
     expect(result).toBe("cs");
+  });
+
+  it("does not ask AI to guess when Wiktionary finds multiple candidate languages", async () => {
+    const mockLookup = async (word: string, lang: string) => {
+      if (word === "fast" && (lang === "en" || lang === "de")) {
+        return [
+          {
+            matchType: "lemma" as const,
+            context: { word: "fast", pos: "word", glosses: ["test"], formTags: [], langCode: lang },
+          },
+        ];
+      }
+      return [];
+    };
+    const mockGenerate = vi.fn(async () => "en");
+
+    const result = await detectLanguageAsync("fast", ["en", "de"], {
+      contextLookup: mockLookup,
+      aiGenerate: mockGenerate,
+    });
+
+    expect(result).toBeUndefined();
+    expect(mockGenerate).not.toHaveBeenCalled();
   });
 
   it("returns undefined when all strategies fail", async () => {
