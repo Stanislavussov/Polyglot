@@ -39,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Docker build dependency stages now include the translation benchmark workspace manifest, allowing full monorepo builds to resolve its internal adapter dependencies.
 - Language detection no longer chooses the first configured language when a single spelling exists in multiple Wiktionary languages; ambiguous homographs now remain unresolved instead of being sent to AI for a forced guess.
 - Saved source-usage explanations no longer label the interface language as though it were the user's native language.
 - Example validation now checks multi-word and Unicode translations instead of skipping them, with conservative inflection matching for Czech and Russian examples.
