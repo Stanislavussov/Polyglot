@@ -170,6 +170,24 @@ export const requestTimings = {
   list: (days = 7) => get<RequestTimingsResponse>(`/api/stats/request-timings?days=${days}`),
 };
 
+export interface UserRequestCount {
+  userId: number;
+  username: string | null;
+  telegramId: number;
+  subscriptionPlan: string;
+  total: number;
+  counts: Record<string, number>;
+}
+
+export interface UserRequestCountsResponse {
+  days: string[];
+  users: UserRequestCount[];
+}
+
+export const requestStats = {
+  getUserRequestCounts: (days = 30) => get<UserRequestCountsResponse>(`/api/stats/user-request-counts?days=${days}`),
+};
+
 export interface LanguageDetectionDaySummary {
   date: string;
   warningShown: number;

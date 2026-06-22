@@ -87,6 +87,8 @@ export {
   MAX_LEARNING_LANGS,
   userRepository,
 } from "./repositories/user.repository.js";
+export type { UserRequestCountRow } from "./repositories/user-request-count.repository.js";
+export { userRequestCountRepository } from "./repositories/user-request-count.repository.js";
 export type {
   CreateVocabularyInput,
   UpdateTranslationData,
