@@ -6,6 +6,7 @@ import { SENTENCE_OUTPUT } from "@polyglot/core";
 import { afterEach, describe, expect, it } from "vitest";
 import type { ZodSchema } from "zod";
 import {
+  evaluateTranslationQuality,
   renderBenchmarkReportMarkdown,
   runTranslationBenchmark,
   type TranslationBenchmarkCase,
@@ -21,11 +22,13 @@ async function createOutputPath(): Promise<string> {
 
 function sentenceCase(id: string, word: string): TranslationBenchmarkCase {
   return {
+    fixtureVersion: 1,
     id,
     category: "integration-test",
     description: "Exercises the benchmark pipeline.",
     expectedMeaning: "A valid Russian sentence.",
     qualityRisks: ["external generation failure"],
+    assertions: { expectedAction: "translate" },
     input: {
       word,
       sourceLang: "en",
@@ -76,7 +79,13 @@ describe("runTranslationBenchmark", () => {
 
     const savedReport = await readFile(outputPath, "utf8");
 
-    expect(report.summary).toEqual({ total: 1, completed: 1, failed: 0 });
+    expect(report.summary).toEqual({
+      total: 1,
+      completed: 1,
+      failed: 0,
+      qualityPassed: 1,
+      qualityFailed: 0,
+    });
     expect(report.detectionSummary).toEqual({ total: 1, matched: 1, mismatched: 0 });
     expect(savedReport).toContain("# Translation benchmark report");
     expect(savedReport).toContain("`test/model`");
@@ -84,6 +93,8 @@ describe("runTranslationBenchmark", () => {
     expect(savedReport).toContain('"text": "Это корректное русское предложение."');
     expect(report.results[0]).toMatchObject({
       status: "completed",
+      qualityPassed: true,
+      qualityIssues: [],
       case: {
         id: "success",
         expectedMeaning: "A valid Russian sentence.",
@@ -134,7 +145,13 @@ describe("runTranslationBenchmark", () => {
 
     const savedReport = await readFile(outputPath, "utf8");
 
-    expect(report.summary).toEqual({ total: 2, completed: 1, failed: 1 });
+    expect(report.summary).toEqual({
+      total: 2,
+      completed: 1,
+      failed: 1,
+      qualityPassed: 1,
+      qualityFailed: 1,
+    });
     expect(report.results[0]).toMatchObject({
       status: "failed",
       error: "simulated provider failure",
@@ -151,10 +168,16 @@ describe("runTranslationBenchmark", () => {
 describe("renderBenchmarkReportMarkdown", () => {
   it("escapes table separators in detection input", () => {
     const markdown = renderBenchmarkReportMarkdown({
-      schemaVersion: 2,
+      schemaVersion: 3,
+      promptVersion: "translation-v1",
       generatedAt: "2026-06-22T00:00:00.000Z",
       model: "test/model",
-      summary: { total: 0, completed: 0, failed: 0 },
+      modelSettings: {
+        temperature: 0.3,
+        frequencyPenalty: 0,
+        providerMaxRetries: 2,
+      },
+      summary: { total: 0, completed: 0, failed: 0, qualityPassed: 0, qualityFailed: 0 },
       detectionSummary: { total: 1, matched: 1, mismatched: 0 },
       detectionResults: [
         {
@@ -174,5 +197,65 @@ describe("renderBenchmarkReportMarkdown", () => {
     });
 
     expect(markdown).toContain("hello \\| hola");
+  });
+});
+
+describe("evaluateTranslationQuality", () => {
+  it("reports clarification and immutable-token failures", () => {
+    const benchmarkCase: TranslationBenchmarkCase = {
+      ...sentenceCase("ambiguous-date", "Meet on 06/07 at {time}."),
+      assertions: {
+        expectedAction: "needs_clarification",
+        immutableTokens: ["06/07", "{time}"],
+      },
+    };
+
+    const issues = evaluateTranslationQuality(benchmarkCase, {
+      original: benchmarkCase.input.word,
+      sourceLang: "en",
+      emoji: "📅",
+      nativeSynonyms: [],
+      translations: {
+        ru: {
+          text: "Встретимся 7 июня.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    });
+
+    expect(issues).toContain("Expected clarification, but the translation pipeline produced a translation");
+    expect(issues).toContain('translations.ru.text must preserve "06/07" byte-for-byte (1 expected, 0 found)');
+    expect(issues).toContain('translations.ru.text must preserve "{time}" byte-for-byte (1 expected, 0 found)');
+  });
+
+  it("checks forbidden meanings and required metadata", () => {
+    const benchmarkCase: TranslationBenchmarkCase = {
+      ...sentenceCase("bank", "bank"),
+      assertions: {
+        expectedAction: "translate",
+        forbiddenSubstrings: { ru: ["банк"] },
+        requiredMetadata: ["nativeMeaning"],
+      },
+    };
+
+    const issues = evaluateTranslationQuality(benchmarkCase, {
+      original: "bank",
+      sourceLang: "en",
+      emoji: "🏦",
+      nativeSynonyms: [],
+      translations: {
+        ru: {
+          text: "банк",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    });
+
+    expect(issues).toEqual([
+      'translations.ru.text contains forbidden text "банк"',
+      "nativeMeaning metadata is required",
+    ]);
   });
 });

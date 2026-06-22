@@ -64,13 +64,13 @@ async function main(): Promise<void> {
   process.stdout.write(`Translation benchmark report saved to ${options.outputPath}\n`);
   process.stdout.write(`Group: ${options.group}\n`);
   process.stdout.write(
-    `Completed: ${report.summary.completed}/${report.summary.total}; failed: ${report.summary.failed}\n`,
+    `Completed: ${report.summary.completed}/${report.summary.total}; failed: ${report.summary.failed}; quality passed: ${report.summary.qualityPassed}/${report.summary.total}\n`,
   );
   process.stdout.write(
     `Detection matched: ${report.detectionSummary.matched}/${report.detectionSummary.total}; mismatched: ${report.detectionSummary.mismatched}\n`,
   );
 
-  if (report.summary.failed > 0 || report.detectionSummary.mismatched > 0) {
+  if (report.summary.failed > 0 || report.summary.qualityFailed > 0 || report.detectionSummary.mismatched > 0) {
     process.exitCode = 1;
   }
 }

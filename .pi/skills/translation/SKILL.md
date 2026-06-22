@@ -52,6 +52,7 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 - The primary prompt forbids pronunciation, IPA, romanization, and transliteration in every field.
 - Translation generation passes `frequencyPenalty: 0` through the injected AI function so examples can naturally repeat their assigned translation.
 - Regression coverage includes `phase out` from English to Czech and Russian with Russian as the native language.
+- The translation benchmark uses fixture schema version 1 and report schema version 3. Cases can enforce clarification actions, byte-for-byte immutable tokens, required/forbidden target substrings, and required metadata. Reports record assertion failures, prompt/schema versions, model settings, and raw attempts; the CLI exits non-zero on quality failures.
 
 ## Boundary
 

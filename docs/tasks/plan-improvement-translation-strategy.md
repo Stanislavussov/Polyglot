@@ -1,4 +1,19 @@
- # План повышения качества перевода Polyglot
+# План повышения качества перевода Polyglot
+
+## Статус реализации
+
+- [x] Шаг 1: benchmark cases версионированы и получили исполняемые quality assertions. Отчёт содержит prompt/schema versions, model settings, raw attempts и точные причины quality failures; CLI возвращает ненулевой код при regression.
+- [ ] Шаги 2–10: не реализованы этим slice и остаются в порядке, описанном ниже.
+
+Изменённые файлы:
+
+- `apps/translation-benchmark/src/benchmark-cases.ts`
+- `apps/translation-benchmark/src/benchmark-runner.ts`
+- `apps/translation-benchmark/src/benchmark-runner.test.ts`
+- `apps/translation-benchmark/src/cli.ts`
+- `apps/translation-benchmark/README.md`
+- `.pi/skills/translation/SKILL.md`
+- `CHANGELOG.md`
 
   ## Результаты анализа
 

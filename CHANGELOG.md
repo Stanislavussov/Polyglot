@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added versioned, executable translation benchmark assertions for ambiguity actions, immutable placeholders/Markdown/URLs/proper names, forbidden meanings, and required metadata. Reports now include quality pass/fail results, prompt/schema versions, and model settings, and the CLI fails when a quality assertion fails.
 - Added per-user per-day request counts to the admin panel — a new `GET /api/stats/user-request-counts` endpoint aggregates translation requests by user and day (without exposing request bodies), and a new Request Stats page displays the counts as a pivot matrix with a selectable 7/14/30/60/90-day window.
 - Added a benchmark CLI with 30 translation-quality scenarios and 72 source-language detection scenarios. It exercises the production translation, validation, retry, Wiktionary, and AI-detection paths through one selected OpenRouter model and saves analysis-ready JSON reports with raw attempts, expected quality risks, and ambiguity decisions.
 - Added a `smoke` benchmark group with 5 translation and 10 source-detection scenarios for quickly verifying the end-to-end benchmark setup before running the complete dataset.

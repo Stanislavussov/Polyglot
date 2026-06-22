@@ -1,7 +1,7 @@
 import { FULL_OUTPUT, SENTENCE_OUTPUT } from "@polyglot/core";
 import type { TranslationBenchmarkCase } from "./benchmark-runner.js";
 
-export const TRANSLATION_BENCHMARK_CASES: TranslationBenchmarkCase[] = [
+const TRANSLATION_CASES = [
   {
     id: "polysemy-bank-river",
     category: "polysemy-with-context",
@@ -487,4 +487,42 @@ export const TRANSLATION_BENCHMARK_CASES: TranslationBenchmarkCase[] = [
       outputConfig: SENTENCE_OUTPUT,
     },
   },
-];
+] satisfies Array<Omit<TranslationBenchmarkCase, "fixtureVersion" | "assertions">>;
+
+const QUALITY_ASSERTIONS: Readonly<Partial<Record<string, TranslationBenchmarkCase["assertions"]>>> = {
+  "polysemy-bank-river": {
+    expectedAction: "translate",
+    forbiddenSubstrings: { cs: ["stráň"] },
+    requiredMetadata: ["nativeMeaning"],
+  },
+  "idiom-maslo-na-hlave": {
+    expectedAction: "translate",
+    forbiddenSubstrings: { en: ["skeleton in the closet"] },
+    requiredMetadata: ["nativeMeaning", "sourceUsage"],
+  },
+  "ambiguous-duck": {
+    expectedAction: "needs_clarification",
+  },
+  "date-format-ambiguity": {
+    expectedAction: "needs_clarification",
+    immutableTokens: ["06/07", "5"],
+  },
+  "placeholder-preservation": {
+    expectedAction: "translate",
+    immutableTokens: ["{name}", "{{count}}"],
+  },
+  "markdown-preservation": {
+    expectedAction: "translate",
+    immutableTokens: ["**", "[", "]", "(https://example.com/help)"],
+  },
+  "proper-name-versus-common-noun": {
+    expectedAction: "translate",
+    immutableTokens: ["Apple", "Safari"],
+  },
+};
+
+export const TRANSLATION_BENCHMARK_CASES: TranslationBenchmarkCase[] = TRANSLATION_CASES.map((benchmarkCase) => ({
+  ...benchmarkCase,
+  fixtureVersion: 1,
+  assertions: QUALITY_ASSERTIONS[benchmarkCase.id] ?? { expectedAction: "translate" },
+}));
