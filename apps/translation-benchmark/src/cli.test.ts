@@ -7,8 +7,21 @@ describe("parseCliOptions", () => {
       AI_MODEL: "env/model",
     });
 
+    expect(options.group).toBe("all");
     expect(options.model).toBe("openai/test-model");
     expect(options.outputPath).toMatch(/custom-report\.json$/);
+  });
+
+  it("parses the smoke group", () => {
+    const options = parseCliOptions(["--model", "openai/test-model", "--group", "smoke"], {});
+
+    expect(options.group).toBe("smoke");
+  });
+
+  it("rejects an unknown group", () => {
+    expect(() => parseCliOptions(["--model", "openai/test-model", "--group", "quick"], {})).toThrow(
+      'Unknown benchmark group "quick". Use "all" or "smoke".',
+    );
   });
 
   it("requires a model", () => {

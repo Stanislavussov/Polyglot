@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Added a benchmark CLI with 30 translation-quality scenarios and 24 source-language detection scenarios. It exercises the production translation, validation, retry, Wiktionary, and AI-detection paths through one selected OpenRouter model and saves analysis-ready JSON reports with raw attempts, expected quality risks, and ambiguity decisions.
+- Added a benchmark CLI with 30 translation-quality scenarios and 72 source-language detection scenarios. It exercises the production translation, validation, retry, Wiktionary, and AI-detection paths through one selected OpenRouter model and saves analysis-ready JSON reports with raw attempts, expected quality risks, and ambiguity decisions.
+- Added a `smoke` benchmark group with 5 translation and 10 source-detection scenarios for quickly verifying the end-to-end benchmark setup before running the complete dataset.
 - Added a comprehensive translation-quality program and visual architecture roadmap covering model selection, field validation, dictionary sense selection, learning-data persistence, evaluation, and verified caching.
 - Added per-target `usageNote` guidance in the user's native language, persisted separately from exceptional `connotationWarning` metadata and rendered with a distinct marker.
 - Added vocabulary-entry `sourceUsage` persistence on the normalized dictionary path, plus flashcard, dictionary, and SRS rendering for saved source-language guidance.

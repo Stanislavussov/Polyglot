@@ -5,10 +5,12 @@ import { generateObject, generateText } from "@polyglot/adapter-ai";
 import { createContextLookup } from "@polyglot/adapter-db";
 import { detectLanguageAsync } from "@polyglot/core";
 import { TRANSLATION_BENCHMARK_CASES } from "./benchmark-cases.js";
+import { type BenchmarkGroup, selectBenchmarkCases } from "./benchmark-groups.js";
 import { runTranslationBenchmark } from "./benchmark-runner.js";
 import { DETECTION_BENCHMARK_CASES } from "./detection-cases.js";
 
 interface CliOptions {
+  group: BenchmarkGroup;
   model: string;
   outputPath: string;
 }
@@ -29,19 +31,25 @@ export function parseCliOptions(args: string[], env: NodeJS.ProcessEnv): CliOpti
     throw new Error("Model is required. Pass --model <openrouter-model-id> or set AI_MODEL.");
   }
 
+  const groupValue = argumentValue(args, "--group") ?? "all";
+  if (groupValue !== "all" && groupValue !== "smoke") {
+    throw new Error(`Unknown benchmark group "${groupValue}". Use "all" or "smoke".`);
+  }
+
   const outputPath = resolve(argumentValue(args, "--output") ?? defaultOutputPath());
-  return { model, outputPath };
+  return { group: groupValue, model, outputPath };
 }
 
 async function main(): Promise<void> {
   const options = parseCliOptions(process.argv.slice(2), process.env);
   const contextLookup = createContextLookup();
+  const selectedCases = selectBenchmarkCases(options.group, TRANSLATION_BENCHMARK_CASES, DETECTION_BENCHMARK_CASES);
   const report = await runTranslationBenchmark({
     model: options.model,
     outputPath: options.outputPath,
     generateObjectFn: generateObject,
-    cases: TRANSLATION_BENCHMARK_CASES,
-    detectionCases: DETECTION_BENCHMARK_CASES,
+    cases: selectedCases.translationCases,
+    detectionCases: selectedCases.detectionCases,
     detectLanguageFn: (text, candidates) =>
       detectLanguageAsync(text, candidates, {
         contextLookup,
@@ -50,6 +58,7 @@ async function main(): Promise<void> {
   });
 
   process.stdout.write(`Translation benchmark report saved to ${options.outputPath}\n`);
+  process.stdout.write(`Group: ${options.group}\n`);
   process.stdout.write(
     `Completed: ${report.summary.completed}/${report.summary.total}; failed: ${report.summary.failed}\n`,
   );

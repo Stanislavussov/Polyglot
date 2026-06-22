@@ -15,7 +15,14 @@ export interface TranslationBenchmarkCase {
 
 export interface DetectionBenchmarkCase {
   id: string;
-  category: "ambiguous-homograph" | "context-disambiguation";
+  category:
+    | "ambiguous-homograph"
+    | "candidate-order"
+    | "close-languages"
+    | "code-switching"
+    | "context-disambiguation"
+    | "name-or-brand"
+    | "noise-or-transliteration";
   text: string;
   candidates: string[];
   expectedSourceLang?: string;
