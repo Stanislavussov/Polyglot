@@ -77,6 +77,7 @@ import {
   handleToggleCallback,
 } from "./scenes/helpers/template.helper.js";
 import {
+  handleLangSelectCallback,
   handleMistypeCancelCallback,
   handleMistypeConfirmCallback,
   handleRegenCallback,
@@ -226,6 +227,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery(/^tr:regen:/, handleRegenCallback);
   bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);
   bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
+  bot.callbackQuery(/^tr:langselect:/, handleLangSelectCallback);
 
   bot.callbackQuery("fc:start", handleFcStart);
   bot.callbackQuery("fc:reveal", handleFcReveal);

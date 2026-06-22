@@ -229,6 +229,7 @@
   "mistypeWarning": "⚠️ Nemohu určit jazyk \"{word}\". Neudělal/a jste překlep?",
   "mistypeConfirm": "Ano, přeložit",
   "mistypeCancel": "Zkusit znovu",
+  "langSelectPrompt": "🌍 V jakém jazyce je \"{word}\"?",
   "rateLimitExceeded": "⚠️ Denní limit překladů byl vyčerpán. Otevřete /settings a zkontrolujte svůj tarif.",
   "mentorModeOn": "🧑‍🏫 Režim mentora aktivní! Zeptejte se mě na jakékoli slovo a pomůžu vám se ho naučit — nepřeložím ho jen tak, budu vás provázet.",
   "mentorThinking": "🧠 Přemýšlím...",

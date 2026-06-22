@@ -79,8 +79,11 @@ import type { TranslationOutputConfig } from "../../shared/types.js";
 
 export type { TranslationOutputConfig } from "../../shared/types.js";
 
-/** Detected input type — drives prompt, schema, and validation behavior */
-export type InputType = "word" | "phrase" | "sentence";
+// InputType is owned by the input-analysis module (Step 3 — moved from translation
+// to the dedicated leaf module). Re-exported here for backward compatibility.
+import type { InputType } from "../input-analysis/types.js";
+
+export type { InputType };
 
 /** Input for a translation request */
 export interface TranslationRequest {
@@ -232,6 +235,8 @@ export interface QualityMetadata {
   judgeResult?: unknown;
   /** Quality issues found during validation (empty array when all checks pass) */
   issues: QualityIssue[];
+  /** Source-language detection confidence (0–1) from detectLanguageWithConfidence */
+  detectionConfidence?: number;
 }
 
 /**

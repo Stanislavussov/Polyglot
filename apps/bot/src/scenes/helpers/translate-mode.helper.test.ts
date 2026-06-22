@@ -104,12 +104,19 @@ vi.mock("@polyglot/core", async () => {
         issues: [],
       },
     }),
-    detectLanguage: vi.fn((text: string, candidates: string[]) => {
+    detectLanguageWithConfidence: vi.fn((text: string, candidates: string[]) => {
       // Simulate real detection: Cyrillic → Russian, otherwise first candidate
       const hasRu = candidates.includes("ru");
-      if (/[а-яА-ЯЁё]/.test(text) && hasRu) return "ru";
-      return candidates.length > 0 ? candidates[0] : undefined;
+      const language = /[а-яА-ЯЁё]/.test(text) && hasRu ? "ru" : candidates[0];
+      return language
+        ? {
+            language,
+            confidence: 0.9,
+            evidence: [{ strategy: "mock", candidate: language, score: 0.9, reason: "test fixture" }],
+          }
+        : { confidence: 0, evidence: [] };
     }),
+    detectLanguageWithConfidenceAsync: vi.fn(async () => ({ confidence: 0, evidence: [] })),
   };
 });
 

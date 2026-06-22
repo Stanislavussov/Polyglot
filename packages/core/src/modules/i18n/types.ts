@@ -232,6 +232,7 @@ export type I18nKey =
   | "mistypeWarning"
   | "mistypeConfirm"
   | "mistypeCancel"
+  | "langSelectPrompt"
   | "rateLimitExceeded"
   | "mentorModeOn"
   | "mentorThinking"
@@ -302,6 +303,7 @@ export interface I18nParams {
   settingsNotifContextPrompt: { current: string };
   settingsNotifContextSaved: { context: string };
   mistypeWarning: { word: string };
+  langSelectPrompt: { word: string };
 }
 
 /**

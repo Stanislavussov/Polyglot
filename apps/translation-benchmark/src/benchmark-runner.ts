@@ -1,6 +1,12 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import type { GenerateObjectFn, TranslateInput, TranslationDecision } from "@polyglot/core";
+import type {
+  DetectionEvidence,
+  DetectionResult,
+  GenerateObjectFn,
+  TranslateInput,
+  TranslationDecision,
+} from "@polyglot/core";
 import { translate } from "@polyglot/core";
 import type { ZodSchema } from "zod";
 
@@ -70,6 +76,9 @@ export type BenchmarkCaseResult = CompletedBenchmarkCase | FailedBenchmarkCase;
 export interface DetectionBenchmarkResult {
   case: DetectionBenchmarkCase;
   observedSourceLang?: string;
+  confidence: number;
+  evidence?: DetectionEvidence[];
+  ambiguousCandidates?: string[];
   matchesExpectation: boolean;
   durationMs: number;
   error?: string;
@@ -107,7 +116,7 @@ interface RunTranslationBenchmarkOptions {
   generateObjectFn: GenerateObjectFn;
   cases: TranslationBenchmarkCase[];
   detectionCases: DetectionBenchmarkCase[];
-  detectLanguageFn: (text: string, candidates: string[]) => Promise<string | undefined>;
+  detectLanguageFn: (text: string, candidates: string[]) => Promise<DetectionResult>;
 }
 
 const PROMPT_VERSION = "translation-v1";
@@ -330,16 +339,21 @@ async function runDetectionCase(
   const startedAt = Date.now();
 
   try {
-    const observedSourceLang = await detectLanguageFn(benchmarkCase.text, benchmarkCase.candidates);
+    const detection = await detectLanguageFn(benchmarkCase.text, benchmarkCase.candidates);
+    const observedSourceLang = detection.language;
     return {
       case: benchmarkCase,
       ...(observedSourceLang !== undefined ? { observedSourceLang } : {}),
+      confidence: detection.confidence,
+      ...(detection.evidence.length > 0 ? { evidence: detection.evidence } : {}),
+      ...(detection.ambiguousCandidates ? { ambiguousCandidates: detection.ambiguousCandidates } : {}),
       matchesExpectation: observedSourceLang === benchmarkCase.expectedSourceLang,
       durationMs: Date.now() - startedAt,
     };
   } catch (error) {
     return {
       case: benchmarkCase,
+      confidence: 0,
       matchesExpectation: false,
       durationMs: Date.now() - startedAt,
       error: errorMessage(error),

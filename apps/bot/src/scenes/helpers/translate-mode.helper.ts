@@ -7,8 +7,9 @@
 import { createContextLookup, languageDetectionRepository, requestTimingRepository } from "@polyglot/adapter-db";
 import {
   calculateTranslationCreditCost,
-  detectLanguage,
-  detectLanguageAsync,
+  type DetectionResult,
+  detectLanguageWithConfidence,
+  detectLanguageWithConfidenceAsync,
   evaluatePlanRateLimit,
   evaluateRateLimit,
   getDailyWindowReset,
@@ -130,38 +131,112 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
   // Language detection: always detect for each word (don't rely on previous selection)
   const allCandidates = [nativeLang, ...learningLangs];
-  // Add "en" as hidden candidate so AI can detect English words
-  // (English is the de facto lingua franca for language learning).
   const candidatesWithEnglish = ["en", ...allCandidates];
 
-  // Try fast sync detection first (script + diacritics + franc)
-  let preDetectLang: string | undefined = detectLanguage(cleanWord, allCandidates);
+  // Confidence-aware detection: sync first (script + diacritics + franc)
+  let detection: DetectionResult = detectLanguageWithConfidence(cleanWord, allCandidates);
 
-  // If sync detection fails, try async detection with AI (last resort)
-  if (preDetectLang === undefined) {
+  // If sync detection is ambiguous, try async with Wiktionary + AI
+  if (detection.language === undefined) {
     const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
     const aiGenerate = async (prompt: string) => {
       const result = await ctx.services.ai.generateText(prompt, model);
       return result.trim();
     };
 
-    preDetectLang = await detectLanguageAsync(cleanWord, candidatesWithEnglish, {
+    detection = await detectLanguageWithConfidenceAsync(cleanWord, candidatesWithEnglish, {
       contextLookup: lookupContext,
       aiGenerate,
     });
   }
 
+  logger.debug(
+    {
+      word: cleanWord,
+      detectedLang: detection.language,
+      confidence: detection.confidence,
+      ambiguousCandidates: detection.ambiguousCandidates,
+      evidenceCount: detection.evidence.length,
+    },
+    "Language detection result",
+  );
+
   let sourceLang: string;
   let targetLangs: string[];
   let detectedLang: string | undefined;
 
-  if (preDetectLang === undefined) {
-    // Cannot detect language — likely mistype. Store pending state and show warning.
+  if (detection.language !== undefined) {
+    // Language detected with confidence — use it as source
+    const direction = resolveDirectionFromSource({
+      sourceLang: detection.language,
+      nativeLang,
+      learningLangs,
+    });
+
+    if (direction) {
+      sourceLang = direction.sourceLang;
+      targetLangs = direction.targetLangs;
+      detectedLang = detection.language;
+    } else if (detection.language === "en") {
+      sourceLang = "en";
+      targetLangs = learningLangs;
+      detectedLang = "en";
+    } else {
+      const fallback = resolveTranslationDirection({
+        text: cleanWord,
+        nativeLang,
+        learningLangs,
+      });
+      sourceLang = fallback.sourceLang;
+      targetLangs = fallback.targetLangs;
+      detectedLang = fallback.detectedLang;
+    }
+  } else if (detection.ambiguousCandidates && detection.ambiguousCandidates.length > 0) {
+    // Ambiguous detection with candidate languages — ask user to select
     ctx.session.pendingDetectedLang = undefined;
     ctx.session.pendingWord = cleanWord;
     ctx.session.pendingContextHint = contextHint;
 
-    // Resolve fallback direction for pending state (standard direction)
+    const fallbackDir = resolveTranslationDirection({
+      text: cleanWord,
+      nativeLang,
+      learningLangs,
+    });
+    ctx.session.pendingDirection = {
+      sourceLang: fallbackDir.sourceLang,
+      targetLangs: fallbackDir.targetLangs,
+    };
+
+    languageDetectionRepository
+      .record({
+        userId: ctx.user.id,
+        eventType: "warning_shown",
+        word: cleanWord,
+        sourceLang: fallbackDir.sourceLang,
+        targetLangs: fallbackDir.targetLangs,
+      })
+      .catch((err: unknown) => {
+        logger.warn({ err }, "Failed to record language detection event");
+      });
+
+    const promptText = t("langSelectPrompt", lang, {
+      word: cleanWord.length > 50 ? `${cleanWord.slice(0, 47)}...` : cleanWord,
+    });
+    const keyboard = new InlineKeyboard();
+    for (const candidate of detection.ambiguousCandidates) {
+      const langName = getLanguageName(candidate, lang);
+      keyboard.text(langName, `tr:langselect:${candidate}`).row();
+    }
+    keyboard.text(t("mistypeCancel", lang), "tr:langselect:cancel");
+
+    await ctx.reply(promptText, { reply_markup: keyboard });
+    return;
+  } else {
+    // Truly inconclusive — no candidates scored above zero. Show mistype warning.
+    ctx.session.pendingDetectedLang = undefined;
+    ctx.session.pendingWord = cleanWord;
+    ctx.session.pendingContextHint = contextHint;
+
     const fallbackDir = resolveTranslationDirection({
       text: cleanWord,
       nativeLang,
@@ -193,35 +268,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
     await ctx.reply(warningText, { reply_markup: keyboard });
     return;
-  }
-
-  // Language detected — use detected lang as source
-  const direction = resolveDirectionFromSource({
-    sourceLang: preDetectLang,
-    nativeLang,
-    learningLangs,
-  });
-
-  if (direction) {
-    sourceLang = direction.sourceLang;
-    targetLangs = direction.targetLangs;
-    detectedLang = preDetectLang;
-  } else if (preDetectLang === "en") {
-    // AI detected English (lingua franca) but "en" is not in user config.
-    // Treat as source language → translate to learning languages.
-    sourceLang = "en";
-    targetLangs = learningLangs;
-    detectedLang = "en";
-  } else {
-    // Detected lang is no longer in config — use fallback
-    const fallback = resolveTranslationDirection({
-      text: cleanWord,
-      nativeLang,
-      learningLangs,
-    });
-    sourceLang = fallback.sourceLang;
-    targetLangs = fallback.targetLangs;
-    detectedLang = fallback.detectedLang;
   }
 
   const classification = classifyInput(cleanWord);
@@ -930,4 +976,80 @@ export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void
   await ctx.answerCallbackQuery();
   const msg = await ctx.reply(t("translateModeHint", lang));
   trackTechnicalMessage(ctx, msg.message_id);
+}
+
+/**
+ * Handles language selection callback (tr:langselect:$lang or tr:langselect:cancel).
+ *
+ * Fired when the user selects a source language from the ambiguous-detection
+ * buttons. Resolves the translation direction from the selected language and
+ * delegates to the mistype-confirm flow to run the translation pipeline.
+ */
+export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
+  const data = ctx.callbackQuery?.data;
+  if (!data) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
+
+  const selected = data.replace("tr:langselect:", "");
+
+  if (selected === "cancel") {
+    const pendingWord = ctx.session.pendingWord;
+    ctx.session.pendingDetectedLang = undefined;
+    ctx.session.pendingWord = undefined;
+    ctx.session.pendingContextHint = undefined;
+    ctx.session.pendingDirection = undefined;
+
+    if (pendingWord) {
+      languageDetectionRepository
+        .record({
+          userId: ctx.user.id,
+          eventType: "cancelled",
+          word: pendingWord,
+        })
+        .catch((err: unknown) => {
+          logger.warn({ err }, "Failed to record language detection event");
+        });
+    }
+
+    const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+    const iLang = settings?.interfaceLang ?? "en";
+    const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+
+    await ctx.answerCallbackQuery();
+    const msg = await ctx.reply(t("translateModeHint", lang));
+    trackTechnicalMessage(ctx, msg.message_id);
+    return;
+  }
+
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const nativeLang = settings?.nativeLang ?? "en";
+  const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
+
+  const direction = resolveDirectionFromSource({
+    sourceLang: selected,
+    nativeLang,
+    learningLangs,
+  });
+
+  if (!direction) {
+    ctx.session.pendingDetectedLang = undefined;
+    ctx.session.pendingWord = undefined;
+    ctx.session.pendingContextHint = undefined;
+    ctx.session.pendingDirection = undefined;
+
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
+    return;
+  }
+
+  ctx.session.pendingDirection = {
+    sourceLang: direction.sourceLang,
+    targetLangs: direction.targetLangs,
+  };
+
+  await handleMistypeConfirmCallback(ctx);
 }

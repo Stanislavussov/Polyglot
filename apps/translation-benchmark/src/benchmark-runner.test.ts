@@ -74,7 +74,7 @@ describe("runTranslationBenchmark", () => {
           explanation: "Shared spelling.",
         },
       ],
-      detectLanguageFn: async () => undefined,
+      detectLanguageFn: async () => ({ confidence: 0, evidence: [] }),
     });
 
     const savedReport = await readFile(outputPath, "utf8");
@@ -143,7 +143,7 @@ describe("runTranslationBenchmark", () => {
         sentenceCase("success-after-failure", "Translate this sentence."),
       ],
       detectionCases: [],
-      detectLanguageFn: async () => undefined,
+      detectLanguageFn: async () => ({ confidence: 0, evidence: [] }),
     });
 
     const savedReport = await readFile(outputPath, "utf8");
@@ -192,6 +192,7 @@ describe("renderBenchmarkReportMarkdown", () => {
             expectedAction: "ask_source_language",
             explanation: "Mixed input.",
           },
+          confidence: 0,
           matchesExpectation: true,
           durationMs: 1,
         },

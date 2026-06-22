@@ -8,9 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added `input-analysis` core module with `analyzeInput()` — classifies user input as word/phrase/sentence and detects structural features (placeholders, URL, Markdown, dates, code-switching). Feature-based overrides reclassify URL-only and code-switched short input as "sentence". The module is a leaf with no sibling imports; `InputType` is now owned by this module and re-exported from `translation` for backward compatibility.
+- Added `detectLanguageWithConfidence()` and `detectLanguageWithConfidenceAsync()` — confidence-aware language detection returning `DetectionResult` with `{ language?, confidence, evidence, ambiguousCandidates? }` instead of a bare `string | undefined`. Uses candidate-aware scoring: each strategy contributes evidence scores per candidate, and the ensemble picks the highest-scoring candidate with a confidence threshold (≥0.7) and margin (≥0.2). Close-language pairs (cs/sk, hr/sr) are disambiguated by differential diacritics rather than ordered-regex first-match.
+- Added `DetectionEvidence` and `DetectionResult` types to the language-detect module.
+- Added `detectionConfidence` optional field to `QualityMetadata` for tracking source-language detection confidence on accepted translations.
+- Added `langSelectPrompt` i18n key (en/ru/cs) for the language selection prompt shown when detection is ambiguous.
+- Added `handleLangSelectCallback` and `tr:langselect:$lang` callback — when detection is ambiguous with candidate languages, the bot shows inline keyboard buttons (one per candidate) instead of the generic mistype warning. The user selects a source language and the translation proceeds with that direction.
 - Added `TranslationDecision` contract — `translate()`, `translateOne()`, and `translateBatch()` now return a discriminated union with three statuses: `accepted` (translation passed validation, includes `QualityMetadata`), `needs_clarification` (ambiguity detected, includes `TranslationAmbiguity`), and `needs_review` (validation failed after retries, includes `QualityIssue[]`). This replaces the former `needsReview: boolean` flag on `TranslateOutput`.
 - Added typed ambiguity reasons (`source_language`, `word_sense`, `date_or_time`, `placeholder_grammar`, `mixed_or_transliterated_input`) and `TranslationAmbiguityOption` for structured user clarification flows.
-- Added `QualityMetadata` type tracking `promptVersion`, `schemaVersion`, `riskLevel`, `modelId`, `attemptCount`, `judgeResult`, and `issues` on accepted translation decisions.
+- Added `QualityMetadata` type tracking `promptVersion`, `schemaVersion`, `riskLevel`, `modelId`, `attemptCount`, `judgeResult`, `issues`, and `detectionConfidence` on accepted translation decisions.
 - Added `QualityIssue` type with `fieldPath`, `severity` (`blocking`/`warning`/`info`), `message`, and optional `repairInstruction`.
 - Added `RiskLevel` type (`low`/`medium`/`high`) for future risk-based validation routing.
 - Added `PROMPT_VERSION` and `SCHEMA_VERSION` constants to the translation service for version tracking in quality metadata.
@@ -18,6 +24,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Updated translate-mode test fixtures to exercise the confidence-aware language-detection guards deterministically.
+- `InputType` definition moved from `translation/types.ts` to `input-analysis/types.ts`; `translation` re-exports it for backward compatibility. The bot's `classify-input.ts` is now a thin re-export from `@polyglot/core` instead of a local implementation.
+- Bot translate flow now uses `detectLanguageWithConfidence` / `detectLanguageWithConfidenceAsync` instead of `detectLanguage` / `detectLanguageAsync`. Ambiguous detections with candidate languages show language-selection buttons instead of the generic mistype warning; truly inconclusive detections (no evidence) still show the mistype warning.
+- Translation benchmark runner `detectLanguageFn` type changed from `(text, candidates) => Promise<string | undefined>` to `(text, candidates) => Promise<DetectionResult>`. `DetectionBenchmarkResult` now includes `confidence`, `evidence`, and `ambiguousCandidates` fields. The benchmark CLI uses `detectLanguageWithConfidenceAsync`.
+- Dependency-cruiser rules updated: `input-analysis` added as a leaf module (no sibling imports), and added to the forbidden import lists of all other leaf modules.
 - `translateWithContext()`, `translateOneWithContext()`, and `translateBatchWithContext()` now return `TranslationDecision` / `TranslationDecision[]` instead of `TranslateOutput` / `TranslateOutput[]` / `LanguageTranslation`.
 - `translateOne()` now returns `TranslationDecision` instead of `LanguageTranslation`; callers extract the per-language translation from `decision.output.translations[lang]`.
 - `renderTranslation()` and `renderSentenceTranslation()` now accept an optional `needsReview` parameter instead of reading `output.needsReview`.

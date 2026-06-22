@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateObject, generateText } from "@polyglot/adapter-ai";
 import { closeDb, createContextLookup } from "@polyglot/adapter-db";
-import { detectLanguageAsync } from "@polyglot/core";
+import { detectLanguageWithConfidenceAsync } from "@polyglot/core";
 import { config } from "dotenv";
 import { TRANSLATION_BENCHMARK_CASES } from "./benchmark-cases.js";
 import { type BenchmarkGroup, selectBenchmarkCases } from "./benchmark-groups.js";
@@ -55,7 +55,7 @@ async function main(): Promise<void> {
     cases: selectedCases.translationCases,
     detectionCases: selectedCases.detectionCases,
     detectLanguageFn: (text, candidates) =>
-      detectLanguageAsync(text, candidates, {
+      detectLanguageWithConfidenceAsync(text, candidates, {
         contextLookup,
         aiGenerate: (prompt) => generateText(prompt, options.model),
       }),

@@ -75,13 +75,20 @@ vi.mock("@polyglot/core", async () => {
       emoji: "🏠",
       translations: {},
     }),
-    detectLanguage: vi.fn((text: string, candidates: string[]) => {
+    detectLanguageWithConfidence: vi.fn((text: string, candidates: string[]) => {
       // Simulate real detection: Cyrillic → 'ru' if in candidates
       // Cyrillic range check (rollup-compatible, no Unicode property escapes)
       const hasCyrillic = /[\u0400-\u04FF]/.test(text);
-      if (hasCyrillic && candidates.includes("ru")) return "ru";
-      return candidates.length > 0 ? candidates[0] : undefined;
+      const language = hasCyrillic && candidates.includes("ru") ? "ru" : candidates[0];
+      return language
+        ? {
+            language,
+            confidence: 0.9,
+            evidence: [{ strategy: "mock", candidate: language, score: 0.9, reason: "test fixture" }],
+          }
+        : { confidence: 0, evidence: [] };
     }),
+    detectLanguageWithConfidenceAsync: vi.fn(async () => ({ confidence: 0, evidence: [] })),
   };
 });
 

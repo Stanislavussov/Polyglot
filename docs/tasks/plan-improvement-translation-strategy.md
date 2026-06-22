@@ -4,7 +4,8 @@
 
 - [x] Шаг 1: benchmark cases версионированы и получили исполняемые quality assertions. Отчёт содержит prompt/schema versions, model settings, raw attempts и точные причины quality failures; CLI возвращает ненулевой код при regression.
 - [x] Шаг 2: введён `TranslationDecision` контракт с тремя статусами (`accepted`, `needs_clarification`, `needs_review`), типизированные причины уточнения (`TranslationAmbiguity`), quality metadata (`QualityMetadata`, `QualityIssue`, `RiskLevel`). Функции `translate()`, `translateOne()`, `translateBatch()` и context-enrichment обёртки возвращают `TranslationDecision`. Рендерер принимает `needsReview` параметр. `needs_clarification` статус определён, но ещё не производится (логика обнаружения неоднозначности — Шаг 4).
-- [ ] Шаги 3–10: не реализованы этим slice и остаются в порядке, описанном ниже.
+- [x] Шаг 3: перенесён input analysis в core (`packages/core/src/modules/input-analysis/`), обогащён детекцией placeholders, URL, Markdown, дат и code-switching. Добавлена confidence-aware language detection (`detectLanguageWithConfidence` / `detectLanguageWithConfidenceAsync`) с candidate-aware scoring для близких языков (cs/sk, hr/sr) и confidence threshold. При ambiguous detection бот показывает inline keyboard с вариантами языков вместо generic mistype warning. Добавлены `DetectionResult`, `DetectionEvidence` типы и `detectionConfidence` поле в `QualityMetadata`.
+- [ ] Шаги 4–10: не реализованы этим slice и остаются в порядке, описанном ниже.
 
 Изменённые файлы:
 
