@@ -94,6 +94,71 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function tableCell(value: string | undefined): string {
+  return (value ?? "—").replaceAll("|", "\\|").replaceAll("\n", " ");
+}
+
+export function renderBenchmarkReportMarkdown(report: TranslationBenchmarkReport): string {
+  const lines = [
+    "# Translation benchmark report",
+    "",
+    `- Generated: ${report.generatedAt}`,
+    `- Model: \`${report.model}\``,
+    `- Translations: ${report.summary.completed}/${report.summary.total} completed, ${report.summary.failed} failed`,
+    `- Detection: ${report.detectionSummary.matched}/${report.detectionSummary.total} matched, ${report.detectionSummary.mismatched} mismatched`,
+    "",
+    "## Source-language detection",
+    "",
+    "| Case | Input | Expected | Observed | Result |",
+    "|---|---|---|---|---|",
+    ...report.detectionResults.map((result) => {
+      const expected =
+        result.case.expectedAction === "ask_source_language" ? "ask_source_language" : result.case.expectedSourceLang;
+      return `| ${tableCell(result.case.id)} | ${tableCell(result.case.text)} | ${tableCell(expected)} | ${tableCell(result.observedSourceLang)} | ${result.matchesExpectation ? "PASS" : "FAIL"} |`;
+    }),
+    "",
+    "## Translation results",
+    "",
+  ];
+
+  for (const result of report.results) {
+    lines.push(
+      `### ${result.case.id}`,
+      "",
+      `- Category: ${result.case.category}`,
+      `- Input: ${result.case.input.word}`,
+      `- Source: ${result.case.input.sourceLang}`,
+      `- Targets: ${result.case.input.targetLangs.join(", ")}`,
+      `- Native language: ${result.case.input.nativeLang ?? "not configured"}`,
+      `- Expected meaning: ${result.case.expectedMeaning}`,
+      `- Quality risks: ${result.case.qualityRisks.join("; ")}`,
+      `- Status: ${result.status}`,
+      `- Duration: ${result.durationMs} ms`,
+      "",
+    );
+
+    if (result.status === "completed") {
+      lines.push("```json", JSON.stringify(result.result, null, 2), "```", "");
+    } else {
+      lines.push(`Error: ${result.error}`, "");
+    }
+
+    lines.push("#### Raw attempts", "");
+    for (const attempt of result.attempts) {
+      lines.push(
+        `Attempt ${attempt.attempt}:`,
+        "",
+        "```json",
+        JSON.stringify(attempt.response ?? { error: attempt.error }, null, 2),
+        "```",
+        "",
+      );
+    }
+  }
+
+  return `${lines.join("\n")}\n`;
+}
+
 async function runCase(
   benchmarkCase: TranslationBenchmarkCase,
   model: string,
@@ -203,7 +268,7 @@ export async function runTranslationBenchmark(
   };
 
   await mkdir(dirname(options.outputPath), { recursive: true });
-  await writeFile(options.outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  await writeFile(options.outputPath, renderBenchmarkReportMarkdown(report), "utf8");
 
   return report;
 }

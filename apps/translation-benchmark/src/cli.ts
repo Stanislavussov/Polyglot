@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateObject, generateText } from "@polyglot/adapter-ai";
-import { createContextLookup } from "@polyglot/adapter-db";
+import { closeDb, createContextLookup } from "@polyglot/adapter-db";
 import { detectLanguageAsync } from "@polyglot/core";
 import { config } from "dotenv";
 import { TRANSLATION_BENCHMARK_CASES } from "./benchmark-cases.js";
@@ -10,6 +10,8 @@ import { runTranslationBenchmark } from "./benchmark-runner.js";
 import { DETECTION_BENCHMARK_CASES } from "./detection-cases.js";
 
 config({ path: fileURLToPath(new URL("../../../.env", import.meta.url)), quiet: true });
+
+const REPOSITORY_ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 
 interface CliOptions {
   group: BenchmarkGroup;
@@ -24,7 +26,7 @@ function argumentValue(args: string[], name: string): string | undefined {
 
 function defaultOutputPath(): string {
   const timestamp = new Date().toISOString().replaceAll(":", "-");
-  return resolve("translation-benchmark-results", `translation-benchmark-${timestamp}.json`);
+  return resolve(REPOSITORY_ROOT, "docs", "translation-benchmarks", `translation-benchmark-${timestamp}.md`);
 }
 
 export function parseCliOptions(args: string[], env: NodeJS.ProcessEnv): CliOptions {
@@ -74,8 +76,10 @@ async function main(): Promise<void> {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main().catch((error: unknown) => {
-    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
-    process.exitCode = 1;
-  });
+  main()
+    .catch((error: unknown) => {
+      process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+      process.exitCode = 1;
+    })
+    .finally(closeDb);
 }

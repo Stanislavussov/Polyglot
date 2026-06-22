@@ -29,4 +29,10 @@ describe("parseCliOptions", () => {
       "Model is required. Pass --model <openrouter-model-id> or set AI_MODEL.",
     );
   });
+
+  it("uses a Markdown report under docs by default", () => {
+    const options = parseCliOptions(["--model", "openai/test-model"], {});
+
+    expect(options.outputPath).toMatch(/docs\/translation-benchmarks\/translation-benchmark-.*\.md$/);
+  });
 });
