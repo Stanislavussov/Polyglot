@@ -40,6 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Translation benchmark CLI now loads the repository root `.env` when invoked through its workspace package, so configured OpenRouter credentials are available to smoke and full runs.
 - Docker build dependency stages now include the translation benchmark workspace manifest, allowing full monorepo builds to resolve its internal adapter dependencies.
 - Language detection no longer chooses the first configured language when a single spelling exists in multiple Wiktionary languages; ambiguous homographs now remain unresolved instead of being sent to AI for a forced guess.
 - Saved source-usage explanations no longer label the interface language as though it were the user's native language.

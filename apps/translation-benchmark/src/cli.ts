@@ -1,13 +1,15 @@
-import "dotenv/config";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateObject, generateText } from "@polyglot/adapter-ai";
 import { createContextLookup } from "@polyglot/adapter-db";
 import { detectLanguageAsync } from "@polyglot/core";
+import { config } from "dotenv";
 import { TRANSLATION_BENCHMARK_CASES } from "./benchmark-cases.js";
 import { type BenchmarkGroup, selectBenchmarkCases } from "./benchmark-groups.js";
 import { runTranslationBenchmark } from "./benchmark-runner.js";
 import { DETECTION_BENCHMARK_CASES } from "./detection-cases.js";
+
+config({ path: fileURLToPath(new URL("../../../.env", import.meta.url)), quiet: true });
 
 interface CliOptions {
   group: BenchmarkGroup;
