@@ -3,7 +3,8 @@
 ## Статус реализации
 
 - [x] Шаг 1: benchmark cases версионированы и получили исполняемые quality assertions. Отчёт содержит prompt/schema versions, model settings, raw attempts и точные причины quality failures; CLI возвращает ненулевой код при regression.
-- [ ] Шаги 2–10: не реализованы этим slice и остаются в порядке, описанном ниже.
+- [x] Шаг 2: введён `TranslationDecision` контракт с тремя статусами (`accepted`, `needs_clarification`, `needs_review`), типизированные причины уточнения (`TranslationAmbiguity`), quality metadata (`QualityMetadata`, `QualityIssue`, `RiskLevel`). Функции `translate()`, `translateOne()`, `translateBatch()` и context-enrichment обёртки возвращают `TranslationDecision`. Рендерер принимает `needsReview` параметр. `needs_clarification` статус определён, но ещё не производится (логика обнаружения неоднозначности — Шаг 4).
+- [ ] Шаги 3–10: не реализованы этим slice и остаются в порядке, описанном ниже.
 
 Изменённые файлы:
 
@@ -12,6 +13,19 @@
 - `apps/translation-benchmark/src/benchmark-runner.test.ts`
 - `apps/translation-benchmark/src/cli.ts`
 - `apps/translation-benchmark/README.md`
+- `apps/bot/src/renderers/translation.renderer.ts`
+- `apps/bot/src/scenes/helpers/translate-mode.helper.ts`
+- `apps/bot/src/scenes/helpers/regen.helper.ts`
+- `apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts`
+- `apps/bot/src/utils/vocabulary-mapper.test.ts`
+- `packages/core/src/modules/translation/types.ts`
+- `packages/core/src/modules/translation/translation.service.ts`
+- `packages/core/src/modules/translation/index.ts`
+- `packages/core/src/modules/translation/__tests__/translation.service.test.ts`
+- `packages/core/src/modules/translation/__tests__/dictionary-context.test.ts`
+- `packages/core/src/modules/translation/__tests__/output-config.test.ts`
+- `packages/core/src/modules/context-enrichment/context-enrichment.service.ts`
+- `packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts`
 - `.pi/skills/translation/SKILL.md`
 - `CHANGELOG.md`
 

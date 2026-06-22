@@ -137,6 +137,121 @@ export interface TranslateOutput {
   sourceUsage?: SourceUsage;
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
-  needsReview?: boolean;
   dictionaryContext?: DictionaryContext;
 }
+
+// ─────────────────────────────────────────────
+// Translation decision contract (Step 2 — quality improvement plan)
+// ─────────────────────────────────────────────
+
+/**
+ * Reasons why a translation needs user clarification before proceeding.
+ *
+ * Each reason maps to a specific kind of ambiguity that the pipeline
+ * cannot resolve silently without risking an incorrect translation.
+ */
+export type TranslationAmbiguityReason =
+  | "source_language"
+  | "word_sense"
+  | "date_or_time"
+  | "placeholder_grammar"
+  | "mixed_or_transliterated_input";
+
+/**
+ * A concrete option the user can choose when clarifying an ambiguity.
+ *
+ * The bot presents these options as buttons; the user selects one
+ * before the translation proceeds.
+ */
+export interface TranslationAmbiguityOption {
+  /** Human-readable label for the button (e.g., "🇨🇿 Czech", "June 7", "bird (noun)") */
+  label: string;
+  /** Machine-readable value that the caller feeds back into the pipeline */
+  value: string;
+}
+
+/**
+ * Structured ambiguity that requires user clarification before translation.
+ *
+ * Produced when the pipeline detects insufficient data to choose a single
+ * translation confidently. The bot must show the ambiguity options to the
+ * user and wait for their selection before proceeding.
+ */
+export interface TranslationAmbiguity {
+  /** Categorized reason why clarification is needed */
+  reason: TranslationAmbiguityReason;
+  /** Human-readable explanation in the user's interface language */
+  message: string;
+  /** Concrete options the user can choose from (e.g., language variants, senses, date interpretations) */
+  options?: TranslationAmbiguityOption[];
+}
+
+/** Severity of a quality issue found during validation or judging */
+export type QualityIssueSeverity = "blocking" | "warning" | "info";
+
+/**
+ * A single quality issue with location, severity, and optional repair guidance.
+ *
+ * Used in both `needs_review` decisions and `QualityMetadata.issues` on
+ * accepted results (where issues are typically warnings or info-level).
+ */
+export interface QualityIssue {
+  /** Dotted field path, e.g., "translations.cs.text", "nativeMeaning" */
+  fieldPath: string;
+  /** How severe the issue is — blocking issues must be fixed before acceptance */
+  severity: QualityIssueSeverity;
+  /** Human-readable description of the problem */
+  message: string;
+  /** Optional instruction for targeted repair (used in Step 8) */
+  repairInstruction?: string;
+}
+
+/** Risk level of a translation request — drives validation and judge routing */
+export type RiskLevel = "low" | "medium" | "high";
+
+/**
+ * Quality metadata attached to accepted translation decisions.
+ *
+ * Tracks the prompt and schema versions used, the risk level, model,
+ * attempt count, and any quality issues found. The `judgeResult` field
+ * is populated in Step 7 (cross-model semantic judge) and is undefined
+ * until then.
+ */
+export interface QualityMetadata {
+  /** Prompt template version (e.g., "translation-v1") */
+  promptVersion: string;
+  /** Translation Zod schema version */
+  schemaVersion: number;
+  /** Risk classification — drives judge routing (Step 7) */
+  riskLevel: RiskLevel;
+  /** AI model ID used for generation */
+  modelId: string;
+  /** Total generation attempts (1 = first attempt succeeded, 3 = exhausted retries) */
+  attemptCount: number;
+  /** Result from the cross-model semantic judge (Step 7) — undefined until implemented */
+  judgeResult?: unknown;
+  /** Quality issues found during validation (empty array when all checks pass) */
+  issues: QualityIssue[];
+}
+
+/**
+ * Orchestrated translation result — the contract between the translation
+ * pipeline and its callers.
+ *
+ * Replaces the former implicit `TranslateOutput` with `needsReview: boolean`.
+ * Callers must check `decision.status` before accessing `decision.output`:
+ *
+ * - `accepted` — translation passed all validations; `output` is ready to render.
+ * - `needs_clarification` — the pipeline detected an ambiguity that requires
+ *   user input before translation can proceed; `output` is absent.
+ * - `needs_review` — translation was produced but failed validation after
+ *   all retries; `output` is available but may contain errors; `issues`
+ *   describes what went wrong.
+ *
+ * At Step 2, `needs_clarification` is defined but never produced — the
+ * ambiguity detection logic arrives in Step 4.
+ */
+export type TranslationDecision =
+  | { status: "accepted"; output: TranslateOutput; quality: QualityMetadata }
+  | { status: "needs_clarification"; ambiguity: TranslationAmbiguity }
+  | { status: "needs_review"; output: TranslateOutput; issues: QualityIssue[] };

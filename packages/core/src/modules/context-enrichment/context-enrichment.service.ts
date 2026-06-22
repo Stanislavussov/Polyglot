@@ -15,78 +15,39 @@
  */
 
 import { translate, translateOne } from "../translation/translation.service.js";
-import type { DictionaryContext, LanguageTranslation, TranslateOutput } from "../translation/types.js";
+import type { DictionaryContext, TranslationDecision } from "../translation/types.js";
 import type { ContextEnrichmentDeps, EnrichedTranslateInput } from "./types.js";
 
-/**
- * Translate a word with automatic dictionary context enrichment.
- *
- * Flow:
- * 1. Look up dictionary context for the word (fail-open)
- * 2. Merge context into TranslateInput
- * 3. Call translate() from the translation module
- * 4. Return TranslateOutput as-is
- *
- * @param input - Word, source/target languages, model (no dictionaryContext)
- * @param deps - Injected dependencies (lookupContext + generateObjectFn)
- * @returns TranslateOutput with translations for all requested languages
- */
 export async function translateWithContext(
   input: EnrichedTranslateInput,
   deps: ContextEnrichmentDeps,
-): Promise<TranslateOutput> {
+): Promise<TranslationDecision> {
   const dictionaryContext = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
 
   return translate({ ...input, dictionaryContext }, deps.generateObjectFn);
 }
 
-/**
- * Re-translate a word for a single target language with context enrichment.
- *
- * Same pattern as translateWithContext but delegates to translateOne().
- *
- * @param input - Same as EnrichedTranslateInput, plus targetLang
- * @param deps - Injected dependencies
- * @returns LanguageTranslation for the requested language
- */
 export async function translateOneWithContext(
   input: EnrichedTranslateInput & { targetLang: string },
   deps: ContextEnrichmentDeps,
-): Promise<LanguageTranslation> {
+): Promise<TranslationDecision> {
   const dictionaryContext = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
 
   return translateOne({ ...input, dictionaryContext }, deps.generateObjectFn);
 }
 
-/**
- * Translate a batch of words with per-word context enrichment.
- *
- * For each word:
- * 1. Look up dictionary context (fail-open)
- * 2. Call translate() with enriched input
- *
- * Sequential processing (same as existing translateBatch) to avoid
- * AI rate limits.
- *
- * @param words - Array of words to translate
- * @param sourceLang - Source language code
- * @param targetLangs - Target language codes
- * @param model - AI model ID
- * @param deps - Injected dependencies
- * @returns Array of TranslateOutput, one per word
- */
 export async function translateBatchWithContext(
   words: string[],
   sourceLang: string,
   targetLangs: string[],
   model: string,
   deps: ContextEnrichmentDeps,
-): Promise<TranslateOutput[]> {
-  const results: TranslateOutput[] = [];
+): Promise<TranslationDecision[]> {
+  const results: TranslationDecision[] = [];
 
   for (const word of words) {
-    const output = await translateWithContext({ word, sourceLang, targetLangs, model }, deps);
-    results.push(output);
+    const decision = await translateWithContext({ word, sourceLang, targetLangs, model }, deps);
+    results.push(decision);
   }
 
   return results;

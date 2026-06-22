@@ -151,8 +151,7 @@ describe("renderTranslation", () => {
   });
 
   it("shows needsReview warning when true", () => {
-    const output = { ...sampleOutput, needsReview: true };
-    const result = renderTranslation(output, "en");
+    const result = renderTranslation(sampleOutput, "en", undefined, undefined, true);
     expect(result).toContain("inaccuracies");
   });
 
@@ -979,8 +978,7 @@ describe("renderSentenceTranslation", () => {
   });
 
   it("shows needsReview warning when true", () => {
-    const output = { ...sentenceOutput, needsReview: true };
-    const result = renderSentenceTranslation(output, "en");
+    const result = renderSentenceTranslation(sentenceOutput, "en", undefined, true);
     expect(result).toContain("inaccuracies");
   });
 
@@ -1136,8 +1134,7 @@ describe("renderQualityWarning", () => {
 
   it("is different from translationNeedsReview text", () => {
     const qualityWarning = renderQualityWarning("en");
-    const output = { ...sampleOutput, needsReview: true };
-    const translationCard = renderTranslation(output, "en");
+    const translationCard = renderTranslation(sampleOutput, "en", undefined, undefined, true);
     // Both contain ⚠️ but have different text
     expect(qualityWarning).toContain("quality uncertain");
     expect(translationCard).toContain("inaccuracies");

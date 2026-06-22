@@ -25,9 +25,25 @@ vi.mock("@polyglot/core", async () => {
   return {
     ...actual,
     translateOne: vi.fn().mockResolvedValue({
-      text: "regenerated",
-      synonyms: [],
-      examples: [],
+      status: "accepted",
+      output: {
+        original: "hello",
+        sourceLang: "en",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: {
+          cs: { text: "regenerated", synonyms: [], examples: [] },
+          de: { text: "hallo", synonyms: [], examples: [] },
+        },
+      },
+      quality: {
+        promptVersion: "translation-v1",
+        schemaVersion: 1,
+        riskLevel: "low" as const,
+        modelId: "test-model",
+        attemptCount: 1,
+        issues: [],
+      },
     }),
   };
 });

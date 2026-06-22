@@ -2,7 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Logger } from "../../../logger.js";
 import { setLogger } from "../../../logger.js";
 import { parseResponse, sanitizeEmoji, translate, translateBatch, translateOne } from "../translation.service.js";
-import type { TranslateInput, TranslationResult } from "../types.js";
+import type { TranslateInput, TranslateOutput, TranslationDecision, TranslationResult } from "../types.js";
+
+function unwrap(d: TranslationDecision): TranslateOutput {
+  if (!("output" in d)) throw new Error(`Unexpected needs_clarification: ${d.ambiguity.message}`);
+  return d.output;
+}
 
 /** Shared mock logger for validation logging tests */
 const mockLogger: Logger = {
@@ -50,12 +55,12 @@ describe("translate", () => {
 
     const result = await translate(defaultInput, mockGenerate);
 
-    expect(result.original).toBe("hello");
-    expect(result.sourceLang).toBe("en");
-    expect(result.emoji).toBe("👋");
-    expect(result.nativeMeaning).toBeUndefined();
-    expect(result.translations.cs.text).toBe("ahoj");
-    expect(result.needsReview).toBeUndefined();
+    expect(result.status).toBe("accepted");
+    expect(unwrap(result).original).toBe("hello");
+    expect(unwrap(result).sourceLang).toBe("en");
+    expect(unwrap(result).emoji).toBe("👋");
+    expect(unwrap(result).nativeMeaning).toBeUndefined();
+    expect(unwrap(result).translations.cs.text).toBe("ahoj");
   });
 
   it("calls generateObject exactly once when validation passes", async () => {
@@ -83,8 +88,8 @@ describe("translate", () => {
     const result = await translate(defaultInput, mockGenerate);
 
     expect(mockGenerate).toHaveBeenCalledTimes(2);
-    expect(result.needsReview).toBeUndefined();
-    expect(result.translations.cs.text).toBe("ahoj");
+    expect(result.status).toBe("accepted");
+    expect(unwrap(result).translations.cs.text).toBe("ahoj");
   });
 
   it("returns needsReview=true after all retries exhausted", async () => {
@@ -105,7 +110,7 @@ describe("translate", () => {
 
     // 1 initial + 2 retries = 3 calls
     expect(mockGenerate).toHaveBeenCalledTimes(3);
-    expect(result.needsReview).toBe(true);
+    expect(result.status).toBe("needs_review");
   });
 
   it("includes topic in the prompt when provided", async () => {
@@ -167,8 +172,8 @@ describe("translate", () => {
 
     const result = await translate(input, mockGenerate);
 
-    expect(result.translations.cs.text).toBe("ahoj");
-    expect(result.translations.de.text).toBe("hallo");
+    expect(unwrap(result).translations.cs.text).toBe("ahoj");
+    expect(unwrap(result).translations.de.text).toBe("hallo");
   });
 
   it("preserves source usage for learning-language source words", async () => {
@@ -210,8 +215,8 @@ describe("translate", () => {
       mockGenerate,
     );
 
-    expect(result.sourceUsage).toEqual(sourceUsage);
-    expect(result.nativeMeaning).toBe("Богомол; название насекомого.");
+    expect(unwrap(result).sourceUsage).toEqual(sourceUsage);
+    expect(unwrap(result).nativeMeaning).toBe("Богомол; название насекомого.");
   });
 
   it("retries when a target block connotation warning is written in the target language", async () => {
@@ -251,7 +256,7 @@ describe("translate", () => {
     );
 
     expect(mockGenerate).toHaveBeenCalledTimes(3);
-    expect(result.needsReview).toBe(true);
+    expect(result.status).toBe("needs_review");
   });
 
   it("accepts phase-out examples without a redundant native field in the native target block", async () => {
@@ -318,8 +323,10 @@ describe("translate", () => {
       mockGenerate,
     );
 
-    expect(result.translations.cs.examples[0]?.native).toBe("Правительство хочет постепенно отказаться от пластика.");
-    expect(result.translations.ru.examples[0]?.native).toBeUndefined();
+    expect(unwrap(result).translations.cs.examples[0]?.native).toBe(
+      "Правительство хочет постепенно отказаться от пластика.",
+    );
+    expect(unwrap(result).translations.ru.examples[0]?.native).toBeUndefined();
     expect(mockGenerate).toHaveBeenCalledTimes(1);
   });
 
@@ -336,7 +343,7 @@ describe("translate", () => {
 
     const result = await translate(defaultInput, mockGenerate);
 
-    expect(result.emoji).toBe("🔤");
+    expect(unwrap(result).emoji).toBe("🔤");
     expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.objectContaining({ rawEmoji: "brittle", sanitized: "🔤" }),
       expect.stringContaining("non-emoji"),
@@ -348,7 +355,7 @@ describe("translate", () => {
 
     const result = await translate(defaultInput, mockGenerate);
 
-    expect(result.emoji).toBe("💎");
+    expect(unwrap(result).emoji).toBe("💎");
   });
 });
 
@@ -375,9 +382,9 @@ describe("translateOne", () => {
       mockGenerate,
     );
 
-    expect(result.text).toBe("ahoj");
-    expect(result.synonyms).toHaveLength(1);
-    expect(result.examples).toHaveLength(3);
+    expect(unwrap(result).translations.cs?.text).toBe("ahoj");
+    expect(unwrap(result).translations.cs?.synonyms).toHaveLength(1);
+    expect(unwrap(result).translations.cs?.examples).toHaveLength(3);
   });
 
   it("propagates errors from translate()", async () => {
@@ -491,7 +498,8 @@ describe("translateOne", () => {
       mockGenerate,
     );
 
-    expect(result.text).toBe("hello");
+    expect(result.status).toBe("needs_review");
+    expect(unwrap(result).translations.cs?.text).toBe("hello");
     expect(mockGenerate).toHaveBeenCalledTimes(3); // 1 + 2 retries
 
     warnSpy.mockRestore();
@@ -524,10 +532,10 @@ describe("translateBatch", () => {
     const results = await translateBatch(["hello", "world"], "en", ["cs"], "openai/gpt-4o", mockGenerate);
 
     expect(results).toHaveLength(2);
-    expect(results[0].original).toBe("hello");
-    expect(results[0].translations.cs.text).toBe("ahoj");
-    expect(results[1].original).toBe("world");
-    expect(results[1].translations.cs.text).toBe("svět");
+    expect(unwrap(results[0]!).original).toBe("hello");
+    expect(unwrap(results[0]!).translations.cs?.text).toBe("ahoj");
+    expect(unwrap(results[1]!).original).toBe("world");
+    expect(unwrap(results[1]!).translations.cs?.text).toBe("svět");
   });
 
   it("returns empty array for empty input", async () => {
@@ -622,7 +630,7 @@ describe("validation logging", () => {
         retryCount: 2,
         failReason: expect.any(String),
       }),
-      "translation validation failed after all retries — returning needsReview",
+      "translation validation failed after all retries — returning needs_review",
     );
   });
 

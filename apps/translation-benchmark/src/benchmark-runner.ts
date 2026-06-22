@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import type { GenerateObjectFn, TranslateInput, TranslateOutput } from "@polyglot/core";
+import type { GenerateObjectFn, TranslateInput, TranslationDecision } from "@polyglot/core";
 import { translate } from "@polyglot/core";
 import type { ZodSchema } from "zod";
 
@@ -54,7 +54,7 @@ interface CompletedBenchmarkCase {
   qualityIssues: string[];
   durationMs: number;
   attempts: BenchmarkAttempt[];
-  result: TranslateOutput;
+  decision: TranslationDecision;
 }
 
 interface FailedBenchmarkCase {
@@ -176,7 +176,7 @@ export function renderBenchmarkReportMarkdown(report: TranslationBenchmarkReport
           : []),
         "",
       );
-      lines.push("```json", JSON.stringify(result.result, null, 2), "```", "");
+      lines.push("```json", JSON.stringify(result.decision, null, 2), "```", "");
     } else {
       lines.push(`Error: ${result.error}`, "");
     }
@@ -211,13 +211,30 @@ function countOccurrences(value: string, token: string): number {
   return count;
 }
 
-export function evaluateTranslationQuality(benchmarkCase: TranslationBenchmarkCase, result: TranslateOutput): string[] {
+export function evaluateTranslationQuality(
+  benchmarkCase: TranslationBenchmarkCase,
+  decision: TranslationDecision,
+): string[] {
   const issues: string[] = [];
   const assertions = benchmarkCase.assertions;
 
-  if (assertions.expectedAction === "needs_clarification") {
-    issues.push("Expected clarification, but the translation pipeline produced a translation");
+  if (decision.status === "needs_clarification") {
+    if (assertions.expectedAction === "needs_clarification") {
+      return issues;
+    }
+    issues.push("Pipeline returned needs_clarification, but the case expects a translation");
+    return issues;
   }
+
+  if (assertions.expectedAction === "needs_clarification") {
+    issues.push(`Expected needs_clarification, but the pipeline returned status="${decision.status}"`);
+  }
+
+  if (decision.status === "needs_review") {
+    issues.push("Pipeline returned needs_review — validation failed after all retries");
+  }
+
+  const result = decision.output;
 
   for (const [lang, translation] of Object.entries(result.translations)) {
     const source = benchmarkCase.input.word;
@@ -284,8 +301,8 @@ async function runCase(
   const startedAt = Date.now();
 
   try {
-    const result = await translate({ ...benchmarkCase.input, model }, trackedGenerateObject);
-    const qualityIssues = evaluateTranslationQuality(benchmarkCase, result);
+    const decision = await translate({ ...benchmarkCase.input, model }, trackedGenerateObject);
+    const qualityIssues = evaluateTranslationQuality(benchmarkCase, decision);
     return {
       case: benchmarkCase,
       status: "completed",
@@ -293,7 +310,7 @@ async function runCase(
       qualityIssues,
       durationMs: Date.now() - startedAt,
       attempts,
-      result,
+      decision,
     };
   } catch (error) {
     return {

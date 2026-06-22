@@ -126,8 +126,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
   });
 
   it("still renders needsReview regardless of template fields", () => {
-    const output = { ...sampleOutput, needsReview: true };
-    const result = renderTranslation(output, "en", allFalse);
+    const result = renderTranslation(sampleOutput, "en", allFalse, undefined, true);
     expect(result).toContain("inaccuracies");
   });
 

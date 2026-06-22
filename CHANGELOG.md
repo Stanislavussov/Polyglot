@@ -8,6 +8,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added `TranslationDecision` contract — `translate()`, `translateOne()`, and `translateBatch()` now return a discriminated union with three statuses: `accepted` (translation passed validation, includes `QualityMetadata`), `needs_clarification` (ambiguity detected, includes `TranslationAmbiguity`), and `needs_review` (validation failed after retries, includes `QualityIssue[]`). This replaces the former `needsReview: boolean` flag on `TranslateOutput`.
+- Added typed ambiguity reasons (`source_language`, `word_sense`, `date_or_time`, `placeholder_grammar`, `mixed_or_transliterated_input`) and `TranslationAmbiguityOption` for structured user clarification flows.
+- Added `QualityMetadata` type tracking `promptVersion`, `schemaVersion`, `riskLevel`, `modelId`, `attemptCount`, `judgeResult`, and `issues` on accepted translation decisions.
+- Added `QualityIssue` type with `fieldPath`, `severity` (`blocking`/`warning`/`info`), `message`, and optional `repairInstruction`.
+- Added `RiskLevel` type (`low`/`medium`/`high`) for future risk-based validation routing.
+- Added `PROMPT_VERSION` and `SCHEMA_VERSION` constants to the translation service for version tracking in quality metadata.
+- Translation benchmark `evaluateTranslationQuality` now checks `decision.status` against `expectedAction` and reports status mismatches with the actual status value.
+
+### Changed
+
+- `translateWithContext()`, `translateOneWithContext()`, and `translateBatchWithContext()` now return `TranslationDecision` / `TranslationDecision[]` instead of `TranslateOutput` / `TranslateOutput[]` / `LanguageTranslation`.
+- `translateOne()` now returns `TranslationDecision` instead of `LanguageTranslation`; callers extract the per-language translation from `decision.output.translations[lang]`.
+- `renderTranslation()` and `renderSentenceTranslation()` now accept an optional `needsReview` parameter instead of reading `output.needsReview`.
+- Removed `needsReview` field from `TranslateOutput` — the decision status carries this information.
+- Translation benchmark `CompletedBenchmarkCase.result` field renamed to `decision` and typed as `TranslationDecision`.
+
+### Added (previous entries)
+
 - Added versioned, executable translation benchmark assertions for ambiguity actions, immutable placeholders/Markdown/URLs/proper names, forbidden meanings, and required metadata. Reports now include quality pass/fail results, prompt/schema versions, and model settings, and the CLI fails when a quality assertion fails.
 - Added per-user per-day request counts to the admin panel — a new `GET /api/stats/user-request-counts` endpoint aggregates translation requests by user and day (without exposing request bodies), and a new Request Stats page displays the counts as a pivot matrix with a selectable 7/14/30/60/90-day window.
 - Added a benchmark CLI with 30 translation-quality scenarios and 72 source-language detection scenarios. It exercises the production translation, validation, retry, Wiktionary, and AI-detection paths through one selected OpenRouter model and saves analysis-ready JSON reports with raw attempts, expected quality risks, and ambiguity decisions.

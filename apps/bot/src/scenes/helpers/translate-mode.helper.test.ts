@@ -61,22 +61,48 @@ vi.mock("@polyglot/core", async () => {
   return {
     ...actual,
     translateWithContext: vi.fn().mockResolvedValue({
-      original: "hello",
-      sourceLang: "en",
-      emoji: "👋",
-      nativeSynonyms: [],
-      translations: {
-        cs: {
-          text: "ahoj",
-          synonyms: [],
-          examples: [],
+      status: "accepted",
+      output: {
+        original: "hello",
+        sourceLang: "en",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: {
+          cs: {
+            text: "ahoj",
+            synonyms: [],
+            examples: [],
+          },
         },
+      },
+      quality: {
+        promptVersion: "translation-v1",
+        schemaVersion: 1,
+        riskLevel: "low" as const,
+        modelId: "test-model",
+        attemptCount: 1,
+        issues: [],
       },
     }),
     translateOneWithContext: vi.fn().mockResolvedValue({
-      text: "banka",
-      synonyms: [],
-      examples: [],
+      status: "accepted",
+      output: {
+        original: "bank",
+        sourceLang: "en",
+        emoji: "🏦",
+        nativeSynonyms: [],
+        translations: {
+          cs: { text: "banka", synonyms: [], examples: [] },
+        },
+      },
+      quality: {
+        promptVersion: "translation-v1",
+        schemaVersion: 1,
+        riskLevel: "low" as const,
+        modelId: "test-model",
+        attemptCount: 1,
+        issues: [],
+      },
     }),
     detectLanguage: vi.fn((text: string, candidates: string[]) => {
       // Simulate real detection: Cyrillic → Russian, otherwise first candidate

@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { GenerateObjectFn } from "@polyglot/core";
+import type { GenerateObjectFn, TranslationDecision } from "@polyglot/core";
 import { SENTENCE_OUTPUT } from "@polyglot/core";
 import { afterEach, describe, expect, it } from "vitest";
 import type { ZodSchema } from "zod";
@@ -111,11 +111,14 @@ describe("runTranslationBenchmark", () => {
           },
         },
       ],
-      result: {
-        original: "Translate this sentence.",
-        translations: {
-          ru: {
-            text: "Это корректное русское предложение.",
+      decision: {
+        status: "accepted",
+        output: {
+          original: "Translate this sentence.",
+          translations: {
+            ru: {
+              text: "Это корректное русское предложение.",
+            },
           },
         },
       },
@@ -200,6 +203,27 @@ describe("renderBenchmarkReportMarkdown", () => {
   });
 });
 
+function acceptedDecision(output: {
+  original: string;
+  sourceLang: string;
+  emoji: string;
+  nativeSynonyms: unknown[];
+  translations: Record<string, { text: string; synonyms: unknown[]; examples: unknown[] }>;
+}): TranslationDecision {
+  return {
+    status: "accepted",
+    output: output as TranslationDecision extends { output: infer O } ? O : never,
+    quality: {
+      promptVersion: "translation-v1",
+      schemaVersion: 1,
+      riskLevel: "low",
+      modelId: "test/model",
+      attemptCount: 1,
+      issues: [],
+    },
+  };
+}
+
 describe("evaluateTranslationQuality", () => {
   it("reports clarification and immutable-token failures", () => {
     const benchmarkCase: TranslationBenchmarkCase = {
@@ -210,21 +234,24 @@ describe("evaluateTranslationQuality", () => {
       },
     };
 
-    const issues = evaluateTranslationQuality(benchmarkCase, {
-      original: benchmarkCase.input.word,
-      sourceLang: "en",
-      emoji: "📅",
-      nativeSynonyms: [],
-      translations: {
-        ru: {
-          text: "Встретимся 7 июня.",
-          synonyms: [],
-          examples: [],
+    const issues = evaluateTranslationQuality(
+      benchmarkCase,
+      acceptedDecision({
+        original: benchmarkCase.input.word,
+        sourceLang: "en",
+        emoji: "📅",
+        nativeSynonyms: [],
+        translations: {
+          ru: {
+            text: "Встретимся 7 июня.",
+            synonyms: [],
+            examples: [],
+          },
         },
-      },
-    });
+      }),
+    );
 
-    expect(issues).toContain("Expected clarification, but the translation pipeline produced a translation");
+    expect(issues).toContain('Expected needs_clarification, but the pipeline returned status="accepted"');
     expect(issues).toContain('translations.ru.text must preserve "06/07" byte-for-byte (1 expected, 0 found)');
     expect(issues).toContain('translations.ru.text must preserve "{time}" byte-for-byte (1 expected, 0 found)');
   });
@@ -239,19 +266,22 @@ describe("evaluateTranslationQuality", () => {
       },
     };
 
-    const issues = evaluateTranslationQuality(benchmarkCase, {
-      original: "bank",
-      sourceLang: "en",
-      emoji: "🏦",
-      nativeSynonyms: [],
-      translations: {
-        ru: {
-          text: "банк",
-          synonyms: [],
-          examples: [],
+    const issues = evaluateTranslationQuality(
+      benchmarkCase,
+      acceptedDecision({
+        original: "bank",
+        sourceLang: "en",
+        emoji: "🏦",
+        nativeSynonyms: [],
+        translations: {
+          ru: {
+            text: "банк",
+            synonyms: [],
+            examples: [],
+          },
         },
-      },
-    });
+      }),
+    );
 
     expect(issues).toEqual([
       'translations.ru.text contains forbidden text "банк"',

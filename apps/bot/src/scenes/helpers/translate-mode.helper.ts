@@ -268,7 +268,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
     const stopTimer = translationDuration.startTimer();
     const aiStart = Date.now();
-    const output = await translateWithContext(
+    const decision = await translateWithContext(
       {
         word: cleanWord,
         sourceLang,
@@ -287,6 +287,16 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     );
     const aiRequestMs = Date.now() - aiStart;
     stopTimer();
+
+    if (decision.status === "needs_clarification") {
+      translationCounter.inc({ status: "error" });
+      await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+      await ctx.reply(t("translationError", lang));
+      return;
+    }
+
+    const output = decision.output;
+    const needsReview = decision.status === "needs_review";
     translationCounter.inc({ status: "success" });
     await ctx.services.translationRequestRepository.logTranslationRequest(
       ctx.user.id,
@@ -337,7 +347,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       // Sentence: compact card with Save/Skip/Regen keyboard
       ctx.session.pendingTranslation = output;
 
-      let card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`;
+      let card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`;
 
       // Show detected language when it differs from native
       if (detectedLang && detectedLang !== nativeLang) {
@@ -367,7 +377,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       // Word/phrase: full card with Save/Skip/Regen keyboard
       ctx.session.pendingTranslation = output;
 
-      let card = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang);
+      let card = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
 
       if (detectedLang && detectedLang !== nativeLang) {
         const displayName = getLanguageName(detectedLang, lang);
@@ -612,7 +622,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
 
     const lookupContextFn = isSentence ? async () => [] : lookupContext;
 
-    const newTranslation = await translateOneWithContext(
+    const regenDecision = await translateOneWithContext(
       {
         word: lastOutput.original,
         sourceLang: lastOutput.sourceLang,
@@ -630,6 +640,15 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
         generateObjectFn: ctx.services.ai.generateObject,
       },
     );
+
+    if (regenDecision.status === "needs_clarification") {
+      throw new Error("Unexpected needs_clarification in regen flow");
+    }
+
+    const newTranslation = regenDecision.output.translations[regenLang];
+    if (!newTranslation) {
+      throw new Error(`Regen did not produce a translation for ${regenLang}`);
+    }
 
     const updated: typeof lastOutput = {
       ...lastOutput,
@@ -769,7 +788,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     const lookupContextFn = isSentence ? async () => [] : lookupContext;
 
     const stopTimer = translationDuration.startTimer();
-    const output = await translateWithContext(
+    const decision = await translateWithContext(
       {
         word: pendingWord,
         sourceLang,
@@ -787,6 +806,17 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
       },
     );
     stopTimer();
+
+    if (decision.status === "needs_clarification") {
+      translationCounter.inc({ status: "error" });
+      await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+      await ctx.reply(t("translationError", lang));
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    const output = decision.output;
+    const needsReview = decision.status === "needs_review";
     translationCounter.inc({ status: "success" });
     await ctx.services.translationRequestRepository.logTranslationRequest(
       ctx.user.id,
@@ -816,7 +846,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     if (isSentence) {
       ctx.session.pendingTranslation = output;
 
-      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`;
+      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`;
       const sentMsg = await ctx.reply(card, { parse_mode: "HTML" });
       const keyboard = buildTranslationKeyboard(
         langCodes,
@@ -838,7 +868,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     } else {
       ctx.session.pendingTranslation = output;
 
-      const card = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang);
+      const card = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
       const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
 
       const keyboard = buildTranslationKeyboard(

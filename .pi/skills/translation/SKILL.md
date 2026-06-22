@@ -163,11 +163,51 @@ interface TranslateOutput {
   sourceLang: string;
   emoji: string;
   nativeMeaning?: string;
+  sourceUsage?: SourceUsage;
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
-  needsReview?: boolean;           // true when validation failed after all retries
-  dictionaryContext?: DictionaryContext;  // echoed back when used
+  dictionaryContext?: DictionaryContext;
 }
+
+// ── Translation decision contract (Step 2) ──
+
+type TranslationAmbiguityReason =
+  | "source_language" | "word_sense" | "date_or_time"
+  | "placeholder_grammar" | "mixed_or_transliterated_input";
+
+interface TranslationAmbiguityOption { label: string; value: string; }
+
+interface TranslationAmbiguity {
+  reason: TranslationAmbiguityReason;
+  message: string;
+  options?: TranslationAmbiguityOption[];
+}
+
+type QualityIssueSeverity = "blocking" | "warning" | "info";
+
+interface QualityIssue {
+  fieldPath: string;
+  severity: QualityIssueSeverity;
+  message: string;
+  repairInstruction?: string;
+}
+
+type RiskLevel = "low" | "medium" | "high";
+
+interface QualityMetadata {
+  promptVersion: string;
+  schemaVersion: number;
+  riskLevel: RiskLevel;
+  modelId: string;
+  attemptCount: number;
+  judgeResult?: unknown;
+  issues: QualityIssue[];
+}
+
+type TranslationDecision =
+  | { status: "accepted"; output: TranslateOutput; quality: QualityMetadata }
+  | { status: "needs_clarification"; ambiguity: TranslationAmbiguity }
+  | { status: "needs_review"; output: TranslateOutput; issues: QualityIssue[] };
 
 type GenerateObjectFn = <T>(prompt: string, schema: ZodSchema<T>, model: string, options?: { userId?: number }) => Promise<T>;
 ```
@@ -175,20 +215,19 @@ type GenerateObjectFn = <T>(prompt: string, schema: ZodSchema<T>, model: string,
 ## Skills (Public API)
 
 ```typescript
-// Main translation entry point (outputConfig flows through to prompt & schema)
-async function translate(input: TranslateInput, generateObjectFn: GenerateObjectFn): Promise<TranslateOutput>;
+async function translate(input: TranslateInput, generateObjectFn: GenerateObjectFn): Promise<TranslationDecision>;
 
 // Single-language translation for partial regeneration
 async function translateOne(
   input: TranslateInput & { targetLang: string },
   generateObjectFn: GenerateObjectFn
-): Promise<LanguageTranslation>;
+): Promise<TranslationDecision>;
 
 // Batch translation for topics (sequential, not parallel)
 async function translateBatch(
   words: string[], sourceLang: string, targetLangs: string[],
   model: string, generateObjectFn: GenerateObjectFn
-): Promise<TranslateOutput[]>;
+): Promise<TranslationDecision[]>;
 
 // Build the AI prompt from a request (config-aware: omits sections for disabled fields)
 function buildTranslationPrompt(request: TranslationRequest): string;
@@ -243,6 +282,17 @@ import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, RELIABLE_OUTPUT, SENT
 
 ## Translation Flow
 
+```
+0. Caller classifies input (input-classifier module → InputType)
+1. Build prompt (buildTranslationPrompt — sentence-aware intro when inputType='sentence')
+2. Call AI adapter (generateObject with translationResultSchema)
+3. Validate response (validate from validation module, passes inputType to skip semantic for sentences)
+4. On PASS → return { status: "accepted", output, quality: { promptVersion, schemaVersion, riskLevel, modelId, attemptCount, issues } }
+5. On FAIL → retry with strict prompt (up to 2 retries)
+6. On final FAIL → return { status: "needs_review", output, issues }
+
+needs_clarification status is defined but not yet produced — ambiguity detection arrives in Step 4.
+Callers must check decision.status before accessing decision.output.
 ```
 0. Caller classifies input (input-classifier module → InputType)
 1. Build prompt (buildTranslationPrompt — sentence-aware intro when inputType='sentence')

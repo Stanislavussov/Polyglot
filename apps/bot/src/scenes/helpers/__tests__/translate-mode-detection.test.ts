@@ -279,11 +279,22 @@ describe("handleMistypeConfirmCallback — Task 58", () => {
       learningLangs: ["cs", "en"],
     });
     vi.mocked(translateWithContext).mockResolvedValue({
-      original: "xyz123",
-      sourceLang: "ru",
-      emoji: "👋",
-      nativeSynonyms: [],
-      translations: {},
+      status: "accepted",
+      output: {
+        original: "xyz123",
+        sourceLang: "ru",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: {},
+      },
+      quality: {
+        promptVersion: "translation-v1",
+        schemaVersion: 1,
+        riskLevel: "low",
+        modelId: "test-model",
+        attemptCount: 1,
+        issues: [],
+      },
     });
   });
 

@@ -111,7 +111,6 @@ describe("renderTranslation — dictionary context is AI-only", () => {
   it("needsReview still renders without dictionary context hint above it", () => {
     const output: TranslateOutput = {
       ...baseOutput,
-      needsReview: true,
       dictionaryContext: {
         word: "hello",
         pos: "noun",
@@ -120,7 +119,7 @@ describe("renderTranslation — dictionary context is AI-only", () => {
       },
     };
 
-    const result = renderTranslation(output, "en");
+    const result = renderTranslation(output, "en", undefined, undefined, true);
 
     expect(result).toContain("inaccuracies");
     expect(result).not.toContain("Part of speech");
