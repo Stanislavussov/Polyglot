@@ -3,6 +3,22 @@ import type { TranslationBenchmarkCase } from "./benchmark-runner.js";
 
 const TRANSLATION_CASES = [
   {
+    id: "simple-word-window",
+    category: "simple-dictionary-word",
+    description: "A common unambiguous word used to protect the low-risk single-call path.",
+    expectedMeaning: "The ordinary household opening fitted with glass.",
+    qualityRisks: ["unnecessary judge call", "unnecessary retry", "wrong common-noun sense"],
+    input: {
+      word: "window",
+      sourceLang: "en",
+      targetLangs: ["cs"],
+      nativeLang: "ru",
+      topic: "A window in a room.",
+      inputType: "word",
+      outputConfig: FULL_OUTPUT,
+    },
+  },
+  {
     id: "polysemy-bank-river",
     category: "polysemy-with-context",
     description: "A polysemous English noun whose intended sense is fixed by the topic.",
@@ -490,6 +506,12 @@ const TRANSLATION_CASES = [
 ] satisfies Array<Omit<TranslationBenchmarkCase, "fixtureVersion" | "assertions">>;
 
 const QUALITY_ASSERTIONS: Readonly<Partial<Record<string, TranslationBenchmarkCase["assertions"]>>> = {
+  "simple-word-window": {
+    expectedAction: "translate",
+    requiredSubstrings: { cs: ["okno"] },
+    requiredMetadata: ["nativeMeaning"],
+    expectedSimplePath: true,
+  },
   "polysemy-bank-river": {
     expectedAction: "translate",
     forbiddenSubstrings: { cs: ["stráň"] },

@@ -6,7 +6,8 @@
 - [x] Шаг 2: введён `TranslationDecision` контракт с тремя статусами (`accepted`, `needs_clarification`, `needs_review`), типизированные причины уточнения (`TranslationAmbiguity`), quality metadata (`QualityMetadata`, `QualityIssue`, `RiskLevel`). Функции `translate()`, `translateOne()`, `translateBatch()` и context-enrichment обёртки возвращают `TranslationDecision`. Рендерер принимает `needsReview` параметр. `needs_clarification` статус определён, но ещё не производится (логика обнаружения неоднозначности — Шаг 4).
 - [x] Шаг 3: перенесён input analysis в core (`packages/core/src/modules/input-analysis/`), обогащён детекцией placeholders, URL, Markdown, дат и code-switching. Добавлена confidence-aware language detection (`detectLanguageWithConfidence` / `detectLanguageWithConfidenceAsync`) с candidate-aware scoring для близких языков (cs/sk, hr/sr) и confidence threshold. При ambiguous detection бот показывает inline keyboard с вариантами языков вместо generic mistype warning. Добавлены `DetectionResult`, `DetectionEvidence` типы и `detectionConfidence` поле в `QualityMetadata`.
 - [x] Шаг 4: добавлен risk-based quality pipeline. Для всех input types выполняются deterministic semantic и immutable-token проверки; high-risk результаты проверяются моделью другого семейства; blocking issues исправляются targeted repair только затронутого language block. Full retry оставлен только для generation/schema failures. До generation возвращается clarification для неоднозначных numeric dates и mixed-script/transliterated input.
-- [ ] Шаги 5–10: остаются в порядке, описанном ниже. Generic word-sense clarification ещё не реализован: без ranked sense IDs и confidence margin pipeline не имитирует его hardcoded-фразами.
+- [x] Шаг 5: benchmark запускает stochastic translation/detection cases многократно, считает отдельные quality dimensions, latency/cost и repair success, сравнивает минимум три класса моделей, сохраняет JSON baseline и блокирует статистически значимые regression по language pair. Release gates защищают immutable spans, ambiguity handling, primary/metadata accuracy и single-call low-risk path.
+- [ ] Шаги 6–10: остаются в порядке, описанном ниже. Dataset содержит 31 translation и 72 detection reviewed fixtures; расширение до 200–500 уникальных reviewed cases остаётся отдельной последовательной работой, а не синтетическим дублированием. Generic word-sense clarification ещё не реализован: без ranked sense IDs и confidence margin pipeline не имитирует его hardcoded-фразами.
 
 Изменённые файлы:
 
@@ -14,6 +15,8 @@
 - `apps/translation-benchmark/src/benchmark-runner.ts`
 - `apps/translation-benchmark/src/benchmark-runner.test.ts`
 - `apps/translation-benchmark/src/cli.ts`
+- `apps/translation-benchmark/src/cli.test.ts`
+- `apps/translation-benchmark/README.md`
 - `apps/translation-benchmark/README.md`
 - `apps/bot/src/renderers/translation.renderer.ts`
 - `apps/bot/src/scenes/helpers/translate-mode.helper.ts`
@@ -280,7 +283,8 @@
 
   ## Ключевые тесты
 
-  - Все 30 translation cases и 72 detection cases из отчёта становятся regression fixtures.
+  - Все 30 translation cases и 72 detection cases из отчёта становятся regression fixtures; дополнительно
+    low-risk single-call path защищён отдельным 31-м translation fixture.
   - bank не допускает stráň; mít máslo na hlavě не принимается как skeleton in the closet.
   - 06/07 at 5 вызывает clarification и не превращается в конкретную дату/17:00.
   - {name} и {{count}} сохраняются byte-for-byte; небезопасная plural morphology блокируется.

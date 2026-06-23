@@ -8,7 +8,8 @@ describe("parseCliOptions", () => {
     });
 
     expect(options.group).toBe("all");
-    expect(options.model).toBe("openai/test-model");
+    expect(options.models).toEqual(["openai/test-model"]);
+    expect(options.runsPerCase).toBe(3);
     expect(options.outputPath).toMatch(/custom-report\.json$/);
   });
 
@@ -26,7 +27,30 @@ describe("parseCliOptions", () => {
 
   it("requires a model", () => {
     expect(() => parseCliOptions([], {})).toThrow(
-      "Model is required. Pass --model <openrouter-model-id> or set AI_MODEL.",
+      "Model is required. Pass --models <id,id,...>, --model <id>, or set AI_MODEL.",
+    );
+  });
+
+  it("parses multiple models, repeat count, and baseline", () => {
+    const options = parseCliOptions(
+      ["--models", "openai/economy,anthropic/mid,google/strong", "--runs", "5", "--baseline", "./baseline.json"],
+      {},
+    );
+
+    expect(options.models).toEqual(["openai/economy", "anthropic/mid", "google/strong"]);
+    expect(options.runsPerCase).toBe(5);
+    expect(options.baselinePath).toMatch(/baseline\.json$/);
+  });
+
+  it("rejects an invalid repeat count", () => {
+    expect(() => parseCliOptions(["--model", "openai/test-model", "--runs", "0"], {})).toThrow(
+      "--runs must be a positive integer.",
+    );
+  });
+
+  it("requires three models for a comparison run", () => {
+    expect(() => parseCliOptions(["--models", "openai/economy,anthropic/mid"], {})).toThrow(
+      "--models requires at least three model IDs for economy, mid-tier, and strong comparison.",
     );
   });
 

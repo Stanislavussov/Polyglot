@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added benchmark model comparison and regression control: stochastic cases run repeatedly, three-or-more-model runs produce a comparison, JSON reports can be used as same-model baselines, and language-pair regressions are tested for statistical significance.
+- Added separate benchmark scores for primary translations, auxiliary fields, factual preservation, naturalness/register, ambiguity handling, detection accuracy, and repair success, plus release gates for immutable data, ambiguity, accuracy thresholds, regressions, and the low-risk single-call path.
+- Added actual AI request token, cost, and latency capture to benchmark reports through the adapter metric sink. Reports now include full prompts alongside raw responses and pipeline validation/judge issues.
+- Added a simple unambiguous `window` fixture that prevents judge or retry overhead from regressing onto the low-risk translation path.
 - Added a risk-based translation quality pipeline: deterministic immutable-token checks, sentence semantic validation, cross-model judging for high-risk requests, and targeted repair of only failing language blocks.
 - Added pre-generation clarification for locale-ambiguous numeric dates and mixed-script/transliterated input. Lexical ambiguity is not hard-coded to specific phrases and remains risk-routed until ranked sense confidence is available.
 - Added structured semantic-judge output with field-level severity and repair instructions.

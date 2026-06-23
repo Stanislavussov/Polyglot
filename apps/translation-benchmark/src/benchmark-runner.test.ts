@@ -6,6 +6,7 @@ import { SENTENCE_OUTPUT } from "@polyglot/core";
 import { afterEach, describe, expect, it } from "vitest";
 import type { ZodSchema } from "zod";
 import {
+  compareLanguagePairScores,
   evaluateTranslationQuality,
   renderBenchmarkReportMarkdown,
   runTranslationBenchmark,
@@ -80,16 +81,22 @@ describe("runTranslationBenchmark", () => {
     const savedReport = await readFile(outputPath, "utf8");
 
     expect(report.summary).toEqual({
-      total: 1,
+      cases: 1,
+      executions: 1,
       completed: 1,
       failed: 0,
       qualityPassed: 1,
       qualityFailed: 0,
+      passRate: 1,
+      latencyMs: expect.any(Number),
+      costUsd: 0,
+      inputTokens: 0,
+      outputTokens: 0,
     });
     expect(report.detectionSummary).toEqual({ total: 1, matched: 1, mismatched: 0 });
     expect(savedReport).toContain("# Translation benchmark report");
     expect(savedReport).toContain("`test/model`");
-    expect(savedReport).toContain("| fast-en-de | fast | ask_source_language | — | PASS |");
+    expect(savedReport).toContain("| fast-en-de (run 1) | fast | ask_source_language | — | PASS |");
     expect(savedReport).toContain('"text": "Это корректное русское предложение."');
     expect(report.results[0]).toMatchObject({
       status: "completed",
@@ -148,11 +155,17 @@ describe("runTranslationBenchmark", () => {
     const savedReport = await readFile(outputPath, "utf8");
 
     expect(report.summary).toEqual({
-      total: 2,
+      cases: 2,
+      executions: 2,
       completed: 1,
       failed: 1,
       qualityPassed: 1,
       qualityFailed: 1,
+      passRate: 0.5,
+      latencyMs: expect.any(Number),
+      costUsd: 0,
+      inputTokens: 0,
+      outputTokens: 0,
     });
     expect(report.results[0]).toMatchObject({
       status: "failed",
@@ -170,16 +183,42 @@ describe("runTranslationBenchmark", () => {
 describe("renderBenchmarkReportMarkdown", () => {
   it("escapes table separators in detection input", () => {
     const markdown = renderBenchmarkReportMarkdown({
-      schemaVersion: 3,
+      schemaVersion: 4,
+      fixtureVersion: 1,
       promptVersion: "translation-v1",
       generatedAt: "2026-06-22T00:00:00.000Z",
       model: "test/model",
+      runsPerCase: 1,
       modelSettings: {
         temperature: 0.3,
         frequencyPenalty: 0,
         providerMaxRetries: 2,
       },
-      summary: { total: 0, completed: 0, failed: 0, qualityPassed: 0, qualityFailed: 0 },
+      summary: {
+        cases: 0,
+        executions: 0,
+        completed: 0,
+        failed: 0,
+        qualityPassed: 0,
+        qualityFailed: 0,
+        passRate: 1,
+        latencyMs: 0,
+        costUsd: 0,
+        inputTokens: 0,
+        outputTokens: 0,
+      },
+      dimensionScores: {
+        primaryTranslation: { passed: 0, total: 0, rate: 1 },
+        auxiliaryFields: { passed: 0, total: 0, rate: 1 },
+        factualPreservation: { passed: 0, total: 0, rate: 1 },
+        naturalnessRegister: { passed: 0, total: 0, rate: 1 },
+        ambiguityHandling: { passed: 0, total: 0, rate: 1 },
+        detectionAccuracy: { passed: 1, total: 1, rate: 1 },
+        repairSuccess: { passed: 0, total: 0, rate: 1 },
+      },
+      languagePairScores: [],
+      regressions: [],
+      releaseGates: [],
       detectionSummary: { total: 1, matched: 1, mismatched: 0 },
       detectionResults: [
         {
@@ -191,15 +230,67 @@ describe("renderBenchmarkReportMarkdown", () => {
             expectedAction: "ask_source_language",
             explanation: "Mixed input.",
           },
+          run: 1,
           confidence: 0,
           matchesExpectation: true,
           durationMs: 1,
+          requestMetrics: [],
         },
       ],
       results: [],
     });
 
     expect(markdown).toContain("hello \\| hola");
+  });
+});
+
+describe("benchmark regression controls", () => {
+  it("runs stochastic cases repeatedly and aggregates request cost", async () => {
+    const outputPath = await createOutputPath();
+    const metrics = [
+      {
+        model: "test/model",
+        requestKind: "object" as const,
+        inputTokens: 100,
+        outputTokens: 20,
+        costUsd: 0.001,
+        durationMs: 10,
+        success: true,
+      },
+    ];
+    let pendingMetrics = [...metrics];
+
+    const report = await runTranslationBenchmark({
+      model: "test/model",
+      outputPath,
+      runsPerCase: 3,
+      generateObjectFn: successfulGeneration,
+      cases: [sentenceCase("repeated", "Translate this sentence.")],
+      detectionCases: [],
+      detectLanguageFn: async () => ({ confidence: 0, evidence: [] }),
+      consumeRequestMetrics: () => {
+        const consumed = pendingMetrics;
+        pendingMetrics = [...metrics];
+        return consumed;
+      },
+    });
+
+    expect(report.results).toHaveLength(3);
+    expect(report.summary.executions).toBe(3);
+    expect(report.summary.passRate).toBe(1);
+    expect(report.summary.costUsd).toBeCloseTo(0.003);
+    expect(report.summary.inputTokens).toBe(300);
+  });
+
+  it("flags statistically significant language-pair regressions", () => {
+    const regressions = compareLanguagePairScores(
+      [{ pair: "en->cs", passed: 70, total: 100, rate: 0.7 }],
+      [{ pair: "en->cs", passed: 95, total: 100, rate: 0.95 }],
+    );
+
+    expect(regressions).toHaveLength(1);
+    expect(regressions[0]?.significant).toBe(true);
+    expect(regressions[0]?.zScore).toBeLessThanOrEqual(-1.96);
   });
 });
 
