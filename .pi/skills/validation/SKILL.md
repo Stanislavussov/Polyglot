@@ -38,18 +38,19 @@ AI Response
     │
     ├─ 1. validateSchema (Zod)           — structural JSON validation
     ├─ 2. validateSemantic               — translation ≠ original, no hallucinations
-    │                                       ⚠️ SKIPPED when inputType='sentence'
-    ├─ 3. validateLanguage                — no-op (franc-min removed, see below)
-    ├─ 4. validateNativeFields           — script, romanization, pronunciation, duplication
-    ├─ 5. validateExamples               — examples well-formed + phrase/inflection matching
+    │                                       equality guard only skipped for sentences
+    ├─ 3. validateImmutableContent        — placeholders, URLs, numbers, dates, Markdown
+    ├─ 4. validateLanguage                — no-op (franc-min removed, see below)
+    ├─ 5. validateNativeFields           — script, romanization, pronunciation, duplication
+    ├─ 6. validateExamples               — examples well-formed + phrase/inflection matching
     │                                       (relaxed for idiomatic equivalents)
     │                                       ⚠️ SKIPPED when inputType='sentence'
-    ├─ 6. validateAlternatives (semantic) — alternatives[].text ≠ original, no hallucinations
+    ├─ 7. validateAlternatives (semantic) — alternatives[].text ≠ original, no hallucinations
     │                                       ⚠️ SKIPPED when inputType='sentence'
     │
     ├─ PASS → return valid result
-    ├─ FAIL → retry with strict prompt (up to 2 retries)
-    └─ FAIL after retries → return with needsReview=true + ⚠️
+    ├─ FAIL → targeted language-block repair
+    └─ FAIL after repair budget → return needs_review with QualityIssue[]
 
 Wiktionary Data
     │
@@ -77,6 +78,9 @@ function validateSchema(raw: unknown, schema: ZodSchema): ValidationResult;
 // Semantic checks: translation ≠ original, no hallucination patterns
 // Patterns: "N/A", "I cannot", "I can't", "I'm unable", "—", "...", "undefined", "null", "[translation]", "<translation>"
 function validateSemantic(original: string, translation: string): ValidationResult;
+
+// Immutable source tokens must be preserved byte-for-byte and with the same count.
+function validateImmutableContent(original: string, translation: string): ValidationResult;
 
 // Language validation — no-op (always returns valid).
 // franc-min was removed: trigram-based detection is unreliable for
@@ -124,8 +128,8 @@ type ExampleContext = "neutral" | "colloquial" | "professional";
 // Reports missing translations for expected languages
 // Passes expressionType from language data to validateExamples()
 // Validates alternatives[].text semantically (≠ original, no hallucinations)
-// When inputType is 'sentence', steps 2 (semantic), 4 (examples), and 5 (alternatives)
-// are skipped — only schema validation and language detection run.
+// For sentences, semantic hallucination checks still run; only the
+// translation-equals-original guard, examples, and alternatives are skipped.
 // ValidateOptions drives validation from the output config — when a field is disabled
 // (e.g. includeExamples: false), the corresponding validation step is skipped.
 function validate(raw: unknown, schema: ZodSchema, original: string, expectedLangs: string[], inputType?: InputType, options?: ValidateOptions): ValidationResult;
@@ -310,11 +314,13 @@ interface AsyncValidationParams {
 
 ```
 packages/core/src/modules/validation/
-├── index.ts                              # Re-exports + validate() orchestrator
+├── index.ts                              # Re-exports only
+├── validation.service.ts                 # validate() orchestrator
 ├── types.ts                              # ValidationResult, ValidationError, ValidateInput
 ├── validators/
 │   ├── schema.validator.ts               # validateSchema()
 │   ├── semantic.validator.ts             # validateSemantic()
+│   ├── immutable.validator.ts            # validateImmutableContent()
 │   ├── language.validator.ts             # validateLanguage(), resolveToIso3()
 │   ├── field-language.validator.ts        # validateNativeFields()
 │   ├── example.validator.ts              # phrase/inflection-aware validateExamples()
@@ -359,7 +365,8 @@ Lite AI validation (Task 37) uses `getLogger()` from `packages/core/src/logger.t
 
 ## Current State
 
-- 5 active validators + 1 no-op + 4 Wiktionary validators + lite-ai sub-module
+- 6 active validators + 1 no-op + 4 Wiktionary validators + lite-ai sub-module
+- **Translation quality Step 4**: sentence semantic validation remains active while allowing identical source/target text; immutable placeholders, URLs, numeric values, ambiguous dates, and Markdown targets are checked byte-for-byte. The orchestrator lives in `validation.service.ts`, leaving the barrel file as re-exports only.
 - **TQ-04 (partial)**: `validateExamples()` no longer skips phrases or non-ASCII translations. The first literal example must contain every significant token from the main translation, with conservative prefix matching for normal Czech and Russian inflections. Idiomatic equivalents retain their explicit relaxation. Assigned variants for examples 2 and 3 remain to be implemented.
 - **TQ-05/TQ-08**: `validateNativeFields()` rejects identical target/native examples, Latin-dominant Russian romanization, Russian-native explanatory fields (including `usageNote` and `connotationWarning`) without sufficient Cyrillic, embedded pronunciation/IPA markers, and notes copied across target-language blocks. Errors contain exact field paths and flow into retry prompts. Statistical short-text language detection remains intentionally disabled because low-confidence results are inconclusive rather than invalid.
 - **Task 37**: New `lite-ai/` sub-module — lightweight AI second-pass semantic validator for high-risk translations. Runs asynchronously (fire-and-forget), scores translations on 4 dimensions (meaningPreserved, naturalness, registerAccuracy, overallScore), flags for review when `overallScore < REVIEW_THRESHOLD (3)`. Risk detection heuristic (`isHighRisk()`) filters to only validate phrases, idioms, Wiktionary misses, idiomatic equivalents, and uncommon languages. Uses dependency injection for AI generation function (`LiteGenerateObjectFn`). Graceful degradation on failure. Structured Pino-compatible logging. 69 tests across 5 test files. Re-exported from `validation/index.ts` (not yet re-exported from core main `index.ts`).

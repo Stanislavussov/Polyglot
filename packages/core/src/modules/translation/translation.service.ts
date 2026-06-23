@@ -2,33 +2,42 @@
  * Translation Service — the single entry point for all translation operations.
  *
  * Flow:
- * 1. Build prompt (buildTranslationPrompt)
- * 2. Call AI adapter (generateObject with translationResultSchema)
- * 3. Validate response (validate from validation module)
- * 4. On PASS → return { status: "accepted", output, quality }
- * 5. On FAIL → retry with strict prompt (up to 2 retries)
- * 6. On final FAIL → return { status: "needs_review", output, issues }
+ * 1. Detect structural ambiguity before generation
+ * 2. Generate and retry only generation/schema failures
+ * 3. Run deterministic validation for every input type
+ * 4. Judge high-risk results with a different model family
+ * 5. Repair only failing language blocks
+ * 6. Return accepted, needs_clarification, or needs_review
  *
  * Does NOT save results — only returns them.
  * Knows nothing about the user — works only with text and languages.
  */
 
 import { getLogger } from "../../logger.js";
-import { validate } from "../validation/index.js";
+import { analyzeInput } from "../input-analysis/input-analyzer.js";
+import { validate } from "../validation/validation.service.js";
 import { buildStrictPrompt, buildTranslationPrompt } from "./prompt.builder.js";
-import { buildTranslationResultSchema, translationResultSchema } from "./schemas/translation.schema.js";
+import { type SemanticJudgeResult, semanticJudgeSchema } from "./quality.schema.js";
+import {
+  buildLanguageTranslationSchema,
+  buildTranslationResultSchema,
+  translationResultSchema,
+} from "./schemas/translation.schema.js";
 import type {
   LanguageTranslation,
   QualityIssue,
+  RiskLevel,
   TranslateInput,
   TranslateOutput,
+  TranslationAmbiguity,
   TranslationDecision,
   TranslationOutputConfig,
   TranslationRequest,
   TranslationResult,
 } from "./types.js";
 
-const MAX_RETRIES = 2;
+const MAX_FULL_RETRIES = 2;
+const MAX_TARGETED_REPAIRS = 2;
 const PROMPT_VERSION = "translation-v1";
 const SCHEMA_VERSION = 1;
 
@@ -56,15 +65,25 @@ export async function translate(
   input: TranslateInput,
   generateObjectFn: GenerateObjectFn,
 ): Promise<TranslationDecision> {
+  const analysis = analyzeInput(input.word);
+  const normalizedInput: TranslateInput = {
+    ...input,
+    inputType: input.inputType ?? analysis.type,
+  };
+  const ambiguity = detectPreflightAmbiguity(normalizedInput, analysis.features);
+  if (ambiguity) {
+    return { status: "needs_clarification", ambiguity };
+  }
+
   const request: TranslationRequest = {
-    text: input.word,
-    sourceLang: input.sourceLang,
-    targetLangs: input.targetLangs,
-    nativeLang: input.nativeLang,
-    topic: input.topic,
-    dictionaryContext: input.dictionaryContext,
-    outputConfig: input.outputConfig,
-    inputType: input.inputType,
+    text: normalizedInput.word,
+    sourceLang: normalizedInput.sourceLang,
+    targetLangs: normalizedInput.targetLangs,
+    nativeLang: normalizedInput.nativeLang,
+    topic: normalizedInput.topic,
+    dictionaryContext: normalizedInput.dictionaryContext,
+    outputConfig: normalizedInput.outputConfig,
+    inputType: normalizedInput.inputType,
   };
 
   getLogger().info(
@@ -78,31 +97,35 @@ export async function translate(
     "translation request started",
   );
 
-  const requiresNativeOutput = input.nativeLang !== undefined;
+  const requiresNativeOutput = normalizedInput.nativeLang !== undefined;
   const requiresSourceUsage =
-    requiresNativeOutput && input.sourceLang !== input.nativeLang && input.inputType !== "sentence";
+    requiresNativeOutput &&
+    normalizedInput.sourceLang !== normalizedInput.nativeLang &&
+    normalizedInput.inputType !== "sentence";
   const requiresUsageNote =
-    requiresNativeOutput && input.inputType !== "sentence" && input.outputConfig?.includeUsageNote !== false;
+    requiresNativeOutput &&
+    normalizedInput.inputType !== "sentence" &&
+    normalizedInput.outputConfig?.includeUsageNote !== false;
   const schema = buildTranslationResultSchema(
-    input.targetLangs,
-    input.outputConfig,
+    normalizedInput.targetLangs,
+    normalizedInput.outputConfig,
     requiresNativeOutput,
     requiresSourceUsage,
-    input.nativeLang,
+    normalizedInput.nativeLang,
     requiresUsageNote,
-    input.sourceLang,
+    normalizedInput.sourceLang,
   );
   let prompt = buildTranslationPrompt(request);
-  let result: TranslationResult;
+  let result: TranslationResult | undefined;
   let lastErrors: string[] = [];
   let attemptCount = 0;
 
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    attemptCount = attempt + 1;
+  for (let attempt = 0; attempt <= MAX_FULL_RETRIES; attempt++) {
     try {
-      result = (await generateObjectFn(prompt, schema, input.model, {
+      attemptCount++;
+      result = (await generateObjectFn(prompt, schema, normalizedInput.model, {
         frequencyPenalty: 0,
-        ...(input.userId !== undefined ? { userId: input.userId } : {}),
+        ...(normalizedInput.userId !== undefined ? { userId: normalizedInput.userId } : {}),
       })) as TranslationResult;
     } catch (generationError) {
       const errorMsg = generationError instanceof Error ? generationError.message : String(generationError);
@@ -116,7 +139,7 @@ export async function translate(
         "AI generation failed",
       );
 
-      if (attempt === MAX_RETRIES) {
+      if (attempt === MAX_FULL_RETRIES) {
         throw generationError;
       }
 
@@ -125,28 +148,23 @@ export async function translate(
       continue;
     }
 
-    const validation = validate(result, schema, input.word, input.targetLangs, input.inputType, {
-      ...input.outputConfig,
-      nativeLang: input.nativeLang,
-      sourceLang: input.sourceLang,
-    });
-
-    if (validation.valid) {
-      return {
-        status: "accepted",
-        output: toOutput(input, result),
-        quality: {
-          promptVersion: PROMPT_VERSION,
-          schemaVersion: SCHEMA_VERSION,
-          riskLevel: "low",
-          modelId: input.model,
-          attemptCount,
-          issues: [],
-        },
-      };
-    }
+    const validation = validate(
+      result,
+      schema,
+      normalizedInput.word,
+      normalizedInput.targetLangs,
+      normalizedInput.inputType,
+      {
+        ...normalizedInput.outputConfig,
+        nativeLang: normalizedInput.nativeLang,
+        sourceLang: normalizedInput.sourceLang,
+      },
+    );
 
     lastErrors = validation.errors.map((e) => `[${e.rule}] ${e.field ? `${e.field}: ` : ""}${e.message}`);
+    if (validation.valid || !validation.errors.some((error) => error.rule === "schema")) {
+      break;
+    }
 
     getLogger().warn(
       {
@@ -154,30 +172,108 @@ export async function translate(
         retryCount: attempt,
         failReason: lastErrors.join(" | "),
       },
-      "translation validation failed",
+      "translation schema validation failed",
     );
 
     prompt = buildStrictPrompt(request, lastErrors);
   }
 
+  if (!result) {
+    throw new Error("Translation generation produced no result");
+  }
+
+  let issues = collectQualityIssues(
+    validate(result, schema, normalizedInput.word, normalizedInput.targetLangs, normalizedInput.inputType, {
+      ...normalizedInput.outputConfig,
+      nativeLang: normalizedInput.nativeLang,
+      sourceLang: normalizedInput.sourceLang,
+    }),
+  );
+
+  if (hasBlockingIssues(issues)) {
+    getLogger().warn(
+      {
+        original: normalizedInput.word,
+        retryCount: 0,
+        failReason: issues.map((issue) => issue.message).join(" | "),
+      },
+      "translation validation failed",
+    );
+    const repaired = await repairTranslationBlocks(
+      result,
+      issues,
+      normalizedInput,
+      request,
+      generateObjectFn,
+      attemptCount,
+    );
+    result = repaired.result;
+    issues = repaired.issues;
+    attemptCount = repaired.attemptCount;
+  }
+
+  const riskLevel = assessRiskLevel(normalizedInput, analysis.features, issues);
+
+  let judgeResult: SemanticJudgeResult | undefined;
+  if (!hasBlockingIssues(issues) && riskLevel === "high") {
+    const judged = await judgeTranslation(result, normalizedInput, request, generateObjectFn, attemptCount);
+    judgeResult = judged.judgeResult;
+    attemptCount = judged.attemptCount;
+
+    if (judged.issues.length > 0) {
+      issues = [...issues, ...judged.issues];
+      if (hasBlockingIssues(judged.issues)) {
+        const repaired = await repairTranslationBlocks(
+          result,
+          judged.issues,
+          normalizedInput,
+          request,
+          generateObjectFn,
+          attemptCount,
+        );
+        result = repaired.result;
+        attemptCount = repaired.attemptCount;
+        issues = repaired.issues;
+
+        if (!hasBlockingIssues(issues)) {
+          const reJudged = await judgeTranslation(result, normalizedInput, request, generateObjectFn, attemptCount);
+          judgeResult = reJudged.judgeResult;
+          attemptCount = reJudged.attemptCount;
+          issues = [...issues, ...reJudged.issues];
+        }
+      }
+    }
+  }
+
+  if (!hasBlockingIssues(issues)) {
+    return {
+      status: "accepted",
+      output: toOutput(normalizedInput, result),
+      quality: {
+        promptVersion: PROMPT_VERSION,
+        schemaVersion: SCHEMA_VERSION,
+        riskLevel,
+        modelId: normalizedInput.model,
+        attemptCount,
+        judgeResult,
+        issues,
+        detectionConfidence: normalizedInput.detectionConfidence,
+      },
+    };
+  }
+
   getLogger().error(
     {
-      original: input.word,
-      retryCount: MAX_RETRIES,
-      failReason: lastErrors.join(" | "),
+      original: normalizedInput.word,
+      retryCount: Math.max(0, attemptCount - 1),
+      failReason: issues.map((issue) => issue.message).join(" | "),
     },
     "translation validation failed after all retries — returning needs_review",
   );
 
-  const issues: QualityIssue[] = lastErrors.map((msg) => ({
-    fieldPath: "",
-    severity: "warning",
-    message: msg,
-  }));
-
   return {
     status: "needs_review",
-    output: toOutput(input, result!),
+    output: toOutput(normalizedInput, result),
     issues,
   };
 }
@@ -210,9 +306,296 @@ export async function translateOne(
       dictionaryContext: input.dictionaryContext,
       outputConfig: input.outputConfig,
       inputType: input.inputType,
+      detectionConfidence: input.detectionConfidence,
     },
     generateObjectFn,
   );
+}
+
+function collectQualityIssues(validation: ReturnType<typeof validate>): QualityIssue[] {
+  return validation.errors.map((error) => ({
+    fieldPath: error.field ?? "",
+    severity: "blocking",
+    message: `[${error.rule}] ${error.message}`,
+    repairInstruction: buildRepairInstruction(error),
+  }));
+}
+
+function buildRepairInstruction(error: { rule: string; message: string }): string | undefined {
+  switch (error.rule) {
+    case "immutable":
+      return "Preserve placeholders, dates, URLs, Markdown, and numbers byte-for-byte in the translated text.";
+    case "semantic":
+      return "Keep the meaning intact and avoid repeating the original text verbatim unless the source is intentionally unchanged.";
+    case "examples":
+      return "Make each example use the assigned translation naturally and keep it aligned with the main translation.";
+    case "language":
+      return "Write the field in the required language/script and remove transliteration or copied target text.";
+    case "duplication":
+      return "Rewrite the note so it is specific to this target-language block.";
+    default:
+      return undefined;
+  }
+}
+
+function hasBlockingIssues(issues: QualityIssue[]): boolean {
+  return issues.some((issue) => issue.severity === "blocking");
+}
+
+function assessRiskLevel(
+  input: TranslateInput,
+  features: ReturnType<typeof analyzeInput>["features"],
+  issues: QualityIssue[],
+): RiskLevel {
+  if (
+    issues.length > 0 ||
+    input.inputType === "sentence" ||
+    (input.dictionaryContext !== undefined && input.dictionaryContext.glosses.length !== 1) ||
+    features.hasPlaceholders ||
+    features.hasUrl ||
+    features.hasMarkdown ||
+    features.hasDates ||
+    features.hasCodeSwitching
+  ) {
+    return "high";
+  }
+
+  return "low";
+}
+
+function detectPreflightAmbiguity(
+  input: TranslateInput,
+  features: ReturnType<typeof analyzeInput>["features"],
+): TranslationAmbiguity | undefined {
+  if (features.hasCodeSwitching) {
+    return {
+      reason: "mixed_or_transliterated_input",
+      message:
+        "The input mixes writing systems or transliteration, so the source meaning needs confirmation before translation.",
+    };
+  }
+
+  const ambiguousDate = input.word.match(/\b(\d{1,2})([/.])(\d{1,2})(?:\2(\d{2,4}))?\b/);
+  if (ambiguousDate) {
+    const left = Number(ambiguousDate[1]);
+    const right = Number(ambiguousDate[3]);
+    if (left <= 12 && right <= 12) {
+      return {
+        reason: "date_or_time",
+        message: `The date "${ambiguousDate[0]}" is ambiguous without locale context.`,
+        options: [
+          { label: `${ambiguousDate[1]}/${ambiguousDate[3]} (month/day)`, value: "month-day" },
+          { label: `${ambiguousDate[3]}/${ambiguousDate[1]} (day/month)`, value: "day-month" },
+        ],
+      };
+    }
+  }
+
+  return undefined;
+}
+
+async function repairTranslationBlocks(
+  result: TranslationResult,
+  sourceIssues: QualityIssue[],
+  input: TranslateInput,
+  request: TranslationRequest,
+  generateObjectFn: GenerateObjectFn,
+  initialAttemptCount: number,
+): Promise<{ result: TranslationResult; issues: QualityIssue[]; attemptCount: number }> {
+  const languages = uniqueRepairLanguages(sourceIssues);
+  if (languages.length === 0) {
+    return { result, issues: sourceIssues, attemptCount: initialAttemptCount };
+  }
+
+  let workingResult = result;
+  let attemptCount = initialAttemptCount;
+
+  for (const lang of languages) {
+    const langIssues = sourceIssues.filter((issue) => issue.fieldPath.startsWith(`translations.${lang}.`));
+    if (langIssues.length === 0) continue;
+
+    for (let attempt = 0; attempt < MAX_TARGETED_REPAIRS; attempt++) {
+      const repairedBlock = await generateObjectFn(
+        buildRepairPrompt(request, lang, workingResult.translations[lang], langIssues),
+        buildLanguageTranslationSchema(
+          input.outputConfig,
+          input.nativeLang !== undefined && lang !== input.nativeLang,
+          input.nativeLang !== undefined &&
+            input.inputType !== "sentence" &&
+            input.outputConfig?.includeUsageNote !== false,
+          input.nativeLang !== undefined && input.sourceLang !== input.nativeLang && lang === input.nativeLang,
+        ) as import("zod").ZodSchema<LanguageTranslation>,
+        input.model,
+        {
+          frequencyPenalty: 0,
+          ...(input.userId !== undefined ? { userId: input.userId } : {}),
+        },
+      );
+      attemptCount++;
+      const repairedTranslation = extractLanguageTranslation(repairedBlock, lang);
+
+      workingResult = {
+        ...workingResult,
+        translations: {
+          ...workingResult.translations,
+          [lang]: repairedTranslation,
+        },
+      };
+
+      const issues = collectQualityIssues(
+        validate(
+          workingResult,
+          buildTranslationResultSchema(
+            input.targetLangs,
+            input.outputConfig,
+            input.nativeLang !== undefined,
+            input.nativeLang !== undefined && input.sourceLang !== input.nativeLang && input.inputType !== "sentence",
+            input.nativeLang,
+            input.nativeLang !== undefined &&
+              input.inputType !== "sentence" &&
+              input.outputConfig?.includeUsageNote !== false,
+            input.sourceLang,
+          ),
+          input.word,
+          input.targetLangs,
+          input.inputType,
+          {
+            ...input.outputConfig,
+            nativeLang: input.nativeLang,
+            sourceLang: input.sourceLang,
+          },
+        ),
+      );
+
+      const remainingLangIssues = issues.filter((issue) => issue.fieldPath.startsWith(`translations.${lang}.`));
+      if (!hasBlockingIssues(remainingLangIssues)) {
+        sourceIssues = issues;
+        break;
+      }
+
+      getLogger().warn(
+        {
+          original: input.word,
+          retryCount: attempt + 1,
+          failReason: remainingLangIssues.map((issue) => issue.message).join(" | "),
+        },
+        "translation validation failed",
+      );
+
+      sourceIssues = issues;
+    }
+  }
+
+  return { result: workingResult, issues: sourceIssues, attemptCount };
+}
+
+function extractLanguageTranslation(value: unknown, lang: string): LanguageTranslation {
+  if (typeof value === "object" && value !== null && "translations" in value) {
+    const maybeResult = value as { translations?: Record<string, LanguageTranslation> };
+    const translation = maybeResult.translations?.[lang];
+    if (translation) {
+      return translation;
+    }
+  }
+
+  return value as LanguageTranslation;
+}
+
+function uniqueRepairLanguages(issues: QualityIssue[]): string[] {
+  const languages = new Set<string>();
+  for (const issue of issues) {
+    const match = issue.fieldPath.match(/^translations\.([^.]+)\./);
+    if (match) languages.add(match[1]);
+  }
+  return [...languages];
+}
+
+function buildRepairPrompt(
+  request: TranslationRequest,
+  targetLang: string,
+  currentBlock: LanguageTranslation,
+  issues: QualityIssue[],
+): string {
+  return `${buildTranslationPrompt({ ...request, targetLangs: [targetLang] })}
+
+Targeted repair only for translations.${targetLang}.
+Current block:
+${JSON.stringify(currentBlock, null, 2)}
+
+Fix only the reported issues:
+${issues.map((issue) => `- ${issue.fieldPath}: ${issue.message}${issue.repairInstruction ? ` (${issue.repairInstruction})` : ""}`).join("\n")}
+
+Preserve valid neighboring fields unless a reported issue requires changing them.
+Return ONLY the corrected JSON object for the single target-language block schema.`;
+}
+
+async function judgeTranslation(
+  result: TranslationResult,
+  input: TranslateInput,
+  request: TranslationRequest,
+  generateObjectFn: GenerateObjectFn,
+  initialAttemptCount: number,
+): Promise<{ judgeResult?: SemanticJudgeResult; issues: QualityIssue[]; attemptCount: number }> {
+  try {
+    const judgeModel = selectJudgeModel(input.model);
+    const judgePrompt = buildJudgePrompt(request, result);
+    const judgeResult = (await generateObjectFn(judgePrompt, semanticJudgeSchema, judgeModel, {
+      ...(input.userId !== undefined ? { userId: input.userId } : {}),
+    })) as SemanticJudgeResult;
+
+    return {
+      judgeResult,
+      issues: judgeResult.issues.map((issue) => ({
+        ...issue,
+        repairInstruction: issue.repairInstruction ?? undefined,
+      })),
+      attemptCount: initialAttemptCount + 1,
+    };
+  } catch (error) {
+    getLogger().warn(
+      {
+        original: input.word,
+        model: input.model,
+        judgeError: error instanceof Error ? error.message : String(error),
+      },
+      "semantic judge failed; continuing with deterministic validation only",
+    );
+
+    return { judgeResult: undefined, issues: [], attemptCount: initialAttemptCount };
+  }
+}
+
+function selectJudgeModel(generatorModel: string): string {
+  if (generatorModel.startsWith("openai/")) {
+    return "google/gemini-2.5-flash";
+  }
+
+  return "openai/gpt-4o-mini";
+}
+
+function buildJudgePrompt(request: TranslationRequest, result: TranslationResult): string {
+  return `You are a translation quality judge.
+
+Source text: ${JSON.stringify(request.text)}
+Source language: ${request.sourceLang}
+Target languages: ${request.targetLangs.join(", ")}
+${request.nativeLang ? `Native language: ${request.nativeLang}` : ""}
+${request.topic ? `Context hint: ${request.topic}` : ""}
+${request.inputType ? `Input type: ${request.inputType}` : ""}
+
+Candidate translation JSON:
+${JSON.stringify(result, null, 2)}
+
+Review each translation block and optional metadata.
+Return blocking issues for:
+- wrong main meaning
+- unnatural wording that changes the intended register or intensity
+- unsupported factual assumptions
+- broken immutable tokens such as placeholders, URLs, Markdown, dates, and numbers
+
+Return warnings for weaker auxiliary-field problems.
+Each issue must use a concrete fieldPath such as "translations.cs.text" or "sourceUsage.explanation".
+Return ONLY JSON matching the provided schema.`;
 }
 
 /**

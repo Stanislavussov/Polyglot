@@ -129,6 +129,8 @@ export interface TranslateInput {
   outputConfig?: TranslationOutputConfig;
   /** Classified input type — drives prompt, schema, and validation behavior */
   inputType?: InputType;
+  /** Confidence from upstream source-language detection when available */
+  detectionConfidence?: number;
 }
 
 /** Output from translate() — enriched TranslationResult with metadata */
@@ -231,7 +233,7 @@ export interface QualityMetadata {
   modelId: string;
   /** Total generation attempts (1 = first attempt succeeded, 3 = exhausted retries) */
   attemptCount: number;
-  /** Result from the cross-model semantic judge (Step 7) — undefined until implemented */
+  /** Result from the cross-model semantic judge when risk routing invokes it */
   judgeResult?: unknown;
   /** Quality issues found during validation (empty array when all checks pass) */
   issues: QualityIssue[];
@@ -253,8 +255,8 @@ export interface QualityMetadata {
  *   all retries; `output` is available but may contain errors; `issues`
  *   describes what went wrong.
  *
- * At Step 2, `needs_clarification` is defined but never produced — the
- * ambiguity detection logic arrives in Step 4.
+ * Structural ambiguity such as mixed scripts or locale-dependent numeric dates
+ * can produce `needs_clarification` before generation.
  */
 export type TranslationDecision =
   | { status: "accepted"; output: TranslateOutput; quality: QualityMetadata }

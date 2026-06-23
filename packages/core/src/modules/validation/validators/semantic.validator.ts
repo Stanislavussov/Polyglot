@@ -1,5 +1,9 @@
 import type { ValidationResult } from "../types.js";
 
+interface SemanticValidationOptions {
+  allowIdentical?: boolean;
+}
+
 /** Patterns that indicate AI hallucination or refusal */
 const HALLUCINATION_PATTERNS = [
   "N/A",
@@ -26,7 +30,11 @@ const HALLUCINATION_PATTERNS = [
  *
  * Pure function — no side effects.
  */
-export function validateSemantic(original: string, translation: string): ValidationResult {
+export function validateSemantic(
+  original: string,
+  translation: string,
+  options?: SemanticValidationOptions,
+): ValidationResult {
   const errors: ValidationResult["errors"] = [];
 
   // Check empty translation
@@ -43,7 +51,7 @@ export function validateSemantic(original: string, translation: string): Validat
   const trimmedTranslation = translation.trim().toLowerCase();
 
   // Check translation equals original
-  if (trimmedOriginal === trimmedTranslation) {
+  if (!options?.allowIdentical && trimmedOriginal === trimmedTranslation) {
     errors.push({
       rule: "semantic",
       message: `Translation "${translation}" is identical to original "${original}"`,

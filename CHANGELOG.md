@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added a risk-based translation quality pipeline: deterministic immutable-token checks, sentence semantic validation, cross-model judging for high-risk requests, and targeted repair of only failing language blocks.
+- Added pre-generation clarification for locale-ambiguous numeric dates and mixed-script/transliterated input. Lexical ambiguity is not hard-coded to specific phrases and remains risk-routed until ranked sense confidence is available.
+- Added structured semantic-judge output with field-level severity and repair instructions.
 - Added `input-analysis` core module with `analyzeInput()` — classifies user input as word/phrase/sentence and detects structural features (placeholders, URL, Markdown, dates, code-switching). Feature-based overrides reclassify URL-only and code-switched short input as "sentence". The module is a leaf with no sibling imports; `InputType` is now owned by this module and re-exported from `translation` for backward compatibility.
 - Added `detectLanguageWithConfidence()` and `detectLanguageWithConfidenceAsync()` — confidence-aware language detection returning `DetectionResult` with `{ language?, confidence, evidence, ambiguousCandidates? }` instead of a bare `string | undefined`. Uses candidate-aware scoring: each strategy contributes evidence scores per candidate, and the ensemble picks the highest-scoring candidate with a confidence threshold (≥0.7) and margin (≥0.2). Close-language pairs (cs/sk, hr/sr) are disambiguated by differential diacritics rather than ordered-regex first-match.
 - Added `DetectionEvidence` and `DetectionResult` types to the language-detect module.
@@ -24,6 +27,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Full translation retries now handle only generation and schema failures; deterministic and judge failures use bounded per-language targeted repair instead of replacing accepted translation blocks.
+- Sentence validation now skips only the source-equality guard while retaining hallucination and immutable-content checks.
+- Validation orchestration moved from the barrel file into `validation.service.ts`; `validation/index.ts` now contains re-exports only.
 - Updated translate-mode test fixtures to exercise the confidence-aware language-detection guards deterministically.
 - `InputType` definition moved from `translation/types.ts` to `input-analysis/types.ts`; `translation` re-exports it for backward compatibility. The bot's `classify-input.ts` is now a thin re-export from `@polyglot/core` instead of a local implementation.
 - Bot translate flow now uses `detectLanguageWithConfidence` / `detectLanguageWithConfidenceAsync` instead of `detectLanguage` / `detectLanguageAsync`. Ambiguous detections with candidate languages show language-selection buttons instead of the generic mistype warning; truly inconclusive detections (no evidence) still show the mistype warning.

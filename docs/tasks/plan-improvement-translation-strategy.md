@@ -5,7 +5,8 @@
 - [x] Шаг 1: benchmark cases версионированы и получили исполняемые quality assertions. Отчёт содержит prompt/schema versions, model settings, raw attempts и точные причины quality failures; CLI возвращает ненулевой код при regression.
 - [x] Шаг 2: введён `TranslationDecision` контракт с тремя статусами (`accepted`, `needs_clarification`, `needs_review`), типизированные причины уточнения (`TranslationAmbiguity`), quality metadata (`QualityMetadata`, `QualityIssue`, `RiskLevel`). Функции `translate()`, `translateOne()`, `translateBatch()` и context-enrichment обёртки возвращают `TranslationDecision`. Рендерер принимает `needsReview` параметр. `needs_clarification` статус определён, но ещё не производится (логика обнаружения неоднозначности — Шаг 4).
 - [x] Шаг 3: перенесён input analysis в core (`packages/core/src/modules/input-analysis/`), обогащён детекцией placeholders, URL, Markdown, дат и code-switching. Добавлена confidence-aware language detection (`detectLanguageWithConfidence` / `detectLanguageWithConfidenceAsync`) с candidate-aware scoring для близких языков (cs/sk, hr/sr) и confidence threshold. При ambiguous detection бот показывает inline keyboard с вариантами языков вместо generic mistype warning. Добавлены `DetectionResult`, `DetectionEvidence` типы и `detectionConfidence` поле в `QualityMetadata`.
-- [ ] Шаги 4–10: не реализованы этим slice и остаются в порядке, описанном ниже.
+- [x] Шаг 4: добавлен risk-based quality pipeline. Для всех input types выполняются deterministic semantic и immutable-token проверки; high-risk результаты проверяются моделью другого семейства; blocking issues исправляются targeted repair только затронутого language block. Full retry оставлен только для generation/schema failures. До generation возвращается clarification для неоднозначных numeric dates и mixed-script/transliterated input.
+- [ ] Шаги 5–10: остаются в порядке, описанном ниже. Generic word-sense clarification ещё не реализован: без ranked sense IDs и confidence margin pipeline не имитирует его hardcoded-фразами.
 
 Изменённые файлы:
 
@@ -21,12 +22,19 @@
 - `apps/bot/src/utils/vocabulary-mapper.test.ts`
 - `packages/core/src/modules/translation/types.ts`
 - `packages/core/src/modules/translation/translation.service.ts`
+- `packages/core/src/modules/translation/quality.schema.ts`
 - `packages/core/src/modules/translation/index.ts`
 - `packages/core/src/modules/translation/__tests__/translation.service.test.ts`
 - `packages/core/src/modules/translation/__tests__/dictionary-context.test.ts`
 - `packages/core/src/modules/translation/__tests__/output-config.test.ts`
 - `packages/core/src/modules/context-enrichment/context-enrichment.service.ts`
 - `packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts`
+- `packages/core/src/modules/validation/index.ts`
+- `packages/core/src/modules/validation/validation.service.ts`
+- `packages/core/src/modules/validation/validators/immutable.validator.ts`
+- `packages/core/src/modules/validation/validators/semantic.validator.ts`
+- `packages/core/src/modules/validation/__tests__/validate.test.ts`
+- `packages/core/src/modules/validation/__tests__/semantic.validator.test.ts`
 - `.pi/skills/translation/SKILL.md`
 - `CHANGELOG.md`
 

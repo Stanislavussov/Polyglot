@@ -99,18 +99,6 @@ describe("runTranslationBenchmark", () => {
         id: "success",
         expectedMeaning: "A valid Russian sentence.",
       },
-      attempts: [
-        {
-          attempt: 1,
-          response: {
-            translations: {
-              ru: {
-                text: "Это корректное русское предложение.",
-              },
-            },
-          },
-        },
-      ],
       decision: {
         status: "accepted",
         output: {
@@ -123,6 +111,17 @@ describe("runTranslationBenchmark", () => {
         },
       },
     });
+    expect(report.results[0]?.attempts[0]).toMatchObject({
+      attempt: 1,
+      response: {
+        translations: {
+          ru: {
+            text: "Это корректное русское предложение.",
+          },
+        },
+      },
+    });
+    expect(report.results[0]?.attempts).toHaveLength(2);
   });
 
   it("records a failed case after pipeline retries and continues with the next case", async () => {

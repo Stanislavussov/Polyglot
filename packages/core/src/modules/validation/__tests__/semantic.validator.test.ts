@@ -75,6 +75,11 @@ describe("validateSemantic", () => {
     expect(result.valid).toBe(true);
   });
 
+  it("allows identical text when the caller explicitly disables the equality guard", () => {
+    const result = validateSemantic("Hello world.", "Hello world.", { allowIdentical: true });
+    expect(result.valid).toBe(true);
+  });
+
   it("sets field to 'text' on errors", () => {
     const result = validateSemantic("hello", "N/A");
     for (const err of result.errors) {

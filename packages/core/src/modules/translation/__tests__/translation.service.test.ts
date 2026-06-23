@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Logger } from "../../../logger.js";
 import { setLogger } from "../../../logger.js";
 import { parseResponse, sanitizeEmoji, translate, translateBatch, translateOne } from "../translation.service.js";
+import { SENTENCE_OUTPUT } from "../translation-output.presets.js";
 import type { TranslateInput, TranslateOutput, TranslationDecision, TranslationResult } from "../types.js";
 
 function unwrap(d: TranslationDecision): TranslateOutput {
@@ -19,7 +20,7 @@ const mockLogger: Logger = {
 
 /** A valid AI response matching translationResultSchema */
 function makeValidResult(overrides?: Partial<TranslationResult>): TranslationResult {
-  return {
+  const base: TranslationResult = {
     emoji: "👋",
     nativeMeaning: "A greeting.",
     nativeSynonyms: [{ text: "привет" }],
@@ -38,7 +39,32 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
         connotationWarning: null,
       },
     },
+  };
+
+  if (!overrides) {
+    return base;
+  }
+
+  return {
+    ...base,
     ...overrides,
+    translations:
+      overrides.translations === undefined
+        ? base.translations
+        : Object.keys(overrides.translations).length === 0
+          ? {}
+          : {
+              ...base.translations,
+              ...Object.fromEntries(
+                Object.entries(overrides.translations).map(([lang, translation]) => [
+                  lang,
+                  {
+                    ...base.translations.cs,
+                    ...translation,
+                  },
+                ]),
+              ),
+            },
   };
 }
 
@@ -135,6 +161,107 @@ describe("translate", () => {
 
     // Third argument is model
     expect(mockGenerate.mock.calls[0][2]).toBe("openai/gpt-4o");
+  });
+
+  it("returns needs_clarification for an ambiguous numeric date before calling the model", async () => {
+    const mockGenerate = vi.fn();
+
+    const result = await translate(
+      {
+        word: "Let's meet on 06/07 at 5.",
+        sourceLang: "en",
+        targetLangs: ["de"],
+        nativeLang: "ru",
+        inputType: "sentence",
+        outputConfig: SENTENCE_OUTPUT,
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("needs_clarification");
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
+  it("does not hard-code lexical ambiguity for a specific sentence", async () => {
+    const sentenceResult: TranslationResult = {
+      emoji: "🦆",
+      nativeMeaning: "Я видел, как она пригнулась.",
+      nativeSynonyms: [],
+      translations: {
+        ru: {
+          text: "Я видел, как она пригнулась.",
+          synonyms: [],
+          examples: [],
+          expressionType: null,
+          equivalentNote: null,
+          usageNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    };
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce(sentenceResult)
+      .mockResolvedValueOnce({ issues: [], summary: "No unsupported assumptions detected." });
+
+    const result = await translate(
+      {
+        word: "I saw her duck.",
+        sourceLang: "en",
+        targetLangs: ["ru"],
+        nativeLang: "cs",
+        inputType: "sentence",
+        outputConfig: SENTENCE_OUTPUT,
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+  });
+
+  it("runs the semantic judge for high-risk sentence translations", async () => {
+    const sentenceResult: TranslationResult = {
+      emoji: "🪟",
+      nativeMeaning: "Вежливая просьба закрыть окно.",
+      nativeSynonyms: [{ text: "просьба" }],
+      translations: {
+        de: {
+          text: "Könntest du das Fenster schließen?",
+          synonyms: [],
+          examples: [],
+          expressionType: null,
+          equivalentNote: null,
+          usageNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    };
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce(sentenceResult)
+      .mockResolvedValueOnce({ issues: [], summary: "ok" });
+
+    const result = await translate(
+      {
+        word: "Could you close the window?",
+        sourceLang: "en",
+        targetLangs: ["de"],
+        nativeLang: "ru",
+        inputType: "sentence",
+        outputConfig: SENTENCE_OUTPUT,
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-flash");
   });
 
   it("uses translation-safe generation settings", async () => {
