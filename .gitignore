@@ -2,7 +2,6 @@ node_modules
 dist
 .env
 coverage
-translation-benchmark-results
 *.tsbuildinfo
 .pi/ai-sdk-debug.log
 **/.pi-lens/*

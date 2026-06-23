@@ -6,9 +6,9 @@ import { SENTENCE_OUTPUT } from "@polyglot/core";
 import { afterEach, describe, expect, it } from "vitest";
 import type { ZodSchema } from "zod";
 import {
+  renderBenchmarkReportMarkdown,
   runTranslationBenchmark,
   type TranslationBenchmarkCase,
-  type TranslationBenchmarkReport,
 } from "./benchmark-runner.js";
 
 const tempDirectories: string[] = [];
@@ -16,7 +16,7 @@ const tempDirectories: string[] = [];
 async function createOutputPath(): Promise<string> {
   const directory = await mkdtemp(join(tmpdir(), "polyglot-translation-benchmark-"));
   tempDirectories.push(directory);
-  return join(directory, "nested", "report.json");
+  return join(directory, "nested", "report.md");
 }
 
 function sentenceCase(id: string, word: string): TranslationBenchmarkCase {
@@ -74,19 +74,15 @@ describe("runTranslationBenchmark", () => {
       detectLanguageFn: async () => undefined,
     });
 
-    const savedReport = JSON.parse(await readFile(outputPath, "utf8")) as TranslationBenchmarkReport;
+    const savedReport = await readFile(outputPath, "utf8");
 
     expect(report.summary).toEqual({ total: 1, completed: 1, failed: 0 });
     expect(report.detectionSummary).toEqual({ total: 1, matched: 1, mismatched: 0 });
-    expect(savedReport.detectionResults[0]).toMatchObject({
-      case: {
-        id: "fast-en-de",
-        expectedAction: "ask_source_language",
-      },
-      matchesExpectation: true,
-    });
-    expect(savedReport.model).toBe("test/model");
-    expect(savedReport.results[0]).toMatchObject({
+    expect(savedReport).toContain("# Translation benchmark report");
+    expect(savedReport).toContain("`test/model`");
+    expect(savedReport).toContain("| fast-en-de | fast | ask_source_language | — | PASS |");
+    expect(savedReport).toContain('"text": "Это корректное русское предложение."');
+    expect(report.results[0]).toMatchObject({
       status: "completed",
       case: {
         id: "success",
@@ -136,17 +132,47 @@ describe("runTranslationBenchmark", () => {
       detectLanguageFn: async () => undefined,
     });
 
-    const savedReport = JSON.parse(await readFile(outputPath, "utf8")) as TranslationBenchmarkReport;
+    const savedReport = await readFile(outputPath, "utf8");
 
     expect(report.summary).toEqual({ total: 2, completed: 1, failed: 1 });
-    expect(savedReport.results[0]).toMatchObject({
+    expect(report.results[0]).toMatchObject({
       status: "failed",
       error: "simulated provider failure",
     });
-    expect(savedReport.results[0].attempts).toHaveLength(3);
-    expect(savedReport.results[1]).toMatchObject({
+    expect(report.results[0].attempts).toHaveLength(3);
+    expect(report.results[1]).toMatchObject({
       status: "completed",
       case: { id: "success-after-failure" },
     });
+    expect(savedReport).toContain("Error: simulated provider failure");
+  });
+});
+
+describe("renderBenchmarkReportMarkdown", () => {
+  it("escapes table separators in detection input", () => {
+    const markdown = renderBenchmarkReportMarkdown({
+      schemaVersion: 2,
+      generatedAt: "2026-06-22T00:00:00.000Z",
+      model: "test/model",
+      summary: { total: 0, completed: 0, failed: 0 },
+      detectionSummary: { total: 1, matched: 1, mismatched: 0 },
+      detectionResults: [
+        {
+          case: {
+            id: "separator",
+            category: "code-switching",
+            text: "hello | hola",
+            candidates: ["en", "es"],
+            expectedAction: "ask_source_language",
+            explanation: "Mixed input.",
+          },
+          matchesExpectation: true,
+          durationMs: 1,
+        },
+      ],
+      results: [],
+    });
+
+    expect(markdown).toContain("hello \\| hola");
   });
 });
