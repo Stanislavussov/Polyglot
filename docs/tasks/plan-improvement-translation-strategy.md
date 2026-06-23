@@ -7,7 +7,8 @@
 - [x] Шаг 3: перенесён input analysis в core (`packages/core/src/modules/input-analysis/`), обогащён детекцией placeholders, URL, Markdown, дат и code-switching. Добавлена confidence-aware language detection (`detectLanguageWithConfidence` / `detectLanguageWithConfidenceAsync`) с candidate-aware scoring для близких языков (cs/sk, hr/sr) и confidence threshold. При ambiguous detection бот показывает inline keyboard с вариантами языков вместо generic mistype warning. Добавлены `DetectionResult`, `DetectionEvidence` типы и `detectionConfidence` поле в `QualityMetadata`.
 - [x] Шаг 4: добавлен risk-based quality pipeline. Для всех input types выполняются deterministic semantic и immutable-token проверки; high-risk результаты проверяются моделью другого семейства; blocking issues исправляются targeted repair только затронутого language block. Full retry оставлен только для generation/schema failures. До generation возвращается clarification для неоднозначных numeric dates и mixed-script/transliterated input.
 - [x] Шаг 5: benchmark запускает stochastic translation/detection cases многократно, считает отдельные quality dimensions, latency/cost и repair success, сравнивает минимум три класса моделей, сохраняет JSON baseline и блокирует статистически значимые regression по language pair. Release gates защищают immutable spans, ambiguity handling, primary/metadata accuracy и single-call low-risk path.
-- [ ] Шаги 6–10: остаются в порядке, описанном ниже. Dataset содержит 31 translation и 72 detection reviewed fixtures; расширение до 200–500 уникальных reviewed cases остаётся отдельной последовательной работой, а не синтетическим дублированием. Generic word-sense clarification ещё не реализован: без ranked sense IDs и confidence margin pipeline не имитирует его hardcoded-фразами.
+- [x] Шаг 6: invariant validators для предложений и technical text теперь симметрично проверяют immutable spans: output не может удалить, изменить count или добавить placeholders, URL, Markdown link targets, dates и numbers, отсутствующие в source.
+- [ ] Шаги 7–10: остаются в порядке, описанном ниже. Dataset содержит 31 translation и 72 detection reviewed fixtures; расширение до 200–500 уникальных reviewed cases остаётся отдельной последовательной работой, а не синтетическим дублированием. Generic word-sense clarification ещё не реализован: без ranked sense IDs и confidence margin pipeline не имитирует его hardcoded-фразами.
 
 Изменённые файлы:
 
@@ -38,6 +39,7 @@
 - `packages/core/src/modules/validation/validators/semantic.validator.ts`
 - `packages/core/src/modules/validation/__tests__/validate.test.ts`
 - `packages/core/src/modules/validation/__tests__/semantic.validator.test.ts`
+- `.pi/skills/validation/SKILL.md`
 - `.pi/skills/translation/SKILL.md`
 - `CHANGELOG.md`
 

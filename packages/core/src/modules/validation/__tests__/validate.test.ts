@@ -109,6 +109,29 @@ describe("validate (orchestrator)", () => {
     );
   });
 
+  it("rejects sentence translations that introduce unsupported numbers", () => {
+    const raw = {
+      emoji: "📅",
+      translations: {
+        de: {
+          text: "Bitte senden Sie die Unterlagen bis Freitag um 17:00.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "Please send the documents by Friday.", ["de"], "sentence");
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.de.text",
+        }),
+      ]),
+    );
+  });
+
   it("rejects translations that alter placeholders", () => {
     const raw = {
       emoji: "🧩",
@@ -127,6 +150,81 @@ describe("validate (orchestrator)", () => {
         expect.objectContaining({
           rule: "immutable",
           field: "translations.cs.text",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects technical translations that introduce unsupported placeholders", () => {
+    const raw = {
+      emoji: "🧩",
+      translations: {
+        cs: {
+          text: "Ahoj, {name}. Aktualizace je připravena v {app}.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "Hello. The update is ready.", ["cs"], "sentence");
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.cs.text",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects technical translations that introduce unsupported URLs", () => {
+    const raw = {
+      emoji: "🔗",
+      translations: {
+        ru: {
+          text: "Сначала прочитайте инструкции на https://example.com/help.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "Read the instructions first.", ["ru"], "sentence");
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.ru.text",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects Markdown translations that change the link target", () => {
+    const raw = {
+      emoji: "🔗",
+      translations: {
+        ru: {
+          text: "Сначала прочитайте [инструкции](https://example.com/other).",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(
+      raw,
+      translationResultSchema,
+      "Read the [instructions](https://example.com/help) first.",
+      ["ru"],
+      "sentence",
+    );
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.ru.text",
         }),
       ]),
     );

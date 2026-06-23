@@ -40,6 +40,8 @@ AI Response
     ├─ 2. validateSemantic               — translation ≠ original, no hallucinations
     │                                       equality guard only skipped for sentences
     ├─ 3. validateImmutableContent        — placeholders, URLs, numbers, dates, Markdown
+    │                                       must be preserved, and output cannot add
+    │                                       unsupported immutable tokens
     ├─ 4. validateLanguage                — no-op (franc-min removed, see below)
     ├─ 5. validateNativeFields           — script, romanization, pronunciation, duplication
     ├─ 6. validateExamples               — examples well-formed + phrase/inflection matching
@@ -80,6 +82,8 @@ function validateSchema(raw: unknown, schema: ZodSchema): ValidationResult;
 function validateSemantic(original: string, translation: string): ValidationResult;
 
 // Immutable source tokens must be preserved byte-for-byte and with the same count.
+// Generated output must not introduce new immutable placeholders, URLs,
+// Markdown link targets, dates, or numbers that were absent from the source.
 function validateImmutableContent(original: string, translation: string): ValidationResult;
 
 // Language validation — no-op (always returns valid).

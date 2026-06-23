@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added symmetric invariant validation for sentence and technical translations: generated output now fails validation if it introduces unsupported placeholders, URLs, Markdown link targets, dates, or numbers that were not present in the source.
 - Added benchmark model comparison and regression control: stochastic cases run repeatedly, three-or-more-model runs produce a comparison, JSON reports can be used as same-model baselines, and language-pair regressions are tested for statistical significance.
 - Added separate benchmark scores for primary translations, auxiliary fields, factual preservation, naturalness/register, ambiguity handling, detection accuracy, and repair success, plus release gates for immutable data, ambiguity, accuracy thresholds, regressions, and the low-risk single-call path.
 - Added actual AI request token, cost, and latency capture to benchmark reports through the adapter metric sink. Reports now include full prompts alongside raw responses and pipeline validation/judge issues.

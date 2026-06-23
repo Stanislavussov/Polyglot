@@ -8,8 +8,10 @@ const MARKDOWN_LINK_PATTERN = /\[[^\]]*]\(([^)]+)\)/g;
 
 export function validateImmutableContent(original: string, translation: string): ValidationResult {
   const errors: ValidationError[] = [];
+  const originalTokens = collectImmutableTokens(original);
+  const translationTokens = collectImmutableTokens(translation);
 
-  for (const token of collectImmutableTokens(original)) {
+  for (const token of originalTokens) {
     const expectedCount = countOccurrences(original, token);
     const actualCount = countOccurrences(translation, token);
 
@@ -20,6 +22,16 @@ export function validateImmutableContent(original: string, translation: string):
         field: "text",
       });
     }
+  }
+
+  for (const token of translationTokens) {
+    if (originalTokens.includes(token)) continue;
+
+    errors.push({
+      rule: "immutable",
+      message: `Translation introduced immutable token "${token}" that was not present in the original`,
+      field: "text",
+    });
   }
 
   return { valid: errors.length === 0, errors };

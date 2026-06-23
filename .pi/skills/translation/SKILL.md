@@ -17,7 +17,7 @@ description: Word and phrase translation via AI with prompt building, response p
 
 ## Current State
 
-Fully implemented with types, Zod schemas, prompt builder, and a risk-based validation pipeline. Full retries are limited to generation/schema failures. Deterministic or judge failures use bounded targeted repair of the affected language block. High-risk requests run a structured semantic judge from a different model family. Structural preflight ambiguity currently covers locale-ambiguous numeric dates and mixed scripts; generic lexical ambiguity awaits ranked sense IDs and confidence margins and must not be implemented with phrase-specific rules.
+Fully implemented with types, Zod schemas, prompt builder, and a risk-based validation pipeline. Full retries are limited to generation/schema failures. Deterministic or judge failures use bounded targeted repair of the affected language block. High-risk requests run a structured semantic judge from a different model family. Sentence and technical-text validation preserves immutable spans and rejects generated placeholders, URLs, Markdown link targets, dates, and numbers that were not present in the source. Structural preflight ambiguity currently covers locale-ambiguous numeric dates and mixed scripts; generic lexical ambiguity awaits ranked sense IDs and confidence margins and must not be implemented with phrase-specific rules.
 
 ### Unified expression handling & 3 translation variants
 
