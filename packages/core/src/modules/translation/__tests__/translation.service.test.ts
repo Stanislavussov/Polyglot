@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Logger } from "../../../logger.js";
 import { setLogger } from "../../../logger.js";
 import { parseResponse, sanitizeEmoji, translate, translateBatch, translateOne } from "../translation.service.js";
-import { SENTENCE_OUTPUT } from "../translation-output.presets.js";
+import { MINIMAL_OUTPUT, SENTENCE_OUTPUT } from "../translation-output.presets.js";
 import type { TranslateInput, TranslateOutput, TranslationDecision, TranslationResult } from "../types.js";
 
 function unwrap(d: TranslationDecision): TranslateOutput {
@@ -264,6 +264,72 @@ describe("translate", () => {
     expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-flash");
   });
 
+  it("keeps an ordinary unbacked word on the single-call medium-risk path", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    const result = await translate(defaultInput, mockGenerate);
+
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("medium");
+      expect(result.quality.judgeResult).toBeUndefined();
+    }
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps a dictionary-backed confident word on the low-risk single-call path", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        dictionaryContext: {
+          word: "hello",
+          pos: "noun",
+          glosses: ["a greeting"],
+          langCode: "en",
+        },
+        outputConfig: MINIMAL_OUTPUT,
+        detectionConfidence: 0.93,
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("low");
+      expect(result.quality.judgeResult).toBeUndefined();
+    }
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+  });
+
+  it("runs the semantic judge for phrase translations", async () => {
+    const mockGenerate = vi.fn().mockResolvedValueOnce(makeValidResult()).mockResolvedValueOnce({
+      issues: [],
+      summary: "Phrase meaning, register, and assumptions are acceptable.",
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "break a leg",
+        inputType: "phrase",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("high");
+      expect(result.quality.judgeResult).toEqual({
+        issues: [],
+        summary: "Phrase meaning, register, and assumptions are acceptable.",
+      });
+    }
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-flash");
+  });
+
   it("uses translation-safe generation settings", async () => {
     const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
 
@@ -387,56 +453,59 @@ describe("translate", () => {
   });
 
   it("accepts phase-out examples without a redundant native field in the native target block", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(
-      makeValidResult({
-        nativeMeaning: "Постепенно прекратить использование.",
-        sourceUsage: {
-          explanation: "Фразовый глагол означает постепенное прекращение использования или производства.",
-          synonyms: [{ text: "discontinue" }],
-          examples: [
-            {
-              context: "policy",
-              target: "The government will phase out single-use plastics.",
-              native: "Правительство постепенно откажется от одноразового пластика.",
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce(
+        makeValidResult({
+          nativeMeaning: "Постепенно прекратить использование.",
+          sourceUsage: {
+            explanation: "Фразовый глагол означает постепенное прекращение использования или производства.",
+            synonyms: [{ text: "discontinue" }],
+            examples: [
+              {
+                context: "policy",
+                target: "The government will phase out single-use plastics.",
+                native: "Правительство постепенно откажется от одноразового пластика.",
+              },
+            ],
+          },
+          nativeSynonyms: [{ text: "постепенно отказаться" }],
+          translations: {
+            cs: {
+              text: "postupně ukončit",
+              synonyms: [{ text: "postupně vyřadit" }],
+              examples: [
+                {
+                  context: "policy",
+                  target: "Vláda chce postupně ukončit používání plastů.",
+                  native: "Правительство хочет постепенно отказаться от пластика.",
+                },
+              ],
+              expressionType: null,
+              equivalentNote: null,
+              usageNote: "Нейтральный чешский вариант для постепенного прекращения использования.",
+              alternatives: null,
+              connotationWarning: null,
             },
-          ],
-        },
-        nativeSynonyms: [{ text: "постепенно отказаться" }],
-        translations: {
-          cs: {
-            text: "postupně ukončit",
-            synonyms: [{ text: "postupně vyřadit" }],
-            examples: [
-              {
-                context: "policy",
-                target: "Vláda chce postupně ukončit používání plastů.",
-                native: "Правительство хочет постепенно отказаться от пластика.",
-              },
-            ],
-            expressionType: null,
-            equivalentNote: null,
-            usageNote: "Нейтральный чешский вариант для постепенного прекращения использования.",
-            alternatives: null,
-            connotationWarning: null,
+            ru: {
+              text: "постепенно отказаться",
+              synonyms: [{ text: "постепенно прекратить" }],
+              examples: [
+                {
+                  context: "policy",
+                  target: "Правительство хочет постепенно отказаться от пластика.",
+                },
+              ],
+              expressionType: null,
+              equivalentNote: null,
+              usageNote: "Естественный русский вариант; обычно сочетается с указанием того, от чего отказываются.",
+              alternatives: null,
+              connotationWarning: null,
+            },
           },
-          ru: {
-            text: "постепенно отказаться",
-            synonyms: [{ text: "постепенно прекратить" }],
-            examples: [
-              {
-                context: "policy",
-                target: "Правительство хочет постепенно отказаться от пластика.",
-              },
-            ],
-            expressionType: null,
-            equivalentNote: null,
-            usageNote: "Естественный русский вариант; обычно сочетается с указанием того, от чего отказываются.",
-            alternatives: null,
-            connotationWarning: null,
-          },
-        },
-      }),
-    );
+        }),
+      )
+      .mockResolvedValueOnce({ issues: [], summary: "ok" });
 
     const result = await translate(
       {
@@ -454,7 +523,7 @@ describe("translate", () => {
       "Правительство хочет постепенно отказаться от пластика.",
     );
     expect(unwrap(result).translations.ru.examples[0]?.native).toBeUndefined();
-    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
   it("propagates AI adapter errors", async () => {

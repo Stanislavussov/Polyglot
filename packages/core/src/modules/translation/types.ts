@@ -219,8 +219,7 @@ export type RiskLevel = "low" | "medium" | "high";
  *
  * Tracks the prompt and schema versions used, the risk level, model,
  * attempt count, and any quality issues found. The `judgeResult` field
- * is populated in Step 7 (cross-model semantic judge) and is undefined
- * until then.
+ * is populated when high-risk routing invokes the cross-model semantic judge.
  */
 export interface QualityMetadata {
   /** Prompt template version (e.g., "translation-v1") */

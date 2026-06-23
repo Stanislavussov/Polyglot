@@ -40,6 +40,13 @@ const MAX_FULL_RETRIES = 2;
 const MAX_TARGETED_REPAIRS = 2;
 const PROMPT_VERSION = "translation-v1";
 const SCHEMA_VERSION = 1;
+const HIGH_RISK_SCORE = 3;
+const MEDIUM_RISK_SCORE = 1;
+const CONFIDENT_DETECTION_THRESHOLD = 0.85;
+const COMMON_TRANSLATION_LANGS = new Set(["en", "cs", "ru", "de", "es", "fr", "it", "pt", "pl", "sk", "uk"]);
+const RISKY_CONTEXT_PATTERN =
+  /\b(idiom|slang|sarcasm|sarcastic|irony|ironic|profane|profanity|swear|swearing|offensive|vulgar|wordplay|pun|joke)\b/i;
+const HIGH_RISK_POS = new Set(["idiom", "phrase", "proverb", "interjection"]);
 
 /**
  * AI generation function signature — injected to avoid direct dependency
@@ -347,20 +354,88 @@ function assessRiskLevel(
   features: ReturnType<typeof analyzeInput>["features"],
   issues: QualityIssue[],
 ): RiskLevel {
-  if (
-    issues.length > 0 ||
-    input.inputType === "sentence" ||
-    (input.dictionaryContext !== undefined && input.dictionaryContext.glosses.length !== 1) ||
-    features.hasPlaceholders ||
-    features.hasUrl ||
-    features.hasMarkdown ||
-    features.hasDates ||
-    features.hasCodeSwitching
-  ) {
+  const score =
+    scoreBlockingSignals(input, features, issues) +
+    scoreDictionarySignals(input) +
+    scoreLanguagePair(input) +
+    scoreRichMetadata(input);
+
+  if (score >= HIGH_RISK_SCORE) {
     return "high";
   }
 
+  if (score >= MEDIUM_RISK_SCORE) {
+    return "medium";
+  }
+
   return "low";
+}
+
+function scoreBlockingSignals(
+  input: TranslateInput,
+  features: ReturnType<typeof analyzeInput>["features"],
+  issues: QualityIssue[],
+): number {
+  let score = 0;
+
+  if (issues.length > 0) score += HIGH_RISK_SCORE;
+  if (input.inputType === "sentence") score += HIGH_RISK_SCORE;
+  if (input.inputType === "phrase") score += HIGH_RISK_SCORE;
+  if (features.hasPlaceholders) score += HIGH_RISK_SCORE;
+  if (features.hasUrl) score += HIGH_RISK_SCORE;
+  if (features.hasMarkdown) score += HIGH_RISK_SCORE;
+  if (features.hasDates) score += HIGH_RISK_SCORE;
+  if (features.hasCodeSwitching) score += HIGH_RISK_SCORE;
+  if (input.detectionConfidence !== undefined && input.detectionConfidence < CONFIDENT_DETECTION_THRESHOLD) {
+    score += HIGH_RISK_SCORE;
+  }
+  if (
+    RISKY_CONTEXT_PATTERN.test(input.word) ||
+    (input.topic !== undefined && RISKY_CONTEXT_PATTERN.test(input.topic))
+  ) {
+    score += HIGH_RISK_SCORE;
+  }
+
+  return score;
+}
+
+function scoreDictionarySignals(input: TranslateInput): number {
+  if (input.dictionaryContext === undefined) {
+    return input.inputType === "word" ? MEDIUM_RISK_SCORE : 0;
+  }
+
+  const pos = input.dictionaryContext.pos.toLowerCase();
+  if (HIGH_RISK_POS.has(pos)) {
+    return HIGH_RISK_SCORE;
+  }
+
+  if (input.dictionaryContext.glosses.length === 1) {
+    return 0;
+  }
+
+  return input.dictionaryContext.glosses.length === 0 ? MEDIUM_RISK_SCORE : HIGH_RISK_SCORE;
+}
+
+function scoreLanguagePair(input: TranslateInput): number {
+  const languages = [input.sourceLang, ...input.targetLangs];
+  return languages.some((lang) => !COMMON_TRANSLATION_LANGS.has(lang)) ? HIGH_RISK_SCORE : 0;
+}
+
+function scoreRichMetadata(input: TranslateInput): number {
+  if (input.inputType === "sentence") return 0;
+
+  const config = input.outputConfig;
+  const richMetadataRequested =
+    input.nativeLang !== undefined ||
+    config === undefined ||
+    config.includeExamples !== false ||
+    config.includeAlternatives !== false ||
+    config.includeSynonyms !== false ||
+    config.includeEquivalentNote !== false ||
+    config.includeConnotationWarning !== false ||
+    config.includeNativeSynonyms !== false;
+
+  return richMetadataRequested ? MEDIUM_RISK_SCORE : 0;
 }
 
 function detectPreflightAmbiguity(

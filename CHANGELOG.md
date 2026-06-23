@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Translation risk classification now uses a points-based `low`/`medium`/`high` score before semantic judging, keeping ordinary words single-call while routing phrase/sentence, low-confidence, uncommon-pair, immutable-heavy, and multi-sense/idiom cases to the cross-model judge.
 - Full translation retries now handle only generation and schema failures; deterministic and judge failures use bounded per-language targeted repair instead of replacing accepted translation blocks.
 - Sentence validation now skips only the source-equality guard while retaining hallucination and immutable-content checks.
 - Validation orchestration moved from the barrel file into `validation.service.ts`; `validation/index.ts` now contains re-exports only.
