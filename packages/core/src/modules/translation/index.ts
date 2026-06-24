@@ -56,6 +56,7 @@ export type {
   TranslationAmbiguityOption,
   TranslationAmbiguityReason,
   TranslationDecision,
+  TranslationModelRoutingPolicy,
   TranslationOutputConfig,
   TranslationRequest,
   TranslationResult,

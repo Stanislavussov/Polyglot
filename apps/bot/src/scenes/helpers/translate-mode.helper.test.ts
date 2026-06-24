@@ -15,6 +15,7 @@ const {
   mockVocabularyRepository,
   mockTranslationTemplateRepository,
   mockTranslationRequestRepository,
+  mockRequestTimingRepository,
   mockLanguageCache,
   mockAi,
 } = vi.hoisted(() => ({
@@ -34,6 +35,9 @@ const {
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
     logTranslationRequest: vi.fn().mockResolvedValue(1),
   },
+  mockRequestTimingRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+  },
   mockLanguageCache: {
     getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
   },
@@ -48,9 +52,7 @@ vi.mock("@polyglot/adapter-db", () => ({
   createContextLookup: () => mockLookupContext,
   getLang: mockLanguageCache.getLang,
   translationTemplateRepository: mockTranslationTemplateRepository,
-  requestTimingRepository: {
-    record: vi.fn().mockResolvedValue(undefined),
-  },
+  requestTimingRepository: mockRequestTimingRepository,
   languageDetectionRepository: {
     record: vi.fn().mockResolvedValue(undefined),
   },
@@ -283,6 +285,42 @@ describe("handleTranslateText — context enrichment", () => {
         topic: "finance",
       }),
       expect.anything(),
+    );
+  });
+
+  it("records the routed translation model in request timing", async () => {
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "accepted",
+      output: {
+        original: "hello",
+        sourceLang: "en",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: {
+          cs: {
+            text: "ahoj",
+            synonyms: [],
+            examples: [],
+          },
+        },
+      },
+      quality: {
+        promptVersion: "translation-v1",
+        schemaVersion: 1,
+        riskLevel: "high",
+        modelId: "anthropic/claude-sonnet-4-20250514",
+        attemptCount: 1,
+        issues: [],
+      },
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "hello");
+
+    expect(mockRequestTimingRepository.record).toHaveBeenCalledWith(
+      expect.objectContaining({
+        modelId: "anthropic/claude-sonnet-4-20250514",
+      }),
     );
   });
 

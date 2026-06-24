@@ -104,6 +104,9 @@ export async function translate(
     "translation request started",
   );
 
+  const preliminaryRiskLevel = assessRiskLevel(normalizedInput, analysis.features, []);
+  const generationModel = selectGenerationModel(normalizedInput, preliminaryRiskLevel);
+
   const requiresNativeOutput = normalizedInput.nativeLang !== undefined;
   const requiresSourceUsage =
     requiresNativeOutput &&
@@ -130,7 +133,7 @@ export async function translate(
   for (let attempt = 0; attempt <= MAX_FULL_RETRIES; attempt++) {
     try {
       attemptCount++;
-      result = (await generateObjectFn(prompt, schema, normalizedInput.model, {
+      result = (await generateObjectFn(prompt, schema, generationModel, {
         frequencyPenalty: 0,
         ...(normalizedInput.userId !== undefined ? { userId: normalizedInput.userId } : {}),
       })) as TranslationResult;
@@ -213,6 +216,7 @@ export async function translate(
       request,
       generateObjectFn,
       attemptCount,
+      generationModel,
     );
     result = repaired.result;
     issues = repaired.issues;
@@ -220,10 +224,19 @@ export async function translate(
   }
 
   const riskLevel = assessRiskLevel(normalizedInput, analysis.features, issues);
+  const routedGenerationModel =
+    riskLevel === preliminaryRiskLevel ? generationModel : selectGenerationModel(normalizedInput, riskLevel);
 
   let judgeResult: SemanticJudgeResult | undefined;
   if (!hasBlockingIssues(issues) && riskLevel === "high") {
-    const judged = await judgeTranslation(result, normalizedInput, request, generateObjectFn, attemptCount);
+    const judged = await judgeTranslation(
+      result,
+      normalizedInput,
+      request,
+      generateObjectFn,
+      attemptCount,
+      routedGenerationModel,
+    );
     judgeResult = judged.judgeResult;
     attemptCount = judged.attemptCount;
 
@@ -237,13 +250,21 @@ export async function translate(
           request,
           generateObjectFn,
           attemptCount,
+          routedGenerationModel,
         );
         result = repaired.result;
         attemptCount = repaired.attemptCount;
         issues = repaired.issues;
 
         if (!hasBlockingIssues(issues)) {
-          const reJudged = await judgeTranslation(result, normalizedInput, request, generateObjectFn, attemptCount);
+          const reJudged = await judgeTranslation(
+            result,
+            normalizedInput,
+            request,
+            generateObjectFn,
+            attemptCount,
+            routedGenerationModel,
+          );
           judgeResult = reJudged.judgeResult;
           attemptCount = reJudged.attemptCount;
           issues = [...issues, ...reJudged.issues];
@@ -260,7 +281,7 @@ export async function translate(
         promptVersion: PROMPT_VERSION,
         schemaVersion: SCHEMA_VERSION,
         riskLevel,
-        modelId: normalizedInput.model,
+        modelId: routedGenerationModel,
         attemptCount,
         judgeResult,
         issues,
@@ -314,6 +335,7 @@ export async function translateOne(
       outputConfig: input.outputConfig,
       inputType: input.inputType,
       detectionConfidence: input.detectionConfidence,
+      modelRouting: input.modelRouting,
     },
     generateObjectFn,
   );
@@ -369,6 +391,17 @@ function assessRiskLevel(
   }
 
   return "low";
+}
+
+function selectGenerationModel(input: TranslateInput, riskLevel: RiskLevel): string {
+  switch (riskLevel) {
+    case "low":
+      return input.modelRouting?.lowRiskModel ?? input.model;
+    case "medium":
+      return input.modelRouting?.mediumRiskModel ?? input.model;
+    case "high":
+      return input.modelRouting?.highRiskModel ?? input.model;
+  }
 }
 
 function scoreBlockingSignals(
@@ -476,6 +509,7 @@ async function repairTranslationBlocks(
   request: TranslationRequest,
   generateObjectFn: GenerateObjectFn,
   initialAttemptCount: number,
+  fallbackGenerationModel: string,
 ): Promise<{ result: TranslationResult; issues: QualityIssue[]; attemptCount: number }> {
   const languages = uniqueRepairLanguages(sourceIssues);
   if (languages.length === 0) {
@@ -484,6 +518,11 @@ async function repairTranslationBlocks(
 
   let workingResult = result;
   let attemptCount = initialAttemptCount;
+  const repairRiskLevel = assessRiskLevel(input, analyzeInput(input.word).features, sourceIssues);
+  const repairModel =
+    repairRiskLevel === "high" && input.modelRouting?.highRiskModel !== undefined
+      ? input.modelRouting.highRiskModel
+      : fallbackGenerationModel;
 
   for (const lang of languages) {
     const langIssues = sourceIssues.filter((issue) => issue.fieldPath.startsWith(`translations.${lang}.`));
@@ -500,7 +539,7 @@ async function repairTranslationBlocks(
             input.outputConfig?.includeUsageNote !== false,
           input.nativeLang !== undefined && input.sourceLang !== input.nativeLang && lang === input.nativeLang,
         ) as import("zod").ZodSchema<LanguageTranslation>,
-        input.model,
+        repairModel,
         {
           frequencyPenalty: 0,
           ...(input.userId !== undefined ? { userId: input.userId } : {}),
@@ -601,6 +640,7 @@ Fix only the reported issues:
 ${issues.map((issue) => `- ${issue.fieldPath}: ${issue.message}${issue.repairInstruction ? ` (${issue.repairInstruction})` : ""}`).join("\n")}
 
 Preserve valid neighboring fields unless a reported issue requires changing them.
+For sentence translations, the "text" field must contain only the translated sentence text: no emoji, commentary, labels, or metadata.
 Return ONLY the corrected JSON object for the single target-language block schema.`;
 }
 
@@ -610,9 +650,10 @@ async function judgeTranslation(
   request: TranslationRequest,
   generateObjectFn: GenerateObjectFn,
   initialAttemptCount: number,
+  generationModel: string,
 ): Promise<{ judgeResult?: SemanticJudgeResult; issues: QualityIssue[]; attemptCount: number }> {
   try {
-    const judgeModel = selectJudgeModel(input.model);
+    const judgeModel = selectJudgeModel(generationModel, input.modelRouting?.judgeModel);
     const judgePrompt = buildJudgePrompt(request, result);
     const judgeResult = (await generateObjectFn(judgePrompt, semanticJudgeSchema, judgeModel, {
       ...(input.userId !== undefined ? { userId: input.userId } : {}),
@@ -630,7 +671,7 @@ async function judgeTranslation(
     getLogger().warn(
       {
         original: input.word,
-        model: input.model,
+        model: generationModel,
         judgeError: error instanceof Error ? error.message : String(error),
       },
       "semantic judge failed; continuing with deterministic validation only",
@@ -640,7 +681,11 @@ async function judgeTranslation(
   }
 }
 
-function selectJudgeModel(generatorModel: string): string {
+function selectJudgeModel(generatorModel: string, configuredJudgeModel?: string): string {
+  if (configuredJudgeModel !== undefined) {
+    return configuredJudgeModel;
+  }
+
   if (generatorModel.startsWith("openai/")) {
     return "google/gemini-2.5-flash";
   }
@@ -663,10 +708,13 @@ ${JSON.stringify(result, null, 2)}
 
 Review each translation block and optional metadata.
 Return blocking issues for:
-- wrong main meaning
-- unnatural wording that changes the intended register or intensity
+- wrong main meaning, negation, entities, dates, numbers, or other factual content
 - unsupported factual assumptions
 - broken immutable tokens such as placeholders, URLs, Markdown, dates, and numbers
+- target text polluted with emoji, labels, explanations, or metadata that were not in the source
+
+Do NOT return blocking issues for acceptable stylistic variants, word-order differences, or valid polite constructions when the meaning, register, and facts are preserved.
+If wording is merely less idiomatic but still correct, return a warning instead of blocking.
 
 Return warnings for weaker auxiliary-field problems.
 Each issue must use a concrete fieldPath such as "translations.cs.text" or "sourceUsage.explanation".

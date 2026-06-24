@@ -85,6 +85,27 @@ import type { InputType } from "../input-analysis/types.js";
 
 export type { InputType };
 
+/** Risk level of a translation request — drives validation and judge routing */
+export type RiskLevel = "low" | "medium" | "high";
+
+/**
+ * Optional model routing policy derived from benchmark results.
+ *
+ * `model` remains the default generation model. Supplying overrides lets callers
+ * route risky requests to a stronger model while preserving cheap single-call
+ * behavior for low-risk translations.
+ */
+export interface TranslationModelRoutingPolicy {
+  /** Generation model for low-risk requests */
+  lowRiskModel?: string;
+  /** Generation model for medium-risk requests */
+  mediumRiskModel?: string;
+  /** Generation model for high-risk requests and high-risk repairs */
+  highRiskModel?: string;
+  /** Semantic judge model. Prefer a different provider family than the generator. */
+  judgeModel?: string;
+}
+
 /** Input for a translation request */
 export interface TranslationRequest {
   text: string;
@@ -131,6 +152,8 @@ export interface TranslateInput {
   inputType?: InputType;
   /** Confidence from upstream source-language detection when available */
   detectionConfidence?: number;
+  /** Optional benchmark-derived routing policy for generation and judge models */
+  modelRouting?: TranslationModelRoutingPolicy;
 }
 
 /** Output from translate() — enriched TranslationResult with metadata */
@@ -210,9 +233,6 @@ export interface QualityIssue {
   /** Optional instruction for targeted repair (used in Step 8) */
   repairInstruction?: string;
 }
-
-/** Risk level of a translation request — drives validation and judge routing */
-export type RiskLevel = "low" | "medium" | "high";
 
 /**
  * Quality metadata attached to accepted translation decisions.

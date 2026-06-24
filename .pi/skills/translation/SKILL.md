@@ -17,7 +17,7 @@ description: Word and phrase translation via AI with prompt building, response p
 
 ## Current State
 
-Fully implemented with types, Zod schemas, prompt builder, and a risk-based validation pipeline. Risk classification uses a points score and returns `low`, `medium`, or `high`: phrase/sentence input, risky register/topic hints, low detection confidence, uncommon language pairs, structural immutable features, multi-sense/idiom dictionary context, and deterministic validation failures route to `high`; ordinary unbacked words remain single-call `medium`; confident dictionary-backed minimal words stay `low`. Full retries are limited to generation/schema failures. Deterministic or judge failures use bounded targeted repair of the affected language block. High-risk requests run a structured semantic judge from a different model family. Sentence and technical-text validation preserves immutable spans and rejects generated placeholders, URLs, Markdown link targets, dates, and numbers that were not present in the source. Structural preflight ambiguity currently covers locale-ambiguous numeric dates and mixed scripts; generic lexical ambiguity awaits ranked sense IDs and confidence margins and must not be implemented with phrase-specific rules.
+Fully implemented with types, Zod schemas, prompt builder, and a risk-based validation pipeline. Risk classification uses a points score and returns `low`, `medium`, or `high`: phrase/sentence input, risky register/topic hints, low detection confidence, uncommon language pairs, structural immutable features, multi-sense/idiom dictionary context, and deterministic validation failures route to `high`; ordinary unbacked words remain single-call `medium`; confident dictionary-backed minimal words stay `low`. Callers may provide a benchmark-derived `TranslationModelRoutingPolicy` to route low-, medium-, and high-risk generation to different models and pin the semantic judge model; without it, the requested `model` remains the generation default. Full retries are limited to generation/schema failures. Deterministic or judge failures use bounded targeted repair of the affected language block, with regression coverage proving a failed target block does not regenerate accepted sibling blocks. High-risk requests run a structured semantic judge from a different model family using an OpenAI-compatible nullable repair-instruction schema; judge prompts reserve blocking issues for real meaning/fact/register breaks and treat acceptable stylistic variants as warnings. Targeted sentence repair explicitly forbids emoji, commentary, labels, or metadata inside translation text. Sentence and technical-text validation preserves immutable spans and rejects generated placeholders, URLs, Markdown link targets, dates, and numbers that were not present in the source. Structural preflight ambiguity currently covers locale-ambiguous numeric dates and mixed scripts; generic lexical ambiguity awaits ranked sense IDs and confidence margins and must not be implemented with phrase-specific rules.
 
 ### Unified expression handling & 3 translation variants
 
@@ -156,6 +156,7 @@ interface TranslateInput {
   dictionaryContext?: DictionaryContext;  // optional Wiktionary enrichment
   outputConfig?: TranslationOutputConfig; // optional output config
   inputType?: InputType;  // classified input type — drives prompt and validation
+  modelRouting?: TranslationModelRoutingPolicy; // optional benchmark-derived model routing
 }
 
 interface TranslateOutput {
@@ -193,6 +194,13 @@ interface QualityIssue {
 }
 
 type RiskLevel = "low" | "medium" | "high";
+
+interface TranslationModelRoutingPolicy {
+  lowRiskModel?: string;
+  mediumRiskModel?: string;
+  highRiskModel?: string;
+  judgeModel?: string;
+}
 
 interface QualityMetadata {
   promptVersion: string;

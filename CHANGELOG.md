@@ -10,10 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Added symmetric invariant validation for sentence and technical translations: generated output now fails validation if it introduces unsupported placeholders, URLs, Markdown link targets, dates, or numbers that were not present in the source.
 - Added benchmark model comparison and regression control: stochastic cases run repeatedly, three-or-more-model runs produce a comparison, JSON reports can be used as same-model baselines, and language-pair regressions are tested for statistical significance.
+- Added benchmark-derived translation model routing policy: callers can route low-, medium-, and high-risk generation to different models and pin a semantic judge model while preserving the default single-model behavior.
 - Added separate benchmark scores for primary translations, auxiliary fields, factual preservation, naturalness/register, ambiguity handling, detection accuracy, and repair success, plus release gates for immutable data, ambiguity, accuracy thresholds, regressions, and the low-risk single-call path.
 - Added actual AI request token, cost, and latency capture to benchmark reports through the adapter metric sink. Reports now include full prompts alongside raw responses and pipeline validation/judge issues.
 - Added a simple unambiguous `window` fixture that prevents judge or retry overhead from regressing onto the low-risk translation path.
 - Added a risk-based translation quality pipeline: deterministic immutable-token checks, sentence semantic validation, cross-model judging for high-risk requests, and targeted repair of only failing language blocks.
+- Added regression coverage proving targeted repair fixes only the failing target-language block and preserves accepted sibling translations.
 - Added pre-generation clarification for locale-ambiguous numeric dates and mixed-script/transliterated input. Lexical ambiguity is not hard-coded to specific phrases and remains risk-routed until ranked sense confidence is available.
 - Added structured semantic-judge output with field-level severity and repair instructions.
 - Added `input-analysis` core module with `analyzeInput()` — classifies user input as word/phrase/sentence and detects structural features (placeholders, URL, Markdown, dates, code-switching). Feature-based overrides reclassify URL-only and code-switched short input as "sentence". The module is a leaf with no sibling imports; `InputType` is now owned by this module and re-exported from `translation` for backward compatibility.
@@ -32,6 +34,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Semantic judge structured output is now OpenAI-compatible for nullable repair instructions, and the judge prompt treats acceptable stylistic variants as warnings instead of blocking issues.
+- Targeted repair prompts now explicitly forbid emoji, commentary, labels, and metadata inside sentence translation text.
+- Translation request timing now records the actual routed generation model from accepted decisions instead of the pre-routing default model.
 - Translation risk classification now uses a points-based `low`/`medium`/`high` score before semantic judging, keeping ordinary words single-call while routing phrase/sentence, low-confidence, uncommon-pair, immutable-heavy, and multi-sense/idiom cases to the cross-model judge.
 - Full translation retries now handle only generation and schema failures; deterministic and judge failures use bounded per-language targeted repair instead of replacing accepted translation blocks.
 - Sentence validation now skips only the source-equality guard while retaining hallucination and immutable-content checks.

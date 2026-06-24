@@ -343,6 +343,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
     const output = decision.output;
     const needsReview = decision.status === "needs_review";
+    const recordedModelId = decision.status === "accepted" ? decision.quality.modelId : model;
     translationCounter.inc({ status: "success" });
     await ctx.services.translationRequestRepository.logTranslationRequest(
       ctx.user.id,
@@ -361,7 +362,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         dbLookupMs,
         aiRequestMs,
         totalMs,
-        modelId: model,
+        modelId: recordedModelId,
         sourceLang,
         targetLangs,
         inputType: classification.type,

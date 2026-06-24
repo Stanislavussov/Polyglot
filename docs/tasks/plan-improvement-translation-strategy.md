@@ -9,7 +9,9 @@
 - [x] Шаг 5: benchmark запускает stochastic translation/detection cases многократно, считает отдельные quality dimensions, latency/cost и repair success, сравнивает минимум три класса моделей, сохраняет JSON baseline и блокирует статистически значимые regression по language pair. Release gates защищают immutable spans, ambiguity handling, primary/metadata accuracy и single-call low-risk path.
 - [x] Шаг 6: invariant validators для предложений и technical text теперь симметрично проверяют immutable spans: output не может удалить, изменить count или добавить placeholders, URL, Markdown link targets, dates и numbers, отсутствующие в source.
 - [x] Шаг 7: введён points-based risk score (`low`/`medium`/`high`) и cross-model semantic judge для high-risk результатов. Phrase/sentence input, risky register/topic hints, low detection confidence, uncommon language pairs, structural immutable features, multi-sense/idiom dictionary context и deterministic failures переводят запрос в high risk; ordinary unbacked words остаются single-call medium risk, а confident dictionary-backed minimal words — low risk.
-- [ ] Шаги 8–10: остаются в порядке, описанном ниже. Dataset содержит 31 translation и 72 detection reviewed fixtures; расширение до 200–500 уникальных reviewed cases остаётся отдельной последовательной работой, а не синтетическим дублированием. Generic word-sense clarification ещё не реализован: без ranked sense IDs и confidence margin pipeline не имитирует его hardcoded-фразами.
+- [x] Шаг 8: full retry используется только для generation/schema failures; deterministic и judge blocking issues идут через bounded targeted repair затронутых language blocks. Regression test защищает multi-target случай: ошибка в `translations.de` не регенерирует принятый `translations.cs` block, repair prompt ограничен конкретным target block и сохраняет соседние принятые поля.
+- [x] Шаг 9: benchmark поддерживает сравнение минимум трёх классов моделей, JSON baseline и regression gates; translation pipeline получил benchmark-derived `TranslationModelRoutingPolicy`, который маршрутизирует low/medium/high-risk generation и semantic judge по заданным моделям, сохраняя default single-model behavior без policy.
+- [ ] Шаг 10 остаётся в порядке, описанном ниже. Dataset содержит 31 translation и 72 detection reviewed fixtures; расширение до 200–500 уникальных reviewed cases остаётся отдельной последовательной работой, а не синтетическим дублированием. Generic word-sense clarification ещё не реализован: без ranked sense IDs и confidence margin pipeline не имитирует его hardcoded-фразами.
 
 Изменённые файлы:
 
@@ -24,12 +26,14 @@
 - `apps/bot/src/scenes/helpers/translate-mode.helper.ts`
 - `apps/bot/src/scenes/helpers/regen.helper.ts`
 - `apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts`
+- `apps/bot/src/scenes/helpers/translate-mode.helper.test.ts`
 - `apps/bot/src/utils/vocabulary-mapper.test.ts`
 - `packages/core/src/modules/translation/types.ts`
 - `packages/core/src/modules/translation/translation.service.ts`
 - `packages/core/src/modules/translation/quality.schema.ts`
 - `packages/core/src/modules/translation/index.ts`
 - `packages/core/src/modules/translation/__tests__/translation.service.test.ts`
+- `packages/core/src/modules/translation/__tests__/quality.schema.test.ts`
 - `packages/core/src/modules/translation/__tests__/dictionary-context.test.ts`
 - `packages/core/src/modules/translation/__tests__/output-config.test.ts`
 - `packages/core/src/modules/context-enrichment/context-enrichment.service.ts`
@@ -42,6 +46,7 @@
 - `packages/core/src/modules/validation/__tests__/semantic.validator.test.ts`
 - `.pi/skills/validation/SKILL.md`
 - `.pi/skills/translation/SKILL.md`
+- `.pi/skills/bot/SKILL.md`
 - `CHANGELOG.md`
 
   ## Результаты анализа

@@ -97,8 +97,8 @@ describe("translate", () => {
     expect(mockGenerate).toHaveBeenCalledTimes(1);
   });
 
-  it("retries on validation failure and succeeds on second attempt", async () => {
-    // First call returns bad result (translation = original), second returns good
+  it("repairs a validation failure and succeeds on second attempt", async () => {
+    // First call returns bad result (translation = original), second repairs the failing block.
     const badResult = makeValidResult({
       translations: {
         cs: {
@@ -116,6 +116,68 @@ describe("translate", () => {
     expect(mockGenerate).toHaveBeenCalledTimes(2);
     expect(result.status).toBe("accepted");
     expect(unwrap(result).translations.cs.text).toBe("ahoj");
+  });
+
+  it("repairs only the failing target language block", async () => {
+    const initialResult = makeValidResult({
+      translations: {
+        cs: {
+          text: "ahoj",
+          synonyms: [{ text: "čau" }],
+          examples: [{ context: "neutral", target: "Řekl ahoj kolegovi." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+        de: {
+          text: "hello",
+          synonyms: [{ text: "hallo" }],
+          examples: [{ context: "neutral", target: "Hello world." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+    const repairedGermanBlock = {
+      text: "hallo",
+      synonyms: [{ text: "servus" }],
+      examples: [{ context: "neutral", target: "Er sagte hallo zum Kollegen." }],
+      expressionType: null,
+      equivalentNote: null,
+      alternatives: null,
+      connotationWarning: null,
+    };
+
+    const mockGenerate = vi.fn().mockResolvedValueOnce(initialResult).mockResolvedValueOnce(repairedGermanBlock);
+
+    const result = await translate(
+      {
+        word: "hello",
+        sourceLang: "en",
+        targetLangs: ["cs", "de"],
+        model: "openai/gpt-4o",
+        modelRouting: {
+          highRiskModel: "anthropic/claude-sonnet-4-20250514",
+        },
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    expect(unwrap(result).translations.cs.text).toBe("ahoj");
+    expect(unwrap(result).translations.de.text).toBe("hallo");
+    expect(mockGenerate.mock.calls[0]?.[2]).toBe("openai/gpt-4o");
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("anthropic/claude-sonnet-4-20250514");
+
+    const repairPrompt = mockGenerate.mock.calls[1]?.[0] as string;
+    expect(repairPrompt).toContain("Targeted repair only for translations.de.");
+    expect(repairPrompt).toContain("Current block:");
+    expect(repairPrompt).toContain("no emoji, commentary, labels, or metadata");
+    expect(repairPrompt).not.toContain("translations.cs");
   });
 
   it("returns needsReview=true after all retries exhausted", async () => {
@@ -161,6 +223,66 @@ describe("translate", () => {
 
     // Third argument is model
     expect(mockGenerate.mock.calls[0][2]).toBe("openai/gpt-4o");
+  });
+
+  it("routes low-risk generation through the configured low-risk model", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        dictionaryContext: {
+          word: "hello",
+          pos: "noun",
+          glosses: ["a greeting"],
+          langCode: "en",
+        },
+        outputConfig: MINIMAL_OUTPUT,
+        detectionConfidence: 0.95,
+        modelRouting: {
+          lowRiskModel: "openai/gpt-4o-mini",
+          highRiskModel: "anthropic/claude-sonnet-4-20250514",
+        },
+      },
+      mockGenerate,
+    );
+
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(mockGenerate.mock.calls[0]?.[2]).toBe("openai/gpt-4o-mini");
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("low");
+      expect(result.quality.modelId).toBe("openai/gpt-4o-mini");
+    }
+  });
+
+  it("routes high-risk generation and judging through configured models", async () => {
+    const mockGenerate = vi.fn().mockResolvedValueOnce(makeValidResult()).mockResolvedValueOnce({
+      issues: [],
+      summary: "High-risk route passed.",
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "break a leg",
+        inputType: "phrase",
+        modelRouting: {
+          highRiskModel: "anthropic/claude-sonnet-4-20250514",
+          judgeModel: "google/gemini-2.5-pro",
+        },
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    expect(mockGenerate.mock.calls[0]?.[2]).toBe("anthropic/claude-sonnet-4-20250514");
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-pro");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("high");
+      expect(result.quality.modelId).toBe("anthropic/claude-sonnet-4-20250514");
+    }
   });
 
   it("returns needs_clarification for an ambiguous numeric date before calling the model", async () => {
@@ -262,6 +384,7 @@ describe("translate", () => {
     expect(result.status).toBe("accepted");
     expect(mockGenerate).toHaveBeenCalledTimes(2);
     expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-flash");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("acceptable stylistic variants");
   });
 
   it("keeps an ordinary unbacked word on the single-call medium-risk path", async () => {
