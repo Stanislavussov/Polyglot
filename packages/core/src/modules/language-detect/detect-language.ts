@@ -583,28 +583,47 @@ function buildResult(evidence: DetectionEvidence[]): DetectionResult {
   };
 }
 
+function isEnglishOnlyLookupTooWeakForSharedScriptWord(
+  text: string,
+  evidence: readonly DetectionEvidence[],
+  wiktionaryMatches: readonly string[],
+): boolean {
+  if (wordCount(text) !== 1 || wiktionaryMatches.length !== 1 || wiktionaryMatches[0] !== "en") {
+    return false;
+  }
+
+  const sharedScriptCandidates = evidence
+    .filter((entry) => entry.strategy === "script" && entry.score < CONFIDENCE_THRESHOLD)
+    .map((entry) => entry.candidate);
+
+  return sharedScriptCandidates.includes("en") && sharedScriptCandidates.length > 1;
+}
+
 export function detectLanguageWithConfidence(text: string, candidates: string[]): DetectionResult {
   const trimmed = text.trim();
+  const uniqueCandidates = [...new Set(candidates)];
 
-  if (trimmed.length === 0 || candidates.length === 0) {
+  if (trimmed.length === 0 || uniqueCandidates.length === 0) {
     return { confidence: 0, evidence: [] };
   }
 
-  if (candidates.length === 1) {
+  if (uniqueCandidates.length === 1) {
     if (/\p{L}/u.test(trimmed)) {
       return {
-        language: candidates[0],
+        language: uniqueCandidates[0],
         confidence: 1,
-        evidence: [{ strategy: "single-candidate", candidate: candidates[0], score: 1, reason: "only candidate" }],
+        evidence: [
+          { strategy: "single-candidate", candidate: uniqueCandidates[0], score: 1, reason: "only candidate" },
+        ],
       };
     }
     return { confidence: 0, evidence: [] };
   }
 
   const evidence: DetectionEvidence[] = [
-    ...scoreScript(trimmed, candidates),
-    ...scoreDiacritics(trimmed, candidates),
-    ...scoreFranc(trimmed, candidates),
+    ...scoreScript(trimmed, uniqueCandidates),
+    ...scoreDiacritics(trimmed, uniqueCandidates),
+    ...scoreFranc(trimmed, uniqueCandidates),
   ];
 
   return buildResult(evidence);
@@ -619,26 +638,29 @@ export async function detectLanguageWithConfidenceAsync(
   },
 ): Promise<DetectionResult> {
   const trimmed = text.trim();
+  const uniqueCandidates = [...new Set(candidates)];
 
-  if (trimmed.length === 0 || candidates.length === 0) {
+  if (trimmed.length === 0 || uniqueCandidates.length === 0) {
     return { confidence: 0, evidence: [] };
   }
 
-  if (candidates.length === 1) {
+  if (uniqueCandidates.length === 1) {
     if (/\p{L}/u.test(trimmed)) {
       return {
-        language: candidates[0],
+        language: uniqueCandidates[0],
         confidence: 1,
-        evidence: [{ strategy: "single-candidate", candidate: candidates[0], score: 1, reason: "only candidate" }],
+        evidence: [
+          { strategy: "single-candidate", candidate: uniqueCandidates[0], score: 1, reason: "only candidate" },
+        ],
       };
     }
     return { confidence: 0, evidence: [] };
   }
 
   const evidence: DetectionEvidence[] = [
-    ...scoreScript(trimmed, candidates),
-    ...scoreDiacritics(trimmed, candidates),
-    ...scoreFranc(trimmed, candidates),
+    ...scoreScript(trimmed, uniqueCandidates),
+    ...scoreDiacritics(trimmed, uniqueCandidates),
+    ...scoreFranc(trimmed, uniqueCandidates),
   ];
 
   const earlyResult = buildResult(evidence);
@@ -648,15 +670,17 @@ export async function detectLanguageWithConfidenceAsync(
 
   if (deps.contextLookup) {
     const wiktionaryStrategy = new WiktionaryStrategy(deps.contextLookup);
-    const wiktionaryMatches = await wiktionaryStrategy.findMatches(trimmed, candidates);
+    const wiktionaryMatches = await wiktionaryStrategy.findMatches(trimmed, uniqueCandidates);
 
     if (wiktionaryMatches.length === 1) {
-      evidence.push({
-        strategy: "wiktionary",
-        candidate: wiktionaryMatches[0],
-        score: 0.9,
-        reason: "unique dictionary match",
-      });
+      if (!isEnglishOnlyLookupTooWeakForSharedScriptWord(trimmed, evidence, wiktionaryMatches)) {
+        evidence.push({
+          strategy: "wiktionary",
+          candidate: wiktionaryMatches[0],
+          score: 0.9,
+          reason: "unique dictionary match",
+        });
+      }
     } else if (wiktionaryMatches.length > 1) {
       for (const candidate of wiktionaryMatches) {
         evidence.push({
@@ -676,7 +700,7 @@ export async function detectLanguageWithConfidenceAsync(
 
   if (deps.aiGenerate) {
     const aiStrategy = new AIStrategy(deps.aiGenerate);
-    const aiResult = await aiStrategy.detect(trimmed, candidates);
+    const aiResult = await aiStrategy.detect(trimmed, uniqueCandidates);
     if (aiResult !== undefined) {
       evidence.push({ strategy: "ai", candidate: aiResult, score: 0.6, reason: "AI language identification" });
     }

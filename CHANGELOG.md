@@ -88,6 +88,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Language detection now deduplicates candidate language codes before scoring, so homographs such as `fast` stay ambiguous between English and German instead of being biased toward duplicated English candidates.
+- Short shared-script inputs such as `fast` no longer become English solely because dictionary lookup only matched English; the bot keeps them ambiguous and asks for the source language.
 - Translation benchmark CLI now loads the repository root `.env` when invoked through its workspace package, so configured OpenRouter credentials are available to smoke and full runs.
 - Translation benchmark CLI now closes its read-only database connection after report generation instead of keeping the process alive.
 - Docker build dependency stages now include the translation benchmark workspace manifest, allowing full monorepo builds to resolve its internal adapter dependencies.

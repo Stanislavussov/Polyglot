@@ -38,6 +38,8 @@
 - `packages/core/src/modules/translation/__tests__/output-config.test.ts`
 - `packages/core/src/modules/context-enrichment/context-enrichment.service.ts`
 - `packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts`
+- `packages/core/src/modules/language-detect/detect-language.ts`
+- `packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts`
 - `packages/core/src/modules/validation/index.ts`
 - `packages/core/src/modules/validation/validation.service.ts`
 - `packages/core/src/modules/validation/validators/immutable.validator.ts`

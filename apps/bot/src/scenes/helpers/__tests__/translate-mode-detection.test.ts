@@ -131,7 +131,7 @@ vi.mock("@polyglot/infra", () => ({
   logger: mockLogger,
 }));
 
-import { detectLanguageWithConfidence, translateWithContext } from "@polyglot/core";
+import { detectLanguageWithConfidence, detectLanguageWithConfidenceAsync, translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../../types.js";
 import {
   handleMistypeCancelCallback,
@@ -291,6 +291,33 @@ describe("handleTranslateText — mistype warning (Task 58)", () => {
     await handleTranslateText(ctx, "xyz123");
 
     expect(translateWithContext).not.toHaveBeenCalled();
+  });
+
+  it("asks for source language when fast is ambiguous between English and German", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["en", "de"],
+    });
+    vi.mocked(detectLanguageWithConfidence).mockReturnValue({
+      confidence: 0,
+      evidence: [],
+      ambiguousCandidates: ["en", "de"],
+    });
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValue({
+      confidence: 0,
+      evidence: [],
+      ambiguousCandidates: ["en", "de"],
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "fast");
+
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(ctx.session.pendingWord).toBe("fast");
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining("Which language"), {
+      reply_markup: expect.any(Object),
+    });
   });
 });
 

@@ -191,6 +191,49 @@ describe("detectLanguageWithConfidenceAsync", () => {
     expect(result.ambiguousCandidates).toBeDefined();
   });
 
+  it("keeps en/de homographs ambiguous when English is duplicated in candidates", async () => {
+    const mockLookup = async (word: string, lang: string) => {
+      if (word === "fast" && (lang === "en" || lang === "de")) {
+        return [
+          {
+            matchType: "lemma" as const,
+            context: { word: "fast", pos: "word", glosses: ["test"], formTags: [], langCode: lang },
+          },
+        ];
+      }
+      return [];
+    };
+
+    const result = await detectLanguageWithConfidenceAsync("fast", ["en", "ru", "en", "de"], {
+      contextLookup: mockLookup,
+    });
+
+    expect(result.language).toBeUndefined();
+    expect(result.ambiguousCandidates).toEqual(expect.arrayContaining(["en", "de"]));
+  });
+
+  it("keeps shared-script short words ambiguous when dictionary data only matches English", async () => {
+    const mockLookup = vi.fn(async (word: string, lang: string) => {
+      if (word === "fast" && lang === "en") {
+        return [
+          {
+            matchType: "lemma" as const,
+            context: { word: "fast", pos: "word", glosses: ["quick"], formTags: [], langCode: lang },
+          },
+        ];
+      }
+      return [];
+    });
+
+    const result = await detectLanguageWithConfidenceAsync("fast", ["en", "de"], {
+      contextLookup: mockLookup,
+    });
+
+    expect(result.language).toBeUndefined();
+    expect(result.ambiguousCandidates).toEqual(["en", "de"]);
+    expect(mockLookup).toHaveBeenCalled();
+  });
+
   it("uses AI as last resort when all other strategies are inconclusive", async () => {
     const mockGenerate = async () => "cs";
     const result = await detectLanguageWithConfidenceAsync("xyzabc", ["en", "cs"], {
