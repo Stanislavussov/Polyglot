@@ -149,7 +149,7 @@ export async function handleRegenLoop(
     });
 
     try {
-      const newTranslation = await conversation.external(async () => {
+      const regenDecision = await conversation.external(async () => {
         const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user?.subscriptionPlan);
         return translateOne(
           {
@@ -165,6 +165,15 @@ export async function handleRegenLoop(
           generateObject,
         );
       });
+
+      if (regenDecision.status === "needs_clarification") {
+        throw new Error("Unexpected needs_clarification in regen loop");
+      }
+
+      const newTranslation = regenDecision.output.translations[regenLang];
+      if (!newTranslation) {
+        throw new Error(`Regen did not produce a translation for ${regenLang}`);
+      }
 
       current = {
         ...current,

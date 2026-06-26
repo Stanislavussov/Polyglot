@@ -14,7 +14,9 @@ export interface UserRequestCountRow {
 export const userRequestCountRepository = {
   async getUserRequestCountsByDay(days = 30): Promise<UserRequestCountRow[]> {
     const db = getDb();
-    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const since = new Date();
+    since.setUTCHours(0, 0, 0, 0);
+    since.setUTCDate(since.getUTCDate() - (days - 1));
 
     const rows = await db
       .select({

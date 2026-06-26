@@ -9,13 +9,13 @@ import {
 } from "../translation-template.types.js";
 
 describe("DEFAULT_TEMPLATE", () => {
-  it("has reliable-first fields", () => {
+  it("has learner-friendly default fields for words and phrases", () => {
     expect(DEFAULT_TEMPLATE).toEqual({
       name: "Default",
       fields: {
-        synonyms: false,
+        synonyms: true,
         examples: false,
-        alternatives: false,
+        alternatives: true,
         equivalentNote: false,
         connotationWarning: false,
       },
@@ -36,8 +36,13 @@ describe("TEMPLATE_FIELD_KEYS", () => {
 });
 
 describe("templateToOutputConfig", () => {
-  it("converts default template to reliable output", () => {
-    expect(templateToOutputConfig(DEFAULT_TEMPLATE)).toEqual(RELIABLE_OUTPUT);
+  it("converts default template to learner-friendly output", () => {
+    expect(templateToOutputConfig(DEFAULT_TEMPLATE)).toEqual({
+      ...RELIABLE_OUTPUT,
+      includeSynonyms: true,
+      includeAlternatives: true,
+      includeNativeSynonyms: true,
+    });
   });
 
   it("maps template fields to output config flags", () => {
@@ -81,8 +86,14 @@ describe("resolveOutputConfig", () => {
   });
 
   it("returns default config when user template is null for words and phrases", () => {
-    expect(resolveOutputConfig(null, "word")).toEqual(RELIABLE_OUTPUT);
-    expect(resolveOutputConfig(null, "phrase")).toEqual(RELIABLE_OUTPUT);
+    const expected = {
+      ...RELIABLE_OUTPUT,
+      includeSynonyms: true,
+      includeAlternatives: true,
+      includeNativeSynonyms: true,
+    };
+    expect(resolveOutputConfig(null, "word")).toEqual(expected);
+    expect(resolveOutputConfig(null, "phrase")).toEqual(expected);
   });
 
   it("returns custom config for word and phrase input", () => {

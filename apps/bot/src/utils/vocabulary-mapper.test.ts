@@ -43,7 +43,6 @@ const sampleOutput: TranslateOutput = {
       examples: [{ context: "neutral", target: "Hallo!" }],
     },
   },
-  needsReview: true,
   dictionaryContext: {
     word: "hello",
     pos: "interjection",

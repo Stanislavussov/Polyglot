@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
   const getUserRequestCountsByDay = vi.fn(() =>
@@ -42,7 +42,13 @@ async function buildApp() {
 }
 
 describe("statsRoutes", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-25T15:30:00Z"));
+  });
+
   afterEach(() => {
+    vi.useRealTimers();
     vi.clearAllMocks();
   });
 
@@ -94,6 +100,48 @@ describe("statsRoutes", () => {
 
     expect(response.statusCode).toBe(200);
     expect(mocks.getUserRequestCountsByDay).toHaveBeenCalledWith(30);
+    await app.close();
+  });
+
+  it("does not include rows from the calendar day before the visible window", async () => {
+    mocks.getUserRequestCountsByDay.mockResolvedValueOnce([
+      {
+        userId: 123,
+        username: "alice",
+        telegramId: 12345678,
+        subscriptionPlan: "free",
+        day: "2026-06-25",
+        count: 2,
+      },
+      {
+        userId: 123,
+        username: "alice",
+        telegramId: 12345678,
+        subscriptionPlan: "free",
+        day: "2026-06-24",
+        count: 3,
+      },
+      {
+        userId: 123,
+        username: "alice",
+        telegramId: 12345678,
+        subscriptionPlan: "free",
+        day: "2026-06-23",
+        count: 99,
+      },
+    ]);
+    const app = await buildApp();
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/stats/user-request-counts?days=2",
+    });
+
+    expect(response.statusCode).toBe(200);
+    const json = response.json();
+    expect(json.days).toEqual(["2026-06-25", "2026-06-24"]);
+    expect(json.users[0].total).toBe(5);
+    expect(json.users[0].counts).toEqual({ "2026-06-25": 2, "2026-06-24": 3 });
     await app.close();
   });
 });

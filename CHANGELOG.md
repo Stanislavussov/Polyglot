@@ -8,6 +8,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added symmetric invariant validation for sentence and technical translations: generated output now fails validation if it introduces unsupported placeholders, URLs, Markdown link targets, dates, or numbers that were not present in the source.
+- Added benchmark model comparison and regression control: stochastic cases run repeatedly, three-or-more-model runs produce a comparison, JSON reports can be used as same-model baselines, and language-pair regressions are tested for statistical significance.
+- Added benchmark-derived translation model routing policy: callers can route low-, medium-, and high-risk generation to different models and pin a semantic judge model while preserving the default single-model behavior.
+- Added separate benchmark scores for primary translations, auxiliary fields, factual preservation, naturalness/register, ambiguity handling, detection accuracy, and repair success, plus release gates for immutable data, ambiguity, accuracy thresholds, regressions, and the low-risk single-call path.
+- Added actual AI request token, cost, and latency capture to benchmark reports through the adapter metric sink. Reports now include full prompts alongside raw responses and pipeline validation/judge issues.
+- Added a simple unambiguous `window` fixture that prevents judge or retry overhead from regressing onto the low-risk translation path.
+- Added a risk-based translation quality pipeline: deterministic immutable-token checks, sentence semantic validation, cross-model judging for high-risk requests, and targeted repair of only failing language blocks.
+- Added regression coverage proving targeted repair fixes only the failing target-language block and preserves accepted sibling translations.
+- Added pre-generation clarification for locale-ambiguous numeric dates and mixed-script/transliterated input. Lexical ambiguity is not hard-coded to specific phrases and remains risk-routed until ranked sense confidence is available.
+- Added AI-backed core preflight scoring for low-confidence translation inputs, returning typed clarification outcomes for source-language ambiguity, meaning ambiguity, typo suggestions, format issues, and unsupported input.
+- Added structured semantic-judge output with field-level severity and repair instructions.
+- Added `input-analysis` core module with `analyzeInput()` — classifies user input as word/phrase/sentence and detects structural features (placeholders, URL, Markdown, dates, code-switching). Feature-based overrides reclassify URL-only and code-switched short input as "sentence". The module is a leaf with no sibling imports; `InputType` is now owned by this module and re-exported from `translation` for backward compatibility.
+- Added `detectLanguageWithConfidence()` and `detectLanguageWithConfidenceAsync()` — confidence-aware language detection returning `DetectionResult` with `{ language?, confidence, evidence, ambiguousCandidates? }` instead of a bare `string | undefined`. Uses candidate-aware scoring: each strategy contributes evidence scores per candidate, and the ensemble picks the highest-scoring candidate with a confidence threshold (≥0.7) and margin (≥0.2). Close-language pairs (cs/sk, hr/sr) are disambiguated by differential diacritics rather than ordered-regex first-match.
+- Added `DetectionEvidence` and `DetectionResult` types to the language-detect module.
+- Added `detectionConfidence` optional field to `QualityMetadata` for tracking source-language detection confidence on accepted translations.
+- Added `langSelectPrompt` i18n key (en/ru/cs) for the language selection prompt shown when detection is ambiguous.
+- Added `handleLangSelectCallback` and `tr:langselect:$lang` callback — when detection is ambiguous with candidate languages, the bot shows inline keyboard buttons (one per candidate) instead of the generic mistype warning. The user selects a source language and the translation proceeds with that direction.
+- Added `TranslationDecision` contract — `translate()`, `translateOne()`, and `translateBatch()` now return a discriminated union with three statuses: `accepted` (translation passed validation, includes `QualityMetadata`), `needs_clarification` (ambiguity detected, includes `TranslationAmbiguity`), and `needs_review` (validation failed after retries, includes `QualityIssue[]`). This replaces the former `needsReview: boolean` flag on `TranslateOutput`.
+- Added typed ambiguity reasons (`source_language`, `word_sense`, `date_or_time`, `placeholder_grammar`, `mixed_or_transliterated_input`) and `TranslationAmbiguityOption` for structured user clarification flows.
+- Added `QualityMetadata` type tracking `promptVersion`, `schemaVersion`, `riskLevel`, `modelId`, `attemptCount`, `judgeResult`, `issues`, and `detectionConfidence` on accepted translation decisions.
+- Added `QualityIssue` type with `fieldPath`, `severity` (`blocking`/`warning`/`info`), `message`, and optional `repairInstruction`.
+- Added `RiskLevel` type (`low`/`medium`/`high`) for future risk-based validation routing.
+- Added `PROMPT_VERSION` and `SCHEMA_VERSION` constants to the translation service for version tracking in quality metadata.
+- Translation benchmark `evaluateTranslationQuality` now checks `decision.status` against `expectedAction` and reports status mismatches with the actual status value.
+
+### Changed
+
+- Semantic judge structured output is now OpenAI-compatible for nullable repair instructions, and the judge prompt treats acceptable stylistic variants as warnings instead of blocking issues.
+- Targeted repair prompts now explicitly forbid emoji, commentary, labels, and metadata inside sentence translation text.
+- Translation request timing now records the actual routed generation model from accepted decisions instead of the pre-routing default model.
+- Translation risk classification now uses a points-based `low`/`medium`/`high` score before semantic judging, keeping ordinary words single-call while routing phrase/sentence, low-confidence, uncommon-pair, immutable-heavy, and multi-sense/idiom cases to the cross-model judge.
+- Full translation retries now handle only generation and schema failures; deterministic and judge failures use bounded per-language targeted repair instead of replacing accepted translation blocks.
+- Sentence validation now skips only the source-equality guard while retaining hallucination and immutable-content checks.
+- Validation orchestration moved from the barrel file into `validation.service.ts`; `validation/index.ts` now contains re-exports only.
+- Updated translate-mode test fixtures to exercise the confidence-aware language-detection guards deterministically.
+- `InputType` definition moved from `translation/types.ts` to `input-analysis/types.ts`; `translation` re-exports it for backward compatibility. The bot's `classify-input.ts` is now a thin re-export from `@polyglot/core` instead of a local implementation.
+- Bot translate flow now uses `detectLanguageWithConfidence` / `detectLanguageWithConfidenceAsync` instead of `detectLanguage` / `detectLanguageAsync`. Ambiguous detections with candidate languages show language-selection buttons instead of the generic mistype warning; truly inconclusive detections (no evidence) still show the mistype warning.
+- Translation benchmark runner `detectLanguageFn` type changed from `(text, candidates) => Promise<string | undefined>` to `(text, candidates) => Promise<DetectionResult>`. `DetectionBenchmarkResult` now includes `confidence`, `evidence`, and `ambiguousCandidates` fields. The benchmark CLI uses `detectLanguageWithConfidenceAsync`.
+- Dependency-cruiser rules updated: `input-analysis` added as a leaf module (no sibling imports), and added to the forbidden import lists of all other leaf modules.
+- `translateWithContext()`, `translateOneWithContext()`, and `translateBatchWithContext()` now return `TranslationDecision` / `TranslationDecision[]` instead of `TranslateOutput` / `TranslateOutput[]` / `LanguageTranslation`.
+- `translateOne()` now returns `TranslationDecision` instead of `LanguageTranslation`; callers extract the per-language translation from `decision.output.translations[lang]`.
+- `renderTranslation()` and `renderSentenceTranslation()` now accept an optional `needsReview` parameter instead of reading `output.needsReview`.
+- Removed `needsReview` field from `TranslateOutput` — the decision status carries this information.
+- Translation benchmark `CompletedBenchmarkCase.result` field renamed to `decision` and typed as `TranslationDecision`.
+
+### Added (previous entries)
+
+- Added versioned, executable translation benchmark assertions for ambiguity actions, immutable placeholders/Markdown/URLs/proper names, forbidden meanings, and required metadata. Reports now include quality pass/fail results, prompt/schema versions, and model settings, and the CLI fails when a quality assertion fails.
 - Added per-user per-day request counts to the admin panel — a new `GET /api/stats/user-request-counts` endpoint aggregates translation requests by user and day (without exposing request bodies), and a new Request Stats page displays the counts as a pivot matrix with a selectable 7/14/30/60/90-day window.
 - Added a benchmark CLI with 30 translation-quality scenarios and 72 source-language detection scenarios. It exercises the production translation, validation, retry, Wiktionary, and AI-detection paths through one selected OpenRouter model and saves analysis-ready JSON reports with raw attempts, expected quality risks, and ambiguity decisions.
 - Added a `smoke` benchmark group with 5 translation and 10 source-detection scenarios for quickly verifying the end-to-end benchmark setup before running the complete dataset.
@@ -41,6 +89,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Translation clarification now shows an actionable Telegram prompt for ambiguous dates, meanings, formats, mixed scripts, and low-confidence source language cases instead of a generic translation error.
+- Source-language clarification buttons now use core-provided candidate languages only; the bot no longer expands them to every language in the user's profile.
+- Translation clarification no longer asks users to choose between ordinary single-word dictionary senses, such as noun/adjective meanings of `patient`, and non-language clarifications no longer show source-language buttons.
+- Default word and phrase translation output now asks for synonyms and alternative meanings, and typo-correction retries can switch to the corrected word's language instead of keeping a stale fallback source language.
+- Template-literal placeholders such as `${name}` are detected as immutable placeholders during input analysis.
+- Admin user request stats now use calendar-day windows, and totals match the visible daily columns.
+- Dutch language detection now requires the `ij` digraph instead of treating any single `i` or `j` as Dutch evidence.
+- Language detection now deduplicates candidate language codes before scoring, so homographs such as `fast` stay ambiguous between English and German instead of being biased toward duplicated English candidates.
+- Source-language clarification now requires dictionary evidence in multiple candidate languages; weak shared-script ambiguity alone no longer interrupts normal translation.
 - Translation benchmark CLI now loads the repository root `.env` when invoked through its workspace package, so configured OpenRouter credentials are available to smoke and full runs.
 - Translation benchmark CLI now closes its read-only database connection after report generation instead of keeping the process alive.
 - Docker build dependency stages now include the translation benchmark workspace manifest, allowing full monorepo builds to resolve its internal adapter dependencies.

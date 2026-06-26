@@ -10,7 +10,19 @@
 import { describe, expect, it, vi } from "vitest";
 import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
 import { translate, translateOne } from "../translation.service.js";
-import type { DictionaryContext, TranslateInput, TranslationRequest, TranslationResult } from "../types.js";
+import type {
+  DictionaryContext,
+  TranslateInput,
+  TranslateOutput,
+  TranslationDecision,
+  TranslationRequest,
+  TranslationResult,
+} from "../types.js";
+
+function unwrap(d: TranslationDecision): TranslateOutput {
+  if (!("output" in d)) throw new Error(`Unexpected needs_clarification: ${d.ambiguity.message}`);
+  return d.output;
+}
 
 // ─────────────────────────────────────────────
 // Test fixtures
@@ -346,10 +358,10 @@ describe("translate — dictionary context passthrough", () => {
 
     const result = await translate(input, mockGenerate);
 
-    expect(result.dictionaryContext).toBeDefined();
-    expect(result.dictionaryContext!.word).toBe("что ли");
-    expect(result.dictionaryContext!.pos).toBe("phrase");
-    expect(result.dictionaryContext!.glosses).toContain(
+    expect(unwrap(result).dictionaryContext).toBeDefined();
+    expect(unwrap(result).dictionaryContext!.word).toBe("что ли");
+    expect(unwrap(result).dictionaryContext!.pos).toBe("phrase");
+    expect(unwrap(result).dictionaryContext!.glosses).toContain(
       "or something, perhaps, maybe, as if (or something like that - usually used in a question)",
     );
   });
@@ -359,7 +371,7 @@ describe("translate — dictionary context passthrough", () => {
 
     const result = await translate(defaultInput, mockGenerate);
 
-    expect(result.dictionaryContext).toBeUndefined();
+    expect(unwrap(result).dictionaryContext).toBeUndefined();
   });
 
   it("preserves dictionaryContext through validation retries", async () => {
@@ -387,8 +399,8 @@ describe("translate — dictionary context passthrough", () => {
     const result = await translate(input, mockGenerate);
 
     // Dictionary context should still be in the output
-    expect(result.dictionaryContext).toBeDefined();
-    expect(result.dictionaryContext!.pos).toBe("phrase");
+    expect(unwrap(result).dictionaryContext).toBeDefined();
+    expect(unwrap(result).dictionaryContext!.pos).toBe("phrase");
 
     // Retry prompt should also include dictionary context
     const retryPrompt = mockGenerate.mock.calls[1][0] as string;
@@ -421,9 +433,9 @@ describe("translate — dictionary context passthrough", () => {
 
     const result = await translate(input, mockGenerate);
 
-    expect(result.needsReview).toBe(true);
-    expect(result.dictionaryContext).toBeDefined();
-    expect(result.dictionaryContext!.word).toBe("что ли");
+    expect(result.status).toBe("needs_review");
+    expect(unwrap(result).dictionaryContext).toBeDefined();
+    expect(unwrap(result).dictionaryContext!.word).toBe("что ли");
 
     warnSpy.mockRestore();
     errorSpy.mockRestore();

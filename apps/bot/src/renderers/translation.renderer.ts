@@ -98,6 +98,7 @@ export function renderTranslation(
   interfaceLang?: string,
   templateFields?: TemplateFields,
   nativeLang?: string,
+  needsReview?: boolean,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
@@ -125,10 +126,7 @@ export function renderTranslation(
     lines.push("");
   }
 
-  // Dictionary context is NOT rendered to the user — it is only used
-  // to enrich the AI prompt via the context-enrichment layer.
-
-  if (output.needsReview) {
+  if (needsReview) {
     lines.push(esc(t("translationNeedsReview", lang)));
   }
 
@@ -207,6 +205,7 @@ export function renderSentenceTranslation(
   output: TranslateOutput,
   interfaceLang?: string,
   nativeLang?: string,
+  needsReview?: boolean,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
@@ -228,7 +227,7 @@ export function renderSentenceTranslation(
     lines.push("");
   }
 
-  if (output.needsReview) {
+  if (needsReview) {
     lines.push(esc(t("translationNeedsReview", lang)));
   }
 

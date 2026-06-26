@@ -84,7 +84,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
 Return ONLY valid JSON matching the provided schema. No markdown, no explanation, no code fences.
 For each target language (${targetLangs.join(", ")}), provide: ${requestedFields.join("; ")}.
 Also include one relevant emoji.
-Prefer ONE natural, accurate main translation. Do not invent extra nuance.
+Prefer ONE natural, accurate main translation. Do not invent extra nuance in the main translation.
 
 Rules:${
     nativeLangName
@@ -144,7 +144,8 @@ Rules:${
   }${
     cfg.includeAlternatives
       ? `
-- Provide exactly 2 alternative translations per language in the \`alternatives\` array. Each alternative should be a different valid translation with 1–2 synonyms.`
+- Provide exactly 2 alternative translations per language in the \`alternatives\` array. Each alternative should be a different valid translation with 1–2 synonyms.
+- If the source word has common materially different senses or parts of speech, use at least one alternative to represent another common sense. Example: for English "patient", the main translation may be the noun "patient", while an alternative should cover the adjective "patient" = "calm, able to wait".`
       : ""
   }${
     cfg.includeExamples

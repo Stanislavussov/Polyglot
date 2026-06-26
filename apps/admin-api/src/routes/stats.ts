@@ -79,10 +79,14 @@ export async function statsRoutes(app: FastifyInstance) {
     const rows = await userRequestCountRepository.getUserRequestCountsByDay(days);
 
     const daysArray: string[] = [];
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
     for (let i = 0; i < days; i++) {
-      const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+      const d = new Date(today);
+      d.setUTCDate(today.getUTCDate() - i);
       daysArray.push(d.toISOString().slice(0, 10));
     }
+    const visibleDays = new Set(daysArray);
 
     const userMap = new Map<
       number,
@@ -97,6 +101,9 @@ export async function statsRoutes(app: FastifyInstance) {
     >();
 
     for (const row of rows) {
+      if (!visibleDays.has(row.day)) {
+        continue;
+      }
       let user = userMap.get(row.userId);
       if (!user) {
         user = {

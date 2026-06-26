@@ -77,13 +77,8 @@ vi.mock("@polyglot/core", async () => {
       emoji: "🏠",
       translations: {},
     }),
-    detectLanguage: vi.fn((_text: string, _candidates: string[]) => {
-      // Simulate detection that returns undefined so nextSourceLang takes effect
-      return undefined;
-    }),
-    // detectLanguageAsync is called when sync detection fails
-    // Returns undefined to trigger mistype warning (simulating AI not detecting)
-    detectLanguageAsync: vi.fn().mockResolvedValue(undefined),
+    detectLanguageWithConfidence: vi.fn(() => ({ confidence: 0, evidence: [] })),
+    detectLanguageWithConfidenceAsync: vi.fn(async () => ({ confidence: 0, evidence: [] })),
     logger: mockLogger,
   };
 });

@@ -86,6 +86,166 @@ describe("validate (orchestrator)", () => {
     expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
   });
 
+  it("rejects sentence translations that rewrite an ambiguous date token", () => {
+    const raw = {
+      emoji: "📅",
+      translations: {
+        de: {
+          text: "Treffen wir uns am 7. Juni um 5.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "Let's meet on 06/07 at 5.", ["de"], "sentence");
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.de.text",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects sentence translations that introduce unsupported numbers", () => {
+    const raw = {
+      emoji: "📅",
+      translations: {
+        de: {
+          text: "Bitte senden Sie die Unterlagen bis Freitag um 17:00.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "Please send the documents by Friday.", ["de"], "sentence");
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.de.text",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects translations that alter placeholders", () => {
+    const raw = {
+      emoji: "🧩",
+      translations: {
+        cs: {
+          text: "Ahoj, name! Máš count zpráv.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "Hello, {name}! You have {{count}} messages.", ["cs"]);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.cs.text",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects technical translations that introduce unsupported placeholders", () => {
+    const raw = {
+      emoji: "🧩",
+      translations: {
+        cs: {
+          text: "Ahoj, {name}. Aktualizace je připravena v {app}.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "Hello. The update is ready.", ["cs"], "sentence");
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.cs.text",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects technical translations that introduce unsupported URLs", () => {
+    const raw = {
+      emoji: "🔗",
+      translations: {
+        ru: {
+          text: "Сначала прочитайте инструкции на https://example.com/help.",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "Read the instructions first.", ["ru"], "sentence");
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.ru.text",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects Markdown translations that change the link target", () => {
+    const raw = {
+      emoji: "🔗",
+      translations: {
+        ru: {
+          text: "Сначала прочитайте [инструкции](https://example.com/other).",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(
+      raw,
+      translationResultSchema,
+      "Read the [instructions](https://example.com/help) first.",
+      ["ru"],
+      "sentence",
+    );
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rule: "immutable",
+          field: "translations.ru.text",
+        }),
+      ]),
+    );
+  });
+
+  it("still runs sentence-level semantic validation for hallucination patterns", () => {
+    const raw = {
+      emoji: "❌",
+      translations: {
+        de: {
+          text: "I cannot translate this sentence",
+          synonyms: [],
+          examples: [],
+        },
+      },
+    };
+
+    const result = validate(raw, translationResultSchema, "Could you close the window?", ["de"], "sentence");
+    expect(result.errors.some((e) => e.rule === "semantic" && e.field === "translations.de.text")).toBe(true);
+  });
+
   it("reports missing translations for expected languages", () => {
     const raw = makeValidResponse("hello");
     // Expect both cs and en but only cs provided
@@ -816,7 +976,7 @@ describe("validate — sentence inputType (Task 27)", () => {
     expect(result.errors).toHaveLength(0);
   });
 
-  it("skips semantic validation when inputType is 'sentence' — hallucination pattern passes", () => {
+  it("still rejects hallucination patterns when inputType is 'sentence'", () => {
     const raw = {
       emoji: "💊",
       translations: {
@@ -828,8 +988,8 @@ describe("validate — sentence inputType (Task 27)", () => {
       },
     };
     const result = validate(raw, sentenceSchema, "Where is the pharmacy?", ["de"], "sentence");
-    expect(result.valid).toBe(true);
-    expect(result.errors).toHaveLength(0);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "semantic")).toBe(true);
   });
 
   it("still runs schema validation for sentences", () => {

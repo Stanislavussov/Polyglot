@@ -75,29 +75,53 @@ vi.mock("@polyglot/core", async () => {
   return {
     ...actual,
     translateWithContext: vi.fn().mockResolvedValue({
-      original: "hello",
-      sourceLang: "en",
-      emoji: "👋",
-      nativeSynonyms: [],
-      translations: {
-        ru: {
-          text: "привет",
-          synonyms: [],
-          examples: [],
-        },
-        cs: {
-          text: "ahoj",
-          synonyms: [],
-          examples: [],
+      status: "accepted",
+      output: {
+        original: "hello",
+        sourceLang: "en",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: {
+          ru: {
+            text: "привет",
+            synonyms: [],
+            examples: [],
+          },
+          cs: {
+            text: "ahoj",
+            synonyms: [],
+            examples: [],
+          },
         },
       },
+      quality: {
+        promptVersion: "translation-v1",
+        schemaVersion: 1,
+        riskLevel: "low",
+        modelId: "test-model",
+        attemptCount: 1,
+        issues: [],
+      },
     }),
-    detectLanguage: vi.fn((text: string, candidates: string[]) => {
-      // Simulate real detection: Cyrillic → Russian, otherwise use first candidate
+    detectLanguageWithConfidence: vi.fn((text: string, candidates: string[]) => {
       const hasRu = candidates.includes("ru");
-      if (/[а-яА-ЯЁё]/.test(text) && hasRu) return "ru";
-      return candidates.length > 0 ? candidates[0] : undefined;
+      if (/[а-яА-ЯЁё]/.test(text) && hasRu) {
+        return {
+          language: "ru",
+          confidence: 0.9,
+          evidence: [{ strategy: "script", candidate: "ru", score: 0.9, reason: "mock" }],
+        };
+      }
+      if (candidates.length > 0) {
+        return {
+          language: candidates[0],
+          confidence: 0.9,
+          evidence: [{ strategy: "mock", candidate: candidates[0], score: 0.9, reason: "mock" }],
+        };
+      }
+      return { confidence: 0, evidence: [] };
     }),
+    detectLanguageWithConfidenceAsync: vi.fn(async () => ({ confidence: 0, evidence: [] })),
     logger: mockLogger,
   };
 });
@@ -107,7 +131,7 @@ vi.mock("@polyglot/infra", () => ({
   logger: mockLogger,
 }));
 
-import { detectLanguage, translateWithContext } from "@polyglot/core";
+import { detectLanguageWithConfidence, detectLanguageWithConfidenceAsync, translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../../types.js";
 import {
   handleMistypeCancelCallback,
@@ -179,7 +203,7 @@ describe("handleTranslateText — auto-detect language direction", () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "hello #finance");
 
-    expect(detectLanguage).toHaveBeenCalledWith("hello", expect.any(Array));
+    expect(detectLanguageWithConfidence).toHaveBeenCalledWith("hello", expect.any(Array));
   });
 
   it("calls translateWithContext with correct model and outputConfig", async () => {
@@ -230,8 +254,8 @@ describe("handleTranslateText — mistype warning (Task 58)", () => {
       nativeLang: "ru",
       learningLangs: ["cs", "en"],
     });
-    // Mock detectLanguage to return undefined for ambiguous input
-    vi.mocked(detectLanguage).mockReturnValue(undefined);
+    // Mock detectLanguageWithConfidence to return ambiguous (no language detected)
+    vi.mocked(detectLanguageWithConfidence).mockReturnValue({ confidence: 0, evidence: [] });
   });
 
   it("shows mistype warning when detectLanguage returns undefined", async () => {
@@ -268,6 +292,70 @@ describe("handleTranslateText — mistype warning (Task 58)", () => {
 
     expect(translateWithContext).not.toHaveBeenCalled();
   });
+
+  it("asks for source language when fast has dictionary evidence in English and German", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["en", "de"],
+    });
+    vi.mocked(detectLanguageWithConfidence).mockReturnValue({
+      confidence: 0,
+      evidence: [
+        { strategy: "script", candidate: "en", score: 0.3, reason: "shared Latin script" },
+        { strategy: "script", candidate: "de", score: 0.3, reason: "shared Latin script" },
+      ],
+      ambiguousCandidates: ["en", "de"],
+    });
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValue({
+      confidence: 0,
+      evidence: [
+        { strategy: "wiktionary", candidate: "en", score: 0.3, reason: "word exists in multiple dictionaries" },
+        { strategy: "wiktionary", candidate: "de", score: 0.3, reason: "word exists in multiple dictionaries" },
+      ],
+      ambiguousCandidates: ["en", "de"],
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "fast");
+
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(ctx.session.pendingWord).toBe("fast");
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining("Which language"), {
+      reply_markup: expect.any(Object),
+    });
+  });
+
+  it("does not ask for source language for weak shared-script ambiguity only", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["en", "de"],
+    });
+    vi.mocked(detectLanguageWithConfidence).mockReturnValue({
+      confidence: 0,
+      evidence: [
+        { strategy: "script", candidate: "en", score: 0.3, reason: "shared Latin script" },
+        { strategy: "script", candidate: "de", score: 0.3, reason: "shared Latin script" },
+      ],
+      ambiguousCandidates: ["en", "de"],
+    });
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValue({
+      confidence: 0,
+      evidence: [
+        { strategy: "script", candidate: "en", score: 0.3, reason: "shared Latin script" },
+        { strategy: "script", candidate: "de", score: 0.3, reason: "shared Latin script" },
+      ],
+      ambiguousCandidates: ["en", "de"],
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "hello");
+
+    expect(translateWithContext).toHaveBeenCalled();
+    expect(ctx.session.pendingWord).toBeUndefined();
+    expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringContaining("Which language"), expect.anything());
+  });
 });
 
 describe("handleMistypeConfirmCallback — Task 58", () => {
@@ -279,11 +367,22 @@ describe("handleMistypeConfirmCallback — Task 58", () => {
       learningLangs: ["cs", "en"],
     });
     vi.mocked(translateWithContext).mockResolvedValue({
-      original: "xyz123",
-      sourceLang: "ru",
-      emoji: "👋",
-      nativeSynonyms: [],
-      translations: {},
+      status: "accepted",
+      output: {
+        original: "xyz123",
+        sourceLang: "ru",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: {},
+      },
+      quality: {
+        promptVersion: "translation-v1",
+        schemaVersion: 1,
+        riskLevel: "low",
+        modelId: "test-model",
+        attemptCount: 1,
+        issues: [],
+      },
     });
   });
 

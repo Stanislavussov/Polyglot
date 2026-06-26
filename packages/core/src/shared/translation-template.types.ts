@@ -42,13 +42,13 @@ export interface UserTranslationTemplate {
   name: string;
 }
 
-/** System default template — reliable-first for cheap/small models */
+/** System default template — learner-friendly but still light for cheap/small models */
 export const DEFAULT_TEMPLATE: UserTranslationTemplate = {
   name: "Default",
   fields: {
-    synonyms: false,
+    synonyms: true,
     examples: false,
-    alternatives: false,
+    alternatives: true,
     equivalentNote: false,
     connotationWarning: false,
   },

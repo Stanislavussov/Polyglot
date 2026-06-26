@@ -2,7 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Logger } from "../../../logger.js";
 import { setLogger } from "../../../logger.js";
 import { parseResponse, sanitizeEmoji, translate, translateBatch, translateOne } from "../translation.service.js";
-import type { TranslateInput, TranslationResult } from "../types.js";
+import { MINIMAL_OUTPUT, SENTENCE_OUTPUT } from "../translation-output.presets.js";
+import type { TranslateInput, TranslateOutput, TranslationDecision, TranslationResult } from "../types.js";
+
+function unwrap(d: TranslationDecision): TranslateOutput {
+  if (!("output" in d)) throw new Error(`Unexpected needs_clarification: ${d.ambiguity.message}`);
+  return d.output;
+}
 
 /** Shared mock logger for validation logging tests */
 const mockLogger: Logger = {
@@ -14,7 +20,7 @@ const mockLogger: Logger = {
 
 /** A valid AI response matching translationResultSchema */
 function makeValidResult(overrides?: Partial<TranslationResult>): TranslationResult {
-  return {
+  const base: TranslationResult = {
     emoji: "👋",
     nativeMeaning: "A greeting.",
     nativeSynonyms: [{ text: "привет" }],
@@ -33,7 +39,32 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
         connotationWarning: null,
       },
     },
+  };
+
+  if (!overrides) {
+    return base;
+  }
+
+  return {
+    ...base,
     ...overrides,
+    translations:
+      overrides.translations === undefined
+        ? base.translations
+        : Object.keys(overrides.translations).length === 0
+          ? {}
+          : {
+              ...base.translations,
+              ...Object.fromEntries(
+                Object.entries(overrides.translations).map(([lang, translation]) => [
+                  lang,
+                  {
+                    ...base.translations.cs,
+                    ...translation,
+                  },
+                ]),
+              ),
+            },
   };
 }
 
@@ -50,12 +81,12 @@ describe("translate", () => {
 
     const result = await translate(defaultInput, mockGenerate);
 
-    expect(result.original).toBe("hello");
-    expect(result.sourceLang).toBe("en");
-    expect(result.emoji).toBe("👋");
-    expect(result.nativeMeaning).toBeUndefined();
-    expect(result.translations.cs.text).toBe("ahoj");
-    expect(result.needsReview).toBeUndefined();
+    expect(result.status).toBe("accepted");
+    expect(unwrap(result).original).toBe("hello");
+    expect(unwrap(result).sourceLang).toBe("en");
+    expect(unwrap(result).emoji).toBe("👋");
+    expect(unwrap(result).nativeMeaning).toBeUndefined();
+    expect(unwrap(result).translations.cs.text).toBe("ahoj");
   });
 
   it("calls generateObject exactly once when validation passes", async () => {
@@ -66,8 +97,8 @@ describe("translate", () => {
     expect(mockGenerate).toHaveBeenCalledTimes(1);
   });
 
-  it("retries on validation failure and succeeds on second attempt", async () => {
-    // First call returns bad result (translation = original), second returns good
+  it("repairs a validation failure and succeeds on second attempt", async () => {
+    // First call returns bad result (translation = original), second repairs the failing block.
     const badResult = makeValidResult({
       translations: {
         cs: {
@@ -83,8 +114,70 @@ describe("translate", () => {
     const result = await translate(defaultInput, mockGenerate);
 
     expect(mockGenerate).toHaveBeenCalledTimes(2);
-    expect(result.needsReview).toBeUndefined();
-    expect(result.translations.cs.text).toBe("ahoj");
+    expect(result.status).toBe("accepted");
+    expect(unwrap(result).translations.cs.text).toBe("ahoj");
+  });
+
+  it("repairs only the failing target language block", async () => {
+    const initialResult = makeValidResult({
+      translations: {
+        cs: {
+          text: "ahoj",
+          synonyms: [{ text: "čau" }],
+          examples: [{ context: "neutral", target: "Řekl ahoj kolegovi." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+        de: {
+          text: "hello",
+          synonyms: [{ text: "hallo" }],
+          examples: [{ context: "neutral", target: "Hello world." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+    const repairedGermanBlock = {
+      text: "hallo",
+      synonyms: [{ text: "servus" }],
+      examples: [{ context: "neutral", target: "Er sagte hallo zum Kollegen." }],
+      expressionType: null,
+      equivalentNote: null,
+      alternatives: null,
+      connotationWarning: null,
+    };
+
+    const mockGenerate = vi.fn().mockResolvedValueOnce(initialResult).mockResolvedValueOnce(repairedGermanBlock);
+
+    const result = await translate(
+      {
+        word: "hello",
+        sourceLang: "en",
+        targetLangs: ["cs", "de"],
+        model: "openai/gpt-4o",
+        modelRouting: {
+          highRiskModel: "anthropic/claude-sonnet-4-20250514",
+        },
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    expect(unwrap(result).translations.cs.text).toBe("ahoj");
+    expect(unwrap(result).translations.de.text).toBe("hallo");
+    expect(mockGenerate.mock.calls[0]?.[2]).toBe("openai/gpt-4o");
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("anthropic/claude-sonnet-4-20250514");
+
+    const repairPrompt = mockGenerate.mock.calls[1]?.[0] as string;
+    expect(repairPrompt).toContain("Targeted repair only for translations.de.");
+    expect(repairPrompt).toContain("Current block:");
+    expect(repairPrompt).toContain("no emoji, commentary, labels, or metadata");
+    expect(repairPrompt).not.toContain("translations.cs");
   });
 
   it("returns needsReview=true after all retries exhausted", async () => {
@@ -105,7 +198,7 @@ describe("translate", () => {
 
     // 1 initial + 2 retries = 3 calls
     expect(mockGenerate).toHaveBeenCalledTimes(3);
-    expect(result.needsReview).toBe(true);
+    expect(result.status).toBe("needs_review");
   });
 
   it("includes topic in the prompt when provided", async () => {
@@ -130,6 +223,354 @@ describe("translate", () => {
 
     // Third argument is model
     expect(mockGenerate.mock.calls[0][2]).toBe("openai/gpt-4o");
+  });
+
+  it("returns needs_clarification when AI preflight finds source-language ambiguity", async () => {
+    const mockGenerate = vi.fn().mockResolvedValueOnce({
+      confidence: 0.41,
+      outcome: "clarify_source_language",
+      reasonCode: "homograph_across_languages",
+      explanation: "This spelling can be English or German with different meanings.",
+      options: [
+        {
+          id: "en",
+          label: "English: quick",
+          value: "en",
+          kind: "source_language",
+          langCode: "en",
+        },
+        {
+          id: "de",
+          label: "German: almost",
+          value: "de",
+          kind: "source_language",
+          langCode: "de",
+        },
+      ],
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "fast",
+        sourceLang: "ru",
+        targetLangs: ["en", "de"],
+        nativeLang: "ru",
+        interfaceLang: "en",
+        detectionConfidence: 0.2,
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("needs_clarification");
+    if (result.status === "needs_clarification") {
+      expect(result.ambiguity.reason).toBe("source_language");
+      expect(result.ambiguity.message).toContain("English or German");
+      expect(result.ambiguity.options).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ kind: "source_language", langCode: "en" }),
+          expect.objectContaining({ kind: "source_language", langCode: "de" }),
+        ]),
+      );
+    }
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
+  });
+
+  it("continues to translation when AI preflight confidence is high", async () => {
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce({
+        confidence: 0.94,
+        outcome: "proceed",
+        reasonCode: "low_confidence",
+        explanation: "No clarification needed.",
+        options: [],
+      })
+      .mockResolvedValueOnce(makeValidResult());
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        detectionConfidence: 0.2,
+        interfaceLang: "en",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("Translate");
+  });
+
+  it("does not ask for clarification for ordinary single-word part-of-speech ambiguity", async () => {
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce({
+        confidence: 0.45,
+        outcome: "clarify_meaning",
+        reasonCode: "multiple_word_senses",
+        explanation: "The word can mean a patient or patient as an adjective.",
+        options: [
+          {
+            id: "noun",
+            label: "patient: noun",
+            value: "person receiving medical care",
+            kind: "meaning",
+          },
+          {
+            id: "adjective",
+            label: "patient: adjective",
+            value: "able to wait calmly",
+            kind: "meaning",
+          },
+        ],
+      })
+      .mockResolvedValue(makeValidResult());
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "patient",
+        inputType: "word",
+        detectionConfidence: 0.2,
+        interfaceLang: "ru",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("Translate");
+  });
+
+  it("routes low-risk generation through the configured low-risk model", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        dictionaryContext: {
+          word: "hello",
+          pos: "noun",
+          glosses: ["a greeting"],
+          langCode: "en",
+        },
+        outputConfig: MINIMAL_OUTPUT,
+        detectionConfidence: 0.95,
+        modelRouting: {
+          lowRiskModel: "openai/gpt-4o-mini",
+          highRiskModel: "anthropic/claude-sonnet-4-20250514",
+        },
+      },
+      mockGenerate,
+    );
+
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(mockGenerate.mock.calls[0]?.[2]).toBe("openai/gpt-4o-mini");
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("low");
+      expect(result.quality.modelId).toBe("openai/gpt-4o-mini");
+    }
+  });
+
+  it("routes high-risk generation and judging through configured models", async () => {
+    const mockGenerate = vi.fn().mockResolvedValueOnce(makeValidResult()).mockResolvedValueOnce({
+      issues: [],
+      summary: "High-risk route passed.",
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "break a leg",
+        inputType: "phrase",
+        modelRouting: {
+          highRiskModel: "anthropic/claude-sonnet-4-20250514",
+          judgeModel: "google/gemini-2.5-pro",
+        },
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    expect(mockGenerate.mock.calls[0]?.[2]).toBe("anthropic/claude-sonnet-4-20250514");
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-pro");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("high");
+      expect(result.quality.modelId).toBe("anthropic/claude-sonnet-4-20250514");
+    }
+  });
+
+  it("returns needs_clarification for an ambiguous numeric date before calling the model", async () => {
+    const mockGenerate = vi.fn();
+
+    const result = await translate(
+      {
+        word: "Let's meet on 06/07 at 5.",
+        sourceLang: "en",
+        targetLangs: ["de"],
+        nativeLang: "ru",
+        inputType: "sentence",
+        outputConfig: SENTENCE_OUTPUT,
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("needs_clarification");
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
+  it("does not hard-code lexical ambiguity for a specific sentence", async () => {
+    const sentenceResult: TranslationResult = {
+      emoji: "🦆",
+      nativeMeaning: "Я видел, как она пригнулась.",
+      nativeSynonyms: [],
+      translations: {
+        ru: {
+          text: "Я видел, как она пригнулась.",
+          synonyms: [],
+          examples: [],
+          expressionType: null,
+          equivalentNote: null,
+          usageNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    };
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce(sentenceResult)
+      .mockResolvedValueOnce({ issues: [], summary: "No unsupported assumptions detected." });
+
+    const result = await translate(
+      {
+        word: "I saw her duck.",
+        sourceLang: "en",
+        targetLangs: ["ru"],
+        nativeLang: "cs",
+        inputType: "sentence",
+        outputConfig: SENTENCE_OUTPUT,
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+  });
+
+  it("runs the semantic judge for high-risk sentence translations", async () => {
+    const sentenceResult: TranslationResult = {
+      emoji: "🪟",
+      nativeMeaning: "Вежливая просьба закрыть окно.",
+      nativeSynonyms: [{ text: "просьба" }],
+      translations: {
+        de: {
+          text: "Könntest du das Fenster schließen?",
+          synonyms: [],
+          examples: [],
+          expressionType: null,
+          equivalentNote: null,
+          usageNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    };
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce(sentenceResult)
+      .mockResolvedValueOnce({ issues: [], summary: "ok" });
+
+    const result = await translate(
+      {
+        word: "Could you close the window?",
+        sourceLang: "en",
+        targetLangs: ["de"],
+        nativeLang: "ru",
+        inputType: "sentence",
+        outputConfig: SENTENCE_OUTPUT,
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-flash");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("acceptable stylistic variants");
+  });
+
+  it("keeps an ordinary unbacked word on the single-call medium-risk path", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    const result = await translate(defaultInput, mockGenerate);
+
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("medium");
+      expect(result.quality.judgeResult).toBeUndefined();
+    }
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps a dictionary-backed confident word on the low-risk single-call path", async () => {
+    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        dictionaryContext: {
+          word: "hello",
+          pos: "noun",
+          glosses: ["a greeting"],
+          langCode: "en",
+        },
+        outputConfig: MINIMAL_OUTPUT,
+        detectionConfidence: 0.93,
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("low");
+      expect(result.quality.judgeResult).toBeUndefined();
+    }
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+  });
+
+  it("runs the semantic judge for phrase translations", async () => {
+    const mockGenerate = vi.fn().mockResolvedValueOnce(makeValidResult()).mockResolvedValueOnce({
+      issues: [],
+      summary: "Phrase meaning, register, and assumptions are acceptable.",
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "break a leg",
+        inputType: "phrase",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.quality.riskLevel).toBe("high");
+      expect(result.quality.judgeResult).toEqual({
+        issues: [],
+        summary: "Phrase meaning, register, and assumptions are acceptable.",
+      });
+    }
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-flash");
   });
 
   it("uses translation-safe generation settings", async () => {
@@ -167,8 +608,8 @@ describe("translate", () => {
 
     const result = await translate(input, mockGenerate);
 
-    expect(result.translations.cs.text).toBe("ahoj");
-    expect(result.translations.de.text).toBe("hallo");
+    expect(unwrap(result).translations.cs.text).toBe("ahoj");
+    expect(unwrap(result).translations.de.text).toBe("hallo");
   });
 
   it("preserves source usage for learning-language source words", async () => {
@@ -210,8 +651,8 @@ describe("translate", () => {
       mockGenerate,
     );
 
-    expect(result.sourceUsage).toEqual(sourceUsage);
-    expect(result.nativeMeaning).toBe("Богомол; название насекомого.");
+    expect(unwrap(result).sourceUsage).toEqual(sourceUsage);
+    expect(unwrap(result).nativeMeaning).toBe("Богомол; название насекомого.");
   });
 
   it("retries when a target block connotation warning is written in the target language", async () => {
@@ -251,60 +692,63 @@ describe("translate", () => {
     );
 
     expect(mockGenerate).toHaveBeenCalledTimes(3);
-    expect(result.needsReview).toBe(true);
+    expect(result.status).toBe("needs_review");
   });
 
   it("accepts phase-out examples without a redundant native field in the native target block", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(
-      makeValidResult({
-        nativeMeaning: "Постепенно прекратить использование.",
-        sourceUsage: {
-          explanation: "Фразовый глагол означает постепенное прекращение использования или производства.",
-          synonyms: [{ text: "discontinue" }],
-          examples: [
-            {
-              context: "policy",
-              target: "The government will phase out single-use plastics.",
-              native: "Правительство постепенно откажется от одноразового пластика.",
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce(
+        makeValidResult({
+          nativeMeaning: "Постепенно прекратить использование.",
+          sourceUsage: {
+            explanation: "Фразовый глагол означает постепенное прекращение использования или производства.",
+            synonyms: [{ text: "discontinue" }],
+            examples: [
+              {
+                context: "policy",
+                target: "The government will phase out single-use plastics.",
+                native: "Правительство постепенно откажется от одноразового пластика.",
+              },
+            ],
+          },
+          nativeSynonyms: [{ text: "постепенно отказаться" }],
+          translations: {
+            cs: {
+              text: "postupně ukončit",
+              synonyms: [{ text: "postupně vyřadit" }],
+              examples: [
+                {
+                  context: "policy",
+                  target: "Vláda chce postupně ukončit používání plastů.",
+                  native: "Правительство хочет постепенно отказаться от пластика.",
+                },
+              ],
+              expressionType: null,
+              equivalentNote: null,
+              usageNote: "Нейтральный чешский вариант для постепенного прекращения использования.",
+              alternatives: null,
+              connotationWarning: null,
             },
-          ],
-        },
-        nativeSynonyms: [{ text: "постепенно отказаться" }],
-        translations: {
-          cs: {
-            text: "postupně ukončit",
-            synonyms: [{ text: "postupně vyřadit" }],
-            examples: [
-              {
-                context: "policy",
-                target: "Vláda chce postupně ukončit používání plastů.",
-                native: "Правительство хочет постепенно отказаться от пластика.",
-              },
-            ],
-            expressionType: null,
-            equivalentNote: null,
-            usageNote: "Нейтральный чешский вариант для постепенного прекращения использования.",
-            alternatives: null,
-            connotationWarning: null,
+            ru: {
+              text: "постепенно отказаться",
+              synonyms: [{ text: "постепенно прекратить" }],
+              examples: [
+                {
+                  context: "policy",
+                  target: "Правительство хочет постепенно отказаться от пластика.",
+                },
+              ],
+              expressionType: null,
+              equivalentNote: null,
+              usageNote: "Естественный русский вариант; обычно сочетается с указанием того, от чего отказываются.",
+              alternatives: null,
+              connotationWarning: null,
+            },
           },
-          ru: {
-            text: "постепенно отказаться",
-            synonyms: [{ text: "постепенно прекратить" }],
-            examples: [
-              {
-                context: "policy",
-                target: "Правительство хочет постепенно отказаться от пластика.",
-              },
-            ],
-            expressionType: null,
-            equivalentNote: null,
-            usageNote: "Естественный русский вариант; обычно сочетается с указанием того, от чего отказываются.",
-            alternatives: null,
-            connotationWarning: null,
-          },
-        },
-      }),
-    );
+        }),
+      )
+      .mockResolvedValueOnce({ issues: [], summary: "ok" });
 
     const result = await translate(
       {
@@ -318,9 +762,11 @@ describe("translate", () => {
       mockGenerate,
     );
 
-    expect(result.translations.cs.examples[0]?.native).toBe("Правительство хочет постепенно отказаться от пластика.");
-    expect(result.translations.ru.examples[0]?.native).toBeUndefined();
-    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(unwrap(result).translations.cs.examples[0]?.native).toBe(
+      "Правительство хочет постепенно отказаться от пластика.",
+    );
+    expect(unwrap(result).translations.ru.examples[0]?.native).toBeUndefined();
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
   it("propagates AI adapter errors", async () => {
@@ -336,7 +782,7 @@ describe("translate", () => {
 
     const result = await translate(defaultInput, mockGenerate);
 
-    expect(result.emoji).toBe("🔤");
+    expect(unwrap(result).emoji).toBe("🔤");
     expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.objectContaining({ rawEmoji: "brittle", sanitized: "🔤" }),
       expect.stringContaining("non-emoji"),
@@ -348,7 +794,7 @@ describe("translate", () => {
 
     const result = await translate(defaultInput, mockGenerate);
 
-    expect(result.emoji).toBe("💎");
+    expect(unwrap(result).emoji).toBe("💎");
   });
 });
 
@@ -375,9 +821,9 @@ describe("translateOne", () => {
       mockGenerate,
     );
 
-    expect(result.text).toBe("ahoj");
-    expect(result.synonyms).toHaveLength(1);
-    expect(result.examples).toHaveLength(3);
+    expect(unwrap(result).translations.cs?.text).toBe("ahoj");
+    expect(unwrap(result).translations.cs?.synonyms).toHaveLength(1);
+    expect(unwrap(result).translations.cs?.examples).toHaveLength(3);
   });
 
   it("propagates errors from translate()", async () => {
@@ -491,7 +937,8 @@ describe("translateOne", () => {
       mockGenerate,
     );
 
-    expect(result.text).toBe("hello");
+    expect(result.status).toBe("needs_review");
+    expect(unwrap(result).translations.cs?.text).toBe("hello");
     expect(mockGenerate).toHaveBeenCalledTimes(3); // 1 + 2 retries
 
     warnSpy.mockRestore();
@@ -524,10 +971,10 @@ describe("translateBatch", () => {
     const results = await translateBatch(["hello", "world"], "en", ["cs"], "openai/gpt-4o", mockGenerate);
 
     expect(results).toHaveLength(2);
-    expect(results[0].original).toBe("hello");
-    expect(results[0].translations.cs.text).toBe("ahoj");
-    expect(results[1].original).toBe("world");
-    expect(results[1].translations.cs.text).toBe("svět");
+    expect(unwrap(results[0]!).original).toBe("hello");
+    expect(unwrap(results[0]!).translations.cs?.text).toBe("ahoj");
+    expect(unwrap(results[1]!).original).toBe("world");
+    expect(unwrap(results[1]!).translations.cs?.text).toBe("svět");
   });
 
   it("returns empty array for empty input", async () => {
@@ -622,7 +1069,7 @@ describe("validation logging", () => {
         retryCount: 2,
         failReason: expect.any(String),
       }),
-      "translation validation failed after all retries — returning needsReview",
+      "translation validation failed after all retries — returning needs_review",
     );
   });
 

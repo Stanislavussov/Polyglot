@@ -1,5 +1,9 @@
 // Translation service — public API
 
+export type { PreflightScoringConfig } from "./preflight.config.js";
+export { PREFLIGHT_DEFAULTS } from "./preflight.config.js";
+export type { PreflightResult } from "./preflight.schema.js";
+export { preflightResultSchema } from "./preflight.schema.js";
 // Prompt builder
 export { buildStrictPrompt, buildTranslationPrompt } from "./prompt.builder.js";
 export type {
@@ -44,10 +48,19 @@ export type {
   ExpressionType,
   InputType,
   LanguageTranslation,
+  QualityIssue,
+  QualityIssueSeverity,
+  QualityMetadata,
+  RiskLevel,
   SourceUsage,
   Synonym,
   TranslateInput,
   TranslateOutput,
+  TranslationAmbiguity,
+  TranslationAmbiguityOption,
+  TranslationAmbiguityReason,
+  TranslationDecision,
+  TranslationModelRoutingPolicy,
   TranslationOutputConfig,
   TranslationRequest,
   TranslationResult,

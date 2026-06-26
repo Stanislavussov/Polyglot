@@ -1,5 +1,6 @@
 import { franc } from "franc";
 import type { DictionaryContextCandidate } from "../context-enrichment/types.js";
+import type { DetectionEvidence, DetectionResult } from "./types.js";
 
 /**
  * Language Detection Strategy Interface
@@ -247,7 +248,7 @@ const DIACRITIC_PATTERNS: Readonly<Record<string, RegExp>> = Object.freeze({
   // German: ä, ö, ü, ß
   de: /[äöüß]/i,
   // Dutch: ij
-  nl: /[ij]/i,
+  nl: /ij/i,
   // Catalan: ç, l·l, à, è, é, í, ó, ú
   ca: /[çàèéíóú]/i,
   // Irish: á, é, í, ó, ú, fada marks
@@ -473,4 +474,237 @@ export async function detectLanguageAsync(
   }
 
   return undefined;
+}
+
+// ============================================================================
+// Confidence-aware detection (Step 3 — conservative ensemble with scoring)
+// ============================================================================
+
+const CONFIDENCE_THRESHOLD = 0.7;
+const MARGIN_THRESHOLD = 0.2;
+
+function scoreScript(text: string, candidates: string[]): DetectionEvidence[] {
+  const script = detectScript(text);
+  if (!script) return [];
+
+  const scriptLangs = SCRIPT_TO_LANGS[script] ?? [];
+  const matches = candidates.filter((c) => scriptLangs.includes(c));
+
+  if (matches.length === 1) {
+    return [{ strategy: "script", candidate: matches[0], score: 0.9, reason: `unique ${script} script candidate` }];
+  }
+  if (matches.length > 1) {
+    return matches.map((c) => ({
+      strategy: "script",
+      candidate: c,
+      score: 0.3,
+      reason: `shared ${script} script with ${matches.length} candidates`,
+    }));
+  }
+  return [];
+}
+
+function scoreDiacritics(text: string, candidates: string[]): DetectionEvidence[] {
+  const matchingCandidates: string[] = [];
+  for (const candidate of candidates) {
+    const pattern = DIACRITIC_PATTERNS[candidate];
+    if (pattern?.test(text)) {
+      matchingCandidates.push(candidate);
+    }
+  }
+
+  if (matchingCandidates.length === 1) {
+    return [{ strategy: "diacritics", candidate: matchingCandidates[0], score: 0.8, reason: "unique diacritic match" }];
+  }
+  if (matchingCandidates.length > 1) {
+    return matchingCandidates.map((c) => ({
+      strategy: "diacritics",
+      candidate: c,
+      score: 0.3,
+      reason: `shared diacritics with ${matchingCandidates.length} candidates`,
+    }));
+  }
+  return [];
+}
+
+function scoreFranc(text: string, candidates: string[]): DetectionEvidence[] {
+  if (wordCount(text) < 3) return [];
+
+  const iso3Candidates: string[] = [];
+  const iso3ToCandidate: Record<string, string> = {};
+  for (const c of candidates) {
+    const iso3 = ISO1_TO_ISO3[c];
+    if (iso3) {
+      iso3Candidates.push(iso3);
+      iso3ToCandidate[iso3] = c;
+    }
+  }
+  if (iso3Candidates.length === 0) return [];
+
+  const detected = franc(text, { only: iso3Candidates });
+  if (detected === "und") return [];
+
+  const candidate = iso3ToCandidate[detected];
+  if (candidate) {
+    return [{ strategy: "franc", candidate, score: 0.7, reason: "statistical trigram match" }];
+  }
+  return [];
+}
+
+function aggregateScores(evidence: DetectionEvidence[]): Map<string, number> {
+  const scores = new Map<string, number>();
+  for (const entry of evidence) {
+    scores.set(entry.candidate, (scores.get(entry.candidate) ?? 0) + entry.score);
+  }
+  return scores;
+}
+
+function buildResult(evidence: DetectionEvidence[]): DetectionResult {
+  const scores = aggregateScores(evidence);
+  const sorted = [...scores.entries()].sort((a, b) => b[1] - a[1]);
+
+  if (sorted.length === 0) {
+    return { confidence: 0, evidence };
+  }
+
+  const [topCandidate, topScore] = sorted[0];
+  const secondScore = sorted.length > 1 ? sorted[1][1] : 0;
+  const confidence = Math.min(1, topScore);
+  const margin = topScore - secondScore;
+
+  if (confidence >= CONFIDENCE_THRESHOLD && margin >= MARGIN_THRESHOLD) {
+    return { language: topCandidate, confidence, evidence };
+  }
+
+  return {
+    confidence: 0,
+    evidence,
+    ambiguousCandidates: sorted.map(([candidate]) => candidate),
+  };
+}
+
+function isEnglishOnlyLookupTooWeakForSharedScriptWord(
+  text: string,
+  evidence: readonly DetectionEvidence[],
+  wiktionaryMatches: readonly string[],
+): boolean {
+  if (wordCount(text) !== 1 || wiktionaryMatches.length !== 1 || wiktionaryMatches[0] !== "en") {
+    return false;
+  }
+
+  const sharedScriptCandidates = evidence
+    .filter((entry) => entry.strategy === "script" && entry.score < CONFIDENCE_THRESHOLD)
+    .map((entry) => entry.candidate);
+
+  return sharedScriptCandidates.includes("en") && sharedScriptCandidates.length > 1;
+}
+
+export function detectLanguageWithConfidence(text: string, candidates: string[]): DetectionResult {
+  const trimmed = text.trim();
+  const uniqueCandidates = [...new Set(candidates)];
+
+  if (trimmed.length === 0 || uniqueCandidates.length === 0) {
+    return { confidence: 0, evidence: [] };
+  }
+
+  if (uniqueCandidates.length === 1) {
+    if (/\p{L}/u.test(trimmed)) {
+      return {
+        language: uniqueCandidates[0],
+        confidence: 1,
+        evidence: [
+          { strategy: "single-candidate", candidate: uniqueCandidates[0], score: 1, reason: "only candidate" },
+        ],
+      };
+    }
+    return { confidence: 0, evidence: [] };
+  }
+
+  const evidence: DetectionEvidence[] = [
+    ...scoreScript(trimmed, uniqueCandidates),
+    ...scoreDiacritics(trimmed, uniqueCandidates),
+    ...scoreFranc(trimmed, uniqueCandidates),
+  ];
+
+  return buildResult(evidence);
+}
+
+export async function detectLanguageWithConfidenceAsync(
+  text: string,
+  candidates: string[],
+  deps: {
+    contextLookup?: (word: string, langCode: string) => Promise<DictionaryContextCandidate[]>;
+    aiGenerate?: AIGenerateFn;
+  },
+): Promise<DetectionResult> {
+  const trimmed = text.trim();
+  const uniqueCandidates = [...new Set(candidates)];
+
+  if (trimmed.length === 0 || uniqueCandidates.length === 0) {
+    return { confidence: 0, evidence: [] };
+  }
+
+  if (uniqueCandidates.length === 1) {
+    if (/\p{L}/u.test(trimmed)) {
+      return {
+        language: uniqueCandidates[0],
+        confidence: 1,
+        evidence: [
+          { strategy: "single-candidate", candidate: uniqueCandidates[0], score: 1, reason: "only candidate" },
+        ],
+      };
+    }
+    return { confidence: 0, evidence: [] };
+  }
+
+  const evidence: DetectionEvidence[] = [
+    ...scoreScript(trimmed, uniqueCandidates),
+    ...scoreDiacritics(trimmed, uniqueCandidates),
+    ...scoreFranc(trimmed, uniqueCandidates),
+  ];
+
+  const earlyResult = buildResult(evidence);
+  if (earlyResult.language !== undefined) {
+    return earlyResult;
+  }
+
+  if (deps.contextLookup) {
+    const wiktionaryStrategy = new WiktionaryStrategy(deps.contextLookup);
+    const wiktionaryMatches = await wiktionaryStrategy.findMatches(trimmed, uniqueCandidates);
+
+    if (wiktionaryMatches.length === 1) {
+      if (!isEnglishOnlyLookupTooWeakForSharedScriptWord(trimmed, evidence, wiktionaryMatches)) {
+        evidence.push({
+          strategy: "wiktionary",
+          candidate: wiktionaryMatches[0],
+          score: 0.9,
+          reason: "unique dictionary match",
+        });
+      }
+    } else if (wiktionaryMatches.length > 1) {
+      for (const candidate of wiktionaryMatches) {
+        evidence.push({
+          strategy: "wiktionary",
+          candidate,
+          score: 0.3,
+          reason: "word exists in multiple candidate dictionaries",
+        });
+      }
+    }
+  }
+
+  const postWiktionaryResult = buildResult(evidence);
+  if (postWiktionaryResult.language !== undefined) {
+    return postWiktionaryResult;
+  }
+
+  if (deps.aiGenerate) {
+    const aiStrategy = new AIStrategy(deps.aiGenerate);
+    const aiResult = await aiStrategy.detect(trimmed, uniqueCandidates);
+    if (aiResult !== undefined) {
+      evidence.push({ strategy: "ai", candidate: aiResult, score: 0.6, reason: "AI language identification" });
+    }
+  }
+
+  return buildResult(evidence);
 }

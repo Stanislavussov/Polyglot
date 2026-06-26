@@ -17,7 +17,7 @@ description: Word and phrase translation via AI with prompt building, response p
 
 ## Current State
 
-Fully implemented with types, Zod schemas, prompt builder, and translation service with validation pipeline. Structured logging records each failed validation attempt and the final exhausted-retry failure. Task 07 partial regeneration: added `translateOne()` — a thin wrapper around `translate()` that translates a single target language and returns just the `LanguageTranslation`, used by the bot's per-language regeneration flow. Task 09 translate session loop: no translation module changes needed — persistent translate mode is a bot-layer routing concern; the bot's mode router calls `translate()` for each plain text message while in translate mode; i18n keys (`translateModeOn`, `translateModeHint`) were added to support mode confirmation/hint messages. Task 10 idiomatic equivalents: added `ExpressionType` type (`'literal' | 'idiomatic_equivalent'`), `expressionType` and `equivalentNote` optional fields to `LanguageTranslation` and the Zod schema, added Idiomatic & Proverb Rule block to prompt builder, and `ExpressionType` is re-exported from the module index. Task 13 Wiktionary integration: added `DictionaryContext` type for offline dictionary enrichment, optional `dictionaryContext` field on `TranslateInput`/`TranslateOutput`/`TranslationRequest`, prompt builder enrichment with Wiktionary glosses/POS/form tags, phrase/idiom detection hints, and `translateOne()` passthrough. Context is injected by caller (e.g., bot layer) — core never calls DB directly. Task 15 context-enrichment layer: `dictionaryContext` is now managed by the context-enrichment module (`translateWithContext`, `translateOneWithContext`, `translateBatchWithContext`). Callers should use the enrichment layer instead of manually looking up and injecting `dictionaryContext`. See `.pi/skills/context-enrichment/SKILL.md`. Task 16 auto-detect input language: no translation module changes needed — `translate()`, `translateOne()`, and `translateBatch()` already accept arbitrary `sourceLang`/`targetLangs` parameters. Language detection and direction resolution live in the sibling `language-detect` module (`detectLanguage()`, `resolveTranslationDirection()`), which the bot layer calls before invoking translation. The translation pipeline remains direction-agnostic — it translates whatever `sourceLang → targetLangs` it receives. Task 17 post-translation source language selection menu: no translation module changes needed — the feature is a bot-layer UI concern (session state, inline keyboards, callbacks). The translation pipeline continues to accept whatever `sourceLang → targetLangs` it receives. i18n keys (`nextTranslationFrom`, `nextSourceSet`) were added to support the source language menu UI. The sibling `language-detect` module gained `resolveDirectionFromSource()` for explicit source language direction resolution (no auto-detection), used by the bot layer when a user has manually selected a source language. Task 21: Added `TranslationOutputConfig` with centralized presets (`FULL_OUTPUT`, `RELIABLE_OUTPUT`, `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT`). Prompt builder and schema builder are config-aware — disabled fields are omitted from the AI prompt and omitted from the AI-facing schema. Public output normalization fills disabled arrays/nulls after generation. Native-source connotation handling: `connotationWarning` is target-side metadata only. For `sourceLang === nativeLang`, prompt and strict retry rules explicitly forbid explaining the native source word and require each target-language block to describe the translated target word/expression independently. The prompt now also states explicitly that `connotationWarning` must be written in the user's native language even inside non-native target blocks.
+Fully implemented with types, Zod schemas, prompt builder, and a risk-based validation pipeline. Risk classification uses a points score and returns `low`, `medium`, or `high`: phrase/sentence input, risky register/topic hints, low detection confidence, uncommon language pairs, structural immutable features, multi-sense/idiom dictionary context, and deterministic validation failures route to `high`; ordinary unbacked words remain single-call `medium`; confident dictionary-backed minimal words stay `low`. Callers may provide a benchmark-derived `TranslationModelRoutingPolicy` to route low-, medium-, and high-risk generation to different models and pin the semantic judge model; without it, the requested `model` remains the generation default. Full retries are limited to generation/schema failures. Deterministic or judge failures use bounded targeted repair of the affected language block, with regression coverage proving a failed target block does not regenerate accepted sibling blocks. High-risk requests run a structured semantic judge from a different model family using an OpenAI-compatible nullable repair-instruction schema; judge prompts reserve blocking issues for real meaning/fact/register breaks and treat acceptable stylistic variants as warnings. Targeted sentence repair explicitly forbids emoji, commentary, labels, or metadata inside translation text. Sentence and technical-text validation preserves immutable spans and rejects generated placeholders, URLs, Markdown link targets, dates, and numbers that were not present in the source. Structural preflight ambiguity currently covers locale-ambiguous numeric dates and mixed scripts; generic lexical ambiguity awaits ranked sense IDs and confidence margins and must not be implemented with phrase-specific rules.
 
 ### Unified expression handling & 3 translation variants
 
@@ -52,6 +52,7 @@ Fully implemented with types, Zod schemas, prompt builder, and translation servi
 - The primary prompt forbids pronunciation, IPA, romanization, and transliteration in every field.
 - Translation generation passes `frequencyPenalty: 0` through the injected AI function so examples can naturally repeat their assigned translation.
 - Regression coverage includes `phase out` from English to Czech and Russian with Russian as the native language.
+- The translation benchmark uses fixture schema version 1 and report schema version 4. It repeats stochastic translation and detection cases, records actual AI request tokens/cost/latency through the adapter metric sink, scores primary translation, auxiliary fields, factual preservation, naturalness/register, ambiguity handling, detection, and repair success separately, and emits Markdown plus JSON reports. The CLI supports three-or-more-model comparisons and same-model JSON baselines with statistically significant language-pair regression checks. Release gates also protect immutable content, ambiguity handling, 95% primary accuracy, 90% metadata accuracy, and the low-risk single-call path.
 
 ## Boundary
 
@@ -155,6 +156,7 @@ interface TranslateInput {
   dictionaryContext?: DictionaryContext;  // optional Wiktionary enrichment
   outputConfig?: TranslationOutputConfig; // optional output config
   inputType?: InputType;  // classified input type — drives prompt and validation
+  modelRouting?: TranslationModelRoutingPolicy; // optional benchmark-derived model routing
 }
 
 interface TranslateOutput {
@@ -162,11 +164,58 @@ interface TranslateOutput {
   sourceLang: string;
   emoji: string;
   nativeMeaning?: string;
+  sourceUsage?: SourceUsage;
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
-  needsReview?: boolean;           // true when validation failed after all retries
-  dictionaryContext?: DictionaryContext;  // echoed back when used
+  dictionaryContext?: DictionaryContext;
 }
+
+// ── Translation decision contract (Step 2) ──
+
+type TranslationAmbiguityReason =
+  | "source_language" | "word_sense" | "date_or_time"
+  | "placeholder_grammar" | "mixed_or_transliterated_input";
+
+interface TranslationAmbiguityOption { label: string; value: string; }
+
+interface TranslationAmbiguity {
+  reason: TranslationAmbiguityReason;
+  message: string;
+  options?: TranslationAmbiguityOption[];
+}
+
+type QualityIssueSeverity = "blocking" | "warning" | "info";
+
+interface QualityIssue {
+  fieldPath: string;
+  severity: QualityIssueSeverity;
+  message: string;
+  repairInstruction?: string;
+}
+
+type RiskLevel = "low" | "medium" | "high";
+
+interface TranslationModelRoutingPolicy {
+  lowRiskModel?: string;
+  mediumRiskModel?: string;
+  highRiskModel?: string;
+  judgeModel?: string;
+}
+
+interface QualityMetadata {
+  promptVersion: string;
+  schemaVersion: number;
+  riskLevel: RiskLevel;
+  modelId: string;
+  attemptCount: number;
+  judgeResult?: unknown;
+  issues: QualityIssue[];
+}
+
+type TranslationDecision =
+  | { status: "accepted"; output: TranslateOutput; quality: QualityMetadata }
+  | { status: "needs_clarification"; ambiguity: TranslationAmbiguity }
+  | { status: "needs_review"; output: TranslateOutput; issues: QualityIssue[] };
 
 type GenerateObjectFn = <T>(prompt: string, schema: ZodSchema<T>, model: string, options?: { userId?: number }) => Promise<T>;
 ```
@@ -174,20 +223,19 @@ type GenerateObjectFn = <T>(prompt: string, schema: ZodSchema<T>, model: string,
 ## Skills (Public API)
 
 ```typescript
-// Main translation entry point (outputConfig flows through to prompt & schema)
-async function translate(input: TranslateInput, generateObjectFn: GenerateObjectFn): Promise<TranslateOutput>;
+async function translate(input: TranslateInput, generateObjectFn: GenerateObjectFn): Promise<TranslationDecision>;
 
 // Single-language translation for partial regeneration
 async function translateOne(
   input: TranslateInput & { targetLang: string },
   generateObjectFn: GenerateObjectFn
-): Promise<LanguageTranslation>;
+): Promise<TranslationDecision>;
 
 // Batch translation for topics (sequential, not parallel)
 async function translateBatch(
   words: string[], sourceLang: string, targetLangs: string[],
   model: string, generateObjectFn: GenerateObjectFn
-): Promise<TranslateOutput[]>;
+): Promise<TranslationDecision[]>;
 
 // Build the AI prompt from a request (config-aware: omits sections for disabled fields)
 function buildTranslationPrompt(request: TranslationRequest): string;
@@ -243,13 +291,14 @@ import { FULL_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, RELIABLE_OUTPUT, SENT
 ## Translation Flow
 
 ```
-0. Caller classifies input (input-classifier module → InputType)
-1. Build prompt (buildTranslationPrompt — sentence-aware intro when inputType='sentence')
-2. Call AI adapter (generateObjectFn with translationResultSchema)
-3. Validate response (validate from validation module, passes inputType to skip semantic for sentences)
-4. On PASS → return result (with dictionaryContext echoed back if provided)
-5. On FAIL → console.warn({ original, retryCount, failReason }), retry with strict prompt (up to 2 retries)
-6. On final FAIL → console.error({ original, retryCount, failReason }), return result with needsReview: true
+0. Analyze input and return needs_clarification for supported structural ambiguity
+1. Generate structured translation output
+2. Retry the full request only for generation or schema failure
+3. Run deterministic validation, including sentence semantic and immutable checks
+4. Target-repair failing language blocks
+5. Compute risk; judge high-risk results with a different model family
+6. Target-repair blocking judge issues and re-judge
+7. Return accepted or needs_review with field-level issues
 ```
 
 ## Dictionary Context Enrichment (Task 13)
@@ -277,6 +326,7 @@ When `dictionaryContext` is provided in `TranslateInput`:
 ```
 packages/core/src/modules/translation/
 ├── index.ts                           # Re-exports: translate, translateOne, translateBatch, schemas, types, ExpressionType, InputType, DictionaryContext, TranslationVariant, TranslationOutputConfig, presets (incl. SENTENCE_OUTPUT)
+├── quality.schema.ts                  # Structured semantic-judge issues and summary
 ├── types.ts                           # TranslateInput, TranslateOutput, TranslationOutputConfig, InputType, ExpressionType, DictionaryContext, etc.
 ├── translation.service.ts             # translate(), translateOne(), translateBatch(), parseResponse() — passes inputType to validate()
 ├── translation-output.presets.ts      # FULL_OUTPUT, RELIABLE_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT presets

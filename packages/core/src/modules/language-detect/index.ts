@@ -10,6 +10,8 @@ export {
   // Main functions
   detectLanguage,
   detectLanguageAsync,
+  detectLanguageWithConfidence,
+  detectLanguageWithConfidenceAsync,
   FrancStrategy,
   ISO1_TO_ISO3,
   // Strategy classes
@@ -21,6 +23,8 @@ export {
   resolveTranslationDirection,
 } from "./resolve-direction.js";
 export type {
+  DetectionEvidence,
+  DetectionResult,
   ResolveDirectionInput,
   ResolveFromSourceInput,
   TranslationDirection,

@@ -9,7 +9,18 @@ import {
   RELIABLE_OUTPUT,
   SENTENCE_OUTPUT,
 } from "../translation-output.presets.js";
-import type { TranslateInput, TranslationOutputConfig, TranslationRequest } from "../types.js";
+import type {
+  TranslateInput,
+  TranslateOutput,
+  TranslationDecision,
+  TranslationOutputConfig,
+  TranslationRequest,
+} from "../types.js";
+
+function unwrap(d: TranslationDecision): TranslateOutput {
+  if (!("output" in d)) throw new Error(`Unexpected needs_clarification: ${d.ambiguity.message}`);
+  return d.output;
+}
 
 // ─── Helpers ──────────────────────────────────────────────
 
@@ -352,8 +363,8 @@ describe("translate() with outputConfig", () => {
     expect(prompt).not.toContain("VARIETY IN EXAMPLES");
 
     // Verify the schema accepted empty examples/synonyms (no validation error on them)
-    expect(output.original).toBe("hello");
-    expect(output.translations.cs.text).toBe("ahoj");
+    expect(unwrap(output).original).toBe("hello");
+    expect(unwrap(output).translations.cs.text).toBe("ahoj");
   });
 });
 
@@ -392,10 +403,10 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
     expect(prompt).not.toContain('"examples"');
 
     // Verify result is returned correctly
-    expect(output.original).toBe("Can you tell me where the nearest pharmacy is?");
-    expect(output.translations.de.text).toBe("Können Sie mir sagen, wo die nächste Apotheke ist?");
-    expect(output.translations.de.synonyms).toEqual([]);
-    expect(output.translations.de.examples).toEqual([]);
+    expect(unwrap(output).original).toBe("Can you tell me where the nearest pharmacy is?");
+    expect(unwrap(output).translations.de.text).toBe("Können Sie mir sagen, wo die nächste Apotheke ist?");
+    expect(unwrap(output).translations.de.synonyms).toEqual([]);
+    expect(unwrap(output).translations.de.examples).toEqual([]);
   });
 
   it("sentence translation strips disabled fields from AI response", async () => {
@@ -428,10 +439,10 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
     const output = await translate(input, mockGenerate);
 
     // SENTENCE_OUTPUT disables synonyms, alternatives, equivalentNote
-    expect(output.translations.de.synonyms).toEqual([]);
-    expect(output.translations.de.alternatives).toBeNull();
-    expect(output.translations.de.equivalentNote).toBeNull();
-    expect(output.translations.de.expressionType).toBeNull();
+    expect(unwrap(output).translations.de.synonyms).toEqual([]);
+    expect(unwrap(output).translations.de.alternatives).toBeNull();
+    expect(unwrap(output).translations.de.equivalentNote).toBeNull();
+    expect(unwrap(output).translations.de.expressionType).toBeNull();
     // Transcription is still included (not disabled)
   });
 });

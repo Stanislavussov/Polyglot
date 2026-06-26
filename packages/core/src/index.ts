@@ -75,6 +75,7 @@ export {
   needsIdiomReview,
   sourceExpressionTypeSchema,
 } from "./modules/idiom-analysis/index.js";
+export * from "./modules/input-analysis/index.js";
 export * from "./modules/language-detect/index.js";
 export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
 export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
