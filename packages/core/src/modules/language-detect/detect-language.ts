@@ -248,7 +248,7 @@ const DIACRITIC_PATTERNS: Readonly<Record<string, RegExp>> = Object.freeze({
   // German: ä, ö, ü, ß
   de: /[äöüß]/i,
   // Dutch: ij
-  nl: /[ij]/i,
+  nl: /ij/i,
   // Catalan: ç, l·l, à, è, é, í, ó, ú
   ca: /[çàèéíóú]/i,
   // Irish: á, é, í, ó, ú, fada marks

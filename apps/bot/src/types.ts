@@ -125,6 +125,25 @@ export interface SessionData {
     sourceLang: string;
     targetLangs: string[];
   };
+  /** Pending translation clarification after core returns needs_clarification. */
+  pendingClarification?: {
+    word: string;
+    contextHint?: string;
+    sourceLang: string;
+    targetLangs: string[];
+    inputType: InputType;
+    reason: string;
+    options?: Array<{
+      id?: string;
+      label: string;
+      value: string;
+      kind?: string;
+      langCode?: string;
+      correctedText?: string;
+    }>;
+  };
+  /** True when the next text message should be used as translation context clarification. */
+  awaitingTranslationClarificationContext?: boolean;
   /**
    * Flag indicating the bot is awaiting notification context text input.
    * Set when user taps "set:notif:context" in settings.

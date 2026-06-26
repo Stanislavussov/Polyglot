@@ -129,7 +129,12 @@ vi.mock("@polyglot/infra", () => ({
 
 import { translateOneWithContext, translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../types.js";
-import { handleRegenCallback, handleTranslateText } from "./translate-mode.helper.js";
+import {
+  handleRegenCallback,
+  handleTranslateText,
+  handleTranslationClarificationCallback,
+  handleTranslationClarificationContextText,
+} from "./translate-mode.helper.js";
 
 function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string): BotContext {
   const session: SessionData = {
@@ -231,19 +236,19 @@ describe("handleTranslateText — context enrichment", () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining("Daily translation limit"));
   });
 
-  it("passes reliable default outputConfig", async () => {
+  it("passes learner-friendly default outputConfig", async () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "hello");
 
     const inputArg = vi.mocked(translateWithContext).mock.calls[0]![0];
     expect(inputArg.outputConfig).toEqual({
       includeExamples: false,
-      includeSynonyms: false,
-      includeAlternatives: false,
+      includeSynonyms: true,
+      includeAlternatives: true,
       includeEquivalentNote: false,
       includeUsageNote: true,
       includeConnotationWarning: false,
-      includeNativeSynonyms: false,
+      includeNativeSynonyms: true,
     });
   });
 
@@ -449,5 +454,332 @@ describe("handleTranslateText — context enrichment", () => {
       ["cs"],
       expect.any(Number),
     );
+  });
+
+  it("shows clarification UI instead of generic translation error", async () => {
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "date_or_time",
+        message: "The date is ambiguous without locale context.",
+        options: [
+          { label: "06/07 (month/day)", value: "month-day" },
+          { label: "07/06 (day/month)", value: "day-month" },
+        ],
+      },
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "Meet on 06/07");
+
+    expect(ctx.reply).not.toHaveBeenCalledWith("❌ Translation failed. Please try again later.");
+    expect(ctx.session.pendingClarification).toMatchObject({
+      word: "Meet on 06/07",
+      reason: "date_or_time",
+      options: expect.any(Array),
+    });
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1]?.reply_markup !== undefined);
+    expect(promptCall?.[0]).not.toBe("❌ Translation failed. Please try again later.");
+    const keyboard = promptCall?.[1]?.reply_markup as { inline_keyboard: Array<Array<{ callback_data: string }>> };
+    const callbackData = keyboard.inline_keyboard.flat().map((button) => button.callback_data);
+    expect(callbackData).toEqual(
+      expect.arrayContaining(["tr:clarify:option:0", "tr:clarify:option:1", "tr:clarify:context"]),
+    );
+    expect(callbackData).not.toContain("tr:clarify:lang:ru");
+    expect(callbackData).not.toContain("tr:clarify:lang:cs");
+    expect(callbackData).not.toContain("tr:clarify:lang:de");
+    expect(callbackData).not.toContain("tr:clarify:cancel");
+  });
+
+  it("does not add source-language buttons to meaning clarification", async () => {
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "word_sense",
+        message: "The word has multiple meanings.",
+        options: [
+          { label: "patient: noun", value: "person receiving medical care", kind: "meaning" },
+          { label: "patient: adjective", value: "able to wait calmly", kind: "meaning" },
+        ],
+      },
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "patient");
+
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1]?.reply_markup !== undefined);
+    const keyboard = promptCall?.[1]?.reply_markup as { inline_keyboard: Array<Array<{ callback_data: string }>> };
+    const callbackData = keyboard.inline_keyboard.flat().map((button) => button.callback_data);
+
+    expect(callbackData).toEqual(["tr:clarify:option:0", "tr:clarify:option:1", "tr:clarify:context"]);
+  });
+
+  it("uses only core source-language options when source-language ambiguity is returned", async () => {
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "source_language",
+        message: "This spelling can be English or German with different meanings.",
+        options: [
+          {
+            label: "English: quick",
+            value: "en",
+            kind: "source_language",
+            langCode: "en",
+          },
+          {
+            label: "German: almost",
+            value: "de",
+            kind: "source_language",
+            langCode: "de",
+          },
+        ],
+      },
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "fast");
+
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1]?.reply_markup !== undefined);
+    const keyboard = promptCall?.[1]?.reply_markup as { inline_keyboard: Array<Array<{ callback_data: string }>> };
+    const callbackData = keyboard.inline_keyboard.flat().map((button) => button.callback_data);
+
+    expect(callbackData).toEqual(["tr:clarify:option:0", "tr:clarify:option:1", "tr:clarify:context"]);
+  });
+
+  it("sets awaiting state when clarification context is requested", async () => {
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "bank",
+          sourceLang: "en",
+          targetLangs: ["cs"],
+          inputType: "word",
+          reason: "word_sense",
+        },
+      },
+      "tr:clarify:context",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(ctx.session.awaitingTranslationClarificationContext).toBe(true);
+    expect(ctx.reply).toHaveBeenCalled();
+  });
+
+  it("uses the next text message as clarification context", async () => {
+    const ctx = createMockCtx({
+      pendingClarification: {
+        word: "bank",
+        sourceLang: "en",
+        targetLangs: ["cs"],
+        inputType: "word",
+        reason: "word_sense",
+      },
+      awaitingTranslationClarificationContext: true,
+    });
+
+    await handleTranslationClarificationContextText(ctx, "river side");
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "bank",
+        sourceLang: "en",
+        targetLangs: ["cs"],
+        topic: "river side",
+      }),
+      expect.anything(),
+    );
+    expect(ctx.session.pendingClarification).toBeUndefined();
+    expect(ctx.session.awaitingTranslationClarificationContext).toBeUndefined();
+  });
+
+  it("retries with the selected source language and user-language targets", async () => {
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "fast",
+          sourceLang: "ru",
+          targetLangs: ["cs", "de"],
+          inputType: "word",
+          reason: "source_language",
+        },
+      },
+      "tr:clarify:lang:de",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "fast",
+        sourceLang: "de",
+        targetLangs: ["ru", "cs"],
+      }),
+      expect.anything(),
+    );
+  });
+
+  it("retries with a source-language option from core preflight", async () => {
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "fast",
+          sourceLang: "ru",
+          targetLangs: ["cs", "de"],
+          inputType: "word",
+          reason: "source_language",
+          options: [
+            {
+              id: "de",
+              label: "German: almost",
+              value: "de",
+              kind: "source_language",
+              langCode: "de",
+            },
+          ],
+        },
+      },
+      "tr:clarify:option:0",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "fast",
+        sourceLang: "de",
+        targetLangs: ["ru", "cs"],
+      }),
+      expect.anything(),
+    );
+  });
+
+  it("retries with corrected text when a typo option is selected", async () => {
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "fasr",
+          sourceLang: "en",
+          targetLangs: ["cs"],
+          inputType: "word",
+          reason: "possible_typo",
+          options: [
+            {
+              id: "fast",
+              label: "fast",
+              value: "fast",
+              kind: "typo_correction",
+              correctedText: "fast",
+            },
+            {
+              id: "as-written",
+              label: "Translate as written",
+              value: "fasr",
+              kind: "translate_as_written",
+            },
+          ],
+        },
+      },
+      "tr:clarify:option:0",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "fast",
+        sourceLang: "en",
+        targetLangs: ["cs"],
+      }),
+      expect.anything(),
+    );
+  });
+
+  it("uses the corrected text language when a typo option includes langCode", async () => {
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "paйishent",
+          sourceLang: "ru",
+          targetLangs: ["cs", "en", "de"],
+          inputType: "word",
+          reason: "possible_typo",
+          options: [
+            {
+              id: "patient",
+              label: "patient",
+              value: "patient",
+              kind: "typo_correction",
+              correctedText: "patient",
+              langCode: "en",
+            },
+          ],
+        },
+      },
+      "tr:clarify:option:0",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "patient",
+        sourceLang: "en",
+        targetLangs: ["ru", "cs", "de"],
+      }),
+      expect.anything(),
+    );
+  });
+
+  it("uses ambiguity option as context hint when no structured pipeline field exists", async () => {
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "Meet on 06/07",
+          sourceLang: "en",
+          targetLangs: ["cs"],
+          inputType: "phrase",
+          reason: "date_or_time",
+          options: [
+            { label: "06/07 (month/day)", value: "month-day" },
+            { label: "07/06 (day/month)", value: "day-month" },
+          ],
+        },
+      },
+      "tr:clarify:option:1",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({
+        word: "Meet on 06/07",
+        topic: "07/06 (day/month): day-month",
+      }),
+      expect.anything(),
+    );
+  });
+
+  it("clears pending clarification on a stale cancel callback", async () => {
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "bank",
+          sourceLang: "en",
+          targetLangs: ["cs"],
+          inputType: "word",
+          reason: "word_sense",
+        },
+        awaitingTranslationClarificationContext: true,
+      },
+      "tr:clarify:cancel",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(ctx.session.pendingClarification).toBeUndefined();
+    expect(ctx.session.awaitingTranslationClarificationContext).toBeUndefined();
+    expect(translateWithContext).not.toHaveBeenCalled();
   });
 });

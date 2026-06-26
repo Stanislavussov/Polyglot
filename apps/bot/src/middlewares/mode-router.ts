@@ -12,7 +12,10 @@ import type { NextFunction } from "grammy";
 import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
 import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
-import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
+import {
+  handleTranslateText,
+  handleTranslationClarificationContextText,
+} from "../scenes/helpers/translate-mode.helper.js";
 import type { BotContext } from "../types.js";
 import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
@@ -79,6 +82,11 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
 
   if (ctx.session.dictionaryWizard) {
     await handleDictionaryNameInput(ctx);
+    return;
+  }
+
+  if (ctx.session.awaitingTranslationClarificationContext) {
+    await handleTranslationClarificationContextText(ctx, text);
     return;
   }
 

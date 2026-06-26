@@ -293,7 +293,7 @@ describe("handleTranslateText — mistype warning (Task 58)", () => {
     expect(translateWithContext).not.toHaveBeenCalled();
   });
 
-  it("asks for source language when fast is ambiguous between English and German", async () => {
+  it("asks for source language when fast has dictionary evidence in English and German", async () => {
     mockUserRepository.getSettings.mockResolvedValue({
       interfaceLang: "en",
       nativeLang: "ru",
@@ -301,12 +301,18 @@ describe("handleTranslateText — mistype warning (Task 58)", () => {
     });
     vi.mocked(detectLanguageWithConfidence).mockReturnValue({
       confidence: 0,
-      evidence: [],
+      evidence: [
+        { strategy: "script", candidate: "en", score: 0.3, reason: "shared Latin script" },
+        { strategy: "script", candidate: "de", score: 0.3, reason: "shared Latin script" },
+      ],
       ambiguousCandidates: ["en", "de"],
     });
     vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValue({
       confidence: 0,
-      evidence: [],
+      evidence: [
+        { strategy: "wiktionary", candidate: "en", score: 0.3, reason: "word exists in multiple dictionaries" },
+        { strategy: "wiktionary", candidate: "de", score: 0.3, reason: "word exists in multiple dictionaries" },
+      ],
       ambiguousCandidates: ["en", "de"],
     });
     const ctx = createMockCtx();
@@ -318,6 +324,37 @@ describe("handleTranslateText — mistype warning (Task 58)", () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining("Which language"), {
       reply_markup: expect.any(Object),
     });
+  });
+
+  it("does not ask for source language for weak shared-script ambiguity only", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["en", "de"],
+    });
+    vi.mocked(detectLanguageWithConfidence).mockReturnValue({
+      confidence: 0,
+      evidence: [
+        { strategy: "script", candidate: "en", score: 0.3, reason: "shared Latin script" },
+        { strategy: "script", candidate: "de", score: 0.3, reason: "shared Latin script" },
+      ],
+      ambiguousCandidates: ["en", "de"],
+    });
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValue({
+      confidence: 0,
+      evidence: [
+        { strategy: "script", candidate: "en", score: 0.3, reason: "shared Latin script" },
+        { strategy: "script", candidate: "de", score: 0.3, reason: "shared Latin script" },
+      ],
+      ambiguousCandidates: ["en", "de"],
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "hello");
+
+    expect(translateWithContext).toHaveBeenCalled();
+    expect(ctx.session.pendingWord).toBeUndefined();
+    expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringContaining("Which language"), expect.anything());
   });
 });
 

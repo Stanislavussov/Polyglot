@@ -34,7 +34,7 @@ const SENTENCE_PUNCTUATION = /[.!?。？！]$/;
  * - %s, %d, %1$s — printf-style
  * - ${var}, ${name} — template-literal-style
  */
-const PLACEHOLDER_PATTERN = /\{\{?\w+\}?\}|%\d?\$?[sd]|$\{\w+\}/;
+const PLACEHOLDER_PATTERN = /\{\{?\w+\}?\}|%\d?\$?[sd]|\$\{\w+\}/;
 
 /**
  * URL patterns:

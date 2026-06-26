@@ -167,6 +167,15 @@ describe("DiacriticsStrategy", () => {
     // This is correct behavior - kocour needs Wiktionary, not diacritics
     expect(strategy.detect("kocour", ["en", "cs"])).toBeUndefined();
   });
+
+  it("does not detect Dutch from a single i or j", () => {
+    expect(strategy.detect("hi", ["en", "nl"])).toBeUndefined();
+    expect(strategy.detect("job", ["en", "nl"])).toBeUndefined();
+  });
+
+  it("detects Dutch from the ij digraph", () => {
+    expect(strategy.detect("ijs", ["en", "nl"])).toBe("nl");
+  });
 });
 
 describe("ScriptStrategy", () => {

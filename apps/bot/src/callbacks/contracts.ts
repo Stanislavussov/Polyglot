@@ -59,6 +59,15 @@ export const callbackContracts = [
     maxExampleData: "tr:langselect:cs",
   },
   {
+    family: "translation",
+    prefix: "tr:clarify",
+    restartSafety: "intentionally-ephemeral",
+    durableLookupKey: "none",
+    dbSource: "none",
+    expiryBehavior: "localized stale translation callback",
+    maxExampleData: "tr:clarify:option:12",
+  },
+  {
     family: "flashcard",
     prefix: "fc",
     restartSafety: "session-backed",

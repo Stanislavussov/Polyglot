@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added a risk-based translation quality pipeline: deterministic immutable-token checks, sentence semantic validation, cross-model judging for high-risk requests, and targeted repair of only failing language blocks.
 - Added regression coverage proving targeted repair fixes only the failing target-language block and preserves accepted sibling translations.
 - Added pre-generation clarification for locale-ambiguous numeric dates and mixed-script/transliterated input. Lexical ambiguity is not hard-coded to specific phrases and remains risk-routed until ranked sense confidence is available.
+- Added AI-backed core preflight scoring for low-confidence translation inputs, returning typed clarification outcomes for source-language ambiguity, meaning ambiguity, typo suggestions, format issues, and unsupported input.
 - Added structured semantic-judge output with field-level severity and repair instructions.
 - Added `input-analysis` core module with `analyzeInput()` — classifies user input as word/phrase/sentence and detects structural features (placeholders, URL, Markdown, dates, code-switching). Feature-based overrides reclassify URL-only and code-switched short input as "sentence". The module is a leaf with no sibling imports; `InputType` is now owned by this module and re-exported from `translation` for backward compatibility.
 - Added `detectLanguageWithConfidence()` and `detectLanguageWithConfidenceAsync()` — confidence-aware language detection returning `DetectionResult` with `{ language?, confidence, evidence, ambiguousCandidates? }` instead of a bare `string | undefined`. Uses candidate-aware scoring: each strategy contributes evidence scores per candidate, and the ensemble picks the highest-scoring candidate with a confidence threshold (≥0.7) and margin (≥0.2). Close-language pairs (cs/sk, hr/sr) are disambiguated by differential diacritics rather than ordered-regex first-match.
@@ -88,8 +89,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Translation clarification now shows an actionable Telegram prompt for ambiguous dates, meanings, formats, mixed scripts, and low-confidence source language cases instead of a generic translation error.
+- Source-language clarification buttons now use core-provided candidate languages only; the bot no longer expands them to every language in the user's profile.
+- Translation clarification no longer asks users to choose between ordinary single-word dictionary senses, such as noun/adjective meanings of `patient`, and non-language clarifications no longer show source-language buttons.
+- Default word and phrase translation output now asks for synonyms and alternative meanings, and typo-correction retries can switch to the corrected word's language instead of keeping a stale fallback source language.
+- Template-literal placeholders such as `${name}` are detected as immutable placeholders during input analysis.
+- Admin user request stats now use calendar-day windows, and totals match the visible daily columns.
+- Dutch language detection now requires the `ij` digraph instead of treating any single `i` or `j` as Dutch evidence.
 - Language detection now deduplicates candidate language codes before scoring, so homographs such as `fast` stay ambiguous between English and German instead of being biased toward duplicated English candidates.
-- Short shared-script inputs such as `fast` no longer become English solely because dictionary lookup only matched English; the bot keeps them ambiguous and asks for the source language.
+- Source-language clarification now requires dictionary evidence in multiple candidate languages; weak shared-script ambiguity alone no longer interrupts normal translation.
 - Translation benchmark CLI now loads the repository root `.env` when invoked through its workspace package, so configured OpenRouter credentials are available to smoke and full runs.
 - Translation benchmark CLI now closes its read-only database connection after report generation instead of keeping the process alive.
 - Docker build dependency stages now include the translation benchmark workspace manifest, allowing full monorepo builds to resolve its internal adapter dependencies.

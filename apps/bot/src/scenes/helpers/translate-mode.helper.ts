@@ -24,6 +24,7 @@ import {
   type SubscriptionPlan,
   type SupportedLang,
   type TranslateOutput,
+  type TranslationAmbiguity,
   t,
   translateOneWithContext,
   translateWithContext,
@@ -49,6 +50,119 @@ const lookupContext = createContextLookup();
 
 function normalizeLearningLangs(nativeLang: string, learningLangs: readonly string[]): string[] {
   return learningLangs.filter((code, index) => code !== nativeLang && learningLangs.indexOf(code) === index);
+}
+
+function getUserLanguageGroup(nativeLang: string, learningLangs: readonly string[]): string[] {
+  return [nativeLang, ...learningLangs].filter((code, index, all) => all.indexOf(code) === index);
+}
+
+function clearPendingClarification(ctx: BotContext): void {
+  ctx.session.pendingClarification = undefined;
+  ctx.session.awaitingTranslationClarificationContext = undefined;
+}
+
+function resolveTargetsForClarifiedSource(
+  selectedSource: string,
+  nativeLang: string,
+  learningLangs: readonly string[],
+  fallbackTargetLangs: readonly string[],
+): string[] {
+  const userLangs = getUserLanguageGroup(nativeLang, learningLangs);
+  const targets = userLangs.filter((code) => code !== selectedSource);
+  return targets.length > 0 ? targets : [...fallbackTargetLangs];
+}
+
+function hasActionableLanguageAmbiguity(detection: DetectionResult): boolean {
+  const candidates = detection.ambiguousCandidates ?? [];
+  if (candidates.length < 2) {
+    return false;
+  }
+
+  const wiktionaryCandidates = new Set(
+    detection.evidence.filter((entry) => entry.strategy === "wiktionary").map((entry) => entry.candidate),
+  );
+  return candidates.filter((candidate) => wiktionaryCandidates.has(candidate)).length >= 2;
+}
+
+function clarificationReasonText(ambiguity: TranslationAmbiguity, lang: SupportedLang): string {
+  const fallbackByReason: Record<TranslationAmbiguity["reason"], string> = {
+    source_language: t("translationClarifyReasonLanguage", lang),
+    word_sense: t("translationClarifyReasonMeaning", lang),
+    possible_typo: t("translationClarifyReasonMeaning", lang),
+    date_or_time: t("translationClarifyReasonFormat", lang),
+    placeholder_grammar: t("translationClarifyReasonFormat", lang),
+    mixed_or_transliterated_input: t("translationClarifyReasonFormat", lang),
+    unsupported_input: t("translationClarifyReasonFormat", lang),
+  };
+  const technicalPattern = /\b(sourceLang|targetLangs|JSON|schema|pipeline|validation|fieldPath)\b/i;
+  if (ambiguity.message.trim() && !technicalPattern.test(ambiguity.message)) {
+    return ambiguity.message.trim();
+  }
+  return fallbackByReason[ambiguity.reason];
+}
+
+async function showTranslationClarification(
+  ctx: BotContext,
+  params: {
+    word: string;
+    contextHint?: string;
+    sourceLang: string;
+    targetLangs: string[];
+    detectionConfidence?: number;
+    nativeLang: string;
+    learningLangs: string[];
+    inputType: "word" | "phrase" | "sentence";
+    ambiguity: TranslationAmbiguity;
+    lang: SupportedLang;
+  },
+): Promise<void> {
+  ctx.session.pendingClarification = {
+    word: params.word,
+    contextHint: params.contextHint,
+    sourceLang: params.sourceLang,
+    targetLangs: params.targetLangs,
+    inputType: params.inputType,
+    reason: params.ambiguity.reason,
+    options: params.ambiguity.options,
+  };
+  ctx.session.awaitingTranslationClarificationContext = undefined;
+
+  const keyboard = new InlineKeyboard();
+  const options = params.ambiguity.options ?? [];
+  const hasSourceLanguageOptions = options.some((option) => option.kind === "source_language");
+  options.forEach((option, index) => {
+    keyboard.text(option.label, `tr:clarify:option:${index}`).row();
+  });
+
+  if (params.ambiguity.reason === "source_language" && !hasSourceLanguageOptions) {
+    for (const code of getUserLanguageGroup(params.nativeLang, params.learningLangs)) {
+      keyboard.text(getLanguageName(code, params.lang), `tr:clarify:lang:${code}`).row();
+    }
+  }
+  keyboard.text(t("translationClarifyContextButton", params.lang), "tr:clarify:context").row();
+
+  await ctx.reply(
+    t("translationClarifyPrompt", params.lang, {
+      reason: clarificationReasonText(params.ambiguity, params.lang),
+    }),
+    { reply_markup: keyboard },
+  );
+}
+
+async function runClarifiedTranslation(
+  ctx: BotContext,
+  pending: NonNullable<BotContext["session"]["pendingClarification"]>,
+  sourceLang: string,
+  targetLangs: string[],
+  contextHint?: string,
+  wordOverride?: string,
+): Promise<void> {
+  clearPendingClarification(ctx);
+  ctx.session.pendingDetectedLang = undefined;
+  ctx.session.pendingWord = wordOverride ?? pending.word;
+  ctx.session.pendingContextHint = contextHint;
+  ctx.session.pendingDirection = { sourceLang, targetLangs };
+  await handleMistypeConfirmCallback(ctx);
 }
 
 async function ensureTranslationQuota(
@@ -191,8 +305,8 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       targetLangs = fallback.targetLangs;
       detectedLang = fallback.detectedLang;
     }
-  } else if (detection.ambiguousCandidates && detection.ambiguousCandidates.length > 0) {
-    // Ambiguous detection with candidate languages — ask user to select
+  } else if (hasActionableLanguageAmbiguity(detection)) {
+    // Real language ambiguity with dictionary evidence in multiple languages — ask user to select.
     ctx.session.pendingDetectedLang = undefined;
     ctx.session.pendingWord = cleanWord;
     ctx.session.pendingContextHint = contextHint;
@@ -223,7 +337,8 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       word: cleanWord.length > 50 ? `${cleanWord.slice(0, 47)}...` : cleanWord,
     });
     const keyboard = new InlineKeyboard();
-    for (const candidate of detection.ambiguousCandidates) {
+    const ambiguousCandidates = detection.ambiguousCandidates ?? [];
+    for (const candidate of ambiguousCandidates) {
       const langName = getLanguageName(candidate, lang);
       keyboard.text(langName, `tr:langselect:${candidate}`).row();
     }
@@ -231,6 +346,16 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
     await ctx.reply(promptText, { reply_markup: keyboard });
     return;
+  } else if (detection.ambiguousCandidates && detection.ambiguousCandidates.length > 0) {
+    // Weak ambiguity such as shared Latin script is not enough to interrupt the user.
+    const fallback = resolveTranslationDirection({
+      text: cleanWord,
+      nativeLang,
+      learningLangs,
+    });
+    sourceLang = fallback.sourceLang;
+    targetLangs = fallback.targetLangs;
+    detectedLang = fallback.detectedLang;
   } else {
     // Truly inconclusive — no candidates scored above zero. Show mistype warning.
     ctx.session.pendingDetectedLang = undefined;
@@ -323,6 +448,8 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         model,
         topic: contextHint,
         userId: ctx.user.id,
+        interfaceLang: lang,
+        detectionConfidence: detection.confidence,
         outputConfig,
         inputType: classification.type,
       },
@@ -335,9 +462,19 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     stopTimer();
 
     if (decision.status === "needs_clarification") {
-      translationCounter.inc({ status: "error" });
       await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-      await ctx.reply(t("translationError", lang));
+      await showTranslationClarification(ctx, {
+        word: cleanWord,
+        contextHint,
+        sourceLang,
+        targetLangs,
+        nativeLang,
+        learningLangs,
+        detectionConfidence: detection.confidence,
+        inputType: classification.type,
+        ambiguity: decision.ambiguity,
+        lang,
+      });
       return;
     }
 
@@ -798,6 +935,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   ctx.session.pendingWord = undefined;
   ctx.session.pendingContextHint = undefined;
   ctx.session.pendingDirection = undefined;
+  clearPendingClarification(ctx);
 
   languageDetectionRepository
     .record({
@@ -844,6 +982,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
         model,
         topic: pendingContextHint,
         userId: ctx.user.id,
+        interfaceLang: lang,
         outputConfig,
         inputType: classification.type,
       },
@@ -855,9 +994,18 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     stopTimer();
 
     if (decision.status === "needs_clarification") {
-      translationCounter.inc({ status: "error" });
       await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-      await ctx.reply(t("translationError", lang));
+      await showTranslationClarification(ctx, {
+        word: pendingWord,
+        contextHint: pendingContextHint,
+        sourceLang,
+        targetLangs,
+        nativeLang,
+        learningLangs: normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []),
+        inputType: classification.type,
+        ambiguity: decision.ambiguity,
+        lang,
+      });
       await ctx.answerCallbackQuery();
       return;
     }
@@ -1001,6 +1149,7 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
     ctx.session.pendingWord = undefined;
     ctx.session.pendingContextHint = undefined;
     ctx.session.pendingDirection = undefined;
+    clearPendingClarification(ctx);
 
     if (pendingWord) {
       languageDetectionRepository
@@ -1039,6 +1188,7 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
     ctx.session.pendingWord = undefined;
     ctx.session.pendingContextHint = undefined;
     ctx.session.pendingDirection = undefined;
+    clearPendingClarification(ctx);
 
     await ctx.answerCallbackQuery({
       text: "⚠️ Session expired. Please translate the word again.",
@@ -1053,4 +1203,119 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
   };
 
   await handleMistypeConfirmCallback(ctx);
+}
+
+/**
+ * Handles translation clarification callbacks.
+ */
+export async function handleTranslationClarificationCallback(ctx: BotContext): Promise<void> {
+  const data = ctx.callbackQuery?.data;
+  const pending = ctx.session.pendingClarification;
+  if (!data || !pending) {
+    clearPendingClarification(ctx);
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
+    return;
+  }
+
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
+  const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
+
+  if (data === "tr:clarify:cancel") {
+    clearPendingClarification(ctx);
+    await ctx.answerCallbackQuery();
+    const msg = await ctx.reply(t("translateModeHint", lang));
+    trackTechnicalMessage(ctx, msg.message_id);
+    return;
+  }
+
+  if (data === "tr:clarify:context") {
+    ctx.session.awaitingTranslationClarificationContext = true;
+    await ctx.answerCallbackQuery();
+    const msg = await ctx.reply(t("translationClarifyContextPrompt", lang));
+    trackTechnicalMessage(ctx, msg.message_id);
+    return;
+  }
+
+  if (data.startsWith("tr:clarify:lang:")) {
+    const selectedSource = data.replace("tr:clarify:lang:", "");
+    const targetLangs = resolveTargetsForClarifiedSource(
+      selectedSource,
+      nativeLang,
+      learningLangs,
+      pending.targetLangs,
+    );
+    await ctx.answerCallbackQuery();
+    await runClarifiedTranslation(ctx, pending, selectedSource, targetLangs, pending.contextHint);
+    return;
+  }
+
+  if (data.startsWith("tr:clarify:option:")) {
+    const index = Number.parseInt(data.replace("tr:clarify:option:", ""), 10);
+    const option = pending.options?.[index];
+    if (!option) {
+      await ctx.answerCallbackQuery({
+        text: "⚠️ Session expired. Please translate the word again.",
+        show_alert: true,
+      });
+      return;
+    }
+    if (option.kind === "source_language" && option.langCode) {
+      const targetLangs = resolveTargetsForClarifiedSource(
+        option.langCode,
+        nativeLang,
+        learningLangs,
+        pending.targetLangs,
+      );
+      await ctx.answerCallbackQuery();
+      await runClarifiedTranslation(ctx, pending, option.langCode, targetLangs, pending.contextHint);
+      return;
+    }
+    if (option.kind === "typo_correction" && option.correctedText) {
+      const sourceLang = option.langCode ?? pending.sourceLang;
+      const targetLangs =
+        option.langCode !== undefined
+          ? resolveTargetsForClarifiedSource(option.langCode, nativeLang, learningLangs, pending.targetLangs)
+          : pending.targetLangs;
+      await ctx.answerCallbackQuery();
+      await runClarifiedTranslation(ctx, pending, sourceLang, targetLangs, pending.contextHint, option.correctedText);
+      return;
+    }
+    if (option.kind === "translate_as_written") {
+      await ctx.answerCallbackQuery();
+      await runClarifiedTranslation(ctx, pending, pending.sourceLang, pending.targetLangs, pending.contextHint);
+      return;
+    }
+    const contextHint = pending.contextHint
+      ? `${pending.contextHint}; ${option.label}: ${option.value}`
+      : `${option.label}: ${option.value}`;
+    await ctx.answerCallbackQuery();
+    await runClarifiedTranslation(ctx, pending, pending.sourceLang, pending.targetLangs, contextHint);
+    return;
+  }
+
+  await ctx.answerCallbackQuery();
+}
+
+/**
+ * Captures the next text message as clarification context and retries translation.
+ */
+export async function handleTranslationClarificationContextText(ctx: BotContext, text: string): Promise<void> {
+  const pending = ctx.session.pendingClarification;
+  if (!pending) {
+    clearPendingClarification(ctx);
+    const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+    const iLang = settings?.interfaceLang ?? "en";
+    const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+    await ctx.reply(t("translationError", lang));
+    return;
+  }
+
+  const contextHint = pending.contextHint ? `${pending.contextHint}; ${text.trim()}` : text.trim();
+  await runClarifiedTranslation(ctx, pending, pending.sourceLang, pending.targetLangs, contextHint);
 }

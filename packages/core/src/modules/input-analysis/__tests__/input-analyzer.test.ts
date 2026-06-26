@@ -94,6 +94,11 @@ describe("analyzeInput — placeholder detection", () => {
     expect(result.features.hasPlaceholders).toBe(true);
   });
 
+  it("detects template-literal placeholders with name", () => {
+    const result = analyzeInput("Hello $" + "{name}");
+    expect(result.features.hasPlaceholders).toBe(true);
+  });
+
   it("returns false for plain text without placeholders", () => {
     const result = analyzeInput("hello world");
     expect(result.features.hasPlaceholders).toBe(false);

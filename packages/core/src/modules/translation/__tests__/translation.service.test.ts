@@ -225,6 +225,126 @@ describe("translate", () => {
     expect(mockGenerate.mock.calls[0][2]).toBe("openai/gpt-4o");
   });
 
+  it("returns needs_clarification when AI preflight finds source-language ambiguity", async () => {
+    const mockGenerate = vi.fn().mockResolvedValueOnce({
+      confidence: 0.41,
+      outcome: "clarify_source_language",
+      reasonCode: "homograph_across_languages",
+      explanation: "This spelling can be English or German with different meanings.",
+      options: [
+        {
+          id: "en",
+          label: "English: quick",
+          value: "en",
+          kind: "source_language",
+          langCode: "en",
+        },
+        {
+          id: "de",
+          label: "German: almost",
+          value: "de",
+          kind: "source_language",
+          langCode: "de",
+        },
+      ],
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "fast",
+        sourceLang: "ru",
+        targetLangs: ["en", "de"],
+        nativeLang: "ru",
+        interfaceLang: "en",
+        detectionConfidence: 0.2,
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("needs_clarification");
+    if (result.status === "needs_clarification") {
+      expect(result.ambiguity.reason).toBe("source_language");
+      expect(result.ambiguity.message).toContain("English or German");
+      expect(result.ambiguity.options).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ kind: "source_language", langCode: "en" }),
+          expect.objectContaining({ kind: "source_language", langCode: "de" }),
+        ]),
+      );
+    }
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
+  });
+
+  it("continues to translation when AI preflight confidence is high", async () => {
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce({
+        confidence: 0.94,
+        outcome: "proceed",
+        reasonCode: "low_confidence",
+        explanation: "No clarification needed.",
+        options: [],
+      })
+      .mockResolvedValueOnce(makeValidResult());
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        detectionConfidence: 0.2,
+        interfaceLang: "en",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("Translate");
+  });
+
+  it("does not ask for clarification for ordinary single-word part-of-speech ambiguity", async () => {
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce({
+        confidence: 0.45,
+        outcome: "clarify_meaning",
+        reasonCode: "multiple_word_senses",
+        explanation: "The word can mean a patient or patient as an adjective.",
+        options: [
+          {
+            id: "noun",
+            label: "patient: noun",
+            value: "person receiving medical care",
+            kind: "meaning",
+          },
+          {
+            id: "adjective",
+            label: "patient: adjective",
+            value: "able to wait calmly",
+            kind: "meaning",
+          },
+        ],
+      })
+      .mockResolvedValue(makeValidResult());
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "patient",
+        inputType: "word",
+        detectionConfidence: 0.2,
+        interfaceLang: "ru",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("Translate");
+  });
+
   it("routes low-risk generation through the configured low-risk model", async () => {
     const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
 

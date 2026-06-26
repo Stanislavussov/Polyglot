@@ -152,6 +152,8 @@ export interface TranslateInput {
   inputType?: InputType;
   /** Confidence from upstream source-language detection when available */
   detectionConfidence?: number;
+  /** User interface language for preflight explanations and option labels */
+  interfaceLang?: string;
   /** Optional benchmark-derived routing policy for generation and judge models */
   modelRouting?: TranslationModelRoutingPolicy;
 }
@@ -181,9 +183,18 @@ export interface TranslateOutput {
 export type TranslationAmbiguityReason =
   | "source_language"
   | "word_sense"
+  | "possible_typo"
   | "date_or_time"
   | "placeholder_grammar"
-  | "mixed_or_transliterated_input";
+  | "mixed_or_transliterated_input"
+  | "unsupported_input";
+
+export type TranslationAmbiguityOptionKind =
+  | "source_language"
+  | "meaning"
+  | "typo_correction"
+  | "format"
+  | "translate_as_written";
 
 /**
  * A concrete option the user can choose when clarifying an ambiguity.
@@ -192,10 +203,18 @@ export type TranslationAmbiguityReason =
  * before the translation proceeds.
  */
 export interface TranslationAmbiguityOption {
+  /** Stable option id for UI callbacks */
+  id?: string;
   /** Human-readable label for the button (e.g., "🇨🇿 Czech", "June 7", "bird (noun)") */
   label: string;
   /** Machine-readable value that the caller feeds back into the pipeline */
   value: string;
+  /** Option kind for caller-specific follow-up behavior */
+  kind?: TranslationAmbiguityOptionKind;
+  /** Source language selected by this option, when kind is source_language */
+  langCode?: string;
+  /** Corrected text selected by this option, when kind is typo_correction */
+  correctedText?: string;
 }
 
 /**

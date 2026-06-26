@@ -234,6 +234,12 @@ describe("detectLanguageWithConfidenceAsync", () => {
     expect(mockLookup).toHaveBeenCalled();
   });
 
+  it("does not score Dutch from a single i in an English word", () => {
+    const result = detectLanguageWithConfidence("hi", ["en", "nl"]);
+    expect(result.language).toBeUndefined();
+    expect(result.ambiguousCandidates).toEqual(expect.arrayContaining(["en", "nl"]));
+  });
+
   it("uses AI as last resort when all other strategies are inconclusive", async () => {
     const mockGenerate = async () => "cs";
     const result = await detectLanguageWithConfidenceAsync("xyzabc", ["en", "cs"], {

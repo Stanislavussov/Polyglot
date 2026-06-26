@@ -16,6 +16,9 @@
 import { getLogger } from "../../logger.js";
 import { analyzeInput } from "../input-analysis/input-analyzer.js";
 import { validate } from "../validation/validation.service.js";
+import { PREFLIGHT_DEFAULTS } from "./preflight.config.js";
+import { buildPreflightPrompt } from "./preflight.prompt.js";
+import { type PreflightResult, preflightResultSchema } from "./preflight.schema.js";
 import { buildStrictPrompt, buildTranslationPrompt } from "./prompt.builder.js";
 import { type SemanticJudgeResult, semanticJudgeSchema } from "./quality.schema.js";
 import {
@@ -80,6 +83,11 @@ export async function translate(
   const ambiguity = detectPreflightAmbiguity(normalizedInput, analysis.features);
   if (ambiguity) {
     return { status: "needs_clarification", ambiguity };
+  }
+
+  const preflightAmbiguity = await detectAIPreflightAmbiguity(normalizedInput, generateObjectFn);
+  if (preflightAmbiguity) {
+    return { status: "needs_clarification", ambiguity: preflightAmbiguity };
   }
 
   const request: TranslationRequest = {
@@ -475,6 +483,10 @@ function detectPreflightAmbiguity(
   input: TranslateInput,
   features: ReturnType<typeof analyzeInput>["features"],
 ): TranslationAmbiguity | undefined {
+  if (input.topic?.trim()) {
+    return undefined;
+  }
+
   if (features.hasCodeSwitching) {
     return {
       reason: "mixed_or_transliterated_input",
@@ -500,6 +512,88 @@ function detectPreflightAmbiguity(
   }
 
   return undefined;
+}
+
+function shouldRunAIPreflight(input: TranslateInput): input is TranslateInput & { detectionConfidence: number } {
+  if (input.topic?.trim()) {
+    return false;
+  }
+  if (input.inputType === "sentence") {
+    return false;
+  }
+  return (
+    input.detectionConfidence !== undefined && input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence
+  );
+}
+
+function preflightOutcomeToReason(outcome: PreflightResult["outcome"]): TranslationAmbiguity["reason"] {
+  switch (outcome) {
+    case "clarify_source_language":
+      return "source_language";
+    case "clarify_meaning":
+      return "word_sense";
+    case "confirm_typo_suggestion":
+      return "possible_typo";
+    case "clarify_format":
+      return "date_or_time";
+    case "reject":
+      return "unsupported_input";
+    case "proceed":
+      return "word_sense";
+  }
+}
+
+async function detectAIPreflightAmbiguity(
+  input: TranslateInput,
+  generateObjectFn: GenerateObjectFn,
+): Promise<TranslationAmbiguity | undefined> {
+  if (!shouldRunAIPreflight(input)) {
+    return undefined;
+  }
+
+  const result = await generateObjectFn(
+    buildPreflightPrompt({
+      text: input.word,
+      sourceLang: input.sourceLang,
+      targetLangs: input.targetLangs,
+      nativeLang: input.nativeLang,
+      interfaceLang: input.interfaceLang,
+      inputType: input.inputType ?? "word",
+      detectionConfidence: input.detectionConfidence,
+      config: PREFLIGHT_DEFAULTS,
+    }),
+    preflightResultSchema,
+    input.model,
+    {
+      ...(input.userId !== undefined ? { userId: input.userId } : {}),
+    },
+  );
+
+  if (result.outcome === "proceed" && result.confidence >= PREFLIGHT_DEFAULTS.autoProceedAboveConfidence) {
+    return undefined;
+  }
+
+  if (result.outcome === "clarify_meaning" && input.inputType === "word") {
+    return undefined;
+  }
+
+  const reason =
+    result.outcome === "proceed" && result.confidence < PREFLIGHT_DEFAULTS.clarifyBelowConfidence
+      ? "word_sense"
+      : preflightOutcomeToReason(result.outcome);
+
+  return {
+    reason,
+    message: result.explanation,
+    options: result.options.map((option) => ({
+      id: option.id,
+      label: option.label,
+      value: option.value,
+      kind: option.kind,
+      langCode: option.langCode,
+      correctedText: option.correctedText,
+    })),
+  };
 }
 
 async function repairTranslationBlocks(

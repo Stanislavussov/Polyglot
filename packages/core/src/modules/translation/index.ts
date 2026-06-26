@@ -1,5 +1,9 @@
 // Translation service — public API
 
+export type { PreflightScoringConfig } from "./preflight.config.js";
+export { PREFLIGHT_DEFAULTS } from "./preflight.config.js";
+export type { PreflightResult } from "./preflight.schema.js";
+export { preflightResultSchema } from "./preflight.schema.js";
 // Prompt builder
 export { buildStrictPrompt, buildTranslationPrompt } from "./prompt.builder.js";
 export type {
