@@ -301,6 +301,7 @@ export function buildTranslationKeyboard(
   msgId?: number,
   isAlreadySaved?: boolean,
   showGrammarButton?: boolean,
+  showGrammarDetailButton?: boolean,
 ): InlineKeyboard {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
@@ -320,6 +321,30 @@ export function buildTranslationKeyboard(
     kb.row();
     kb.text(t("grammarBreakdownButton", lang), `tr:grammar:${mid}`);
   }
+
+  if (showGrammarDetailButton) {
+    kb.row();
+    kb.text(t("grammarDetailButton", lang), `tr:gramdetail:${mid}`);
+  }
+
+  return kb;
+}
+
+/**
+ * Build language selection keyboard for grammar detail.
+ * Shows one button per language + cancel.
+ */
+export function buildGrammarLangKeyboard(langCodes: string[], interfaceLang?: string, msgId?: number): InlineKeyboard {
+  const lang = toLang(interfaceLang);
+  const kb = new InlineKeyboard();
+  const mid = msgId ?? 0;
+
+  for (const code of langCodes) {
+    const flag = getLangFlag(code) ?? "🔤";
+    kb.text(`${flag} ${code.toUpperCase()}`, `tr:gramlang:${code}:${mid}`).row();
+  }
+
+  kb.text(t("grammarDetailCancel", lang), `tr:gramlang:cancel:${mid}`);
 
   return kb;
 }

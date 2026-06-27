@@ -249,5 +249,8 @@
   "mentorInputTooLong": "⚠️ Zkraťte prosím zprávu na maximum {max} znaků.",
   "grammarBreakdown": "📖 Gramatika",
   "grammarBreakdownButton": "📖 Gramatika",
-  "grammarLocked": "🔒 Dostupné v Premium"
+  "grammarLocked": "🔒 Dostupné v Premium",
+  "grammarDetailButton": "🔬 Podrobnosti",
+  "grammarDetailLocked": "🔒 Dostupné v Premium",
+  "grammarDetailCancel": "↩️ Zpět"
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "user_translation_templates" ADD COLUMN "grammar_breakdown" boolean DEFAULT false NOT NULL;

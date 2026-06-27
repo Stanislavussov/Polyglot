@@ -249,5 +249,8 @@
   "mentorInputTooLong": "⚠️ Пожалуйста, сократите сообщение до {max} символов.",
   "grammarBreakdown": "📖 Грамматика",
   "grammarBreakdownButton": "📖 Грамматика",
-  "grammarLocked": "🔒 Доступно в Premium"
+  "grammarLocked": "🔒 Доступно в Premium",
+  "grammarDetailButton": "🔬 Подробнее",
+  "grammarDetailLocked": "🔒 Доступно в Premium",
+  "grammarDetailCancel": "↩️ Назад"
 }
