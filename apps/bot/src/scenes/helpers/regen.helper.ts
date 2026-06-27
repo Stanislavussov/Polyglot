@@ -56,8 +56,6 @@ export async function handleRegenLoop(
     userTpl,
     isSentence ? "sentence" : (inputType ?? "word"),
     output.original.length,
-    output.sourceLang,
-    nativeLang,
   );
 
   const renderCard = isSentence

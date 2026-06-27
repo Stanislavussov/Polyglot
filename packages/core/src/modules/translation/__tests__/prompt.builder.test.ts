@@ -539,7 +539,7 @@ describe("buildTranslationPrompt — grammar breakdown", () => {
     expect(prompt).toContain("grammarBreakdown");
   });
 
-  it("does NOT include grammar breakdown when sourceLang === nativeLang", () => {
+  it("includes grammar breakdown even when sourceLang === nativeLang (analyzes target translations)", () => {
     const prompt = buildTranslationPrompt({
       ...baseRequest,
       sourceLang: "ru",
@@ -547,7 +547,7 @@ describe("buildTranslationPrompt — grammar breakdown", () => {
       outputConfig: { includeGrammarBreakdown: true },
       inputType: "phrase",
     });
-    expect(prompt).not.toContain("grammarBreakdown");
+    expect(prompt).toContain("grammarBreakdown");
   });
 
   it("does NOT include grammar breakdown when disabled in config", () => {
@@ -572,7 +572,7 @@ describe("buildTranslationPrompt — grammar breakdown", () => {
     expect(prompt).toContain("constructional grammar patterns");
   });
 
-  it("strict prompt omits grammar breakdown check when sourceLang === nativeLang", () => {
+  it("strict prompt includes grammar breakdown check even when sourceLang === nativeLang", () => {
     const prompt = buildStrictPrompt(
       {
         ...baseRequest,
@@ -583,6 +583,6 @@ describe("buildTranslationPrompt — grammar breakdown", () => {
       },
       ["[schema] missing field"],
     );
-    expect(prompt).not.toContain("grammarBreakdown");
+    expect(prompt).toContain("grammarBreakdown");
   });
 });

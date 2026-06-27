@@ -82,7 +82,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
       `sourceUsage: usage guidance for "${text}" with explanation in ${nativeLangName ?? "the user's native language"}`,
     );
   }
-  if (cfg.includeGrammarBreakdown && !isNativeSource) {
+  if (cfg.includeGrammarBreakdown) {
     requestedFields.push("grammarBreakdown: 2-3 constructional grammar patterns");
   }
 
@@ -166,7 +166,7 @@ Rules:${
       : ""
   }${cfg.includeConnotationWarning ? buildConnotationRule(nativeLangName, isNativeSource, sourceLangName) : ""}
 ${
-  cfg.includeGrammarBreakdown && !isNativeSource && nativeLangName
+  cfg.includeGrammarBreakdown && nativeLangName
     ? `
 - For each target language, include "grammarBreakdown": an array of 2-3 high-level grammatical CONSTRUCTIONS or PATTERNS used in the translation. NEVER list individual words with their parts of speech — that is NOT what this field is for.
   * Describe grammatical constructions: tense, mood, case usage, clause structure, word order patterns.
@@ -246,7 +246,7 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   if (cfg.includeConnotationWarning) {
     checkItems.push(buildConnotationCheck(nativeLangName, request.sourceLang === request.nativeLang));
   }
-  if (cfg.includeGrammarBreakdown && request.sourceLang !== request.nativeLang) {
+  if (cfg.includeGrammarBreakdown) {
     checkItems.push(
       "- Each target block has grammarBreakdown with 2-3 constructional grammar patterns, with grammar terms in the target language and explanations in the user's native language",
     );

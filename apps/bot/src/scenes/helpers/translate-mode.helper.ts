@@ -430,7 +430,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     const dbLookupStart = Date.now();
     const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-    const outputConfig = resolveOutputConfig(userTpl, classification.type, cleanWord.length, sourceLang, nativeLang);
+    const outputConfig = resolveOutputConfig(userTpl, classification.type, cleanWord.length);
     const effectiveTemplate = resolveTemplate(userTpl);
     dbLookupMs = Date.now() - dbLookupStart;
 
@@ -549,7 +549,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
       const showGrammarButton =
         classification.type !== "word" &&
-        sourceLang !== nativeLang &&
         (classification.type === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
       const keyboard = buildTranslationKeyboard(lang, cardMsg.message_id, isAlreadySaved, showGrammarButton);
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
@@ -778,8 +777,6 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       userTpl,
       isSentence ? "sentence" : (entry.inputType ?? "word"),
       entry.output.original.length,
-      entry.output.sourceLang,
-      nativeLang,
     );
     const effectiveTemplate = resolveTemplate(userTpl);
 
@@ -815,10 +812,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
       : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
 
-    const showGrammarButton =
-      entry.inputType !== "word" &&
-      entry.output.sourceLang !== nativeLang &&
-      (isSentence || !effectiveTemplate.fields.grammarBreakdown);
+    const showGrammarButton = entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
     const keyboard = buildTranslationKeyboard(lang, msgId, undefined, showGrammarButton);
     await ctx.editMessageText(cardText, {
       reply_markup: keyboard,
@@ -985,7 +979,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     // Load user's template
     const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-    const outputConfig = resolveOutputConfig(userTpl, classification.type, pendingWord.length, sourceLang, nativeLang);
+    const outputConfig = resolveOutputConfig(userTpl, classification.type, pendingWord.length);
     const effectiveTemplate = resolveTemplate(userTpl);
 
     const lookupContextFn = isSentence ? async () => [] : lookupContext;
@@ -1064,7 +1058,6 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
       const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
       const showGrammarButton =
         classification.type !== "word" &&
-        sourceLang !== nativeLang &&
         (classification.type === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
       const keyboard = buildTranslationKeyboard(lang, cardMsg.message_id, isAlreadySaved, showGrammarButton);
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
@@ -1334,8 +1327,6 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
         userTpl,
         isSentence ? "sentence" : (entry.inputType ?? "word"),
         entry.output.original.length,
-        entry.output.sourceLang,
-        nativeLang,
       );
       const effectiveTemplate = resolveTemplate(userTpl);
 
@@ -1371,9 +1362,7 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
         : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
 
       const showGrammarButton =
-        entry.inputType !== "word" &&
-        entry.output.sourceLang !== nativeLang &&
-        (isSentence || !effectiveTemplate.fields.grammarBreakdown);
+        entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
       const keyboard = buildTranslationKeyboard(lang, postClarifyMsgId, undefined, showGrammarButton);
       await ctx.api.editMessageText(ctx.chat!.id, postClarifyMsgId, cardText, {
         reply_markup: keyboard,
