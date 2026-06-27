@@ -36,6 +36,7 @@ export VPS_SSH_KEY=~/.ssh/root_or_existing_vps_key
 # Domain routing + TLS.
 export ADMIN_PANEL_DOMAIN=admin.example.com
 export ADMIN_API_DOMAIN=admin-api.example.com
+export GRAFANA_DOMAIN=grafana.example.com
 export ACME_EMAIL=ops@example.com
 
 ansible-playbook site.yml
@@ -80,10 +81,11 @@ ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='strong-password' sudo -E polyglot-ad
 | `DEPLOY_USER_SSH_KEY` | Public key installed for the `deploy` user |
 | `ADMIN_PANEL_DOMAIN` | Optional public admin panel hostname for nginx |
 | `ADMIN_API_DOMAIN` | Optional public admin API hostname for nginx |
+| `GRAFANA_DOMAIN` | Optional public Grafana hostname for nginx |
 | `ACME_EMAIL` | Optional Let's Encrypt registration email; required for automatic TLS |
 
 ## Notes
 
-- DNS still has to be configured outside Ansible. Point `ADMIN_PANEL_DOMAIN` and `ADMIN_API_DOMAIN` to the VPS before running certbot.
+- DNS still has to be configured outside Ansible. Point `ADMIN_PANEL_DOMAIN`, `ADMIN_API_DOMAIN`, and `GRAFANA_DOMAIN` to the VPS before running certbot.
 - GitHub repository secrets still have to be created in GitHub.
 - Database backups are managed outside this playbook by the PostgreSQL provider.

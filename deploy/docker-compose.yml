@@ -17,6 +17,7 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+    mem_limit: 512m
     logging:
       driver: "json-file"
       options:
@@ -31,6 +32,7 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL is required}
     restart: "no"
+    mem_limit: 256m
 
   admin-api:
     image: ${ADMIN_API_IMAGE_NAME:?ADMIN_API_IMAGE_NAME is required}
@@ -44,6 +46,7 @@ services:
       - PORT=3001
     ports:
       - "127.0.0.1:${ADMIN_API_PORT:-3001}:3001"
+    mem_limit: 256m
     logging:
       driver: "json-file"
       options:
@@ -63,8 +66,14 @@ services:
       - PUBLIC_API_URL=${PUBLIC_API_URL:?PUBLIC_API_URL is required}
     ports:
       - "127.0.0.1:${ADMIN_PORT:-4321}:4321"
+    mem_limit: 256m
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+networks:
+  default:
+    name: polyglot-network
+    external: true

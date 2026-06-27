@@ -1,0 +1,96 @@
+{
+  "id": null,
+  "uid": "polyglot-logs",
+  "title": "Polyglot Logs",
+  "tags": ["polyglot", "logs"],
+  "timezone": "browser",
+  "refresh": "10s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": { "type": "loki", "uid": "loki" },
+        "query": "label_values(container_name)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "level",
+        "type": "custom",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": ""
+        },
+        "options": [
+          { "text": "All", "value": "", "selected": true },
+          { "text": "error", "value": "error", "selected": false },
+          { "text": "warn", "value": "warn", "selected": false },
+          { "text": "info", "value": "info", "selected": false },
+          { "text": "debug", "value": "debug", "selected": false }
+        ],
+        "includeAll": false,
+        "multi": false
+      },
+      {
+        "name": "search",
+        "type": "textbox",
+        "current": {
+          "value": ""
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Log Volume",
+      "type": "barchart",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (level) (count_over_time({container_name=~\"$service\"} [$__interval]))",
+          "legendFormat": "{{level}}"
+        }
+      ],
+      "options": {
+        "stacking": "normal"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Logs",
+      "type": "logs",
+      "gridPos": { "h": 20, "w": 24, "x": 0, "y": 6 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{container_name=~\"$service\"} | json | level=~\"${level:pipe}\" |= `$search`",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "schemaVersion": 39,
+  "version": 1
+}

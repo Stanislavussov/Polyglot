@@ -140,6 +140,8 @@ jobs:
 
             docker compose pull
 
+            docker network create polyglot-network 2>/dev/null || true
+
             docker compose --profile tools run --rm migrate
 
             docker compose run --rm admin-api node apps/admin-api/dist/seed.js
