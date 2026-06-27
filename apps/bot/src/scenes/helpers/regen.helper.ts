@@ -21,8 +21,8 @@ import {
   t,
   translateOne,
 } from "@polyglot/core";
+import { InlineKeyboard } from "grammy";
 import {
-  buildPostSaveKeyboard,
   buildTranslationKeyboard,
   renderSentenceTranslation,
   renderTranslation,
@@ -61,7 +61,7 @@ export async function handleRegenLoop(
   const renderCard = isSentence
     ? (o: TranslateOutput, l: SupportedLang) => renderSentenceTranslation(o, l, nativeLang)
     : (o: TranslateOutput, l: SupportedLang) => renderTranslation(o, l, effectiveTemplate.fields, nativeLang);
-  const buildKeyboard = (codes: string[], l: SupportedLang) => buildTranslationKeyboard(codes, inputType ?? "word", l);
+  const buildKeyboard = (_codes: string[], l: SupportedLang) => buildTranslationKeyboard(l);
 
   let card = renderCard(current, lang);
   let keyboard = buildKeyboard(langCodes, lang);
@@ -105,7 +105,7 @@ export async function handleRegenLoop(
             await vocabularyDictionaryRepository.addEntryToDefault(userId, existing.id);
           });
           const saved = `${renderCard(current, lang)}\n\n${t("savedToDict", lang)}`;
-          const postSaveKb = buildPostSaveKeyboard(langCodes, lang);
+          const postSaveKb = new InlineKeyboard();
           await resp.editMessageText(saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
           return;
         }
@@ -128,7 +128,7 @@ export async function handleRegenLoop(
 
       // Post-save card with regen-only keyboard
       const saved = `${renderCard(current, lang)}\n\n${t("savedToDict", lang)}`;
-      const postSaveKb = buildPostSaveKeyboard(langCodes, lang);
+      const postSaveKb = new InlineKeyboard();
       await resp.editMessageText(saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
       return;
     }

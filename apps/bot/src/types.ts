@@ -49,6 +49,8 @@ export interface SessionData {
       inputType: InputType;
       contextHint?: string;
       savedWordId?: number;
+      /** Accumulated negative constraints for "Other meaning" button */
+      previousTranslations?: Record<string, string[]>;
     }
   >;
   /**
@@ -144,6 +146,8 @@ export interface SessionData {
   };
   /** True when the next text message should be used as translation context clarification. */
   awaitingTranslationClarificationContext?: boolean;
+  /** Message ID of the translation card awaiting post-translation clarification context. */
+  pendingPostTranslationClarifyMsgId?: number;
   /**
    * Flag indicating the bot is awaiting notification context text input.
    * Set when user taps "set:notif:context" in settings.

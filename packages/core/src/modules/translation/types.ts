@@ -120,6 +120,8 @@ export interface TranslationRequest {
   outputConfig?: TranslationOutputConfig;
   /** Classified input type — drives prompt, schema, and validation behavior */
   inputType?: InputType;
+  /** Previous translations to avoid — for "other meaning" regeneration */
+  negativeConstraints?: Record<string, string[]>;
 }
 
 /**
@@ -156,6 +158,8 @@ export interface TranslateInput {
   interfaceLang?: string;
   /** Optional benchmark-derived routing policy for generation and judge models */
   modelRouting?: TranslationModelRoutingPolicy;
+  /** Previous translations to avoid — for "other meaning" regeneration */
+  negativeConstraints?: Record<string, string[]>;
 }
 
 /** Output from translate() — enriched TranslationResult with metadata */

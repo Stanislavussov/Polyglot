@@ -99,6 +99,7 @@ export async function translate(
     dictionaryContext: normalizedInput.dictionaryContext,
     outputConfig: normalizedInput.outputConfig,
     inputType: normalizedInput.inputType,
+    negativeConstraints: normalizedInput.negativeConstraints,
   };
 
   getLogger().info(

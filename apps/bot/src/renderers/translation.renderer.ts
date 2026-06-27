@@ -24,11 +24,6 @@ function toLang(lang?: string): SupportedLang {
   return lang && isSupported(lang) ? lang : "en";
 }
 
-function regenButtonLabel(code: string): string {
-  const flag = getLangFlag(code) ?? "🔤";
-  return `🔄 ${flag}`;
-}
-
 function renderNativeMeaningLine(nativeLang: string | undefined, nativeMeaning: string | undefined): string | null {
   if (!nativeMeaning) return null;
   if (!nativeLang) return esc(nativeMeaning);
@@ -242,33 +237,15 @@ function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string 
 }
 
 /**
- * Build inline keyboard for sentence translations.
- * Only regenerate buttons — no Save/Skip (sentences aren't saved to dictionary).
- */
-export function buildSentenceKeyboard(langCodes: string[], _interfaceLang?: string, msgId?: number): InlineKeyboard {
-  const kb = new InlineKeyboard();
-  const mid = msgId ?? 0;
-
-  for (const code of langCodes) {
-    kb.text(regenButtonLabel(code), `tr:regen:${code}:${mid}`);
-  }
-
-  return kb;
-}
-
-/**
- * Build inline keyboard with per-language regenerate buttons + save/skip.
- * Each regenerate button has callback data "tr:regen:<langCode>:<msgId>".
- * Save/skip buttons include msgId: "tr:save:<msgId>" / "tr:skip:<msgId>".
+ * Build unified inline keyboard for translation results.
  *
- * When `isAlreadySaved` is true, the Save button is shown as disabled
- * (still uses tr:save callback so handleSaveCallback can answer with
- * alreadySaved popup if the user somehow clicks it).
+ * Layout:
+ * Row 1: Save button
+ * Row 2: Clarify + Other meaning
+ *
+ * Used for all input types (words, phrases, sentences).
  */
 export function buildTranslationKeyboard(
-  langCodes: string[],
-  // biome-ignore lint/correctness/noUnusedFunctionParameters: <temp fix>
-  inputType: "word" | "phrase" | "sentence",
   interfaceLang?: string,
   msgId?: number,
   isAlreadySaved?: boolean,
@@ -277,34 +254,15 @@ export function buildTranslationKeyboard(
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
 
-  // Row 1: regenerate buttons (one per language)
-  for (const code of langCodes) {
-    kb.text(regenButtonLabel(code), `tr:regen:${code}:${mid}`);
-  }
-  kb.row();
-
-  // Row 2: save / skip
   if (isAlreadySaved) {
     kb.text(t("alreadySavedButton", lang), `tr:save:${mid}`);
   } else {
     kb.text(t("save", lang), `tr:save:${mid}`);
   }
-  kb.text(t("no", lang), `tr:skip:${mid}`);
+  kb.row();
 
-  return kb;
-}
-
-/**
- * Build inline keyboard for post-save state — regen buttons only, no Save/Skip.
- * Used after a word/phrase has been saved to the dictionary.
- */
-export function buildPostSaveKeyboard(langCodes: string[], _interfaceLang?: string, msgId?: number): InlineKeyboard {
-  const kb = new InlineKeyboard();
-  const mid = msgId ?? 0;
-
-  for (const code of langCodes) {
-    kb.text(regenButtonLabel(code), `tr:regen:${code}:${mid}`);
-  }
+  kb.text(t("clarifyTranslation", lang), `tr:clarifypost:${mid}`);
+  kb.text(t("otherMeaning", lang), `tr:altmeaning:${mid}`);
 
   return kb;
 }

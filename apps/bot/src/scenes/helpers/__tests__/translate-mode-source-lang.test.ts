@@ -268,8 +268,8 @@ describe("handleSkipCallback — source lang menu", () => {
     });
   });
 
-  // Task 58: sendSourceLangMenu removed from handleSkipCallback
-  it("does not show source lang menu after skip", async () => {
+  // Task 58: handleSkipCallback is now a stub that just answers the callback query
+  it("answers callback query on skip without editing message", async () => {
     const msgId = 789;
     const ctx = createMockCtx(null, `tr:skip:${msgId}`);
     ctx.session.translationMap = {
@@ -287,11 +287,12 @@ describe("handleSkipCallback — source lang menu", () => {
 
     await handleSkipCallback(ctx);
 
-    expect(ctx.editMessageText).toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
     expect(ctx.reply).not.toHaveBeenCalled();
   });
 
-  it("edits message to remove keyboard after skip", async () => {
+  it("answers callback query without editing message or keyboard", async () => {
     const msgId = 790;
     const ctx = createMockCtx(null, `tr:skip:${msgId}`);
     ctx.session.translationMap = {
@@ -310,8 +311,8 @@ describe("handleSkipCallback — source lang menu", () => {
 
     await handleSkipCallback(ctx);
 
-    expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
   });
 
   it("answers callback query after skip", async () => {

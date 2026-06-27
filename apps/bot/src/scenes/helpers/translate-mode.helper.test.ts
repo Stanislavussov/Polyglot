@@ -378,7 +378,7 @@ describe("handleTranslateText — context enrichment", () => {
     expect(translateWithContext).not.toHaveBeenCalled();
   });
 
-  it("passes stored context hint to translateOneWithContext during regeneration", async () => {
+  it("handleRegenCallback is a stub that just answers the callback query", async () => {
     const msgId = 99;
     const ctx = createMockCtx(
       {
@@ -407,17 +407,11 @@ describe("handleTranslateText — context enrichment", () => {
 
     await handleRegenCallback(ctx);
 
-    expect(translateOneWithContext).toHaveBeenCalledWith(
-      expect.objectContaining({
-        word: "bank",
-        topic: "river",
-        targetLang: "cs",
-      }),
-      expect.anything(),
-    );
+    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+    expect(translateOneWithContext).not.toHaveBeenCalled();
   });
 
-  it("does not apply user-facing rate limits to regeneration", async () => {
+  it("handleRegenCallback does not call AI even when credits are available", async () => {
     mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(49);
     const msgId = 99;
     const ctx = createMockCtx(
@@ -446,14 +440,8 @@ describe("handleTranslateText — context enrichment", () => {
 
     await handleRegenCallback(ctx);
 
-    expect(translateOneWithContext).toHaveBeenCalled();
-    expect(mockTranslationRequestRepository.logTranslationRequest).not.toHaveBeenCalledWith(
-      1,
-      "bank",
-      "en",
-      ["cs"],
-      expect.any(Number),
-    );
+    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+    expect(translateOneWithContext).not.toHaveBeenCalled();
   });
 
   it("shows clarification UI instead of generic translation error", async () => {

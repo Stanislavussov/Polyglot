@@ -36,6 +36,9 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   const isSentence = inputType === "sentence";
 
   const topicHint = topic ? buildTopicHint(topic, isSentence, cfg) : "";
+  const negativeHint = request.negativeConstraints
+    ? buildNegativeConstraintHint(request.negativeConstraints, isSentence)
+    : "";
 
   const dictionaryHint = dictionaryContext ? buildDictionaryHint(dictionaryContext, cfg) : "";
 
@@ -79,7 +82,7 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
     );
   }
 
-  return `${intro}${topicHint}${dictionaryHint}
+  return `${intro}${topicHint}${negativeHint}${dictionaryHint}
 
 Return ONLY valid JSON matching the provided schema. No markdown, no explanation, no code fences.
 For each target language (${targetLangs.join(", ")}), provide: ${requestedFields.join("; ")}.
@@ -265,6 +268,23 @@ function buildTopicHint(topic: string, isSentence: boolean, config: Required<Tra
     );
   }
 
+  return `\n${lines.join("\n")}`;
+}
+
+function buildNegativeConstraintHint(constraints: Record<string, string[]>, isSentence: boolean): string {
+  const unit = isSentence ? "sentence" : "word";
+  const lines = [
+    "",
+    "IMPORTANT - Alternative Translation Constraint:",
+    `The user wants a DIFFERENT meaning/interpretation of this ${unit}. The following translations have already been shown and MUST NOT be repeated:`,
+  ];
+  for (const [lang, translations] of Object.entries(constraints)) {
+    lines.push(`  ${lang.toUpperCase()}: ${translations.map((t) => `"${t}"`).join(", ")}`);
+  }
+  lines.push(
+    "Choose a genuinely different sense, connotation, register, or interpretation.",
+    "If no substantially different meaning exists, provide the closest alternative with different nuance.",
+  );
   return `\n${lines.join("\n")}`;
 }
 

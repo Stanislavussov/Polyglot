@@ -26,13 +26,11 @@ import {
   type TranslateOutput,
   type TranslationAmbiguity,
   t,
-  translateOneWithContext,
   translateWithContext,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { translationCounter, translationDuration } from "../../metrics.js";
 import {
-  buildPostSaveKeyboard,
   buildTranslationKeyboard,
   renderSentenceTranslation,
   renderTranslation,
@@ -512,8 +510,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     // Delete loading message
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 
-    const langCodes = Object.keys(output.translations);
-
     const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
     const existing =
       sourceLangEntry && !isSentence
@@ -527,56 +523,29 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
       : false;
 
-    if (isSentence) {
-      // Sentence: compact card with Save/Skip/Regen keyboard
+    {
       ctx.session.pendingTranslation = output;
 
-      let card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`;
-
-      // Show detected language when it differs from native
-      if (detectedLang && detectedLang !== nativeLang) {
-        const displayName = getLanguageName(detectedLang, lang);
-        card = `${t("detectedLang", lang, { lang: displayName })}\n${card}`;
-      }
-
-      const sentMsg = await ctx.reply(card, { parse_mode: "HTML" });
-      const keyboard = buildTranslationKeyboard(
-        langCodes,
-        classification.type,
-        lang,
-        sentMsg.message_id,
-        isAlreadySaved,
-      );
-      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, sentMsg.message_id, { reply_markup: keyboard });
-
-      ctx.session.pendingCardMsgId = sentMsg.message_id;
-
-      ctx.session.translationMap = ctx.session.translationMap ?? {};
-      ctx.session.translationMap[String(sentMsg.message_id)] = {
-        output,
-        inputType: classification.type,
-        contextHint,
-      };
-    } else {
-      // Word/phrase: full card with Save/Skip/Regen keyboard
-      ctx.session.pendingTranslation = output;
-
-      let card = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
-
-      if (detectedLang && detectedLang !== nativeLang) {
-        const displayName = getLanguageName(detectedLang, lang);
-        card = `${t("detectedLang", lang, { lang: displayName })}\n${card}`;
-      }
+      const card = isSentence
+        ? (() => {
+            let c = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`;
+            if (detectedLang && detectedLang !== nativeLang) {
+              const displayName = getLanguageName(detectedLang, lang);
+              c = `${t("detectedLang", lang, { lang: displayName })}\n${c}`;
+            }
+            return c;
+          })()
+        : (() => {
+            let c = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
+            if (detectedLang && detectedLang !== nativeLang) {
+              const displayName = getLanguageName(detectedLang, lang);
+              c = `${t("detectedLang", lang, { lang: displayName })}\n${c}`;
+            }
+            return c;
+          })();
 
       const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
-
-      const keyboard = buildTranslationKeyboard(
-        langCodes,
-        classification.type,
-        lang,
-        cardMsg.message_id,
-        isAlreadySaved,
-      );
+      const keyboard = buildTranslationKeyboard(lang, cardMsg.message_id, isAlreadySaved);
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
       ctx.session.pendingCardMsgId = cardMsg.message_id;
@@ -673,7 +642,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
 
     await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(ctx.user.id, existing.id);
     entry.savedWordId = existing.id;
-    await renderSavedTranslationCard(ctx, output, lang, nativeLang, msgId);
+    await showSavedCard(ctx, output, lang, nativeLang, inputType);
     await ctx.answerCallbackQuery();
     return;
   }
@@ -693,27 +662,28 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   // Step 6 — Update this entry in the map
   entry.savedWordId = newEntry.id;
 
-  await renderSavedTranslationCard(ctx, output, lang, nativeLang, msgId);
+  await showSavedCard(ctx, output, lang, nativeLang, inputType);
   await ctx.answerCallbackQuery();
 }
 
-async function renderSavedTranslationCard(
+async function showSavedCard(
   ctx: BotContext,
   output: TranslateOutput,
   lang: SupportedLang,
   nativeLang: string,
-  msgId: number,
+  inputType?: string,
 ): Promise<void> {
   const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
   const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
 
-  const langCodes = Object.keys(output.translations);
-  const savedCard = `${renderTranslation(output, lang, effectiveTemplate.fields, nativeLang)}\n\n${t("savedToDict", lang)}`;
-  const keyboard = buildPostSaveKeyboard(langCodes, lang, msgId);
+  const isSentence = inputType === "sentence";
+  const cardText = isSentence
+    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`
+    : renderTranslation(output, lang, effectiveTemplate.fields, nativeLang);
+  const savedCard = `${cardText}\n\n${t("savedToDict", lang)}`;
   try {
     await ctx.editMessageText(savedCard, {
-      reply_markup: keyboard,
       parse_mode: "HTML",
     });
   } catch (err) {
@@ -721,10 +691,21 @@ async function renderSavedTranslationCard(
   }
 }
 
-/**
- * Handles Skip callback in translate mode.
- */
+/** @deprecated Kept for old messages with skip buttons. */
 export async function handleSkipCallback(ctx: BotContext): Promise<void> {
+  await ctx.answerCallbackQuery();
+}
+
+/** @deprecated Kept for old messages with per-language regen buttons. */
+export async function handleRegenCallback(ctx: BotContext): Promise<void> {
+  await ctx.answerCallbackQuery();
+}
+
+/**
+ * Handles "Clarify" callback (tr:clarifypost:{msgId}).
+ * Prompts user to enter context, then retranslates with that context.
+ */
+export async function handleClarifyPostCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data ?? "";
   const msgId = parseInt(data.split(":")[2] ?? "0", 10);
   const entry = ctx.session.translationMap?.[String(msgId)];
@@ -737,87 +718,77 @@ export async function handleSkipCallback(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const output = entry.output;
-
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-  const nativeLang = settings?.nativeLang ?? "en";
 
-  // Remove keyboard, keep the card (template-aware rendering)
-  const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
-  const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-  const effectiveTemplate = resolveTemplate(userTpl);
+  ctx.session.awaitingTranslationClarificationContext = true;
+  ctx.session.pendingPostTranslationClarifyMsgId = msgId;
 
-  await ctx.editMessageText(renderTranslation(output, lang, effectiveTemplate.fields, nativeLang), {
-    parse_mode: "HTML",
-  });
-
+  await ctx.reply(t("clarifyTranslationPrompt", lang));
   await ctx.answerCallbackQuery();
 }
 
 /**
- * Handles regeneration callback in persistent translate mode (tr:regen:{code}:{msgId}).
- * Reads the translation entry from session map by msgId to regenerate
- * the correct language for the specific message the user clicked on.
- * When savedWordId is set, auto-updates the stored DB entry after regen.
+ * Handles "Other meaning" callback (tr:altmeaning:{msgId}).
+ * Retranslates all languages with negative constraints to avoid repeating previous translations.
  */
-export async function handleRegenCallback(ctx: BotContext): Promise<void> {
-  const data = ctx.callbackQuery?.data;
-  if (!data) {
-    await ctx.answerCallbackQuery();
-    return;
-  }
-
-  const parts = data.split(":");
-  const regenLang = parts[2] ?? "";
-  const msgId = parseInt(parts[3] ?? "0", 10);
+export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
+  const data = ctx.callbackQuery?.data ?? "";
+  const msgId = parseInt(data.split(":")[2] ?? "0", 10);
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    await ctx.answerCallbackQuery();
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
     return;
   }
 
-  const lastOutput = entry.output;
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
-  const isSentence = entry.inputType === "sentence";
-  const inputType = entry.inputType;
 
-  // Show regenerating indicator
-  await ctx.answerCallbackQuery({
-    text: t("regenerating", lang, { lang: regenLang.toUpperCase() }),
-  });
+  // Accumulate negative constraints
+  const prev = entry.previousTranslations ?? {};
+  for (const [langCode, translation] of Object.entries(entry.output.translations)) {
+    prev[langCode] = prev[langCode] ?? [];
+    prev[langCode].push(translation.text);
+  }
+  entry.previousTranslations = prev;
+
+  await ctx.answerCallbackQuery({ text: t("regeneratingAll", lang) });
 
   try {
     const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
+    const isSentence = entry.inputType === "sentence";
+    const targetLangs = Object.keys(entry.output.translations);
 
     const savedTpl = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
     const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
     const outputConfig = resolveOutputConfig(
       userTpl,
-      isSentence ? "sentence" : (inputType ?? "word"),
-      lastOutput.original.length,
+      isSentence ? "sentence" : (entry.inputType ?? "word"),
+      entry.output.original.length,
     );
     const effectiveTemplate = resolveTemplate(userTpl);
 
     const lookupContextFn = isSentence ? async () => [] : lookupContext;
 
-    const regenDecision = await translateOneWithContext(
+    const decision = await translateWithContext(
       {
-        word: lastOutput.original,
-        sourceLang: lastOutput.sourceLang,
-        targetLangs: [regenLang],
-        targetLang: regenLang,
+        word: entry.output.original,
+        sourceLang: entry.output.sourceLang,
+        targetLangs,
         nativeLang,
         model,
         topic: entry.contextHint,
         userId: ctx.user.id,
         outputConfig,
-        inputType,
+        inputType: entry.inputType,
+        negativeConstraints: entry.previousTranslations,
       },
       {
         lookupContext: lookupContextFn,
@@ -825,83 +796,23 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
       },
     );
 
-    if (regenDecision.status === "needs_clarification") {
-      throw new Error("Unexpected needs_clarification in regen flow");
+    if (decision.status === "needs_clarification") {
+      throw new Error("Unexpected needs_clarification in alt meaning flow");
     }
 
-    const newTranslation = regenDecision.output.translations[regenLang];
-    if (!newTranslation) {
-      throw new Error(`Regen did not produce a translation for ${regenLang}`);
-    }
+    entry.output = decision.output;
 
-    const updated: typeof lastOutput = {
-      ...lastOutput,
-      translations: { ...lastOutput.translations, [regenLang]: newTranslation },
-    };
-    entry.output = updated;
+    const cardText = isSentence
+      ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
+      : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
 
-    if (entry.savedWordId) {
-      try {
-        const targetLangEntry = ctx.services.languageCache.getLang(regenLang);
-        if (targetLangEntry) {
-          await ctx.services.vocabularyRepository.updateTranslation(entry.savedWordId, targetLangEntry.id, {
-            text: newTranslation.text,
-            expressionType: newTranslation.expressionType ?? undefined,
-            equivalentNote: newTranslation.equivalentNote ?? undefined,
-            usageNote: newTranslation.usageNote ?? undefined,
-            connotationWarning: newTranslation.connotationWarning ?? undefined,
-            details: {
-              synonyms: newTranslation.synonyms ?? [],
-              examples: newTranslation.examples ?? [],
-              alternatives: newTranslation.alternatives ?? undefined,
-            },
-          });
-        }
-      } catch (err) {
-        logger.error({ err, savedWordId: entry.savedWordId }, "Failed to update saved word after regen");
-      }
-    }
-
-    const langCodes = Object.keys(updated.translations);
-
-    if (entry.savedWordId) {
-      const card = isSentence
-        ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang, nativeLang)}\n\n${t("savedToDict", lang)}`
-        : `${renderTranslation(updated, lang, effectiveTemplate.fields, nativeLang)}\n\n${t("savedToDict", lang)}`;
-      const keyboard = buildPostSaveKeyboard(langCodes, lang, msgId);
-      await ctx.editMessageText(card, {
-        reply_markup: keyboard,
-        parse_mode: "HTML",
-      });
-    } else if (isSentence) {
-      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(updated, lang, nativeLang)}`;
-      const keyboard = buildTranslationKeyboard(langCodes, inputType ?? "word", lang, msgId);
-      await ctx.editMessageText(card, {
-        reply_markup: keyboard,
-        parse_mode: "HTML",
-      });
-    } else {
-      const sourceLangEntry = ctx.services.languageCache.getLang(updated.sourceLang);
-      const existing = sourceLangEntry
-        ? await ctx.services.vocabularyRepository.findByOriginalAndSource(
-            ctx.user.id,
-            updated.original,
-            sourceLangEntry.id,
-          )
-        : null;
-      const isAlreadySaved = existing
-        ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
-        : false;
-
-      const card = renderTranslation(updated, lang, effectiveTemplate.fields, nativeLang);
-      const keyboard = buildTranslationKeyboard(langCodes, inputType ?? "word", lang, msgId, isAlreadySaved);
-      await ctx.editMessageText(card, {
-        reply_markup: keyboard,
-        parse_mode: "HTML",
-      });
-    }
+    const keyboard = buildTranslationKeyboard(lang, msgId);
+    await ctx.editMessageText(cardText, {
+      reply_markup: keyboard,
+      parse_mode: "HTML",
+    });
   } catch (err) {
-    logger.error({ err, word: lastOutput.original, regenLang }, "Regeneration failed");
+    logger.error({ err, word: entry.output.original }, "Alt meaning regeneration failed");
   }
 }
 
@@ -1023,8 +934,6 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
 
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 
-    const langCodes = Object.keys(output.translations);
-
     const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
     const existing =
       sourceLangEntry && !isSentence
@@ -1038,41 +947,15 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
       ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
       : false;
 
-    if (isSentence) {
+    {
       ctx.session.pendingTranslation = output;
 
-      const card = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`;
-      const sentMsg = await ctx.reply(card, { parse_mode: "HTML" });
-      const keyboard = buildTranslationKeyboard(
-        langCodes,
-        classification.type,
-        lang,
-        sentMsg.message_id,
-        isAlreadySaved,
-      );
-      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, sentMsg.message_id, { reply_markup: keyboard });
+      const card = isSentence
+        ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`
+        : renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
 
-      ctx.session.pendingCardMsgId = sentMsg.message_id;
-
-      ctx.session.translationMap = ctx.session.translationMap ?? {};
-      ctx.session.translationMap[String(sentMsg.message_id)] = {
-        output,
-        inputType: classification.type,
-        contextHint: pendingContextHint,
-      };
-    } else {
-      ctx.session.pendingTranslation = output;
-
-      const card = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
       const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
-
-      const keyboard = buildTranslationKeyboard(
-        langCodes,
-        classification.type,
-        lang,
-        cardMsg.message_id,
-        isAlreadySaved,
-      );
+      const keyboard = buildTranslationKeyboard(lang, cardMsg.message_id, isAlreadySaved);
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
       ctx.session.pendingCardMsgId = cardMsg.message_id;
@@ -1306,6 +1189,85 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
  * Captures the next text message as clarification context and retries translation.
  */
 export async function handleTranslationClarificationContextText(ctx: BotContext, text: string): Promise<void> {
+  // Post-translation clarify flow (from "Уточнить" button on rendered card)
+  const postClarifyMsgId = ctx.session.pendingPostTranslationClarifyMsgId;
+  if (postClarifyMsgId != null) {
+    ctx.session.awaitingTranslationClarificationContext = undefined;
+    ctx.session.pendingPostTranslationClarifyMsgId = undefined;
+
+    const entry = ctx.session.translationMap?.[String(postClarifyMsgId)];
+    if (!entry) {
+      const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+      const iLang = settings?.interfaceLang ?? "en";
+      const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+      await ctx.reply(t("translationError", lang));
+      return;
+    }
+
+    const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+    const iLang = settings?.interfaceLang ?? "en";
+    const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+    const nativeLang = settings?.nativeLang ?? "en";
+
+    // Replace context (not accumulate)
+    entry.contextHint = text.trim();
+
+    try {
+      const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
+      const isSentence = entry.inputType === "sentence";
+      const targetLangs = Object.keys(entry.output.translations);
+
+      const savedTpl = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
+      const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
+      const outputConfig = resolveOutputConfig(
+        userTpl,
+        isSentence ? "sentence" : (entry.inputType ?? "word"),
+        entry.output.original.length,
+      );
+      const effectiveTemplate = resolveTemplate(userTpl);
+
+      const lookupContextFn = isSentence ? async () => [] : lookupContext;
+
+      const decision = await translateWithContext(
+        {
+          word: entry.output.original,
+          sourceLang: entry.output.sourceLang,
+          targetLangs,
+          nativeLang,
+          model,
+          topic: entry.contextHint,
+          userId: ctx.user.id,
+          outputConfig,
+          inputType: entry.inputType,
+        },
+        {
+          lookupContext: lookupContextFn,
+          generateObjectFn: ctx.services.ai.generateObject,
+        },
+      );
+
+      if (decision.status === "needs_clarification") {
+        throw new Error("Unexpected needs_clarification in post-translation clarify flow");
+      }
+
+      entry.output = decision.output;
+
+      const cardText = isSentence
+        ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
+        : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
+
+      const keyboard = buildTranslationKeyboard(lang, postClarifyMsgId);
+      await ctx.api.editMessageText(ctx.chat!.id, postClarifyMsgId, cardText, {
+        reply_markup: keyboard,
+        parse_mode: "HTML",
+      });
+    } catch (err) {
+      logger.error({ err, word: entry.output.original }, "Post-translation clarify failed");
+    }
+    return;
+  }
+
+  // Pre-translation clarify flow (original ambiguity resolution)
   const pending = ctx.session.pendingClarification;
   if (!pending) {
     clearPendingClarification(ctx);

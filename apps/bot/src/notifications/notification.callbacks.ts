@@ -19,6 +19,7 @@ function getLangCodeById(id: number): string | undefined {
 function parseEntryId(data: string | undefined): number | null {
   if (!data) return null;
   const parts = data.split(":");
+  if (!parts[2]) return null;
   const id = Number(parts[2]);
   return Number.isFinite(id) ? id : null;
 }

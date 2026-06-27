@@ -152,13 +152,8 @@ describe("handleRegenLoop", () => {
     expect(editMessageText).toHaveBeenCalledTimes(1);
     const [text, opts] = editMessageText.mock.calls[0]!;
     expect(text).toContain("Saved to dictionary");
-    // Post-save keyboard: regen buttons only, no save/skip
-    const allCallbacks = opts.reply_markup.inline_keyboard.flatMap((row: any[]) =>
-      row.map((b: any) => b.callback_data),
-    );
-    expect(allCallbacks).toContain("tr:regen:cs:0");
-    expect(allCallbacks).not.toContain("tr:save:");
-    expect(allCallbacks).not.toContain("tr:skip:");
+    // Post-save keyboard: empty (no buttons)
+    expect(opts.reply_markup.inline_keyboard.flat()).toEqual([]);
   });
 
   it("removes keyboard on tr:skip", async () => {
