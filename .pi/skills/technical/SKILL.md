@@ -1,88 +1,30 @@
 ---
 name: technical
-description: Technical implementation composite pipeline. Implements tasks from docs/tasks/ across all layers — i18n, validation, DB, AI, translation, topics, notifications, bot. Includes quality gates (test-runner, doc-validator).
+description: Thin harness adapter for implementation across repo layers with quality gates.
 ---
 
-# Technical Pipeline — Composite Skill
+# Technical Pipeline
 
-Implements tasks produced by the business pipeline. Reads task specs from `docs/tasks/` and `docs/tech-reqs/`, then runs agents in dependency order across all architecture layers.
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-## Pipeline Flow
+## Read First
+- `@docs/agents/README.md`
+- `@docs/agents/architecture.md`
+- `@docs/agents/quality-gate.md`
+- `@docs/agents/skills.md`
 
-```
-Wave 1: Foundation
-└── i18n — internationalization (leaf, no deps)
+## Scope
+- Read active @docs/tasks/ specs before editing.
+- Follow @docs/agents/architecture.md for boundaries.
+- Run the applicable gate from @docs/agents/quality-gate.md.
 
-Wave 2: Core checks
-└── validation — AI response quality checks
-    (depends on: i18n)
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-Wave 3: Adapters (parallel)
-├── db — database layer (Drizzle + PostgreSQL)
-│   (depends on: validation, i18n)
-└── ai — AI adapter (OpenRouter + Vercel AI SDK)
-    (depends on: validation)
-
-Wave 4: Domain
-└── translation — word/phrase translation via AI
-    (depends on: ai, validation)
-
-Wave 5: Features
-└── topics — topic management + dataset caching
-    (depends on: translation, db)
-
-Wave 6: Infrastructure
-└── notifications — scheduling + delivery
-    (depends on: db, topics)
-
-Wave 7: Application
-└── bot — Telegram bot (grammY)
-    (depends on: i18n, db, translation, topics, notifications)
-
-── Each implementation agent (Waves 1–N) runs `pnpm lint` after finishing its changes ──
-
-Wave 8: Quality gate
-└── test-runner — run lint + tests, fix failures
-    (depends on: all implementation agents)
-
-Wave 9: Documentation gate
-└── doc-validator — sync docs with code
-    (depends on: test-runner)
-```
-
-## Architecture Layers
-
-| Layer    | Package                    | Agents                                |
-| -------- | -------------------------- | ------------------------------------- |
-| Core     | `packages/core/src/`       | i18n, validation, translation, topics |
-| Adapters | `packages/adapters/*/src/` | db, ai, notifications                 |
-| App      | `apps/bot/src/`            | bot                                   |
-| Quality  | —                          | test-runner, doc-validator            |
-
-## Boundary
-
-- **Mode:** role — when this skill is active, you ARE the technical pipeline orchestrator. Implement tasks from docs/tasks/.
-- **Produces:** source code, tests, and updated docs across `packages/`, `apps/`, `docs/`
-- **Never:** modify business artifacts (BRD, roadmap, requirements) — only read them for context
-- **Never:** skip tests or quality gates
-- **Each sub-agent owns its layer** — no cross-boundary code changes between sub-agents
-- **Allowed tools:** `read`, `bash`, `edit`, `write`
-- **Allowed write paths:** `packages/**`, `apps/**`, `docs/tasks/**`, `.pi/skills/**`
-
-## Rules
-
-- Read task specs from `docs/tasks/` before implementing
-- Each sub-agent owns its layer — no cross-boundary code changes
-- All agents write tests and update documentation
-- Final quality gates: test-runner → doc-validator
-- Technical pipeline does NOT depend on business pipeline — decoupled by artifacts
-
-## Relationship with Business Pipeline
-
-The business pipeline produces artifacts in `docs/`:
-
-- `docs/tasks/` — task specs (consumed by all implementation agents)
-- `docs/tech-reqs/` — technical design docs (consumed by implementation agents)
-- `docs/BRD.md` — business requirements (reference only)
-
-The technical pipeline runs **asynchronously** — in separate `orchestrate` calls after business artifacts are ready.
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

@@ -1,20 +1,29 @@
 ---
 name: product-owner
-description: Prioritizes features by business value and user impact. Defines MVP scope, release milestones, and makes go/no-go decisions on features. Use when defining product scope, roadmap, or release planning.
+description: Thin harness adapter for prioritization, MVP scope, roadmap, and release decisions.
 ---
 
-# Product Owner — Prioritization & Scope
+# Product Owner
 
-Prioritizes requirements, defines MVP scope and roadmap. Writes to `docs/roadmap.md` and `docs/mvp-scope.md`.
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-## Rules
+## Read First
+- `@docs/agents/workflows.md`
+- `@docs/BRD.md`
+- `@docs/roadmap.md or @docs/mvp-scope.md when relevant`
 
-- **MoSCoW:** Must / Should / Could / Won't (with rationale for each Won't)
-- MVP = smallest Must-haves set that delivers user value
-- Prioritize by **user value × feasibility**, not technical coolness
-- Never modify BRD — only tag requirements with priority and scope
-- Defer rather than cut — future milestones, not deletion
+## Scope
+- Make priority tradeoffs explicit.
+- Write durable product decisions only when the workflow asks for it.
+- Keep rationale concise and traceable.
 
-## Output Paths
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-`docs/roadmap.md`, `docs/mvp-scope.md`
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

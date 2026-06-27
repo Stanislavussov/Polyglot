@@ -3,11 +3,11 @@
 **Reviewer:** Integrator Agent  
 **Date:** 2026-03-28  
 **Artifacts reviewed:**
-- `docs/requirements/30-save-to-dictionary.md`
-- `docs/mvp-scope.md`
-- `docs/tech-reqs/30-save-to-dictionary.md`
-- `docs/tasks/30-save-to-dictionary.md`
-- `docs/tasks/27-input-type-detection-and-text-limits.md` (upstream reference)
+- `@docs/requirements/30-save-to-dictionary.md`
+- `@docs/mvp-scope.md`
+- `@docs/tech-reqs/30-save-to-dictionary.md`
+- `@docs/tasks/30-save-to-dictionary.md`
+- `@docs/tasks/27-input-type-detection-and-text-limits.md` (upstream reference)
 - `packages/adapters/db/src/repositories/word.repository.ts` (current code)
 - `packages/adapters/db/src/schema.ts` (current code)
 - `packages/adapters/db/src/index.ts` (current code)
@@ -35,7 +35,7 @@ The most serious issues are: (1) T9 updates dead code that is never called in pr
 
 ### [CRITICAL-1] T9 Updates Dead Code — `handleRegenLoop` Is Not Called in Production
 
-**Conflicting artifacts:** `docs/tasks/30-save-to-dictionary.md` (T9) vs `apps/bot/src/index.ts` + `apps/bot/src/middlewares/mode-router.ts`
+**Conflicting artifacts:** `@docs/tasks/30-save-to-dictionary.md` (T9) vs `apps/bot/src/index.ts` + `apps/bot/src/middlewares/mode-router.ts`
 
 **Mismatch:**  
 T9 allocates 2 hours to update `handleRegenLoop()` in `regen.helper.ts` with FEAT-30 dedup, sanitization, and new keyboard logic. However, `handleRegenLoop` is **never called from any production bot code**. Searching all non-test `.ts` files in `apps/bot/src/` yields only a single result: the function definition itself. The bot uses `handleRegenCallback()` from `translate-mode.helper.ts` (registered as `bot.callbackQuery(/^tr:regen:/, handleRegenCallback)` in `index.ts`). `handleRegenLoop` is a grammY conversation-based handler that was likely superseded when the bot switched from conversation-based to persistent-mode routing (Task 27).
@@ -52,7 +52,7 @@ Option B: If `handleRegenLoop` is intended for future conversation-based flow re
 
 ### [CRITICAL-2] T3 Breaking Signature Change Creates Uncompilable Build Window
 
-**Conflicting artifacts:** `docs/tasks/30-save-to-dictionary.md` (T3, T7, T8, T9) vs `apps/bot/src/scenes/helpers/regen.helper.ts` + `apps/bot/src/scenes/helpers/translate-mode.helper.ts`
+**Conflicting artifacts:** `@docs/tasks/30-save-to-dictionary.md` (T3, T7, T8, T9) vs `apps/bot/src/scenes/helpers/regen.helper.ts` + `apps/bot/src/scenes/helpers/translate-mode.helper.ts`
 
 **Mismatch:**  
 T3 replaces `wordRepository.create(userId, word: Omit<NewWord, "userId">)` with `wordRepository.create(userId, input: CreateWordInput)`. This is a breaking change to an existing API. Immediately after T3 is merged, two call sites are broken:
@@ -71,7 +71,7 @@ T3 and T7/T8/T9 must be implemented and merged atomically — either in a single
 
 ### [MAJOR-1] Naming Mismatch — `TranslationKey` vs `I18nKey`
 
-**Conflicting artifacts:** `docs/tech-reqs/30-save-to-dictionary.md §3.3` + `docs/tasks/30-save-to-dictionary.md` (T4) vs `packages/core/src/modules/i18n/types.ts`
+**Conflicting artifacts:** `@docs/tech-reqs/30-save-to-dictionary.md §3.3` + `@docs/tasks/30-save-to-dictionary.md` (T4) vs `packages/core/src/modules/i18n/types.ts`
 
 **Mismatch:**  
 Both the tech-reqs and T4 reference "the `TranslationKey` union type" when specifying that `saveWord` and `savePhrase` should be added. However, no `TranslationKey` type exists anywhere in the codebase. The actual union type is `I18nKey`, defined in `packages/core/src/modules/i18n/types.ts:5`. The `t()` function is typed against `I18nKey`. This occurs in:
@@ -82,13 +82,13 @@ Both the tech-reqs and T4 reference "the `TranslationKey` union type" when speci
 **Impact:** An implementer following the task spec may search for `TranslationKey` and fail to find it, then either create a duplicate type or incorrectly guess the correct file/type to update. TypeScript compilation of `t('saveWord', lang)` in T6 depends on T4 updating `I18nKey` (not `TranslationKey`). If the wrong type is updated, the `t()` call in T6 will produce a TypeScript error.
 
 **Resolution:**  
-Replace every occurrence of "TranslationKey" in `docs/tech-reqs/30-save-to-dictionary.md` and `docs/tasks/30-save-to-dictionary.md` with `I18nKey`. T4's acceptance criteria should read: "The `I18nKey` union type in `packages/core/src/modules/i18n/types.ts` includes `'saveWord'` and `'savePhrase'`."
+Replace every occurrence of "TranslationKey" in `@docs/tech-reqs/30-save-to-dictionary.md` and `@docs/tasks/30-save-to-dictionary.md` with `I18nKey`. T4's acceptance criteria should read: "The `I18nKey` union type in `packages/core/src/modules/i18n/types.ts` includes `'saveWord'` and `'savePhrase'`."
 
 ---
 
 ### [MAJOR-2] T6 Acceptance Criteria Overlap with T8 and T9 — Ambiguous Task Ownership
 
-**Conflicting artifacts:** `docs/tasks/30-save-to-dictionary.md` (T6 vs T8 vs T9)
+**Conflicting artifacts:** `@docs/tasks/30-save-to-dictionary.md` (T6 vs T8 vs T9)
 
 **Mismatch:**  
 T6's acceptance criteria state: "All existing callers of `buildTranslationKeyboard` are updated to pass `inputType`", explicitly listing both `translate-mode.helper.ts` and `regen.helper.ts`. However:
@@ -108,7 +108,7 @@ Amend T6 acceptance criteria to: "The `buildTranslationKeyboard` function signat
 
 ### [MAJOR-3] Tech-Reqs §2 Package Dependency Constraint Is Factually Incorrect
 
-**Conflicting artifacts:** `docs/tech-reqs/30-save-to-dictionary.md §2` vs `packages/adapters/db/package.json`
+**Conflicting artifacts:** `@docs/tech-reqs/30-save-to-dictionary.md §2` vs `packages/adapters/db/package.json`
 
 **Mismatch:**  
 The tech-reqs §2 states as a hard rule: "Package dependency rules: `packages/adapters/db` has no dependency on `packages/core` or `apps/*`." This is then used as the architectural rationale for why `sanitizeForStorage()` must live in `apps/bot` ("Only `apps/bot` can see both `TranslateOutput` (core) and `StoredWordContent` (adapters/db). Putting it in `adapters/db` would create an upward `adapters/db → core` dependency").
@@ -126,7 +126,7 @@ Update tech-reqs §2 to accurately state: "`packages/adapters/db` already import
 
 ### [MAJOR-4] Missing Defensive Guard in T7 — `lastInputType === 'sentence'` Reaches `wordRepository.create()`
 
-**Conflicting artifacts:** `docs/tasks/30-save-to-dictionary.md` (T7) vs Architecture Constraint in same document
+**Conflicting artifacts:** `@docs/tasks/30-save-to-dictionary.md` (T7) vs Architecture Constraint in same document
 
 **Mismatch:**  
 T7 specifies that `handleSaveCallback` reads `inputType = ctx.session.lastInputType ?? 'word'` and passes it as `inputType: inputType as 'word' | 'phrase'` to `wordRepository.create()`. The architecture constraints section says: "Sentence input type is NEVER passed to `wordRepository.create()`. Sentence translations are not stored; `inputType` column CHECK constraint only allows `'word' | 'phrase'`."
@@ -152,7 +152,7 @@ This should be Step 1.5 (after the `pendingTranslation` undefined check, before 
 
 ### [MINOR-1] `saveToDictionary` i18n Key Becomes Orphaned After T6
 
-**Conflicting artifacts:** `docs/tasks/30-save-to-dictionary.md` (T6) vs `packages/core/src/modules/i18n/locales/en.json` + `packages/core/src/modules/i18n/types.ts`
+**Conflicting artifacts:** `@docs/tasks/30-save-to-dictionary.md` (T6) vs `packages/core/src/modules/i18n/locales/en.json` + `packages/core/src/modules/i18n/types.ts`
 
 **Mismatch:**  
 The current `buildTranslationKeyboard()` uses `t('saveToDictionary', lang)` (value: `"➕ Save to dictionary"`). After T6 replaces this with `t('saveWord', lang)` / `t('savePhrase', lang)`, the `saveToDictionary` key (`"➕ Save to dictionary"`) in all locale files and in `I18nKey` union will be unreferenced. REQ-3006 says "The existing generic `saveToDictionary` i18n key is deprecated or repurposed" — but no task covers the actual deprecation or removal.
@@ -163,13 +163,13 @@ Note: there is also a separate `saveToDict` key (`"💾 Save to dictionary?"`) w
 
 **Resolution:**  
 Option A: Add a sub-task to T4 or T6 to remove or comment out `saveToDictionary` from all locale files and from `I18nKey`. Verify no other callers use it first (grep for `t('saveToDictionary'`).  
-Option B: Add a follow-up item to the Open Items table in `docs/tasks/30-save-to-dictionary.md`: "Remove orphaned `saveToDictionary` and `saveToDict` i18n keys".
+Option B: Add a follow-up item to the Open Items table in `@docs/tasks/30-save-to-dictionary.md`: "Remove orphaned `saveToDictionary` and `saveToDict` i18n keys".
 
 ---
 
 ### [MINOR-2] `SessionData` Initial Factory in `index.ts` Not Updated for `savedWordId`
 
-**Conflicting artifacts:** `docs/tasks/30-save-to-dictionary.md` (T5) vs `apps/bot/src/index.ts`
+**Conflicting artifacts:** `@docs/tasks/30-save-to-dictionary.md` (T5) vs `apps/bot/src/index.ts`
 
 **Mismatch:**  
 T5 adds `savedWordId?: number` to the `SessionData` interface. However, the session initial factory in `apps/bot/src/index.ts` explicitly initializes all session fields:
@@ -198,7 +198,7 @@ savedWordId: undefined,
 
 ### [MINOR-3] T4 Adds New i18n Keys Only to 3 Locales — Other 7 Supported Languages Undocumented
 
-**Conflicting artifacts:** `docs/tasks/30-save-to-dictionary.md` (T4) vs `packages/core/src/modules/i18n/types.ts` (`SupportedLang`)
+**Conflicting artifacts:** `@docs/tasks/30-save-to-dictionary.md` (T4) vs `packages/core/src/modules/i18n/types.ts` (`SupportedLang`)
 
 **Mismatch:**  
 T4 adds `saveWord` and `savePhrase` to `en.json`, `ru.json`, and `cs.json` only. However, `SupportedLang` includes 10 languages: `"en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl"`. The i18n system presumably falls back to English when a key is missing from a locale. This is not broken, but the behavior is undocumented in T4 and relies on an implicit convention.

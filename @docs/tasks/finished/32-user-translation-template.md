@@ -611,7 +611,7 @@ let card = renderTranslation(output, lang, effectiveTemplate.fields);
 
 ### Step 8 — Update Task 33 Integration Point
 
-**Location:** `docs/tasks/33-dictionary-word-pipeline-and-flashcards.md` (documentation only)
+**Location:** `@docs/tasks/33-dictionary-word-pipeline-and-flashcards.md` (documentation only)
 
 **Goal:** Document the integration so Task 33 implementers know to use the user template.
 
@@ -718,7 +718,7 @@ showRegister       ← system-controlled (not in TemplateFields)
 | `packages/core/src/modules/i18n/locales/en.json` | Add `template*` i18n keys |
 | `packages/core/src/modules/i18n/locales/ru.json` | Add `template*` i18n keys |
 | `packages/core/src/modules/i18n/locales/cs.json` | Add `template*` i18n keys |
-| `docs/tasks/33-dictionary-word-pipeline-and-flashcards.md` | Add Task 32 integration notes |
+| `@docs/tasks/33-dictionary-word-pipeline-and-flashcards.md` | Add Task 32 integration notes |
 
 ---
 

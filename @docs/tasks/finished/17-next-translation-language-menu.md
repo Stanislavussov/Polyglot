@@ -50,8 +50,8 @@ Implement an **inline keyboard menu** that appears after translation, allowing t
 **References:**
 
 - BRD §9 ("✨ Next translation" button — resolved via Option C in BRD §14: the button is redundant because persistent translate mode (Task 09) handles continuous translation. This task provides post-translation source language selection as a separate feature)
-- `docs/tasks/09-translate-session-loop.md` (persistent translate mode)
-- `docs/tasks/16-auto-detect-input-language.md` (auto-detect integration)
+- `@docs/tasks/09-translate-session-loop.md` (persistent translate mode)
+- `@docs/tasks/16-auto-detect-input-language.md` (auto-detect integration)
 - `.pi/skills/bot/SKILL.md` (translate-mode helper, renderer)
 - `.pi/skills/i18n/SKILL.md` (i18n keys)
 - `.pi/skills/db/SKILL.md` (user settings schema)
@@ -218,5 +218,5 @@ The feature is **fully encapsulated** in the bot layer (session state + UI) with
 - `apps/bot/src/renderers/__tests__/source-lang-menu.test.ts` — 8 tests for keyboard rendering
 - `apps/bot/src/scenes/helpers/__tests__/source-lang-callback.test.ts` — 7 tests for callback handling
 - `apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts` — 11 tests for integration
-- `docs/tasks/17-next-translation-language-menu.md` — Updated status and checkboxes
+- `@docs/tasks/17-next-translation-language-menu.md` — Updated status and checkboxes
 - `.pi/skills/bot/SKILL.md` — Updated Current State, File Structure, Skills

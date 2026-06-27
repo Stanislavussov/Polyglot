@@ -336,7 +336,7 @@ Return a JSON object with all analysis fields. Be thorough but concise in explan
 
   ## Reference
 
-  - Task: `docs/tasks/12-idiom-analysis.md`
+  - Task: `@docs/tasks/12-idiom-analysis.md`
   - Related: Task 10 (idiomatic equivalents in translation)
   ```
 

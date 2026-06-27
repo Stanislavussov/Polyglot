@@ -11,9 +11,9 @@ Currently, dictionary context lookup is duplicated across **three consumers** (b
 This task extracts that concern into a single, isolated module with its own interface — testable in unit tests with mocked dependencies, usable as a standalone subagent target.
 
 **References:**
-- `docs/tech-reqs/02-architecture.md` (layer separation)
-- `docs/tech-reqs/04-adapter-contract.md` (adapter contracts)
-- `docs/tasks/13-wiktionary-jsonl.md` (Wiktionary integration, `word_context` schema)
+- `@docs/tech-reqs/02-architecture.md` (layer separation)
+- `@docs/tech-reqs/04-adapter-contract.md` (adapter contracts)
+- `@docs/tasks/13-wiktionary-jsonl.md` (Wiktionary integration, `word_context` schema)
 - `.pi/skills/translation/SKILL.md` (translation flow, `DictionaryContext` type)
 - `.pi/skills/db/SKILL.md` (`WordContextRepository` API)
 

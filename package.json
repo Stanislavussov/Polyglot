@@ -20,7 +20,7 @@
     "lint:fix": "biome check --write .",
     "lint:deps": "depcruise --config .dependency-cruiser.cjs packages apps/bot/src",
     "lint:knip": "knip",
-    "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > docs/dependency-graph.svg",
+    "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > @docs/dependency-graph.svg",
     "clean": "pnpm -r run clean && rm -rf coverage .vitest",
     "docker:up": "docker compose -f deploy/docker-compose.yml up",
     "docker:dev": "docker compose -f deploy/docker-compose.override.yml up",

@@ -124,7 +124,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Translation benchmark reports are now stored as Markdown under `docs/translation-benchmarks/` instead of local JSON files.
+- Consolidated project documentation under `@docs/`, moved HTML reports to `@docs/reports/`, added harness-neutral agent guidance under `@docs/agents/`, and reduced `.pi/skills/` to thin adapters to avoid duplicating changing domain knowledge.
+- Translation benchmark reports are now stored as Markdown under `@docs/translation-benchmarks/` instead of local JSON files.
 - Dictionary context lookup now normalizes Unicode, case, and whitespace, supports imported Wiktionary forms, and returns deterministically ordered sense candidates instead of silently selecting the first database row.
 - Translation prompts now state more explicitly that `connotationWarning` must be written in the user's native language even inside non-native target blocks, not in the target language.
 - Translation structured-output requests now use `frequencyPenalty: 0` so example generation can repeat the assigned translation naturally; other AI requests retain the adapter default unless they explicitly override it.

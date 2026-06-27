@@ -1,37 +1,29 @@
 ---
 name: product
-description: "Monitors competitors, analyzes their features, and proposes what to add to Polyglot. Use when evaluating competitor features, prioritizing new features, or generating competitive analysis reports."
+description: Thin harness adapter for competitor and market analysis.
 ---
 
-# Product — Competitor Intelligence
+# Product Research
 
-Analyzes competitor features and proposes additions to Polyglot. Writes to `docs/research/competitors.md`.
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-## Key Competitors
+## Read First
+- `@docs/agents/workflows.md`
+- `@docs/research/ when relevant`
+- `active user request`
 
-**Direct:** Duolingo, Reverso Context, Anki, Babbel, Memrise, Busuu, Clozemaster
-**Dictionaries:** DeepL, Google Translate, Linguee, WordReference, Collins, Cambridge, Multitran
-**Flashcards:** Quizlet, Brainscape, Mochi, RemNote
-**AI-native:** Speak, Langotalk, Elsa Speak, Gliglish, Khanmigo
-**Telegram bots:** @LearnEnglishBot, @LinguaBot, @DailyEnglishBot, @FluentBot
+## Scope
+- Do not store competitor lists in this skill file.
+- Use current research and user-provided market scope.
+- Publish durable research only when asked by the workflow.
 
-## Rules
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-- Public features only (App Store, websites, changelogs)
-- Never copy — draw inspiration, adapt to Polyglot's multilingual context
-- Score every proposal by **impact × effort** — high impact + low effort first
-- Mark features we already have as `alreadyHave: true`
-- Social features (leaderboards, friends) → low priority for MVP
-
-## Priority Matrix
-
-```
-            Low Effort   Med Effort   High Effort
-High Impact  🔥 Do now    📋 Plan      🔭 Future
-Med Impact   📋 Plan      🤔 Evaluate  ❄️ Skip
-Low Impact   🤔 Evaluate  ❄️ Skip      ❌ No
-```
-
-## Output Path
-
-`docs/research/competitors.md`
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

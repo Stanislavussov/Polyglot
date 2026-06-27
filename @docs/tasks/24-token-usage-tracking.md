@@ -9,10 +9,10 @@ Surface token usage and approximate cost from the AI adapter through the transla
 This task adds a `UsageInfo` return channel so that every translation request carries its cumulative token usage (including retries), and optionally displays an approximate cost/token summary to the user in the translation card.
 
 **References:**
-- `docs/tech-reqs/06-ai-adapter.md` (AI adapter pattern)
-- `docs/tech-reqs/07-ai-validation.md` (validation pipeline with retries)
-- `docs/tech-reqs/02-architecture.md` (layer separation)
-- `docs/tasks/06-token-optimization.md` (token reduction — complementary task)
+- `@docs/tech-reqs/06-ai-adapter.md` (AI adapter pattern)
+- `@docs/tech-reqs/07-ai-validation.md` (validation pipeline with retries)
+- `@docs/tech-reqs/02-architecture.md` (layer separation)
+- `@docs/tasks/06-token-optimization.md` (token reduction — complementary task)
 
 ---
 

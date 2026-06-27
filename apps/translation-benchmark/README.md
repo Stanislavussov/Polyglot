@@ -36,7 +36,7 @@ pnpm translation:benchmark -- \
 
 `AI_MODEL` may be used instead of `--model`. The OpenRouter API key and development database configuration are loaded from the existing environment.
 
-By default, the Markdown report is written under `docs/translation-benchmarks/`. A custom path can be supplied:
+By default, the Markdown report is written under `@docs/translation-benchmarks/`. A custom path can be supplied:
 
 ```bash
 pnpm translation:benchmark -- --model openai/gpt-4o --output ./translation-report.md
@@ -47,7 +47,7 @@ Each Markdown report has a JSON sidecar suitable for regression baselines. Compa
 ```bash
 pnpm translation:benchmark -- \
   --model openai/gpt-4o \
-  --baseline docs/translation-benchmarks/approved-gpt-4o.json
+  --baseline @docs/translation-benchmarks/approved-gpt-4o.json
 ```
 
 Reports contain versioned fixtures, semantic rubrics, executable assertions, actual prompts and raw attempts, prompt/schema versions, model settings, pipeline issues, repeat reasons, per-dimension scores, language-pair pass rates, actual adapter token/cost/latency metrics, repair success, and release gates. Baseline comparison uses a two-proportion z-test and fails the language-pair gate at `z <= -1.96`.

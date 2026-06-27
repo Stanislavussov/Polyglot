@@ -52,4 +52,5 @@ Index files (e.g. `index.ts`) must contain **only** re-exports. Never add logic,
 - **Monorepo**: pnpm workspaces (`packages/*`, `packages/adapters/*`, `apps/*`)
 - **Stack**: TypeScript, Biome (lint/format), Vitest (tests), dependency-cruiser
 - **Database**: PostgreSQL via Drizzle ORM (`packages/adapters/db`)
-- **Architecture & domain skills**: `.pi/` — contains per-domain skill files (`.pi/skills/*/SKILL.md`) describing architecture, conventions, and implementation details for each module (notifications, translations, dictionary, SRS, i18n, etc.). Read the relevant skill before working on a domain.
+- **Documentation**: `@docs/` is the canonical documentation directory. Do not create or write to a top-level `docs/` directory.
+- **Agent guidance**: `@docs/agents/` is the canonical harness-neutral agent guidance. `.pi/skills/` contains only thin Pi-specific adapters.

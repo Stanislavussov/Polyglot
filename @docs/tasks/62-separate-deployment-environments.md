@@ -86,7 +86,7 @@ Update `.env.example` with all new variables and clear documentation.
 
 ### Documentation
 - [ ] `@docs/tech-reqs/12-deployment.md` updated with environment-specific instructions
-- [ ] `docs/deployment-checklist.md` updated with environment-specific steps
+- [ ] `@docs/deployment-checklist.md` updated with environment-specific steps
 - [ ] `README.md` updated with environment startup commands
 
 ## Dependencies
@@ -108,7 +108,7 @@ Update `.env.example` with all new variables and clear documentation.
 - `.env.example` — expand with environment variables
 - `.github/workflows/deploy.yml` — add environment matrix
 - `@docs/tech-reqs/12-deployment.md` — update docs
-- `docs/deployment-checklist.md` — update checklist
+- `@docs/deployment-checklist.md` — update checklist
 
 ## Notes
 

@@ -75,7 +75,7 @@ Additionally, the validation layer in `example.validator.ts` enforces strict wor
 
 ### Step 5: Update AI prompt documentation
 
-- [x] In `docs/tech-reqs/08-ai-prompt.md`:
+- [x] In `@docs/tech-reqs/08-ai-prompt.md`:
   - Add the idiomatic rule to the documented prompt structure
   - Add `expressionType` and `equivalentNote` to the JSON response example
 
@@ -101,7 +101,7 @@ Additionally, the validation layer in `example.validator.ts` enforces strict wor
 | -------------------------------- | ------------------------------------- | ------------------------------------------------------------ |
 | `packages/core/` (translation)   | Types, schema, prompt builder         | Main change area — add fields + idiomatic rule to prompt     |
 | `packages/core/` (validation)    | Example validator                     | Relax word-matching for idiomatic equivalents                |
-| `docs/tech-reqs/`               | Prompt documentation                  | Document new rule and response fields                        |
+| `@docs/tech-reqs/`               | Prompt documentation                  | Document new rule and response fields                        |
 | `apps/bot/`                      | No changes                            | Bot renders `text` field as before — transparent             |
 | `packages/adapters/db/`          | No changes                            | DB stores translations as-is                                 |
 | `packages/adapters/ai/`          | No changes                            | AI adapter is schema-agnostic                                |
@@ -114,7 +114,7 @@ Additionally, the validation layer in `example.validator.ts` enforces strict wor
 - `packages/core/src/modules/translation/schemas/translation.schema.ts` — added `expressionType` (optional, defaults to `"literal"`) and `equivalentNote` (optional) to `languageTranslationSchema`
 - `packages/core/src/modules/translation/prompt.builder.ts` — added Idiomatic & Proverb Rule block; added `expressionType` and `equivalentNote` to JSON template; updated strict prompt guidance
 - `packages/core/src/modules/validation/validators/example.validator.ts` — added `ExpressionType` type and optional `expressionType` parameter to `validateExamples()`
-- `docs/tech-reqs/08-ai-prompt.md` — documented idiomatic rule, `expressionType`, and `equivalentNote` fields
+- `@docs/tech-reqs/08-ai-prompt.md` — documented idiomatic rule, `expressionType`, and `equivalentNote` fields
 - `packages/core/src/modules/translation/__tests__/idiomatic-equivalents.test.ts` — 18 tests for schema + prompt idiomatic features
 - `packages/core/src/modules/validation/__tests__/example.validator.idiomatic.test.ts` — 8 tests for validator with expressionType
 

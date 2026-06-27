@@ -1,7 +1,7 @@
 # BUG-01: Onboarding Implements 4 Steps — BRD Mandates Maximum 3
 
 **Severity:** 🔴 Critical  
-**Source Task:** Task 03 (`docs/tasks/03-bot-setup.md`)  
+**Source Task:** Task 03 (`@docs/tasks/03-bot-setup.md`)  
 **BRD Reference:** §5 Onboarding  
 **Status:** ✅ Resolved
 

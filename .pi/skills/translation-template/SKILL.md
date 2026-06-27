@@ -1,105 +1,29 @@
 ---
 name: translation-template
-description: Translation output configuration — templates, presets, and field visibility. Provides resolveTemplate(), resolveOutputConfig(), output presets (FULL_OUTPUT, MINIMAL_OUTPUT, etc.), TemplateFields, and shared error classes. Use when implementing or modifying translation output configuration, user template management, or shared core types.
+description: Thin harness adapter for translation output templates, presets, and shared display configuration.
 ---
 
-# translation-template Agent Skill
+# Translation Template
 
-## Module Location
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-`packages/core/src/shared/` — shared core utilities used across multiple core modules.
+## Read First
+- `@docs/agents/architecture.md`
+- `@docs/agents/quality-gate.md`
+- `active @docs/tasks/ spec`
 
-## Architecture Context
+## Scope
+- Work mainly in packages/core/src/shared/ where existing source owns this behavior.
+- Keep shared utilities platform-independent.
+- Use current source and tests for exact names and contracts.
 
-- **Layer:** Core (platform-independent, shared utilities)
-- **Dependencies:** None (leaf module — no internal or external deps)
-- **Dependents:** `translation` module (output config in prompt/schema builders), `dictionary-pipeline` module (TemplateFields for display), `bot` agent (template scene, translate helpers), `db` agent (translation-template repository)
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-## Current State
-
-Fully implemented with template types, output presets, resolution logic, and shared error classes. Default word/phrase template is now reliable-first for cheap models: transcription on, synonyms/examples/alternatives/equivalent notes/connotation/native synonyms off. Users can still enable rich sections via custom templates.
-
-## File Structure
-
-```
-packages/core/src/shared/
-├── __tests__/
-│   └── translation-template.test.ts
-├── errors.ts                        # AppError, NotFoundError, ValidationFailedError
-├── translation-output.presets.ts    # FULL_OUTPUT, RELIABLE_OUTPUT, MINIMAL_OUTPUT, NOTIFICATION_OUTPUT, SENTENCE_OUTPUT
-├── translation-template.service.ts  # resolveOutputConfig(), resolveTemplate()
-├── translation-template.types.ts    # TemplateFields, UserTranslationTemplate, DEFAULT_TEMPLATE
-└── types.ts                         # TranslationOutputConfig interface
-```
-
-## Public API
-
-### `resolveOutputConfig(template, inputContext?): TranslationOutputConfig`
-
-Resolves a user's template + input context into a `TranslationOutputConfig` that controls which fields the AI prompt requests and the Zod schema validates.
-
-- `template` — `UserTranslationTemplate | null` (null → `DEFAULT_TEMPLATE`)
-- `inputContext` — `"word" | "phrase" | "sentence"` (sentence → `SENTENCE_OUTPUT` override)
-
-### `resolveTemplate(userTemplate): UserTranslationTemplate`
-
-Returns the user's template or `DEFAULT_TEMPLATE` if null.
-
-### Output Presets
-
-| Preset | Examples | Transcription | Synonyms | Alternatives | Use Case |
-|---|---|---|---|---|---|
-| `FULL_OUTPUT` | ✅ | ✅ | ✅ | ✅ | Rich/detail response |
-| `RELIABLE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | Default word/phrase |
-| `MINIMAL_OUTPUT` | ❌ | ✅ | ❌ | ❌ | Minimal response |
-| `NOTIFICATION_OUTPUT` | ✅ | ✅ | ❌ | ❌ | Scheduled notifications |
-| `SENTENCE_OUTPUT` | ❌ | ✅ | ❌ | ❌ | Sentence translations |
-
-### `MAX_TRANSCRIPTION_INPUT_LENGTH`
-
-Constant (number). Inputs longer than this skip transcription to save tokens.
-
-## Key Types
-
-```typescript
-interface TranslationOutputConfig {
-  includeExamples: boolean;
-  includeTranscription: boolean;
-  includeSynonyms: boolean;
-  includeAlternatives: boolean;
-  includeEquivalentNote: boolean;
-  includeRegister: boolean;
-  includeConnotationWarning: boolean;
-}
-
-interface TemplateFields {
-  transcription: boolean;
-  synonyms: boolean;
-  examples: boolean;
-  alternatives: boolean;
-  equivalentNote: boolean;
-  connotationWarning: boolean;
-  grammarBreakdown: boolean; // default: false — constructional grammar analysis
-}
-
-interface UserTranslationTemplate {
-  fields: TemplateFields;
-  name: string;
-}
-
-// DEFAULT_TEMPLATE — reliable-first fields, name "Default"
-// TEMPLATE_FIELD_KEYS — array of TemplateFields keys
-
-// Shared errors
-class AppError { code: string }
-class NotFoundError extends AppError
-class ValidationFailedError extends AppError { details: string[] }
-```
-
-## Rules
-
-- Shared module — no adapter imports, no side effects.
-- `DEFAULT_TEMPLATE` is the single source of truth for default field visibility.
-- Output presets are immutable constants — never mutate them.
-- `resolveOutputConfig` is the only way to derive `TranslationOutputConfig` from a user template.
-- Error classes are generic — used across all core modules.
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

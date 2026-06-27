@@ -1,7 +1,7 @@
 # BUG-03: Tasks 09 & 17 Both Resolve "Next Translation" Button with Conflicting Definitions
 
 **Severity:** 🟠 Major  
-**Source Tasks:** Task 09 (`docs/tasks/09-translate-session-loop.md`), Task 17 (`docs/tasks/17-next-translation-language-menu.md`)  
+**Source Tasks:** Task 09 (`@docs/tasks/09-translate-session-loop.md`), Task 17 (`@docs/tasks/17-next-translation-language-menu.md`)  
 **BRD Reference:** §9 Action Buttons — "✨ Next translation" (Open Question #1)  
 **Status:** ✅ Resolved
 
@@ -36,15 +36,15 @@ Both tasks were written and merged without first resolving the BRD open question
 
 ## Files Affected
 
-- `docs/tasks/09-translate-session-loop.md` — incorrectly claims to resolve Open Question #1
-- `docs/tasks/17-next-translation-language-menu.md` — incorrectly claims to resolve Open Question #1
-- `docs/BRD.md` — Open Question #1 must be formally resolved and removed from the TBD table
+- `@docs/tasks/09-translate-session-loop.md` — incorrectly claims to resolve Open Question #1
+- `@docs/tasks/17-next-translation-language-menu.md` — incorrectly claims to resolve Open Question #1
+- `@docs/BRD.md` — Open Question #1 must be formally resolved and removed from the TBD table
 
 ---
 
 ## Acceptance Criteria
 
-- [x] BRD Open Question #1 ("What does '✨ Next translation' button do?") is formally answered with a product decision documented in `docs/BRD.md` Section 9
+- [x] BRD Open Question #1 ("What does '✨ Next translation' button do?") is formally answered with a product decision documented in `@docs/BRD.md` Section 9
 - [x] One of the following outcomes is selected and documented:
   - **Option A:** The "✨ Next translation" button triggers translate mode (Task 09's interpretation) — Task 17's source language menu is a separate feature not tied to this button
   - **Option B:** The "✨ Next translation" button opens a source language selector (Task 17's interpretation) — Task 09's persistent mode is the underlying mechanism, not the button's definition

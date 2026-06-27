@@ -33,9 +33,9 @@ The `languages` table already stores emoji flags (`flag` column: 🇬🇧, 🇷�
 ```
 
 **References:**
-- `docs/tech-reqs/02-architecture.md` (layer separation)
-- `docs/tasks/18-language-buttons-native-display.md` (related: native names in UI)
-- `docs/tasks/14-language-table-refactor.md` (language table as SSOT)
+- `@docs/tech-reqs/02-architecture.md` (layer separation)
+- `@docs/tasks/18-language-buttons-native-display.md` (related: native names in UI)
+- `@docs/tasks/14-language-table-refactor.md` (language table as SSOT)
 
 ---
 

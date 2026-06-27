@@ -1,166 +1,29 @@
 ---
 name: idiom-analysis
-description: Analyzes translation quality for idiomatic correctness. Detects literal vs natural translations, compares semantic meaning, and suggests alternatives. Use when implementing or modifying translation quality assessment features.
+description: Thin harness adapter for idiom and translation-quality analysis work.
 ---
 
-# idiom-analysis Agent Skill
+# Idiom Analysis
 
-## Module Location
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-`packages/core/src/modules/idiom-analysis/` — AI-powered translation quality analysis.
+## Read First
+- `@docs/agents/architecture.md`
+- `@docs/agents/quality-gate.md`
+- `active @docs/tasks/ spec`
 
-## Architecture Context
+## Scope
+- Work mainly in packages/core/src/modules/idiom-analysis/.
+- Keep platform-independent core logic separate from AI adapter concerns.
+- Use source and tests for exact schemas and contracts.
 
-- **Layer:** Core (platform-independent)
-- **Dependencies:** `ai` agent (via injected `generateObjectFn`)
-- **Dependents:** Bot can use for translation feedback, validation pipeline can integrate
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-## Current State
-
-✅ **Fully Implemented**
-
-- Types for classification, input, and result
-- Zod schemas for AI response validation
-- Prompt builder for analysis requests
-- Service functions: `analyzeIdiom`, `analyzeIdiomBatch`, `needsIdiomReview`
-- Complete test coverage
-
-## File Structure
-
-```
-packages/core/src/modules/idiom-analysis/
-├── index.ts                              # Re-exports
-├── types.ts                              # IdiomClassification, IdiomAnalysisInput, IdiomAnalysisResult
-├── prompt.builder.ts                     # buildIdiomAnalysisPrompt()
-├── idiom-analysis.service.ts             # analyzeIdiom(), analyzeIdiomBatch(), needsIdiomReview()
-├── schemas/
-│   └── idiom-analysis.schema.ts          # Zod schemas
-└── __tests__/
-    ├── idiom-analysis.schema.test.ts     # Schema validation tests
-    ├── prompt.builder.test.ts            # Prompt generation tests
-    └── idiom-analysis.service.test.ts    # Service function tests
-```
-
-## Boundary
-
-- **Mode:** role — when this skill is active, you ARE the idiom-analysis agent. Only modify the idiom-analysis module.
-- **Produces:** idiom-analysis source code and tests in `packages/core/src/modules/idiom-analysis/`
-- **Never:** modify code outside `packages/core/src/modules/idiom-analysis/`
-- **Never:** import AI adapter directly — AI generation function is injected
-- **Never:** access the database
-- **Allowed tools:** `read`, `bash`, `edit`, `write`
-- **Allowed write paths:** `packages/core/src/modules/idiom-analysis/**`
-
-## Rules
-
-1. Pure module — AI function is injected, no direct dependencies
-2. Returns structured analysis results with confidence scores
-3. Always provides alternatives when translation is not optimal
-4. Classification is deterministic given AI response
-5. For phraseologisms without direct equivalents in target language, suggests contextually appropriate translations (not literal)
-
-## Skills (Public API)
-
-```typescript
-// Main analysis function
-async function analyzeIdiom(
-  input: AnalyzeInput,
-  generateObjectFn: GenerateObjectFn
-): Promise<IdiomAnalysisResult>;
-
-// Batch analysis
-async function analyzeIdiomBatch(
-  inputs: AnalyzeInput[],
-  generateObjectFn: GenerateObjectFn
-): Promise<IdiomAnalysisResult[]>;
-
-// Quick review check
-async function needsIdiomReview(
-  input: AnalyzeInput,
-  generateObjectFn: GenerateObjectFn
-): Promise<boolean>;
-
-// Prompt builder
-function buildIdiomAnalysisPrompt(input: IdiomAnalysisInput): string;
-```
-
-## Types
-
-```typescript
-type IdiomClassification =
-  | 'CORRECT_IDIOMATIC_TRANSLATION'  // Natural, commonly used expression
-  | 'LITERAL_BUT_UNNATURAL'          // Word-for-word, sounds artificial
-  | 'INCORRECT_MEANING';             // Translation doesn't convey same meaning
-
-type SourceExpressionType =
-  | 'idiom'
-  | 'proverb'
-  | 'slang'
-  | 'figurative'
-  | 'fixed_expression';
-
-interface IdiomAnalysisInput {
-  sourcePhrase: string;
-  sourceLang: string;
-  translatedPhrase: string;
-  targetLang: string;
-}
-
-interface IdiomAnalysisResult {
-  sourceIsIdiomatic: boolean;
-  sourceExpressionType?: SourceExpressionType;
-  sourceLiteralMeaning?: string;
-  sourceIntendedMeaning: string;
-  classification: IdiomClassification;
-  confidence: number;
-  toneMatch: boolean;
-  intensityMatch: boolean;
-  explanation: string;
-  suggestedAlternative?: string;
-  alternativeExplanation?: string;
-}
-
-interface AnalyzeInput extends IdiomAnalysisInput {
-  model: string;
-}
-
-type GenerateObjectFn = <T>(
-  prompt: string,
-  schema: ZodSchema<T>,
-  model: string
-) => Promise<T>;
-```
-
-## Usage Example
-
-```typescript
-import { analyzeIdiom, needsIdiomReview } from '@polyglot/core';
-import { generateObject } from '@polyglot/ai';
-
-// Full analysis
-const result = await analyzeIdiom(
-  {
-    sourcePhrase: 'Break a leg',
-    sourceLang: 'English',
-    translatedPhrase: 'Zlom si nohu',
-    targetLang: 'Czech',
-    model: 'openrouter/anthropic/claude-sonnet-4',
-  },
-  generateObject
-);
-
-// result.classification: 'LITERAL_BUT_UNNATURAL'
-// result.suggestedAlternative: 'Zlom vaz' or 'Drž palce'
-
-// Quick check
-const needsReview = await needsIdiomReview(input, generateObject);
-if (needsReview) {
-  // Translation may be unnatural, get full analysis
-}
-```
-
-## Reference
-
-- Task: `docs/tasks/12-idiom-analysis.md`
-- Related: Task 10 (idiomatic equivalents in translation)
-- Tech Req: `tech-reqs/07-ai-validation.md`
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

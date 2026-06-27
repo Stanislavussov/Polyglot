@@ -1,71 +1,29 @@
 ---
 name: db-sot
-description: Database source-of-truth policy. Defines which DB tables own which domain values and how all layers must consume them. Read when implementing anything that touches languages, user modes, settings, or domain enumerations.
+description: Thin harness adapter for database-owned domain values and cache consumption policy.
 ---
 
-# DB Source of Truth
+# DB Source Of Truth
 
-The database schema (`packages/adapters/db/src/schema.ts`) is the single source of truth for all domain values. Adding a new language, mode, or domain value requires ONLY a DB migration + seed — application code picks it up automatically.
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-## Languages
+## Read First
+- `@docs/agents/architecture.md`
+- `@docs/agents/quality-gate.md`
+- `packages/adapters/db/src/schema.ts`
 
-| What | Where |
-|------|-------|
-| **Table** | `languages` — code, name, nativeName, flag, iso3Code, isSupported, localizedNames |
-| **Cache** | `language-cache.ts` loads all rows at startup |
-| **Availability** | `languages.isSupported` column determines which languages appear in UI |
+## Scope
+- Database schema and seed/cache layers own domain values.
+- Do not hardcode languages, modes, or persisted domain enums in application code.
+- Use Drizzle Kit for schema changes.
 
-**Runtime API** (from `@polyglot/adapter-db`):
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-```typescript
-getSupportedLangs()   // languages where isSupported = true
-getLang(code)         // full CachedLanguage by ISO 639-1
-getLangName(code)     // English name (or localized)
-getLangNativeName(code)
-getLangFlag(code)     // emoji flag from DB
-getLangDisplay(code)  // "🇷🇺 Русский"
-isKnownLang(code)    // is in DB at all
-getIso3(code)        // ISO 639-1 → 639-3
-getIso1FromIso3(iso3) // reverse
-normalizeToIso1(lang) // any recognized form → ISO 639-1
-```
-
-## User Modes
-
-| What | Where |
-|------|-------|
-| **Column** | `userLanguageSettings.activeMode` (default: `"translate"`) |
-| **Constants** | `DEFAULT_ACTIVE_MODE` exported from db layer |
-
-## Domain Constants
-
-| Constant | Source |
-|----------|--------|
-| `MAX_LEARNING_LANGS` | db layer export |
-| `DEFAULT_ACTIVE_MODE` | `userLanguageSettings.activeMode` column default |
-| `DEFAULT_TIMEZONE` | `userLanguageSettings.timezone` column default |
-| `NOTIFICATION_TIMES` | `["morning", "evening"]` — valid notification time slots |
-| `NOTIFICATION_TYPES` | `["suggested", "srs", "both"]` — valid notification type strategies |
-| `DEFAULT_NOTIFICATION_TIME` | `"morning"` — `userLanguageSettings.notificationTime` column default |
-| `DEFAULT_NOTIFICATION_TYPE` | `"both"` — `userLanguageSettings.notificationType` column default |
-| `MORNING_HOUR` | `8` — local hour for morning notifications |
-| `EVENING_HOUR` | `20` — local hour for evening notifications |
-| `INACTIVITY_DAYS` | `14` — days of inactivity before pausing notifications |
-
-All constants live in the `db` layer and are re-exported for other layers.
-
-## Content JSONB
-
-- `words.content` keys = language codes matching `languages.code`
-- `topicTranslationCache.sourceLang` / `targetLang` = `languages.code`
-
-## Anti-Patterns — NEVER Do
-
-| ❌ Don't | ✅ Do Instead |
-|----------|--------------|
-| `type SupportedLang = "en" \| "ru" \| "cs" \| ...` | Use `getSupportedLangs()` from DB cache |
-| `const SUPPORTED_LANGS = ["en", "ru", ...]` | Use `getSupportedLangs()` |
-| `const VALID_MODES = new Set(["idle", "translate"])` | Import `DEFAULT_ACTIVE_MODE` from db layer |
-| `if (mode === "translate")` scattered in code | Use imported constant |
-| Hardcoded ISO 639-1↔639-3 maps | Use `getIso3()` / `getIso1FromIso3()` |
-| Hardcoded language code → name map in prompts | Use `getLangName(code)` |
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.
