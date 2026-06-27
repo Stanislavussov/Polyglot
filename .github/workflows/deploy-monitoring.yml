@@ -15,16 +15,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Copy monitoring configs to VPS
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "deploy/monitoring/"
-          target: "/opt/monitoring"
-          strip_components: 2
-          overwrite: true
-          debug: true
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          rsync -avz --exclude='data/' \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            deploy/monitoring/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/monitoring/
+          rm -f ~/.ssh/deploy_key
 
       - name: Start monitoring stack
         uses: appleboy/ssh-action@v1.0.3
