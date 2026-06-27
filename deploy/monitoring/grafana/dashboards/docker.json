@@ -52,7 +52,7 @@
         "multi": true,
         "name": "containergroup",
         "options": [],
-        "query": "label_values(container_group)",
+        "query": "label_values(container_last_seen{name=~\".+\"}, name)",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -173,7 +173,7 @@
         "multi": true,
         "name": "server",
         "options": [],
-        "query": "label_values(node_boot_time, instance)",
+        "query": "label_values(node_boot_time_seconds, instance)",
         "refresh": 1,
         "regex": "/([^:]+):.*/",
         "sort": 0,
@@ -257,7 +257,7 @@
           },
           "targets": [
             {
-              "expr": "time() - node_boot_time{instance=~\"$server:.*\"}",
+              "expr": "time() - node_boot_time_seconds{instance=~\"$server:.*\"}",
               "hide": false,
               "intervalFactor": 2,
               "legendFormat": "",
@@ -418,7 +418,7 @@
           },
           "targets": [
             {
-              "expr": "min((node_filesystem_size{fstype=~\"xfs|ext4\",instance=~\"$server:.*\"} - node_filesystem_free{fstype=~\"xfs|ext4\",instance=~\"$server:.*\"} )/ node_filesystem_size{fstype=~\"xfs|ext4\",instance=~\"$server:.*\"})",
+              "expr": "min((node_filesystem_size_bytes{fstype=~\"xfs|ext4\",instance=~\"$server:.*\"} - node_filesystem_free_bytes{fstype=~\"xfs|ext4\",instance=~\"$server:.*\"} )/ node_filesystem_size_bytes{fstype=~\"xfs|ext4\",instance=~\"$server:.*\"})",
               "hide": false,
               "intervalFactor": 2,
               "refId": "A",
@@ -499,7 +499,7 @@
           },
           "targets": [
             {
-              "expr": "((node_memory_MemTotal{instance=~\"$server:.*\"} - node_memory_MemAvailable{instance=~\"$server:.*\"}) / node_memory_MemTotal{instance=~\"$server:.*\"}) * 100",
+              "expr": "((node_memory_MemTotal_bytes{instance=~\"$server:.*\"} - node_memory_MemAvailable_bytes{instance=~\"$server:.*\"}) / node_memory_MemTotal_bytes{instance=~\"$server:.*\"}) * 100",
               "intervalFactor": 2,
               "refId": "A",
               "step": 1800
@@ -579,7 +579,7 @@
           },
           "targets": [
             {
-              "expr": "(node_memory_SwapTotal{instance=~'$server:.*'} - node_memory_SwapFree{instance=~'$server:.*'})",
+              "expr": "(node_memory_SwapTotal_bytes{instance=~'$server:.*'} - node_memory_SwapFree_bytes{instance=~'$server:.*'})",
               "intervalFactor": 2,
               "legendFormat": "",
               "refId": "A",
@@ -660,7 +660,7 @@
           },
           "targets": [
             {
-              "expr": "node_load1{instance=~\"$server:.*\"} / count by(job, instance)(count by(job, instance, cpu)(node_cpu{instance=~\"$server:.*\"}))",
+              "expr": "node_load1{instance=~\"$server:.*\"} / count by(job, instance)(count by(job, instance, cpu)(node_cpu_seconds_total{instance=~\"$server:.*\"}))",
               "intervalFactor": 2,
               "refId": "A",
               "step": 1800
@@ -967,7 +967,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_load1{instance=~\"$server:.*\"} / count by(job, instance)(count by(job, instance, cpu)(node_cpu{instance=~\"$server:.*\"}))",
+              "expr": "node_load1{instance=~\"$server:.*\"} / count by(job, instance)(count by(job, instance, cpu)(node_cpu_seconds_total{instance=~\"$server:.*\"}))",
               "intervalFactor": 2,
               "refId": "A",
               "step": 600
@@ -1096,7 +1096,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_filesystem_size{fstype=\"aufs\"} - node_filesystem_free{fstype=\"aufs\"}",
+              "expr": "node_filesystem_size_bytes{fstype=~\"ext4|xfs|overlay\"} - node_filesystem_free_bytes{fstype=~\"ext4|xfs|overlay\"}",
               "hide": false,
               "intervalFactor": 2,
               "legendFormat": "Used Disk Space",
@@ -1260,7 +1260,7 @@
               "step": 20
             },
             {
-              "expr": "node_memory_Buffers",
+              "expr": "node_memory_Buffers_bytes",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "node_memory_Dirty",
@@ -1268,7 +1268,7 @@
               "step": 30
             },
             {
-              "expr": "node_memory_MemFree",
+              "expr": "node_memory_MemFree_bytes",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "{{__name__}}",
@@ -1276,7 +1276,7 @@
               "step": 20
             },
             {
-              "expr": "node_memory_MemAvailable",
+              "expr": "node_memory_MemAvailable_bytes",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "Available Memory",
@@ -1284,7 +1284,7 @@
               "step": 20
             },
             {
-              "expr": "node_memory_MemTotal - node_memory_MemAvailable",
+              "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes",
               "hide": false,
               "intervalFactor": 2,
               "legendFormat": "Unavailable Memory",
@@ -1292,7 +1292,7 @@
               "step": 600
             },
             {
-              "expr": "node_memory_Inactive",
+              "expr": "node_memory_Inactive_bytes",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "{{__name__}}",
@@ -1300,7 +1300,7 @@
               "step": 30
             },
             {
-              "expr": "node_memory_KernelStack",
+              "expr": "node_memory_KernelStack_bytes",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "{{__name__}}",
@@ -1308,7 +1308,7 @@
               "step": 30
             },
             {
-              "expr": "node_memory_Active",
+              "expr": "node_memory_Active_bytes",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "{{__name__}}",
@@ -1316,7 +1316,7 @@
               "step": 30
             },
             {
-              "expr": "node_memory_MemTotal - (node_memory_Active + node_memory_MemFree + node_memory_Inactive)",
+              "expr": "node_memory_MemTotal_bytes - (node_memory_Active_bytes + node_memory_MemFree_bytes + node_memory_Inactive_bytes)",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "Unknown",
@@ -1324,7 +1324,7 @@
               "step": 40
             },
             {
-              "expr": "node_memory_MemFree + node_memory_Inactive ",
+              "expr": "node_memory_MemFree_bytes + node_memory_Inactive_bytes",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "{{__name__}}",
@@ -1430,7 +1430,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "-sum(rate(node_disk_bytes_read[$interval])) by (device)",
+              "expr": "-sum(rate(node_disk_read_bytes_total[$interval])) by (device)",
               "hide": false,
               "intervalFactor": 2,
               "legendFormat": "OUT on /{{device}}",
@@ -1439,7 +1439,7 @@
               "step": 600
             },
             {
-              "expr": "sum(rate(node_disk_bytes_written[$interval])) by (device)",
+              "expr": "sum(rate(node_disk_written_bytes_total[$interval])) by (device)",
               "intervalFactor": 2,
               "legendFormat": "IN on /{{device}}",
               "metric": "",
