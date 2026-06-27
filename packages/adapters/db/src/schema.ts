@@ -331,6 +331,8 @@ export const userTranslationTemplates = pgTable(
     equivalentNote: boolean("equivalent_note").notNull().default(true),
     /** Connotation warnings for dangerous meanings toggle */
     connotationWarning: boolean("connotation_warning").notNull().default(true),
+    /** Constructional grammar breakdown for phrases/sentences toggle */
+    grammarBreakdown: boolean("grammar_breakdown").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

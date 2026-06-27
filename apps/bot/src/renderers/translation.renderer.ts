@@ -97,6 +97,7 @@ export function renderTranslation(
   templateFields?: TemplateFields,
   nativeLang?: string,
   needsReview?: boolean,
+  grammarBreakdown?: Record<string, string[]>,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
@@ -125,11 +126,50 @@ export function renderTranslation(
     lines.push("");
   }
 
+  // Grammar breakdown section — inline from AI response or cached on-demand
+  const gbData = grammarBreakdown ?? collectInlineGrammarBreakdown(output);
+  if (gbData && Object.keys(gbData).length > 0 && templateFields?.grammarBreakdown !== false) {
+    lines.push(renderGrammarBreakdownSection(gbData, lang));
+    lines.push("");
+  }
+
   if (needsReview) {
     lines.push(esc(t("translationNeedsReview", lang)));
   }
 
   return lines.join("\n").trim();
+}
+
+/** Collect inline grammarBreakdown from LanguageTranslation blocks (when included in AI response) */
+function collectInlineGrammarBreakdown(output: TranslateOutput): Record<string, string[]> | null {
+  const result: Record<string, string[]> = {};
+  let hasAny = false;
+  for (const [code, translation] of Object.entries(output.translations)) {
+    if (translation.grammarBreakdown && translation.grammarBreakdown.length > 0) {
+      result[code] = translation.grammarBreakdown;
+      hasAny = true;
+    }
+  }
+  return hasAny ? result : null;
+}
+
+/** Render grammar breakdown section */
+function renderGrammarBreakdownSection(breakdown: Record<string, string[]>, lang: SupportedLang): string {
+  const lines: string[] = [];
+  lines.push(`<b>${esc(t("grammarBreakdown", lang))}</b>`);
+  const langCodes = Object.keys(breakdown);
+  for (const code of langCodes) {
+    const items = breakdown[code];
+    if (!items || items.length === 0) continue;
+    if (langCodes.length > 1) {
+      const flag = getLangFlag(code) ?? "🔤";
+      lines.push(`${flag} ${esc(code.toUpperCase())}:`);
+    }
+    for (const item of items) {
+      lines.push(`  • ${esc(item)}`);
+    }
+  }
+  return lines.join("\n");
 }
 
 /** Render a single language translation block */
@@ -205,6 +245,7 @@ export function renderSentenceTranslation(
   interfaceLang?: string,
   nativeLang?: string,
   needsReview?: boolean,
+  grammarBreakdown?: Record<string, string[]>,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
@@ -224,6 +265,11 @@ export function renderSentenceTranslation(
   for (const [code, translation] of Object.entries(output.translations)) {
     if (hideSourceText && code === output.sourceLang) continue;
     lines.push(renderSentenceLangBlock(code, translation));
+    lines.push("");
+  }
+
+  if (grammarBreakdown && Object.keys(grammarBreakdown).length > 0) {
+    lines.push(renderGrammarBreakdownSection(grammarBreakdown, lang));
     lines.push("");
   }
 
@@ -254,6 +300,7 @@ export function buildTranslationKeyboard(
   interfaceLang?: string,
   msgId?: number,
   isAlreadySaved?: boolean,
+  showGrammarButton?: boolean,
 ): InlineKeyboard {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
@@ -268,6 +315,11 @@ export function buildTranslationKeyboard(
 
   kb.text(t("clarifyTranslation", lang), `tr:clarifypost:${mid}`);
   kb.text(t("otherMeaning", lang), `tr:altmeaning:${mid}`);
+
+  if (showGrammarButton) {
+    kb.row();
+    kb.text(t("grammarBreakdownButton", lang), `tr:grammar:${mid}`);
+  }
 
   return kb;
 }

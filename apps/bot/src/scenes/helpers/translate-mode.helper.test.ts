@@ -249,6 +249,7 @@ describe("handleTranslateText — context enrichment", () => {
       includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: true,
+      includeGrammarBreakdown: false,
     });
   });
 

@@ -92,6 +92,7 @@ export type I18nKey =
   | "templateFieldAlternatives"
   | "templateFieldEquivalentNote"
   | "templateFieldConnotationWarning"
+  | "templateFieldGrammarBreakdown"
   | "templatePreviewHeader"
   | "templateSessionExpired"
   | "cmdDescStart"
@@ -248,7 +249,10 @@ export type I18nKey =
   | "mentorModeOn"
   | "mentorThinking"
   | "mentorError"
-  | "mentorInputTooLong";
+  | "mentorInputTooLong"
+  | "grammarBreakdown"
+  | "grammarBreakdownButton"
+  | "grammarLocked";
 
 /**
  * Supported interface languages.

@@ -18,6 +18,7 @@ describe("DEFAULT_TEMPLATE", () => {
         alternatives: true,
         equivalentNote: false,
         connotationWarning: false,
+        grammarBreakdown: false,
       },
     });
   });
@@ -31,6 +32,7 @@ describe("TEMPLATE_FIELD_KEYS", () => {
       "alternatives",
       "equivalentNote",
       "connotationWarning",
+      "grammarBreakdown",
     ]);
   });
 });
@@ -54,6 +56,7 @@ describe("templateToOutputConfig", () => {
         alternatives: false,
         equivalentNote: true,
         connotationWarning: false,
+        grammarBreakdown: false,
       },
     };
 
@@ -65,6 +68,7 @@ describe("templateToOutputConfig", () => {
       includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: true,
+      includeGrammarBreakdown: false,
     });
   });
 });
@@ -79,6 +83,7 @@ describe("resolveOutputConfig", () => {
         alternatives: true,
         equivalentNote: true,
         connotationWarning: true,
+        grammarBreakdown: true,
       },
     };
 
@@ -105,11 +110,13 @@ describe("resolveOutputConfig", () => {
         alternatives: true,
         equivalentNote: false,
         connotationWarning: true,
+        grammarBreakdown: false,
       },
     };
 
     const expected = templateToOutputConfig(template);
-    expect(resolveOutputConfig(template, "word")).toEqual(expected);
+    // Words always have grammar disabled; phrases respect the template value
+    expect(resolveOutputConfig(template, "word")).toEqual({ ...expected, includeGrammarBreakdown: false });
     expect(resolveOutputConfig(template, "phrase")).toEqual(expected);
   });
 });
@@ -128,6 +135,7 @@ describe("resolveTemplate", () => {
         alternatives: false,
         equivalentNote: true,
         connotationWarning: false,
+        grammarBreakdown: false,
       },
     };
 

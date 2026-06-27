@@ -25,4 +25,6 @@ export interface TranslationOutputConfig {
   includeConnotationWarning?: boolean;
   /** Include native-language synonyms for the source word (shown inline with source). Default: true */
   includeNativeSynonyms?: boolean;
+  /** Include constructional grammar breakdown per target language. Default: false */
+  includeGrammarBreakdown?: boolean;
 }

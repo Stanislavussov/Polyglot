@@ -30,6 +30,8 @@ export function resolveOutputConfig(
   userTemplate: UserTranslationTemplate | null,
   inputContext: InputContext,
   _inputLength?: number,
+  sourceLang?: string,
+  nativeLang?: string,
 ): TranslationOutputConfig {
   // Sentences always use the compact preset — user template doesn't apply
   let config: TranslationOutputConfig;
@@ -38,6 +40,15 @@ export function resolveOutputConfig(
   } else {
     const template = userTemplate ?? DEFAULT_TEMPLATE;
     config = templateToOutputConfig(template);
+  }
+
+  // Grammar breakdown is only inline for phrases — words skip it entirely,
+  // sentences use on-demand only (button callback).
+  // Also skip when source language is user's native language — no need to analyze grammar
+  // of a language the user already knows.
+  const isNativeSource = sourceLang !== undefined && nativeLang !== undefined && sourceLang === nativeLang;
+  if (inputContext !== "phrase" || isNativeSource) {
+    config.includeGrammarBreakdown = false;
   }
 
   return config;

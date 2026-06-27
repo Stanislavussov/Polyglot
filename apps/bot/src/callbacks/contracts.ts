@@ -60,6 +60,15 @@ export const callbackContracts = [
   },
   {
     family: "translation",
+    prefix: "tr:grammar",
+    restartSafety: "session-backed",
+    durableLookupKey: "Telegram message_id",
+    dbSource: "session translationMap",
+    expiryBehavior: "localized stale translation callback",
+    maxExampleData: "tr:grammar:2147483647",
+  },
+  {
+    family: "translation",
     prefix: "tr:mistype",
     restartSafety: "intentionally-ephemeral",
     durableLookupKey: "none",

@@ -199,6 +199,7 @@ describe("handleRegenLoop", () => {
       includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: true,
+      includeGrammarBreakdown: false,
     });
   });
 

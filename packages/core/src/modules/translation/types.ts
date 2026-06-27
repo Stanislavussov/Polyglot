@@ -71,6 +71,8 @@ export interface LanguageTranslation {
   alternatives?: TranslationVariant[] | null;
   /** Optional target-side note about noteworthy connotation, register, or usage risk */
   connotationWarning?: string | null;
+  /** Constructional grammar breakdown — high-level patterns, not token-by-token */
+  grammarBreakdown?: string[] | null;
 }
 
 // TranslationOutputConfig lives in shared/ so leaf modules (topics, etc.)

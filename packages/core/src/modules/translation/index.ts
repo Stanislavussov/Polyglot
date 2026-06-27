@@ -1,5 +1,8 @@
 // Translation service — public API
 
+// Grammar breakdown
+export type { GrammarBreakdownInput } from "./grammar-breakdown.service.js";
+export { generateGrammarBreakdown } from "./grammar-breakdown.service.js";
 export type { PreflightScoringConfig } from "./preflight.config.js";
 export { PREFLIGHT_DEFAULTS } from "./preflight.config.js";
 export type { PreflightResult } from "./preflight.schema.js";

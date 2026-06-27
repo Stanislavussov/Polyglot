@@ -20,6 +20,7 @@ export const FLASHCARD_CONFIG: DictionaryWordConfig = {
       alternatives: true,
       equivalentNote: true,
       connotationWarning: true,
+      grammarBreakdown: false,
     },
     flashcard: { frontSide: "original" },
   },
@@ -38,6 +39,7 @@ export const NOTIFICATION_DICT_CONFIG: DictionaryWordConfig = {
       alternatives: false,
       equivalentNote: false,
       connotationWarning: false,
+      grammarBreakdown: false,
     },
   },
 };
@@ -55,6 +57,7 @@ export const WORD_OF_DAY_DICT_CONFIG: DictionaryWordConfig = {
       alternatives: false,
       equivalentNote: true,
       connotationWarning: true,
+      grammarBreakdown: false,
     },
   },
 };

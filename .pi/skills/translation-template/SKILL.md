@@ -79,6 +79,7 @@ interface TemplateFields {
   alternatives: boolean;
   equivalentNote: boolean;
   connotationWarning: boolean;
+  grammarBreakdown: boolean; // default: false — constructional grammar analysis
 }
 
 interface UserTranslationTemplate {

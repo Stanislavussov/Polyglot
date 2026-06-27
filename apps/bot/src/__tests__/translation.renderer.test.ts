@@ -360,7 +360,14 @@ describe("renderTranslation", () => {
     const result = renderTranslation(
       output,
       "ru",
-      { synonyms: false, examples: false, alternatives: true, equivalentNote: true, connotationWarning: true },
+      {
+        synonyms: false,
+        examples: false,
+        alternatives: true,
+        equivalentNote: true,
+        connotationWarning: true,
+        grammarBreakdown: false,
+      },
       "ru",
     );
 

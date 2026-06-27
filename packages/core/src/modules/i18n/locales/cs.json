@@ -88,6 +88,7 @@
   "templateFieldAlternatives": "Alternativní překlady",
   "templateFieldEquivalentNote": "Typ výrazu",
   "templateFieldConnotationWarning": "Upozornění na konotaci",
+  "templateFieldGrammarBreakdown": "Gramatický rozbor",
   "templatePreviewHeader": "📋 Náhled s vaší šablonou:",
   "templateSessionExpired": "Relace vypršela. Použijte /template pro restart.",
   "cmdDescStart": "Spustit bota / restartovat onboarding",
@@ -245,5 +246,8 @@
   "mentorModeOn": "🧑‍🏫 Režim mentora aktivní! Zeptejte se mě na jakékoli slovo a pomůžu vám se ho naučit — nepřeložím ho jen tak, budu vás provázet.",
   "mentorThinking": "🧠 Přemýšlím...",
   "mentorError": "❌ Chat s mentorem selhal. Zkuste to prosím později.",
-  "mentorInputTooLong": "⚠️ Zkraťte prosím zprávu na maximum {max} znaků."
+  "mentorInputTooLong": "⚠️ Zkraťte prosím zprávu na maximum {max} znaků.",
+  "grammarBreakdown": "📖 Gramatika",
+  "grammarBreakdownButton": "📖 Gramatika",
+  "grammarLocked": "🔒 Dostupné v Premium"
 }
