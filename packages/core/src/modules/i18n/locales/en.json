@@ -249,5 +249,8 @@
   "mentorInputTooLong": "⚠️ Please keep your message under {max} characters.",
   "grammarBreakdown": "📖 Grammar",
   "grammarBreakdownButton": "📖 Grammar",
-  "grammarLocked": "🔒 Available in Premium"
+  "grammarLocked": "🔒 Available in Premium",
+  "grammarDetailButton": "🔬 Details",
+  "grammarDetailLocked": "🔒 Available in Premium",
+  "grammarDetailCancel": "↩️ Back"
 }

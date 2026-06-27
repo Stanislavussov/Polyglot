@@ -355,6 +355,14 @@ packages/core/src/modules/translation/
 - **Schema**: `buildLanguageTranslationSchema()` conditionally includes `grammarBreakdown: z.array(z.string().min(1)).min(1).max(5)` when `config?.includeGrammarBreakdown === true`.
 - **Feature access**: Gated behind `FeatureAccessPort.checkFeatureAccess(userId, "grammarBreakdown")` — stub always grants access.
 
+### Grammar Detail (Second Tier)
+
+- **`grammar-detail.service.ts`**: Detailed grammar explanation for a single language. Takes original text, translation, langCode, nativeLang, and brief breakdown items. Uses `generateText` (free-form), not `generateObject`. Returns plain text.
+- **Flow**: Grammar breakdown visible → "🔬 Подробнее" button → language selection menu → AI generates detailed explanation → separate message.
+- **Only for phrases** — sentences not supported yet.
+- **Callbacks**: `tr:gramdetail:{msgId}` (show lang menu), `tr:gramlang:{langCode}:{msgId}` (generate detail), `tr:gramlang:cancel:{msgId}` (restore keyboard).
+- **Feature access**: Separate key `"grammarDetail"` — allows independent premium gating from basic grammar breakdown.
+
 - AI validation pipeline: `docs/tech-reqs/07-ai-validation.md`
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (translation section)

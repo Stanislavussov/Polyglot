@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Added grammar breakdown feature: per-language constructional grammar analysis for translations. Inline for phrases (when enabled in template), on-demand via button for sentences. Grammar terms stay in the target language, explanations in user's native language. Skipped when translating from native language. Gated behind FeatureAccessPort for future premium integration.
+- Added grammar detail ("Подробнее"): second-tier grammar analysis with detailed explanations, variations, and examples for memorization. Triggered from grammar breakdown via language selection menu. Premium feature gated behind `grammarDetail` feature key. Result sent as separate message.
+- Added grammar breakdown feature: per-language constructional grammar analysis for translations. Inline for phrases (when enabled in template), on-demand via button for sentences. Grammar terms stay in the target language, explanations in user's native language. Gated behind FeatureAccessPort for future premium integration.
 - Added symmetric invariant validation for sentence and technical translations: generated output now fails validation if it introduces unsupported placeholders, URLs, Markdown link targets, dates, or numbers that were not present in the source.
 - Added benchmark model comparison and regression control: stochastic cases run repeatedly, three-or-more-model runs produce a comparison, JSON reports can be used as same-model baselines, and language-pair regressions are tested for statistical significance.
 - Added benchmark-derived translation model routing policy: callers can route low-, medium-, and high-risk generation to different models and pin a semantic judge model while preserving the default single-model behavior.
@@ -90,6 +91,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Generated missing migration `0035_gray_meteorite.sql` to add `grammar_breakdown` to `user_translation_templates`, fixing translation-template lookups against updated bot builds.
 - Translation clarification now shows an actionable Telegram prompt for ambiguous dates, meanings, formats, mixed scripts, and low-confidence source language cases instead of a generic translation error.
 - Source-language clarification buttons now use core-provided candidate languages only; the bot no longer expands them to every language in the user's profile.
 - Translation clarification no longer asks users to choose between ordinary single-word dictionary senses, such as noun/adjective meanings of `patient`, and non-language clarifications no longer show source-language buttons.

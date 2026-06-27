@@ -14,8 +14,10 @@ import {
   evaluatePlanRateLimit,
   evaluateRateLimit,
   generateGrammarBreakdown,
+  generateGrammarDetail,
   getDailyWindowReset,
   getDailyWindowStart,
+  getLangFlag,
   getLanguageName,
   isSupported,
   logger,
@@ -33,6 +35,7 @@ import {
 import { InlineKeyboard } from "grammy";
 import { translationCounter, translationDuration } from "../../metrics.js";
 import {
+  buildGrammarLangKeyboard,
   buildTranslationKeyboard,
   renderSentenceTranslation,
   renderTranslation,
@@ -47,6 +50,22 @@ import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
+
+/** Check if any LanguageTranslation has grammarBreakdown data */
+function hasGrammarBreakdownData(output: TranslateOutput): boolean {
+  return Object.values(output.translations).some((tr) => tr.grammarBreakdown && tr.grammarBreakdown.length > 0);
+}
+
+/** Collect grammarBreakdown from LanguageTranslation blocks into a flat record */
+function collectGrammarBreakdown(output: TranslateOutput): Record<string, string[]> {
+  const result: Record<string, string[]> = {};
+  for (const [code, tr] of Object.entries(output.translations)) {
+    if (tr.grammarBreakdown && tr.grammarBreakdown.length > 0) {
+      result[code] = tr.grammarBreakdown;
+    }
+  }
+  return result;
+}
 
 function normalizeLearningLangs(nativeLang: string, learningLangs: readonly string[]): string[] {
   return learningLangs.filter((code, index) => code !== nativeLang && learningLangs.indexOf(code) === index);
@@ -550,16 +569,30 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       const showGrammarButton =
         classification.type !== "word" &&
         (classification.type === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
-      const keyboard = buildTranslationKeyboard(lang, cardMsg.message_id, isAlreadySaved, showGrammarButton);
+      const hasInlineGrammar =
+        classification.type === "phrase" &&
+        effectiveTemplate.fields.grammarBreakdown &&
+        hasGrammarBreakdownData(output);
+      const keyboard = buildTranslationKeyboard(
+        lang,
+        cardMsg.message_id,
+        isAlreadySaved,
+        showGrammarButton,
+        hasInlineGrammar,
+      );
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
       ctx.session.pendingCardMsgId = cardMsg.message_id;
+
+      // Cache inline grammar breakdown for detail button
+      const inlineBreakdown = hasInlineGrammar ? collectGrammarBreakdown(output) : undefined;
 
       ctx.session.translationMap = ctx.session.translationMap ?? {};
       ctx.session.translationMap[String(cardMsg.message_id)] = {
         output,
         inputType: classification.type,
         contextHint,
+        grammarBreakdown: inlineBreakdown,
       };
     }
   } catch (err) {
@@ -909,12 +942,134 @@ async function reRenderCardWithGrammar(
     ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(entry.output, lang, nativeLang, false, entry.grammarBreakdown)}`
     : renderTranslation(entry.output, lang, effectiveTemplate.fields, nativeLang, false, entry.grammarBreakdown);
 
-  // Remove grammar button since breakdown is now shown
-  const keyboard = buildTranslationKeyboard(lang, msgId);
+  // Replace grammar button with "Details" button for phrases
+  const showDetail = !isSentence;
+  const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, showDetail);
   await ctx.api.editMessageText(ctx.chat!.id, msgId, cardText, {
     reply_markup: keyboard,
     parse_mode: "HTML",
   });
+}
+
+/**
+ * Handles grammar detail callback (tr:gramdetail:{msgId}).
+ * Shows language selection keyboard for detailed grammar explanation.
+ */
+export async function handleGrammarDetailCallback(ctx: BotContext): Promise<void> {
+  const data = ctx.callbackQuery?.data ?? "";
+  const msgId = parseInt(data.split(":")[2] ?? "0", 10);
+  const entry = ctx.session.translationMap?.[String(msgId)];
+
+  if (!entry?.grammarBreakdown) {
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
+    return;
+  }
+
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+
+  // Check feature access
+  const featureAccess = ctx.services.featureAccess ?? defaultFeatureAccess;
+  const access = await featureAccess.checkFeatureAccess(ctx.user.id, "grammarDetail");
+  if (!access.hasAccess) {
+    await ctx.answerCallbackQuery({
+      text: t("grammarDetailLocked", lang),
+      show_alert: true,
+    });
+    return;
+  }
+
+  // Show language selection keyboard
+  const langCodes = Object.keys(entry.grammarBreakdown).filter((code) => entry.grammarBreakdown![code]!.length > 0);
+
+  const langKeyboard = buildGrammarLangKeyboard(langCodes, lang, msgId);
+  await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: langKeyboard });
+  await ctx.answerCallbackQuery();
+}
+
+/**
+ * Handles grammar language selection callback (tr:gramlang:{langCode}:{msgId}).
+ * Generates detailed grammar explanation for the selected language.
+ */
+export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<void> {
+  const data = ctx.callbackQuery?.data ?? "";
+  const parts = data.split(":");
+  const langCodeOrCancel = parts[2] ?? "";
+  const msgId = parseInt(parts[3] ?? "0", 10);
+
+  const entry = ctx.session.translationMap?.[String(msgId)];
+  if (!entry) {
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
+    return;
+  }
+
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
+
+  // Cancel — restore normal keyboard with detail button
+  if (langCodeOrCancel === "cancel") {
+    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
+    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
+    await ctx.answerCallbackQuery();
+    return;
+  }
+
+  // Language selected — generate detailed grammar
+  const langCode = langCodeOrCancel;
+  const translation = entry.output.translations[langCode];
+  const breakdown = entry.grammarBreakdown?.[langCode];
+
+  if (!translation || !breakdown || breakdown.length === 0) {
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Grammar data not available for this language.",
+      show_alert: true,
+    });
+    return;
+  }
+
+  await ctx.answerCallbackQuery();
+
+  try {
+    const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
+
+    const detailText = await generateGrammarDetail(
+      {
+        originalText: entry.output.original,
+        translation: translation.text,
+        langCode,
+        nativeLang,
+        grammarBreakdown: breakdown,
+      },
+      ctx.services.ai.generateText,
+      model,
+      ctx.user.id,
+    );
+
+    // Send as separate message
+    const flag = getLangFlag(langCode) ?? "🔤";
+    const header = `🔬 <b>${flag} ${langCode.toUpperCase()}: "${escapeHtml(translation.text)}"</b>\n\n`;
+    await ctx.reply(header + escapeHtml(detailText), { parse_mode: "HTML" });
+
+    // Restore keyboard with detail button
+    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
+    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
+  } catch (err) {
+    logger.error({ err, word: entry.output.original, langCode }, "Grammar detail generation failed");
+  }
+}
+
+/** Escape HTML for safe Telegram rendering */
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /**

@@ -252,7 +252,10 @@ export type I18nKey =
   | "mentorInputTooLong"
   | "grammarBreakdown"
   | "grammarBreakdownButton"
-  | "grammarLocked";
+  | "grammarLocked"
+  | "grammarDetailButton"
+  | "grammarDetailLocked"
+  | "grammarDetailCancel";
 
 /**
  * Supported interface languages.
