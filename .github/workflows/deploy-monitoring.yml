@@ -24,6 +24,7 @@ jobs:
           target: "/opt/monitoring"
           strip_components: 2
           overwrite: true
+          debug: true
 
       - name: Start monitoring stack
         uses: appleboy/ssh-action@v1.0.3
