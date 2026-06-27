@@ -1,0 +1,45 @@
+name: Deploy Monitoring
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "deploy/monitoring/**"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy monitoring configs to VPS
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "deploy/monitoring/"
+          target: "/opt/monitoring"
+          strip_components: 2
+          overwrite: true
+
+      - name: Start monitoring stack
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/monitoring
+
+            docker network create polyglot-network 2>/dev/null || true
+
+            export GF_SECURITY_ADMIN_PASSWORD="${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}"
+
+            docker compose -f docker-compose.monitoring.yml pull
+
+            docker compose -f docker-compose.monitoring.yml up -d --remove-orphans
+
+            docker image prune -f

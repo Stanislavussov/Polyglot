@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added observability stack: Prometheus, Grafana, Loki, Promtail, node-exporter, cAdvisor. Includes 4 provisioned Grafana dashboards (host, Docker containers, bot application metrics, logs), 14-day data retention, memory limits on all containers, and a separate GitHub Actions deploy workflow. Grafana accessible at `grafana.polyglot.monster` with nginx reverse proxy and TLS via certbot.
 - Added grammar detail ("Подробнее"): second-tier grammar analysis with detailed explanations, variations, and examples for memorization. Triggered from grammar breakdown via language selection menu. Premium feature gated behind `grammarDetail` feature key. Result sent as separate message.
 - Added grammar breakdown feature: per-language constructional grammar analysis for translations. Inline for phrases (when enabled in template), on-demand via button for sentences. Grammar terms stay in the target language, explanations in user's native language. Gated behind FeatureAccessPort for future premium integration.
 - Added symmetric invariant validation for sentence and technical translations: generated output now fails validation if it introduces unsupported placeholders, URLs, Markdown link targets, dates, or numbers that were not present in the source.
