@@ -183,8 +183,9 @@ export type I18nKey =
   | "notifWordFromDict"
   | "notifAiSuggested"
   | "notifTranslations"
-  | "notifOpenDict"
-  | "notifSkip"
+  | "notifReveal"
+  | "notifLearned"
+  | "notifRemoved"
   | "notifTypeSrs"
   | "notifTypeSuggested"
   | "notifTypeBoth"
@@ -308,6 +309,7 @@ export interface I18nParams {
   settingsNotifContext: { context: string };
   settingsNotifContextPrompt: { current: string };
   settingsNotifContextSaved: { context: string };
+  notifRemoved: { word: string };
   mistypeWarning: { word: string };
   langSelectPrompt: { word: string };
 }

@@ -31,6 +31,8 @@ export interface SuggestedWord {
   source?: NotificationType;
   /** Wiktionary dictionary context for the suggested word (if available). */
   dictionaryContext?: DictionaryContext;
+  /** Vocabulary entry ID (for reveal/delete actions in notifications). */
+  entryId?: number;
 }
 
 /** Brief translation context for notification display. */

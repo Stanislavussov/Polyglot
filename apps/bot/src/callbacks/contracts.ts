@@ -197,10 +197,10 @@ export const callbackContracts = [
     family: "notification",
     prefix: "notif",
     restartSafety: "stateless-restorable",
-    durableLookupKey: "notification action",
-    dbSource: "notification history where applicable",
+    durableLookupKey: "vocabulary entry id",
+    dbSource: "vocabulary entries + notification history",
     expiryBehavior: "answer callback and remove stale keyboard when possible",
-    maxExampleData: "notif:open",
+    maxExampleData: "notif:reveal:123",
   },
 ] as const satisfies readonly CallbackContract[];
 

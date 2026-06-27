@@ -57,7 +57,7 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
       }
     }
 
-    const kb = buildNotificationKeyboard(lang);
+    const kb = buildNotificationKeyboard(lang, payload.word.entryId);
     const message = formatNotificationMessage(payload, lang);
     await api.sendMessage(telegramId, message, {
       parse_mode: "HTML",
