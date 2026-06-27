@@ -3,6 +3,8 @@
 export type { AIModel, AIPort, ChatMessage, ChatOptions, GenerateOptions } from "./ports/ai.port.js";
 // Ports — service container for dependency injection
 export type { ServiceContainer } from "./ports/container.js";
+export type { FeatureAccessPort, FeatureAccessResult } from "./ports/feature-access.port.js";
+export { defaultFeatureAccess } from "./ports/feature-access.port.js";
 export type { CachedLanguage, LanguageCachePort } from "./ports/language-cache.port.js";
 export type {
   NotificationType,

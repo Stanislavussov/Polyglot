@@ -24,11 +24,6 @@ function toLang(lang?: string): SupportedLang {
   return lang && isSupported(lang) ? lang : "en";
 }
 
-function regenButtonLabel(code: string): string {
-  const flag = getLangFlag(code) ?? "🔤";
-  return `🔄 ${flag}`;
-}
-
 function renderNativeMeaningLine(nativeLang: string | undefined, nativeMeaning: string | undefined): string | null {
   if (!nativeMeaning) return null;
   if (!nativeLang) return esc(nativeMeaning);
@@ -58,6 +53,7 @@ function renderSourceUsageBlock(
   const nativeTranslation = nativeLang ? output.translations[nativeLang] : undefined;
 
   if (nativeTranslation && nativeLang) {
+    lines.push("");
     const nativeFlag = getLangFlag(nativeLang) ?? "🔤";
     const nativeLabel = `${nativeFlag} ${esc(nativeLang.toUpperCase())}`;
     const showNativeSyns = fields?.synonyms !== false && nativeTranslation.synonyms.length > 0;
@@ -68,12 +64,14 @@ function renderSourceUsageBlock(
       lines.push(`💡 ${esc(usage.explanation)}`);
     }
   } else if (usage.explanation) {
+    lines.push("");
     const nativeFlag = nativeLang ? (getLangFlag(nativeLang) ?? "🔤") : "🔤";
     const label = nativeLang ? `${nativeFlag} ${esc(nativeLang.toUpperCase())}` : nativeFlag;
     lines.push(`${label}: ${esc(usage.explanation)}`);
   }
 
   if (fields?.examples !== false && usage.examples.length > 0) {
+    lines.push("");
     for (const ex of usage.examples) {
       const native = ex.native ? ` (${esc(ex.native)})` : "";
       lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
@@ -99,6 +97,7 @@ export function renderTranslation(
   templateFields?: TemplateFields,
   nativeLang?: string,
   needsReview?: boolean,
+  grammarBreakdown?: Record<string, string[]>,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
@@ -107,10 +106,11 @@ export function renderTranslation(
 
   const showNativeSyns = !hideSourceText && templateFields?.synonyms !== false && output.nativeSynonyms.length > 0;
   const nativeSyns = showNativeSyns ? ` (${output.nativeSynonyms.map((s) => esc(s.text)).join(", ")})` : "";
+  const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
   if (sourceUsageLines.length > 0) {
     lines.push(...sourceUsageLines);
   } else if (!hideSourceText) {
-    lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
+    lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(output.original)}</b>${nativeSyns}`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
@@ -126,11 +126,50 @@ export function renderTranslation(
     lines.push("");
   }
 
+  // Grammar breakdown section — inline from AI response or cached on-demand
+  const gbData = grammarBreakdown ?? collectInlineGrammarBreakdown(output);
+  if (gbData && Object.keys(gbData).length > 0 && templateFields?.grammarBreakdown !== false) {
+    lines.push(renderGrammarBreakdownSection(gbData, lang));
+    lines.push("");
+  }
+
   if (needsReview) {
     lines.push(esc(t("translationNeedsReview", lang)));
   }
 
   return lines.join("\n").trim();
+}
+
+/** Collect inline grammarBreakdown from LanguageTranslation blocks (when included in AI response) */
+function collectInlineGrammarBreakdown(output: TranslateOutput): Record<string, string[]> | null {
+  const result: Record<string, string[]> = {};
+  let hasAny = false;
+  for (const [code, translation] of Object.entries(output.translations)) {
+    if (translation.grammarBreakdown && translation.grammarBreakdown.length > 0) {
+      result[code] = translation.grammarBreakdown;
+      hasAny = true;
+    }
+  }
+  return hasAny ? result : null;
+}
+
+/** Render grammar breakdown section */
+function renderGrammarBreakdownSection(breakdown: Record<string, string[]>, lang: SupportedLang): string {
+  const lines: string[] = [];
+  lines.push(`<b>${esc(t("grammarBreakdown", lang))}</b>`);
+  const langCodes = Object.keys(breakdown);
+  for (const code of langCodes) {
+    const items = breakdown[code];
+    if (!items || items.length === 0) continue;
+    if (langCodes.length > 1) {
+      const flag = getLangFlag(code) ?? "🔤";
+      lines.push(`${flag} ${esc(code.toUpperCase())}:`);
+    }
+    for (const item of items) {
+      lines.push(`  • ${esc(item)}`);
+    }
+  }
+  return lines.join("\n");
 }
 
 /** Render a single language translation block */
@@ -206,13 +245,15 @@ export function renderSentenceTranslation(
   interfaceLang?: string,
   nativeLang?: string,
   needsReview?: boolean,
+  grammarBreakdown?: Record<string, string[]>,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);
 
+  const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
   if (!hideSourceText) {
-    lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
+    lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(output.original)}</b>`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
@@ -224,6 +265,11 @@ export function renderSentenceTranslation(
   for (const [code, translation] of Object.entries(output.translations)) {
     if (hideSourceText && code === output.sourceLang) continue;
     lines.push(renderSentenceLangBlock(code, translation));
+    lines.push("");
+  }
+
+  if (grammarBreakdown && Object.keys(grammarBreakdown).length > 0) {
+    lines.push(renderGrammarBreakdownSection(grammarBreakdown, lang));
     lines.push("");
   }
 
@@ -242,68 +288,37 @@ function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string 
 }
 
 /**
- * Build inline keyboard for sentence translations.
- * Only regenerate buttons — no Save/Skip (sentences aren't saved to dictionary).
- */
-export function buildSentenceKeyboard(langCodes: string[], _interfaceLang?: string, msgId?: number): InlineKeyboard {
-  const kb = new InlineKeyboard();
-  const mid = msgId ?? 0;
-
-  for (const code of langCodes) {
-    kb.text(regenButtonLabel(code), `tr:regen:${code}:${mid}`);
-  }
-
-  return kb;
-}
-
-/**
- * Build inline keyboard with per-language regenerate buttons + save/skip.
- * Each regenerate button has callback data "tr:regen:<langCode>:<msgId>".
- * Save/skip buttons include msgId: "tr:save:<msgId>" / "tr:skip:<msgId>".
+ * Build unified inline keyboard for translation results.
  *
- * When `isAlreadySaved` is true, the Save button is shown as disabled
- * (still uses tr:save callback so handleSaveCallback can answer with
- * alreadySaved popup if the user somehow clicks it).
+ * Layout:
+ * Row 1: Save button
+ * Row 2: Clarify + Other meaning
+ *
+ * Used for all input types (words, phrases, sentences).
  */
 export function buildTranslationKeyboard(
-  langCodes: string[],
-  // biome-ignore lint/correctness/noUnusedFunctionParameters: <temp fix>
-  inputType: "word" | "phrase" | "sentence",
   interfaceLang?: string,
   msgId?: number,
   isAlreadySaved?: boolean,
+  showGrammarButton?: boolean,
 ): InlineKeyboard {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
 
-  // Row 1: regenerate buttons (one per language)
-  for (const code of langCodes) {
-    kb.text(regenButtonLabel(code), `tr:regen:${code}:${mid}`);
-  }
-  kb.row();
-
-  // Row 2: save / skip
   if (isAlreadySaved) {
     kb.text(t("alreadySavedButton", lang), `tr:save:${mid}`);
   } else {
     kb.text(t("save", lang), `tr:save:${mid}`);
   }
-  kb.text(t("no", lang), `tr:skip:${mid}`);
+  kb.row();
 
-  return kb;
-}
+  kb.text(t("clarifyTranslation", lang), `tr:clarifypost:${mid}`);
+  kb.text(t("otherMeaning", lang), `tr:altmeaning:${mid}`);
 
-/**
- * Build inline keyboard for post-save state — regen buttons only, no Save/Skip.
- * Used after a word/phrase has been saved to the dictionary.
- */
-export function buildPostSaveKeyboard(langCodes: string[], _interfaceLang?: string, msgId?: number): InlineKeyboard {
-  const kb = new InlineKeyboard();
-  const mid = msgId ?? 0;
-
-  for (const code of langCodes) {
-    kb.text(regenButtonLabel(code), `tr:regen:${code}:${mid}`);
+  if (showGrammarButton) {
+    kb.row();
+    kb.text(t("grammarBreakdownButton", lang), `tr:grammar:${mid}`);
   }
 
   return kb;

@@ -21,6 +21,7 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
     includeUsageNote: config?.includeUsageNote !== false,
     includeConnotationWarning: config?.includeConnotationWarning !== false,
     includeNativeSynonyms: config?.includeNativeSynonyms !== false,
+    includeGrammarBreakdown: config?.includeGrammarBreakdown === true,
   };
 }
 
@@ -36,6 +37,9 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   const isSentence = inputType === "sentence";
 
   const topicHint = topic ? buildTopicHint(topic, isSentence, cfg) : "";
+  const negativeHint = request.negativeConstraints
+    ? buildNegativeConstraintHint(request.negativeConstraints, isSentence)
+    : "";
 
   const dictionaryHint = dictionaryContext ? buildDictionaryHint(dictionaryContext, cfg) : "";
 
@@ -78,8 +82,11 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
       `sourceUsage: usage guidance for "${text}" with explanation in ${nativeLangName ?? "the user's native language"}`,
     );
   }
+  if (cfg.includeGrammarBreakdown) {
+    requestedFields.push("grammarBreakdown: 2-3 constructional grammar patterns");
+  }
 
-  return `${intro}${topicHint}${dictionaryHint}
+  return `${intro}${topicHint}${negativeHint}${dictionaryHint}
 
 Return ONLY valid JSON matching the provided schema. No markdown, no explanation, no code fences.
 For each target language (${targetLangs.join(", ")}), provide: ${requestedFields.join("; ")}.
@@ -158,6 +165,17 @@ Rules:${
 - Every target language block MUST include "usageNote" written in ${nativeLangName}. Explain ordinary nuance, register, natural usage, and important differences from nearby alternatives. This is regular learner guidance, not a warning.`
       : ""
   }${cfg.includeConnotationWarning ? buildConnotationRule(nativeLangName, isNativeSource, sourceLangName) : ""}
+${
+  cfg.includeGrammarBreakdown && nativeLangName
+    ? `
+- For each target language, include "grammarBreakdown": an array of 2-3 high-level grammatical CONSTRUCTIONS or PATTERNS used in the translation. NEVER list individual words with their parts of speech — that is NOT what this field is for.
+  * Describe grammatical constructions: tense, mood, case usage, clause structure, word order patterns.
+  * Grammar terms (e.g. Akkusativ, Konjunktiv II, Partizip II, Subjuntivo) must stay in the target language.
+  * Explanations must be written in ${nativeLangName}.
+  * Good examples: "auf + Akkusativ — направление движения", "hätte + Partizip II — Konjunktiv II, нереальное действие в прошлом", "Präsens — настоящее время для описания факта".
+  * Bad examples (NEVER do this): "Er — подлежащее", "ist — глагол", "Schurke — существительное". This is a word-by-word breakdown and is strictly forbidden.`
+    : ""
+}
 - Do not include pronunciation, IPA, romanization, or transliteration in any field.
 - Return ONLY the JSON object. No additional text before or after.${
     cfg.includeEquivalentNote
@@ -228,6 +246,11 @@ export function buildStrictPrompt(request: TranslationRequest, errors: string[])
   if (cfg.includeConnotationWarning) {
     checkItems.push(buildConnotationCheck(nativeLangName, request.sourceLang === request.nativeLang));
   }
+  if (cfg.includeGrammarBreakdown) {
+    checkItems.push(
+      "- Each target block has grammarBreakdown with 2-3 constructional grammar patterns, with grammar terms in the target language and explanations in the user's native language",
+    );
+  }
 
   return `${base}
 
@@ -265,6 +288,23 @@ function buildTopicHint(topic: string, isSentence: boolean, config: Required<Tra
     );
   }
 
+  return `\n${lines.join("\n")}`;
+}
+
+function buildNegativeConstraintHint(constraints: Record<string, string[]>, isSentence: boolean): string {
+  const unit = isSentence ? "sentence" : "word";
+  const lines = [
+    "",
+    "IMPORTANT - Alternative Translation Constraint:",
+    `The user wants a DIFFERENT meaning/interpretation of this ${unit}. The following translations have already been shown and MUST NOT be repeated:`,
+  ];
+  for (const [lang, translations] of Object.entries(constraints)) {
+    lines.push(`  ${lang.toUpperCase()}: ${translations.map((t) => `"${t}"`).join(", ")}`);
+  }
+  lines.push(
+    "Choose a genuinely different sense, connotation, register, or interpretation.",
+    "If no substantially different meaning exists, provide the closest alternative with different nuance.",
+  );
   return `\n${lines.join("\n")}`;
 }
 

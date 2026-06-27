@@ -9,7 +9,7 @@ import { telegramMessagesCounter } from "./metrics.js";
 import { authMiddleware } from "./middlewares/auth.js";
 import { conversationAuthPlugin } from "./middlewares/conversation-auth.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
-import { handleNotifOpenCallback, handleNotifSkipCallback } from "./notifications/notification.callbacks.js";
+import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notifications/notification.callbacks.js";
 import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
 import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
 import {
@@ -77,6 +77,9 @@ import {
   handleToggleCallback,
 } from "./scenes/helpers/template.helper.js";
 import {
+  handleAltMeaningCallback,
+  handleClarifyPostCallback,
+  handleGrammarBreakdownCallback,
   handleLangSelectCallback,
   handleMistypeCancelCallback,
   handleMistypeConfirmCallback,
@@ -220,12 +223,15 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery("set:back", handleSetBackCallback);
   bot.callbackQuery("set:close", handleSetCloseCallback);
 
-  bot.callbackQuery("notif:open", handleNotifOpenCallback);
-  bot.callbackQuery("notif:skip", handleNotifSkipCallback);
+  bot.callbackQuery(/^notif:reveal:/, handleNotifRevealCallback);
+  bot.callbackQuery(/^notif:learned:/, handleNotifLearnedCallback);
 
   bot.callbackQuery(/^tr:save:/, handleSaveCallback);
   bot.callbackQuery(/^tr:skip:/, handleSkipCallback);
   bot.callbackQuery(/^tr:regen:/, handleRegenCallback);
+  bot.callbackQuery(/^tr:clarifypost:/, handleClarifyPostCallback);
+  bot.callbackQuery(/^tr:altmeaning:/, handleAltMeaningCallback);
+  bot.callbackQuery(/^tr:grammar:/, handleGrammarBreakdownCallback);
   bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);
   bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
   bot.callbackQuery(/^tr:langselect:/, handleLangSelectCallback);

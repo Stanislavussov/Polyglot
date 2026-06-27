@@ -71,6 +71,8 @@ export interface LanguageTranslation {
   alternatives?: TranslationVariant[] | null;
   /** Optional target-side note about noteworthy connotation, register, or usage risk */
   connotationWarning?: string | null;
+  /** Constructional grammar breakdown — high-level patterns, not token-by-token */
+  grammarBreakdown?: string[] | null;
 }
 
 // TranslationOutputConfig lives in shared/ so leaf modules (topics, etc.)
@@ -120,6 +122,8 @@ export interface TranslationRequest {
   outputConfig?: TranslationOutputConfig;
   /** Classified input type — drives prompt, schema, and validation behavior */
   inputType?: InputType;
+  /** Previous translations to avoid — for "other meaning" regeneration */
+  negativeConstraints?: Record<string, string[]>;
 }
 
 /**
@@ -156,6 +160,8 @@ export interface TranslateInput {
   interfaceLang?: string;
   /** Optional benchmark-derived routing policy for generation and judge models */
   modelRouting?: TranslationModelRoutingPolicy;
+  /** Previous translations to avoid — for "other meaning" regeneration */
+  negativeConstraints?: Record<string, string[]>;
 }
 
 /** Output from translate() — enriched TranslationResult with metadata */

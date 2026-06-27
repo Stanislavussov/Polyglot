@@ -15,7 +15,11 @@ vi.mock("@polyglot/core", async () => {
 });
 
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
-import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
+import {
+  buildNotificationKeyboard,
+  buildNotificationRevealedKeyboard,
+  formatNotificationMessage,
+} from "./notification.formatter.js";
 
 describe("formatNotificationMessage", () => {
   const srsPayload: NotificationPayload = {
@@ -26,6 +30,7 @@ describe("formatNotificationMessage", () => {
       nativeMeaning: "A building where people live.",
       translations: { cs: "dům", ru: "дом" },
       source: "srs",
+      entryId: 42,
     },
     message: "pre-built message",
   };
@@ -48,13 +53,11 @@ describe("formatNotificationMessage", () => {
 
   it("shows SRS source label for dictionary words", () => {
     const msg = formatNotificationMessage(srsPayload, "en");
-    // The translated value contains "dictionary" or "From your dict"
     expect(msg).toMatch(/dictionary|dict/i);
   });
 
   it("shows AI source label for suggested words", () => {
     const msg = formatNotificationMessage(suggestedPayload, "en");
-    // The translated value contains "AI" or "suggestion"
     expect(msg).toMatch(/AI|suggestion/i);
   });
 
@@ -151,23 +154,38 @@ describe("formatNotificationMessage", () => {
 
   it("includes translations header from i18n", () => {
     const msg = formatNotificationMessage(srsPayload, "en");
-    // The translations header should be present (check for "Translations" or similar)
     expect(msg).toMatch(/translation/i);
   });
 });
 
 describe("buildNotificationKeyboard", () => {
-  it("creates keyboard with Open dictionary and Skip buttons", () => {
-    const kb = buildNotificationKeyboard("en");
+  it("creates keyboard with Reveal and Learned buttons when entryId provided", () => {
+    const kb = buildNotificationKeyboard("en", 42);
     const buttons = kb.inline_keyboard.flat();
     const cbData = buttons.map((b) => ("callback_data" in b ? b.callback_data : undefined));
-    expect(cbData).toContain("notif:open");
-    expect(cbData).toContain("notif:skip");
+    expect(cbData).toContain("notif:reveal:42");
+    expect(cbData).toContain("notif:learned:42");
   });
 
-  it("has exactly 2 buttons", () => {
-    const kb = buildNotificationKeyboard("en");
+  it("has exactly 2 buttons when entryId provided", () => {
+    const kb = buildNotificationKeyboard("en", 42);
     const buttons = kb.inline_keyboard.flat();
     expect(buttons).toHaveLength(2);
+  });
+
+  it("returns empty keyboard when no entryId", () => {
+    const kb = buildNotificationKeyboard("en");
+    const buttons = kb.inline_keyboard.flat();
+    expect(buttons).toHaveLength(0);
+  });
+});
+
+describe("buildNotificationRevealedKeyboard", () => {
+  it("creates keyboard with only Learned button", () => {
+    const kb = buildNotificationRevealedKeyboard("en", 42);
+    const buttons = kb.inline_keyboard.flat();
+    expect(buttons).toHaveLength(1);
+    const cbData = buttons.map((b) => ("callback_data" in b ? b.callback_data : undefined));
+    expect(cbData).toContain("notif:learned:42");
   });
 });

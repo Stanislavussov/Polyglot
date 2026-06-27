@@ -132,8 +132,8 @@ describe("handleCustomizeCallback", () => {
     expect(ctx.editMessageText).toHaveBeenCalledTimes(1);
     const opts = ctx.editMessageText.mock.calls[0][1];
     const buttons = opts.reply_markup.inline_keyboard.flat();
-    // 5 field toggle buttons + 3 action buttons
-    expect(buttons.length).toBe(8);
+    // 6 field toggle buttons + 3 action buttons
+    expect(buttons.length).toBe(9);
   });
 });
 

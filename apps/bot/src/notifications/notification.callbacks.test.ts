@@ -1,5 +1,5 @@
 /**
- * Tests for notification callback handlers (notif:open, notif:skip).
+ * Tests for notification callback handlers (notif:reveal, notif:learned).
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,25 +7,42 @@ vi.mock("@polyglot/infra", () => ({
   logger: { debug: vi.fn(), error: vi.fn(), info: vi.fn(), warn: vi.fn() },
 }));
 
-vi.mock("../scenes/dictionary.scene.js", () => ({
-  handleDictionaryCommand: vi.fn().mockResolvedValue(undefined),
+vi.mock("@polyglot/adapter-db", () => ({
+  getAllLangs: () => [
+    { id: 1, code: "en" },
+    { id: 2, code: "cs" },
+    { id: 3, code: "ru" },
+  ],
+  vocabularyRepository: {
+    findById: vi.fn(),
+    delete: vi.fn().mockResolvedValue(undefined),
+  },
+  userRepository: {
+    getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
+  },
 }));
 
-import { handleDictionaryCommand } from "../scenes/dictionary.scene.js";
-import { handleNotifOpenCallback, handleNotifSkipCallback } from "./notification.callbacks.js";
+vi.mock("../renderers/dictionary.renderer.js", () => ({
+  renderDictionaryEntry: vi.fn().mockReturnValue("<b>apple</b>\n🇷🇺 RU: <b>яблоко</b>"),
+}));
 
-function createMockCtx() {
+vi.mock("./notification.formatter.js", () => ({
+  buildNotificationRevealedKeyboard: vi.fn().mockReturnValue({
+    inline_keyboard: [[{ text: "✅ Learned — remove", callback_data: "notif:learned:42" }]],
+  }),
+}));
+
+import { vocabularyRepository } from "@polyglot/adapter-db";
+import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notification.callbacks.js";
+
+function createMockCtx(callbackData: string) {
   return {
     user: { id: 1 },
     from: { id: 12345 },
-    api: {
-      sendMessage: vi.fn().mockResolvedValue({}),
-    },
-    callbackQuery: { data: "", message: { message_id: 100 } },
+    callbackQuery: { data: callbackData, message: { message_id: 100 } },
+    editMessageText: vi.fn().mockResolvedValue({}),
     editMessageReplyMarkup: vi.fn().mockResolvedValue({}),
     answerCallbackQuery: vi.fn().mockResolvedValue({}),
-    reply: vi.fn().mockResolvedValue({ message_id: 200 }),
-    session: {},
   } as any;
 }
 
@@ -33,58 +50,74 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("handleNotifOpenCallback", () => {
-  it("removes keyboard and calls handleDictionaryCommand directly", async () => {
-    const ctx = createMockCtx();
+describe("handleNotifRevealCallback", () => {
+  it("renders full dictionary entry and updates message", async () => {
+    const ctx = createMockCtx("notif:reveal:42");
+    vi.mocked(vocabularyRepository.findById).mockResolvedValue({
+      id: 42,
+      userId: 1,
+      original: "apple",
+      emoji: "🍎",
+      nativeMeaning: null,
+      sourceLangId: 1,
+      inputType: "word",
+      isActive: true,
+      sourceUsage: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      translations: [],
+    } as any);
 
-    await handleNotifOpenCallback(ctx);
+    await handleNotifRevealCallback(ctx);
 
+    expect(vocabularyRepository.findById).toHaveBeenCalledWith(42);
+    expect(ctx.editMessageText).toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+  });
+
+  it("handles missing entry gracefully", async () => {
+    const ctx = createMockCtx("notif:reveal:999");
+    vi.mocked(vocabularyRepository.findById).mockResolvedValue(null);
+
+    await handleNotifRevealCallback(ctx);
+
+    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
     expect(ctx.editMessageReplyMarkup).toHaveBeenCalledWith({
       reply_markup: { inline_keyboard: [] },
     });
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-    expect(handleDictionaryCommand).toHaveBeenCalledWith(ctx);
-    expect(ctx.api.sendMessage).not.toHaveBeenCalled();
   });
 
-  it("handles editMessageReplyMarkup error gracefully", async () => {
-    const ctx = createMockCtx();
-    ctx.editMessageReplyMarkup.mockRejectedValue(new Error("too old"));
+  it("handles invalid entryId gracefully", async () => {
+    const ctx = createMockCtx("notif:reveal:");
 
-    await handleNotifOpenCallback(ctx);
-
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-    expect(handleDictionaryCommand).toHaveBeenCalledWith(ctx);
-  });
-
-  it("handles handleDictionaryCommand error gracefully", async () => {
-    const ctx = createMockCtx();
-    vi.mocked(handleDictionaryCommand).mockRejectedValueOnce(new Error("db error"));
-
-    await handleNotifOpenCallback(ctx);
+    await handleNotifRevealCallback(ctx);
 
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+    expect(vocabularyRepository.findById).not.toHaveBeenCalled();
   });
 });
 
-describe("handleNotifSkipCallback", () => {
-  it("removes keyboard and answers callback", async () => {
-    const ctx = createMockCtx();
+describe("handleNotifLearnedCallback", () => {
+  it("soft-deletes entry and shows confirmation", async () => {
+    const ctx = createMockCtx("notif:learned:42");
+    vi.mocked(vocabularyRepository.findById).mockResolvedValue({
+      id: 42,
+      original: "apple",
+    } as any);
 
-    await handleNotifSkipCallback(ctx);
+    await handleNotifLearnedCallback(ctx);
 
-    expect(ctx.editMessageReplyMarkup).toHaveBeenCalledWith({
-      reply_markup: { inline_keyboard: [] },
-    });
+    expect(vocabularyRepository.delete).toHaveBeenCalledWith(42);
+    expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
   });
 
-  it("handles editMessageReplyMarkup error gracefully", async () => {
-    const ctx = createMockCtx();
-    ctx.editMessageReplyMarkup.mockRejectedValue(new Error("too old"));
+  it("handles invalid entryId gracefully", async () => {
+    const ctx = createMockCtx("notif:learned:");
 
-    await handleNotifSkipCallback(ctx);
+    await handleNotifLearnedCallback(ctx);
 
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+    expect(vocabularyRepository.delete).not.toHaveBeenCalled();
   });
 });

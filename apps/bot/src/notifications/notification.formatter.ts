@@ -53,14 +53,31 @@ export function formatNotificationMessage(payload: NotificationPayload, lang: Su
 }
 
 /**
- * Build the inline keyboard for a notification message.
+ * Build the inline keyboard for a notification message (initial state).
  *
  * Buttons:
- * - "📖 Open dictionary" → notif:open
- * - "⏭ Skip" → notif:skip
+ * - "🔍 Reveal" → notif:reveal:{entryId}
+ * - "✅ Learned — remove" → notif:learned:{entryId}
  */
-export function buildNotificationKeyboard(lang: SupportedLang): InlineKeyboard {
-  return new InlineKeyboard().text(t("notifOpenDict", lang), "notif:open").text(t("notifSkip", lang), "notif:skip");
+export function buildNotificationKeyboard(lang: SupportedLang, entryId?: number): InlineKeyboard {
+  if (entryId == null) {
+    // Contextual/AI notifications without a dictionary entry — no actions
+    return new InlineKeyboard();
+  }
+  return new InlineKeyboard()
+    .text(t("notifReveal", lang), `notif:reveal:${entryId}`)
+    .row()
+    .text(t("notifLearned", lang), `notif:learned:${entryId}`);
+}
+
+/**
+ * Build the inline keyboard for a revealed notification (after "Reveal" tap).
+ *
+ * Buttons:
+ * - "✅ Learned — remove" → notif:learned:{entryId}
+ */
+export function buildNotificationRevealedKeyboard(lang: SupportedLang, entryId: number): InlineKeyboard {
+  return new InlineKeyboard().text(t("notifLearned", lang), `notif:learned:${entryId}`);
 }
 
 /** Escape HTML entities in user/AI content */

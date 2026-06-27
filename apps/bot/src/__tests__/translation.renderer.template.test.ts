@@ -52,6 +52,7 @@ const allTrue: TemplateFields = {
   alternatives: true,
   equivalentNote: true,
   connotationWarning: true,
+  grammarBreakdown: false,
 };
 
 /** All fields disabled */
@@ -61,6 +62,7 @@ const allFalse: TemplateFields = {
   alternatives: false,
   equivalentNote: false,
   connotationWarning: false,
+  grammarBreakdown: false,
 };
 
 describe("renderTranslation — template-aware (Task 32)", () => {
@@ -115,7 +117,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
 
   it("renders only emoji, word, and bare translation when all fields false", () => {
     const result = renderTranslation(sampleOutput, "en", allFalse);
-    expect(result).toContain("👋 <b>hello</b>");
+    expect(result).toContain("👋 🇬🇧 <b>hello</b>");
     expect(result).toContain("🇨🇿 CS: <b>ahoj</b>");
     // No optional sections
     expect(result).not.toContain("[ˈahoj]");
@@ -137,6 +139,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
       alternatives: false,
       equivalentNote: true,
       connotationWarning: false,
+      grammarBreakdown: false,
     };
     const result = renderTranslation(sampleOutput, "en", fields);
     expect(result).not.toContain("(dobrý den");

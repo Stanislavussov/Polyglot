@@ -2,6 +2,7 @@
  * Service Container — aggregates all port interfaces into a single DI container.
  */
 import type { AIPort } from "./ai.port.js";
+import type { FeatureAccessPort } from "./feature-access.port.js";
 import type { LanguageCachePort } from "./language-cache.port.js";
 import type { NotificationRepository } from "./notification.repository.js";
 import type { SettingsPort } from "./settings.port.js";
@@ -27,4 +28,5 @@ export interface ServiceContainer {
   languageCache: LanguageCachePort;
   ai: AIPort;
   settings: SettingsPort;
+  featureAccess?: FeatureAccessPort;
 }

@@ -40,6 +40,14 @@ export function resolveOutputConfig(
     config = templateToOutputConfig(template);
   }
 
+  // Grammar breakdown is only inline for phrases — words skip it entirely,
+  // sentences use on-demand only (button callback).
+  // Note: grammar breakdown analyzes the TARGET translations, not the source,
+  // so it is useful even when sourceLang === nativeLang.
+  if (inputContext !== "phrase") {
+    config.includeGrammarBreakdown = false;
+  }
+
   return config;
 }
 

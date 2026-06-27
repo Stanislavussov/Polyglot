@@ -345,6 +345,16 @@ packages/core/src/modules/translation/
 ## Reference
 
 - AI prompt structure: `docs/tech-reqs/08-ai-prompt.md`
+### Grammar Breakdown
+
+- **`LanguageTranslation.grammarBreakdown`**: Optional `string[] | null` — high-level constructional grammar patterns per target language. Grammar terms stay in the target language, explanations in user's `nativeLang`.
+- **`TranslationOutputConfig.includeGrammarBreakdown`**: Optional boolean, **defaults to false** (unlike other fields). Uses `=== true` check in `resolveConfig()` and schema builder.
+- **`grammar-breakdown.service.ts`**: On-demand service for generating grammar breakdown via a second AI call. Used when grammar is requested via button callback (sentences always, phrases when grammar is OFF in template). Takes `originalText`, `translations`, `sourceLang`, `targetLangs`, `nativeLang`, `inputType`. Returns `Record<string, string[]>`.
+- **Behavior matrix**: Words → never. Phrases → inline when ON in template, button when OFF. Sentences → always button (on-demand). Skipped when `sourceLang === nativeLang`.
+- **Prompt builder**: When `cfg.includeGrammarBreakdown && !isNativeSource`, adds grammar instructions requesting 2-3 constructional patterns. Grammar terms must stay in the target language, explanations in `nativeLang`.
+- **Schema**: `buildLanguageTranslationSchema()` conditionally includes `grammarBreakdown: z.array(z.string().min(1)).min(1).max(5)` when `config?.includeGrammarBreakdown === true`.
+- **Feature access**: Gated behind `FeatureAccessPort.checkFeatureAccess(userId, "grammarBreakdown")` — stub always grants access.
+
 - AI validation pipeline: `docs/tech-reqs/07-ai-validation.md`
 - Architecture: `docs/tech-reqs/02-architecture.md`
 - Agent contracts: `docs/tech-reqs/14-agents.md` (translation section)

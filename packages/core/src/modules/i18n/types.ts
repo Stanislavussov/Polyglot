@@ -53,6 +53,10 @@ export type I18nKey =
   | "regenerateLang"
   | "regenerating"
   | "regenerated"
+  | "clarifyTranslation"
+  | "otherMeaning"
+  | "clarifyTranslationPrompt"
+  | "regeneratingAll"
   | "translateModeOn"
   | "translateModeHint"
   | "wiktionaryDefinition"
@@ -88,6 +92,7 @@ export type I18nKey =
   | "templateFieldAlternatives"
   | "templateFieldEquivalentNote"
   | "templateFieldConnotationWarning"
+  | "templateFieldGrammarBreakdown"
   | "templatePreviewHeader"
   | "templateSessionExpired"
   | "cmdDescStart"
@@ -183,8 +188,9 @@ export type I18nKey =
   | "notifWordFromDict"
   | "notifAiSuggested"
   | "notifTranslations"
-  | "notifOpenDict"
-  | "notifSkip"
+  | "notifReveal"
+  | "notifLearned"
+  | "notifRemoved"
   | "notifTypeSrs"
   | "notifTypeSuggested"
   | "notifTypeBoth"
@@ -243,7 +249,10 @@ export type I18nKey =
   | "mentorModeOn"
   | "mentorThinking"
   | "mentorError"
-  | "mentorInputTooLong";
+  | "mentorInputTooLong"
+  | "grammarBreakdown"
+  | "grammarBreakdownButton"
+  | "grammarLocked";
 
 /**
  * Supported interface languages.
@@ -308,6 +317,7 @@ export interface I18nParams {
   settingsNotifContext: { context: string };
   settingsNotifContextPrompt: { current: string };
   settingsNotifContextSaved: { context: string };
+  notifRemoved: { word: string };
   mistypeWarning: { word: string };
   langSelectPrompt: { word: string };
 }

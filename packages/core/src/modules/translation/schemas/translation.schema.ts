@@ -158,6 +158,9 @@ export function buildLanguageTranslationSchema(
     ...(includeUsageNote && requireUsageNote && { usageNote: z.string().min(1, "Usage note is required") }),
     ...(includeAlternatives && { alternatives: z.array(translationVariantSchema).nullable() }),
     ...(includeConnotationWarning && { connotationWarning: z.string().nullable() }),
+    ...(config?.includeGrammarBreakdown === true && {
+      grammarBreakdown: z.array(z.string().min(1)).min(1).max(5),
+    }),
   };
 
   return z.object(shape);

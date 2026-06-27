@@ -47,6 +47,7 @@ describe("createNotificationService — dictionary only", () => {
       emoji: "👋",
       translations: { cs: "ahoj" },
       source: "srs",
+      entryId: 1,
     });
   });
 

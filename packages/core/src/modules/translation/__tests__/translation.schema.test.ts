@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildLanguageTranslationSchema,
   buildTranslationResultSchema,
   exampleSchema,
   languageTranslationSchema,
@@ -586,5 +587,73 @@ describe("buildTranslationResultSchema", () => {
     });
 
     expect(result.success).toBe(true);
+  });
+});
+
+describe("buildLanguageTranslationSchema — grammar breakdown", () => {
+  /** Minimal config that disables all other fields so we can test grammar in isolation */
+  const minimalConfig = {
+    includeExamples: false,
+    includeSynonyms: false,
+    includeAlternatives: false,
+    includeEquivalentNote: false,
+    includeUsageNote: false,
+    includeConnotationWarning: false,
+    includeNativeSynonyms: false,
+    includeGrammarBreakdown: true,
+  };
+
+  it("includes grammarBreakdown when config enables it", () => {
+    const schema = buildLanguageTranslationSchema(minimalConfig);
+    const result = schema.safeParse({
+      text: "auf den Tisch",
+      grammarBreakdown: ["auf + Akkusativ — направление движения"],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("does NOT include grammarBreakdown when config disables it", () => {
+    const schema = buildLanguageTranslationSchema({ ...minimalConfig, includeGrammarBreakdown: false });
+    const result = schema.safeParse({
+      text: "auf den Tisch",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("does NOT include grammarBreakdown by default (undefined config)", () => {
+    const schema = buildLanguageTranslationSchema({
+      ...minimalConfig,
+      includeGrammarBreakdown: undefined,
+    });
+    const result = schema.safeParse({
+      text: "auf den Tisch",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("validates grammarBreakdown as non-empty string array with max 5 items", () => {
+    const schema = buildLanguageTranslationSchema(minimalConfig);
+
+    // Empty array fails
+    const empty = schema.safeParse({ text: "test", grammarBreakdown: [] });
+    expect(empty.success).toBe(false);
+
+    // Empty string in array fails
+    const emptyStr = schema.safeParse({ text: "test", grammarBreakdown: [""] });
+    expect(emptyStr.success).toBe(false);
+
+    // 5 items passes
+    const five = schema.safeParse({
+      text: "test",
+      grammarBreakdown: ["a", "b", "c", "d", "e"],
+    });
+    expect(five.success).toBe(true);
+
+    // 6 items fails
+    const six = schema.safeParse({
+      text: "test",
+      grammarBreakdown: ["a", "b", "c", "d", "e", "f"],
+    });
+    expect(six.success).toBe(false);
   });
 });

@@ -63,6 +63,7 @@ export function createNotificationService(deps: NotificationServiceDeps) {
       translations,
       ...(Object.keys(translationDetails).length > 0 ? { translationDetails } : {}),
       source: "srs" as const,
+      entryId: entry.id,
     };
   }
 
