@@ -167,7 +167,7 @@
       loop:
         - { path: /opt/monitoring }
         - { path: /opt/monitoring/data }
-        - { path: /opt/monitoring/data/prometheus }
+        - { path: /opt/monitoring/data/prometheus, owner: "65534", group: "65534" }
         - { path: /opt/monitoring/data/grafana, owner: "472", group: "472" }
         - { path: /opt/monitoring/data/loki, owner: "10001", group: "10001" }
 
