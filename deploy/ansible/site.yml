@@ -203,12 +203,40 @@
           {% if admin_tls_certificate.stat.exists | default(false) %}
           server {
               listen 80;
-              server_name {{ admin_panel_domain }} {{ admin_api_domain }}{% if grafana_domain | length > 0 %} {{ grafana_domain }}{% endif %};
+              server_name {{ admin_panel_domain }} {{ admin_api_domain }};
 
               location / {
                   return 301 https://$host$request_uri;
               }
           }
+          {% if grafana_tls_certificate.stat.exists | default(false) %}
+
+          server {
+              listen 80;
+              server_name {{ grafana_domain }};
+
+              location / {
+                  return 301 https://$host$request_uri;
+              }
+          }
+          {% elif grafana_domain | length > 0 %}
+
+          server {
+              listen 80;
+              server_name {{ grafana_domain }};
+
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection "upgrade";
+              }
+          }
+          {% endif %}
 
           server {
               listen 443 ssl http2;
