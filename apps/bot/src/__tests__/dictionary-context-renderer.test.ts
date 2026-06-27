@@ -103,7 +103,7 @@ describe("renderTranslation — dictionary context is AI-only", () => {
   it("renders normally without dictionary context", () => {
     const result = renderTranslation(baseOutput, "en");
 
-    expect(result).toContain("👋 <b>hello</b>");
+    expect(result).toContain("<b>hello</b>");
     expect(result).not.toContain("Register:");
     expect(result).toContain("<b>ahoj</b>");
   });

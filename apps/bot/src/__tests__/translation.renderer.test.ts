@@ -51,7 +51,7 @@ const sampleOutput: TranslateOutput = {
 describe("renderTranslation", () => {
   it("renders header with emoji and original word", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("👋 <b>hello</b>");
+    expect(result).toContain("👋 🇬🇧 <b>hello</b>");
   });
 
   it("renders native meaning under the original with native language label", () => {
@@ -613,7 +613,7 @@ describe("renderTranslation — idiomatic equivalents", () => {
 
   it("renders the original proverb in the header", () => {
     const result = renderTranslation(idiomaticOutput, "en");
-    expect(result).toContain("🍰 <b>Bez práce nejsou koláče</b>");
+    expect(result).toContain("🍰 🇨🇿 <b>Bez práce nejsou koláče</b>");
   });
 
   it("does not leak expressionType or equivalentNote into output", () => {
@@ -877,7 +877,7 @@ const sentenceOutput: TranslateOutput = {
 describe("renderSentenceTranslation", () => {
   it("renders emoji and original sentence as bold header", () => {
     const result = renderSentenceTranslation(sentenceOutput, "en");
-    expect(result).toContain("💊 <b>Can you tell me where the nearest pharmacy is?</b>");
+    expect(result).toContain("💊 🇬🇧 <b>Can you tell me where the nearest pharmacy is?</b>");
   });
 
   it("renders native meaning for sentence translations", () => {

@@ -53,6 +53,7 @@ function renderSourceUsageBlock(
   const nativeTranslation = nativeLang ? output.translations[nativeLang] : undefined;
 
   if (nativeTranslation && nativeLang) {
+    lines.push("");
     const nativeFlag = getLangFlag(nativeLang) ?? "🔤";
     const nativeLabel = `${nativeFlag} ${esc(nativeLang.toUpperCase())}`;
     const showNativeSyns = fields?.synonyms !== false && nativeTranslation.synonyms.length > 0;
@@ -63,12 +64,14 @@ function renderSourceUsageBlock(
       lines.push(`💡 ${esc(usage.explanation)}`);
     }
   } else if (usage.explanation) {
+    lines.push("");
     const nativeFlag = nativeLang ? (getLangFlag(nativeLang) ?? "🔤") : "🔤";
     const label = nativeLang ? `${nativeFlag} ${esc(nativeLang.toUpperCase())}` : nativeFlag;
     lines.push(`${label}: ${esc(usage.explanation)}`);
   }
 
   if (fields?.examples !== false && usage.examples.length > 0) {
+    lines.push("");
     for (const ex of usage.examples) {
       const native = ex.native ? ` (${esc(ex.native)})` : "";
       lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
@@ -102,10 +105,11 @@ export function renderTranslation(
 
   const showNativeSyns = !hideSourceText && templateFields?.synonyms !== false && output.nativeSynonyms.length > 0;
   const nativeSyns = showNativeSyns ? ` (${output.nativeSynonyms.map((s) => esc(s.text)).join(", ")})` : "";
+  const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
   if (sourceUsageLines.length > 0) {
     lines.push(...sourceUsageLines);
   } else if (!hideSourceText) {
-    lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>${esc(nativeSyns)}`);
+    lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(output.original)}</b>${nativeSyns}`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
@@ -206,8 +210,9 @@ export function renderSentenceTranslation(
   const lines: string[] = [];
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);
 
+  const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
   if (!hideSourceText) {
-    lines.push(`${esc(output.emoji)} <b>${esc(output.original)}</b>`);
+    lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(output.original)}</b>`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;

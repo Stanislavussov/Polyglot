@@ -115,7 +115,7 @@ describe("renderTranslation — template-aware (Task 32)", () => {
 
   it("renders only emoji, word, and bare translation when all fields false", () => {
     const result = renderTranslation(sampleOutput, "en", allFalse);
-    expect(result).toContain("👋 <b>hello</b>");
+    expect(result).toContain("👋 🇬🇧 <b>hello</b>");
     expect(result).toContain("🇨🇿 CS: <b>ahoj</b>");
     // No optional sections
     expect(result).not.toContain("[ˈahoj]");
