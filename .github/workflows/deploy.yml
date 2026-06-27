@@ -154,4 +154,5 @@ jobs:
               echo "no announcement content"
             fi
 
-            docker image prune -f
+            docker image prune -af
+            docker builder prune -af 2>/dev/null || true
