@@ -241,6 +241,19 @@ export const vocabularyRepository = {
     return assembleEntriesWithTranslations(entries, matchingTranslations);
   },
 
+  /** Update entry-level fields (emoji, nativeMeaning, sourceUsage). */
+  async updateEntry(
+    entryId: number,
+    data: { emoji?: string | null; nativeMeaning?: string | null; sourceUsage?: SourceUsage | null },
+  ): Promise<void> {
+    const db = getDb();
+    const set: Record<string, unknown> = { updatedAt: new Date() };
+    if (data.emoji !== undefined) set.emoji = data.emoji;
+    if (data.nativeMeaning !== undefined) set.nativeMeaning = data.nativeMeaning;
+    if (data.sourceUsage !== undefined) set.sourceUsage = data.sourceUsage;
+    await db.update(vocabularyEntries).set(set).where(eq(vocabularyEntries.id, entryId));
+  },
+
   /**
    * Update a single translation row (e.g. for single-language regen).
    * If no row exists for this entry+lang, inserts a new one.

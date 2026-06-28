@@ -6,5 +6,5 @@
     "typeRoots": ["../../../packages/@types", "../../../node_modules/@types"]
   },
   "include": ["src", "../../../packages/@types/**/*.d.ts"],
-  "exclude": ["src/__tests__"]
+  "exclude": ["src/__tests__", "src/schema-report.ts"]
 }

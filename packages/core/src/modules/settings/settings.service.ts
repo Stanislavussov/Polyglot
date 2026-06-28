@@ -7,6 +7,7 @@ import type {
   SettingsPort,
   SrsConfig,
   TranslationPresetConfig,
+  VideoVocabularyConfig,
 } from "../../ports/settings.port.js";
 import type { SubscriptionPlan } from "../../ports/user.repository.js";
 
@@ -329,6 +330,14 @@ export class SettingsService implements SettingsPort {
     const result = dbPresets.length > 0 ? dbPresets : FALLBACK_PRESETS;
     this.setCache("presets", result);
     return result;
+  }
+
+  async getVideoVocabularyConfig(): Promise<VideoVocabularyConfig> {
+    const cached = this.getCached<VideoVocabularyConfig>("videoVocabulary");
+    if (cached) return cached;
+    const config = await this.port.getVideoVocabularyConfig();
+    this.setCache("videoVocabulary", config);
+    return config;
   }
 }
 

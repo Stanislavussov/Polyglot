@@ -1,0 +1,34 @@
+{
+  "reports": [
+    {
+      "slug": "architecture-overview",
+      "title": "Polyglot — Архитектура и как это работает",
+      "description": "High-level product and system architecture map for the Polyglot platform.",
+      "href": "/reports/architecture-overview.html"
+    },
+    {
+      "slug": "database-schema",
+      "title": "Polyglot Database Schema",
+      "description": "Generated database relationship map with table descriptions, fields, indexes, usage, and optimization notes.",
+      "href": "/reports/database-schema.html"
+    },
+    {
+      "slug": "observability",
+      "title": "Polyglot — Observability",
+      "description": "Operational observability report covering metrics, dashboards, logging, and runtime monitoring.",
+      "href": "/reports/observability.html"
+    },
+    {
+      "slug": "translation-quality-report",
+      "title": "Polyglot — Отчёт по качеству перевода",
+      "description": "Translation quality evaluation report with benchmark results and quality findings.",
+      "href": "/reports/translation-quality-report.html"
+    },
+    {
+      "slug": "translation-quality-roadmap",
+      "title": "Polyglot — план повышения качества перевода",
+      "description": "Roadmap for improving translation quality, validation, benchmarking, and model routing.",
+      "href": "/reports/translation-quality-roadmap.html"
+    }
+  ]
+}

@@ -85,6 +85,16 @@ export interface NotificationServiceDeps {
 
   /** AI model to use for contextual generation. */
   contextualModel?: string;
+
+  /**
+   * Translate an entry that has no translations yet (lazy/JIT translation).
+   * Called by pickDictionaryWord when it encounters a saved entry with 0 translations.
+   * Returns updated translations if successful, null to skip the entry.
+   */
+  translateEntry?: (
+    userId: number,
+    entryId: number,
+  ) => Promise<Array<{ targetLangId: number; text: string; synonyms?: string[] }> | null>;
 }
 
 /**

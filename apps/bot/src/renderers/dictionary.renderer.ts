@@ -114,6 +114,7 @@ export function renderDictionaryEntry(
   entry: VocabularyEntryWithTranslations,
   langResolver: (id: number) => string | undefined,
   lang: SupportedLang = "en",
+  options?: { nativeLangId?: number },
 ): string {
   const l = toLang(lang);
   const lines: string[] = [];
@@ -136,8 +137,17 @@ export function renderDictionaryEntry(
     lines.push("", ...sourceUsage);
   }
 
+  // Sort translations: native language first, then the rest
+  const sortedTranslations = [...entry.translations].sort((a, b) => {
+    const aIsNative = options?.nativeLangId != null && a.targetLangId === options.nativeLangId;
+    const bIsNative = options?.nativeLangId != null && b.targetLangId === options.nativeLangId;
+    if (aIsNative && !bIsNative) return -1;
+    if (!aIsNative && bIsNative) return 1;
+    return 0;
+  });
+
   // Translations
-  for (const tr of entry.translations) {
+  for (const tr of sortedTranslations) {
     lines.push("");
     const langCode = langResolver(tr.targetLangId);
     const flag = langCode ? (getLangFlag(langCode) ?? "🔤") : "🔤";
@@ -224,10 +234,17 @@ export function buildDictionaryEntryKeyboard(
   page: number,
   lang: SupportedLang,
   dictionaryId: number,
+  options?: { hasTranslations?: boolean },
 ): InlineKeyboard {
   const l = toLang(lang);
-  const kb = new InlineKeyboard()
-    .text(t("dictionaryAddTo", l), `dict:add-menu:${dictionaryId}:${entryId}:${page}`)
+  const kb = new InlineKeyboard();
+
+  // Show "Translate" button if entry has no translations
+  if (options && options.hasTranslations === false) {
+    kb.text(t("dictionaryTranslate", l), `dict:translate:${dictionaryId}:${entryId}:${page}`).row();
+  }
+
+  kb.text(t("dictionaryAddTo", l), `dict:add-menu:${dictionaryId}:${entryId}:${page}`)
     .row()
     .text(t("dictionaryMoveTo", l), `dict:move-menu:${dictionaryId}:${entryId}:${page}`)
     .row()

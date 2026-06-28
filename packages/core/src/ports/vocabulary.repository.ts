@@ -126,6 +126,10 @@ export interface VocabularyRepository {
     langResolver: (id: number) => string | undefined,
   ): Promise<VocabularyEntryWithSourceLang[]>;
   create(userId: number, input: CreateVocabularyInput): Promise<{ id: number }>;
+  updateEntry(
+    entryId: number,
+    data: { emoji?: string | null; nativeMeaning?: string | null; sourceUsage?: SourceUsage | null },
+  ): Promise<void>;
   updateTranslation(entryId: number, targetLangId: number, data: UpdateTranslationData): Promise<void>;
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
   updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polyglot — Архитектура и как это работает</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #f0883e;
+    --green: #3fb950;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --yellow: #d29922;
+    --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.7;
+    font-size: 15px;
+    padding: 0;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  h1 {
+    font-size: 2.2em;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  h2 {
+    font-size: 1.5em;
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  h3 {
+    font-size: 1.15em;
+    margin-top: 28px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+  h4 {
+    font-size: 1em;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    color: var(--accent2);
+  }
+  p { margin-bottom: 12px; color: var(--text); }
+  ul, ol { margin-bottom: 14px; padding-left: 24px; }
+  li { margin-bottom: 6px; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--purple);
+  }
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    font-size: 0.85em;
+    line-height: 1.6;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+    font-size: 1em;
+  }
+  .subtitle { color: var(--text-dim); font-size: 1.1em; margin-bottom: 32px; }
+
+  .hero {
+    background: linear-gradient(135deg, #161b22, #0d1117);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .card-title { font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 0.9em;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  td code { font-size: 0.85em; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.78em;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .badge-green { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+  .badge-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+  .badge-blue { background: rgba(88,166,255,0.15); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); }
+  .badge-purple { background: rgba(188,140,255,0.15); color: var(--purple); border: 1px solid rgba(188,140,255,0.3); }
+  .badge-red { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+
+  .flow-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+    font-family: var(--mono);
+    font-size: 0.82em;
+    line-height: 1.8;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text-dim);
+  }
+  .flow-diagram .step { color: var(--accent); }
+  .flow-diagram .file { color: var(--purple); }
+  .flow-diagram .branch { color: var(--yellow); }
+  .flow-diagram .ok { color: var(--green); }
+  .flow-diagram .err { color: var(--red); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  .toc ol { margin: 0; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  .note {
+    border-left: 3px solid var(--accent2);
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    background: rgba(240,136,62,0.06);
+    border-radius: 0 8px 8px 0;
+  }
+  .note-title { color: var(--accent2); font-weight: 600; margin-bottom: 4px; }
+
+  .key-point {
+    border-left: 3px solid var(--green);
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    background: rgba(63,185,80,0.06);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .arch-layer {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 8px;
+  }
+  .arch-layer.core { border-color: var(--green); background: rgba(63,185,80,0.05); }
+  .arch-layer.adapter { border-color: var(--accent); background: rgba(88,166,255,0.05); }
+  .arch-layer.app { border-color: var(--purple); background: rgba(188,140,255,0.05); }
+  .arch-layer.infra { border-color: var(--yellow); background: rgba(210,153,34,0.05); }
+  .arch-layer-title { font-weight: 600; margin-bottom: 4px; }
+  .arch-layer-core .arch-layer-title { color: var(--green); }
+  .arch-layer.adapter .arch-layer-title { color: var(--accent); }
+  .arch-layer.app .arch-layer-title { color: var(--purple); }
+  .arch-layer.infra .arch-layer-title { color: var(--yellow); }
+  .arch-layer p { margin: 0; color: var(--text-dim); font-size: 0.9em; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85em; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hero">
+  <h1>Polyglot — Архитектура</h1>
+  <p class="subtitle">Telegram-бот для изучения нескольких языков одновременно. Один ввод — переводы на все целевые языки сразу, с CEFR-уровнем, регистром, синонимами и примерами.</p>
+  <p>Эта страница описывает, как устроено приложение изнутри: какие модули есть, какая логика скрыта в конвейере перевода, как данные хранятся и какой путь проходит каждое сообщение пользователя. Всё основано на реальном коде, не на абстрактных описаниях.</p>
+</div>
+
+<div class="toc">
+  <h3 style="margin-top:0">Содержание</h3>
+  <ol>
+    <li><a href="#what">Что это за приложение и зачем</a></li>
+    <li><a href="#layers">Слои архитектуры и правила зависимостей</a></li>
+    <li><a href="#modules">Карта модулей: что где живёт</a></li>
+    <li><a href="#lifecycle">Жизненный цикл запроса на перевод</a></li>
+    <li><a href="#ai">AI-конвейер: промпт → генерация → валидация → ретрай</a></li>
+    <li><a href="#data">Модель данных: таблицы и связи</a></li>
+    <li><a href="#di">Dependency Injection и composition root</a></li>
+    <li><a href="#notifications">Уведомления и планировщик</a></li>
+    <li><a href="#srs">Spaced Repetition (SM-2)</a></li>
+    <li><a href="#admin">Admin-панель и Admin API</a></li>
+    <li><a href="#deploy">Деплой и топология</a></li>
+    <li><a href="#key">Ключевые архитектурные решения</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="what">1. Что это за приложение и зачем</h2>
+
+<p>Polyglot решает конкретную проблему: человек, изучающий 2+ иностранных языка одновременно, знает слово в одном языке, но забывает в другом. Существующие приложения работают только с одной языковой парой — нужно искать одно и то же слово в разных инструментах.</p>
+
+<p>Polyglot — это <strong>Telegram-бот</strong>. Пользователь вводит любое слово, фразу или предложение, и получает переводы на <strong>все свои целевые языки одновременно</strong> в одном сообщении. Каждый перевод enriched: CEFR-уровень, регистр (slang/formal/neutral), синонимы, транскрипция, примеры употребления, коннотационные предупреждения.</p>
+
+<h3>Основные возможности</h3>
+<table>
+  <tr><th>Функция</th><th>Статус</th><th>Что делает</th></tr>
+  <tr><td>Мультиязычный перевод</td><td><span class="badge badge-green">Live</span></td><td>Один ввод → переводы на все целевые языки в одном запросе к AI</td></tr>
+  <tr><td>Личный словарь</td><td><span class="badge badge-green">Live</span></td><td>Сохранение слова одной кнопкой, дубликаты детектятся</td></tr>
+  <tr><td>Флеш-карты</td><td><span class="badge badge-green">Live</span></td><td>Просмотр сохранённых слов в режиме карточек</td></tr>
+  <tr><td>Ежедневные уведомления</td><td><span class="badge badge-green">Live</span></td><td>Cron-планировщик отправляет слово из словаря в выбранное время</td></tr>
+  <tr><td>SRS (SM-2)</td><td><span class="badge badge-green">Live</span></td><td>Алгоритм интервального повторения: again/hard/good/easy → пересчёт интервала</td></tr>
+  <tr><td>Mentor-режим</td><td><span class="badge badge-green">Live</span></td><td>Чат с AI-наставником на изучаемом языке</td></tr>
+  <tr><td>Кастомные шаблоны вывода</td><td><span class="badge badge-green">Live</span></td><td>Пользователь включает/выключает секции карточки (синонимы, примеры, и т.д.)</td></tr>
+  <tr><td>Topic-наборы</td><td><span class="badge badge-yellow">Planned</span></td><td>Кураторские и AI-генерируемые наборы слов по темам</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="layers">2. Слои архитектуры и правила зависимостей</h2>
+
+<p>Polyglot — это <strong>TypeScript monorepo</strong> (pnpm workspaces) с тремя чёткими слоями. Правила зависимостей <strong>машино-проверяемы</strong> через dependency-cruiser (конфиг в <code>.dependency-cruiser.cjs</code>).</p>
+
+<div class="arch-layer core">
+  <div class="arch-layer-title">📦 packages/core — доменная логика (чистая)</div>
+  <p>Не знает про Telegram, про БД, про OpenRouter. Только бизнес-логика: перевод, валидация, i18n, SRS, topics, language-detect. Не импортирует ни один <code>@polyglot/*</code> пакет.</p>
+</div>
+<div style="text-align:center; color:var(--text-dim); font-size:1.5em; margin:4px 0;">↓ импортируется слоями ниже</div>
+<div class="arch-layer adapter">
+  <div class="arch-layer-title">📦 packages/adapters — платформенно-зависимые адаптеры</div>
+  <p><code>db</code> (Drizzle + PostgreSQL), <code>ai</code> (OpenRouter через Vercel AI SDK), <code>notifications</code> (node-cron). Адаптеры не импортируют друг друга и не импортируют infra.</p>
+</div>
+<div style="text-align:center; color:var(--text-dim); font-size:1.5em; margin:4px 0;">↓</div>
+<div class="arch-layer app">
+  <div class="arch-layer-title">📦 apps — приложения (точки входа)</div>
+  <p><code>bot</code> (grammY), <code>admin-api</code> (Fastify), <code>admin</code> (Astro + Vue). Только здесь живут composition root и framework-specific код.</p>
+</div>
+<div class="arch-layer infra" style="margin-top:8px">
+  <div class="arch-layer-title">📦 packages/infra — конфиг и логирование</div>
+  <p><code>config.ts</code> (Zod-валидация env), логгер. Не импортирует адаптеры AI/notifications.</p>
+</div>
+
+<h3>Ключевые правила dependency-cruiser (severity: error)</h3>
+<table>
+  <tr><th>Правило</th><th>Смысл</th></tr>
+  <tr><td><code>no-core-importing-polyglot</code></td><td>Core не импортирует <code>@polyglot/adapter-*</code>, <code>@polyglot/infra</code>, <code>apps/*</code>. Core — чистый.</td></tr>
+  <tr><td><code>no-adapter-db-importing-infra</code></td><td>DB-адаптер не зависит от infra. Адаптеры самодостаточны.</td></tr>
+  <tr><td><code>no-adapter-ai-importing-db-or-notifications</code></td><td>AI-адаптер не знает про БД и уведомления.</td></tr>
+  <tr><td><code>no-adapter-notifications-importing-ai-or-db</code></td><td>Notifications-адаптер не знает про AI и БД.</td></tr>
+  <tr><td><code>no-circular</code></td><td>Ноль циклических зависимостей во всём репо.</td></tr>
+  <tr><td><code>no-i18n-importing-other-modules</code></td><td>i18n — leaf-модуль, не импортирует другие модули core.</td></tr>
+  <tr><td><code>no-translation-importing-context-or-higher</code></td><td>translation может импортировать validation и i18n, но НЕ context-enrichment, topics, idiom-analysis, language-detect.</td></tr>
+  <tr><td><code>no-context-enrichment-importing-unsupported</code></td><td>context-enrichment может импортировать translation, но НЕ validation, topics, idiom-analysis, i18n, language-detect.</td></tr>
+</table>
+
+<div class="note">
+  <div class="note-title">Скрытая логика: порты (ports) вместо прямых импортов</div>
+  <p>Core не импортирует адаптеры напрямую. Вместо этого в <code>packages/core/src/ports/</code> определены интерфейсы: <code>AIPort</code>, <code>UserRepository</code>, <code>VocabularyRepository</code>, <code>LanguageCachePort</code>, <code>SettingsPort</code>, и т.д. Они агрегированы в <code>ServiceContainer</code>. Реализации (из адаптеров)注入ятся в composition root (<code>apps/bot/src/container.ts</code>). Core вызывает AI через функцию, которую ему передали, а не через <code>import</code>.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="modules">3. Карта модулей: что где живёт</h2>
+
+<h3>packages/core/src/modules/ — 12 доменных модулей</h3>
+<table>
+  <tr><th>Модуль</th><th>Ответственность</th><th>Ключевые файлы</th></tr>
+  <tr><td><code>translation/</code></td><td>Сердце приложения. Строит промпт, вызывает AI, валидирует, ретраит. Не сохраняет результат.</td><td><code>translation.service.ts</code>, <code>prompt.builder.ts</code>, <code>schemas/translation.schema.ts</code></td></tr>
+  <tr><td><code>context-enrichment/</code></td><td>Слой между вызывающим кодом и translation. Перед AI-запросом ищет словарный контекст (Wiktionary) и enriches промпт.</td><td><code>context-enrichment.service.ts</code></td></tr>
+  <tr><td><code>validation/</code></td><td>Многоуровневая валидация AI-ответа: schema, language, semantic, examples.</td><td><code>semantic.validator.ts</code>, <code>language.validator.ts</code></td></tr>
+  <tr><td><code>i18n/</code></td><td>Интернационализация UI бота. Локали: <code>ru.json</code>, <code>en.json</code>, <code>cs.json</code>. Leaf-модуль.</td><td><code>locales/</code>, <code>language-registry.ts</code></td></tr>
+  <tr><td><code>language-detect/</code></td><td>Определение языка ввода: sync (скрипт + диакритики + franc) → async (AI). Leaf-модуль.</td><td><code>detect-language.ts</code>, <code>resolve-direction.ts</code></td></tr>
+  <tr><td><code>idiom-analysis/</code></td><td>Анализ идиоматических выражений. Leaf-модуль.</td><td><code>index.ts</code></td></tr>
+  <tr><td><code>srs/</code></td><td>Spaced Repetition System — алгоритм SM-2. Чистая функция, без состояния.</td><td><code>sm2.ts</code>, <code>types.ts</code></td></tr>
+  <tr><td><code>rate-limit/</code></td><td>Проверка лимитов переводов по подписочному плану.</td><td><code>index.ts</code></td></tr>
+  <tr><td><code>settings/</code></td><td>Сервис настроек (адаптер к system_settings).</td><td><code>settings.service.ts</code></td></tr>
+  <tr><td><code>dictionary-pipeline/</code></td><td>Пайплайн работы со словарём пользователя.</td><td><code>index.ts</code></td></tr>
+  <tr><td><code>mentor/</code></td><td>AI-наставник — чат-режим для практики языка.</td><td><code>prompt.builder.ts</code></td></tr>
+  <tr><td><code>topics/</code></td><td>Тематические наборы слов. Датасеты: food, travel, it-terms.</td><td><code>datasets/</code></td></tr>
+</table>
+
+<h3>packages/adapters/ — 3 адаптера</h3>
+<table>
+  <tr><th>Адаптер</th><th>Технология</th><th>Что экспортирует</th></tr>
+  <tr><td><code>ai/</code></td><td>OpenRouter (Vercel AI SDK <code>ai</code> + <code>@openrouter/ai-sdk-provider</code>)</td><td><code>generateObject()</code>, <code>generateText()</code>, <code>generateChat()</code>, <code>getAvailableModels()</code>, <code>estimateCost()</code></td></tr>
+  <tr><td><code>db/</code></td><td>Drizzle ORM + PostgreSQL (<code>postgres-js</code>)</td><td>20 репозиториев, <code>schema.ts</code>, <code>getDb()</code>, <code>loadLanguageCache()</code></td></tr>
+  <tr><td><code>notifications/</code></td><td>node-cron</td><td><code>startScheduler()</code>, <code>stopScheduler()</code>, <code>createNotificationService()</code></td></tr>
+</table>
+
+<h3>apps/ — 3 приложения</h3>
+<table>
+  <tr><th>App</th><th>Фреймворк</th><th>Порт</th><th>Назначение</th></tr>
+  <tr><td><code>bot/</code></td><td>grammY (long-polling)</td><td>—</td><td>Telegram-бот — основное приложение</td></tr>
+  <tr><td><code>admin-api/</code></td><td>Fastify + JWT</td><td>3001</td><td>REST API для админ-панели</td></tr>
+  <tr><td><code>admin/</code></td><td>Astro + Vue + Tailwind</td><td>4321</td><td>Web-панель администратора</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="lifecycle">4. Жизненный цикл запроса на перевод</h2>
+
+<p>Это самый важный раздел. Вот что происходит, когда пользователь в режиме translate отправляет текстовое сообщение — пошагово, из реального кода.</p>
+
+<div class="flow-diagram"><span class="step">[1]</span> Telegram → grammY long-polling получает update
+  <span class="step">[2]</span> <span class="file">bot-factory.ts</span>: middleware chain
+    ├─ session()          — загружает session из PostgreSQL (<code>bot_sessions</code> table)
+    ├─ metrics counter    — telegramMessagesCounter.inc()
+    ├─ conversations()    — grammY conversations plugin
+    ├─ <span class="file">container.ts</span> → ctx.services = ServiceContainer (DI)
+    ├─ <span class="file">auth.ts</span>       — <span class="branch">разветвление:</span>
+    │    ├─ userRepository.findByTelegramId() → если нет, create()
+    │    ├─ ctx.user = user
+    │    └─ если onboarded: hydrate activeMode из DB, updateLastInteraction() (fire-and-forget)
+    ├─ exitActiveConversations — если /команда или не-conversation callback → выйти из conversation
+    ├─ command handlers: /start, /translate, /mentor, /dictionary, /flashcard, /review, /settings, /changes, /report
+    ├─ callbackQuery handlers: set:*, notif:*, tr:*, fc:*, srs:*, dict:*, tpl:* (≈60 callback роутов)
+    └─ <span class="file">mode-router.ts</span> → <span class="branch">если обычный текст (не /команда):</span>
+
+  <span class="step">[3]</span> <span class="file">mode-router.ts</span>: route by activeMode
+    ├─ "translate" → handleTranslateText()
+    ├─ "mentor"    → handleMentorText()
+    └─ default/idle → если onboarded: fallback на translate + persist; иначе "welcome"
+
+  <span class="step">[4]</span> <span class="file">translate-mode.helper.ts</span>::handleTranslateText() — ОСНОВНАЯ ЛОГИКА
+    ├─ Загрузка настроек: interfaceLang, nativeLang, learningLangs, subscriptionPlan
+    ├─ parseTranslateInput() — извлекает contextHint (если message reply/quote)
+    ├─ validateTranslatableText() — <span class="branch">отвергает:</span> empty, emoji-only, command, digits-only, &gt;500 chars
+    ├─ <span class="step">[4a]</span> Language detection:
+    │    ├─ detectLanguage() (sync: script + diacritics + franc)
+    │    ├─ если undefined → detectLanguageAsync() (AI через generateText)
+    │    └─ если всё равно undefined → <span class="err">mistype flow</span>: сохранение pendingWord в session,
+    │         запись в language_detection_events, показ "mistypeWarning" + кнопки Confirm/Cancel
+    ├─ resolveDirectionFromSource() — определяет sourceLang и targetLangs
+    ├─ classifyInput() → "word" | "phrase" | "sentence" (по кол-ву слов)
+    ├─ <span class="step">[4b]</span> <span class="branch">Rate limit check:</span>
+    │    ├─ ensureTranslationQuota(): planLimit из settings, usedCredits из DB
+    │    ├─ evaluatePlanRateLimit() или evaluateRateLimit()
+    │    └─ если !allowed → reply "rateLimitExceeded", return
+    ├─ Показ "Translating..." loading message
+    ├─ resolveDefaultAIModel() — модель из admin settings или fallback
+    ├─ Загрузка user template (translationTemplateRepository.getByUserId)
+    ├─ resolveOutputConfig() — какие поля запрашивать у AI (зависит от template + inputType)
+
+  <span class="step">[5]</span> <span class="file">context-enrichment.service.ts</span>::translateWithContext()
+    ├─ lookupUnambiguousContext() — ищет word_context (Wiktionary) в БД
+    │    └─ fail-open: если ошибка → перевод без контекста
+    └─ вызывает translate() из translation module
+
+  <span class="step">[6]</span> <span class="file">translation.service.ts</span>::translate() — AI КОНВЕЙЕР
+    ├─ buildTranslationResultSchema() — динамическая Zod-схема с обязательными ключами языков
+    ├─ buildTranslationPrompt() — конструирует промпт (см. раздел AI)
+    ├─ <span class="branch">LOOP (до MAX_RETRIES=2 + 1):</span>
+    │    ├─ generateObjectFn(prompt, schema, model) — вызов AI адаптера
+    │    ├─ если generationError → retry с strict prompt (если не последняя попытка)
+    │    ├─ validate() — schema + language + semantic + examples валидация
+    │    ├─ если valid → <span class="ok">return toOutput(needsReview=false)</span>
+    │    └─ если invalid → buildStrictPrompt() с описанием ошибок, retry
+    └─ если все retry провалены → <span class="err">return toOutput(needsReview=true)</span>
+
+  <span class="step">[7]</span> AI Adapter: <span class="file">adapters/ai/src/index.ts</span>::generateObject()
+    ├─ getModel(modelId) → getClient() (singleton OpenRouter)
+    ├─ Vercel AI SDK: aiGenerateObject({ model, schema, prompt, maxRetries:2, maxTokens:4096, temperature:0.3 })
+    ├─ calculateCost() — по таблице ai_models
+    ├─ logRequest() → aiRequestLatencyRepository.record() (метрики в БД)
+    └─ return result.object (типизированный, провалидированный Zod)
+
+  <span class="step">[8]</span> Возврат в translate-mode.helper:
+    ├─ translationRequestRepository.logTranslationRequest() — запись в translation_requests
+    ├─ requestTimingRepository.record() — preflightMs, dbLookupMs, aiRequestMs, totalMs
+    ├─ Удаление "Translating..." сообщения
+    ├─ Проверка duplicate: vocabularyRepository.findByOriginalAndSource()
+    │    └─ entryBelongsToDefault() → isAlreadySaved (для кнопки Save)
+    ├─ <span class="branch">render:</span>
+    │    ├─ sentence → renderSentenceTranslation() (компактная карта)
+    │    └─ word/phrase → renderTranslation() (полная карта с секциями)
+    ├─ buildTranslationKeyboard() — InlineKeyboard: Save, Skip, Regen:{lang} для каждого языка
+    ├─ ctx.reply(card, { parse_mode: "HTML" })
+    ├─ editMessageReplyMarkup() — прикрепить keyboard
+    └─ Сохранение в session.translationMap[msgId] = { output, inputType, contextHint }</div>
+
+<h3>Callback-кнопки: что происходит при нажатии</h3>
+<table>
+  <tr><th>Callback</th><th>Хендлер</th><th>Логика</th></tr>
+  <tr><td><code>tr:save:{msgId}</code></td><td>handleSaveCallback</td><td>FK resolution → duplicate detection → toVocabularyInput() → vocabularyRepository.create() → addEntryToDefault() → renderSavedTranslationCard (Save/Skip заменяются на regen-only keyboard)</td></tr>
+  <tr><td><code>tr:skip:{msgId}</code></td><td>handleSkipCallback</td><td>Убирает keyboard, оставляет карточку как есть</td></tr>
+  <tr><td><code>tr:regen:{lang}:{msgId}</code></td><td>handleRegenCallback</td><td>translateOneWithContext() для одного языка → обновляет translations[lang] в session → если savedWordId: vocabularyRepository.updateTranslation() (auto-update сохранённой записи) → перерисовка карточки</td></tr>
+  <tr><td><code>tr:mistype:confirm</code></td><td>handleMistypeConfirmCallback</td><td>Берёт pendingWord + pendingDirection из session, запускает полный translate flow, записывает "confirmed" в language_detection_events</td></tr>
+  <tr><td><code>tr:mistype:cancel</code></td><td>handleMistypeCancelCallback</td><td>Очищает pending state, записывает "cancelled", показывает hint</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="ai">5. AI-конвейер: промпт → генерация → валидация → ретрай</h2>
+
+<p>Это самое сложное место в приложении. Конвейер обеспечивает качество перевода через многоуровневую валидацию и retry с feedback.</p>
+
+<h3>5.1 Промпт-билдер (<code>prompt.builder.ts</code>)</h3>
+<p>Промпт конструируется динамически на основе: source/target языков, nativeLang, inputType (word/phrase/sentence), topic (context hint), dictionaryContext (Wiktionary), outputConfig (включённые/выключенные поля).</p>
+
+<pre><code>// Структура промпта (из buildTranslationPrompt):
+"Translate \"word\" from Russian to Czech, English."
+
+// + topic hint (если есть):
+"IMPORTANT - User Context Hint: The word should be understood in this context: \"medicine\"."
+
+// + dictionary hint (если есть Wiktionary context):
+"IMPORTANT — Authoritative Dictionary Context (Wiktionary):
+ Word: \"lékař\" (Czech), part of speech: noun.
+ The verified meaning of this word is: \"doctor\", \"physician\"."
+
+// + rules (динамические, зависят от config):
+"Return ONLY valid JSON matching the provided schema."
+"For each target language: translation text; 2-3 close synonyms;
+ exactly 2 alternative translations; exactly 3 short examples with
+ native translations; usageNote; connotationWarning only when relevant."
+"VARIETY IN EXAMPLES IS MANDATORY: Each of the 3 examples MUST use
+ a DIFFERENT word or expression."
+"Idiomatic & Proverb Rule: if no direct equivalent, provide CLOSEST
+ FUNCTIONAL EQUIVALENT, set expressionType to \"idiomatic_equivalent\"."</code></pre>
+
+<h3>5.2 Zod-схема ответа (<code>translation.schema.ts</code>)</h3>
+<p>Схема <strong>динамическая</strong> — <code>buildTranslationResultSchema()</code> строит её под конкретный запрос с обязательными ключами для каждого target-языка. Это заставляет AI SDK возвращать все ожидаемые переводы.</p>
+
+<pre><code>// Структура TranslationResult (из types.ts):
+{
+  emoji: string,                              // один эмодзи
+  nativeMeaning?: string,                     // значение на родном языке
+  sourceUsage?: {                             // если source = изучаемый язык
+    explanation: string,                      //   когда использовать
+    synonyms: Synonym[],                      //   синонимы в source-языке
+    examples: Example[]                       //   примеры в source-языке
+  },
+  nativeSynonyms: Synonym[],                  // синонимы исходного слова на родном
+  translations: {
+    "cs": {
+      text: string,                           // основной перевод
+      synonyms: Synonym[],                    // 2-3 синонима
+      examples: Example[],                    // ровно 3 примера
+      expressionType?: "literal"|"idiomatic_equivalent",
+      equivalentNote?: string,                // пояснение к идиоме
+      usageNote?: string,                     // нюансы употребления
+      alternatives?: TranslationVariant[],    // ровно 2 альтернативы
+      connotationWarning?: string             // предупреждение о коннотации
+    },
+    "en": { ... }
+  }
+}
+
+// Example = { context, target, native? }
+// Synonym = { text }
+// TranslationVariant = { text, synonyms[] }</code></pre>
+
+<h3>5.3 Retry с strict prompt</h3>
+<p>Если AI-ответ не проходит валидацию, промпт перестраивается с явным указанием ошибок:</p>
+<pre><code>// buildStrictPrompt() добавляет:
+"IMPORTANT: Your previous response had validation errors:
+  - [examples-variety] examples: all 3 examples use the same word
+  - [native-meaning] nativeMeaning: missing required field
+
+Please fix these issues and return a corrected JSON response.
+Double-check that:
+  - Each of the 3 examples uses a DIFFERENT word
+  - Top-level nativeMeaning is present and written in Russian
+  - Every target block has a usageNote
+  - No transcription, pronunciation, IPA, romanization"</code></pre>
+
+<h3>5.4 Параметры AI-вызова</h3>
+<table>
+  <tr><th>Параметр</th><th>Значение</th><th>Источник</th></tr>
+  <tr><td>temperature</td><td><code>0.3</code></td><td><code>adapters/ai/src/index.ts</code> — низкая для детерминированности</td></tr>
+  <tr><td>maxTokens</td><td><code>4096</code></td><td>AI adapter</td></tr>
+  <tr><td>maxRetries (SDK)</td><td><code>2</code></td><td><code>DEFAULT_MAX_RETRIES</code></td></tr>
+  <tr><td>frequencyPenalty</td><td><code>0.5</code> (default) / <code>0</code> (translation)</td><td>translation.service передаёт 0</td></tr>
+  <tr><td>MAX_RETRIES (validation)</td><td><code>2</code> (т.е. 3 попытки всего)</td><td><code>translation.service.ts</code></td></tr>
+  <tr><td>Provider</td><td>OpenRouter (один API key → любой модель)</td><td><code>adapters/ai/src/client.ts</code></td></tr>
+</table>
+
+<h3>5.5 Валидация (<code>validation/</code> модуль)</h3>
+<p>Функция <code>validate()</code> проверяет AI-ответ на нескольких уровнях:</p>
+<ul>
+  <li><strong>Schema validation</strong> — структура соответствует Zod-схеме</li>
+  <li><strong>Language validation</strong> — перевод действительно на нужном языке (не копия исходного)</li>
+  <li><strong>Semantic validation</strong> — перевод имеет смысл, не пустой</li>
+  <li><strong>Examples validation</strong> — примеры используют разные слова (variety rule)</li>
+</ul>
+<p>Каждое нарушение получает <code>{ rule, field, message }</code>. Все ошибки собираются и передаются в <code>buildStrictPrompt()</code> для следующей попытки.</p>
+
+<h3>5.6 NeedsReview flag</h3>
+<p>Если все 3 попытки провалились — результат всё равно возвращается пользователю, но с <code>needsReview: true</code>. Это <strong>graceful degradation</strong> — лучше показать несовершенный перевод, чем ничего.</p>
+
+<h3>5.7 Context enrichment — скрытый слой качества</h3>
+<p>Перед каждым AI-запросом <code>translateWithContext()</code> ищет слово в таблице <code>word_context</code> (данные из Wiktionary/kaikki.org). Если найдено однозначное совпадение — POS, glosses, form tags добавляются в промпт как <code>"Authoritative Dictionary Context"</code>. Это помогает AI выбрать правильный смысл слова. <strong>Fail-open</strong>: при ошибке lookup перевод продолжается без контекста.</p>
+
+<h3>5.8 Post-processing: stripDisabledFields + sanitizeEmoji</h3>
+<p>AI может вернуть поля, которые пользователь отключил в template. <code>stripDisabledFields()</code> зануляет их после генерации. <code>sanitizeEmoji()</code> проверяет, что в поле emoji действительно эмодзи (не синоним-слово) — fallback <code>"🔤"</code>.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="data">6. Модель данных: таблицы и связи</h2>
+
+<p>База данных — PostgreSQL через Drizzle ORM. Схема в <code>packages/adapters/db/src/schema.ts</code> (639 строк). 20+ таблиц, 20 репозиториев в <code>repositories/</code>.</p>
+
+<h3>Основные таблицы</h3>
+<table>
+  <tr><th>Таблица</th><th>Назначение</th><th>Ключевые колонки</th></tr>
+  <tr><td><code>languages</code></td><td>Single source of truth для метаданных языков</td><td><code>id, code (ISO 639-1), name, nativeName, flag, isSupported, localizedNames (jsonb)</code></td></tr>
+  <tr><td><code>word_context</code></td><td>Offline-словарь (Wiktionary/kaikki.org). Индекс по (word, languageId)</td><td><code>word, languageId→languages, pos, forms[], formTags[], glosses[]</code></td></tr>
+  <tr><td><code>users</code></td><td>Telegram-пользователи</td><td><code>telegramId (unique), username, audienceGroup (admin/tester/product), subscriptionPlan, onboardingStep, onboarded</code></td></tr>
+  <tr><td><code>user_language_settings</code></td><td>1-to-1 с users. Языковые настройки + режим</td><td><code>userId→users, interfaceLang, nativeLang, learningLangs[], timezone, activeMode, lastSourceLang, notificationEnabled, notificationTime, notificationType, notificationContext, lastInteractionAt</code></td></tr>
+  <tr><td><code>vocabulary_entries</code></td><td>Нормализованные записи слов/фраз. Unique по (userId, original, sourceLangId)</td><td><code>userId→users, original, sourceLangId→languages, inputType (word/phrase/sentence), emoji, nativeMeaning, sourceUsage (jsonb)</code></td></tr>
+  <tr><td><code>vocabulary_dictionaries</code></td><td>Пользовательские коллекции (словари). Unique по (userId, name)</td><td><code>userId→users, name, isDefault</code></td></tr>
+  <tr><td><code>vocabulary_dictionary_entries</code></td><td>Junction: запись ↔ словарь (many-to-many)</td><td><code>dictionaryId→dictionaries, entryId→entries</code> (composite PK)</td></tr>
+  <tr><td><code>vocabulary_translations</code></td><td>Один перевод на target-язык. <strong>SRS-колонки здесь</strong></td><td><code>entryId→entries, targetLangId→languages, text, expressionType, equivalentNote, usageNote, connotationWarning, details (jsonb), srsEaseFactor (default 2.5), srsInterval, srsDueDate, srsReviewCount</code></td></tr>
+  <tr><td><code>word_review_log</code></td><td>История просмотров: flashcard / notification / quiz / srs</td><td><code>entryId→entries, userId→users, sessionType, reviewedAt</code></td></tr>
+  <tr><td><code>translation_requests</code></td><td>Лог запросов для rate limiting</td><td><code>userId→users, original, sourceLangId→languages, creditCost, createdAt</code></td></tr>
+  <tr><td><code>translation_request_target_langs</code></td><td>Junction: запрос ↔ целевые языки</td><td><code>requestId→requests, languageId→languages</code> (unique pair)</td></tr>
+  <tr><td><code>topic_translation_cache</code></td><td>Shared кэш переводов для topic-наборов (общий между пользователями)</td><td><code>topicId, original, sourceLang, targetLang, content (jsonb), isValid, invalidReason</code></td></tr>
+  <tr><td><code>user_translation_templates</code></td><td>1-to-1 с users. Кастомные шаблоны вывода</td><td><code>userId→users, synonyms, examples, alternatives, equivalentNote, connotationWarning</code> (boolean toggles)</td></tr>
+  <tr><td><code>reported_issues</code></td><td>Баги/предложения от пользователей</td><td><code>userId→users, type (bug/suggestion/other), description, status</code></td></tr>
+  <tr><td><code>notification_history</code></td><td>Отправленные слова — защита от повторов</td><td><code>userId→users, original, source (srs/suggested), sentAt</code></td></tr>
+  <tr><td><code>bot_sessions</code></td><td>grammY session storage (персистентный, в PostgreSQL)</td><td><code>key (PK), data (jsonb), version</code></td></tr>
+</table>
+
+<h3>Admin / system таблицы</h3>
+<table>
+  <tr><th>Таблица</th><th>Назначение</th></tr>
+  <tr><td><code>admin_users</code></td><td>Web-панель auth: email + bcrypt hash, role (superadmin/admin)</td></tr>
+  <tr><td><code>system_settings</code></td><td>Generic key-value (JSONB): AI defaults, SRS params, notification defaults, feature flags</td></tr>
+  <tr><td><code>rate_limit_plans</code></td><td>Тарифы: free/plus/pro/unlimited — creditsPerDay, creditCost, windowMs</td></tr>
+  <tr><td><code>ai_models</code></td><td>Реестр моделей: id (OpenRouter), costPer1kInput/Output, isEnabled, isDefault</td></tr>
+  <tr><td><code>ai_model_plan_access</code></td><td>Junction: какие планы могут использовать какие модели</td></tr>
+  <tr><td><code>translation_presets</code></td><td>Admin-конфигурируемые пресеты вывода (jsonb config)</td></tr>
+</table>
+
+<h3>Метрики / аналитика</h3>
+<table>
+  <tr><th>Таблица</th><th>Назначение</th></tr>
+  <tr><td><code>ai_request_latencies</code></td><td>Один ряд на каждый AI-запрос: model, duration, tokens, cost, success</td></tr>
+  <tr><td><code>translation_request_timings</code></td><td>Сегментные метрики: preflightMs, dbLookupMs, aiRequestMs, totalMs</td></tr>
+  <tr><td><code>language_detection_events</code></td><td>Mistype-flow аналитика: warning_shown / confirmed / cancelled</td></tr>
+  <tr><td><code>release_announcement_deliveries</code></td><td>Один ряд на release/user/group — anti-duplicate для анонсов</td></tr>
+</table>
+
+<h3>Связи (FK graph)</h3>
+<div class="flow-diagram"><span class="file">languages</span> ←─── sourceLangId, targetLangId, languageId (много таблиц ссылаются)
+     ↑
+     │
+<span class="file">users</span> ──┬──→ <span class="file">user_language_settings</span> (1-to-1)
+     │    ├──→ <span class="file">vocabulary_entries</span> ──┬──→ <span class="file">vocabulary_translations</span> (1-to-many, по языкам)
+     │    │                          │                     └── srsEaseFactor, srsInterval, srsDueDate, srsReviewCount
+     │    │                          ├──→ <span class="file">word_review_log</span>
+     │    │                          └──↔ <span class="file">vocabulary_dictionary_entries</span> ↔ <span class="file">vocabulary_dictionaries</span>
+     │    ├──→ <span class="file">translation_requests</span> ──→ <span class="file">translation_request_target_langs</span>
+     │    ├──→ <span class="file">user_translation_templates</span> (1-to-1)
+     │    ├──→ <span class="file">reported_issues</span>
+     │    ├──→ <span class="file">notification_history</span>
+     │    └──→ <span class="file">release_announcement_deliveries</span>
+
+<span class="file">word_context</span> → languages (offline Wiktionary, не связан с users)
+<span class="file">topic_translation_cache</span> — standalone (shared cache, не FK к users)
+<span class="file">bot_sessions</span> — standalone (key-value)
+<span class="file">admin_users</span> — standalone (web auth)
+<span class="file">system_settings</span> — standalone (key-value JSONB)
+<span class="file">rate_limit_plans</span> ←── <span class="file">ai_model_plan_access</span> → <span class="file">ai_models</span></div>
+
+<div class="note">
+  <div class="note-title">Скрытая логика: vocabulary_translations — это и перевод, и SRS-карта</div>
+  <p>Вместо отдельной SRS-таблицы, колонки <code>srsEaseFactor</code>, <code>srsInterval</code>, <code>srsDueDate</code>, <code>srsReviewCount</code> живут прямо в <code>vocabulary_translations</code>. Один ряд = одна карточка для одного языка. Каждая пара (entry, targetLang) имеет свой SRS-график. Это значит: если пользователь учит 3 языка, одно сохранённое слово = 3 независимые SRS-карты.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="di">7. Dependency Injection и composition root</h2>
+
+<p>Polyglot использует <strong>вручную сконструированный DI-контейнер</strong> — не tsyringe/awilix, а простой объект с интерфейсами.</p>
+
+<h3>Порты (interfaces) — в <code>packages/core/src/ports/</code></h3>
+<p>12 port-интерфейсов определяют контракты, которые core ожидает от адаптеров:</p>
+<ul>
+  <li><code>AIPort</code> — <code>generateObject()</code>, <code>generateText()</code>, <code>generateChat()</code>, <code>getAvailableModels()</code>, <code>estimateCost()</code></li>
+  <li><code>UserRepository</code> — <code>findByTelegramId()</code>, <code>getSettings()</code>, <code>updateActiveMode()</code>, <code>updateLastInteraction()</code></li>
+  <li><code>VocabularyRepository</code> — <code>create()</code>, <code>findByOriginalAndSource()</code>, <code>updateTranslation()</code></li>
+  <li><code>VocabularyDictionaryRepository</code> — <code>addEntryToDefault()</code>, <code>entryBelongsToDefault()</code></li>
+  <li><code>LanguageCachePort</code> — <code>getLang()</code>, <code>getAllLangs()</code>, <code>getSupportedLangs()</code>, <code>normalizeToIso1()</code></li>
+  <li><code>SettingsPort</code> — <code>getPlanLimit()</code>, AI defaults, SRS config, notification defaults</li>
+  <li>и др.: <code>NotificationRepository</code>, <code>TranslationRequestRepository</code>, <code>TranslationTemplateRepository</code>, <code>WordReviewRepository</code></li>
+</ul>
+
+<h3>ServiceContainer — агрегация всех портов</h3>
+<pre><code>// packages/core/src/ports/container.ts
+export interface ServiceContainer {
+  userRepository: UserRepository;
+  vocabularyRepository: VocabularyRepository;
+  vocabularyDictionaryRepository: VocabularyDictionaryRepository;
+  translationTemplateRepository: TranslationTemplateRepository;
+  wordReviewRepository: WordReviewRepository;
+  notificationRepository: NotificationRepository;
+  translationRequestRepository: TranslationRequestRepository;
+  languageCache: LanguageCachePort;
+  ai: AIPort;
+  settings: SettingsPort;
+}</code></pre>
+
+<h3>Composition Root — <code>apps/bot/src/container.ts</code></h3>
+<p>Единственное место, где adapter-реализации связываются с port-интерфейсами:</p>
+<pre><code>// apps/bot/src/container.ts
+export function createContainer(): ServiceContainer {
+  // Wire AI metric sink → DB
+  setAIRequestMetricSink((log) =>
+    aiRequestLatencyRepository.record({ ...log })
+  );
+
+  const settings = new SettingsService(settingsAdapter);
+
+  return {
+    userRepository,              // from @polyglot/adapter-db
+    vocabularyRepository,
+    vocabularyDictionaryRepository,
+    translationTemplateRepository,
+    wordReviewRepository,
+    notificationRepository,
+    translationRequestRepository,
+    languageCache: { loadLanguageCache, getLang, getAllLangs, ... },
+    ai: { generateObject, generateText, generateChat, getAvailableModels, estimateCost },
+    settings,
+  };
+}</code></pre>
+
+<h3>Как контейнер попадает в handlers</h3>
+<div class="flow-diagram"><span class="file">index.ts</span> → createPolyglotBot({ services: createContainer() })
+  ↓
+<span class="file">bot-factory.ts</span>:
+  bot.use((ctx, next) => {
+    ctx.services = services;   ← ← ← внедрение в каждый ctx
+    return next();
+  });
+  ↓
+<span class="file">translate-mode.helper.ts</span>:
+  ctx.services.ai.generateObject(...)      ← вызов AI через порт
+  ctx.services.vocabularyRepository.create(...)  ← запись в БД через порт
+  ctx.services.settings.getPlanLimit(...)  ← настройки через порт</div>
+
+<div class="key-point">
+  <strong>Почему так:</strong> Core (бизнес-логика) не импортирует адаптеры. Он описывает порты, а composition root в <code>apps/bot</code> связывает реализации. Это позволяет: (1) мокать адаптеры в тестах core, (2) заменить OpenRouter на другого провайдера, изменив только адаптер + composition root, (3) dependency-cruiser гарантирует, что core остаётся чистым.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="notifications">8. Уведомления и планировщик</h2>
+
+<p>Уведомления живут в <code>packages/adapters/notifications/</code>. Это полностью автономный модуль: <strong>не импортирует bot, не импортирует AI, не импортирует DB-репозитории напрямую</strong>. Всё внедряется через deps.</p>
+
+<h3>Архитектура планировщика (<code>scheduler.ts</code>)</h3>
+<ul>
+  <li><strong>Один cron-job на всех пользователей</strong> — не job-per-user. Расписание: <code>*/30 * * * *</code> (каждые 30 минут)</li>
+  <li>На каждом тике: вычисляет UTC hour + minute, находит пользователей, чьё локальное время совпадает с их <code>notificationTime</code></li>
+  <li>Для каждого пользователя: pick word → send → record в <code>notification_history</code></li>
+  <li>В полночь UTC: отдельный проход <code>processInactiveUsers()</code> — 14 дней неактивности → re-engagement сообщение + disable notifications</li>
+</ul>
+
+<h3>Выбор слова (<code>notification.service.ts</code>)</h3>
+<table>
+  <tr><th>notificationType</th><th>Логика pick</th><th>Source</th></tr>
+  <tr><td><code>srs</code> (default)</td><td>Случайное слово из словаря пользователя, исключая recently sent</td><td><code>pickDictionaryWord()</code></td></tr>
+  <tr><td><code>contextual</code></td><td>AI генерирует предложение по контексту пользователя (например "preparing for job interview")</td><td><code>pickContextualWord()</code> — generateObject с sentence schema</td></tr>
+  <tr><td><code>suggested</code></td><td>AI-предложение нового слова</td><td>через deps</td></tr>
+</table>
+
+<h3>Retry и resilience</h3>
+<ul>
+  <li><code>retryWithBackoff()</code> для DB-операций: 3 попытки, exponential backoff (1s, 2s, 4s)</li>
+  <li><code>sendWithRetry()</code> для Telegram: 3 попытки с задержками [1s, 2s, 4s]</li>
+  <li><strong>Rule: log and continue — никогда не останавливать scheduler</strong>. Ошибка одного пользователя не блокирует остальных</li>
+  <li>Catch-all safety net: весь tick обёрнут в try/catch — cron не должен крашиться</li>
+</ul>
+
+<h3>Wiring — <code>apps/bot/src/notifications/notification.wiring.ts</code></h3>
+<p>Composition root для notifications: связывает scheduler с реальными deps (репозитории из DB-адаптера, AI-генерация, i18n функция <code>t</code>) и <code>bot.api.sendMessage</code> как sendFn. Вызывается из <code>index.ts</code> после старта бота.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="srs">9. Spaced Repetition (SM-2)</h2>
+
+<p>Алгоритм SM-2 реализован в <code>packages/core/src/modules/srs/sm2.ts</code> — 54 строки чистой функции, без состояния.</p>
+
+<h3>Типы</h3>
+<pre><code>// types.ts
+type SrsRating = "again" | "hard" | "good" | "easy";
+
+interface SrsState {
+  easeFactor: number;   // начинается с 2.5
+  interval: number;     // в днях; 0 = ещё не повторялось
+  reviewCount: number;
+  dueDate: Date | null;  // null = unscheduled, считается "due"
+}
+
+interface SrsReviewResult extends SrsState {
+  rating: SrsRating;
+  dueDate: Date;         // всегда задан после review
+}</code></pre>
+
+<h3>Логика пересчёта интервала</h3>
+<table>
+  <tr><th>Rating</th><th>Интервал</th><th>Ease Factor Δ</th></tr>
+  <tr><td><code>again</code></td><td>1 день (сброс)</td><td>−0.20</td></tr>
+  <tr><td><code>hard</code></td><td>max(1, interval × 1.2)</td><td>−0.15</td></tr>
+  <tr><td><code>good</code></td><td>1 → 6 → interval × easeFactor</td><td>±0 (без изменений)</td></tr>
+  <tr><td><code>easy</code></td><td>4 (первый раз) / interval × easeFactor × 1.3</td><td>+0.15</td></tr>
+</table>
+<p>Ease Factor ограничен снизу: <code>Math.max(1.3, value)</code>. Первая серия: good → 1 день, потом 6 дней, потом interval × easeFactor.</p>
+
+<h3>Где хранится SRS-состояние</h3>
+<p>В <code>vocabulary_translations</code> — колонки <code>srs_ease_factor</code> (default 2.5), <code>srs_interval</code> (default 0), <code>srs_due_date</code> (nullable), <code>srs_review_count</code> (default 0). Индекс <code>vt_srs_due_idx</code> на <code>srsDueDate</code> для быстрого поиска due-карточек.</p>
+
+<h3>Review flow</h3>
+<div class="flow-diagram">/review command → <span class="file">srs.scene.ts</span>::handleReviewCommand
+  ↓
+Запрос due-карточек: vocabularyRepository.getSrsDueCards(userId, limit=20)
+  ↓
+Для каждой карточки:
+  ├─ Показ: emoji + original + "reveal" button
+  ├─ srs:reveal → показать переводы
+  ├─ srs:rate:again|hard|good|easy → applySm2Review(state, rating)
+  │    └→ vocabularyRepository.updateSrsState(entryId, langId, result)
+  └→ следующая карточка или "done"</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="admin">10. Admin-панель и Admin API</h2>
+
+<p>Отдельное приложение для управления ботом: Fastify API + Astro/Vue frontend.</p>
+
+<h3>Admin API (<code>apps/admin-api/</code>)</h3>
+<p>Fastify на порту 3001. JWT-аутентификация через <code>@fastify/jwt</code>. CORS ограничен <code>ADMIN_PANEL_URL</code>.</p>
+
+<h4>Маршруты (14 файлов в <code>routes/</code>)</h4>
+<table>
+  <tr><th>Prefix</th><th>Routes</th><th>Что управляет</th></tr>
+  <tr><td><code>/api/auth</code></td><td>auth.ts</td><td>Логин, JWT выдача</td></tr>
+  <tr><td><code>/api/settings</code></td><td>rate-limits, ai-models, ai-defaults, notifications, srs, dictionary, presets</td><td>Rate limit plans, AI model registry, AI defaults, notification defaults, SRS config, dictionary settings, translation presets</td></tr>
+  <tr><td><code>/api</code></td><td>users, reported-issues, stats</td><td>Управление пользователями, баг-репорты, статистика</td></tr>
+  <tr><td><code>/healthz</code></td><td>—</td><td>Health check для Docker</td></tr>
+</table>
+
+<h3>Admin Panel (<code>apps/admin/</code>)</h3>
+<p>Astro + Vue 3 + Tailwind CSS + Chart.js. Порт 4321. UI для управления всеми настройками бота, просмотра статистики (графики через vue-chartjs), пользователей, баг-репортов.</p>
+
+<h3>Seed</h3>
+<p><code>pnpm admin:seed</code> → <code>apps/admin-api/src/seed.ts</code> создаёт initial admin из <code>ADMIN_EMAIL</code> + <code>ADMIN_PASSWORD</code> (bcrypt hash).</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="deploy">11. Деплой и топология</h2>
+
+<p>Деплой через Docker Compose (<code>deploy/docker-compose.yml</code>) + Ansible (<code>deploy/ansible/</code>) на VPS.</p>
+
+<h3>Топология Docker Compose</h3>
+<div class="flow-diagram">┌──────────────────────────────────────────────────────────┐
+│  Docker Compose (deploy/docker-compose.yml)              │
+│                                                          │
+│  ┌──────────┐  ┌────────────┐  ┌────────┐  ┌──────────┐ │
+│  │ bot      │  │ admin-api  │  │ admin  │  │ migrate  │ │
+│  │ :9090    │  │ :3001      │  │ :4321  │  │ (tools)  │ │
+│  │ healthz  │  │ JWT        │  │ Astro  │  │ run-once │ │
+│  └────┬─────┘  └─────┬──────┘  └────────┘  └──────────┘ │
+│       │              │                                   │
+│       └──────┬───────┘                                   │
+│              ↓                                           │
+│       ┌──────────────┐                                   │
+│       │ PostgreSQL   │  (external, DATABASE_URL)          │
+│       └──────────────┘                                   │
+│                                                          │
+│  Все порты bound to 127.0.0.1 (reverse proxy перед ними) │
+└──────────────────────────────────────────────────────────┘
+
+  Ansible (deploy/ansible/):
+    ├─ VPS hardening (SSH, firewall)
+    ├─ Docker install
+    ├─ Certbot / Let's Encrypt
+    └─ Deploy containers + reverse proxy (nginx/caddy)</div>
+
+<h3>Окружение (<code>.env.example</code>)</h3>
+<table>
+  <tr><th>Переменная</th><th>Назначение</th></tr>
+  <tr><td><code>BOT_TOKEN</code></td><td>Telegram Bot Token (required, Zod-валидация)</td></tr>
+  <tr><td><code>DATABASE_URL</code></td><td>PostgreSQL connection string (required)</td></tr>
+  <tr><td><code>OPENROUTER_API_KEY</code></td><td>Один ключ → все AI модели (optional в schema, required runtime)</td></tr>
+  <tr><td><code>BETTERSTACK_TOKEN</code></td><td>Log shipping в Betterstack (optional)</td></tr>
+  <tr><td><code>JWT_SECRET</code></td><td>Подпись JWT для admin-api</td></tr>
+  <tr><td><code>ADMIN_*</code></td><td>Email, password, URLs, порты, домены для admin</td></tr>
+  <tr><td><code>VPS_*</code></td><td>Ansible: host, user, SSH key, port</td></tr>
+</table>
+
+<h3>Конфиг-валидация (<code>infra/src/config.ts</code>)</h3>
+<p>Zod-схема <code>envSchema</code> валидирует <code>process.env</code> при старте. Если <code>BOT_TOKEN</code> или <code>DATABASE_URL</code> пустые — <code>process.exit(1)</code> с логом ошибки. <code>findEnvFile()</code> поднимается по директориям, ищу <code>.env</code>.</p>
+
+<h3>Graceful shutdown (<code>apps/bot/src/index.ts</code>)</h3>
+<pre><code>// На SIGINT/SIGTERM:
+// 1. stopScheduler()  — cron останавливается
+// 2. bot.stop()       — grammY long-polling прекращается
+// 3. closeDb()        — connection pool закрывается</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<h2 id="key">12. Ключевые архитектурные решения</h2>
+
+<div class="key-point">
+  <strong>1. Core не знает про Telegram.</strong> Все 12 модулей в <code>packages/core</code> — чистая бизнес-логика. Bot-layer (grammY) вызывает core-функции, передавая AI-генератор и репозитории через DI. Это проверяется dependency-cruiser.
+</div>
+
+<div class="key-point">
+  <strong>2. Один AI-запрос = все языки сразу.</strong> Промпт просит перевести на все target-языки в одном вызове <code>generateObject()</code>. Zod-схема динамически строится с обязательными ключами для каждого языка. Это core USP продукта — "multi-language in one request".
+</div>
+
+<div class="key-point">
+  <strong>3. Validation-retry loop с feedback.</strong> AI-ответ валидируется на 4 уровнях. При failure — retry с strict prompt, содержащим конкретные ошибки. До 3 попыток. При полном провале — <code>needsReview: true</code> (graceful degradation, а не пустой ответ).
+</div>
+
+<div class="key-point">
+  <strong>4. Context enrichment (Wiktionary) — fail-open.</strong> Перед AI-запросом ищется offline-словарный контекст. Если найден — enriches промпт как "Authoritative Dictionary Context". При ошибке — перевод продолжается без контекста. Качество улучшается, но не блокируется.
+</div>
+
+<div class="key-point">
+  <strong>5. Session в PostgreSQL, не в памяти.</strong> <code>createPostgresSessionStorage()</code> хранит grammY sessions в таблице <code>bot_sessions</code>. Перезапуск бота не теряет состояние: activeMode, pendingTranslation, translationMap, flashcard/srs/dictionary wizard state — всё переживает рестарт.
+</div>
+
+<div class="key-point">
+  <strong>6. SRS живёт прямо в vocabulary_translations.</strong> Нет отдельной SRS-таблицы. Колонки <code>srs_ease_factor</code>, <code>srs_interval</code>, <code>srs_due_date</code>, <code>srs_review_count</code> — на каждом переводе. Одна запись слова = N независимых SRS-карт (по одной на target-язык).
+</div>
+
+<div class="key-point">
+  <strong>7. Rate limiting через credit system.</strong> Тарифы (<code>rate_limit_plans</code>) определяют creditsPerDay и creditCost. Каждый перевод списывает кредиты. <code>translation_requests</code> логирует каждый запрос. Admin может менять планы и assigns пользователей. AI-доступ к моделям тоже gated по плану (<code>ai_model_plan_access</code>).
+</div>
+
+<div class="key-point">
+  <strong>8. Notifications — полностью автономны.</strong> Scheduler не импортирует bot. <code>sendFn</code> внедряется. На ошибке — log and continue, никогда не крашится. Retry с backoff для DB и Telegram. 14-day inactivity → auto-pause + re-engagement.
+</div>
+
+<div class="key-point">
+  <strong>9. Language detection: sync → async → mistype flow.</strong> Сначала быстрый sync-детектор (скрипт + диакритики + franc). Если не уверен — async AI-детектор через <code>generateText</code>. Если и AI не определил — mistype flow: показывает warning + Confirm/Cancel кнопки, записывает событие в <code>language_detection_events</code> для аналитики.
+</div>
+
+<div class="key-point">
+  <strong>10. Метрики на каждом уровне.</strong> <code>ai_request_latencies</code> — каждый AI-запрос (model, tokens, cost, duration). <code>translation_request_timings</code> — сегментные метрики (preflight / dbLookup / aiRequest / total). <code>language_detection_events</code> — mistype-аналитика. Prometheus-совместимый metrics server на :9090 (<code>apps/bot/src/metrics.ts</code>).
+</div>
+
+<div class="key-point">
+  <strong>11. User templates управляют AI-запросом.</strong> Не просто UI-фильтр — <code>resolveOutputConfig()</code> передаётся в <code>buildTranslationResultSchema()</code>, и Zod-схема реально меняется. Если пользователь отключил examples — AI их не запрашивает (экономия токенов). Но <code>stripDisabledFields()</code> дополнительно зануляет на случай, если модель всё равно их вернёт.
+</div>
+
+<div class="key-point">
+  <strong>12. Partial regeneration с auto-update.</strong> Кнопка <code>tr:regen:{lang}</code> перезапрашивает только один язык через <code>translateOneWithContext()</code> — дешевле полного перевода. Если слово уже сохранено (<code>savedWordId</code>), результат автоматически обновляет запись через <code>vocabularyRepository.updateTranslation()</code>. Пользователь не видит "re-save prompt" — frictionless refinement.
+</div>
+
+<hr>
+
+<h3>Стек технологий (из <code>package.json</code> + <code>01-stack.md</code>)</h3>
+<table>
+  <tr><th>Слой</th><th>Технология</th></tr>
+  <tr><td>Runtime</td><td>Node.js + TypeScript 5.x (strict)</td></tr>
+  <tr><td>Bot framework</td><td>grammY 1.x (long-polling, sessions, conversations)</td></tr>
+  <tr><td>DB</td><td>PostgreSQL 16 + Drizzle ORM (postgres-js driver)</td></tr>
+  <tr><td>AI</td><td>Vercel AI SDK (<code>ai</code>) + OpenRouter (<code>@openrouter/ai-sdk-provider</code>)</td></tr>
+  <tr><td>Schema validation</td><td>Zod 4.x (и для AI-ответов, и для env)</td></tr>
+  <tr><td>Scheduler</td><td>node-cron (один job, каждые 30 минут)</td></tr>
+  <tr><td>Admin API</td><td>Fastify 5.x + @fastify/jwt + @fastify/cors + bcryptjs</td></tr>
+  <tr><td>Admin UI</td><td>Astro 5.x + Vue 3 + Tailwind + Chart.js</td></tr>
+  <tr><td>Logging</td><td>Pino + Betterstack (@logtail/pino)</td></tr>
+  <tr><td>Testing</td><td>Vitest 3.x</td></tr>
+  <tr><td>Linting</td><td>Biome 2.x + dependency-cruiser + knip</td></tr>
+  <tr><td>Package manager</td><td>pnpm 10.x workspaces</td></tr>
+  <tr><td>Deployment</td><td>Docker Compose + Ansible → VPS</td></tr>
+</table>
+
+<div class="footer">
+  <p>Документ сгенерирован из реального исходного кода Polyglot. Основные файлы: <code>schema.ts</code> (639 строк), <code>translate-mode.helper.ts</code> (903 строки), <code>translation.service.ts</code> (331 строка), <code>prompt.builder.ts</code> (330 строк), <code>scheduler.ts</code> (314 строк), <code>bot-factory.ts</code> (294 строки), <code>container.ts</code> (94 строки), <code>.dependency-cruiser.cjs</code> (279 строк).</p>
+</div>
+
+</div>
+</body>
+</html>

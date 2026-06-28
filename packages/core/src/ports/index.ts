@@ -20,6 +20,13 @@ export type {
   UserRepository,
 } from "./user.repository.js";
 export type {
+  CreateVideoProcessInput,
+  SaveVideoPhraseInput,
+  VideoPhrase,
+  VideoProcess,
+  VideoVocabularyRepository,
+} from "./video-vocabulary.repository.js";
+export type {
   CreateVocabularyInput,
   UpdateTranslationData,
   VocabTranslationDetails,

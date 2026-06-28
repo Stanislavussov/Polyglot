@@ -48,6 +48,7 @@ const items = [
   { href: "/reported-issues", label: "Reports", icon: "📝" },
   { href: "/rate-limits", label: "Rate Limits", icon: "⏱️" },
   { href: "/ai-models", label: "AI Models", icon: "🤖" },
+  { href: "/architecture", label: "Architecture", icon: "🧭" },
   { href: "/settings", label: "Settings", icon: "⚙️" },
   { href: "/presets", label: "Presets", icon: "🎯" },
 ];

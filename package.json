@@ -21,6 +21,7 @@
     "lint:deps": "depcruise --config .dependency-cruiser.cjs packages apps/bot/src",
     "lint:knip": "knip",
     "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > @docs/dependency-graph.svg",
+    "reports:sync-admin": "node scripts/sync-admin-reports.mjs",
     "clean": "pnpm -r run clean && rm -rf coverage .vitest",
     "docker:up": "docker compose -f deploy/docker-compose.yml up",
     "docker:dev": "docker compose -f deploy/docker-compose.override.yml up",
@@ -31,6 +32,7 @@
     "db:migrate": "pnpm --filter @polyglot/adapter-db db:migrate",
     "db:studio": "pnpm --filter @polyglot/adapter-db db:studio",
     "db:check": "pnpm --filter @polyglot/adapter-db db:check",
+    "db:schema:report": "pnpm --filter @polyglot/adapter-db schema:report && pnpm reports:sync-admin",
     "admin:seed": "pnpm --filter @polyglot/admin-api run seed",
     "ansible": "./scripts/run-ansible.sh"
   },

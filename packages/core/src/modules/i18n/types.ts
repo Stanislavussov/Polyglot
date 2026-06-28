@@ -255,7 +255,29 @@ export type I18nKey =
   | "grammarLocked"
   | "grammarDetailButton"
   | "grammarDetailLocked"
-  | "grammarDetailCancel";
+  | "grammarDetailCancel"
+  | "cmdDescVideos"
+  | "videoDuration"
+  | "videoLanguage"
+  | "videoRemaining"
+  | "videoExtract"
+  | "videoCancel"
+  | "videoProcessingStarted"
+  | "videoProcessingDone"
+  | "videoProcessingFailed"
+  | "videoOnlyYouTube"
+  | "videoNoSubtitles"
+  | "videoLimitReached"
+  | "videoAlreadyProcessing"
+  | "videoMetadataError"
+  | "videoMyVideos"
+  | "videoNoVideos"
+  | "videoNoPhrases"
+  | "videoBrowse"
+  | "dictionaryTranslate"
+  | "videoSaveAll"
+  | "videoClose"
+  | "chooseProficiencyLevel";
 
 /**
  * Supported interface languages.
@@ -323,6 +345,7 @@ export interface I18nParams {
   notifRemoved: { word: string };
   mistypeWarning: { word: string };
   langSelectPrompt: { word: string };
+  chooseProficiencyLevel: { lang: string };
 }
 
 /**

@@ -22,6 +22,7 @@
     "@polyglot/adapter-ai": "workspace:*",
     "@polyglot/adapter-db": "workspace:*",
     "@polyglot/adapter-notifications": "workspace:*",
+    "@polyglot/adapter-youtube": "workspace:*",
     "@polyglot/core": "workspace:*",
     "@polyglot/infra": "workspace:*",
     "dotenv": "^17.3.1",

@@ -32,6 +32,7 @@ import {
   translationRequestRepository,
   translationTemplateRepository,
   userRepository,
+  videoVocabularyRepository,
   vocabularyDictionaryRepository,
   vocabularyRepository,
   wordReviewRepository,
@@ -89,6 +90,7 @@ export function createContainer(): ServiceContainer {
       estimateCost,
     },
     settings,
+    videoVocabularyRepository,
   } as unknown as ServiceContainer;
   return container;
 }

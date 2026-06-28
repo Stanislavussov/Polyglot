@@ -90,6 +90,11 @@ export {
 export type { UserRequestCountRow } from "./repositories/user-request-count.repository.js";
 export { userRequestCountRepository } from "./repositories/user-request-count.repository.js";
 export type {
+  CreateVideoProcessInput,
+  SaveVideoPhraseInput,
+} from "./repositories/video-vocabulary.repository.js";
+export { videoVocabularyRepository } from "./repositories/video-vocabulary.repository.js";
+export type {
   CreateVocabularyInput,
   UpdateTranslationData,
   VocabTranslationDetails,

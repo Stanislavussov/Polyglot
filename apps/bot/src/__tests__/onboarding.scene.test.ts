@@ -10,6 +10,7 @@ vi.mock("@polyglot/adapter-db", () => ({
     updateSettings: vi.fn(),
     markOnboarded: vi.fn(),
     updateActiveMode: vi.fn().mockResolvedValue({}),
+    setLanguageLevel: vi.fn().mockResolvedValue(undefined),
   },
   getSupportedLangs: () => [
     { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", isSupported: true },
@@ -136,14 +137,15 @@ describe("onboarding", () => {
     vi.clearAllMocks();
   });
 
-  // ── Forward-only flow (3 steps) ──────────────────────────────────────────
+  // ── Forward-only flow (4 steps) ──────────────────────────────────────────
 
   describe("forward-only flow", () => {
-    it("completes all 3 steps and marks user as onboarded", async () => {
+    it("completes all 4 steps and marks user as onboarded", async () => {
       const { conversation, ctx } = setup([
         cb("lang:ru"), // Step 1: native language
         cb("learn:cs"), // Step 2: select Czech
         cb("learn:done"), // Step 2: confirm
+        cb("level:cs:B2"), // Step 2.5: proficiency level
         txt("hello"), // Step 3: enter word (demo)
       ]);
 
@@ -161,7 +163,13 @@ describe("onboarding", () => {
     });
 
     it("sets activeMode to 'translate' after completion", async () => {
-      const { conversation, ctx } = setup([cb("lang:ru"), cb("learn:cs"), cb("learn:done"), txt("hello")]);
+      const { conversation, ctx } = setup([
+        cb("lang:ru"),
+        cb("learn:cs"),
+        cb("learn:done"),
+        cb("level:cs:B1"),
+        txt("hello"),
+      ]);
 
       expect(ctx.session.activeMode).toBe("idle"); // before
       await onboarding(conversation, ctx);
@@ -169,7 +177,13 @@ describe("onboarding", () => {
     });
 
     it("persists activeMode to DB after completion", async () => {
-      const { conversation, ctx } = setup([cb("lang:ru"), cb("learn:cs"), cb("learn:done"), txt("hello")]);
+      const { conversation, ctx } = setup([
+        cb("lang:ru"),
+        cb("learn:cs"),
+        cb("learn:done"),
+        cb("level:cs:B1"),
+        txt("hello"),
+      ]);
 
       await onboarding(conversation, ctx);
 
@@ -177,7 +191,13 @@ describe("onboarding", () => {
     });
 
     it("demo step shows result immediately without Save/Skip prompt", async () => {
-      const { conversation, ctx } = setup([cb("lang:en"), cb("learn:cs"), cb("learn:done"), txt("hello")]);
+      const { conversation, ctx } = setup([
+        cb("lang:en"),
+        cb("learn:cs"),
+        cb("learn:done"),
+        cb("level:cs:B1"),
+        txt("hello"),
+      ]);
 
       await onboarding(conversation, ctx);
 
@@ -203,6 +223,7 @@ describe("onboarding", () => {
         cb("lang:ru"), // native = Russian
         cb("learn:en"),
         cb("learn:done"),
+        cb("level:en:B2"), // proficiency
         txt("привет"),
       ]);
 
@@ -222,6 +243,7 @@ describe("onboarding", () => {
           cb("lang:cs"), // native = Czech
           cb("learn:en"),
           cb("learn:done"),
+          cb("level:en:A2"), // proficiency
           txt("ahoj"),
         ],
         FAKE_USER,
@@ -263,7 +285,8 @@ describe("onboarding", () => {
         cb("lang:en"), // Step 1 (again): pick English
         cb("learn:cs"), // Step 2 (again)
         cb("learn:done"),
-        txt("hello"), // Step 3
+        cb("level:cs:B1"), // Step 2.5: proficiency
+        txt("hello"), // Step 4: demo
       ]);
 
       await onboarding(conversation, ctx);
@@ -282,10 +305,11 @@ describe("onboarding", () => {
         cb("lang:ru"), // Step 1
         cb("learn:cs"), // Step 2: select Czech
         cb("learn:done"),
-        cb("onb:back"), // Step 3: back
+        cb("level:back"), // Step 2.5: back → step 2
         cb("learn:de"), // Step 2 (again): select German
         cb("learn:done"),
-        txt("hello"), // Step 3 (again)
+        cb("level:de:C1"), // Step 2.5: proficiency
+        txt("hello"), // Step 4: demo
       ]);
 
       await onboarding(conversation, ctx);
@@ -305,12 +329,13 @@ describe("onboarding", () => {
         cb("lang:ru"), // Step 1
         cb("learn:cs"), // Step 2
         cb("learn:done"),
-        cb("onb:back"), // Step 3: back → 2
+        cb("level:back"), // Step 2.5: back → step 2
         cb("learn:back"), // Step 2: back → 1
         cb("lang:cs"), // Step 1 (again): pick Czech
         cb("learn:en"), // Step 2 (again): select English
         cb("learn:done"),
-        txt("world"), // Step 3 (again)
+        cb("level:en:B1"), // Step 2.5: proficiency
+        txt("world"), // Step 4 (demo)
       ]);
 
       await onboarding(conversation, ctx);
@@ -333,6 +358,7 @@ describe("onboarding", () => {
         cb("lang:ru"), // Step 1 (again)
         cb("learn:fr"), // Step 2 (again): only French this time
         cb("learn:done"),
+        cb("level:fr:A1"), // Step 2.5: proficiency
         txt("hello"),
       ]);
 
@@ -357,6 +383,7 @@ describe("onboarding", () => {
         cb("lang:en"), // Step 1: forward (again)
         cb("learn:cs"),
         cb("learn:done"),
+        cb("level:cs:B1"), // Step 2.5: proficiency
         txt("hello"),
       ]);
 
@@ -370,14 +397,15 @@ describe("onboarding", () => {
       ]);
     });
 
-    it("calls updateSettings again after back from step 3 and re-completing step 2", async () => {
+    it("calls updateSettings again after back from step 2.5 and re-completing step 2", async () => {
       const { conversation, ctx } = setup([
         cb("lang:en"),
         cb("learn:cs"),
         cb("learn:done"), // first step 2 completion → updateSettings #1
-        cb("onb:back"), // Step 3: back → 2
+        cb("level:back"), // Step 2.5: back → step 2
         cb("learn:de"),
         cb("learn:done"), // second step 2 completion → updateSettings #2
+        cb("level:de:B2"), // Step 2.5: proficiency
         txt("hello"),
       ]);
 
@@ -405,9 +433,10 @@ describe("onboarding", () => {
         cb("lang:en"),
         cb("learn:cs"),
         cb("learn:done"),
-        cb("onb:back"), // back from step 3
+        cb("level:back"), // back from step 2.5
         cb("learn:cs"),
         cb("learn:done"),
+        cb("level:cs:B1"), // proficiency
         txt("hello"),
       ]);
 
@@ -422,7 +451,7 @@ describe("onboarding", () => {
 
   describe("back button presence in keyboards", () => {
     async function runFullFlow() {
-      const harness = setup([cb("lang:ru"), cb("learn:cs"), cb("learn:done"), txt("hello")]);
+      const harness = setup([cb("lang:ru"), cb("learn:cs"), cb("learn:done"), cb("level:cs:B1"), txt("hello")]);
       await onboarding(harness.conversation, harness.ctx);
       return harness.ctx;
     }
@@ -442,17 +471,17 @@ describe("onboarding", () => {
       expect(hasButton(kb, "learn:back")).toBe(true);
     });
 
-    it("step 3 (enter word) prompt HAS a back button", async () => {
+    it("step 4 (enter word) prompt HAS a back button", async () => {
       const ctx = await runFullFlow();
-      // ctx.reply call [2] = step 3 "enter word" prompt
-      const kb = getKeyboard(ctx, 2);
+      // ctx.reply call [2] = step 2.5 proficiency level, [3] = step 4 "enter word" prompt
+      const kb = getKeyboard(ctx, 3);
       expect(hasButton(kb, "onb:back")).toBe(true);
     });
 
-    it("step 3 (demo result) does NOT have Save/Skip buttons", async () => {
+    it("step 4 (demo result) does NOT have Save/Skip buttons", async () => {
       const ctx = await runFullFlow();
-      // ctx.reply call [3] = step 3 translation result (no keyboard)
-      const kb = getKeyboard(ctx, 3);
+      // ctx.reply call [4] = step 4 translation result (no keyboard)
+      const kb = getKeyboard(ctx, 4);
       expect(hasButton(kb, "demo:save")).toBe(false);
       expect(hasButton(kb, "demo:skip")).toBe(false);
     });

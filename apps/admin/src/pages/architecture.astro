@@ -1,0 +1,69 @@
+---
+import manifest from "../../public/reports/manifest.json";
+import AdminLayout from "../layouts/AdminLayout.astro";
+
+type ReportManifestItem = {
+  slug: string;
+  title: string;
+  description: string;
+  href: string;
+};
+
+const reports = (manifest as { reports: ReportManifestItem[] }).reports;
+const requestedReport = Astro.url.searchParams.get("report");
+const selectedReport = reports.find((report) => report.slug === requestedReport) ?? reports[0];
+---
+
+<AdminLayout title="Architecture">
+  <div class="space-y-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Architecture</h1>
+      <p class="mt-1 text-sm text-gray-500">Browse generated architecture, database, observability, and quality reports.</p>
+    </div>
+
+    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {
+        reports.map((report) => {
+          const active = report.slug === selectedReport.slug;
+          return (
+            <a
+              href={`/architecture?report=${report.slug}`}
+              class:list={[
+                "block rounded-lg border p-4 transition-colors",
+                active ? "border-indigo-500 bg-indigo-50" : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50",
+              ]}
+            >
+              <div class:list={["text-sm font-semibold", active ? "text-indigo-900" : "text-gray-900"]}>{report.title}</div>
+              <p class="mt-1 text-sm leading-5 text-gray-600">{report.description}</p>
+            </a>
+          );
+        })
+      }
+    </div>
+
+    <section class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div class="flex flex-col gap-3 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 class="text-base font-semibold text-gray-900">{selectedReport.title}</h2>
+          <p class="text-sm text-gray-500">{selectedReport.description}</p>
+        </div>
+        <a
+          class="inline-flex items-center justify-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          href={selectedReport.href}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Open full page
+        </a>
+      </div>
+      <div class="h-[70vh] min-h-[520px] overflow-hidden bg-gray-100">
+        <iframe
+          class="h-full w-full border-0 bg-white"
+          src={selectedReport.href}
+          title={selectedReport.title}
+          loading="lazy"
+        />
+      </div>
+    </section>
+  </div>
+</AdminLayout>

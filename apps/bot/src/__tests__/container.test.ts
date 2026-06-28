@@ -41,6 +41,22 @@ vi.mock("@polyglot/adapter-db", () => ({
     record: vi.fn().mockResolvedValue(undefined),
     getModelLatencySummary: vi.fn().mockResolvedValue([]),
   },
+  videoVocabularyRepository: {
+    createProcess: vi.fn().mockResolvedValue({ id: 1 }),
+    findProcessById: vi.fn().mockResolvedValue(null),
+    findProcessByUserAndVideo: vi.fn().mockResolvedValue(null),
+    findProcessesByUser: vi.fn().mockResolvedValue([]),
+    countProcessesByUser: vi.fn().mockResolvedValue(0),
+    getMonthlyUsageCount: vi.fn().mockResolvedValue(0),
+    savePhrases: vi.fn().mockResolvedValue(undefined),
+    findPhrasesByProcess: vi.fn().mockResolvedValue([]),
+    countPhrasesByProcess: vi.fn().mockResolvedValue(0),
+    findPhraseById: vi.fn().mockResolvedValue(null),
+    markPhraseSaved: vi.fn().mockResolvedValue(undefined),
+    findCachedTranscript: vi.fn().mockResolvedValue(null),
+    cacheTranscript: vi.fn().mockResolvedValue(undefined),
+    updateProcessStatus: vi.fn().mockResolvedValue(undefined),
+  },
   settingsAdapter: {
     getPlanLimits: vi.fn().mockResolvedValue([]),
     getPlanLimit: vi.fn().mockResolvedValue(null),
@@ -58,6 +74,9 @@ vi.mock("@polyglot/adapter-db", () => ({
       .mockResolvedValue({ defaultTime: "08:00", defaultType: "srs", inactivityDays: 14 }),
     getDictionaryConfig: vi.fn().mockResolvedValue({ flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 }),
     getTranslationPresets: vi.fn().mockResolvedValue([]),
+    getVideoVocabularyConfig: vi
+      .fn()
+      .mockResolvedValue({ monthlyLimit: 3, maxPhrasesDefault: 30, extractionModelId: "google/gemini-3.1-flash-lite" }),
   },
   loadLanguageCache: vi.fn().mockResolvedValue(undefined),
   isLanguageCacheLoaded: vi.fn().mockReturnValue(true),
