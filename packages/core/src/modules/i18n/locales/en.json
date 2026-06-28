@@ -274,5 +274,15 @@
   "dictionaryTranslate": "🔄 Translate",
   "videoSaveAll": "Save All",
   "videoClose": "Close",
+  "videoPhraseNotFound": "Phrase not found",
+  "videoAlreadySaved": "Already saved",
+  "videoLanguageNotFound": "Language not found",
+  "videoDurationUnknown": "Unknown",
+  "videoTypeWord": "word",
+  "videoTypePhrase": "phrase",
+  "videoPage": "Page {page} of {total}",
+  "videoSavedToast": "Saved!",
+  "videoProcessingCancelled": "Video processing cancelled.",
+  "videoPhrasesExtracted": "{count} phrases extracted",
   "chooseProficiencyLevel": "What is your level in {lang}?"
 }

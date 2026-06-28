@@ -8,6 +8,7 @@
  * Fail-open: catches errors, returns an empty candidate array.
  */
 import type { ContextLookupFn, DictionaryContextCandidate, DictionaryContextMatchType } from "@polyglot/core";
+import { dictionaryLookupLogRepository } from "./repositories/dictionary-lookup-log.repository.js";
 import { wordContextRepository } from "./repositories/word-context.repository.js";
 
 function normalizeLookupInput(input: string): string {
@@ -43,6 +44,36 @@ function compareCandidates(left: DictionaryContextCandidate, right: DictionaryCo
   );
 }
 
+async function recordLookup(input: {
+  lookupInput: string;
+  normalizedInput: string;
+  langCode: string;
+  candidates: DictionaryContextCandidate[];
+  error?: string;
+}): Promise<void> {
+  const topCandidate = input.candidates[0];
+  try {
+    await dictionaryLookupLogRepository.record({
+      lookupInput: input.lookupInput,
+      normalizedInput: input.normalizedInput,
+      langCode: input.langCode,
+      matched: input.candidates.length > 0,
+      matchCount: input.candidates.length,
+      matchedWord: topCandidate?.context.word,
+      matchType: topCandidate?.matchType,
+      matchedPos: topCandidate?.context.pos,
+      matchedGlosses: topCandidate?.context.glosses,
+      error: input.error,
+    });
+  } catch {
+    // Lookup audit logs are operational telemetry and must never block translation.
+  }
+}
+
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : "Unknown dictionary lookup error";
+}
+
 /**
  * Create a ContextLookupFn that wraps wordContextRepository.findByWordAndLangCode().
  *
@@ -56,11 +87,11 @@ function compareCandidates(left: DictionaryContextCandidate, right: DictionaryCo
  */
 export function createContextLookup(): ContextLookupFn {
   return async (word, langCode) => {
+    const normalizedWord = normalizeLookupInput(word);
     try {
-      const normalizedWord = normalizeLookupInput(word);
       const results = await wordContextRepository.findByWordAndLangCode(normalizedWord, langCode);
 
-      return results
+      const candidates = results
         .map(
           (entry): DictionaryContextCandidate => ({
             matchType: getMatchType(normalizedWord, entry),
@@ -74,7 +105,23 @@ export function createContextLookup(): ContextLookupFn {
           }),
         )
         .sort(compareCandidates);
-    } catch {
+
+      await recordLookup({
+        lookupInput: word,
+        normalizedInput: normalizedWord,
+        langCode,
+        candidates,
+      });
+
+      return candidates;
+    } catch (err) {
+      await recordLookup({
+        lookupInput: word,
+        normalizedInput: normalizedWord,
+        langCode,
+        candidates: [],
+        error: errorMessage(err),
+      });
       // Fail-open: dictionary context is optional enrichment.
       // DB errors should never break translation.
       return [];

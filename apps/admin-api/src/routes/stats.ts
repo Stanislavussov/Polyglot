@@ -1,5 +1,6 @@
 import {
   aiRequestLatencyRepository,
+  dictionaryLookupLogRepository,
   getDb,
   languageDetectionRepository,
   requestTimingRepository,
@@ -66,6 +67,31 @@ export async function statsRoutes(app: FastifyInstance) {
     const byDay = await languageDetectionRepository.getSummaryByDay(days);
     const outcome = await languageDetectionRepository.getSummaryByOutcome(days);
     return { byDay, outcome };
+  });
+
+  app.get("/stats/dictionary-lookups", async (request) => {
+    const querySchema = z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+      days: z.string().optional(),
+    });
+    const parsed = querySchema.parse(request.query);
+    const rawPage = parsed.page ? Number.parseInt(parsed.page, 10) : 1;
+    const rawLimit = parsed.limit ? Number.parseInt(parsed.limit, 10) : 50;
+    const rawDays = parsed.days ? Number.parseInt(parsed.days, 10) : 7;
+    const page = Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage);
+    const limit = Number.isNaN(rawLimit) ? 50 : Math.max(1, Math.min(200, rawLimit));
+    const days = Number.isNaN(rawDays) ? 7 : Math.max(1, Math.min(90, rawDays));
+
+    const [logPage, summary] = await Promise.all([
+      dictionaryLookupLogRepository.listRecent(page, limit),
+      dictionaryLookupLogRepository.getSummary(days),
+    ]);
+
+    return {
+      ...logPage,
+      summary,
+    };
   });
 
   app.get("/stats/user-request-counts", async (request) => {

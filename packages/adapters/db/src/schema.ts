@@ -65,6 +65,34 @@ export const wordContext = pgTable(
 );
 
 // ─────────────────────────────────────────────
+// Dictionary lookup logs — audit trail for word_context lookups
+// ─────────────────────────────────────────────
+export const dictionaryLookupLogs = pgTable(
+  "dictionary_lookup_logs",
+  {
+    id: serial("id").primaryKey(),
+    lookupInput: text("lookup_input").notNull(),
+    normalizedInput: text("normalized_input").notNull(),
+    langCode: text("lang_code").notNull(),
+    matched: boolean("matched").notNull(),
+    matchCount: integer("match_count").default(0).notNull(),
+    matchedWord: text("matched_word"),
+    matchType: text("match_type"),
+    matchedPos: text("matched_pos"),
+    matchedGlosses: text("matched_glosses").array().default([]),
+    error: text("error"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("dictionary_lookup_logs_created_at_idx").on(t.createdAt),
+    index("dictionary_lookup_logs_lang_created_idx").on(t.langCode, t.createdAt),
+    index("dictionary_lookup_logs_matched_created_idx").on(t.matched, t.createdAt),
+  ],
+);
+
+export type DictionaryLookupLog = typeof dictionaryLookupLogs.$inferSelect;
+
+// ─────────────────────────────────────────────
 // User identification — who the user is
 // ─────────────────────────────────────────────
 export const audienceGroupEnum = pgEnum("audience_group", ["admin", "tester", "product"]);

@@ -80,6 +80,27 @@ const baseRequest: TranslationRequest = {
   targetLangs: ["en"],
 };
 
+/** Split a TranslationResult into metadata and per-language blocks for parallel mock setup */
+function splitForMock(result: TranslationResult) {
+  const { translations, ...metadata } = result;
+  return {
+    metadata: { ...metadata, nativeSynonyms: metadata.nativeSynonyms ?? [] },
+    langBlocks: translations,
+  };
+}
+
+/** Create a mock generateObjectFn that auto-detects parallel call type from prompt content */
+function createTranslateMock(result: TranslationResult) {
+  const { metadata, langBlocks } = splitForMock(result);
+  return vi.fn().mockImplementation(async (prompt: string) => {
+    if (prompt.includes("Do NOT include any translations")) return metadata;
+    for (const [lang, block] of Object.entries(langBlocks)) {
+      if (prompt.includes(`translation block for language "${lang}"`)) return block;
+    }
+    return result;
+  });
+}
+
 const defaultInput: TranslateInput = {
   word: "что ли",
   sourceLang: "ru",
@@ -334,7 +355,7 @@ describe("buildStrictPrompt — dictionary context", () => {
 
 describe("translate — dictionary context passthrough", () => {
   it("passes dictionary context to the prompt", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     const input: TranslateInput = {
       ...defaultInput,
@@ -349,7 +370,7 @@ describe("translate — dictionary context passthrough", () => {
   });
 
   it("includes dictionaryContext in the output when provided", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     const input: TranslateInput = {
       ...defaultInput,
@@ -367,7 +388,7 @@ describe("translate — dictionary context passthrough", () => {
   });
 
   it("does NOT include dictionaryContext in output when not provided", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     const result = await translate(defaultInput, mockGenerate);
 
@@ -389,7 +410,21 @@ describe("translate — dictionary context passthrough", () => {
       },
     });
 
-    const mockGenerate = vi.fn().mockResolvedValueOnce(badResult).mockResolvedValueOnce(makeValidResult());
+    const goodResult = makeValidResult();
+
+    // Use createTranslateMock for consistent parallel call handling.
+    // First round returns bad result, but the repair call falls through
+    // to the default (returns full badResult), so we override with a
+    // custom implementation that returns the good block for repair prompts.
+    const { metadata: badMeta, langBlocks: badLangs } = splitForMock(badResult);
+    const { langBlocks: goodLangs } = splitForMock(goodResult);
+    const mockGenerate = vi.fn().mockImplementation(async (prompt: string) => {
+      if (prompt.includes("Do NOT include any translations")) return badMeta;
+      if (prompt.includes(`translation block for language "en"`)) return badLangs.en;
+      if (prompt.includes("Targeted repair only")) return goodLangs.en;
+      if (prompt.includes("translation quality judge")) return { issues: [], summary: "ok" };
+      return badResult;
+    });
 
     const input: TranslateInput = {
       ...defaultInput,
@@ -402,9 +437,12 @@ describe("translate — dictionary context passthrough", () => {
     expect(unwrap(result).dictionaryContext).toBeDefined();
     expect(unwrap(result).dictionaryContext!.pos).toBe("phrase");
 
-    // Retry prompt should also include dictionary context
-    const retryPrompt = mockGenerate.mock.calls[1][0] as string;
-    expect(retryPrompt).toContain("Authoritative Dictionary Context");
+    // Repair prompt should also include dictionary context
+    const repairPrompt = mockGenerate.mock.calls.find(
+      (call: unknown[]) => typeof call[0] === "string" && (call[0] as string).includes("Targeted repair"),
+    );
+    expect(repairPrompt).toBeDefined();
+    expect(repairPrompt![0]).toContain("Authoritative Dictionary Context");
 
     warnSpy.mockRestore();
     errorSpy.mockRestore();
@@ -424,7 +462,7 @@ describe("translate — dictionary context passthrough", () => {
       },
     });
 
-    const mockGenerate = vi.fn().mockResolvedValue(badResult);
+    const mockGenerate = createTranslateMock(badResult);
 
     const input: TranslateInput = {
       ...defaultInput,
@@ -448,7 +486,7 @@ describe("translate — dictionary context passthrough", () => {
 
 describe("translateOne — dictionary context passthrough", () => {
   it("passes dictionary context through to translate()", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     await translateOne(
       {

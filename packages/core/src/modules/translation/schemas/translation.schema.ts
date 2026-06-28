@@ -216,6 +216,28 @@ export function buildTranslationResultSchema(
   });
 }
 
+/**
+ * Build a metadata-only schema for the parallel metadata AI call.
+ *
+ * Returns a schema for emoji, nativeMeaning, sourceUsage, and nativeSynonyms —
+ * the top-level fields that are language-independent. Used alongside
+ * per-language calls that each produce a single LanguageTranslation block.
+ */
+export function buildMetadataSchema(
+  config?: TranslationOutputConfig,
+  requireNative = false,
+  requireSourceUsage = false,
+  requireExampleNative = false,
+) {
+  const includeNativeSynonyms = config?.includeNativeSynonyms !== false;
+  return z.object({
+    emoji: z.string().min(1, "Emoji is required"),
+    ...(requireNative && { nativeMeaning: z.string().min(1, "Native meaning is required") }),
+    ...(requireSourceUsage && { sourceUsage: buildSourceUsageSchema(config, requireExampleNative) }),
+    ...(includeNativeSynonyms && { nativeSynonyms: z.array(synonymSchema) }),
+  });
+}
+
 /** Inferred types from schemas for runtime validation */
 export type TranslationRequestInput = z.infer<typeof translationRequestSchema>;
 export type TranslationResultInput = z.infer<typeof translationResultSchema>;

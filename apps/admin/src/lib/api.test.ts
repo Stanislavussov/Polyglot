@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { type AIModel, aiModels, openRouter, reportedIssues, users } from "./api.js";
+import { type AIModel, aiModels, dictionaryLookupLogs, openRouter, reportedIssues, users } from "./api.js";
 
 function stubFetch(
   response: Response,
@@ -76,6 +76,31 @@ describe("admin API client", () => {
       method: "GET",
       headers: {},
     });
+  });
+
+  it("builds dictionary lookup log query parameters", async () => {
+    const fetchMock = stubFetch(
+      new Response(
+        JSON.stringify({
+          logs: [],
+          total: 0,
+          page: 3,
+          limit: 25,
+          summary: { totalLookups: 0, matchedLookups: 0, failedLookups: 0, matchRate: 0 },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await dictionaryLookupLogs.list(3, 25, 14);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:3001/api/stats/dictionary-lookups?page=3&limit=25&days=14",
+      {
+        method: "GET",
+        headers: {},
+      },
+    );
   });
 
   it("updates user audience groups", async () => {

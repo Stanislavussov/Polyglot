@@ -59,6 +59,12 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("No markdown");
   });
 
+  it("includes universal language-specific grammatical markers directive", () => {
+    const prompt = buildTranslationPrompt(baseRequest);
+    expect(prompt).toContain("grammatically essential markers");
+    expect(prompt).toContain("articles, grammatical gender, verb aspect");
+  });
+
   it("includes topic hint when provided", () => {
     const prompt = buildTranslationPrompt({
       ...baseRequest,

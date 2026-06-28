@@ -22,11 +22,46 @@ const mocks = vi.hoisted(() => {
       },
     ]),
   );
+  const listRecentDictionaryLookups = vi.fn(() =>
+    Promise.resolve({
+      logs: [
+        {
+          id: 1,
+          lookupInput: "RAN",
+          normalizedInput: "ran",
+          langCode: "en",
+          matched: true,
+          matchCount: 1,
+          matchedWord: "run",
+          matchType: "known_form",
+          matchedPos: "verb",
+          matchedGlosses: ["move quickly"],
+          error: null,
+          createdAt: new Date("2026-06-25T12:00:00Z"),
+        },
+      ],
+      total: 1,
+      page: 1,
+      limit: 50,
+    }),
+  );
+  const getDictionaryLookupSummary = vi.fn(() =>
+    Promise.resolve({
+      totalLookups: 10,
+      matchedLookups: 7,
+      failedLookups: 1,
+      matchRate: 0.7,
+    }),
+  );
 
-  return { getUserRequestCountsByDay };
+  return { getUserRequestCountsByDay, getDictionaryLookupSummary, listRecentDictionaryLookups };
 });
 
 vi.mock("@polyglot/adapter-db", () => ({
+  dictionaryLookupLogRepository: {
+    getSummary: mocks.getDictionaryLookupSummary,
+    listRecent: mocks.listRecentDictionaryLookups,
+  },
   userRequestCountRepository: {
     getUserRequestCountsByDay: mocks.getUserRequestCountsByDay,
   },
@@ -100,6 +135,47 @@ describe("statsRoutes", () => {
 
     expect(response.statusCode).toBe(200);
     expect(mocks.getUserRequestCountsByDay).toHaveBeenCalledWith(30);
+    await app.close();
+  });
+
+  it("returns dictionary lookup logs with summary", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/stats/dictionary-lookups?page=2&limit=25&days=14",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(mocks.listRecentDictionaryLookups).toHaveBeenCalledWith(2, 25);
+    expect(mocks.getDictionaryLookupSummary).toHaveBeenCalledWith(14);
+    expect(response.json()).toMatchObject({
+      logs: [
+        {
+          id: 1,
+          lookupInput: "RAN",
+          normalizedInput: "ran",
+          langCode: "en",
+          matched: true,
+          matchCount: 1,
+          matchedWord: "run",
+          matchType: "known_form",
+          matchedPos: "verb",
+          matchedGlosses: ["move quickly"],
+          error: null,
+          createdAt: "2026-06-25T12:00:00.000Z",
+        },
+      ],
+      total: 1,
+      page: 1,
+      limit: 50,
+      summary: {
+        totalLookups: 10,
+        matchedLookups: 7,
+        failedLookups: 1,
+        matchRate: 0.7,
+      },
+    });
     await app.close();
   });
 

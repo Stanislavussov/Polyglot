@@ -22,6 +22,19 @@ function unwrap(d: TranslationDecision): TranslateOutput {
   return d.output;
 }
 
+/** Create a mock generateObjectFn that auto-detects parallel call type from prompt content */
+function createTranslateMock(result: Record<string, unknown>) {
+  const { translations, ...metadata } = result;
+  const langBlocks = (translations ?? {}) as Record<string, unknown>;
+  return vi.fn().mockImplementation(async (prompt: string) => {
+    if (prompt.includes("Do NOT include any translations")) return { ...metadata, nativeSynonyms: [] };
+    for (const [lang, block] of Object.entries(langBlocks)) {
+      if (prompt.includes(`translation block for language "${lang}"`)) return block;
+    }
+    return result;
+  });
+}
+
 // ─── Helpers ──────────────────────────────────────────────
 
 const baseRequest: TranslationRequest = {
@@ -350,7 +363,7 @@ describe("translate() with outputConfig", () => {
       },
     };
 
-    const mockGenerate = vi.fn().mockResolvedValue(mockResult);
+    const mockGenerate = createTranslateMock(mockResult);
 
     const input: TranslateInput = {
       word: "hello",
@@ -362,10 +375,10 @@ describe("translate() with outputConfig", () => {
 
     const output = await translate(input, mockGenerate);
 
-    // Verify the prompt was built without examples (MINIMAL_OUTPUT has includeExamples: false)
-    const prompt = mockGenerate.mock.calls[0][0] as string;
-    expect(prompt).not.toContain('"examples"');
-    expect(prompt).not.toContain("VARIETY IN EXAMPLES");
+    // Verify the language prompt was built without examples (MINIMAL_OUTPUT has includeExamples: false)
+    const langPrompt = mockGenerate.mock.calls[1][0] as string;
+    expect(langPrompt).not.toContain('"examples"');
+    expect(langPrompt).not.toContain("VARIETY IN EXAMPLES");
 
     // Verify the schema accepted empty examples/synonyms (no validation error on them)
     expect(unwrap(output).original).toBe("hello");
@@ -387,7 +400,7 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
       },
     };
 
-    const mockGenerate = vi.fn().mockResolvedValue(mockResult);
+    const mockGenerate = createTranslateMock(mockResult);
 
     const input: TranslateInput = {
       word: "Can you tell me where the nearest pharmacy is?",
@@ -400,12 +413,12 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
 
     const output = await translate(input, mockGenerate);
 
-    // Verify the prompt uses sentence-style intro
-    const prompt = mockGenerate.mock.calls[0][0] as string;
-    expect(prompt).toContain("Translate the following sentence");
-    expect(prompt).not.toContain('"synonyms"');
-    expect(prompt).not.toContain('"alternatives"');
-    expect(prompt).not.toContain('"examples"');
+    // Verify the language prompt uses sentence-style intro
+    const langPrompt = mockGenerate.mock.calls[1][0] as string;
+    expect(langPrompt).toContain("Translate the following sentence");
+    expect(langPrompt).not.toContain('"synonyms"');
+    expect(langPrompt).not.toContain('"alternatives"');
+    expect(langPrompt).not.toContain('"examples"');
 
     // Verify result is returned correctly
     expect(unwrap(output).original).toBe("Can you tell me where the nearest pharmacy is?");
@@ -430,7 +443,7 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
       },
     };
 
-    const mockGenerate = vi.fn().mockResolvedValue(mockResult);
+    const mockGenerate = createTranslateMock(mockResult);
 
     const input: TranslateInput = {
       word: "Where is the pharmacy?",

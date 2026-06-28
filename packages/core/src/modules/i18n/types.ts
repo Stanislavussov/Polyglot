@@ -277,6 +277,16 @@ export type I18nKey =
   | "dictionaryTranslate"
   | "videoSaveAll"
   | "videoClose"
+  | "videoPhraseNotFound"
+  | "videoAlreadySaved"
+  | "videoLanguageNotFound"
+  | "videoDurationUnknown"
+  | "videoTypeWord"
+  | "videoTypePhrase"
+  | "videoPage"
+  | "videoSavedToast"
+  | "videoProcessingCancelled"
+  | "videoPhrasesExtracted"
   | "chooseProficiencyLevel";
 
 /**
@@ -346,6 +356,8 @@ export interface I18nParams {
   mistypeWarning: { word: string };
   langSelectPrompt: { word: string };
   chooseProficiencyLevel: { lang: string };
+  videoPage: { page: string | number; total: string | number };
+  videoPhrasesExtracted: { count: string | number };
 }
 
 /**

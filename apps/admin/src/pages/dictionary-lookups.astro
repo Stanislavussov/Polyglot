@@ -1,0 +1,15 @@
+---
+import AdminLayout from "../layouts/AdminLayout.astro";
+import DictionaryLookupLogsManager from "../components/DictionaryLookupLogsManager.vue";
+---
+
+<AdminLayout title="Dictionary Lookups">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Dictionary Lookups</h1>
+      <p class="mt-1 text-sm text-gray-500">Audit trail for word_context database lookups</p>
+    </div>
+  </div>
+
+  <DictionaryLookupLogsManager client:load />
+</AdminLayout>

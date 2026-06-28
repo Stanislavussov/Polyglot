@@ -13,8 +13,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock the word-context repository ──────────────────────────
 
-const { mockFindByWordAndLangCode } = vi.hoisted(() => ({
+const { mockFindByWordAndLangCode, mockRecordLookup } = vi.hoisted(() => ({
   mockFindByWordAndLangCode: vi.fn(),
+  mockRecordLookup: vi.fn(),
 }));
 
 vi.mock("../repositories/word-context.repository.js", () => ({
@@ -23,10 +24,17 @@ vi.mock("../repositories/word-context.repository.js", () => ({
   },
 }));
 
+vi.mock("../repositories/dictionary-lookup-log.repository.js", () => ({
+  dictionaryLookupLogRepository: {
+    record: mockRecordLookup,
+  },
+}));
+
 import { createContextLookup } from "../context-lookup.js";
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockRecordLookup.mockResolvedValue(undefined);
 });
 
 // ─────────────────────────────────────────────
@@ -97,6 +105,26 @@ describe("createContextLookup", () => {
     expect(result).toEqual([]);
   });
 
+  it("records a no-match lookup audit log", async () => {
+    mockFindByWordAndLangCode.mockResolvedValue([]);
+
+    const lookup = createContextLookup();
+    await lookup("Unknown", "en");
+
+    expect(mockRecordLookup).toHaveBeenCalledWith({
+      lookupInput: "Unknown",
+      normalizedInput: "unknown",
+      langCode: "en",
+      matched: false,
+      matchCount: 0,
+      matchedWord: undefined,
+      matchType: undefined,
+      matchedPos: undefined,
+      matchedGlosses: undefined,
+      error: undefined,
+    });
+  });
+
   it("returns an empty array when repository throws (fail-open)", async () => {
     mockFindByWordAndLangCode.mockRejectedValue(new Error("DB connection failed"));
 
@@ -104,6 +132,18 @@ describe("createContextLookup", () => {
     const result = await lookup("hello", "en");
 
     expect(result).toEqual([]);
+    expect(mockRecordLookup).toHaveBeenCalledWith({
+      lookupInput: "hello",
+      normalizedInput: "hello",
+      langCode: "en",
+      matched: false,
+      matchCount: 0,
+      matchedWord: undefined,
+      matchType: undefined,
+      matchedPos: undefined,
+      matchedGlosses: undefined,
+      error: "DB connection failed",
+    });
   });
 
   it("handles null glosses and formTags gracefully", async () => {
@@ -165,6 +205,18 @@ describe("createContextLookup", () => {
         },
       },
     ]);
+    expect(mockRecordLookup).toHaveBeenCalledWith({
+      lookupInput: "RAN",
+      normalizedInput: "ran",
+      langCode: "en",
+      matched: true,
+      matchCount: 1,
+      matchedWord: "run",
+      matchType: "known_form",
+      matchedPos: "verb",
+      matchedGlosses: ["move quickly"],
+      error: undefined,
+    });
   });
 
   it("returns all senses in deterministic candidate order", async () => {
@@ -242,5 +294,26 @@ describe("createContextLookup", () => {
     const result = await lookup("hola", "es");
 
     expect(result[0]?.context.langCode).toBe("es");
+  });
+
+  it("does not fail lookup when audit logging fails", async () => {
+    mockFindByWordAndLangCode.mockResolvedValue([
+      {
+        id: 1,
+        word: "apple",
+        languageId: 1,
+        pos: "noun",
+        formTags: [],
+        glosses: ["fruit"],
+        createdAt: new Date(),
+      },
+    ]);
+    mockRecordLookup.mockRejectedValue(new Error("log table unavailable"));
+
+    const lookup = createContextLookup();
+    const result = await lookup("apple", "en");
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.context.word).toBe("apple");
   });
 });
