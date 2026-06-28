@@ -6,12 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Parallelized AI translation calls: split single heavy multi-language generation into N+1 concurrent calls (1 metadata + 1 per target language), reducing translation latency from ~5s to ~1.5s.
+- Added universal language-specific directive to translation prompt: AI now includes grammatically essential markers (articles, gender, verb aspect) appropriate for each target language.
+
 ### Fixed
 
 - Localized all remaining hardcoded English strings in the video vocabulary feature: callback toasts ("Phrase not found", "Already saved", "Language not found"), duration fallback ("Unknown"), phrase type labels ("[word]"/"[phrase]"), and page indicators. Added 10 new i18n keys (`videoPhraseNotFound`, `videoAlreadySaved`, `videoLanguageNotFound`, `videoDurationUnknown`, `videoTypeWord`, `videoTypePhrase`, `videoPage`, `videoSavedToast`, `videoProcessingCancelled`, `videoPhrasesExtracted`) with translations for all three locales (en, ru, cs).
 
 ### Added
 
+- Added dictionary lookup audit logging for `word_context` lookups, including matched/no-match/error outcomes, matched values, and an admin Dictionary Lookups page backed by `/api/stats/dictionary-lookups`.
 - Added a generated Test Coverage catalog for the admin workspace. CI now exports `test-catalog.json` and `test-catalog.html` artifacts, and the admin app includes a `/test-coverage` page with search, package filters, and `business`/`technical` scenario classification from inline `@business` test comments.
 - Added an auto-generated database schema report at `@docs/reports/database-schema.html`, built from the Drizzle schema with a mobile-friendly visual relationship map, table descriptions, fields, relations, indexes, usage counts, and optimization notes via `pnpm db:schema:report`.
 - Added an admin Architecture page that mirrors generated HTML reports into `apps/admin/public/reports/` and lets admins browse them inside the app.

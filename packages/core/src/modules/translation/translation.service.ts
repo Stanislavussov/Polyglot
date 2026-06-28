@@ -19,10 +19,17 @@ import { validate } from "../validation/validation.service.js";
 import { PREFLIGHT_DEFAULTS } from "./preflight.config.js";
 import { buildPreflightPrompt } from "./preflight.prompt.js";
 import { type PreflightResult, preflightResultSchema } from "./preflight.schema.js";
-import { buildStrictPrompt, buildTranslationPrompt } from "./prompt.builder.js";
+import {
+  buildMetadataPrompt,
+  buildMetadataStrictPrompt,
+  buildSingleLanguagePrompt,
+  buildSingleLanguageStrictPrompt,
+  buildTranslationPrompt,
+} from "./prompt.builder.js";
 import { type SemanticJudgeResult, semanticJudgeSchema } from "./quality.schema.js";
 import {
   buildLanguageTranslationSchema,
+  buildMetadataSchema,
   buildTranslationResultSchema,
   translationResultSchema,
 } from "./schemas/translation.schema.js";
@@ -125,7 +132,7 @@ export async function translate(
     requiresNativeOutput &&
     normalizedInput.inputType !== "sentence" &&
     normalizedInput.outputConfig?.includeUsageNote !== false;
-  const schema = buildTranslationResultSchema(
+  const validationSchema = buildTranslationResultSchema(
     normalizedInput.targetLangs,
     normalizedInput.outputConfig,
     requiresNativeOutput,
@@ -134,7 +141,39 @@ export async function translate(
     requiresUsageNote,
     normalizedInput.sourceLang,
   );
-  let prompt = buildTranslationPrompt(request);
+
+  // Build parallel generation tasks: 1 metadata + N per-language calls
+  const metadataSchema = buildMetadataSchema(
+    normalizedInput.outputConfig,
+    requiresNativeOutput,
+    requiresSourceUsage,
+    requiresNativeOutput,
+  );
+
+  const isLearningSource =
+    normalizedInput.nativeLang !== undefined && normalizedInput.sourceLang !== normalizedInput.nativeLang;
+  const languageTasks = normalizedInput.targetLangs.map((lang) => {
+    const isMinimalNativeTarget = isLearningSource && lang === normalizedInput.nativeLang;
+    return {
+      lang,
+      schema: buildLanguageTranslationSchema(
+        normalizedInput.outputConfig,
+        requiresNativeOutput && lang !== normalizedInput.nativeLang,
+        requiresUsageNote,
+        isMinimalNativeTarget,
+      ),
+    };
+  });
+
+  const generateOptions = {
+    frequencyPenalty: 0,
+    ...(normalizedInput.userId !== undefined ? { userId: normalizedInput.userId } : {}),
+  };
+
+  let metadataPrompt = buildMetadataPrompt(request);
+  let languagePrompts = new Map(
+    normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguagePrompt(request, lang)]),
+  );
   let result: TranslationResult | undefined;
   let lastErrors: string[] = [];
   let attemptCount = 0;
@@ -142,10 +181,37 @@ export async function translate(
   for (let attempt = 0; attempt <= MAX_FULL_RETRIES; attempt++) {
     try {
       attemptCount++;
-      result = (await generateObjectFn(prompt, schema, generationModel, {
-        frequencyPenalty: 0,
-        ...(normalizedInput.userId !== undefined ? { userId: normalizedInput.userId } : {}),
-      })) as TranslationResult;
+
+      const [metadataResult, ...langResults] = await Promise.all([
+        generateObjectFn(metadataPrompt, metadataSchema, generationModel, generateOptions),
+        ...languageTasks.map((task) =>
+          generateObjectFn(
+            languagePrompts.get(task.lang) as string,
+            task.schema as import("zod").ZodSchema<LanguageTranslation>,
+            generationModel,
+            generateOptions,
+          ),
+        ),
+      ]);
+
+      const translations: Record<string, LanguageTranslation> = {};
+      for (let i = 0; i < languageTasks.length; i++) {
+        translations[languageTasks[i].lang] = langResults[i] as LanguageTranslation;
+      }
+
+      result = {
+        emoji: metadataResult.emoji,
+        nativeMeaning: "nativeMeaning" in metadataResult ? (metadataResult.nativeMeaning as string) : undefined,
+        sourceUsage:
+          "sourceUsage" in metadataResult
+            ? (metadataResult.sourceUsage as TranslationResult["sourceUsage"])
+            : undefined,
+        nativeSynonyms:
+          "nativeSynonyms" in metadataResult
+            ? (metadataResult.nativeSynonyms as TranslationResult["nativeSynonyms"])
+            : [],
+        translations,
+      };
     } catch (generationError) {
       const errorMsg = generationError instanceof Error ? generationError.message : String(generationError);
 
@@ -163,13 +229,16 @@ export async function translate(
       }
 
       lastErrors = [`[generation] ${errorMsg}`];
-      prompt = buildStrictPrompt(request, lastErrors);
+      metadataPrompt = buildMetadataStrictPrompt(request, lastErrors);
+      languagePrompts = new Map(
+        normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguageStrictPrompt(request, lang, lastErrors)]),
+      );
       continue;
     }
 
     const validation = validate(
       result,
-      schema,
+      validationSchema,
       normalizedInput.word,
       normalizedInput.targetLangs,
       normalizedInput.inputType,
@@ -194,7 +263,10 @@ export async function translate(
       "translation schema validation failed",
     );
 
-    prompt = buildStrictPrompt(request, lastErrors);
+    metadataPrompt = buildMetadataStrictPrompt(request, lastErrors);
+    languagePrompts = new Map(
+      normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguageStrictPrompt(request, lang, lastErrors)]),
+    );
   }
 
   if (!result) {
@@ -202,7 +274,7 @@ export async function translate(
   }
 
   let issues = collectQualityIssues(
-    validate(result, schema, normalizedInput.word, normalizedInput.targetLangs, normalizedInput.inputType, {
+    validate(result, validationSchema, normalizedInput.word, normalizedInput.targetLangs, normalizedInput.inputType, {
       ...normalizedInput.outputConfig,
       nativeLang: normalizedInput.nativeLang,
       sourceLang: normalizedInput.sourceLang,

@@ -211,6 +211,47 @@ export const languageDetection = {
   list: (days = 7) => get<LanguageDetectionResponse>(`/api/stats/language-detection?days=${days}`),
 };
 
+export interface DictionaryLookupLog {
+  id: number;
+  lookupInput: string;
+  normalizedInput: string;
+  langCode: string;
+  matched: boolean;
+  matchCount: number;
+  matchedWord: string | null;
+  matchType: string | null;
+  matchedPos: string | null;
+  matchedGlosses: string[] | null;
+  error: string | null;
+  createdAt: string;
+}
+
+export interface DictionaryLookupSummary {
+  totalLookups: number;
+  matchedLookups: number;
+  failedLookups: number;
+  matchRate: number;
+}
+
+export interface DictionaryLookupLogResponse {
+  logs: DictionaryLookupLog[];
+  total: number;
+  page: number;
+  limit: number;
+  summary: DictionaryLookupSummary;
+}
+
+export const dictionaryLookupLogs = {
+  list: (page = 1, limit = 50, days = 7) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      days: String(days),
+    });
+    return get<DictionaryLookupLogResponse>(`/api/stats/dictionary-lookups?${params}`);
+  },
+};
+
 // Rate Limits
 export interface PlanLimitConfig {
   name: string;

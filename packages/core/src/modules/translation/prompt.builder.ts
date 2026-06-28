@@ -93,7 +93,8 @@ For each target language (${targetLangs.join(", ")}), provide: ${requestedFields
 Also include one relevant emoji.
 Prefer ONE natural, accurate main translation. Do not invent extra nuance in the main translation.
 
-Rules:${
+Rules:
+- Include all grammatically essential markers that a learner needs to use the translated word correctly — such as articles, grammatical gender, verb aspect, or other conventions specific to each target language.${
     nativeLangName
       ? `
 - Include top-level "nativeMeaning" written in ${nativeLangName}. It must explain the original expression's meaning naturally in the user's native language, independent of the target-language translation blocks.`
@@ -260,6 +261,121 @@ ${errorFeedback}
 Please fix these issues and return a corrected JSON response.
 Double-check that:
 ${checkItems.join("\n")}`;
+}
+
+/**
+ * Builds a metadata-only prompt for the parallel metadata AI call.
+ *
+ * Asks only for emoji, nativeMeaning, sourceUsage, and nativeSynonyms —
+ * no translations block. Used alongside per-language prompts that each
+ * produce a single LanguageTranslation block.
+ */
+export function buildMetadataPrompt(request: TranslationRequest): string {
+  const { text, sourceLang, targetLangs, nativeLang, topic, dictionaryContext, outputConfig, inputType } = request;
+  const cfg = resolveConfig(outputConfig);
+  const isSentence = inputType === "sentence";
+
+  const topicHint = topic ? buildTopicHint(topic, isSentence, cfg) : "";
+  const negativeHint = request.negativeConstraints
+    ? buildNegativeConstraintHint(request.negativeConstraints, isSentence)
+    : "";
+  const dictionaryHint = dictionaryContext ? buildDictionaryHint(dictionaryContext, cfg) : "";
+
+  const sourceLangName = getLanguageName(sourceLang);
+  const targetLangNames = targetLangs.map((l) => getLanguageName(l)).join(", ");
+  const nativeLangName = nativeLang ? getLanguageName(nativeLang) : null;
+  const isLearningSource = nativeLang !== undefined && sourceLang !== nativeLang;
+
+  const intro = isSentence
+    ? `The user is translating the following sentence from ${sourceLangName} to ${targetLangNames}:\n"${text}"`
+    : `The user is translating "${text}" from ${sourceLangName} to ${targetLangNames}.`;
+
+  const requestedFields = ["one relevant emoji"];
+  if (nativeLangName) requestedFields.push(`nativeMeaning: a concise meaning/explanation in ${nativeLangName}`);
+  if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
+  if (isLearningSource && !isSentence) {
+    requestedFields.push(
+      `sourceUsage: usage guidance for "${text}" with explanation in ${nativeLangName ?? "the user's native language"}`,
+    );
+  }
+
+  return `${intro}${topicHint}${negativeHint}${dictionaryHint}
+
+Return ONLY valid JSON matching the provided schema. No markdown, no explanation, no code fences.
+Provide ONLY: ${requestedFields.join("; ")}.
+Do NOT include any translations block.
+
+Rules:${
+    nativeLangName
+      ? `
+- Include top-level "nativeMeaning" written in ${nativeLangName}. It must explain the original expression's meaning naturally in the user's native language, independent of any target-language translations.`
+      : ""
+  }${
+    isLearningSource && !isSentence
+      ? `
+- Include top-level "sourceUsage" for the source word "${text}":
+  * "explanation": written in ${nativeLangName ?? "the user's native language"}; explain the meaning, nuance, register, and when a learner should use or avoid this word.
+  * "synonyms": 2-3 close synonyms in ${sourceLangName}, not translations into another language.
+  * "examples": exactly 3 short ${sourceLangName} sentences using "${text}" or its normal inflected form in realistic contexts.${nativeLangName ? ` Each example MUST include "native": a natural ${nativeLangName} translation.` : ""}
+  * Prefer collocations or lexical chunks that show how the word naturally combines with other words.`
+      : ""
+  }${
+    cfg.includeNativeSynonyms && nativeLangName
+      ? `
+- Provide 2–3 synonyms of the source word "${text}" in ${nativeLangName} in the "nativeSynonyms" array.`
+      : ""
+  }
+- Do not include pronunciation, IPA, romanization, or transliteration in any field.
+- Return ONLY the JSON object. No additional text before or after.`;
+}
+
+/**
+ * Builds a single-language translation prompt for the parallel per-language AI call.
+ *
+ * Asks for a single LanguageTranslation block for one target language.
+ * Does not request emoji, nativeMeaning, sourceUsage, or nativeSynonyms.
+ */
+export function buildSingleLanguagePrompt(request: TranslationRequest, targetLang: string): string {
+  const singleLangRequest: TranslationRequest = {
+    ...request,
+    targetLangs: [targetLang],
+  };
+  const base = buildTranslationPrompt(singleLangRequest);
+  return `${base}
+
+IMPORTANT: Return ONLY the translation block for language "${targetLang}" as a flat JSON object. Do NOT wrap it in a "translations" key. Do NOT include emoji, nativeMeaning, sourceUsage, or nativeSynonyms.`;
+}
+
+/**
+ * Builds a strict retry prompt for a single-language call after validation failure.
+ */
+export function buildSingleLanguageStrictPrompt(
+  request: TranslationRequest,
+  targetLang: string,
+  errors: string[],
+): string {
+  const base = buildSingleLanguagePrompt(request, targetLang);
+  const errorFeedback = errors.map((e) => `  - ${e}`).join("\n");
+  return `${base}
+
+IMPORTANT: Your previous response had validation errors:
+${errorFeedback}
+
+Please fix these issues and return a corrected JSON response.`;
+}
+
+/**
+ * Builds a strict retry prompt for the metadata call after validation failure.
+ */
+export function buildMetadataStrictPrompt(request: TranslationRequest, errors: string[]): string {
+  const base = buildMetadataPrompt(request);
+  const errorFeedback = errors.map((e) => `  - ${e}`).join("\n");
+  return `${base}
+
+IMPORTANT: Your previous response had validation errors:
+${errorFeedback}
+
+Please fix these issues and return a corrected JSON response.`;
 }
 
 function buildTopicHint(topic: string, isSentence: boolean, config: Required<TranslationOutputConfig>): string {

@@ -41,8 +41,40 @@ function sentenceCase(id: string, word: string): TranslationBenchmarkCase {
   };
 }
 
-const successfulGeneration: GenerateObjectFn = async <T>(_prompt: string, schema: ZodSchema<T>): Promise<T> =>
-  schema.parse({
+const successfulGeneration: GenerateObjectFn = async <T>(prompt: string, schema: ZodSchema<T>): Promise<T> => {
+  // Metadata-only call (parallel architecture)
+  if (prompt.includes("Do NOT include any translations")) {
+    return schema.parse({
+      emoji: "✅",
+      nativeMeaning: "České vysvětlení významu.",
+      nativeSynonyms: [],
+    });
+  }
+  // Single-language call (parallel architecture)
+  if (prompt.includes("translation block for language")) {
+    return schema.parse({
+      text: "Это корректное русское предложение.",
+    });
+  }
+  // Judge call
+  if (prompt.includes("translation quality judge")) {
+    return schema.parse({
+      issues: [],
+      summary: "ok",
+    });
+  }
+  // Preflight call
+  if (prompt.includes("preflight ambiguity checker")) {
+    return schema.parse({
+      confidence: 0.95,
+      outcome: "proceed",
+      reasonCode: "low_confidence",
+      explanation: "No clarification needed.",
+      options: [],
+    });
+  }
+  // Fallback: full combined result (for repair prompts and other calls)
+  return schema.parse({
     emoji: "✅",
     nativeMeaning: "České vysvětlení významu.",
     translations: {
@@ -51,6 +83,7 @@ const successfulGeneration: GenerateObjectFn = async <T>(_prompt: string, schema
       },
     },
   });
+};
 
 afterEach(async () => {
   await Promise.all(tempDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
@@ -118,17 +151,22 @@ describe("runTranslationBenchmark", () => {
         },
       },
     });
+    // With parallel calls, attempt 1 is metadata, attempt 2 is the language block
     expect(report.results[0]?.attempts[0]).toMatchObject({
       attempt: 1,
       response: {
-        translations: {
-          ru: {
-            text: "Это корректное русское предложение.",
-          },
-        },
+        emoji: "✅",
+        nativeMeaning: "České vysvětlení významu.",
       },
     });
-    expect(report.results[0]?.attempts).toHaveLength(2);
+    expect(report.results[0]?.attempts[1]).toMatchObject({
+      attempt: 2,
+      response: {
+        text: "Это корректное русское предложение.",
+      },
+    });
+    // 2 parallel (metadata + ru) + 1 judge = 3 attempts
+    expect(report.results[0]?.attempts).toHaveLength(3);
   });
 
   it("records a failed case after pipeline retries and continues with the next case", async () => {
@@ -171,7 +209,8 @@ describe("runTranslationBenchmark", () => {
       status: "failed",
       error: "simulated provider failure",
     });
-    expect(report.results[0].attempts).toHaveLength(3);
+    // 3 retries × 2 parallel calls (metadata + language) = 6 tracked attempts
+    expect(report.results[0].attempts).toHaveLength(6);
     expect(report.results[1]).toMatchObject({
       status: "completed",
       case: { id: "success-after-failure" },

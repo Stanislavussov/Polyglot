@@ -45,6 +45,7 @@ const items = [
   { href: "/", label: "Dashboard", icon: "📈" },
   { href: "/users", label: "Users", icon: "👥" },
   { href: "/request-stats", label: "Request Stats", icon: "📅" },
+  { href: "/dictionary-lookups", label: "Dictionary Lookups", icon: "🔎" },
   { href: "/reported-issues", label: "Reports", icon: "📝" },
   { href: "/rate-limits", label: "Rate Limits", icon: "⏱️" },
   { href: "/ai-models", label: "AI Models", icon: "🤖" },

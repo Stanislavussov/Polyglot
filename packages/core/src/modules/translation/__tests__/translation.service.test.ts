@@ -68,6 +68,35 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
   };
 }
 
+/** Split a TranslationResult into metadata and per-language blocks for parallel mock setup */
+function splitForMock(result: TranslationResult) {
+  const { translations, ...metadata } = result;
+  return {
+    metadata: { ...metadata, nativeSynonyms: metadata.nativeSynonyms ?? [] },
+    langBlocks: translations,
+  };
+}
+
+/**
+ * Create a mock generateObjectFn that auto-detects parallel call type from prompt content.
+ * Returns metadata for metadata calls, language blocks for language calls,
+ * and optionally a judge result for judge calls.
+ */
+function createTranslateMock(
+  result: TranslationResult,
+  judgeResult?: { issues: { fieldPath: string; message: string }[]; summary: string },
+) {
+  const { metadata, langBlocks } = splitForMock(result);
+  return vi.fn().mockImplementation(async (prompt: string) => {
+    if (prompt.includes("Do NOT include any translations")) return metadata;
+    for (const [lang, block] of Object.entries(langBlocks)) {
+      if (prompt.includes(`translation block for language "${lang}"`)) return block;
+    }
+    if (judgeResult !== undefined && prompt.includes("translation quality judge")) return judgeResult;
+    return result;
+  });
+}
+
 const defaultInput: TranslateInput = {
   word: "hello",
   sourceLang: "en",
@@ -77,7 +106,7 @@ const defaultInput: TranslateInput = {
 
 describe("translate", () => {
   it("returns a valid TranslateOutput on first pass", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     const result = await translate(defaultInput, mockGenerate);
 
@@ -89,16 +118,17 @@ describe("translate", () => {
     expect(unwrap(result).translations.cs.text).toBe("ahoj");
   });
 
-  it("calls generateObject exactly once when validation passes", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+  it("calls generateObject for metadata + each target language in parallel", async () => {
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     await translate(defaultInput, mockGenerate);
 
-    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    // 1 metadata + 1 language = 2 parallel calls
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
   it("repairs a validation failure and succeeds on second attempt", async () => {
-    // First call returns bad result (translation = original), second repairs the failing block.
+    // Parallel calls return bad result (translation = original), then repair fixes the failing block.
     const badResult = makeValidResult({
       translations: {
         cs: {
@@ -108,12 +138,19 @@ describe("translate", () => {
         },
       },
     });
+    const goodResult = makeValidResult();
+    const { metadata: badMeta, langBlocks: badLangs } = splitForMock(badResult);
 
-    const mockGenerate = vi.fn().mockResolvedValueOnce(badResult).mockResolvedValueOnce(makeValidResult());
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce(badMeta) // metadata (parallel round 1)
+      .mockResolvedValueOnce(badLangs.cs) // cs language (parallel round 1)
+      .mockResolvedValueOnce(goodResult.translations.cs); // repair for cs
 
     const result = await translate(defaultInput, mockGenerate);
 
-    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    // 2 parallel + 1 repair = 3 calls
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
     expect(result.status).toBe("accepted");
     expect(unwrap(result).translations.cs.text).toBe("ahoj");
   });
@@ -150,8 +187,14 @@ describe("translate", () => {
       alternatives: null,
       connotationWarning: null,
     };
+    const { metadata, langBlocks } = splitForMock(initialResult);
 
-    const mockGenerate = vi.fn().mockResolvedValueOnce(initialResult).mockResolvedValueOnce(repairedGermanBlock);
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce(metadata) // metadata (parallel)
+      .mockResolvedValueOnce(langBlocks.cs) // cs language (parallel)
+      .mockResolvedValueOnce(langBlocks.de) // de language (parallel) → semantic error
+      .mockResolvedValueOnce(repairedGermanBlock); // repair for de
 
     const result = await translate(
       {
@@ -167,13 +210,16 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("accepted");
-    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    // 3 parallel + 1 repair = 4 calls
+    expect(mockGenerate).toHaveBeenCalledTimes(4);
     expect(unwrap(result).translations.cs.text).toBe("ahoj");
     expect(unwrap(result).translations.de.text).toBe("hallo");
+    // All parallel calls use the default model
     expect(mockGenerate.mock.calls[0]?.[2]).toBe("openai/gpt-4o");
-    expect(mockGenerate.mock.calls[1]?.[2]).toBe("anthropic/claude-sonnet-4-20250514");
+    // Repair uses high-risk model
+    expect(mockGenerate.mock.calls[3]?.[2]).toBe("anthropic/claude-sonnet-4-20250514");
 
-    const repairPrompt = mockGenerate.mock.calls[1]?.[0] as string;
+    const repairPrompt = mockGenerate.mock.calls[3]?.[0] as string;
     expect(repairPrompt).toContain("Targeted repair only for translations.de.");
     expect(repairPrompt).toContain("Current block:");
     expect(repairPrompt).toContain("no emoji, commentary, labels, or metadata");
@@ -192,17 +238,17 @@ describe("translate", () => {
       },
     });
 
-    const mockGenerate = vi.fn().mockResolvedValue(badResult);
+    const mockGenerate = createTranslateMock(badResult);
 
     const result = await translate(defaultInput, mockGenerate);
 
-    // 1 initial + 2 retries = 3 calls
-    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    // 2 parallel (metadata + cs) + 2 targeted repairs = 4 calls
+    expect(mockGenerate).toHaveBeenCalledTimes(4);
     expect(result.status).toBe("needs_review");
   });
 
   it("includes topic in the prompt when provided", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     const input: TranslateInput = {
       ...defaultInput,
@@ -211,17 +257,17 @@ describe("translate", () => {
 
     await translate(input, mockGenerate);
 
-    // The first argument to generateObject is the prompt string
-    const prompt = mockGenerate.mock.calls[0][0] as string;
-    expect(prompt).toContain("medicine");
+    // Both metadata and language prompts include the topic
+    const metadataPrompt = mockGenerate.mock.calls[0][0] as string;
+    expect(metadataPrompt).toContain("medicine");
   });
 
   it("passes the correct model to generateObject", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     await translate(defaultInput, mockGenerate);
 
-    // Third argument is model
+    // All parallel calls use the same model
     expect(mockGenerate.mock.calls[0][2]).toBe("openai/gpt-4o");
   });
 
@@ -278,16 +324,14 @@ describe("translate", () => {
   });
 
   it("continues to translation when AI preflight confidence is high", async () => {
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValueOnce({
-        confidence: 0.94,
-        outcome: "proceed",
-        reasonCode: "low_confidence",
-        explanation: "No clarification needed.",
-        options: [],
-      })
-      .mockResolvedValueOnce(makeValidResult());
+    const goodResult = makeValidResult();
+    const mockGenerate = createTranslateMock(goodResult, { issues: [], summary: "ok" }).mockResolvedValueOnce({
+      confidence: 0.94,
+      outcome: "proceed",
+      reasonCode: "low_confidence",
+      explanation: "No clarification needed.",
+      options: [],
+    });
 
     const result = await translate(
       {
@@ -299,35 +343,34 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("accepted");
-    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    // 1 preflight + 2 parallel (metadata + cs) + 1 judge (high-risk due to low confidence) = 4
+    expect(mockGenerate).toHaveBeenCalledTimes(4);
     expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
-    expect(mockGenerate.mock.calls[1]?.[0]).toContain("Translate");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("Do NOT include any translations");
   });
 
   it("does not ask for clarification for ordinary single-word part-of-speech ambiguity", async () => {
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValueOnce({
-        confidence: 0.45,
-        outcome: "clarify_meaning",
-        reasonCode: "multiple_word_senses",
-        explanation: "The word can mean a patient or patient as an adjective.",
-        options: [
-          {
-            id: "noun",
-            label: "patient: noun",
-            value: "person receiving medical care",
-            kind: "meaning",
-          },
-          {
-            id: "adjective",
-            label: "patient: adjective",
-            value: "able to wait calmly",
-            kind: "meaning",
-          },
-        ],
-      })
-      .mockResolvedValue(makeValidResult());
+    const goodResult = makeValidResult();
+    const mockGenerate = createTranslateMock(goodResult, { issues: [], summary: "ok" }).mockResolvedValueOnce({
+      confidence: 0.45,
+      outcome: "clarify_meaning",
+      reasonCode: "multiple_word_senses",
+      explanation: "The word can mean a patient or patient as an adjective.",
+      options: [
+        {
+          id: "noun",
+          label: "patient: noun",
+          value: "person receiving medical care",
+          kind: "meaning",
+        },
+        {
+          id: "adjective",
+          label: "patient: adjective",
+          value: "able to wait calmly",
+          kind: "meaning",
+        },
+      ],
+    });
 
     const result = await translate(
       {
@@ -342,11 +385,11 @@ describe("translate", () => {
 
     expect(result.status).toBe("accepted");
     expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
-    expect(mockGenerate.mock.calls[1]?.[0]).toContain("Translate");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("Do NOT include any translations");
   });
 
   it("routes low-risk generation through the configured low-risk model", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     const result = await translate(
       {
@@ -367,7 +410,8 @@ describe("translate", () => {
       mockGenerate,
     );
 
-    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    // 1 metadata + 1 language = 2 parallel calls
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
     expect(mockGenerate.mock.calls[0]?.[2]).toBe("openai/gpt-4o-mini");
     expect(result.status).toBe("accepted");
     if (result.status === "accepted") {
@@ -377,7 +421,7 @@ describe("translate", () => {
   });
 
   it("routes high-risk generation and judging through configured models", async () => {
-    const mockGenerate = vi.fn().mockResolvedValueOnce(makeValidResult()).mockResolvedValueOnce({
+    const mockGenerate = createTranslateMock(makeValidResult(), {
       issues: [],
       summary: "High-risk route passed.",
     });
@@ -396,9 +440,10 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("accepted");
-    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    // 2 parallel + 1 judge = 3 calls
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
     expect(mockGenerate.mock.calls[0]?.[2]).toBe("anthropic/claude-sonnet-4-20250514");
-    expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-pro");
+    expect(mockGenerate.mock.calls[2]?.[2]).toBe("google/gemini-2.5-pro");
     if (result.status === "accepted") {
       expect(result.quality.riskLevel).toBe("high");
       expect(result.quality.modelId).toBe("anthropic/claude-sonnet-4-20250514");
@@ -443,10 +488,10 @@ describe("translate", () => {
         },
       },
     };
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValueOnce(sentenceResult)
-      .mockResolvedValueOnce({ issues: [], summary: "No unsupported assumptions detected." });
+    const mockGenerate = createTranslateMock(sentenceResult, {
+      issues: [],
+      summary: "No unsupported assumptions detected.",
+    });
 
     const result = await translate(
       {
@@ -462,7 +507,8 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("accepted");
-    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    // 2 parallel + 1 judge = 3 calls
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
   });
 
   it("runs the semantic judge for high-risk sentence translations", async () => {
@@ -483,10 +529,7 @@ describe("translate", () => {
         },
       },
     };
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValueOnce(sentenceResult)
-      .mockResolvedValueOnce({ issues: [], summary: "ok" });
+    const mockGenerate = createTranslateMock(sentenceResult, { issues: [], summary: "ok" });
 
     const result = await translate(
       {
@@ -502,13 +545,14 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("accepted");
-    expect(mockGenerate).toHaveBeenCalledTimes(2);
-    expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-flash");
-    expect(mockGenerate.mock.calls[1]?.[0]).toContain("acceptable stylistic variants");
+    // 2 parallel + 1 judge = 3 calls
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    expect(mockGenerate.mock.calls[2]?.[2]).toBe("google/gemini-2.5-flash");
+    expect(mockGenerate.mock.calls[2]?.[0]).toContain("acceptable stylistic variants");
   });
 
-  it("keeps an ordinary unbacked word on the single-call medium-risk path", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+  it("keeps an ordinary unbacked word on the medium-risk path without judge", async () => {
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     const result = await translate(defaultInput, mockGenerate);
 
@@ -517,11 +561,12 @@ describe("translate", () => {
       expect(result.quality.riskLevel).toBe("medium");
       expect(result.quality.judgeResult).toBeUndefined();
     }
-    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    // 1 metadata + 1 language = 2 parallel calls, no judge
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
-  it("keeps a dictionary-backed confident word on the low-risk single-call path", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+  it("keeps a dictionary-backed confident word on the low-risk path without judge", async () => {
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     const result = await translate(
       {
@@ -543,14 +588,13 @@ describe("translate", () => {
       expect(result.quality.riskLevel).toBe("low");
       expect(result.quality.judgeResult).toBeUndefined();
     }
-    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    // 1 metadata + 1 language = 2 parallel calls, no judge
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
   it("runs the semantic judge for phrase translations", async () => {
-    const mockGenerate = vi.fn().mockResolvedValueOnce(makeValidResult()).mockResolvedValueOnce({
-      issues: [],
-      summary: "Phrase meaning, register, and assumptions are acceptable.",
-    });
+    const judgeResult = { issues: [], summary: "Phrase meaning, register, and assumptions are acceptable." };
+    const mockGenerate = createTranslateMock(makeValidResult(), judgeResult);
 
     const result = await translate(
       {
@@ -564,20 +608,19 @@ describe("translate", () => {
     expect(result.status).toBe("accepted");
     if (result.status === "accepted") {
       expect(result.quality.riskLevel).toBe("high");
-      expect(result.quality.judgeResult).toEqual({
-        issues: [],
-        summary: "Phrase meaning, register, and assumptions are acceptable.",
-      });
+      expect(result.quality.judgeResult).toEqual(judgeResult);
     }
-    expect(mockGenerate).toHaveBeenCalledTimes(2);
-    expect(mockGenerate.mock.calls[1]?.[2]).toBe("google/gemini-2.5-flash");
+    // 2 parallel + 1 judge = 3 calls
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    expect(mockGenerate.mock.calls[2]?.[2]).toBe("google/gemini-2.5-flash");
   });
 
   it("uses translation-safe generation settings", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     await translate(defaultInput, mockGenerate);
 
+    // All parallel calls use the same options
     expect(mockGenerate.mock.calls[0][3]).toEqual({ frequencyPenalty: 0 });
   });
 
@@ -597,7 +640,7 @@ describe("translate", () => {
       },
     });
 
-    const mockGenerate = vi.fn().mockResolvedValue(multiLangResult);
+    const mockGenerate = createTranslateMock(multiLangResult);
 
     const input: TranslateInput = {
       word: "hello",
@@ -619,7 +662,7 @@ describe("translate", () => {
       synonyms: [{ text: "nábožná kudlanka" }],
       examples: [{ context: "nature", target: "Na zahradě seděla kudlanka.", native: "В саду сидел богомол." }],
     };
-    const mockGenerate = vi.fn().mockResolvedValue(
+    const mockGenerate = createTranslateMock(
       makeValidResult({
         nativeMeaning: "Богомол; название насекомого.",
         sourceUsage,
@@ -678,7 +721,7 @@ describe("translate", () => {
       },
     });
 
-    const mockGenerate = vi.fn().mockResolvedValue(badResult);
+    const mockGenerate = createTranslateMock(badResult);
 
     const result = await translate(
       {
@@ -691,64 +734,62 @@ describe("translate", () => {
       mockGenerate,
     );
 
-    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    // 3 retry rounds × 2 parallel calls (metadata + cs) = 6 calls
+    // (missing sourceUsage for learning-source word triggers schema retry loop)
+    expect(mockGenerate).toHaveBeenCalledTimes(6);
     expect(result.status).toBe("needs_review");
   });
 
   it("accepts phase-out examples without a redundant native field in the native target block", async () => {
-    const mockGenerate = vi
-      .fn()
-      .mockResolvedValueOnce(
-        makeValidResult({
-          nativeMeaning: "Постепенно прекратить использование.",
-          sourceUsage: {
-            explanation: "Фразовый глагол означает постепенное прекращение использования или производства.",
-            synonyms: [{ text: "discontinue" }],
-            examples: [
-              {
-                context: "policy",
-                target: "The government will phase out single-use plastics.",
-                native: "Правительство постепенно откажется от одноразового пластика.",
-              },
-            ],
+    const phaseOutResult = makeValidResult({
+      nativeMeaning: "Постепенно прекратить использование.",
+      sourceUsage: {
+        explanation: "Фразовый глагол означает постепенное прекращение использования или производства.",
+        synonyms: [{ text: "discontinue" }],
+        examples: [
+          {
+            context: "policy",
+            target: "The government will phase out single-use plastics.",
+            native: "Правительство постепенно откажется от одноразового пластика.",
           },
-          nativeSynonyms: [{ text: "постепенно отказаться" }],
-          translations: {
-            cs: {
-              text: "postupně ukončit",
-              synonyms: [{ text: "postupně vyřadit" }],
-              examples: [
-                {
-                  context: "policy",
-                  target: "Vláda chce postupně ukončit používání plastů.",
-                  native: "Правительство хочет постепенно отказаться от пластика.",
-                },
-              ],
-              expressionType: null,
-              equivalentNote: null,
-              usageNote: "Нейтральный чешский вариант для постепенного прекращения использования.",
-              alternatives: null,
-              connotationWarning: null,
+        ],
+      },
+      nativeSynonyms: [{ text: "постепенно отказаться" }],
+      translations: {
+        cs: {
+          text: "postupně ukončit",
+          synonyms: [{ text: "postupně vyřadit" }],
+          examples: [
+            {
+              context: "policy",
+              target: "Vláda chce postupně ukončit používání plastů.",
+              native: "Правительство хочет постепенно отказаться от пластика.",
             },
-            ru: {
-              text: "постепенно отказаться",
-              synonyms: [{ text: "постепенно прекратить" }],
-              examples: [
-                {
-                  context: "policy",
-                  target: "Правительство хочет постепенно отказаться от пластика.",
-                },
-              ],
-              expressionType: null,
-              equivalentNote: null,
-              usageNote: "Естественный русский вариант; обычно сочетается с указанием того, от чего отказываются.",
-              alternatives: null,
-              connotationWarning: null,
+          ],
+          expressionType: null,
+          equivalentNote: null,
+          usageNote: "Нейтральный чешский вариант для постепенного прекращения использования.",
+          alternatives: null,
+          connotationWarning: null,
+        },
+        ru: {
+          text: "постепенно отказаться",
+          synonyms: [{ text: "постепенно прекратить" }],
+          examples: [
+            {
+              context: "policy",
+              target: "Правительство хочет постепенно отказаться от пластика.",
             },
-          },
-        }),
-      )
-      .mockResolvedValueOnce({ issues: [], summary: "ok" });
+          ],
+          expressionType: null,
+          equivalentNote: null,
+          usageNote: "Естественный русский вариант; обычно сочетается с указанием того, от чего отказываются.",
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+    const mockGenerate = createTranslateMock(phaseOutResult, { issues: [], summary: "ok" });
 
     const result = await translate(
       {
@@ -766,7 +807,8 @@ describe("translate", () => {
       "Правительство хочет постепенно отказаться от пластика.",
     );
     expect(unwrap(result).translations.ru.examples[0]?.native).toBeUndefined();
-    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    // 3 parallel (metadata + cs + ru) + 1 judge = 4 calls
+    expect(mockGenerate).toHaveBeenCalledTimes(4);
   });
 
   it("propagates AI adapter errors", async () => {
@@ -778,7 +820,7 @@ describe("translate", () => {
   it("sanitizes non-emoji string in emoji field to fallback", async () => {
     setLogger(mockLogger);
     const badEmojiResult = makeValidResult({ emoji: "brittle" });
-    const mockGenerate = vi.fn().mockResolvedValue(badEmojiResult);
+    const mockGenerate = createTranslateMock(badEmojiResult);
 
     const result = await translate(defaultInput, mockGenerate);
 
@@ -790,7 +832,7 @@ describe("translate", () => {
   });
 
   it("preserves valid emoji from AI response", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult({ emoji: "💎" }));
+    const mockGenerate = createTranslateMock(makeValidResult({ emoji: "💎" }));
 
     const result = await translate(defaultInput, mockGenerate);
 
@@ -800,21 +842,19 @@ describe("translate", () => {
 
 describe("translateOne", () => {
   it("calls translate() with single-element targetLangs", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     await translateOne(
       { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o" },
       mockGenerate,
     );
 
-    expect(mockGenerate).toHaveBeenCalledTimes(1);
-    // The prompt should be built with a single target language
-    const prompt = mockGenerate.mock.calls[0][0] as string;
-    expect(prompt).toContain("cs");
+    // 1 metadata + 1 language = 2 parallel calls
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
   it("returns the LanguageTranslation for the requested language", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     const result = await translateOne(
       { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o" },
@@ -838,7 +878,7 @@ describe("translateOne", () => {
   });
 
   it("passes topic through to translate()", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     await translateOne(
       {
@@ -852,8 +892,9 @@ describe("translateOne", () => {
       mockGenerate,
     );
 
-    const prompt = mockGenerate.mock.calls[0][0] as string;
-    expect(prompt).toContain("travel");
+    // Both metadata and language prompts include the topic
+    const metadataPrompt = mockGenerate.mock.calls[0][0] as string;
+    expect(metadataPrompt).toContain("travel");
   });
 
   it("passes nativeLang and inputType through to translate()", async () => {
@@ -879,7 +920,7 @@ describe("translateOne", () => {
         },
       },
     });
-    const mockGenerate = vi.fn().mockResolvedValue(resultWithNativeExamples);
+    const mockGenerate = createTranslateMock(resultWithNativeExamples);
 
     await translateOne(
       {
@@ -894,21 +935,22 @@ describe("translateOne", () => {
       mockGenerate,
     );
 
-    const prompt = mockGenerate.mock.calls[0][0] as string;
-    expect(prompt).toContain('"native"');
-    expect(prompt).toContain("translation of the target example sentence");
-    expect(prompt).toContain("natural same-language paraphrase or concise explanation");
+    // The single-language prompt includes native translation rules
+    const langPrompt = mockGenerate.mock.calls[1][0] as string;
+    expect(langPrompt).toContain('"native"');
+    expect(langPrompt).toContain("translation of the target example sentence");
+    expect(langPrompt).toContain("natural same-language paraphrase or concise explanation");
   });
 
   it("passes userId through to translate()", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     await translateOne(
       { word: "hello", sourceLang: "en", targetLangs: ["cs"], targetLang: "cs", model: "openai/gpt-4o", userId: 42 },
       mockGenerate,
     );
 
-    // userId is passed as 4th arg options
+    // userId is passed as 4th arg options to all parallel calls
     expect(mockGenerate).toHaveBeenCalledWith(expect.any(String), expect.anything(), "openai/gpt-4o", {
       frequencyPenalty: 0,
       userId: 42,
@@ -929,7 +971,7 @@ describe("translateOne", () => {
       },
     });
 
-    const mockGenerate = vi.fn().mockResolvedValue(badResult);
+    const mockGenerate = createTranslateMock(badResult);
 
     // translateOne still returns the LanguageTranslation even if needsReview
     const result = await translateOne(
@@ -939,7 +981,8 @@ describe("translateOne", () => {
 
     expect(result.status).toBe("needs_review");
     expect(unwrap(result).translations.cs?.text).toBe("hello");
-    expect(mockGenerate).toHaveBeenCalledTimes(3); // 1 + 2 retries
+    // 2 parallel + 2 targeted repairs = 4 calls
+    expect(mockGenerate).toHaveBeenCalledTimes(4);
 
     warnSpy.mockRestore();
     errorSpy.mockRestore();
@@ -948,25 +991,30 @@ describe("translateOne", () => {
 
 describe("translateBatch", () => {
   it("translates multiple words", async () => {
+    const helloResult = makeValidResult();
+    const worldResult = makeValidResult({
+      emoji: "🌍",
+      translations: {
+        cs: {
+          text: "svět",
+          synonyms: [{ text: "země" }],
+          examples: [{ context: "neutral", target: "Svět je krásné místo." }],
+          expressionType: null,
+          equivalentNote: null,
+          alternatives: null,
+          connotationWarning: null,
+        },
+      },
+    });
+    const { metadata: helloMeta, langBlocks: helloLangs } = splitForMock(helloResult);
+    const { metadata: worldMeta, langBlocks: worldLangs } = splitForMock(worldResult);
+
     const mockGenerate = vi
       .fn()
-      .mockResolvedValueOnce(makeValidResult())
-      .mockResolvedValueOnce(
-        makeValidResult({
-          emoji: "🌍",
-          translations: {
-            cs: {
-              text: "svět",
-              synonyms: [{ text: "země" }],
-              examples: [{ context: "neutral", target: "Svět je krásné místo." }],
-              expressionType: null,
-              equivalentNote: null,
-              alternatives: null,
-              connotationWarning: null,
-            },
-          },
-        }),
-      );
+      .mockResolvedValueOnce(helloMeta) // word 1 metadata
+      .mockResolvedValueOnce(helloLangs.cs) // word 1 cs
+      .mockResolvedValueOnce(worldMeta) // word 2 metadata
+      .mockResolvedValueOnce(worldLangs.cs); // word 2 cs
 
     const results = await translateBatch(["hello", "world"], "en", ["cs"], "openai/gpt-4o", mockGenerate);
 
@@ -988,20 +1036,23 @@ describe("translateBatch", () => {
 
   it("calls translate sequentially, not in parallel", async () => {
     const callOrder: number[] = [];
+    const validResult = makeValidResult();
+    const { metadata, langBlocks } = splitForMock(validResult);
 
-    const mockGenerate = vi.fn().mockImplementation(async () => {
+    const mockGenerate = vi.fn().mockImplementation(async (prompt: string) => {
       const callNum = callOrder.length + 1;
       callOrder.push(callNum);
       // Simulate async delay
       await new Promise((resolve) => setTimeout(resolve, 10));
-      return makeValidResult({
-        emoji: String(callNum),
-      });
+      if (prompt.includes("Do NOT include any translations")) return metadata;
+      if (prompt.includes(`translation block for language "cs"`)) return langBlocks.cs;
+      return validResult;
     });
 
     await translateBatch(["a", "b", "c"], "en", ["cs"], "openai/gpt-4o", mockGenerate);
 
-    expect(callOrder).toEqual([1, 2, 3]);
+    // 3 words × 2 parallel calls each = 6 total, but sequential per word
+    expect(callOrder).toEqual([1, 2, 3, 4, 5, 6]);
   });
 });
 
@@ -1026,25 +1077,19 @@ describe("validation logging", () => {
       },
     });
 
-    const mockGenerate = vi.fn().mockResolvedValue(badResult);
+    const mockGenerate = createTranslateMock(badResult);
 
     await translate(defaultInput, mockGenerate);
 
-    // 3 attempts (0, 1, 2) → 3 logger.warn calls
-    expect(mockLogger.warn).toHaveBeenCalledTimes(3);
-
-    // Each call should have the correct structure
-    for (let i = 0; i < 3; i++) {
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
-        i + 1,
-        expect.objectContaining({
-          original: "hello",
-          retryCount: i,
-          failReason: expect.any(String),
-        }),
-        "translation validation failed",
-      );
-    }
+    // Semantic error breaks retry loop immediately, then repair runs.
+    // logger.warn is called for the initial validation failure + repair attempts
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        original: "hello",
+        failReason: expect.any(String),
+      }),
+      "translation validation failed",
+    );
   });
 
   it("calls logger.error after all retries exhausted", async () => {
@@ -1058,7 +1103,7 @@ describe("validation logging", () => {
       },
     });
 
-    const mockGenerate = vi.fn().mockResolvedValue(badResult);
+    const mockGenerate = createTranslateMock(badResult);
 
     await translate(defaultInput, mockGenerate);
 
@@ -1066,7 +1111,6 @@ describe("validation logging", () => {
     expect(mockLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
         original: "hello",
-        retryCount: 2,
         failReason: expect.any(String),
       }),
       "translation validation failed after all retries — returning needs_review",
@@ -1074,7 +1118,7 @@ describe("validation logging", () => {
   });
 
   it("does not log when validation passes on first attempt", async () => {
-    const mockGenerate = vi.fn().mockResolvedValue(makeValidResult());
+    const mockGenerate = createTranslateMock(makeValidResult());
 
     await translate(defaultInput, mockGenerate);
 
@@ -1082,7 +1126,7 @@ describe("validation logging", () => {
     expect(mockLogger.error).not.toHaveBeenCalled();
   });
 
-  it("logs warn but not error when retry succeeds", async () => {
+  it("logs warn but not error when repair succeeds", async () => {
     const badResult = makeValidResult({
       translations: {
         cs: {
@@ -1096,23 +1140,27 @@ describe("validation logging", () => {
         },
       },
     });
+    const goodResult = makeValidResult();
+    const { metadata: badMeta, langBlocks: badLangs } = splitForMock(badResult);
 
-    const mockGenerate = vi.fn().mockResolvedValueOnce(badResult).mockResolvedValueOnce(makeValidResult());
+    const mockGenerate = vi
+      .fn()
+      .mockResolvedValueOnce(badMeta) // metadata (parallel)
+      .mockResolvedValueOnce(badLangs.cs) // cs language (parallel) → semantic error
+      .mockResolvedValueOnce(goodResult.translations.cs); // repair for cs → fixed
 
     await translate(defaultInput, mockGenerate);
 
-    // One warn for the first failed attempt
-    expect(mockLogger.warn).toHaveBeenCalledTimes(1);
+    // One warn for the validation failure
     expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
         original: "hello",
-        retryCount: 0,
         failReason: expect.stringContaining("semantic"),
       }),
       "translation validation failed",
     );
 
-    // No error since retry succeeded
+    // No error since repair succeeded
     expect(mockLogger.error).not.toHaveBeenCalled();
   });
 
@@ -1131,13 +1179,15 @@ describe("validation logging", () => {
       },
     });
 
-    const mockGenerate = vi.fn().mockResolvedValue(badResult);
+    const mockGenerate = createTranslateMock(badResult);
 
     await translate(defaultInput, mockGenerate);
 
     // The failReason should describe the semantic error
-    const firstWarnArgs = (mockLogger.warn as ReturnType<typeof vi.fn>).mock.calls[0];
-    const logObj = firstWarnArgs[0] as { failReason: string };
+    const warnCalls = (mockLogger.warn as ReturnType<typeof vi.fn>).mock.calls;
+    const validationWarn = warnCalls.find((args: unknown[]) => args[1] === "translation validation failed");
+    expect(validationWarn).toBeDefined();
+    const logObj = validationWarn![0] as { failReason: string };
     expect(logObj.failReason).toContain("hello");
     expect(logObj.failReason).toContain("identical");
   });

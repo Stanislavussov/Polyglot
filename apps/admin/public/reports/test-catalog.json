@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-06-28T13:21:16.378Z",
+  "generatedAt": "2026-06-28T15:25:19.824Z",
   "summary": {
-    "total": 1821,
+    "total": 1826,
     "business": 0,
-    "technical": 1821,
+    "technical": 1826,
     "workspaces": [
       "apps",
       "packages"
@@ -150,10 +150,10 @@
       "description": "Protects the admin API reported Issue Routes behavior: returns 400 for invalid status values."
     },
     {
-      "id": "apps-admin-api-src-routes-stats-test-ts-55-statsroutes-returns-user-request-counts-with-the-contract-shape",
+      "id": "apps-admin-api-src-routes-stats-test-ts-90-statsroutes-returns-user-request-counts-with-the-contract-shape",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/stats.test.ts",
-      "sourceLine": 55,
+      "sourceLine": 90,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -166,10 +166,10 @@
       "description": "Protects the admin API stats Routes behavior: returns user request counts with the contract shape."
     },
     {
-      "id": "apps-admin-api-src-routes-stats-test-ts-79-statsroutes-respects-the-days-query-parameter",
+      "id": "apps-admin-api-src-routes-stats-test-ts-114-statsroutes-respects-the-days-query-parameter",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/stats.test.ts",
-      "sourceLine": 79,
+      "sourceLine": 114,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -182,10 +182,10 @@
       "description": "Protects the admin API stats Routes behavior: respects the days query parameter."
     },
     {
-      "id": "apps-admin-api-src-routes-stats-test-ts-93-statsroutes-defaults-to-30-days-when-days-is-omitted",
+      "id": "apps-admin-api-src-routes-stats-test-ts-128-statsroutes-defaults-to-30-days-when-days-is-omitted",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/stats.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 128,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -198,10 +198,26 @@
       "description": "Protects the admin API stats Routes behavior: defaults to 30 days when days is omitted."
     },
     {
-      "id": "apps-admin-api-src-routes-stats-test-ts-106-statsroutes-does-not-include-rows-from-the-calendar-day-before-the-visible-window",
+      "id": "apps-admin-api-src-routes-stats-test-ts-141-statsroutes-returns-dictionary-lookup-logs-with-summary",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/stats.test.ts",
-      "sourceLine": 106,
+      "sourceLine": 141,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "statsRoutes"
+      ],
+      "title": "returns dictionary lookup logs with summary",
+      "rawTitle": "returns dictionary lookup logs with summary",
+      "name": "Admin API stats Routes returns dictionary lookup logs with summary",
+      "value": "Protects the admin API stats Routes behavior: returns dictionary lookup logs with summary.",
+      "description": "Protects the admin API stats Routes behavior: returns dictionary lookup logs with summary."
+    },
+    {
+      "id": "apps-admin-api-src-routes-stats-test-ts-182-statsroutes-does-not-include-rows-from-the-calendar-day-before-the-visible-window",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/stats.test.ts",
+      "sourceLine": 182,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -326,10 +342,26 @@
       "description": "Protects the admin UI admin API client behavior so fetches Open Router key status from settings."
     },
     {
-      "id": "apps-admin-src-lib-api-test-ts-81-admin-api-client-updates-user-audience-groups",
+      "id": "apps-admin-src-lib-api-test-ts-81-admin-api-client-builds-dictionary-lookup-log-query-parameters",
       "kind": "technical",
       "filePath": "apps/admin/src/lib/api.test.ts",
       "sourceLine": 81,
+      "workspace": "apps",
+      "packageName": "admin",
+      "suitePath": [
+        "admin API client"
+      ],
+      "title": "builds dictionary lookup log query parameters",
+      "rawTitle": "builds dictionary lookup log query parameters",
+      "name": "Admin UI admin API client builds dictionary lookup log query parameters",
+      "value": "Protects the admin UI admin API client behavior: builds dictionary lookup log query parameters.",
+      "description": "Protects the admin UI admin API client behavior: builds dictionary lookup log query parameters."
+    },
+    {
+      "id": "apps-admin-src-lib-api-test-ts-106-admin-api-client-updates-user-audience-groups",
+      "kind": "technical",
+      "filePath": "apps/admin/src/lib/api.test.ts",
+      "sourceLine": 106,
       "workspace": "apps",
       "packageName": "admin",
       "suitePath": [
@@ -8303,10 +8335,10 @@
       "description": "Protects the translation benchmark select Benchmark Cases behavior: keeps the complete benchmark unchanged for the all group."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-60-runtranslationbenchmark-runs-the-real-translation-and-validation-pipeline-and-writes-an-analysis-ready-report",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-93-runtranslationbenchmark-runs-the-real-translation-and-validation-pipeline-and-writes-an-analysis-ready-report",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 60,
+      "sourceLine": 93,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -8319,10 +8351,10 @@
       "description": "Protects the translation benchmark run Translation Benchmark behavior so runs the real translation and validation pipeline and writes an analysis ready report."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-134-runtranslationbenchmark-records-a-failed-case-after-pipeline-retries-and-continues-with-the-next-case",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-172-runtranslationbenchmark-records-a-failed-case-after-pipeline-retries-and-continues-with-the-next-case",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 134,
+      "sourceLine": 172,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -8335,10 +8367,10 @@
       "description": "Protects the translation benchmark run Translation Benchmark behavior: records a failed case after pipeline retries and continues with the next case."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-184-renderbenchmarkreportmarkdown-escapes-table-separators-in-detection-input",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-223-renderbenchmarkreportmarkdown-escapes-table-separators-in-detection-input",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 184,
+      "sourceLine": 223,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -8351,10 +8383,10 @@
       "description": "Protects the translation benchmark render Benchmark Report Markdown behavior: escapes table separators in detection input."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-248-benchmark-regression-controls-runs-stochastic-cases-repeatedly-and-aggregates-request-cost",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-287-benchmark-regression-controls-runs-stochastic-cases-repeatedly-and-aggregates-request-cost",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 248,
+      "sourceLine": 287,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -8367,10 +8399,10 @@
       "description": "Protects the translation benchmark benchmark regression controls behavior so runs stochastic cases repeatedly and aggregates request cost."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-285-benchmark-regression-controls-flags-statistically-significant-language-pair-regressions",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-324-benchmark-regression-controls-flags-statistically-significant-language-pair-regressions",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 324,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -8383,10 +8415,10 @@
       "description": "Protects the translation benchmark benchmark regression controls behavior so flags statistically significant language pair regressions."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-319-evaluatetranslationquality-reports-clarification-and-immutable-token-failures",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-358-evaluatetranslationquality-reports-clarification-and-immutable-token-failures",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 319,
+      "sourceLine": 358,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -8399,10 +8431,10 @@
       "description": "Protects the translation benchmark evaluate Translation Quality behavior: reports clarification and immutable token failures."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-350-evaluatetranslationquality-checks-forbidden-meanings-and-required-metadata",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-389-evaluatetranslationquality-checks-forbidden-meanings-and-required-metadata",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 350,
+      "sourceLine": 389,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -9568,10 +9600,10 @@
       "description": "Protects the database adapter bot Session Repository behavior so deletes a session row."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-37-createcontextlookup-returns-a-function",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-45-createcontextlookup-returns-a-function",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 37,
+      "sourceLine": 45,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9584,10 +9616,10 @@
       "description": "Protects the database adapter create Context Lookup behavior: returns a function."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-42-createcontextlookup-normalizes-unicode-case-and-whitespace-before-repository-lookup",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-50-createcontextlookup-normalizes-unicode-case-and-whitespace-before-repository-lookup",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 42,
+      "sourceLine": 50,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9600,10 +9632,10 @@
       "description": "Protects the database adapter create Context Lookup behavior: normalizes Unicode, case, and whitespace before repository lookup."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-51-createcontextlookup-returned-function-calls-findbywordandlangcode-with-correct-args",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-59-createcontextlookup-returned-function-calls-findbywordandlangcode-with-correct-args",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 51,
+      "sourceLine": 59,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9616,10 +9648,10 @@
       "description": "Protects the database adapter create Context Lookup behavior so returned function calls find By Word And Lang Code with correct args."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-61-createcontextlookup-transforms-db-result-to-dictionarycontext",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-69-createcontextlookup-transforms-db-result-to-dictionarycontext",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 61,
+      "sourceLine": 69,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9632,10 +9664,10 @@
       "description": "Protects the database adapter create Context Lookup behavior so transforms DB result to Dictionary Context."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-91-createcontextlookup-returns-an-empty-array-when-no-results-found",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-99-createcontextlookup-returns-an-empty-array-when-no-results-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 91,
+      "sourceLine": 99,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9648,10 +9680,26 @@
       "description": "Protects the database adapter create Context Lookup behavior: returns an empty array when no results found."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-100-createcontextlookup-returns-an-empty-array-when-repository-throws-fail-open",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-108-createcontextlookup-records-a-no-match-lookup-audit-log",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 100,
+      "sourceLine": 108,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "createContextLookup"
+      ],
+      "title": "records a no-match lookup audit log",
+      "rawTitle": "records a no-match lookup audit log",
+      "name": "Database adapter create Context Lookup records a no match lookup audit log",
+      "value": "Protects the database adapter create Context Lookup behavior: records a no match lookup audit log.",
+      "description": "Protects the database adapter create Context Lookup behavior: records a no match lookup audit log."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-128-createcontextlookup-returns-an-empty-array-when-repository-throws-fail-open",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
+      "sourceLine": 128,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9664,10 +9712,10 @@
       "description": "Protects the database adapter create Context Lookup behavior: returns an empty array when repository throws (fail open)."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-109-createcontextlookup-handles-null-glosses-and-formtags-gracefully",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-149-createcontextlookup-handles-null-glosses-and-formtags-gracefully",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 109,
+      "sourceLine": 149,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9680,10 +9728,10 @@
       "description": "Protects the database adapter create Context Lookup behavior: handles null glosses and form Tags gracefully."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-139-createcontextlookup-identifies-a-candidate-matched-through-a-known-form",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-179-createcontextlookup-identifies-a-candidate-matched-through-a-known-form",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 139,
+      "sourceLine": 179,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9696,10 +9744,10 @@
       "description": "Protects the database adapter create Context Lookup behavior so identifies a candidate matched through a known form."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-170-createcontextlookup-returns-all-senses-in-deterministic-candidate-order",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-222-createcontextlookup-returns-all-senses-in-deterministic-candidate-order",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 222,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9712,10 +9760,10 @@
       "description": "Protects the database adapter create Context Lookup behavior: returns all senses in deterministic candidate order."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-219-createcontextlookup-each-call-to-factory-returns-an-independent-function",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-271-createcontextlookup-each-call-to-factory-returns-an-independent-function",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 271,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9728,10 +9776,10 @@
       "description": "Protects the database adapter create Context Lookup behavior so each call to factory returns an independent function."
     },
     {
-      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-228-createcontextlookup-sets-langcode-from-the-argument-not-from-db-entry",
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-280-createcontextlookup-sets-langcode-from-the-argument-not-from-db-entry",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
-      "sourceLine": 228,
+      "sourceLine": 280,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -9742,6 +9790,22 @@
       "name": "Database adapter create Context Lookup sets lang Code from the argument, not from DB entry",
       "value": "Protects the database adapter create Context Lookup behavior so sets lang Code from the argument, not from DB entry.",
       "description": "Protects the database adapter create Context Lookup behavior so sets lang Code from the argument, not from DB entry."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-context-lookup-test-ts-299-createcontextlookup-does-not-fail-lookup-when-audit-logging-fails",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/context-lookup.test.ts",
+      "sourceLine": 299,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "createContextLookup"
+      ],
+      "title": "does not fail lookup when audit logging fails",
+      "rawTitle": "does not fail lookup when audit logging fails",
+      "name": "Database adapter create Context Lookup does not fail lookup when audit logging fails",
+      "value": "Protects the database adapter create Context Lookup behavior: does not fail lookup when audit logging fails.",
+      "description": "Protects the database adapter create Context Lookup behavior: does not fail lookup when audit logging fails."
     },
     {
       "id": "packages-adapters-db-src-tests-getdb-test-ts-4-getdb-should-throw-if-database-url-is-not-set",
@@ -22596,10 +22660,10 @@
       "description": "Protects the core domain create Topic Service regenerate Topic Word behavior so works with it terms topic."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-95-buildtranslationprompt-dictionary-context-includes-dictionary-context-section-when-provided",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-116-buildtranslationprompt-dictionary-context-includes-dictionary-context-section-when-provided",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 116,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22612,10 +22676,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes dictionary context section when provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-103-buildtranslationprompt-dictionary-context-includes-the-word-and-language-name",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-124-buildtranslationprompt-dictionary-context-includes-the-word-and-language-name",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 103,
+      "sourceLine": 124,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22628,10 +22692,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes the word and language name."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-112-buildtranslationprompt-dictionary-context-includes-part-of-speech",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-133-buildtranslationprompt-dictionary-context-includes-part-of-speech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 112,
+      "sourceLine": 133,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22644,10 +22708,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes part of speech."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-120-buildtranslationprompt-dictionary-context-includes-glosses-definitions-as-verified-meaning",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-141-buildtranslationprompt-dictionary-context-includes-glosses-definitions-as-verified-meaning",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 120,
+      "sourceLine": 141,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22660,10 +22724,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes glosses definitions as verified meaning."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-129-buildtranslationprompt-dictionary-context-includes-form-tags-with-human-readable-explanations",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-150-buildtranslationprompt-dictionary-context-includes-form-tags-with-human-readable-explanations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 129,
+      "sourceLine": 150,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22676,10 +22740,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes form tags with human readable explanations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-137-buildtranslationprompt-dictionary-context-includes-must-use-instruction-when-glosses-are-present",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-158-buildtranslationprompt-dictionary-context-includes-must-use-instruction-when-glosses-are-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 137,
+      "sourceLine": 158,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22692,10 +22756,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes MUST use instruction when glosses are present."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-145-buildtranslationprompt-dictionary-context-includes-instruction-to-reflect-meanings-in-alternatives-and-synonyms",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-166-buildtranslationprompt-dictionary-context-includes-instruction-to-reflect-meanings-in-alternatives-and-synonyms",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 145,
+      "sourceLine": 166,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22708,10 +22772,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes instruction to reflect meanings in alternatives and synonyms."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-153-buildtranslationprompt-dictionary-context-does-not-include-must-use-instruction-when-glosses-are-empty",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-174-buildtranslationprompt-dictionary-context-does-not-include-must-use-instruction-when-glosses-are-empty",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 153,
+      "sourceLine": 174,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22724,10 +22788,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: does NOT include MUST use instruction when glosses are empty."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-168-buildtranslationprompt-dictionary-context-includes-fixed-expression-hint-for-pos-phrase",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-189-buildtranslationprompt-dictionary-context-includes-fixed-expression-hint-for-pos-phrase",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 168,
+      "sourceLine": 189,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22740,10 +22804,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes fixed expression hint for pos=phrase."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-176-buildtranslationprompt-dictionary-context-includes-fixed-expression-hint-for-pos-idiom",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-197-buildtranslationprompt-dictionary-context-includes-fixed-expression-hint-for-pos-idiom",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 176,
+      "sourceLine": 197,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22756,10 +22820,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes fixed expression hint for pos=idiom."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-185-buildtranslationprompt-dictionary-context-does-not-include-fixed-expression-hint-for-pos-noun",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-206-buildtranslationprompt-dictionary-context-does-not-include-fixed-expression-hint-for-pos-noun",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 185,
+      "sourceLine": 206,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22772,10 +22836,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: does NOT include fixed expression hint for pos=noun."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-194-buildtranslationprompt-dictionary-context-does-not-include-dictionary-context-section-when-not-provided",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-215-buildtranslationprompt-dictionary-context-does-not-include-dictionary-context-section-when-not-provided",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 194,
+      "sourceLine": 215,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22788,10 +22852,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: does NOT include dictionary context section when not provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-200-buildtranslationprompt-dictionary-context-omits-form-tags-line-when-formtags-is-empty",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-221-buildtranslationprompt-dictionary-context-omits-form-tags-line-when-formtags-is-empty",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 200,
+      "sourceLine": 221,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22804,10 +22868,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: omits form tags line when form Tags is empty."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-211-buildtranslationprompt-dictionary-context-omits-form-tags-line-when-formtags-is-undefined",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-232-buildtranslationprompt-dictionary-context-omits-form-tags-line-when-formtags-is-undefined",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 211,
+      "sourceLine": 232,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22820,10 +22884,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: omits form tags line when form Tags is undefined."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-225-buildtranslationprompt-dictionary-context-limits-glosses-to-5-in-the-prompt-to-avoid-bloat",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-246-buildtranslationprompt-dictionary-context-limits-glosses-to-5-in-the-prompt-to-avoid-bloat",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 225,
+      "sourceLine": 246,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22836,10 +22900,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: limits glosses to 5 in the prompt to avoid bloat."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-254-buildtranslationprompt-dictionary-context-handles-empty-glosses-array-gracefully",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-275-buildtranslationprompt-dictionary-context-handles-empty-glosses-array-gracefully",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 254,
+      "sourceLine": 275,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22852,10 +22916,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: handles empty glosses array gracefully."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-272-buildtranslationprompt-dictionary-context-coexists-with-topic-hint",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-293-buildtranslationprompt-dictionary-context-coexists-with-topic-hint",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 272,
+      "sourceLine": 293,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22868,10 +22932,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior so coexists with topic hint."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-283-buildtranslationprompt-dictionary-context-places-user-context-before-dictionary-context-and-json-template",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-304-buildtranslationprompt-dictionary-context-places-user-context-before-dictionary-context-and-json-template",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 283,
+      "sourceLine": 304,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22884,10 +22948,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior so places user context before dictionary context and JSON template."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-298-buildtranslationprompt-dictionary-context-includes-multiple-form-tags-with-explanations",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-319-buildtranslationprompt-dictionary-context-includes-multiple-form-tags-with-explanations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 298,
+      "sourceLine": 319,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22900,10 +22964,10 @@
       "description": "Protects the core domain build Translation Prompt — dictionary context behavior: includes multiple form tags with explanations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-312-buildstrictprompt-dictionary-context-includes-dictionary-context-in-strict-retry-prompt",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-333-buildstrictprompt-dictionary-context-includes-dictionary-context-in-strict-retry-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 312,
+      "sourceLine": 333,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22916,10 +22980,10 @@
       "description": "Protects the core domain build Strict Prompt — dictionary context behavior: includes dictionary context in strict retry prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-325-buildstrictprompt-dictionary-context-does-not-include-dictionary-context-when-not-provided",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-346-buildstrictprompt-dictionary-context-does-not-include-dictionary-context-when-not-provided",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 325,
+      "sourceLine": 346,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22932,10 +22996,10 @@
       "description": "Protects the core domain build Strict Prompt — dictionary context behavior: does not include dictionary context when not provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-336-translate-dictionary-context-passthrough-passes-dictionary-context-to-the-prompt",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-357-translate-dictionary-context-passthrough-passes-dictionary-context-to-the-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 336,
+      "sourceLine": 357,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22948,10 +23012,10 @@
       "description": "Protects the core domain translate — dictionary context passthrough behavior so passes dictionary context to the prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-351-translate-dictionary-context-passthrough-includes-dictionarycontext-in-the-output-when-provided",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-372-translate-dictionary-context-passthrough-includes-dictionarycontext-in-the-output-when-provided",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 351,
+      "sourceLine": 372,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22964,10 +23028,10 @@
       "description": "Protects the core domain translate — dictionary context passthrough behavior: includes dictionary Context in the output when provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-369-translate-dictionary-context-passthrough-does-not-include-dictionarycontext-in-output-when-not-provided",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-390-translate-dictionary-context-passthrough-does-not-include-dictionarycontext-in-output-when-not-provided",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 369,
+      "sourceLine": 390,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22980,10 +23044,10 @@
       "description": "Protects the core domain translate — dictionary context passthrough behavior: does NOT include dictionary Context in output when not provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-377-translate-dictionary-context-passthrough-preserves-dictionarycontext-through-validation-retries",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-398-translate-dictionary-context-passthrough-preserves-dictionarycontext-through-validation-retries",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 377,
+      "sourceLine": 398,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -22996,10 +23060,10 @@
       "description": "Protects the core domain translate — dictionary context passthrough behavior: preserves dictionary Context through validation retries."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-413-translate-dictionary-context-passthrough-preserves-dictionarycontext-when-needsreview-is-true",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-451-translate-dictionary-context-passthrough-preserves-dictionarycontext-when-needsreview-is-true",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 413,
+      "sourceLine": 451,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23012,10 +23076,10 @@
       "description": "Protects the core domain translate — dictionary context passthrough behavior: preserves dictionary Context when needs Review is true."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-450-translateone-dictionary-context-passthrough-passes-dictionary-context-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-488-translateone-dictionary-context-passthrough-passes-dictionary-context-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 450,
+      "sourceLine": 488,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23028,10 +23092,10 @@
       "description": "Protects the core domain translate One — dictionary context passthrough behavior so passes dictionary context through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-472-dictionarycontext-type-shape-requires-word-pos-glosses-langcode",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-510-dictionarycontext-type-shape-requires-word-pos-glosses-langcode",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 472,
+      "sourceLine": 510,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23044,10 +23108,10 @@
       "description": "Protects the core domain Dictionary Context type shape behavior: requires word, pos, glosses, lang Code."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-485-dictionarycontext-type-shape-allows-optional-formtags",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-523-dictionarycontext-type-shape-allows-optional-formtags",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 485,
+      "sourceLine": 523,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23060,10 +23124,10 @@
       "description": "Protects the core domain Dictionary Context type shape behavior: allows optional form Tags."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-496-dictionarycontext-type-shape-works-without-formtags",
+      "id": "packages-core-src-modules-translation-tests-dictionary-context-test-ts-534-dictionarycontext-type-shape-works-without-formtags",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/dictionary-context.test.ts",
-      "sourceLine": 496,
+      "sourceLine": 534,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23572,10 +23636,10 @@
       "description": "Protects the core domain Prompt — idiomatic rule behavior so strict prompt mentions expression Type in correction guidance."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-57-presets-defines-output-presets-without-transcription-fields",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-70-presets-defines-output-presets-without-transcription-fields",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 57,
+      "sourceLine": 70,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23588,10 +23652,10 @@
       "description": "Protects the core domain presets behavior so defines output presets without transcription fields."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-118-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-examples-key-in-json-template",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-131-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-examples-key-in-json-template",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 118,
+      "sourceLine": 131,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23604,10 +23668,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Examples: false → prompt has no 'examples' key in JSON template."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-123-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-variety-in-examples-is-mandatory",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-136-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-variety-in-examples-is-mandatory",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 123,
+      "sourceLine": 136,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23620,10 +23684,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Examples: false → prompt has no 'VARIETY IN EXAMPLES IS MANDATORY'."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-128-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-3-example-sentences",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-141-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-3-example-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 128,
+      "sourceLine": 141,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23636,10 +23700,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Examples: false → prompt has no '3 example sentences'."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-133-buildtranslationprompt-with-outputconfig-prompt-never-requests-transcription-and-explicitly-forbids-pronunciation-metadata",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-146-buildtranslationprompt-with-outputconfig-prompt-never-requests-transcription-and-explicitly-forbids-pronunciation-metadata",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 133,
+      "sourceLine": 146,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23652,10 +23716,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so prompt never requests transcription and explicitly forbids pronunciation metadata."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-140-buildtranslationprompt-with-outputconfig-includesynonyms-false-prompt-has-no-synonyms-in-language-block",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-153-buildtranslationprompt-with-outputconfig-includesynonyms-false-prompt-has-no-synonyms-in-language-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 140,
+      "sourceLine": 153,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23668,10 +23732,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Synonyms: false → prompt has no 'synonyms' in language block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-145-buildtranslationprompt-with-outputconfig-includesynonyms-false-prompt-has-no-provide-2-3-synonyms-rule",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-158-buildtranslationprompt-with-outputconfig-includesynonyms-false-prompt-has-no-provide-2-3-synonyms-rule",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 145,
+      "sourceLine": 158,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23684,10 +23748,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Synonyms: false → prompt has no 'Provide 2–3 synonyms' rule."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-150-buildtranslationprompt-with-outputconfig-includealternatives-false-prompt-has-no-alternatives-in-language-block",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-163-buildtranslationprompt-with-outputconfig-includealternatives-false-prompt-has-no-alternatives-in-language-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 150,
+      "sourceLine": 163,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23700,10 +23764,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Alternatives: false → prompt has no 'alternatives' in language block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-155-buildtranslationprompt-with-outputconfig-includealternatives-false-prompt-has-no-2-alternative-translations-rule",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-168-buildtranslationprompt-with-outputconfig-includealternatives-false-prompt-has-no-2-alternative-translations-rule",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 155,
+      "sourceLine": 168,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23716,10 +23780,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Alternatives: false → prompt has no '2 alternative translations' rule."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-160-buildtranslationprompt-with-outputconfig-includeequivalentnote-false-prompt-has-no-expressiontype-in-language-block",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-173-buildtranslationprompt-with-outputconfig-includeequivalentnote-false-prompt-has-no-expressiontype-in-language-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 160,
+      "sourceLine": 173,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23732,10 +23796,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Equivalent Note: false → prompt has no 'expression Type' in language block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-165-buildtranslationprompt-with-outputconfig-includeequivalentnote-false-prompt-has-no-idiomatic-proverb-rule-block",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-178-buildtranslationprompt-with-outputconfig-includeequivalentnote-false-prompt-has-no-idiomatic-proverb-rule-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 165,
+      "sourceLine": 178,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23748,10 +23812,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Equivalent Note: false → prompt has no 'Idiomatic & Proverb Rule' block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-170-buildtranslationprompt-with-outputconfig-empty-config-prompt-is-identical-to-no-config-call-all-sections-present",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-183-buildtranslationprompt-with-outputconfig-empty-config-prompt-is-identical-to-no-config-call-all-sections-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 183,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23764,10 +23828,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so empty config {} → prompt is identical to no config call (all sections present)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-176-buildtranslationprompt-with-outputconfig-undefined-config-prompt-is-identical-to-no-config-call-all-sections-present",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-189-buildtranslationprompt-with-outputconfig-undefined-config-prompt-is-identical-to-no-config-call-all-sections-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 176,
+      "sourceLine": 189,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23780,10 +23844,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so undefined config → prompt is identical to no config call (all sections present)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-182-buildtranslationprompt-with-outputconfig-minimal-output-preset-prompt-includes-only-translation-text",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-195-buildtranslationprompt-with-outputconfig-minimal-output-preset-prompt-includes-only-translation-text",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 182,
+      "sourceLine": 195,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23796,10 +23860,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so MINIMAL OUTPUT preset → prompt includes only translation text."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-193-buildtranslationprompt-with-outputconfig-full-output-preset-prompt-includes-examples-connotationwarning-and-all-enabled-sections",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-206-buildtranslationprompt-with-outputconfig-full-output-preset-prompt-includes-examples-connotationwarning-and-all-enabled-sections",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 193,
+      "sourceLine": 206,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23812,10 +23876,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so FULL OUTPUT preset → prompt includes examples, connotation Warning, and all enabled sections."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-204-buildtranslationprompt-with-outputconfig-includeconnotationwarning-false-prompt-has-no-connotationwarning-field",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-217-buildtranslationprompt-with-outputconfig-includeconnotationwarning-false-prompt-has-no-connotationwarning-field",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 204,
+      "sourceLine": 217,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23828,10 +23892,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Connotation Warning: false → prompt has no 'connotation Warning' field."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-210-buildtranslationprompt-with-outputconfig-includeconnotationwarning-true-prompt-has-connotationwarning-field-and-warning-rule",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-223-buildtranslationprompt-with-outputconfig-includeconnotationwarning-true-prompt-has-connotationwarning-field-and-warning-rule",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 210,
+      "sourceLine": 223,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23844,10 +23908,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Connotation Warning: true → prompt has 'connotation Warning' field and warning rule."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-220-buildstrictprompt-with-outputconfig-includeexamples-false-strict-prompt-omits-example-variety-check",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-233-buildstrictprompt-with-outputconfig-includeexamples-false-strict-prompt-omits-example-variety-check",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 220,
+      "sourceLine": 233,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23860,10 +23924,10 @@
       "description": "Protects the core domain build Strict Prompt with output Config behavior so include Examples: false → strict prompt omits example variety check."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-225-buildstrictprompt-with-outputconfig-includeequivalentnote-false-strict-prompt-omits-idiomatic-expression-check",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-238-buildstrictprompt-with-outputconfig-includeequivalentnote-false-strict-prompt-omits-idiomatic-expression-check",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 225,
+      "sourceLine": 238,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23876,10 +23940,10 @@
       "description": "Protects the core domain build Strict Prompt with output Config behavior so include Equivalent Note: false → strict prompt omits idiomatic expression check."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-232-buildstrictprompt-with-outputconfig-includeconnotationwarning-false-strict-prompt-omits-connotation-warning-check",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-245-buildstrictprompt-with-outputconfig-includeconnotationwarning-false-strict-prompt-omits-connotation-warning-check",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 232,
+      "sourceLine": 245,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23892,10 +23956,10 @@
       "description": "Protects the core domain build Strict Prompt with output Config behavior so include Connotation Warning: false → strict prompt omits connotation warning check."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-239-buildstrictprompt-with-outputconfig-includeconnotationwarning-true-strict-prompt-includes-connotation-warning-check",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-252-buildstrictprompt-with-outputconfig-includeconnotationwarning-true-strict-prompt-includes-connotation-warning-check",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 239,
+      "sourceLine": 252,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23908,10 +23972,10 @@
       "description": "Protects the core domain build Strict Prompt with output Config behavior so include Connotation Warning: true → strict prompt includes connotation warning check."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-250-buildtranslationresultschema-with-config-includeexamples-false-schema-accepts-missing-examples",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-263-buildtranslationresultschema-with-config-includeexamples-false-schema-accepts-missing-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 250,
+      "sourceLine": 263,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23924,10 +23988,10 @@
       "description": "Protects the core domain build Translation Result Schema with config behavior so include Examples: false → schema accepts missing examples."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-264-buildtranslationresultschema-with-config-includeexamples-false-schema-still-rejects-missing-text-field",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-277-buildtranslationresultschema-with-config-includeexamples-false-schema-still-rejects-missing-text-field",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 264,
+      "sourceLine": 277,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23940,10 +24004,10 @@
       "description": "Protects the core domain build Translation Result Schema with config behavior so include Examples: false → schema still rejects missing 'text' field."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-276-buildtranslationresultschema-with-config-includesynonyms-false-schema-accepts-missing-synonyms",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-289-buildtranslationresultschema-with-config-includesynonyms-false-schema-accepts-missing-synonyms",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 276,
+      "sourceLine": 289,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23956,10 +24020,10 @@
       "description": "Protects the core domain build Translation Result Schema with config behavior so include Synonyms: false → schema accepts missing synonyms."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-290-buildtranslationresultschema-with-config-default-no-config-schema-still-requires-non-empty-examples-array-min-1",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-303-buildtranslationresultschema-with-config-default-no-config-schema-still-requires-non-empty-examples-array-min-1",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 290,
+      "sourceLine": 303,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23972,10 +24036,10 @@
       "description": "Protects the core domain build Translation Result Schema with config behavior so default (no config) → schema still requires non empty examples array (min 1)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-304-buildlanguagetranslationschema-default-requires-at-least-1-example",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-317-buildlanguagetranslationschema-default-requires-at-least-1-example",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 304,
+      "sourceLine": 317,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23988,10 +24052,10 @@
       "description": "Protects the core domain build Language Translation Schema behavior so default → requires at least 1 example."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-310-buildlanguagetranslationschema-includeexamples-false-accepts-missing-examples",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-323-buildlanguagetranslationschema-includeexamples-false-accepts-missing-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 310,
+      "sourceLine": 323,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24004,10 +24068,10 @@
       "description": "Protects the core domain build Language Translation Schema behavior so include Examples: false → accepts missing examples."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-318-buildlanguagetranslationschema-includesynonyms-false-accepts-missing-synonyms",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-331-buildlanguagetranslationschema-includesynonyms-false-accepts-missing-synonyms",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 318,
+      "sourceLine": 331,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24020,10 +24084,10 @@
       "description": "Protects the core domain build Language Translation Schema behavior so include Synonyms: false → accepts missing synonyms."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-326-buildlanguagetranslationschema-connotationwarning-is-optional-in-schema-always",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-339-buildlanguagetranslationschema-connotationwarning-is-optional-in-schema-always",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 326,
+      "sourceLine": 339,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24036,10 +24100,10 @@
       "description": "Protects the core domain build Language Translation Schema behavior so connotation Warning is optional in schema (always)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-340-translate-with-outputconfig-passes-outputconfig-through-to-prompt-and-schema-builders",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-353-translate-with-outputconfig-passes-outputconfig-through-to-prompt-and-schema-builders",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 340,
+      "sourceLine": 353,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24052,10 +24116,10 @@
       "description": "Protects the core domain translate() with output Config behavior so passes output Config through to prompt and schema builders."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-377-translate-with-sentence-output-and-inputtype-sentence-passes-inputtype-through-to-prompt-builder-and-validation",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-390-translate-with-sentence-output-and-inputtype-sentence-passes-inputtype-through-to-prompt-builder-and-validation",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 377,
+      "sourceLine": 390,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24068,10 +24132,10 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so passes input Type through to prompt builder and validation."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-417-translate-with-sentence-output-and-inputtype-sentence-sentence-translation-strips-disabled-fields-from-ai-response",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-430-translate-with-sentence-output-and-inputtype-sentence-sentence-translation-strips-disabled-fields-from-ai-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 417,
+      "sourceLine": 430,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24212,10 +24276,26 @@
       "description": "Protects the core domain build Translation Prompt behavior so requests JSON only, no markdown."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-62-buildtranslationprompt-includes-topic-hint-when-provided",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-62-buildtranslationprompt-includes-universal-language-specific-grammatical-markers-directive",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
       "sourceLine": 62,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildTranslationPrompt"
+      ],
+      "title": "includes universal language-specific grammatical markers directive",
+      "rawTitle": "includes universal language-specific grammatical markers directive",
+      "name": "Core domain build Translation Prompt includes universal language specific grammatical markers directive",
+      "value": "Protects the core domain build Translation Prompt behavior: includes universal language specific grammatical markers directive.",
+      "description": "Protects the core domain build Translation Prompt behavior: includes universal language specific grammatical markers directive."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-68-buildtranslationprompt-includes-topic-hint-when-provided",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
+      "sourceLine": 68,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24228,10 +24308,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: includes topic hint when provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-70-buildtranslationprompt-treats-topic-as-a-sense-selection-hint-not-source-text",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-76-buildtranslationprompt-treats-topic-as-a-sense-selection-hint-not-source-text",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 70,
+      "sourceLine": 76,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24244,10 +24324,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so treats topic as a sense selection hint, not source text."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-88-buildtranslationprompt-does-not-mention-context-bound-fields-disabled-by-output-config",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-94-buildtranslationprompt-does-not-mention-context-bound-fields-disabled-by-output-config",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 88,
+      "sourceLine": 94,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24260,10 +24340,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not mention context bound fields disabled by output config."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-105-buildtranslationprompt-does-not-include-topic-hint-when-not-provided",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-111-buildtranslationprompt-does-not-include-topic-hint-when-not-provided",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 105,
+      "sourceLine": 111,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24276,10 +24356,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not include topic hint when not provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-110-buildtranslationprompt-works-with-a-single-target-language",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-116-buildtranslationprompt-works-with-a-single-target-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 110,
+      "sourceLine": 116,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24292,10 +24372,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so works with a single target language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-120-buildtranslationprompt-instructs-same-language-learning-details-when-target-includes-source",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-126-buildtranslationprompt-instructs-same-language-learning-details-when-target-includes-source",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 120,
+      "sourceLine": 126,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24308,10 +24388,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so instructs same language learning details when target includes source."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-131-buildtranslationprompt-works-with-four-target-languages",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-137-buildtranslationprompt-works-with-four-target-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 137,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24324,10 +24404,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so works with four target languages."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-141-buildtranslationprompt-includes-rule-about-variety-in-examples-using-different-words",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-147-buildtranslationprompt-includes-rule-about-variety-in-examples-using-different-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 141,
+      "sourceLine": 147,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24340,10 +24420,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: includes rule about variety in examples using different words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-150-buildtranslationprompt-does-not-request-stale-register-labels-for-examples",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-156-buildtranslationprompt-does-not-request-stale-register-labels-for-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 150,
+      "sourceLine": 156,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24356,10 +24436,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not request stale register labels for examples."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-156-buildtranslationprompt-requests-native-sentence-in-examples-when-native-language-is-provided",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-162-buildtranslationprompt-requests-native-sentence-in-examples-when-native-language-is-provided",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 156,
+      "sourceLine": 162,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24372,10 +24452,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so requests native sentence in examples when native language is provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-162-buildtranslationprompt-forbids-ipa-pronunciation-romanization-and-transliteration-in-every-field",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-168-buildtranslationprompt-forbids-ipa-pronunciation-romanization-and-transliteration-in-every-field",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 162,
+      "sourceLine": 168,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24388,10 +24468,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so forbids IPA, pronunciation, romanization, and transliteration in every field."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-174-buildtranslationprompt-does-not-request-a-native-example-translation-for-the-native-target-block",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-180-buildtranslationprompt-does-not-request-a-native-example-translation-for-the-native-target-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 180,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24404,10 +24484,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not request a native example translation for the native target block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-187-buildtranslationprompt-requests-top-level-nativemeaning-when-native-language-is-provided",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-193-buildtranslationprompt-requests-top-level-nativemeaning-when-native-language-is-provided",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 187,
+      "sourceLine": 193,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24420,10 +24500,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so requests top level native Meaning when native language is provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-193-buildtranslationprompt-includes-alternatives-guidance-when-enabled",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-199-buildtranslationprompt-includes-alternatives-guidance-when-enabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 193,
+      "sourceLine": 199,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24436,10 +24516,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: includes alternatives guidance when enabled."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-198-buildtranslationprompt-includes-rule-about-2-alternative-translations",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-204-buildtranslationprompt-includes-rule-about-2-alternative-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 198,
+      "sourceLine": 204,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24452,10 +24532,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: includes rule about 2 alternative translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-203-buildtranslationprompt-includes-connotation-warning-guidance-default-config",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-209-buildtranslationprompt-includes-connotation-warning-guidance-default-config",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 203,
+      "sourceLine": 209,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24468,10 +24548,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: includes connotation warning guidance (default config)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-208-buildtranslationprompt-includes-connotation-warning-rule-about-dangerous-meanings",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-214-buildtranslationprompt-includes-connotation-warning-rule-about-dangerous-meanings",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 208,
+      "sourceLine": 214,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24484,10 +24564,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: includes connotation warning rule about dangerous meanings."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-215-buildtranslationprompt-writes-connotation-warnings-in-the-user-s-native-language-while-describing-the-target-translation",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-221-buildtranslationprompt-writes-connotation-warnings-in-the-user-s-native-language-while-describing-the-target-translation",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 215,
+      "sourceLine": 221,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24500,10 +24580,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so writes connotation warnings in the user's native language while describing the target translation."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-224-buildtranslationprompt-separates-regular-usage-guidance-from-exceptional-connotation-warnings",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-230-buildtranslationprompt-separates-regular-usage-guidance-from-exceptional-connotation-warnings",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 224,
+      "sourceLine": 230,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24516,10 +24596,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so separates regular usage guidance from exceptional connotation warnings."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-232-buildtranslationprompt-prevents-native-source-connotation-from-explaining-the-source-word",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-238-buildtranslationprompt-prevents-native-source-connotation-from-explaining-the-source-word",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 232,
+      "sourceLine": 238,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24532,10 +24612,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: prevents native source connotation from explaining the source word."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-244-buildtranslationprompt-does-not-apply-the-native-source-connotation-guard-to-learning-language-source-input",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-250-buildtranslationprompt-does-not-apply-the-native-source-connotation-guard-to-learning-language-source-input",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 244,
+      "sourceLine": 250,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24548,10 +24628,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not apply the native source connotation guard to learning language source input."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-256-buildtranslationprompt-requests-source-usage-guidance-for-learning-language-source-words",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-262-buildtranslationprompt-requests-source-usage-guidance-for-learning-language-source-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 256,
+      "sourceLine": 262,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24564,10 +24644,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so requests source usage guidance for learning language source words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-272-buildtranslationprompt-instructs-ai-to-translate-into-the-native-language-when-source-is-a-learning-language",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-278-buildtranslationprompt-instructs-ai-to-translate-into-the-native-language-when-source-is-a-learning-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 272,
+      "sourceLine": 278,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24580,10 +24660,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so instructs AI to translate into the native language when source is a learning language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-285-buildtranslationprompt-instructs-ai-to-keep-the-native-target-block-minimal-text-synonyms-only",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-291-buildtranslationprompt-instructs-ai-to-keep-the-native-target-block-minimal-text-synonyms-only",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 291,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24596,10 +24676,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so instructs AI to keep the native target block minimal (text + synonyms only)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-298-buildtranslationprompt-does-not-emit-the-minimal-native-target-rule-when-source-is-the-native-language",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-304-buildtranslationprompt-does-not-emit-the-minimal-native-target-rule-when-source-is-the-native-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 298,
+      "sourceLine": 304,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24612,10 +24692,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not emit the minimal native target rule when source is the native language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-310-buildtranslationprompt-does-not-request-source-usage-guidance-for-learning-language-source-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-316-buildtranslationprompt-does-not-request-source-usage-guidance-for-learning-language-source-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 310,
+      "sourceLine": 316,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24628,10 +24708,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not request source usage guidance for learning language source sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-323-buildtranslationprompt-does-not-require-a-native-connotation-warning-language-when-nativelang-is-absent",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-329-buildtranslationprompt-does-not-require-a-native-connotation-warning-language-when-nativelang-is-absent",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 323,
+      "sourceLine": 329,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24644,10 +24724,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not require a native connotation warning language when native Lang is absent."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-329-buildtranslationprompt-omits-connotation-warning-when-includeconnotationwarning-is-false",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-335-buildtranslationprompt-omits-connotation-warning-when-includeconnotationwarning-is-false",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 329,
+      "sourceLine": 335,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24660,10 +24740,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: omits connotation warning when include Connotation Warning is false."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-346-buildstrictprompt-includes-the-base-prompt",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-352-buildstrictprompt-includes-the-base-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 346,
+      "sourceLine": 352,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24676,10 +24756,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes the base prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-353-buildstrictprompt-includes-error-feedback",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-359-buildstrictprompt-includes-error-feedback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 353,
+      "sourceLine": 359,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24692,10 +24772,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes error feedback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-363-buildstrictprompt-mentions-validation-errors-header",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-369-buildstrictprompt-mentions-validation-errors-header",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 363,
+      "sourceLine": 369,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24708,10 +24788,10 @@
       "description": "Protects the core domain build Strict Prompt behavior so mentions validation errors header."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-368-buildstrictprompt-includes-correction-guidance",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-374-buildstrictprompt-includes-correction-guidance",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 368,
+      "sourceLine": 374,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24724,10 +24804,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes correction guidance."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-374-buildstrictprompt-includes-native-example-check-when-native-language-is-present",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-380-buildstrictprompt-includes-native-example-check-when-native-language-is-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 374,
+      "sourceLine": 380,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24740,10 +24820,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes native example check when native language is present."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-380-buildstrictprompt-includes-source-usage-check-for-learning-language-source-words",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-386-buildstrictprompt-includes-source-usage-check-for-learning-language-source-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 380,
+      "sourceLine": 386,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24756,10 +24836,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes source usage check for learning language source words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-391-buildstrictprompt-includes-connotation-warning-check-in-strict-prompt",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-397-buildstrictprompt-includes-connotation-warning-check-in-strict-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 391,
+      "sourceLine": 397,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24772,10 +24852,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes connotation warning check in strict prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-397-buildstrictprompt-includes-native-language-connotation-warning-check-in-strict-prompt",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-403-buildstrictprompt-includes-native-language-connotation-warning-check-in-strict-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 397,
+      "sourceLine": 403,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24788,10 +24868,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes native language connotation warning check in strict prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-402-buildstrictprompt-includes-native-source-connotation-check-in-strict-prompt",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-408-buildstrictprompt-includes-native-source-connotation-check-in-strict-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 402,
+      "sourceLine": 408,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24804,10 +24884,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes native source connotation check in strict prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-409-buildstrictprompt-states-that-connotationwarning-must-be-written-in-the-native-language-not-the-target-language",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-415-buildstrictprompt-states-that-connotationwarning-must-be-written-in-the-native-language-not-the-target-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 409,
+      "sourceLine": 415,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24820,10 +24900,10 @@
       "description": "Protects the core domain build Strict Prompt behavior so states that connotation Warning must be written in the native language, not the target language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-435-buildtranslationprompt-with-inputtype-sentence-uses-translate-the-following-sentence-intro-for-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-441-buildtranslationprompt-with-inputtype-sentence-uses-translate-the-following-sentence-intro-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 435,
+      "sourceLine": 441,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24836,10 +24916,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=sentence behavior: uses 'Translate the following sentence' intro for sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-441-buildtranslationprompt-with-inputtype-sentence-does-not-use-translate-format-for-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-447-buildtranslationprompt-with-inputtype-sentence-does-not-use-translate-format-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 441,
+      "sourceLine": 447,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24852,10 +24932,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=sentence behavior: does not use 'Translate \" \"' format for sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-448-buildtranslationprompt-with-inputtype-sentence-omits-synonyms-alternatives-examples-equivalentnote-via-sentence-output",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-454-buildtranslationprompt-with-inputtype-sentence-omits-synonyms-alternatives-examples-equivalentnote-via-sentence-output",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 448,
+      "sourceLine": 454,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24868,10 +24948,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=sentence behavior: omits synonyms, alternatives, examples, equivalent Note (via SENTENCE OUTPUT)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-457-buildtranslationprompt-with-inputtype-sentence-topic-hint-says-sentence-instead-of-word-for-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-463-buildtranslationprompt-with-inputtype-sentence-topic-hint-says-sentence-instead-of-word-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 457,
+      "sourceLine": 463,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24884,10 +24964,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=sentence behavior so topic hint says 'sentence' instead of 'word' for sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-472-buildtranslationprompt-with-inputtype-word-backward-compat-uses-standard-translate-format-for-words",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-478-buildtranslationprompt-with-inputtype-word-backward-compat-uses-standard-translate-format-for-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 472,
+      "sourceLine": 478,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24900,10 +24980,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=word (backward compat) behavior: uses standard 'Translate \" \"' format for words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-485-buildtranslationprompt-with-inputtype-absent-backward-compat-uses-standard-translate-format-when-inputtype-is-absent",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-491-buildtranslationprompt-with-inputtype-absent-backward-compat-uses-standard-translate-format-when-inputtype-is-absent",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 485,
+      "sourceLine": 491,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24916,10 +24996,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type absent (backward compat) behavior: uses standard 'Translate \" \"' format when input Type is absent."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-500-buildstrictprompt-with-inputtype-sentence-strict-prompt-also-uses-sentence-style-intro",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-506-buildstrictprompt-with-inputtype-sentence-strict-prompt-also-uses-sentence-style-intro",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 500,
+      "sourceLine": 506,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24932,10 +25012,10 @@
       "description": "Protects the core domain build Strict Prompt with input Type=sentence behavior so strict prompt also uses sentence style intro."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-505-buildstrictprompt-with-inputtype-sentence-strict-prompt-includes-error-feedback-for-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-511-buildstrictprompt-with-inputtype-sentence-strict-prompt-includes-error-feedback-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 505,
+      "sourceLine": 511,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24948,10 +25028,10 @@
       "description": "Protects the core domain build Strict Prompt with input Type=sentence behavior so strict prompt includes error feedback for sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-520-buildtranslationprompt-grammar-breakdown-includes-grammar-breakdown-instructions-for-phrases-when-enabled",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-526-buildtranslationprompt-grammar-breakdown-includes-grammar-breakdown-instructions-for-phrases-when-enabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 520,
+      "sourceLine": 526,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24964,10 +25044,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior: includes grammar breakdown instructions for phrases when enabled."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-531-buildtranslationprompt-grammar-breakdown-does-not-include-grammar-breakdown-for-words-even-when-enabled",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-537-buildtranslationprompt-grammar-breakdown-does-not-include-grammar-breakdown-for-words-even-when-enabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 531,
+      "sourceLine": 537,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24980,10 +25060,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior: does NOT include grammar breakdown for words even when enabled."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-542-buildtranslationprompt-grammar-breakdown-includes-grammar-breakdown-even-when-sourcelang-nativelang-analyzes-target-translations",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-548-buildtranslationprompt-grammar-breakdown-includes-grammar-breakdown-even-when-sourcelang-nativelang-analyzes-target-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 542,
+      "sourceLine": 548,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24996,10 +25076,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior: includes grammar breakdown even when source Lang === native Lang (analyzes target translations)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-553-buildtranslationprompt-grammar-breakdown-does-not-include-grammar-breakdown-when-disabled-in-config",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-559-buildtranslationprompt-grammar-breakdown-does-not-include-grammar-breakdown-when-disabled-in-config",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 553,
+      "sourceLine": 559,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25012,10 +25092,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior: does NOT include grammar breakdown when disabled in config."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-562-buildtranslationprompt-grammar-breakdown-strict-prompt-includes-grammar-breakdown-check-item-when-enabled",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-568-buildtranslationprompt-grammar-breakdown-strict-prompt-includes-grammar-breakdown-check-item-when-enabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 562,
+      "sourceLine": 568,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25028,10 +25108,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior so strict prompt includes grammar breakdown check item when enabled."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-575-buildtranslationprompt-grammar-breakdown-strict-prompt-includes-grammar-breakdown-check-even-when-sourcelang-nativelang",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-581-buildtranslationprompt-grammar-breakdown-strict-prompt-includes-grammar-breakdown-check-even-when-sourcelang-nativelang",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 575,
+      "sourceLine": 581,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25780,10 +25860,10 @@
       "description": "Protects the core domain build Language Translation Schema — grammar breakdown behavior: validates grammar Breakdown as non empty string array with max 5 items."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-79-translate-returns-a-valid-translateoutput-on-first-pass",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-108-translate-returns-a-valid-translateoutput-on-first-pass",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 79,
+      "sourceLine": 108,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25796,26 +25876,26 @@
       "description": "Protects the core domain translate behavior: returns a valid Translate Output on first pass."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-92-translate-calls-generateobject-exactly-once-when-validation-passes",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-121-translate-calls-generateobject-for-metadata-each-target-language-in-parallel",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 92,
+      "sourceLine": 121,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "translate"
       ],
-      "title": "calls generateObject exactly once when validation passes",
-      "rawTitle": "calls generateObject exactly once when validation passes",
-      "name": "Core domain translate calls generate Object exactly once when validation passes",
-      "value": "Protects the core domain translate behavior: calls generate Object exactly once when validation passes.",
-      "description": "Protects the core domain translate behavior: calls generate Object exactly once when validation passes."
+      "title": "calls generateObject for metadata + each target language in parallel",
+      "rawTitle": "calls generateObject for metadata + each target language in parallel",
+      "name": "Core domain translate calls generate Object for metadata + each target language in parallel",
+      "value": "Protects the core domain translate behavior: calls generate Object for metadata + each target language in parallel.",
+      "description": "Protects the core domain translate behavior: calls generate Object for metadata + each target language in parallel."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-100-translate-repairs-a-validation-failure-and-succeeds-on-second-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-130-translate-repairs-a-validation-failure-and-succeeds-on-second-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 100,
+      "sourceLine": 130,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25828,10 +25908,10 @@
       "description": "Protects the core domain translate behavior so repairs a validation failure and succeeds on second attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-121-translate-repairs-only-the-failing-target-language-block",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-158-translate-repairs-only-the-failing-target-language-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 121,
+      "sourceLine": 158,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25844,10 +25924,10 @@
       "description": "Protects the core domain translate behavior so repairs only the failing target language block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-183-translate-returns-needsreview-true-after-all-retries-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-229-translate-returns-needsreview-true-after-all-retries-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 183,
+      "sourceLine": 229,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25860,10 +25940,10 @@
       "description": "Protects the core domain translate behavior: returns needs Review=true after all retries exhausted."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-204-translate-includes-topic-in-the-prompt-when-provided",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-250-translate-includes-topic-in-the-prompt-when-provided",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 204,
+      "sourceLine": 250,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25876,10 +25956,10 @@
       "description": "Protects the core domain translate behavior: includes topic in the prompt when provided."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-219-translate-passes-the-correct-model-to-generateobject",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-265-translate-passes-the-correct-model-to-generateobject",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 265,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25892,10 +25972,10 @@
       "description": "Protects the core domain translate behavior so passes the correct model to generate Object."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-228-translate-returns-needs-clarification-when-ai-preflight-finds-source-language-ambiguity",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-274-translate-returns-needs-clarification-when-ai-preflight-finds-source-language-ambiguity",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 228,
+      "sourceLine": 274,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25908,10 +25988,10 @@
       "description": "Protects the core domain translate behavior: returns needs clarification when AI preflight finds source language ambiguity."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-280-translate-continues-to-translation-when-ai-preflight-confidence-is-high",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-326-translate-continues-to-translation-when-ai-preflight-confidence-is-high",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 280,
+      "sourceLine": 326,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25924,10 +26004,10 @@
       "description": "Protects the core domain translate behavior so continues to translation when AI preflight confidence is high."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-307-translate-does-not-ask-for-clarification-for-ordinary-single-word-part-of-speech-ambiguity",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-352-translate-does-not-ask-for-clarification-for-ordinary-single-word-part-of-speech-ambiguity",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 307,
+      "sourceLine": 352,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25940,10 +26020,10 @@
       "description": "Protects the core domain translate behavior: does not ask for clarification for ordinary single word part of speech ambiguity."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-348-translate-routes-low-risk-generation-through-the-configured-low-risk-model",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-391-translate-routes-low-risk-generation-through-the-configured-low-risk-model",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 348,
+      "sourceLine": 391,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25956,10 +26036,10 @@
       "description": "Protects the core domain translate behavior: routes low risk generation through the configured low risk model."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-379-translate-routes-high-risk-generation-and-judging-through-configured-models",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-423-translate-routes-high-risk-generation-and-judging-through-configured-models",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 379,
+      "sourceLine": 423,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25972,10 +26052,10 @@
       "description": "Protects the core domain translate behavior: routes high risk generation and judging through configured models."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-408-translate-returns-needs-clarification-for-an-ambiguous-numeric-date-before-calling-the-model",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-453-translate-returns-needs-clarification-for-an-ambiguous-numeric-date-before-calling-the-model",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 408,
+      "sourceLine": 453,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25988,10 +26068,10 @@
       "description": "Protects the core domain translate behavior: returns needs clarification for an ambiguous numeric date before calling the model."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-428-translate-does-not-hard-code-lexical-ambiguity-for-a-specific-sentence",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-473-translate-does-not-hard-code-lexical-ambiguity-for-a-specific-sentence",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 428,
+      "sourceLine": 473,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26004,10 +26084,10 @@
       "description": "Protects the core domain translate behavior: does not hard code lexical ambiguity for a specific sentence."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-468-translate-runs-the-semantic-judge-for-high-risk-sentence-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-514-translate-runs-the-semantic-judge-for-high-risk-sentence-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 468,
+      "sourceLine": 514,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26020,42 +26100,42 @@
       "description": "Protects the core domain translate behavior so runs the semantic judge for high risk sentence translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-510-translate-keeps-an-ordinary-unbacked-word-on-the-single-call-medium-risk-path",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-554-translate-keeps-an-ordinary-unbacked-word-on-the-medium-risk-path-without-judge",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 510,
+      "sourceLine": 554,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "translate"
       ],
-      "title": "keeps an ordinary unbacked word on the single-call medium-risk path",
-      "rawTitle": "keeps an ordinary unbacked word on the single-call medium-risk path",
-      "name": "Core domain translate keeps an ordinary unbacked word on the single call medium risk path",
-      "value": "Protects the core domain translate behavior: keeps an ordinary unbacked word on the single call medium risk path.",
-      "description": "Protects the core domain translate behavior: keeps an ordinary unbacked word on the single call medium risk path."
+      "title": "keeps an ordinary unbacked word on the medium-risk path without judge",
+      "rawTitle": "keeps an ordinary unbacked word on the medium-risk path without judge",
+      "name": "Core domain translate keeps an ordinary unbacked word on the medium risk path without judge",
+      "value": "Protects the core domain translate behavior: keeps an ordinary unbacked word on the medium risk path without judge.",
+      "description": "Protects the core domain translate behavior: keeps an ordinary unbacked word on the medium risk path without judge."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-523-translate-keeps-a-dictionary-backed-confident-word-on-the-low-risk-single-call-path",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-568-translate-keeps-a-dictionary-backed-confident-word-on-the-low-risk-path-without-judge",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 523,
+      "sourceLine": 568,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "translate"
       ],
-      "title": "keeps a dictionary-backed confident word on the low-risk single-call path",
-      "rawTitle": "keeps a dictionary-backed confident word on the low-risk single-call path",
-      "name": "Core domain translate keeps a dictionary backed confident word on the low risk single call path",
-      "value": "Protects the core domain translate behavior: keeps a dictionary backed confident word on the low risk single call path.",
-      "description": "Protects the core domain translate behavior: keeps a dictionary backed confident word on the low risk single call path."
+      "title": "keeps a dictionary-backed confident word on the low-risk path without judge",
+      "rawTitle": "keeps a dictionary-backed confident word on the low-risk path without judge",
+      "name": "Core domain translate keeps a dictionary backed confident word on the low risk path without judge",
+      "value": "Protects the core domain translate behavior: keeps a dictionary backed confident word on the low risk path without judge.",
+      "description": "Protects the core domain translate behavior: keeps a dictionary backed confident word on the low risk path without judge."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-549-translate-runs-the-semantic-judge-for-phrase-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-595-translate-runs-the-semantic-judge-for-phrase-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 549,
+      "sourceLine": 595,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26068,10 +26148,10 @@
       "description": "Protects the core domain translate behavior so runs the semantic judge for phrase translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-576-translate-uses-translation-safe-generation-settings",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-618-translate-uses-translation-safe-generation-settings",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 576,
+      "sourceLine": 618,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26084,10 +26164,10 @@
       "description": "Protects the core domain translate behavior: uses translation safe generation settings."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-584-translate-handles-multi-language-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-627-translate-handles-multi-language-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 584,
+      "sourceLine": 627,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26100,10 +26180,10 @@
       "description": "Protects the core domain translate behavior: handles multi language translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-615-translate-preserves-source-usage-for-learning-language-source-words",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-658-translate-preserves-source-usage-for-learning-language-source-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 615,
+      "sourceLine": 658,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26116,10 +26196,10 @@
       "description": "Protects the core domain translate behavior: preserves source usage for learning language source words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-658-translate-retries-when-a-target-block-connotation-warning-is-written-in-the-target-language",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-701-translate-retries-when-a-target-block-connotation-warning-is-written-in-the-target-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 658,
+      "sourceLine": 701,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26132,10 +26212,10 @@
       "description": "Protects the core domain translate behavior so retries when a target block connotation warning is written in the target language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-698-translate-accepts-phase-out-examples-without-a-redundant-native-field-in-the-native-target-block",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-743-translate-accepts-phase-out-examples-without-a-redundant-native-field-in-the-native-target-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 698,
+      "sourceLine": 743,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26148,10 +26228,10 @@
       "description": "Protects the core domain translate behavior: accepts phase out examples without a redundant native field in the native target block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-772-translate-propagates-ai-adapter-errors",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-814-translate-propagates-ai-adapter-errors",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 772,
+      "sourceLine": 814,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26164,10 +26244,10 @@
       "description": "Protects the core domain translate behavior so propagates AI adapter errors."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-778-translate-sanitizes-non-emoji-string-in-emoji-field-to-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-820-translate-sanitizes-non-emoji-string-in-emoji-field-to-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 778,
+      "sourceLine": 820,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26180,10 +26260,10 @@
       "description": "Protects the core domain translate behavior so sanitizes non emoji string in emoji field to fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-792-translate-preserves-valid-emoji-from-ai-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-834-translate-preserves-valid-emoji-from-ai-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 792,
+      "sourceLine": 834,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26196,10 +26276,10 @@
       "description": "Protects the core domain translate behavior: preserves valid emoji from AI response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-802-translateone-calls-translate-with-single-element-targetlangs",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-844-translateone-calls-translate-with-single-element-targetlangs",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 802,
+      "sourceLine": 844,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26212,10 +26292,10 @@
       "description": "Protects the core domain translate One behavior: calls translate() with single element target Langs."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-816-translateone-returns-the-languagetranslation-for-the-requested-language",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-856-translateone-returns-the-languagetranslation-for-the-requested-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 816,
+      "sourceLine": 856,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26228,10 +26308,10 @@
       "description": "Protects the core domain translate One behavior: returns the Language Translation for the requested language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-829-translateone-propagates-errors-from-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-869-translateone-propagates-errors-from-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 829,
+      "sourceLine": 869,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26244,10 +26324,10 @@
       "description": "Protects the core domain translate One behavior so propagates errors from translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-840-translateone-passes-topic-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-880-translateone-passes-topic-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 840,
+      "sourceLine": 880,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26260,10 +26340,10 @@
       "description": "Protects the core domain translate One behavior so passes topic through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-859-translateone-passes-nativelang-and-inputtype-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-900-translateone-passes-nativelang-and-inputtype-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 859,
+      "sourceLine": 900,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26276,10 +26356,10 @@
       "description": "Protects the core domain translate One behavior so passes native Lang and input Type through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-903-translateone-passes-userid-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-945-translateone-passes-userid-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 903,
+      "sourceLine": 945,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26292,10 +26372,10 @@
       "description": "Protects the core domain translate One behavior so passes user Id through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-918-translateone-works-with-needsreview-results-validation-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-960-translateone-works-with-needsreview-results-validation-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 918,
+      "sourceLine": 960,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26308,10 +26388,10 @@
       "description": "Protects the core domain translate One behavior so works with needs Review results (validation exhausted)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-950-translatebatch-translates-multiple-words",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-993-translatebatch-translates-multiple-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 950,
+      "sourceLine": 993,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26324,10 +26404,10 @@
       "description": "Protects the core domain translate Batch behavior: translates multiple words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-980-translatebatch-returns-empty-array-for-empty-input",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1028-translatebatch-returns-empty-array-for-empty-input",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 980,
+      "sourceLine": 1028,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26340,10 +26420,10 @@
       "description": "Protects the core domain translate Batch behavior: returns empty array for empty input."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-989-translatebatch-calls-translate-sequentially-not-in-parallel",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1037-translatebatch-calls-translate-sequentially-not-in-parallel",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 989,
+      "sourceLine": 1037,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26356,10 +26436,10 @@
       "description": "Protects the core domain translate Batch behavior: calls translate sequentially, not in parallel."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1017-validation-logging-calls-logger-warn-on-each-failed-validation-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1068-validation-logging-calls-logger-warn-on-each-failed-validation-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1017,
+      "sourceLine": 1068,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26372,10 +26452,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger warn on each failed validation attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1050-validation-logging-calls-logger-error-after-all-retries-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1095-validation-logging-calls-logger-error-after-all-retries-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1050,
+      "sourceLine": 1095,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26388,10 +26468,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger error after all retries exhausted."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1076-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1120-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1076,
+      "sourceLine": 1120,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26404,26 +26484,26 @@
       "description": "Protects the core domain validation logging behavior: does not log when validation passes on first attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1085-validation-logging-logs-warn-but-not-error-when-retry-succeeds",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1129-validation-logging-logs-warn-but-not-error-when-repair-succeeds",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1085,
+      "sourceLine": 1129,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "validation logging"
       ],
-      "title": "logs warn but not error when retry succeeds",
-      "rawTitle": "logs warn but not error when retry succeeds",
-      "name": "Core domain validation logging logs warn but not error when retry succeeds",
-      "value": "Protects the core domain validation logging behavior: logs warn but not error when retry succeeds.",
-      "description": "Protects the core domain validation logging behavior: logs warn but not error when retry succeeds."
+      "title": "logs warn but not error when repair succeeds",
+      "rawTitle": "logs warn but not error when repair succeeds",
+      "name": "Core domain validation logging logs warn but not error when repair succeeds",
+      "value": "Protects the core domain validation logging behavior: logs warn but not error when repair succeeds.",
+      "description": "Protects the core domain validation logging behavior: logs warn but not error when repair succeeds."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1119-validation-logging-includes-failreason-with-validation-error-details",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1167-validation-logging-includes-failreason-with-validation-error-details",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1119,
+      "sourceLine": 1167,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26436,10 +26516,10 @@
       "description": "Protects the core domain validation logging behavior: includes fail Reason with validation error details."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1147-parseresponse-parses-a-valid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1197-parseresponse-parses-a-valid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1147,
+      "sourceLine": 1197,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26452,10 +26532,10 @@
       "description": "Protects the core domain parse Response behavior: parses a valid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1155-parseresponse-throws-on-invalid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1205-parseresponse-throws-on-invalid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1155,
+      "sourceLine": 1205,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26468,10 +26548,10 @@
       "description": "Protects the core domain parse Response behavior: throws on invalid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1159-parseresponse-throws-on-missing-required-fields",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1209-parseresponse-throws-on-missing-required-fields",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1159,
+      "sourceLine": 1209,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26484,10 +26564,10 @@
       "description": "Protects the core domain parse Response behavior: throws on missing required fields."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1168-parseresponse-throws-on-empty-translations-record",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1218-parseresponse-throws-on-empty-translations-record",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1168,
+      "sourceLine": 1218,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26500,10 +26580,10 @@
       "description": "Protects the core domain parse Response behavior: throws on empty translations record."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1177-sanitizeemoji-passes-through-valid-single-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1227-sanitizeemoji-passes-through-valid-single-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1177,
+      "sourceLine": 1227,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26516,10 +26596,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through valid single emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1183-sanitizeemoji-passes-through-zwj-sequences",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1233-sanitizeemoji-passes-through-zwj-sequences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1183,
+      "sourceLine": 1233,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26532,10 +26612,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through ZWJ sequences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1187-sanitizeemoji-passes-through-flag-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1237-sanitizeemoji-passes-through-flag-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1187,
+      "sourceLine": 1237,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26548,10 +26628,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through flag emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1191-sanitizeemoji-replaces-plain-words-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1241-sanitizeemoji-replaces-plain-words-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1191,
+      "sourceLine": 1241,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26564,10 +26644,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so replaces plain words with fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1197-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1247-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1197,
+      "sourceLine": 1247,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

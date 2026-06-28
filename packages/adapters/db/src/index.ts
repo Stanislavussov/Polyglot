@@ -32,6 +32,13 @@ export { aiRequestLatencyRepository } from "./repositories/ai-request-latency.re
 export type { StoredBotSession } from "./repositories/bot-session.repository.js";
 export { BOT_SESSION_VERSION, botSessionRepository } from "./repositories/bot-session.repository.js";
 export type {
+  DictionaryLookupLogList,
+  DictionaryLookupLogRow,
+  DictionaryLookupSummary,
+  RecordDictionaryLookupLogInput,
+} from "./repositories/dictionary-lookup-log.repository.js";
+export { dictionaryLookupLogRepository } from "./repositories/dictionary-lookup-log.repository.js";
+export type {
   Language,
   NewLanguage,
 } from "./repositories/language.repository.js";
