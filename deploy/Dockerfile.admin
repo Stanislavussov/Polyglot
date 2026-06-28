@@ -10,11 +10,14 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/bot/package.json apps/bot/
 COPY apps/admin-api/package.json apps/admin-api/
 COPY apps/admin/package.json apps/admin/
+COPY apps/translation-benchmark/package.json apps/translation-benchmark/
+COPY packages/@types/package.json packages/@types/
 COPY packages/core/package.json packages/core/
 COPY packages/infra/package.json packages/infra/
 COPY packages/adapters/ai/package.json packages/adapters/ai/
 COPY packages/adapters/db/package.json packages/adapters/db/
 COPY packages/adapters/notifications/package.json packages/adapters/notifications/
+COPY packages/adapters/youtube/package.json packages/adapters/youtube/
 
 RUN pnpm install --frozen-lockfile
 
@@ -25,11 +28,9 @@ ARG PUBLIC_API_URL=http://localhost:3001
 ENV PUBLIC_API_URL=$PUBLIC_API_URL
 
 COPY tsconfig.json ./
-COPY scripts/sync-admin-reports.mjs scripts/test-catalog.mjs scripts/
-COPY @docs/reports/ @docs/reports/
 COPY apps/admin/ apps/admin/
 
-RUN pnpm --filter @polyglot/admin run build
+RUN pnpm --filter @polyglot/admin exec astro build
 
 # ── Stage 4: production ──────────────────────────────────────────────
 FROM base AS production
@@ -40,11 +41,14 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/bot/package.json apps/bot/
 COPY apps/admin-api/package.json apps/admin-api/
 COPY apps/admin/package.json apps/admin/
+COPY apps/translation-benchmark/package.json apps/translation-benchmark/
+COPY packages/@types/package.json packages/@types/
 COPY packages/core/package.json packages/core/
 COPY packages/infra/package.json packages/infra/
 COPY packages/adapters/ai/package.json packages/adapters/ai/
 COPY packages/adapters/db/package.json packages/adapters/db/
 COPY packages/adapters/notifications/package.json packages/adapters/notifications/
+COPY packages/adapters/youtube/package.json packages/adapters/youtube/
 
 RUN pnpm install --frozen-lockfile --prod
 

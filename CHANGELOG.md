@@ -105,6 +105,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Docker image builds now avoid running the admin report sync inside containers: bot and admin-api images build only their dependency closure, while the deploy workflow refreshes `apps/admin/public/reports` before building the admin image.
 - Generated missing migration `0035_gray_meteorite.sql` to add `grammar_breakdown` to `user_translation_templates`, fixing translation-template lookups against updated bot builds.
 - Translation clarification now shows an actionable Telegram prompt for ambiguous dates, meanings, formats, mixed scripts, and low-confidence source language cases instead of a generic translation error.
 - Source-language clarification buttons now use core-provided candidate languages only; the bot no longer expands them to every language in the user's profile.
