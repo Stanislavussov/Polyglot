@@ -59,10 +59,16 @@ export interface VideoVocabularyRepository {
     status: "pending" | "processing" | "completed" | "failed",
     errorMessage?: string,
   ): Promise<void>;
+  expireStaleProcesses(maxAgeMinutes: number): Promise<number>;
   findProcessById(processId: number): Promise<VideoProcess | null>;
   findProcessByUserAndVideo(userId: number, videoId: string): Promise<VideoProcess | null>;
-  findProcessesByUser(userId: number, page?: number, pageSize?: number): Promise<VideoProcess[]>;
-  countProcessesByUser(userId: number): Promise<number>;
+  findProcessesByUser(
+    userId: number,
+    page?: number,
+    pageSize?: number,
+    excludeFailed?: boolean,
+  ): Promise<VideoProcess[]>;
+  countProcessesByUser(userId: number, excludeFailed?: boolean): Promise<number>;
   getMonthlyUsageCount(userId: number, yearMonth: string): Promise<number>;
   savePhrases(processId: number, phrases: SaveVideoPhraseInput[]): Promise<void>;
   findPhrasesByProcess(processId: number, offset?: number, limit?: number): Promise<VideoPhrase[]>;

@@ -25,7 +25,7 @@ export function buildExtractionPrompt(
    - The type: "word", "phrase", "idiom", or "collocation"
    - The CEFR level of the phrase (A1-C2)
    - The original sentence from the transcript where the phrase appears (as context)
-   - The timestamp in seconds where this phrase appears. The transcript includes [M:SS] time markers — use the nearest preceding marker to determine the timestamp accurately
+   - The timestamp in seconds where this phrase appears. The transcript includes [Ns] markers (e.g. [120s] means 120 seconds). Copy the number from the nearest preceding marker as the timestampSeconds value
 4. Sort results by learning value — most useful and level-appropriate phrases first.
 5. Skip:
    - Common words that a ${userLevel} learner would already know

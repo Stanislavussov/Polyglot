@@ -45,7 +45,7 @@ export function renderPhraseList(
     const levelLabel = phrase.level ? `(${phrase.level})` : "";
     const saved = phrase.savedEntryId ? " ✅" : "";
     const timestamp = phrase.timestampSeconds != null ? formatTimestamp(phrase.timestampSeconds) : "";
-    const linkTime = phrase.timestampSeconds != null ? Math.max(0, phrase.timestampSeconds - 5) : null;
+    const linkTime = phrase.timestampSeconds != null ? Math.max(0, phrase.timestampSeconds - 3) : null;
     const deepLink = linkTime != null ? `<a href="${videoUrl}&amp;t=${linkTime}">▶️ ${timestamp}</a>` : "";
 
     const emojiPrefix = phrase.emoji ? `${phrase.emoji} ` : "🔹 ";
@@ -120,10 +120,10 @@ export function renderVideoList(
 
   for (const p of processes) {
     const date = p.createdAt.toLocaleDateString("en-CA"); // YYYY-MM-DD
-    const status =
-      p.status === "completed" ? "✅" : p.status === "processing" ? "⏳" : p.status === "failed" ? "❌" : "⏳";
+    const icon =
+      p.status === "completed" ? "🎬" : p.status === "processing" ? "⏳" : p.status === "failed" ? "❌" : "⏳";
     const title = p.title ? escapeHtml(truncate(p.title, 40)) : p.videoId;
-    lines.push(`${status} <b>${title}</b> — ${date}`);
+    lines.push(`${icon} <b>${title}</b> — ${date}`);
   }
 
   if (totalPages > 1) {

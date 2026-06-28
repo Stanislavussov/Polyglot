@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, lt, ne } from "drizzle-orm";
+import { and, count, desc, eq, gte, lt, ne, or } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { videoPhrases, videoProcesses, videoTranscriptCache } from "../schema.js";
 
@@ -64,6 +64,23 @@ export const videoVocabularyRepository = {
       .where(eq(videoProcesses.id, processId));
   },
 
+  /** Mark processes stuck in pending/processing for longer than maxAgeMinutes as failed. */
+  async expireStaleProcesses(maxAgeMinutes: number): Promise<number> {
+    const db = getDb();
+    const cutoff = new Date(Date.now() - maxAgeMinutes * 60_000);
+    const expired = await db
+      .update(videoProcesses)
+      .set({ status: "failed", errorMessage: "Processing timed out", updatedAt: new Date() })
+      .where(
+        and(
+          or(eq(videoProcesses.status, "pending"), eq(videoProcesses.status, "processing")),
+          lt(videoProcesses.updatedAt, cutoff),
+        ),
+      )
+      .returning({ id: videoProcesses.id });
+    return expired.length;
+  },
+
   async findProcessById(processId: number) {
     const db = getDb();
     const [row] = await db.select().from(videoProcesses).where(eq(videoProcesses.id, processId)).limit(1);
@@ -81,22 +98,28 @@ export const videoVocabularyRepository = {
     return row ?? null;
   },
 
-  async findProcessesByUser(userId: number, page = 1, pageSize = 5) {
+  async findProcessesByUser(userId: number, page = 1, pageSize = 5, excludeFailed = false) {
     const db = getDb();
     const offset = (page - 1) * pageSize;
+    const condition = excludeFailed
+      ? and(eq(videoProcesses.userId, userId), ne(videoProcesses.status, "failed"))
+      : eq(videoProcesses.userId, userId);
     const rows = await db
       .select()
       .from(videoProcesses)
-      .where(eq(videoProcesses.userId, userId))
+      .where(condition)
       .orderBy(desc(videoProcesses.createdAt))
       .limit(pageSize)
       .offset(offset);
     return rows;
   },
 
-  async countProcessesByUser(userId: number) {
+  async countProcessesByUser(userId: number, excludeFailed = false) {
     const db = getDb();
-    const [row] = await db.select({ count: count() }).from(videoProcesses).where(eq(videoProcesses.userId, userId));
+    const condition = excludeFailed
+      ? and(eq(videoProcesses.userId, userId), ne(videoProcesses.status, "failed"))
+      : eq(videoProcesses.userId, userId);
+    const [row] = await db.select({ count: count() }).from(videoProcesses).where(condition);
     return row?.count ?? 0;
   },
 

@@ -19,6 +19,7 @@ import {
   t,
   translateWithContext,
 } from "@polyglot/core";
+import { videoEnrichmentCounter, videoProcessingCounter, videoProcessingDuration } from "../../metrics.js";
 import {
   buildConfirmationKeyboard,
   buildPhraseListKeyboard,
@@ -162,7 +163,9 @@ async function enrichVideoEntryInBackground(
         await vocabularyRepository.updateAllTranslations(entryId, vocabInput.translations);
       }
     }
+    videoEnrichmentCounter.inc({ status: "success" });
   } catch (error) {
+    videoEnrichmentCounter.inc({ status: "error" });
     logger.error(
       { entryId, phrase, error: error instanceof Error ? error.message : String(error) },
       "Failed to enrich video vocabulary entry",
@@ -182,6 +185,13 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
   const videoId = extractVideoId(text);
   if (!videoId) return;
 
+  // Auto-expire processes stuck for more than 10 minutes
+  const expiredCount = await videoVocabularyRepository.expireStaleProcesses(10);
+  if (expiredCount > 0) {
+    videoProcessingCounter.inc({ status: "timeout" }, expiredCount);
+    logger.info({ expiredCount }, "Expired stale video processes");
+  }
+
   // Check for duplicate processing
   const existing = await videoVocabularyRepository.findProcessByUserAndVideo(userId, videoId);
   if (existing?.status === "completed") {
@@ -195,11 +205,12 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
     return;
   }
 
-  // Check monthly limit
+  // Check monthly limit (admins bypass)
+  const isAdmin = ctx.user?.audienceGroup === "admin";
   const config = await ctx.services.settings.getVideoVocabularyConfig();
   const yearMonth = getCurrentYearMonth();
   const usageCount = await videoVocabularyRepository.getMonthlyUsageCount(userId, yearMonth);
-  if (usageCount >= config.monthlyLimit) {
+  if (!isAdmin && usageCount >= config.monthlyLimit) {
     const msg = await ctx.reply(t("videoLimitReached", lang));
     trackTechnicalMessage(ctx, msg.message_id);
     return;
@@ -267,8 +278,14 @@ export async function handleVideoConfirmCallback(ctx: BotContext): Promise<void>
   const process = await videoVocabularyRepository.findProcessById(processId);
   if (!process || process.userId !== userId) return;
 
+  videoProcessingCounter.inc({ status: "initiated" });
+
   // Update status and start processing
-  await ctx.editMessageText(t("videoProcessingStarted", lang), { parse_mode: "HTML" });
+  try {
+    await ctx.editMessageText(t("videoProcessingStarted", lang), { parse_mode: "HTML" });
+  } catch {
+    // Message may have been deleted — proceed with processing anyway
+  }
 
   // Start async processing (fire and forget)
   void processVideoInBackground(ctx, process.id, userId, lang);
@@ -504,9 +521,10 @@ export async function handleVideosCommand(ctx: BotContext): Promise<void> {
   const lang = await resolveInterfaceLang(ctx);
   const page = 1;
   const pageSize = 5;
+  const excludeFailed = ctx.user?.audienceGroup !== "admin";
 
-  const processes = await videoVocabularyRepository.findProcessesByUser(userId, page, pageSize);
-  const totalCount = await videoVocabularyRepository.countProcessesByUser(userId);
+  const processes = await videoVocabularyRepository.findProcessesByUser(userId, page, pageSize, excludeFailed);
+  const totalCount = await videoVocabularyRepository.countProcessesByUser(userId, excludeFailed);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const text = renderVideoList(processes, page, totalPages, lang);
@@ -573,8 +591,9 @@ async function showPhraseBrowserEdit(
 
 async function showVideoListEdit(ctx: BotContext, userId: number, page: number, lang: SupportedLang): Promise<void> {
   const pageSize = 5;
-  const processes = await videoVocabularyRepository.findProcessesByUser(userId, page, pageSize);
-  const totalCount = await videoVocabularyRepository.countProcessesByUser(userId);
+  const excludeFailed = ctx.user?.audienceGroup !== "admin";
+  const processes = await videoVocabularyRepository.findProcessesByUser(userId, page, pageSize, excludeFailed);
+  const totalCount = await videoVocabularyRepository.countProcessesByUser(userId, excludeFailed);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const text = renderVideoList(processes, page, totalPages, lang);
@@ -603,6 +622,7 @@ async function processVideoInBackground(
   const process = await videoVocabularyRepository.findProcessById(processId);
   if (!process) return;
 
+  const stopTimer = videoProcessingDuration.startTimer();
   let lastError: unknown;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -668,17 +688,25 @@ async function processVideoInBackground(
       // 6. Mark as completed
       await videoVocabularyRepository.updateProcessStatus(processId, "completed");
 
-      // 7. Notify user
+      stopTimer();
+      videoProcessingCounter.inc({ status: "completed" });
+      logger.info({ processId, phraseCount: phrases.length, userId }, "Video processing completed");
+
+      // 7. Notify user (outside retry scope — don't retry on notification failure)
       const chatId = ctx.chat?.id;
       if (chatId) {
-        const keyboard = new (await import("grammy")).InlineKeyboard().text(
-          t("videoBrowse", lang),
-          `vid:browse:${processId}:1`,
-        );
-        await ctx.api.sendMessage(chatId, `✅ ${t("videoProcessingDone", lang)} (${phrases.length})`, {
-          parse_mode: "HTML",
-          reply_markup: keyboard,
-        });
+        try {
+          const keyboard = new (await import("grammy")).InlineKeyboard().text(
+            t("videoBrowse", lang),
+            `vid:browse:${processId}:1`,
+          );
+          await ctx.api.sendMessage(chatId, `✅ ${t("videoProcessingDone", lang)} (${phrases.length})`, {
+            parse_mode: "HTML",
+            reply_markup: keyboard,
+          });
+        } catch {
+          logger.warn({ processId, chatId }, "Failed to send video completion notification");
+        }
       }
 
       return; // Success — exit retry loop
@@ -690,7 +718,7 @@ async function processVideoInBackground(
           attempt: attempt + 1,
           error: error instanceof Error ? error.message : String(error),
         },
-        "Video processing failed",
+        "Video processing attempt failed",
       );
 
       if (error instanceof TranscriptNotAvailableError) {
@@ -708,8 +736,16 @@ async function processVideoInBackground(
   const errorMsg = lastError instanceof Error ? lastError.message : "Unknown error";
   await videoVocabularyRepository.updateProcessStatus(processId, "failed", errorMsg);
 
+  stopTimer();
+  videoProcessingCounter.inc({ status: "failed" });
+  logger.error({ processId, userId, error: errorMsg }, "Video processing failed after all retries");
+
   const chatId = ctx.chat?.id;
   if (chatId) {
-    await ctx.api.sendMessage(chatId, `❌ ${t("videoProcessingFailed", lang)}`);
+    try {
+      await ctx.api.sendMessage(chatId, `❌ ${t("videoProcessingFailed", lang)}`);
+    } catch {
+      logger.warn({ processId, chatId }, "Failed to send video failure notification");
+    }
   }
 }

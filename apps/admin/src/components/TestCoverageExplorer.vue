@@ -78,7 +78,7 @@
             >
               <div class="flex min-w-0 items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <div class="truncate text-sm font-semibold text-gray-900">{{ scenario.title }}</div>
+                  <div class="truncate text-sm font-semibold text-gray-900">{{ scenarioName(scenario) }}</div>
                   <div class="mt-1 truncate text-xs text-gray-500">
                     {{ scenario.suitePath.join(" > ") || "Root" }}
                   </div>
@@ -94,7 +94,7 @@
                   {{ scenario.kind }}
                 </span>
               </div>
-              <p class="mt-2 line-clamp-2 text-sm leading-5 text-gray-600">{{ scenario.description }}</p>
+              <p class="mt-2 line-clamp-2 text-sm leading-5 text-gray-600">{{ scenarioValue(scenario) }}</p>
               <div class="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
                 <span class="rounded bg-gray-100 px-2 py-1">{{ scenario.packageName }}</span>
                 <span class="rounded bg-gray-100 px-2 py-1">{{ scenario.filePath }}:{{ scenario.sourceLine }}</span>
@@ -121,8 +121,8 @@
                 </span>
                 <span class="text-xs text-gray-500">{{ selectedScenario.packageName }}</span>
               </div>
-              <h2 class="text-lg font-semibold leading-7 text-gray-900">{{ selectedScenario.title }}</h2>
-              <p class="mt-3 text-sm leading-6 text-gray-700">{{ selectedScenario.description }}</p>
+              <h2 class="text-lg font-semibold leading-7 text-gray-900">{{ scenarioName(selectedScenario) }}</h2>
+              <p class="mt-3 text-sm leading-6 text-gray-700">{{ scenarioValue(selectedScenario) }}</p>
             </div>
 
             <dl class="space-y-3 text-sm">
@@ -135,6 +135,10 @@
                 <dd class="mt-1 break-all font-mono text-xs text-gray-900">
                   {{ selectedScenario.filePath }}:{{ selectedScenario.sourceLine }}
                 </dd>
+              </div>
+              <div>
+                <dt class="font-medium text-gray-500">Test title</dt>
+                <dd class="mt-1 text-gray-900">{{ selectedScenario.rawTitle ?? selectedScenario.title }}</dd>
               </div>
               <div>
                 <dt class="font-medium text-gray-500">Workspace</dt>
@@ -163,6 +167,9 @@ type TestScenario = {
   packageName: string;
   suitePath: string[];
   title: string;
+  rawTitle?: string;
+  name?: string;
+  value?: string;
   description: string;
 };
 
@@ -195,6 +202,8 @@ const filteredScenarios = computed(() => {
     const matchesKind = kindFilter.value === "all" || scenario.kind === kindFilter.value;
     const matchesPackage = packageFilter.value === "all" || scenario.packageName === packageFilter.value;
     const searchable = [
+      scenarioName(scenario),
+      scenarioValue(scenario),
       scenario.title,
       scenario.description,
       scenario.filePath,
@@ -247,4 +256,12 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+function scenarioName(scenario: TestScenario): string {
+  return scenario.name ?? scenario.title;
+}
+
+function scenarioValue(scenario: TestScenario): string {
+  return scenario.value ?? scenario.description;
+}
 </script>

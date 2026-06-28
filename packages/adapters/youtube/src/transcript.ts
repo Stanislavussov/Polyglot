@@ -14,8 +14,9 @@ import type { TranscriptResult, TranscriptSegment } from "./types.js";
 
 /**
  * Format transcript segments with timestamp markers for AI consumption.
- * Inserts `[M:SS]` markers roughly every 15 seconds so the AI can
- * anchor extracted phrases to real timestamps.
+ * Inserts `[Ns]` markers (seconds) every ~5 seconds so the AI can
+ * anchor extracted phrases to real timestamps with high accuracy.
+ * Uses plain seconds (e.g. `[120s]`) to avoid M:SS→seconds conversion errors by AI.
  */
 export function formatSegmentedTranscript(segments: TranscriptSegment[]): string {
   if (segments.length === 0) return "";
@@ -24,11 +25,8 @@ export function formatSegmentedTranscript(segments: TranscriptSegment[]): string
   let lastMarkerTime = -Infinity;
 
   for (const seg of segments) {
-    if (seg.offset - lastMarkerTime >= 15) {
-      const totalSeconds = Math.round(seg.offset);
-      const m = Math.floor(totalSeconds / 60);
-      const s = totalSeconds % 60;
-      parts.push(`[${m}:${String(s).padStart(2, "0")}]`);
+    if (seg.offset - lastMarkerTime >= 5) {
+      parts.push(`[${Math.round(seg.offset)}s]`);
       lastMarkerTime = seg.offset;
     }
     parts.push(seg.text);

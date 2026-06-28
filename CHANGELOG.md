@@ -42,6 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Video vocabulary: vocabulary entries saved from videos now carry `source` metadata (video URL, title, timestamp) in a new JSONB column on `vocabularyEntries`.
 - Video vocabulary: saving a phrase from a video now triggers asynchronous full template translation in the background — the entry is enriched with synonyms, examples, and alternatives based on the user's template settings.
 - Video vocabulary: transcript passed to AI now includes `[M:SS]` time markers from YouTube segments for accurate phrase-to-timestamp mapping. Deep links jump 5 seconds before the word so the user has listening context.
+- Video vocabulary: resilience improvements — `editMessageText` failure in confirm handler no longer blocks background processing, notification calls wrapped in try/catch, stuck processes auto-expire after 10 minutes, Prometheus metrics for processing lifecycle (`bot_video_processing_total`, `bot_video_processing_duration_seconds`, `bot_video_enrichment_total`).
 
 ### Security
 

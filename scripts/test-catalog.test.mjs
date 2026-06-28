@@ -20,6 +20,8 @@ describe("test catalog generator", () => {
       expect.objectContaining({
         kind: "business",
         packageName: "bot",
+        name: "Bot Video Vocabulary returns ranked phrases from transcript",
+        value: "User can paste a YouTube URL and receive ranked phrases.",
         description: "User can paste a YouTube URL and receive ranked phrases.",
         suitePath: ["Video Vocabulary"],
         title: "returns ranked phrases from transcript",
@@ -27,7 +29,7 @@ describe("test catalog generator", () => {
     ]);
   });
 
-  it("classifies tests without a business comment as technical scenarios", () => {
+  it("generates useful coverage names and values for tests without business comments", () => {
     const scenarios = collectTestsFromSource({
       rootDir: "/repo",
       filePath: "/repo/packages/adapters/db/src/schema.test.ts",
@@ -42,7 +44,9 @@ describe("test catalog generator", () => {
       expect.objectContaining({
         kind: "technical",
         packageName: "adapters/db",
-        description: "schema report > escapes table descriptions",
+        name: "Database adapter schema report escapes table descriptions",
+        value: "Protects the database adapter schema report behavior: escapes table descriptions.",
+        description: "Protects the database adapter schema report behavior: escapes table descriptions.",
       }),
     ]);
   });
@@ -68,6 +72,8 @@ describe("test catalog generator", () => {
             packageName: "admin",
             suitePath: ["<script>alert(1)</script>"],
             title: "renders <dangerous> title",
+            name: "Safe generated name",
+            value: "Protects & explains \"business\" behavior",
             description: "Protects & explains \"business\" behavior",
           },
         ],
@@ -75,7 +81,7 @@ describe("test catalog generator", () => {
     });
 
     expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
-    expect(html).toContain("renders &lt;dangerous&gt; title");
+    expect(html).toContain("Safe generated name");
     expect(html).toContain("Protects &amp; explains &quot;business&quot; behavior");
   });
 });

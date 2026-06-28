@@ -76,16 +76,22 @@ export function collectTestsFromSource({ sourceText, filePath = "sample.test.ts"
       if (callName && TEST_FUNCTIONS.has(callName) && title) {
         const businessDescription = getBusinessDescription(sourceText, sourceFile, node);
         const sourceLine = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+        const packageName = getPackageName(relativePath);
+        const generatedName = buildCoverageName({ packageName, suitePath, title });
+        const generatedValue = buildCoverageValue({ packageName, suitePath, title });
         tests.push({
           id: buildScenarioId({ relativePath, suitePath, title, sourceLine }),
           kind: businessDescription ? "business" : "technical",
           filePath: relativePath,
           sourceLine,
           workspace: relativePath.split("/")[0] ?? "root",
-          packageName: getPackageName(relativePath),
+          packageName,
           suitePath,
           title,
-          description: businessDescription ?? [...suitePath, title].join(" > "),
+          rawTitle: title,
+          name: businessDescription ? buildCoverageName({ packageName, suitePath, title }) : generatedName,
+          value: businessDescription ?? generatedValue,
+          description: businessDescription ?? generatedValue,
         });
       }
     }
@@ -105,7 +111,7 @@ export function renderTestCatalogHtml({ catalog }) {
     .map(
       (test, index) => `
         <tr class="${escapeHtml(test.kind)}">
-          <td><a href="#scenario-${index + 1}">${escapeHtml(test.title)}</a></td>
+          <td><a href="#scenario-${index + 1}">${escapeHtml(test.name)}</a></td>
           <td>${escapeHtml(test.kind)}</td>
           <td>${escapeHtml(test.suitePath.join(" > ") || "Root")}</td>
           <td><code>${escapeHtml(test.filePath)}</code></td>
@@ -127,8 +133,8 @@ export function renderTestCatalogHtml({ catalog }) {
                     <code>${escapeHtml(test.filePath)}</code>
                     <span>${escapeHtml(test.suitePath.join(" > ") || "Root")}</span>
                   </div>
-                  <h3>${escapeHtml(test.title)}</h3>
-                  <p>${escapeHtml(test.description)}</p>
+                  <h3>${escapeHtml(test.name)}</h3>
+                  <p>${escapeHtml(test.value)}</p>
                 </article>`,
             )
             .join("")}
@@ -435,6 +441,68 @@ function buildSummary(scenarios) {
     workspaces: [...new Set(scenarios.map((scenario) => scenario.workspace))].sort(),
     packages: [...new Set(scenarios.map((scenario) => scenario.packageName))].sort(),
   };
+}
+
+function buildCoverageName({ packageName, suitePath, title }) {
+  const area = getReadablePackageName(packageName);
+  const suite = suitePath.map((part) => humanizeIdentifier(part)).join(" ");
+  const behavior = humanizeIdentifier(title);
+
+  return compactSentence([area, suite, behavior].filter(Boolean).join(" "));
+}
+
+function buildCoverageValue({ packageName, suitePath, title }) {
+  const area = getReadablePackageName(packageName);
+  const suite = suitePath.map((part) => humanizeIdentifier(part)).join(" ");
+  const behavior = humanizeIdentifier(title);
+  const context = [area, suite].filter(Boolean).join(" ");
+  const readableContext = context ? `the ${lowerInitial(context)}` : "this";
+
+  if (startsWithVerbPhrase(behavior)) {
+    return compactSentence(`Protects ${readableContext} behavior: ${behavior}.`);
+  }
+
+  return compactSentence(`Protects ${readableContext} behavior so ${behavior}.`);
+}
+
+function getReadablePackageName(packageName) {
+  const labels = {
+    admin: "Admin UI",
+    "admin-api": "Admin API",
+    bot: "Bot",
+    core: "Core domain",
+    infra: "Infrastructure",
+    "translation-benchmark": "Translation benchmark",
+    "adapters/ai": "AI adapter",
+    "adapters/db": "Database adapter",
+    "adapters/notifications": "Notification adapter",
+    "adapters/youtube": "YouTube adapter",
+  };
+
+  return labels[packageName] ?? humanizeIdentifier(packageName);
+}
+
+function humanizeIdentifier(value) {
+  return String(value)
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_./-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function startsWithVerbPhrase(value) {
+  return /^(accepts|adds|allows|applies|builds|calculates|calls|classifies|closes|converts|creates|deduplicates|defaults|detects|does|escapes|excludes|extracts|falls|filters|finds|formats|generates|handles|hides|ignores|includes|keeps|limits|loads|logs|maps|marks|normalizes|omits|parses|persists|preserves|prevents|processes|records|rejects|renders|reports|requires|resolves|respects|returns|routes|saves|selects|sends|shows|skips|sorts|stores|strips|throws|tracks|translates|updates|uses|validates)\b/i.test(
+    value,
+  );
+}
+
+function compactSentence(value) {
+  const sentence = value.replace(/\s+/g, " ").replace(/\s+([.,:])/g, "$1").trim();
+  return sentence ? `${sentence[0]?.toUpperCase() ?? ""}${sentence.slice(1)}` : sentence;
+}
+
+function lowerInitial(value) {
+  return value ? `${value[0]?.toLowerCase() ?? ""}${value.slice(1)}` : value;
 }
 
 function buildScenarioId({ relativePath, suitePath, title, sourceLine }) {

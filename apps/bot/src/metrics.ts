@@ -64,6 +64,24 @@ export const activeUsersGauge = new Counter({
   help: "Total unique users who sent a message",
 });
 
+export const videoProcessingCounter = new Counter({
+  name: "bot_video_processing_total",
+  help: "Total video processing requests",
+  labelNames: ["status"] as const,
+});
+
+export const videoProcessingDuration = new Histogram({
+  name: "bot_video_processing_duration_seconds",
+  help: "Video processing duration in seconds",
+  buckets: [5, 10, 30, 60, 120, 300],
+});
+
+export const videoEnrichmentCounter = new Counter({
+  name: "bot_video_enrichment_total",
+  help: "Total video phrase enrichment attempts",
+  labelNames: ["status"] as const,
+});
+
 // ── HTTP server ──────────────────────────────────────────────────────
 
 const METRICS_PORT = Number(process.env.METRICS_PORT) || 9090;

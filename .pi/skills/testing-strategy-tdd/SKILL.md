@@ -19,6 +19,9 @@ This is a thin harness adapter. The canonical source of truth lives in
 - Start source-code work from a concise behavior spec.
 - Derive meaningful tests from the spec before implementation.
 - Prefer integration and behavior tests across meaningful module boundaries.
+- Name test scenarios as product/domain guarantees; weak names like `returns 400`,
+  `calls repository`, or `handles missing data` must be rewritten into useful
+  scenario descriptions, with `@business` comments for business-facing workflows.
 - Avoid low-value tests that only verify variables, trivial getters, internal calls,
   private methods, framework behavior, or TypeScript-enforced types.
 - Use red-green-refactor in small vertical slices.

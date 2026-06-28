@@ -66,6 +66,22 @@ Name tests as behavior specs:
 - Good: `saves a phrase to the selected dictionary and renders the translated card`
 - Bad: `calls saveEntry with correct params`
 
+Test names and scenario descriptions must be useful as product coverage
+documentation. A reader who does not know the implementation should understand what
+workflow, rule, or user-visible guarantee is protected. Prefer names that describe
+the value of the scenario:
+
+- Good: `keeps the saved vocabulary card usable when a video phrase has no timestamp`
+- Good: `rejects an invalid audience group without changing the user's current group`
+- Bad: `returns 400`
+- Bad: `calls updateAudienceGroup`
+- Bad: `handles missing data`
+
+When an existing test name is too weak, improve the test scenario itself: rename the
+`it(...)` text and, for business-facing workflows, add an adjacent `@business`
+comment that explains the scenario in domain language. Do not rely on generated
+catalog wording to compensate for unclear source tests.
+
 Arrange through public setup APIs, act through the same interface production uses, and
 assert on outcomes: returned values, rendered UI, database-visible state through
 repositories, emitted domain events, HTTP responses, or user-facing errors.
