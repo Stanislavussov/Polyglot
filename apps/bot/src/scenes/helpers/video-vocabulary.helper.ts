@@ -3,8 +3,22 @@
  */
 
 import { videoVocabularyRepository, vocabularyDictionaryRepository, vocabularyRepository } from "@polyglot/adapter-db";
-import { extractVideoId, fetchMetadata, fetchTranscript, TranscriptNotAvailableError } from "@polyglot/adapter-youtube";
-import { extractPhrasesFromTranscript, isSupported, logger, type SupportedLang, t } from "@polyglot/core";
+import {
+  extractVideoId,
+  fetchMetadata,
+  fetchTranscript,
+  formatSegmentedTranscript,
+  TranscriptNotAvailableError,
+} from "@polyglot/adapter-youtube";
+import {
+  extractPhrasesFromTranscript,
+  isSupported,
+  logger,
+  resolveOutputConfig,
+  type SupportedLang,
+  t,
+  translateWithContext,
+} from "@polyglot/core";
 import {
   buildConfirmationKeyboard,
   buildPhraseListKeyboard,
@@ -14,7 +28,9 @@ import {
   renderVideoList,
 } from "../../renderers/video-vocabulary.renderer.js";
 import type { BotContext } from "../../types.js";
+import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
+import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
 const PHRASES_PER_PAGE = 5;
 const MAX_RETRIES = 2;
@@ -82,6 +98,76 @@ function buildNativeTranslation(phrase: VideoPhraseForSave, ctx: BotContext): Tr
 function getCurrentYearMonth(): string {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/**
+ * Enrich a vocabulary entry in the background with full template translation.
+ * Called after optimistic save — errors are logged but not surfaced to user.
+ */
+async function enrichVideoEntryInBackground(
+  entryId: number,
+  phrase: string,
+  inputType: "word" | "phrase",
+  sourceLangCode: string,
+  userId: number,
+  ctx: BotContext,
+): Promise<void> {
+  try {
+    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(userId);
+    const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
+    const outputConfig = resolveOutputConfig(userTpl, inputType, phrase.length);
+
+    const userSettings = await ctx.services.userRepository.getSettings(userId);
+    const nativeLang = userSettings?.nativeLang ?? "en";
+    const learningLangs = userSettings?.learningLangs ?? [];
+
+    // Build target languages: all user's learning languages except the source
+    const targetLangs = learningLangs.filter((l) => l !== sourceLangCode);
+    if (targetLangs.length === 0) targetLangs.push(nativeLang);
+
+    const model = await resolveDefaultAIModel(ctx.services.settings, ctx.user?.subscriptionPlan);
+
+    const decision = await translateWithContext(
+      {
+        word: phrase,
+        sourceLang: sourceLangCode,
+        targetLangs,
+        nativeLang,
+        model,
+        outputConfig,
+        inputType,
+        userId,
+      },
+      {
+        lookupContext: async () => [],
+        generateObjectFn: ctx.services.ai.generateObject,
+      },
+    );
+
+    if (decision.status === "accepted" || decision.status === "needs_review") {
+      const vocabInput = toVocabularyInput(
+        decision.output,
+        0, // sourceLangId not used for update path
+        inputType,
+        (code) => ctx.services.languageCache.getLang(code)?.id ?? null,
+      );
+
+      await vocabularyRepository.updateEntry(entryId, {
+        emoji: vocabInput.emoji,
+        nativeMeaning: vocabInput.nativeMeaning,
+        sourceUsage: vocabInput.sourceUsage,
+      });
+
+      if (vocabInput.translations.length > 0) {
+        await vocabularyRepository.updateAllTranslations(entryId, vocabInput.translations);
+      }
+    }
+  } catch (error) {
+    logger.error(
+      { entryId, phrase, error: error instanceof Error ? error.message : String(error) },
+      "Failed to enrich video vocabulary entry",
+    );
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -276,11 +362,21 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
       emoji: phrase.emoji ?? "",
       nativeMeaning: phrase.nativeTranslation ?? undefined,
       sourceUsage,
+      source: {
+        type: "video",
+        videoUrl: process.videoUrl,
+        videoTitle: process.title ?? "",
+        timestampSeconds: phrase.timestampSeconds ?? null,
+      },
       translations,
     });
     await vocabularyDictionaryRepository.addEntryToDefault(userId, entry.id);
     await videoVocabularyRepository.markPhraseSaved(phraseId, entry.id);
     await ctx.answerCallbackQuery({ text: "✅" });
+
+    // Enrich with full template translation in background
+    const entryInputType = phrase.phraseType === "word" ? ("word" as const) : ("phrase" as const);
+    void enrichVideoEntryInBackground(entry.id, phrase.phrase, entryInputType, process.language, userId, ctx);
   }
 
   // Re-render the current page
@@ -342,6 +438,8 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
   const unsaved = allPhrases.filter((p) => !p.savedEntryId);
 
   let savedCount = 0;
+  const enrichmentQueue: Array<{ entryId: number; phrase: string; inputType: "word" | "phrase" }> = [];
+
   for (const phrase of unsaved) {
     const existing = await vocabularyRepository.findByOriginalAndSource(userId, phrase.phrase, sourceLang.id);
     if (existing) {
@@ -356,22 +454,39 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
             examples: [{ context: phrase.context, target: phrase.nativeTranslation ?? "" }],
           }
         : undefined;
+      const entryInputType = phrase.phraseType === "word" ? ("word" as const) : ("phrase" as const);
       const entry = await vocabularyRepository.create(userId, {
         original: phrase.phrase,
         sourceLangId: sourceLang.id,
-        inputType: phrase.phraseType === "word" ? "word" : "phrase",
+        inputType: entryInputType,
         emoji: phrase.emoji ?? "",
         nativeMeaning: phrase.nativeTranslation ?? undefined,
         sourceUsage,
+        source: {
+          type: "video",
+          videoUrl: process.videoUrl,
+          videoTitle: process.title ?? "",
+          timestampSeconds: phrase.timestampSeconds ?? null,
+        },
         translations,
       });
       await vocabularyDictionaryRepository.addEntryToDefault(userId, entry.id);
       await videoVocabularyRepository.markPhraseSaved(phrase.id, entry.id);
+      enrichmentQueue.push({ entryId: entry.id, phrase: phrase.phrase, inputType: entryInputType });
       savedCount++;
     }
   }
 
   await ctx.answerCallbackQuery({ text: `✅ ${savedCount}` });
+
+  // Enrich all new entries with full template translations in background (sequentially)
+  if (enrichmentQueue.length > 0) {
+    void (async () => {
+      for (const item of enrichmentQueue) {
+        await enrichVideoEntryInBackground(item.entryId, item.phrase, item.inputType, process.language, userId, ctx);
+      }
+    })();
+  }
 
   // Re-render current page
   const lang = await resolveInterfaceLang(ctx);
@@ -504,7 +619,7 @@ async function processVideoInBackground(
         transcriptType = cached.transcriptType ?? undefined;
       } else {
         const transcript = await fetchTranscript(process.videoId, process.language);
-        transcriptText = transcript.text;
+        transcriptText = formatSegmentedTranscript(transcript.segments);
         transcriptType = transcript.type;
         await videoVocabularyRepository.cacheTranscript(
           process.videoId,

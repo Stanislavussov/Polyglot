@@ -45,10 +45,8 @@ export function renderPhraseList(
     const levelLabel = phrase.level ? `(${phrase.level})` : "";
     const saved = phrase.savedEntryId ? " ✅" : "";
     const timestamp = phrase.timestampSeconds != null ? formatTimestamp(phrase.timestampSeconds) : "";
-    const deepLink =
-      phrase.timestampSeconds != null
-        ? `<a href="${videoUrl}&amp;t=${phrase.timestampSeconds}">▶️ ${timestamp}</a>`
-        : "";
+    const linkTime = phrase.timestampSeconds != null ? Math.max(0, phrase.timestampSeconds - 5) : null;
+    const deepLink = linkTime != null ? `<a href="${videoUrl}&amp;t=${linkTime}">▶️ ${timestamp}</a>` : "";
 
     const emojiPrefix = phrase.emoji ? `${phrase.emoji} ` : "🔹 ";
     lines.push(`${emojiPrefix}<b>${escapeHtml(phrase.phrase)}</b> ${typeLabel} ${levelLabel}${saved}`);
@@ -169,7 +167,7 @@ export function buildVideoListKeyboard(
 /* ---- Helpers ---- */
 
 function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function truncate(text: string, maxLen: number): string {

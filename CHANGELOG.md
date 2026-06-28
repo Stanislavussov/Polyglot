@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added a generated Test Coverage catalog for the admin workspace. CI now exports `test-catalog.json` and `test-catalog.html` artifacts, and the admin app includes a `/test-coverage` page with search, package filters, and `business`/`technical` scenario classification from inline `@business` test comments.
 - Added an auto-generated database schema report at `@docs/reports/database-schema.html`, built from the Drizzle schema with a mobile-friendly visual relationship map, table descriptions, fields, relations, indexes, usage counts, and optimization notes via `pnpm db:schema:report`.
 - Added an admin Architecture page that mirrors generated HTML reports into `apps/admin/public/reports/` and lets admins browse them inside the app.
 - Added Video Vocabulary feature: users paste a YouTube URL, bot extracts transcript, AI (Gemini 3.1 Flash Lite) analyzes it and returns top-30 phrases ranked by learning value for the user's CEFR level. Phrases are browsed inline (5 per page) with timestamp deep links, saved to dictionary with lazy translation. Includes: new `@polyglot/adapter-youtube` package, `video-vocabulary` core module, DB schema (videoProcesses, videoPhrases, videoTranscriptCache, userLearningLanguages tables), per-language proficiency levels, 3 videos/month limit, transcript caching across users, async processing with retry, `/videos` command for history. i18n keys in en/ru/cs.
@@ -38,9 +39,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added `RiskLevel` type (`low`/`medium`/`high`) for future risk-based validation routing.
 - Added `PROMPT_VERSION` and `SCHEMA_VERSION` constants to the translation service for version tracking in quality metadata.
 - Translation benchmark `evaluateTranslationQuality` now checks `decision.status` against `expectedAction` and reports status mismatches with the actual status value.
+- Video vocabulary: vocabulary entries saved from videos now carry `source` metadata (video URL, title, timestamp) in a new JSONB column on `vocabularyEntries`.
+- Video vocabulary: saving a phrase from a video now triggers asynchronous full template translation in the background — the entry is enriched with synonyms, examples, and alternatives based on the user's template settings.
+- Video vocabulary: transcript passed to AI now includes `[M:SS]` time markers from YouTube segments for accurate phrase-to-timestamp mapping. Deep links jump 5 seconds before the word so the user has listening context.
+
+### Security
+
+- Added `"` → `&quot;` escaping to all `escapeHtml` helpers across bot renderers and notification scheduler to prevent potential HTML attribute breakout in Telegram messages.
 
 ### Changed
 
+- Added canonical local spec-first testing guidance under `@docs/agents/testing-strategy-tdd.md`, a local `.pi/skills/testing-strategy-tdd` adapter, and repo-level links in `AGENTS.md` and `CLAUDE.md`.
 - Semantic judge structured output is now OpenAI-compatible for nullable repair instructions, and the judge prompt treats acceptable stylistic variants as warnings instead of blocking issues.
 - Targeted repair prompts now explicitly forbid emoji, commentary, labels, and metadata inside sentence translation text.
 - Translation request timing now records the actual routed generation model from accepted decisions instead of the pre-routing default model.

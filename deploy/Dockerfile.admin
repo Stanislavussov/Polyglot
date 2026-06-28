@@ -25,6 +25,8 @@ ARG PUBLIC_API_URL=http://localhost:3001
 ENV PUBLIC_API_URL=$PUBLIC_API_URL
 
 COPY tsconfig.json ./
+COPY scripts/sync-admin-reports.mjs scripts/test-catalog.mjs scripts/
+COPY @docs/reports/ @docs/reports/
 COPY apps/admin/ apps/admin/
 
 RUN pnpm --filter @polyglot/admin run build

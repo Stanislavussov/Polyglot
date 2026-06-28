@@ -34,6 +34,7 @@ export type {
   VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularyRepository,
+  VocabularySource,
   VocabularyTranslation,
 } from "./vocabulary.repository.js";
 export type { WordReviewRepository } from "./word-review.repository.js";

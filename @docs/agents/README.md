@@ -10,6 +10,7 @@ Use these files before reading harness-specific adapters such as `.pi/skills/*/S
 - `@docs/agents/quality-gate.md` - required checks after changes.
 - `@docs/agents/architecture.md` - repository boundaries and stable engineering rules.
 - `@docs/agents/workflows.md` - planning, implementation, review, and documentation flows.
+- `@docs/agents/testing-strategy-tdd.md` - spec-first TDD and practical test strategy.
 - `@docs/agents/skills.md` - compact role index for domain-specific work.
 
 ## What Belongs Here

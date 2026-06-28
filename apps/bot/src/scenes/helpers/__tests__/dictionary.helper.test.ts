@@ -69,6 +69,7 @@ function makeEntry(id: number, original: string): VocabularyEntryWithTranslation
     emoji: "🍎",
     nativeMeaning: null,
     sourceUsage: null,
+    source: null,
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),

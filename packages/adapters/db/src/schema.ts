@@ -14,7 +14,7 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-import type { SourceUsage, VocabTranslationDetails } from "./repositories/vocabulary.repository.js";
+import type { SourceUsage, VocabTranslationDetails, VocabularySource } from "./repositories/vocabulary.repository.js";
 
 // ─────────────────────────────────────────────
 // Languages — single source of truth for all language metadata
@@ -134,6 +134,7 @@ export const vocabularyEntries = pgTable(
     emoji: text("emoji"),
     nativeMeaning: text("native_meaning"),
     sourceUsage: jsonb("source_usage").$type<SourceUsage>(),
+    source: jsonb("source").$type<VocabularySource>(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

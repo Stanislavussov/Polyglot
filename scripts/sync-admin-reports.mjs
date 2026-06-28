@@ -1,5 +1,6 @@
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import { buildTestCatalogReport } from "./test-catalog.mjs";
 
 const sourceDir = join(process.cwd(), "@docs/reports");
 const targetDir = join(process.cwd(), "apps/admin/public/reports");
@@ -35,8 +36,16 @@ const reports = readdirSync(sourceDir)
     };
   });
 
+const testCatalogReport = buildTestCatalogReport({
+  rootDir: process.cwd(),
+  jsonOutputPath: join(targetDir, "test-catalog.json"),
+  htmlOutputPath: join(targetDir, "test-catalog.html"),
+});
+
 writeFileSync(join(targetDir, "manifest.json"), `${JSON.stringify({ reports }, null, 2)}\n`);
-process.stdout.write(`Synced ${reports.length} admin architecture reports to apps/admin/public/reports.\n`);
+process.stdout.write(
+  `Synced ${reports.length} admin architecture reports and ${testCatalogReport.scenarioCount} test scenarios to apps/admin/public/reports.\n`,
+);
 
 function extractTitle(html) {
   const titleMatch = html.match(/<title>([^<]+)<\/title>/i);

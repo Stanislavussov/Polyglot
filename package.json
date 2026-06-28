@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:catalog": "node scripts/test-catalog.mjs",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "lint:deps": "depcruise --config .dependency-cruiser.cjs packages apps/bot/src",

@@ -12,6 +12,31 @@ import {
 } from "youtube-transcript";
 import type { TranscriptResult, TranscriptSegment } from "./types.js";
 
+/**
+ * Format transcript segments with timestamp markers for AI consumption.
+ * Inserts `[M:SS]` markers roughly every 15 seconds so the AI can
+ * anchor extracted phrases to real timestamps.
+ */
+export function formatSegmentedTranscript(segments: TranscriptSegment[]): string {
+  if (segments.length === 0) return "";
+
+  const parts: string[] = [];
+  let lastMarkerTime = -Infinity;
+
+  for (const seg of segments) {
+    if (seg.offset - lastMarkerTime >= 15) {
+      const totalSeconds = Math.round(seg.offset);
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
+      parts.push(`[${m}:${String(s).padStart(2, "0")}]`);
+      lastMarkerTime = seg.offset;
+    }
+    parts.push(seg.text);
+  }
+
+  return parts.join(" ");
+}
+
 export class TranscriptNotAvailableError extends Error {
   constructor(videoId: string, language?: string) {
     const msg = language

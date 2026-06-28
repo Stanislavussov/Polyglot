@@ -32,6 +32,8 @@ documents instead of carrying long, drifting domain descriptions.
 - `bot` - Telegram commands, scenes, middleware, callbacks, and renderers.
 - `doc-validator` - docs accuracy checks after implementation.
 - `test-runner` - quality-gate execution and failure diagnosis.
+- `testing-strategy-tdd` - spec-first TDD, test selection, integration-focused coverage,
+  and test anti-pattern review.
 
 ## Reading Rule
 

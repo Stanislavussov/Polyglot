@@ -1,0 +1,15 @@
+---
+import TestCoverageExplorer from "../components/TestCoverageExplorer.vue";
+import AdminLayout from "../layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Test Coverage">
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Test Coverage</h1>
+      <p class="mt-1 text-sm text-gray-500">Business and technical scenarios covered by automated tests.</p>
+    </div>
+  </div>
+
+  <TestCoverageExplorer client:idle />
+</AdminLayout>

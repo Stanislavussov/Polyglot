@@ -47,6 +47,7 @@ export type {
   VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularyRepository,
+  VocabularySource,
   VocabularyTranslation,
 } from "./ports/vocabulary.repository.js";
 export type {

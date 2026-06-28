@@ -34,6 +34,13 @@ export interface VocabTranslationDetails {
   alternatives?: TranslationVariant[];
 }
 
+export type VocabularySource = {
+  type: "video";
+  videoUrl: string;
+  videoTitle: string;
+  timestampSeconds: number | null;
+};
+
 export interface VocabularyEntry {
   id: number;
   userId: number;
@@ -43,6 +50,7 @@ export interface VocabularyEntry {
   emoji: string | null;
   nativeMeaning: string | null;
   sourceUsage: SourceUsage | null;
+  source: VocabularySource | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -64,6 +72,7 @@ export interface CreateVocabularyInput {
   emoji: string;
   nativeMeaning?: string;
   sourceUsage?: SourceUsage;
+  source?: VocabularySource;
   translations: Array<{
     targetLangId: number;
     text: string;
@@ -128,7 +137,12 @@ export interface VocabularyRepository {
   create(userId: number, input: CreateVocabularyInput): Promise<{ id: number }>;
   updateEntry(
     entryId: number,
-    data: { emoji?: string | null; nativeMeaning?: string | null; sourceUsage?: SourceUsage | null },
+    data: {
+      emoji?: string | null;
+      nativeMeaning?: string | null;
+      sourceUsage?: SourceUsage | null;
+      source?: VocabularySource | null;
+    },
   ): Promise<void>;
   updateTranslation(entryId: number, targetLangId: number, data: UpdateTranslationData): Promise<void>;
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
