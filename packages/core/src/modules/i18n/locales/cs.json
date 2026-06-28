@@ -274,5 +274,15 @@
   "dictionaryTranslate": "🔄 Přeložit",
   "videoSaveAll": "Uložit vše",
   "videoClose": "Zavřít",
+  "videoPhraseNotFound": "Fráze nenalezena",
+  "videoAlreadySaved": "Již uloženo",
+  "videoLanguageNotFound": "Jazyk nenalezen",
+  "videoDurationUnknown": "Neznámá",
+  "videoTypeWord": "slovo",
+  "videoTypePhrase": "fráze",
+  "videoPage": "Str. {page} z {total}",
+  "videoSavedToast": "Uloženo!",
+  "videoProcessingCancelled": "Zpracování videa zrušeno.",
+  "videoPhrasesExtracted": "Extrahováno frází: {count}",
   "chooseProficiencyLevel": "Jaká je vaše úroveň v {lang}?"
 }

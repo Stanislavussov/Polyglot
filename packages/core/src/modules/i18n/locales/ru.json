@@ -274,5 +274,15 @@
   "dictionaryTranslate": "🔄 Перевести",
   "videoSaveAll": "Сохранить все",
   "videoClose": "Закрыть",
+  "videoPhraseNotFound": "Фраза не найдена",
+  "videoAlreadySaved": "Уже сохранено",
+  "videoLanguageNotFound": "Язык не найден",
+  "videoDurationUnknown": "Неизвестно",
+  "videoTypeWord": "слово",
+  "videoTypePhrase": "фраза",
+  "videoPage": "Стр. {page} из {total}",
+  "videoSavedToast": "Сохранено!",
+  "videoProcessingCancelled": "Обработка видео отменена.",
+  "videoPhrasesExtracted": "Извлечено фраз: {count}",
   "chooseProficiencyLevel": "Какой у вас уровень в {lang}?"
 }

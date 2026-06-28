@@ -333,14 +333,16 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
   const userId = ctx.user?.id;
   if (!userId) return;
 
+  const lang = await resolveInterfaceLang(ctx);
+
   const phrase = await videoVocabularyRepository.findPhraseById(phraseId);
   if (!phrase) {
-    await ctx.answerCallbackQuery({ text: "Phrase not found" });
+    await ctx.answerCallbackQuery({ text: t("videoPhraseNotFound", lang) });
     return;
   }
 
   if (phrase.savedEntryId) {
-    await ctx.answerCallbackQuery({ text: "Already saved" });
+    await ctx.answerCallbackQuery({ text: t("videoAlreadySaved", lang) });
     return;
   }
 
@@ -350,7 +352,7 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
   // Get source language ID from language cache
   const sourceLang = ctx.services.languageCache.getLang(process.language);
   if (!sourceLang) {
-    await ctx.answerCallbackQuery({ text: "Language not found" });
+    await ctx.answerCallbackQuery({ text: t("videoLanguageNotFound", lang) });
     return;
   }
 
@@ -397,7 +399,6 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
   }
 
   // Re-render the current page
-  const lang = await resolveInterfaceLang(ctx);
   const currentPage = Math.ceil(phrase.sortOrder / PHRASES_PER_PAGE);
   await showPhraseBrowserEdit(ctx, phrase.videoProcessId, currentPage || 1, lang);
 }
@@ -438,6 +439,8 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
   const userId = ctx.user?.id;
   if (!userId) return;
 
+  const lang = await resolveInterfaceLang(ctx);
+
   const process = await videoVocabularyRepository.findProcessById(processId);
   if (!process || process.userId !== userId) {
     await ctx.answerCallbackQuery();
@@ -446,7 +449,7 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
 
   const sourceLang = ctx.services.languageCache.getLang(process.language);
   if (!sourceLang) {
-    await ctx.answerCallbackQuery({ text: "Language not found" });
+    await ctx.answerCallbackQuery({ text: t("videoLanguageNotFound", lang) });
     return;
   }
 
@@ -506,7 +509,6 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
   }
 
   // Re-render current page
-  const lang = await resolveInterfaceLang(ctx);
   await showPhraseBrowserEdit(ctx, processId, 1, lang);
 }
 

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Localized all remaining hardcoded English strings in the video vocabulary feature: callback toasts ("Phrase not found", "Already saved", "Language not found"), duration fallback ("Unknown"), phrase type labels ("[word]"/"[phrase]"), and page indicators. Added 10 new i18n keys (`videoPhraseNotFound`, `videoAlreadySaved`, `videoLanguageNotFound`, `videoDurationUnknown`, `videoTypeWord`, `videoTypePhrase`, `videoPage`, `videoSavedToast`, `videoProcessingCancelled`, `videoPhrasesExtracted`) with translations for all three locales (en, ru, cs).
+
 ### Added
 
 - Added a generated Test Coverage catalog for the admin workspace. CI now exports `test-catalog.json` and `test-catalog.html` artifacts, and the admin app includes a `/test-coverage` page with search, package filters, and `business`/`technical` scenario classification from inline `@business` test comments.

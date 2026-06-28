@@ -12,7 +12,7 @@ export function renderConfirmation(
   monthlyLimit: number,
   lang: SupportedLang,
 ): string {
-  const duration = formatDuration(metadata.durationSeconds);
+  const duration = formatDuration(metadata.durationSeconds, lang);
   return [
     `<b>🎬 ${escapeHtml(metadata.title)}</b>`,
     "",
@@ -41,7 +41,9 @@ export function renderPhraseList(
 
   const lines: string[] = [];
   for (const phrase of phrases) {
-    const typeLabel = phrase.phraseType ? `[${phrase.phraseType}]` : "";
+    const typeLabel = phrase.phraseType
+      ? `[${phrase.phraseType === "word" ? t("videoTypeWord", lang) : t("videoTypePhrase", lang)}]`
+      : "";
     const levelLabel = phrase.level ? `(${phrase.level})` : "";
     const saved = phrase.savedEntryId ? " ✅" : "";
     const timestamp = phrase.timestampSeconds != null ? formatTimestamp(phrase.timestampSeconds) : "";
@@ -62,7 +64,7 @@ export function renderPhraseList(
     lines.push("");
   }
 
-  lines.push(`📄 ${page}/${totalPages}`);
+  lines.push(`📄 ${t("videoPage", lang, { page, total: totalPages })}`);
   return lines.join("\n");
 }
 
@@ -128,7 +130,7 @@ export function renderVideoList(
 
   if (totalPages > 1) {
     lines.push("");
-    lines.push(`📄 ${page}/${totalPages}`);
+    lines.push(`📄 ${t("videoPage", lang, { page, total: totalPages })}`);
   }
 
   return lines.join("\n");
@@ -174,8 +176,8 @@ function truncate(text: string, maxLen: number): string {
   return text.length > maxLen ? `${text.slice(0, maxLen - 1)}…` : text;
 }
 
-function formatDuration(seconds: number): string {
-  if (seconds <= 0) return "Unknown";
+function formatDuration(seconds: number, lang: SupportedLang): string {
+  if (seconds <= 0) return t("videoDurationUnknown", lang);
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = seconds % 60;
