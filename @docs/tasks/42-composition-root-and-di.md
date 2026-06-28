@@ -9,7 +9,7 @@
 
 ## Goal
 
-Eliminate hard-wired singleton imports from the bot layer. Currently 18 non-test files in `apps/bot/src/` import concrete repositories and functions directly from `@polyglot/adapter-db`, and 2 files import `generateObject` directly from `@polyglot/adapter-ai`. There are zero abstract repository interfaces anywhere in the codebase — despite `docs/tech-reqs/04-adapter-contract.md` specifying `UserRepository` and `NotificationAdapter` port interfaces that were designed but never implemented.
+Eliminate hard-wired singleton imports from the bot layer. Currently 18 non-test files in `apps/bot/src/` import concrete repositories and functions directly from `@polyglot/adapter-db`, and 2 files import `generateObject` directly from `@polyglot/adapter-ai`. There are zero abstract repository interfaces anywhere in the codebase — despite `@docs/tech-reqs/04-adapter-contract.md` specifying `UserRepository` and `NotificationAdapter` port interfaces that were designed but never implemented.
 
 Replace direct imports with a composition root that wires dependencies once at startup and passes them through context.
 

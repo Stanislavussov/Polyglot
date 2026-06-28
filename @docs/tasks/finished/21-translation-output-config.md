@@ -374,7 +374,7 @@ Update the skill file to document:
 
 | File | Purpose |
 |---|---|
-| `docs/tasks/21-translation-output-config.md` | This file |
+| `@docs/tasks/21-translation-output-config.md` | This file |
 | `packages/core/src/modules/translation/translation-output.presets.ts` | Centralized named presets (`FULL_OUTPUT`, `MINIMAL_OUTPUT`, `NOTIFICATION_OUTPUT`) — **single source of truth** |
 | `packages/core/src/modules/translation/__tests__/output-config.test.ts` | 21+ unit tests for presets, config-aware prompt builder, and schema builder |
 

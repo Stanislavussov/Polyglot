@@ -56,7 +56,7 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
   let nativeLang: SupportedLang = "en";
   let learningLangs: string[] = [];
 
-  while (step <= 3) {
+  while (step <= 4) {
     switch (step) {
       case 1: {
         const result = await stepChooseNativeLang(conversation, ctx, interfaceLang);
@@ -87,12 +87,21 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
         break;
       }
       case 3: {
-        const result = await stepDemoTranslation(conversation, ctx, interfaceLang);
+        const result = await stepChooseProficiencyLevels(conversation, ctx, interfaceLang, learningLangs, userId);
         if (result === BACK) {
           step = 2;
           break;
         }
-        step = 4; // exit loop
+        step = 4;
+        break;
+      }
+      case 4: {
+        const result = await stepDemoTranslation(conversation, ctx, interfaceLang);
+        if (result === BACK) {
+          step = 3;
+          break;
+        }
+        step = 5; // exit loop
         break;
       }
     }
@@ -235,6 +244,71 @@ async function stepChooseLearningLangs(
       reply_markup: buildKeyboard(),
     });
   }
+}
+
+const PROFICIENCY_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+
+const LEVEL_LABELS: Record<string, string> = {
+  A1: "A1 — Beginner",
+  A2: "A2 — Elementary",
+  B1: "B1 — Intermediate",
+  B2: "B2 — Upper Intermediate",
+  C1: "C1 — Advanced",
+  C2: "C2 — Proficiency",
+};
+
+/**
+ * Step 2.5: Choose proficiency level for each learning language.
+ * Iterates through each selected learning language and asks for CEFR level.
+ */
+async function stepChooseProficiencyLevels(
+  conversation: OnboardingConversation,
+  ctx: ConversationContext,
+  interfaceLang: SupportedLang,
+  learningLangs: string[],
+  userId: number,
+): Promise<undefined | BackAction> {
+  for (let i = 0; i < learningLangs.length; i++) {
+    const langCode = learningLangs[i];
+    const langName = getLangDisplay(langCode);
+
+    const keyboard = new InlineKeyboard();
+    for (const level of PROFICIENCY_LEVELS) {
+      keyboard.text(LEVEL_LABELS[level], `level:${langCode}:${level}`).row();
+    }
+    if (i === 0) {
+      keyboard.text(`⬅️ ${t("back", interfaceLang)}`, "level:back").row();
+    }
+
+    const promptText = t("chooseProficiencyLevel", interfaceLang, { lang: langName });
+    const msg = await ctx.reply(promptText, { reply_markup: keyboard });
+    trackTechnicalMessage(ctx, msg.message_id);
+
+    const response = await conversation.waitUntil((waitCtx) => {
+      const text = waitCtx.message?.text;
+      if (text?.startsWith("/")) return false;
+      return waitCtx.callbackQuery?.data?.startsWith("level:") ?? false;
+    });
+
+    if (!response.callbackQuery?.data) {
+      throw new Error("Unexpected missing callback query data in proficiency level selection");
+    }
+
+    const data = response.callbackQuery.data;
+    if (data === "level:back") {
+      await response.answerCallbackQuery();
+      return BACK;
+    }
+
+    const parts = data.split(":");
+    const selectedLevel = parts[2];
+    await response.answerCallbackQuery();
+    await response.editMessageText(`${promptText}\n\n✅ ${LEVEL_LABELS[selectedLevel] ?? selectedLevel}`);
+
+    await conversation.external(() => userRepository.setLanguageLevel(userId, langCode, selectedLevel));
+  }
+
+  return undefined;
 }
 
 /**

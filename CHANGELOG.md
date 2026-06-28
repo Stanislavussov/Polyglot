@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Added a generated Test Coverage catalog for the admin workspace. CI now exports `test-catalog.json` and `test-catalog.html` artifacts, and the admin app includes a `/test-coverage` page with search, package filters, and `business`/`technical` scenario classification from inline `@business` test comments.
+- Added an auto-generated database schema report at `@docs/reports/database-schema.html`, built from the Drizzle schema with a mobile-friendly visual relationship map, table descriptions, fields, relations, indexes, usage counts, and optimization notes via `pnpm db:schema:report`.
+- Added an admin Architecture page that mirrors generated HTML reports into `apps/admin/public/reports/` and lets admins browse them inside the app.
+- Added Video Vocabulary feature: users paste a YouTube URL, bot extracts transcript, AI (Gemini 3.1 Flash Lite) analyzes it and returns top-30 phrases ranked by learning value for the user's CEFR level. Phrases are browsed inline (5 per page) with timestamp deep links, saved to dictionary with lazy translation. Includes: new `@polyglot/adapter-youtube` package, `video-vocabulary` core module, DB schema (videoProcesses, videoPhrases, videoTranscriptCache, userLearningLanguages tables), per-language proficiency levels, 3 videos/month limit, transcript caching across users, async processing with retry, `/videos` command for history. i18n keys in en/ru/cs.
 - Added observability stack: Prometheus, Grafana, Loki, Promtail, node-exporter, cAdvisor. Includes 4 provisioned Grafana dashboards (host, Docker containers, bot application metrics, logs), 14-day data retention, memory limits on all containers, and a separate GitHub Actions deploy workflow. Grafana accessible at `grafana.polyglot.monster` with nginx reverse proxy and TLS via certbot.
 - Added grammar detail ("Подробнее"): second-tier grammar analysis with detailed explanations, variations, and examples for memorization. Triggered from grammar breakdown via language selection menu. Premium feature gated behind `grammarDetail` feature key. Result sent as separate message.
 - Added grammar breakdown feature: per-language constructional grammar analysis for translations. Inline for phrases (when enabled in template), on-demand via button for sentences. Grammar terms stay in the target language, explanations in user's native language. Gated behind FeatureAccessPort for future premium integration.
@@ -35,9 +39,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added `RiskLevel` type (`low`/`medium`/`high`) for future risk-based validation routing.
 - Added `PROMPT_VERSION` and `SCHEMA_VERSION` constants to the translation service for version tracking in quality metadata.
 - Translation benchmark `evaluateTranslationQuality` now checks `decision.status` against `expectedAction` and reports status mismatches with the actual status value.
+- Video vocabulary: vocabulary entries saved from videos now carry `source` metadata (video URL, title, timestamp) in a new JSONB column on `vocabularyEntries`.
+- Video vocabulary: saving a phrase from a video now triggers asynchronous full template translation in the background — the entry is enriched with synonyms, examples, and alternatives based on the user's template settings.
+- Video vocabulary: transcript passed to AI now includes `[M:SS]` time markers from YouTube segments for accurate phrase-to-timestamp mapping. Deep links jump 5 seconds before the word so the user has listening context.
+- Video vocabulary: resilience improvements — `editMessageText` failure in confirm handler no longer blocks background processing, notification calls wrapped in try/catch, stuck processes auto-expire after 10 minutes, Prometheus metrics for processing lifecycle (`bot_video_processing_total`, `bot_video_processing_duration_seconds`, `bot_video_enrichment_total`).
+
+### Security
+
+- Added `"` → `&quot;` escaping to all `escapeHtml` helpers across bot renderers and notification scheduler to prevent potential HTML attribute breakout in Telegram messages.
 
 ### Changed
 
+- Added canonical local spec-first testing guidance under `@docs/agents/testing-strategy-tdd.md`, a local `.pi/skills/testing-strategy-tdd` adapter, and repo-level links in `AGENTS.md` and `CLAUDE.md`.
 - Semantic judge structured output is now OpenAI-compatible for nullable repair instructions, and the judge prompt treats acceptable stylistic variants as warnings instead of blocking issues.
 - Targeted repair prompts now explicitly forbid emoji, commentary, labels, and metadata inside sentence translation text.
 - Translation request timing now records the actual routed generation model from accepted decisions instead of the pre-routing default model.
@@ -124,7 +137,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Translation benchmark reports are now stored as Markdown under `docs/translation-benchmarks/` instead of local JSON files.
+- Consolidated project documentation under `@docs/`, moved HTML reports to `@docs/reports/`, added harness-neutral agent guidance under `@docs/agents/`, and reduced `.pi/skills/` to thin adapters to avoid duplicating changing domain knowledge.
+- Translation benchmark reports are now stored as Markdown under `@docs/translation-benchmarks/` instead of local JSON files.
 - Dictionary context lookup now normalizes Unicode, case, and whitespace, supports imported Wiktionary forms, and returns deterministically ordered sense candidates instead of silently selecting the first database row.
 - Translation prompts now state more explicitly that `connotationWarning` must be written in the user's native language even inside non-native target blocks, not in the target language.
 - Translation structured-output requests now use `frequencyPenalty: 0` so example generation can repeat the assigned translation naturally; other AI requests retain the adapter default unless they explicitly override it.

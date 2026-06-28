@@ -1,7 +1,14 @@
-import type { AudienceGroup, NewUser, SubscriptionPlan, User, UserLanguageSettings } from "@polyglot/core";
+import type {
+  AudienceGroup,
+  NewUser,
+  SubscriptionPlan,
+  User,
+  UserLanguageSettings,
+  UserLearningLanguage,
+} from "@polyglot/core";
 import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "../connection.js";
-import { releaseAnnouncementDeliveries, userLanguageSettings, users } from "../schema.js";
+import { releaseAnnouncementDeliveries, userLanguageSettings, userLearningLanguages, users } from "../schema.js";
 
 export type { AudienceGroup, NewUser, SubscriptionPlan, User, UserLanguageSettings };
 
@@ -242,5 +249,30 @@ export const userRepository = {
       .where(eq(users.id, userId))
       .returning();
     return rows[0]!;
+  },
+
+  /** Get CEFR proficiency levels for all learning languages. */
+  async getLanguageLevels(userId: number): Promise<UserLearningLanguage[]> {
+    const db = getDb();
+    const rows = await db
+      .select({
+        languageCode: userLearningLanguages.languageCode,
+        proficiencyLevel: userLearningLanguages.proficiencyLevel,
+      })
+      .from(userLearningLanguages)
+      .where(eq(userLearningLanguages.userId, userId));
+    return rows;
+  },
+
+  /** Set CEFR proficiency level for a specific learning language (upsert). */
+  async setLanguageLevel(userId: number, languageCode: string, proficiencyLevel: string): Promise<void> {
+    const db = getDb();
+    await db
+      .insert(userLearningLanguages)
+      .values({ userId, languageCode, proficiencyLevel })
+      .onConflictDoUpdate({
+        target: [userLearningLanguages.userId, userLearningLanguages.languageCode],
+        set: { proficiencyLevel, updatedAt: new Date() },
+      });
   },
 };

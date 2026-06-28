@@ -38,3 +38,14 @@ jobs:
 
       - name: Tests
         run: pnpm test
+
+      - name: Generate test coverage catalog
+        run: pnpm test:catalog
+
+      - name: Upload test coverage catalog
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-catalog
+          path: |
+            apps/admin/public/reports/test-catalog.json
+            apps/admin/public/reports/test-catalog.html

@@ -1,27 +1,29 @@
 ---
 name: brd-grooming
-description: Compares a Business Requirements Document (BRD) against a task list and surfaces every contradiction, conflict, or misalignment between them. Use when validating task lists against BRD requirements.
+description: Thin harness adapter for checking tasks and requirements against the BRD.
 ---
 
-# BRD Grooming — Contradiction Detector
+# BRD Grooming
 
-Compares `docs/BRD.md` against `docs/tasks/` and reports contradictions. Writes to `docs/reviews/brd-grooming.md`.
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-## What counts as a contradiction
+## Read First
+- `@docs/agents/workflows.md`
+- `@docs/BRD.md`
+- `active @docs/tasks/ or @docs/requirements/ files`
 
-- Task implements what BRD forbids
-- Task missing for a mandated requirement
-- Task scope narrower/wider than BRD
-- Task uses different business rules/values
-- Task references out-of-scope feature
+## Scope
+- Compare claims across @docs/BRD.md, @docs/requirements/, and active task specs.
+- Report contradictions with concrete file references.
+- Do not rewrite source code.
 
-## Rules
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-- One contradiction per block — don't group unrelated conflicts
-- Include: exact BRD quote, conflicting task, severity (Critical/Major/Minor), recommendation
-- Flag uncertainty as `[needs PO review]`
-- **Don't rewrite BRD or tasks. Don't suggest unrelated improvements.**
-
-## Output Path
-
-`docs/reviews/brd-grooming.md`
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

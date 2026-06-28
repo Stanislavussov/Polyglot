@@ -3,7 +3,7 @@
 Status: in progress.
 Type: Product quality, architecture, AI reliability.
 Priority: P0.
-Source: `docs/research/translation-quality-roadmap.html`.
+Source: `@docs/research/translation-quality-roadmap.html`.
 
 ## Goal
 

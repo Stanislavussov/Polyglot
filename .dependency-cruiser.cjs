@@ -2,7 +2,7 @@
  * dependency-cruiser configuration for Polyglot monorepo.
  *
  * Enforces the canonical dependency direction across packages and
- * internal core modules. See docs/tasks/22-dependency-cruiser.md.
+ * internal core modules. See @docs/tasks/22-dependency-cruiser.md.
  *
  * Audit summary (at time of authoring):
  *   0 package-level violations found.

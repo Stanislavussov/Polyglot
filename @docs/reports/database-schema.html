@@ -1,0 +1,3180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Polyglot Database Schema</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #5f6c7b;
+      --line: #d9e0e8;
+      --accent: #146c5f;
+      --accent-soft: #dff3ef;
+      --warn: #8a4b08;
+      --warn-soft: #fff2d8;
+      --code: #263544;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header {
+      padding: 32px 40px 20px;
+      background: #0f2f2b;
+      color: white;
+    }
+    header p { max-width: 980px; color: #d3e5e1; }
+    main { padding: 24px 40px 48px; }
+    h1, h2, h3 { margin: 0; line-height: 1.2; }
+    h2 { margin: 28px 0 12px; }
+    h3 { font-size: 18px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .meta { color: var(--muted); font-size: 13px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 20px 0 0;
+      max-width: 780px;
+    }
+    .stat {
+      background: rgba(255,255,255,.11);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .stat strong { display: block; font-size: 24px; }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    input {
+      min-width: min(420px, 100%);
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #eef3f6;
+      color: #344552;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    tr:last-child td { border-bottom: 0; }
+    code {
+      color: var(--code);
+      background: #eef3f6;
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    .table-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 14px 0;
+      overflow: hidden;
+    }
+    .table-head {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .table-body { padding: 0 16px 16px; }
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #0f5148;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .note {
+      margin: 10px 0;
+      padding: 10px 12px;
+      background: var(--warn-soft);
+      border: 1px solid #f2d7a5;
+      border-radius: 6px;
+      color: var(--warn);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+      gap: 16px;
+      align-items: start;
+    }
+    .small { font-size: 12px; color: var(--muted); }
+    .relationship-map {
+      position: relative;
+      height: 720px;
+      overflow: auto;
+      background:
+        linear-gradient(90deg, rgba(15,47,43,.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(15,47,43,.05) 1px, transparent 1px),
+        #ffffff;
+      background-size: 32px 32px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .relationship-map svg {
+      display: block;
+      min-width: 980px;
+      width: max(100%, 980px);
+      height: 100%;
+    }
+    .map-node rect {
+      fill: #ffffff;
+      stroke: #9fb2bf;
+      stroke-width: 1.2;
+      rx: 8;
+    }
+    .map-node text {
+      fill: var(--ink);
+      font-size: 12px;
+      font-weight: 650;
+      pointer-events: none;
+    }
+    .map-node .sub {
+      fill: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+    }
+    .map-edge {
+      stroke: #78909c;
+      stroke-width: 1.3;
+      opacity: .62;
+      marker-end: url(#arrow);
+    }
+    .map-label {
+      fill: #40515e;
+      font-size: 10px;
+      paint-order: stroke;
+      stroke: #ffffff;
+      stroke-width: 4px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0 16px;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      border: 1px solid rgba(0,0,0,.15);
+    }
+    @media (max-width: 980px) {
+      header, main { padding-left: 16px; padding-right: 16px; }
+      .grid { grid-template-columns: 1fr; }
+      .table-head { flex-direction: column; }
+      .relationship-map { height: 620px; }
+      .relationship-map svg {
+        min-width: 1120px;
+        width: 1120px;
+      }
+      th, td { padding: 7px 8px; }
+    }
+    @media (max-width: 560px) {
+      header { padding-top: 24px; }
+      main { padding-top: 16px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat strong { font-size: 20px; }
+      .relationship-map {
+        height: 560px;
+        margin-left: -16px;
+        margin-right: -16px;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+      }
+      .relationship-map svg {
+        min-width: 1160px;
+        width: 1160px;
+      }
+      .map-node text { font-size: 11px; }
+      .map-node .sub { font-size: 9px; }
+      table { display: block; overflow-x: auto; }
+      tbody, thead { min-width: 620px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Polyglot Database Schema</h1>
+    <p>Generated from <code>packages/adapters/db/src/schema.ts</code>. Re-run <code>pnpm db:schema:report</code> after schema changes to refresh this file.</p>
+    <div class="stats">
+      <div class="stat"><strong>30</strong>tables</div>
+      <div class="stat"><strong>236</strong>columns</div>
+      <div class="stat"><strong>28</strong>foreign keys</div>
+      <div class="stat"><strong>78</strong>indexes / unique constraints</div>
+    </div>
+  </header>
+  <main>
+    <p class="meta">Generated at 2026-06-28T08:30:29.739Z. Usage counts scan TypeScript files under <code>apps/</code> and <code>packages/</code>, excluding schema, index, and this report generator.</p>
+    <section>
+      <h2>Relationship Map</h2>
+      <p class="meta">This SVG map is drawn from declared Drizzle foreign keys. Drag nodes to inspect dense areas.</p>
+      <div class="legend"><span class="legend-item"><span class="legend-swatch" style="background:#ece5f7"></span>admin</span><span class="legend-item"><span class="legend-swatch" style="background:#eaf3df"></span>cache</span><span class="legend-item"><span class="legend-swatch" style="background:#dff3ef"></span>core</span><span class="legend-item"><span class="legend-swatch" style="background:#e6f1f7"></span>observability</span><span class="legend-item"><span class="legend-swatch" style="background:#eef3f6"></span>system</span><span class="legend-item"><span class="legend-swatch" style="background:#fff2d8"></span>translation</span><span class="legend-item"><span class="legend-swatch" style="background:#fde8df"></span>video</span><span class="legend-item"><span class="legend-swatch" style="background:#e8eefc"></span>vocabulary</span></div>
+      <div class="relationship-map" id="relationship-map"></div>
+    </section>
+    <section>
+      <h2>Relations</h2>
+      <table>
+        <thead><tr><th>From table</th><th>Columns</th><th>To table</th><th>Target columns</th><th>On delete</th></tr></thead>
+        <tbody><tr>
+          <td><a href="#ai_model_plan_access">ai_model_plan_access</a></td>
+          <td>model_id</td>
+          <td><a href="#ai_models">ai_models</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#ai_model_plan_access">ai_model_plan_access</a></td>
+          <td>plan_name</td>
+          <td><a href="#rate_limit_plans">rate_limit_plans</a></td>
+          <td>name</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#ai_request_latencies">ai_request_latencies</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>set null</td>
+        </tr>
+<tr>
+          <td><a href="#language_detection_events">language_detection_events</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>set null</td>
+        </tr>
+<tr>
+          <td><a href="#notification_history">notification_history</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#release_announcement_deliveries">release_announcement_deliveries</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#reported_issues">reported_issues</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#translation_request_target_langs">translation_request_target_langs</a></td>
+          <td>request_id</td>
+          <td><a href="#translation_requests">translation_requests</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#translation_request_target_langs">translation_request_target_langs</a></td>
+          <td>language_id</td>
+          <td><a href="#languages">languages</a></td>
+          <td>id</td>
+          <td>no action</td>
+        </tr>
+<tr>
+          <td><a href="#translation_request_timings">translation_request_timings</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>set null</td>
+        </tr>
+<tr>
+          <td><a href="#translation_requests">translation_requests</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#translation_requests">translation_requests</a></td>
+          <td>source_lang_id</td>
+          <td><a href="#languages">languages</a></td>
+          <td>id</td>
+          <td>no action</td>
+        </tr>
+<tr>
+          <td><a href="#user_language_settings">user_language_settings</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#user_learning_languages">user_learning_languages</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#user_translation_templates">user_translation_templates</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#video_phrases">video_phrases</a></td>
+          <td>video_process_id</td>
+          <td><a href="#video_processes">video_processes</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#video_phrases">video_phrases</a></td>
+          <td>saved_entry_id</td>
+          <td><a href="#vocabulary_entries">vocabulary_entries</a></td>
+          <td>id</td>
+          <td>set null</td>
+        </tr>
+<tr>
+          <td><a href="#video_processes">video_processes</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#vocabulary_dictionaries">vocabulary_dictionaries</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#vocabulary_dictionary_entries">vocabulary_dictionary_entries</a></td>
+          <td>dictionary_id</td>
+          <td><a href="#vocabulary_dictionaries">vocabulary_dictionaries</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#vocabulary_dictionary_entries">vocabulary_dictionary_entries</a></td>
+          <td>entry_id</td>
+          <td><a href="#vocabulary_entries">vocabulary_entries</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#vocabulary_entries">vocabulary_entries</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#vocabulary_entries">vocabulary_entries</a></td>
+          <td>source_lang_id</td>
+          <td><a href="#languages">languages</a></td>
+          <td>id</td>
+          <td>no action</td>
+        </tr>
+<tr>
+          <td><a href="#vocabulary_translations">vocabulary_translations</a></td>
+          <td>entry_id</td>
+          <td><a href="#vocabulary_entries">vocabulary_entries</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#vocabulary_translations">vocabulary_translations</a></td>
+          <td>target_lang_id</td>
+          <td><a href="#languages">languages</a></td>
+          <td>id</td>
+          <td>no action</td>
+        </tr>
+<tr>
+          <td><a href="#word_context">word_context</a></td>
+          <td>language_id</td>
+          <td><a href="#languages">languages</a></td>
+          <td>id</td>
+          <td>no action</td>
+        </tr>
+<tr>
+          <td><a href="#word_review_log">word_review_log</a></td>
+          <td>entry_id</td>
+          <td><a href="#vocabulary_entries">vocabulary_entries</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr>
+<tr>
+          <td><a href="#word_review_log">word_review_log</a></td>
+          <td>user_id</td>
+          <td><a href="#users">users</a></td>
+          <td>id</td>
+          <td>cascade</td>
+        </tr></tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Tables</h2>
+      <div class="toolbar">
+        <input id="filter" type="search" placeholder="Filter tables, columns, notes, usage...">
+        <span class="small">Client-side filter. The data itself is static HTML generated from the current schema.</span>
+      </div>
+      <div id="tables"><article class="table-card" id="admin_users">
+    <div class="table-head">
+      <div>
+        <h3>admin_users</h3>
+        <div class="small">export <code>adminUsers</code></div>
+        <p>Admin users — web panel authentication</p>
+        <div class="badges"><span class="badge">no declared relations</span></div>
+      </div>
+      <div class="small">8 columns<br>0 outbound FK<br>0 inbound FK<br>9 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Standalone table: no declared FK in or out.</div><div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>email</code><div class="small">email</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td> unique </td>
+      </tr>
+<tr>
+        <td><code>password_hash</code><div class="small">passwordHash</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>role</code><div class="small">role</div></td>
+        <td>PgEnumColumn<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>is_active</code><div class="small">isActive</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>last_login_at</code><div class="small">lastLoginAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>admin_users_email_idx</code></td>
+        <td>email</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>admin_users_email_unique</code></td>
+        <td>email</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>admin_users_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/admin-user.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="ai_model_plan_access">
+    <div class="table-head">
+      <div>
+        <h3>ai_model_plan_access</h3>
+        <div class="small">export <code>aiModelPlanAccess</code></div>
+        <p>AI model access — which subscription plans can use each model</p>
+        <div class="badges"><span class="badge">model_id -> ai_models</span><span class="badge">plan_name -> rate_limit_plans</span></div>
+      </div>
+      <div class="small">2 columns<br>2 outbound FK<br>0 inbound FK<br>14 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>model_id</code><div class="small">modelId</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>plan_name</code><div class="small">planName</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>ai_model_plan_access_plan_idx</code></td>
+        <td>plan_name</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>primary_key</code></td>
+        <td>model_id, plan_name</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/ai-model.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="ai_models">
+    <div class="table-head">
+      <div>
+        <h3>ai_models</h3>
+        <div class="small">export <code>aiModels</code></div>
+        <p>AI models — admin-configurable model registry</p>
+        <div class="badges"><span class="badge">ai_model_plan_access -> ai_models</span></div>
+      </div>
+      <div class="small">9 columns<br>0 outbound FK<br>1 inbound FK<br>36 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>PK  </td>
+      </tr>
+<tr>
+        <td><code>name</code><div class="small">name</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>provider</code><div class="small">provider</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>max_tokens</code><div class="small">maxTokens</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>cost_per_1k_input</code><div class="small">costPer1kInput</div></td>
+        <td>PgReal<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>cost_per_1k_output</code><div class="small">costPer1kOutput</div></td>
+        <td>PgReal<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>is_enabled</code><div class="small">isEnabled</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>is_default</code><div class="small">isDefault</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>ai_models_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>apps/admin/src/lib/api.test.ts</code></li><li><code>apps/admin/src/lib/api.ts</code></li><li><code>packages/adapters/db/src/repositories/ai-model.repository.ts</code></li><li><code>packages/core/src/modules/settings/settings.service.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="ai_request_latencies">
+    <div class="table-head">
+      <div>
+        <h3>ai_request_latencies</h3>
+        <div class="small">export <code>aiRequestLatencies</code></div>
+        <p>AI request latency metrics — one row per AI adapter request</p>
+        <div class="badges"><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">11 columns<br>1 outbound FK<br>0 inbound FK<br>11 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">FK columns without explicit index: user_id.</div><div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div><div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>model_id</code><div class="small">modelId</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>request_kind</code><div class="small">requestKind</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>duration_ms</code><div class="small">durationMs</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>input_tokens</code><div class="small">inputTokens</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>output_tokens</code><div class="small">outputTokens</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>cost_usd</code><div class="small">costUsd</div></td>
+        <td>PgReal<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>success</code><div class="small">success</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>error</code><div class="small">error</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>ai_req_latency_created_at_idx</code></td>
+        <td>created_at</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>ai_req_latency_model_date_idx</code></td>
+        <td>model_id, created_at</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>ai_request_latencies_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/ai-request-latency.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="bot_sessions">
+    <div class="table-head">
+      <div>
+        <h3>bot_sessions</h3>
+        <div class="small">export <code>botSessions</code></div>
+        <p>Bot sessions — grammY session storage Stores per-chat/user bot session state so interactions survive restarts.</p>
+        <div class="badges"><span class="badge">no declared relations</span></div>
+      </div>
+      <div class="small">5 columns<br>0 outbound FK<br>0 inbound FK<br>7 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Standalone table: no declared FK in or out.</div><div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>key</code><div class="small">key</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>PK  </td>
+      </tr>
+<tr>
+        <td><code>data</code><div class="small">data</div></td>
+        <td>PgJsonb<div class="small">json</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>version</code><div class="small">version</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>bot_sessions_primary_key</code></td>
+        <td>key</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>bot_sessions_updated_at_idx</code></td>
+        <td>updated_at</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/bot-session.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="language_detection_events">
+    <div class="table-head">
+      <div>
+        <h3>language_detection_events</h3>
+        <div class="small">export <code>languageDetectionEvents</code></div>
+        <p>Language detection events — mistype flow analytics (Task 58) Tracks when detection fails (warning shown) and user outcome (confirmed/cancelled)</p>
+        <div class="badges"><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">7 columns<br>1 outbound FK<br>0 inbound FK<br>15 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div><div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>event_type</code><div class="small">eventType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>word</code><div class="small">word</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>source_lang</code><div class="small">sourceLang</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>target_langs</code><div class="small">targetLangs</div></td>
+        <td>PgArray<div class="small">array</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>language_detection_events_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>lde_created_at_idx</code></td>
+        <td>created_at</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>lde_event_type_idx</code></td>
+        <td>event_type</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>lde_user_id_idx</code></td>
+        <td>user_id</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/language-detection.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="languages">
+    <div class="table-head">
+      <div>
+        <h3>languages</h3>
+        <div class="small">export <code>languages</code></div>
+        <p>Languages — single source of truth for all language metadata</p>
+        <div class="badges"><span class="badge">translation_request_target_langs -> languages</span><span class="badge">translation_requests -> languages</span><span class="badge">vocabulary_entries -> languages</span><span class="badge">vocabulary_translations -> languages</span><span class="badge">word_context -> languages</span></div>
+      </div>
+      <div class="small">8 columns<br>0 outbound FK<br>5 inbound FK<br>181 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>code</code><div class="small">code</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td> unique </td>
+      </tr>
+<tr>
+        <td><code>name</code><div class="small">name</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>native_name</code><div class="small">nativeName</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>flag</code><div class="small">flag</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>is_supported</code><div class="small">isSupported</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>localized_names</code><div class="small">localizedNames</div></td>
+        <td>PgJsonb<div class="small">json</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>yes</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>languages_code_idx</code></td>
+        <td>code</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>languages_code_unique</code></td>
+        <td>code</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>languages_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>apps/bot/src/__tests__/onboarding.scene.test.ts</code></li><li><code>apps/bot/src/__tests__/settings.scene.test.ts</code></li><li><code>apps/bot/src/__tests__/translation.renderer.test.ts</code></li><li><code>apps/bot/src/constants.ts</code></li><li><code>apps/bot/src/notifications/notification.formatter.test.ts</code></li><li><code>apps/bot/src/notifications/notification.wiring.ts</code></li><li><code>apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts</code></li><li><code>apps/bot/src/scenes/helpers/settings.helper.ts</code></li><li><code>apps/bot/src/scenes/helpers/translate-mode.helper.ts</code></li><li><code>apps/bot/src/scenes/onboarding.scene.ts</code></li><li class="small">and 47 more files</li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="notification_history">
+    <div class="table-head">
+      <div>
+        <h3>notification_history</h3>
+        <div class="small">export <code>notificationHistory</code></div>
+        <p>Notification history — tracks words sent to users Prevents repeating the same word in recent notifications</p>
+        <div class="badges"><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">5 columns<br>1 outbound FK<br>0 inbound FK<br>6 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div><div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>original</code><div class="small">original</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>source</code><div class="small">source</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>sent_at</code><div class="small">sentAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>notif_hist_user_sent_idx</code></td>
+        <td>user_id, sent_at</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>notification_history_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/notification.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="rate_limit_plans">
+    <div class="table-head">
+      <div>
+        <h3>rate_limit_plans</h3>
+        <div class="small">export <code>rateLimitPlans</code></div>
+        <p>Rate limit plans — admin-configurable credit limits</p>
+        <div class="badges"><span class="badge">ai_model_plan_access -> rate_limit_plans</span></div>
+      </div>
+      <div class="small">8 columns<br>0 outbound FK<br>1 inbound FK<br>17 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>name</code><div class="small">name</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>PK  </td>
+      </tr>
+<tr>
+        <td><code>label</code><div class="small">label</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>credits_per_day</code><div class="small">creditsPerDay</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>window_ms</code><div class="small">windowMs</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>credit_cost</code><div class="small">creditCost</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>is_active</code><div class="small">isActive</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>is_default</code><div class="small">isDefault</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>rate_limit_plans_primary_key</code></td>
+        <td>name</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/rate-limit-plan.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="release_announcement_deliveries">
+    <div class="table-head">
+      <div>
+        <h3>release_announcement_deliveries</h3>
+        <div class="small">export <code>releaseAnnouncementDeliveries</code></div>
+        <p>Release announcement deliveries — one successful send per release/user/group</p>
+        <div class="badges"><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">4 columns<br>1 outbound FK<br>0 inbound FK<br>7 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div><div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>release_id</code><div class="small">releaseId</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>audience_group</code><div class="small">audienceGroup</div></td>
+        <td>PgEnumColumn<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>delivered_at</code><div class="small">deliveredAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>primary_key</code></td>
+        <td>release_id, audience_group, user_id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>release_announcement_deliveries_user_idx</code></td>
+        <td>user_id</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/user.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="reported_issues">
+    <div class="table-head">
+      <div>
+        <h3>reported_issues</h3>
+        <div class="small">export <code>reportedIssues</code></div>
+        <p>Stores reported issues records for the Polyglot application domain.</p>
+        <div class="badges"><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">7 columns<br>1 outbound FK<br>0 inbound FK<br>27 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>type</code><div class="small">type</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>description</code><div class="small">description</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>status</code><div class="small">status</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>reported_issues_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>ri_status_idx</code></td>
+        <td>status</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>ri_user_id_idx</code></td>
+        <td>user_id</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>apps/admin/src/lib/api.test.ts</code></li><li><code>apps/admin/src/lib/api.ts</code></li><li><code>packages/adapters/db/src/repositories/reported-issue.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="system_settings">
+    <div class="table-head">
+      <div>
+        <h3>system_settings</h3>
+        <div class="small">export <code>systemSettings</code></div>
+        <p>System settings — generic key-value store (JSONB values) Covers: AI generation defaults, SRS params, notification defaults, feature flags, etc.</p>
+        <div class="badges"><span class="badge">no declared relations</span></div>
+      </div>
+      <div class="small">4 columns<br>0 outbound FK<br>0 inbound FK<br>8 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Standalone table: no declared FK in or out.</div><div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>key</code><div class="small">key</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>PK  </td>
+      </tr>
+<tr>
+        <td><code>value</code><div class="small">value</div></td>
+        <td>PgJsonb<div class="small">json</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>description</code><div class="small">description</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>system_settings_primary_key</code></td>
+        <td>key</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/system-settings.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="topic_translation_cache">
+    <div class="table-head">
+      <div>
+        <h3>topic_translation_cache</h3>
+        <div class="small">export <code>topicTranslationCache</code></div>
+        <p>Topic translation cache — shared across users Caches AI translations for topic dataset words per (topicId, original, sourceLang, targetLang)</p>
+        <div class="badges"><span class="badge">no declared relations</span></div>
+      </div>
+      <div class="small">10 columns<br>0 outbound FK<br>0 inbound FK<br>16 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Standalone table: no declared FK in or out.</div><div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>topic_id</code><div class="small">topicId</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>original</code><div class="small">original</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>source_lang</code><div class="small">sourceLang</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>target_lang</code><div class="small">targetLang</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>content</code><div class="small">content</div></td>
+        <td>PgJsonb<div class="small">json</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>is_valid</code><div class="small">isValid</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>invalid_reason</code><div class="small">invalidReason</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>topic_cache_lookup_idx</code></td>
+        <td>topic_id, source_lang, target_lang</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>topic_cache_unique_idx</code></td>
+        <td>topic_id, original, source_lang, target_lang</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>topic_translation_cache_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/topic.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="translation_presets">
+    <div class="table-head">
+      <div>
+        <h3>translation_presets</h3>
+        <div class="small">export <code>translationPresets</code></div>
+        <p>Translation output presets — admin-configurable</p>
+        <div class="badges"><span class="badge">no declared relations</span></div>
+      </div>
+      <div class="small">5 columns<br>0 outbound FK<br>0 inbound FK<br>9 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Standalone table: no declared FK in or out.</div><div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>name</code><div class="small">name</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>PK  </td>
+      </tr>
+<tr>
+        <td><code>label</code><div class="small">label</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>config</code><div class="small">config</div></td>
+        <td>PgJsonb<div class="small">json</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>is_active</code><div class="small">isActive</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>translation_presets_primary_key</code></td>
+        <td>name</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/translation-preset.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="translation_request_target_langs">
+    <div class="table-head">
+      <div>
+        <h3>translation_request_target_langs</h3>
+        <div class="small">export <code>translationRequestTargetLangs</code></div>
+        <p>Junction table: translation request → target languages Each request can have multiple target languages with FK integrity</p>
+        <div class="badges"><span class="badge">request_id -> translation_requests</span><span class="badge">language_id -> languages</span></div>
+      </div>
+      <div class="small">3 columns<br>2 outbound FK<br>0 inbound FK<br>6 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>request_id</code><div class="small">requestId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>language_id</code><div class="small">languageId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>tr_target_langs_request_idx</code></td>
+        <td>request_id</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>tr_target_langs_unique_idx</code></td>
+        <td>request_id, language_id</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>translation_request_target_langs_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/translation-request.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="translation_request_timings">
+    <div class="table-head">
+      <div>
+        <h3>translation_request_timings</h3>
+        <div class="small">export <code>translationRequestTimings</code></div>
+        <p>Translation request timing — segment-level performance metrics Tracks preflight, DB lookup, AI request, and total duration per request</p>
+        <div class="badges"><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">14 columns<br>1 outbound FK<br>0 inbound FK<br>22 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div><div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>request_type</code><div class="small">requestType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>preflight_ms</code><div class="small">preflightMs</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>db_lookup_ms</code><div class="small">dbLookupMs</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>ai_request_ms</code><div class="small">aiRequestMs</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>total_ms</code><div class="small">totalMs</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>model_id</code><div class="small">modelId</div></td>
+        <td>PgVarchar<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>source_lang</code><div class="small">sourceLang</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>target_langs</code><div class="small">targetLangs</div></td>
+        <td>PgArray<div class="small">array</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>input_type</code><div class="small">inputType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>success</code><div class="small">success</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>error</code><div class="small">error</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>translation_request_timings_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>trt_created_at_idx</code></td>
+        <td>created_at</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>trt_request_type_idx</code></td>
+        <td>request_type</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>trt_user_id_idx</code></td>
+        <td>user_id</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/request-timing.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="translation_requests">
+    <div class="table-head">
+      <div>
+        <h3>translation_requests</h3>
+        <div class="small">export <code>translationRequests</code></div>
+        <p>Translation request log — rate limiting &amp; history</p>
+        <div class="badges"><span class="badge">user_id -> users</span><span class="badge">source_lang_id -> languages</span><span class="badge">translation_request_target_langs -> translation_requests</span></div>
+      </div>
+      <div class="small">6 columns<br>2 outbound FK<br>1 inbound FK<br>29 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">FK columns without explicit index: source_lang_id.</div><div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>original</code><div class="small">original</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>source_lang_id</code><div class="small">sourceLangId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>credit_cost</code><div class="small">creditCost</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>translation_requests_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>translation_requests_user_date_idx</code></td>
+        <td>user_id, created_at</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>translation_requests_user_idx</code></td>
+        <td>user_id</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>apps/admin-api/src/routes/stats.ts</code></li><li><code>packages/adapters/db/src/repositories/translation-request.repository.ts</code></li><li><code>packages/adapters/db/src/repositories/user-request-count.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="user_language_settings">
+    <div class="table-head">
+      <div>
+        <h3>user_language_settings</h3>
+        <div class="small">export <code>userLanguageSettings</code></div>
+        <p>User language settings (1-to-1 with users)</p>
+        <div class="badges"><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">15 columns<br>1 outbound FK<br>0 inbound FK<br>54 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td> unique </td>
+      </tr>
+<tr>
+        <td><code>interface_lang</code><div class="small">interfaceLang</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>native_lang</code><div class="small">nativeLang</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>learning_langs</code><div class="small">learningLangs</div></td>
+        <td>PgArray<div class="small">array</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>timezone</code><div class="small">timezone</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>active_mode</code><div class="small">activeMode</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>last_source_lang</code><div class="small">lastSourceLang</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>notification_enabled</code><div class="small">notificationEnabled</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>notification_time</code><div class="small">notificationTime</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>notification_type</code><div class="small">notificationType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>notification_context</code><div class="small">notificationContext</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>last_interaction_at</code><div class="small">lastInteractionAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>is_active</code><div class="small">isActive</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>user_language_settings_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>user_language_settings_user_id_unique</code></td>
+        <td>user_id</td>
+        <td>unique</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>apps/admin-api/src/routes/users.test.ts</code></li><li><code>apps/admin-api/src/routes/users.ts</code></li><li><code>apps/bot/src/types.ts</code></li><li><code>packages/adapters/db/src/repositories/notification.repository.ts</code></li><li><code>packages/adapters/db/src/repositories/user.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="user_learning_languages">
+    <div class="table-head">
+      <div>
+        <h3>user_learning_languages</h3>
+        <div class="small">export <code>userLearningLanguages</code></div>
+        <p>User learning languages — per-language proficiency level Extends the text[] learningLangs in userLanguageSettings with per-language metadata</p>
+        <div class="badges"><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">6 columns<br>1 outbound FK<br>0 inbound FK<br>8 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>language_code</code><div class="small">languageCode</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>proficiency_level</code><div class="small">proficiencyLevel</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>ull_user_id_idx</code></td>
+        <td>user_id</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>ull_user_lang_idx</code></td>
+        <td>user_id, language_code</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>user_learning_languages_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/user.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="user_translation_templates">
+    <div class="table-head">
+      <div>
+        <h3>user_translation_templates</h3>
+        <div class="small">export <code>userTranslationTemplates</code></div>
+        <p>User translation templates — customizable output fields 1-to-1 with users. Controls which sections appear in translation output.</p>
+        <div class="badges"><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">11 columns<br>1 outbound FK<br>0 inbound FK<br>8 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td> unique </td>
+      </tr>
+<tr>
+        <td><code>name</code><div class="small">name</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>synonyms</code><div class="small">synonyms</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>examples</code><div class="small">examples</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>alternatives</code><div class="small">alternatives</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>equivalent_note</code><div class="small">equivalentNote</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>connotation_warning</code><div class="small">connotationWarning</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>grammar_breakdown</code><div class="small">grammarBreakdown</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>user_translation_templates_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>user_translation_templates_user_id_idx</code></td>
+        <td>user_id</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>user_translation_templates_user_id_unique</code></td>
+        <td>user_id</td>
+        <td>unique</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/translation-template.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="users">
+    <div class="table-head">
+      <div>
+        <h3>users</h3>
+        <div class="small">export <code>users</code></div>
+        <p>Stores users records for the Polyglot application domain.</p>
+        <div class="badges"><span class="badge">ai_request_latencies -> users</span><span class="badge">language_detection_events -> users</span><span class="badge">notification_history -> users</span><span class="badge">release_announcement_deliveries -> users</span><span class="badge">reported_issues -> users</span><span class="badge">translation_request_timings -> users</span><span class="badge">translation_requests -> users</span><span class="badge">user_language_settings -> users</span><span class="badge">user_learning_languages -> users</span><span class="badge">user_translation_templates -> users</span><span class="badge">video_processes -> users</span><span class="badge">vocabulary_dictionaries -> users</span><span class="badge">vocabulary_entries -> users</span><span class="badge">word_review_log -> users</span></div>
+      </div>
+      <div class="small">9 columns<br>0 outbound FK<br>14 inbound FK<br>147 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>telegram_id</code><div class="small">telegramId</div></td>
+        <td>PgBigInt53<div class="small">number</div></td>
+        <td>no</td>
+        <td> unique </td>
+      </tr>
+<tr>
+        <td><code>username</code><div class="small">username</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>audience_group</code><div class="small">audienceGroup</div></td>
+        <td>PgEnumColumn<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>subscription_plan</code><div class="small">subscriptionPlan</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>onboarding_step</code><div class="small">onboardingStep</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>onboarded</code><div class="small">onboarded</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>is_active</code><div class="small">isActive</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>users_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>users_telegram_id_unique</code></td>
+        <td>telegram_id</td>
+        <td>unique</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>apps/admin/src/lib/api.test.ts</code></li><li><code>apps/admin/src/lib/api.ts</code></li><li><code>apps/admin-api/src/routes/stats.test.ts</code></li><li><code>apps/admin-api/src/routes/stats.ts</code></li><li><code>apps/admin-api/src/routes/users.test.ts</code></li><li><code>apps/admin-api/src/routes/users.ts</code></li><li><code>apps/bot/src/commands/changes.test.ts</code></li><li><code>apps/bot/src/commands/commands.ts</code></li><li><code>apps/bot/src/commands/start.test.ts</code></li><li><code>apps/bot/src/metrics.ts</code></li><li class="small">and 16 more files</li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="video_phrases">
+    <div class="table-head">
+      <div>
+        <h3>video_phrases</h3>
+        <div class="small">export <code>videoPhrases</code></div>
+        <p>Video phrases — extracted phrases from video transcripts</p>
+        <div class="badges"><span class="badge">video_process_id -> video_processes</span><span class="badge">saved_entry_id -> vocabulary_entries</span></div>
+      </div>
+      <div class="small">12 columns<br>2 outbound FK<br>0 inbound FK<br>11 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">FK columns without explicit index: saved_entry_id.</div><div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div><div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>video_process_id</code><div class="small">videoProcessId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>phrase</code><div class="small">phrase</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>native_translation</code><div class="small">nativeTranslation</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>emoji</code><div class="small">emoji</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>phrase_type</code><div class="small">phraseType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>level</code><div class="small">level</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>context</code><div class="small">context</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>timestamp_seconds</code><div class="small">timestampSeconds</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>sort_order</code><div class="small">sortOrder</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>saved_entry_id</code><div class="small">savedEntryId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>video_phrases_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>vph_process_sort_idx</code></td>
+        <td>video_process_id, sort_order</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/video-vocabulary.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="video_processes">
+    <div class="table-head">
+      <div>
+        <h3>video_processes</h3>
+        <div class="small">export <code>videoProcesses</code></div>
+        <p>Video vocabulary — YouTube video processing requests</p>
+        <div class="badges"><span class="badge">user_id -> users</span><span class="badge">video_phrases -> video_processes</span></div>
+      </div>
+      <div class="small">12 columns<br>1 outbound FK<br>1 inbound FK<br>20 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Language stored as text, not FK: language.</div><div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>video_id</code><div class="small">videoId</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>video_url</code><div class="small">videoUrl</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>title</code><div class="small">title</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>duration_seconds</code><div class="small">durationSeconds</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>language</code><div class="small">language</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>transcript_type</code><div class="small">transcriptType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>status</code><div class="small">status</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>error_message</code><div class="small">errorMessage</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>video_processes_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>vp_user_id_idx</code></td>
+        <td>user_id</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>vp_user_status_idx</code></td>
+        <td>user_id, status</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>vp_video_lang_idx</code></td>
+        <td>video_id, language</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/video-vocabulary.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="video_transcript_cache">
+    <div class="table-head">
+      <div>
+        <h3>video_transcript_cache</h3>
+        <div class="small">export <code>videoTranscriptCache</code></div>
+        <p>Video transcript cache — shared across users Avoids re-fetching the same transcript from YouTube</p>
+        <div class="badges"><span class="badge">no declared relations</span></div>
+      </div>
+      <div class="small">6 columns<br>0 outbound FK<br>0 inbound FK<br>5 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Language stored as text, not FK: language.</div><div class="note">Standalone table: no declared FK in or out.</div><div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div><div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>video_id</code><div class="small">videoId</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>language</code><div class="small">language</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>transcript</code><div class="small">transcript</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>transcript_type</code><div class="small">transcriptType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>video_transcript_cache_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>vtc_video_lang_idx</code></td>
+        <td>video_id, language</td>
+        <td>unique</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/video-vocabulary.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="vocabulary_dictionaries">
+    <div class="table-head">
+      <div>
+        <h3>vocabulary_dictionaries</h3>
+        <div class="small">export <code>vocabularyDictionaries</code></div>
+        <p>Vocabulary dictionaries — user-owned collections of saved entries</p>
+        <div class="badges"><span class="badge">user_id -> users</span><span class="badge">vocabulary_dictionary_entries -> vocabulary_dictionaries</span></div>
+      </div>
+      <div class="small">6 columns<br>1 outbound FK<br>1 inbound FK<br>37 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>name</code><div class="small">name</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>is_default</code><div class="small">isDefault</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>vd_user_id_idx</code></td>
+        <td>user_id</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>vd_user_name_idx</code></td>
+        <td>user_id, name</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>vocabulary_dictionaries_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/vocabulary-dictionary.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="vocabulary_dictionary_entries">
+    <div class="table-head">
+      <div>
+        <h3>vocabulary_dictionary_entries</h3>
+        <div class="small">export <code>vocabularyDictionaryEntries</code></div>
+        <p>Stores vocabulary dictionary entries data used by the personal dictionary, flashcard, and spaced-repetition flows.</p>
+        <div class="badges"><span class="badge">dictionary_id -> vocabulary_dictionaries</span><span class="badge">entry_id -> vocabulary_entries</span></div>
+      </div>
+      <div class="small">3 columns<br>2 outbound FK<br>0 inbound FK<br>27 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>dictionary_id</code><div class="small">dictionaryId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>entry_id</code><div class="small">entryId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>primary_key</code></td>
+        <td>dictionary_id, entry_id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>vde_entry_id_idx</code></td>
+        <td>entry_id</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/vocabulary-dictionary.repository.ts</code></li><li><code>packages/adapters/db/src/repositories/vocabulary.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="vocabulary_entries">
+    <div class="table-head">
+      <div>
+        <h3>vocabulary_entries</h3>
+        <div class="small">export <code>vocabularyEntries</code></div>
+        <p>Vocabulary entries — normalized word/phrase per user (replaces monolithic words.content JSONB)</p>
+        <div class="badges"><span class="badge">user_id -> users</span><span class="badge">source_lang_id -> languages</span><span class="badge">video_phrases -> vocabulary_entries</span><span class="badge">vocabulary_dictionary_entries -> vocabulary_entries</span><span class="badge">vocabulary_translations -> vocabulary_entries</span><span class="badge">word_review_log -> vocabulary_entries</span></div>
+      </div>
+      <div class="small">11 columns<br>2 outbound FK<br>4 inbound FK<br>74 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>original</code><div class="small">original</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>source_lang_id</code><div class="small">sourceLangId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>input_type</code><div class="small">inputType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>emoji</code><div class="small">emoji</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>native_meaning</code><div class="small">nativeMeaning</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>source_usage</code><div class="small">sourceUsage</div></td>
+        <td>PgJsonb<div class="small">json</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>is_active</code><div class="small">isActive</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>ve_user_id_idx</code></td>
+        <td>user_id</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>ve_user_original_sourcelang_idx</code></td>
+        <td>user_id, original, source_lang_id</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>vocabulary_entries_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts</code></li><li><code>packages/adapters/db/src/repositories/vocabulary-dictionary.repository.ts</code></li><li><code>packages/adapters/db/src/repositories/vocabulary.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="vocabulary_translations">
+    <div class="table-head">
+      <div>
+        <h3>vocabulary_translations</h3>
+        <div class="small">export <code>vocabularyTranslations</code></div>
+        <p>Vocabulary translations — one row per target language per entry</p>
+        <div class="badges"><span class="badge">entry_id -> vocabulary_entries</span><span class="badge">target_lang_id -> languages</span></div>
+      </div>
+      <div class="small">16 columns<br>2 outbound FK<br>0 inbound FK<br>50 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>entry_id</code><div class="small">entryId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>target_lang_id</code><div class="small">targetLangId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>text</code><div class="small">text</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>expression_type</code><div class="small">expressionType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>equivalent_note</code><div class="small">equivalentNote</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>usage_note</code><div class="small">usageNote</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>connotation_warning</code><div class="small">connotationWarning</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>details</code><div class="small">details</div></td>
+        <td>PgJsonb<div class="small">json</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>srs_ease_factor</code><div class="small">srsEaseFactor</div></td>
+        <td>PgReal<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>srs_interval</code><div class="small">srsInterval</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>srs_due_date</code><div class="small">srsDueDate</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>yes</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>srs_review_count</code><div class="small">srsReviewCount</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>is_active</code><div class="small">isActive</div></td>
+        <td>PgBoolean<div class="small">boolean</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>updated_at</code><div class="small">updatedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>vocabulary_translations_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>vt_entry_id_idx</code></td>
+        <td>entry_id</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>vt_entry_lang_idx</code></td>
+        <td>entry_id, target_lang_id</td>
+        <td>unique</td>
+      </tr>
+<tr>
+        <td><code>vt_srs_due_idx</code></td>
+        <td>srs_due_date</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>vt_target_lang_idx</code></td>
+        <td>target_lang_id</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/vocabulary.repository.ts</code></li><li><code>packages/core/src/modules/dictionary-pipeline/types.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="word_context">
+    <div class="table-head">
+      <div>
+        <h3>word_context</h3>
+        <div class="small">export <code>wordContext</code></div>
+        <p>Word context — offline dictionary data Imported from kaikki.org JSONL extracts</p>
+        <div class="badges"><span class="badge">language_id -> languages</span></div>
+      </div>
+      <div class="small">8 columns<br>1 outbound FK<br>0 inbound FK<br>36 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>word</code><div class="small">word</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>language_id</code><div class="small">languageId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>pos</code><div class="small">pos</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>forms</code><div class="small">forms</div></td>
+        <td>PgArray<div class="small">array</div></td>
+        <td>yes</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>form_tags</code><div class="small">formTags</div></td>
+        <td>PgArray<div class="small">array</div></td>
+        <td>yes</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>glosses</code><div class="small">glosses</div></td>
+        <td>PgArray<div class="small">array</div></td>
+        <td>yes</td>
+        <td>  default</td>
+      </tr>
+<tr>
+        <td><code>created_at</code><div class="small">createdAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>yes</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>word_context_lang_idx</code></td>
+        <td>language_id</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>word_context_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>word_context_word_lang_idx</code></td>
+        <td>word, language_id</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/word-context.repository.ts</code></li><li><code>packages/core/src/modules/validation/__tests__/wiktionary.validator.test.ts</code></li><li><code>packages/core/src/modules/validation/validators/wiktionary.validator.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article>
+<article class="table-card" id="word_review_log">
+    <div class="table-head">
+      <div>
+        <h3>word_review_log</h3>
+        <div class="small">export <code>wordReviewLog</code></div>
+        <p>Word review log — tracks flashcard, notification, quiz reviews Required for &#39;least_reviewed&#39; strategy and future SRS scheduling</p>
+        <div class="badges"><span class="badge">entry_id -> vocabulary_entries</span><span class="badge">user_id -> users</span></div>
+      </div>
+      <div class="small">5 columns<br>2 outbound FK<br>0 inbound FK<br>15 direct symbol mentions</div>
+    </div>
+    <div class="table-body">
+      <div class="note">Low direct table-symbol usage; check whether this is new, admin-only, or dead weight.</div><div class="note">Has timestamp columns but no updated_at column.</div>
+      <div class="grid">
+        <div>
+          <h4>Columns</h4>
+          <table><thead><tr><th>Name</th><th>Type</th><th>Nullable</th><th>Flags</th></tr></thead><tbody><tr>
+        <td><code>id</code><div class="small">id</div></td>
+        <td>PgSerial<div class="small">number</div></td>
+        <td>no</td>
+        <td>PK  default</td>
+      </tr>
+<tr>
+        <td><code>entry_id</code><div class="small">entryId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>user_id</code><div class="small">userId</div></td>
+        <td>PgInteger<div class="small">number</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>session_type</code><div class="small">sessionType</div></td>
+        <td>PgText<div class="small">string</div></td>
+        <td>no</td>
+        <td>  </td>
+      </tr>
+<tr>
+        <td><code>reviewed_at</code><div class="small">reviewedAt</div></td>
+        <td>PgTimestamp<div class="small">date</div></td>
+        <td>no</td>
+        <td>  default</td>
+      </tr></tbody></table>
+        </div>
+        <div>
+          <h4>Indexes</h4>
+          <table><thead><tr><th>Name</th><th>Columns</th><th>Kind</th></tr></thead><tbody><tr>
+        <td><code>word_review_log_entry_idx</code></td>
+        <td>entry_id</td>
+        <td>index</td>
+      </tr>
+<tr>
+        <td><code>word_review_log_primary_key</code></td>
+        <td>id</td>
+        <td>primary</td>
+      </tr>
+<tr>
+        <td><code>word_review_log_user_date_idx</code></td>
+        <td>user_id, reviewed_at</td>
+        <td>index</td>
+      </tr></tbody></table>
+          <h4>Usage</h4>
+          <ul><li><code>packages/adapters/db/src/repositories/word-review.repository.ts</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </article></div>
+    </section>
+  </main>
+  <script type="application/json" id="schema-graph-data">{"nodes":[{"id":"admin_users","label":"admin_users","group":"admin","columns":8},{"id":"ai_model_plan_access","label":"ai_model_plan_access","group":"admin","columns":2},{"id":"ai_models","label":"ai_models","group":"core","columns":9},{"id":"ai_request_latencies","label":"ai_request_latencies","group":"observability","columns":11},{"id":"bot_sessions","label":"bot_sessions","group":"system","columns":5},{"id":"language_detection_events","label":"language_detection_events","group":"translation","columns":7},{"id":"languages","label":"languages","group":"core","columns":8},{"id":"notification_history","label":"notification_history","group":"observability","columns":5},{"id":"rate_limit_plans","label":"rate_limit_plans","group":"admin","columns":8},{"id":"release_announcement_deliveries","label":"release_announcement_deliveries","group":"system","columns":4},{"id":"reported_issues","label":"reported_issues","group":"core","columns":7},{"id":"system_settings","label":"system_settings","group":"admin","columns":4},{"id":"topic_translation_cache","label":"topic_translation_cache","group":"cache","columns":10},{"id":"translation_presets","label":"translation_presets","group":"admin","columns":5},{"id":"translation_request_target_langs","label":"translation_request_target_langs","group":"translation","columns":3},{"id":"translation_request_timings","label":"translation_request_timings","group":"translation","columns":14},{"id":"translation_requests","label":"translation_requests","group":"translation","columns":6},{"id":"user_language_settings","label":"user_language_settings","group":"admin","columns":15},{"id":"user_learning_languages","label":"user_learning_languages","group":"core","columns":6},{"id":"user_translation_templates","label":"user_translation_templates","group":"core","columns":11},{"id":"users","label":"users","group":"core","columns":9},{"id":"video_phrases","label":"video_phrases","group":"video","columns":12},{"id":"video_processes","label":"video_processes","group":"video","columns":12},{"id":"video_transcript_cache","label":"video_transcript_cache","group":"video","columns":6},{"id":"vocabulary_dictionaries","label":"vocabulary_dictionaries","group":"vocabulary","columns":6},{"id":"vocabulary_dictionary_entries","label":"vocabulary_dictionary_entries","group":"vocabulary","columns":3},{"id":"vocabulary_entries","label":"vocabulary_entries","group":"vocabulary","columns":11},{"id":"vocabulary_translations","label":"vocabulary_translations","group":"vocabulary","columns":16},{"id":"word_context","label":"word_context","group":"cache","columns":8},{"id":"word_review_log","label":"word_review_log","group":"vocabulary","columns":5}],"edges":[{"from":"ai_model_plan_access","to":"ai_models","label":"model_id","onDelete":"cascade"},{"from":"ai_model_plan_access","to":"rate_limit_plans","label":"plan_name","onDelete":"cascade"},{"from":"ai_request_latencies","to":"users","label":"user_id","onDelete":"set null"},{"from":"language_detection_events","to":"users","label":"user_id","onDelete":"set null"},{"from":"notification_history","to":"users","label":"user_id","onDelete":"cascade"},{"from":"release_announcement_deliveries","to":"users","label":"user_id","onDelete":"cascade"},{"from":"reported_issues","to":"users","label":"user_id","onDelete":"cascade"},{"from":"translation_request_target_langs","to":"translation_requests","label":"request_id","onDelete":"cascade"},{"from":"translation_request_target_langs","to":"languages","label":"language_id","onDelete":"no action"},{"from":"translation_request_timings","to":"users","label":"user_id","onDelete":"set null"},{"from":"translation_requests","to":"users","label":"user_id","onDelete":"cascade"},{"from":"translation_requests","to":"languages","label":"source_lang_id","onDelete":"no action"},{"from":"user_language_settings","to":"users","label":"user_id","onDelete":"cascade"},{"from":"user_learning_languages","to":"users","label":"user_id","onDelete":"cascade"},{"from":"user_translation_templates","to":"users","label":"user_id","onDelete":"cascade"},{"from":"video_phrases","to":"video_processes","label":"video_process_id","onDelete":"cascade"},{"from":"video_phrases","to":"vocabulary_entries","label":"saved_entry_id","onDelete":"set null"},{"from":"video_processes","to":"users","label":"user_id","onDelete":"cascade"},{"from":"vocabulary_dictionaries","to":"users","label":"user_id","onDelete":"cascade"},{"from":"vocabulary_dictionary_entries","to":"vocabulary_dictionaries","label":"dictionary_id","onDelete":"cascade"},{"from":"vocabulary_dictionary_entries","to":"vocabulary_entries","label":"entry_id","onDelete":"cascade"},{"from":"vocabulary_entries","to":"users","label":"user_id","onDelete":"cascade"},{"from":"vocabulary_entries","to":"languages","label":"source_lang_id","onDelete":"no action"},{"from":"vocabulary_translations","to":"vocabulary_entries","label":"entry_id","onDelete":"cascade"},{"from":"vocabulary_translations","to":"languages","label":"target_lang_id","onDelete":"no action"},{"from":"word_context","to":"languages","label":"language_id","onDelete":"no action"},{"from":"word_review_log","to":"vocabulary_entries","label":"entry_id","onDelete":"cascade"},{"from":"word_review_log","to":"users","label":"user_id","onDelete":"cascade"}]}</script>
+  <script>
+    const groupColors = {
+      core: "#dff3ef",
+      vocabulary: "#e8eefc",
+      translation: "#fff2d8",
+      admin: "#ece5f7",
+      observability: "#e6f1f7",
+      video: "#fde8df",
+      cache: "#eaf3df",
+      system: "#eef3f6"
+    };
+    const graphData = JSON.parse(document.querySelector("#schema-graph-data").textContent);
+    const map = document.querySelector("#relationship-map");
+    const width = Math.max(980, map.scrollWidth, map.clientWidth);
+    const height = map.clientHeight;
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.innerHTML = `
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L7,3 z" fill="#78909c"></path>
+        </marker>
+      </defs>
+    `;
+    map.appendChild(svg);
+    const groupSlots = {
+      core: [width * .18, height * .22],
+      vocabulary: [width * .42, height * .38],
+      translation: [width * .72, height * .28],
+      admin: [width * .20, height * .72],
+      observability: [width * .72, height * .68],
+      video: [width * .50, height * .72],
+      cache: [width * .50, height * .16],
+      system: [width * .84, height * .50]
+    };
+    const nodes = graphData.nodes.map((node, index) => {
+      const slot = groupSlots[node.group] || groupSlots.system;
+      return {
+        ...node,
+        x: slot[0] + ((index % 5) - 2) * 36,
+        y: slot[1] + (Math.floor(index / 5) % 4 - 1.5) * 32,
+        vx: 0,
+        vy: 0
+      };
+    });
+    const byId = new Map(nodes.map((node) => [node.id, node]));
+    const edges = graphData.edges.map((edge) => ({ ...edge, fromNode: byId.get(edge.from), toNode: byId.get(edge.to) }));
+    const edgeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const labelLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const nodeLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    svg.append(edgeLayer, labelLayer, nodeLayer);
+    for (const edge of edges) {
+      edge.path = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      edge.path.setAttribute("class", "map-edge");
+      edge.labelNode = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      edge.labelNode.setAttribute("class", "map-label");
+      edge.labelNode.textContent = edge.label;
+      edgeLayer.appendChild(edge.path);
+      labelLayer.appendChild(edge.labelNode);
+    }
+    for (const node of nodes) {
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.setAttribute("class", "map-node");
+      g.style.cursor = "grab";
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("width", "148");
+      rect.setAttribute("height", "48");
+      rect.setAttribute("x", "-74");
+      rect.setAttribute("y", "-24");
+      rect.setAttribute("fill", groupColors[node.group] || groupColors.system);
+      const title = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      title.setAttribute("text-anchor", "middle");
+      title.setAttribute("y", "-3");
+      title.textContent = node.label;
+      const sub = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      sub.setAttribute("class", "sub");
+      sub.setAttribute("text-anchor", "middle");
+      sub.setAttribute("y", "15");
+      sub.textContent = `${node.group} - ${node.columns} cols`;
+      g.append(rect, title, sub);
+      node.element = g;
+      nodeLayer.appendChild(g);
+      g.addEventListener("pointerdown", (event) => {
+        node.dragging = true;
+        g.setPointerCapture(event.pointerId);
+        g.style.cursor = "grabbing";
+      });
+      g.addEventListener("pointermove", (event) => {
+        if (!node.dragging) return;
+        const point = svg.createSVGPoint();
+        point.x = event.clientX;
+        point.y = event.clientY;
+        const local = point.matrixTransform(svg.getScreenCTM().inverse());
+        node.x = local.x;
+        node.y = local.y;
+        node.vx = 0;
+        node.vy = 0;
+        renderGraph();
+      });
+      g.addEventListener("pointerup", (event) => {
+        node.dragging = false;
+        g.releasePointerCapture(event.pointerId);
+        g.style.cursor = "grab";
+      });
+    }
+    for (let tick = 0; tick < 260; tick++) {
+      stepGraph();
+    }
+    renderGraph();
+    function stepGraph() {
+      for (const node of nodes) {
+        if (node.dragging) continue;
+        const slot = groupSlots[node.group] || groupSlots.system;
+        node.vx += (slot[0] - node.x) * .0022;
+        node.vy += (slot[1] - node.y) * .0022;
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const left = nodes[i];
+          const right = nodes[j];
+          const dx = right.x - left.x || .01;
+          const dy = right.y - left.y || .01;
+          const distSq = dx * dx + dy * dy;
+          const force = Math.min(2.6, 5200 / distSq);
+          left.vx -= dx * force * .018;
+          left.vy -= dy * force * .018;
+          right.vx += dx * force * .018;
+          right.vy += dy * force * .018;
+        }
+      }
+      for (const edge of edges) {
+        const source = edge.fromNode;
+        const target = edge.toNode;
+        if (!source || !target) continue;
+        const dx = target.x - source.x;
+        const dy = target.y - source.y;
+        source.vx += dx * .0018;
+        source.vy += dy * .0018;
+        target.vx -= dx * .0018;
+        target.vy -= dy * .0018;
+      }
+      for (const node of nodes) {
+        if (node.dragging) continue;
+        node.vx *= .86;
+        node.vy *= .86;
+        node.x = Math.max(82, Math.min(width - 82, node.x + node.vx));
+        node.y = Math.max(34, Math.min(height - 34, node.y + node.vy));
+      }
+    }
+    function renderGraph() {
+      for (const edge of edges) {
+        const source = edge.fromNode;
+        const target = edge.toNode;
+        if (!source || !target) continue;
+        edge.path.setAttribute("x1", source.x);
+        edge.path.setAttribute("y1", source.y);
+        edge.path.setAttribute("x2", target.x);
+        edge.path.setAttribute("y2", target.y);
+        edge.labelNode.setAttribute("x", (source.x + target.x) / 2);
+        edge.labelNode.setAttribute("y", (source.y + target.y) / 2);
+      }
+      for (const node of nodes) {
+        node.element.setAttribute("transform", `translate(${node.x},${node.y})`);
+      }
+    }
+    requestAnimationFrame(function settle() {
+      stepGraph();
+      renderGraph();
+      requestAnimationFrame(settle);
+    });
+
+    const filter = document.querySelector("#filter");
+    const cards = Array.from(document.querySelectorAll(".table-card"));
+    filter.addEventListener("input", () => {
+      const query = filter.value.trim().toLowerCase();
+      for (const card of cards) {
+        card.hidden = query.length > 0 && !card.textContent.toLowerCase().includes(query);
+      }
+    });
+  </script>
+</body>
+</html>

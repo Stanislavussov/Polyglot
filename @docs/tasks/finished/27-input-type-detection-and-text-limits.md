@@ -15,13 +15,13 @@ Currently every input — whether a single word, a short phrase, or a full sente
 Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adapt **every layer** of the translation pipeline based on the detected type.
 
 **References:**
-- Task 21 (`docs/tasks/finished/21-translation-output-config.md`) — output presets
-- Task 11 (`docs/tasks/11-input-limits-config.md`) — basic input length limits (complementary)
-- Task 06 (`docs/tasks/06-token-optimization.md`) — token optimization
-- `docs/tech-reqs/02-architecture.md` — clean architecture layers
-- `docs/tech-reqs/08-ai-prompt.md` — prompt structure
-- `docs/tech-reqs/07-ai-validation.md` — validation pipeline
-- `docs/tech-reqs/13-env.md` — env variable conventions
+- Task 21 (`@docs/tasks/finished/21-translation-output-config.md`) — output presets
+- Task 11 (`@docs/tasks/11-input-limits-config.md`) — basic input length limits (complementary)
+- Task 06 (`@docs/tasks/06-token-optimization.md`) — token optimization
+- `@docs/tech-reqs/02-architecture.md` — clean architecture layers
+- `@docs/tech-reqs/08-ai-prompt.md` — prompt structure
+- `@docs/tech-reqs/07-ai-validation.md` — validation pipeline
+- `@docs/tech-reqs/13-env.md` — env variable conventions
 
 ---
 
@@ -273,7 +273,7 @@ Implement an **input type classifier** (`word` / `phrase` / `sentence`) and adap
 
 ### Step 13: Update docs
 
-- [x] ~Update `docs/tech-reqs/13-env.md`~ — not needed (env var not implemented)
+- [x] ~Update `@docs/tech-reqs/13-env.md`~ — not needed (env var not implemented)
 - [x] Update `.pi/skills/translation/SKILL.md`:
   - Add `SENTENCE_OUTPUT` to preset table
   - Add `inputType` to `TranslateInput` / `TranslationRequest` types
@@ -435,7 +435,7 @@ Plus: no validation retries triggered by irrelevant checks → further savings.
 - `apps/bot/src/renderers/translation.renderer.ts` — add `renderSentenceTranslation()`, `buildSentenceKeyboard()`
 
 **Modify (docs):**
-- ~~`docs/tech-reqs/13-env.md` — document `INPUT_MAX_PHRASE_WORDS`~~ — NOT needed (env var not implemented)
+- ~~`@docs/tech-reqs/13-env.md` — document `INPUT_MAX_PHRASE_WORDS`~~ — NOT needed (env var not implemented)
 - `.pi/skills/translation/SKILL.md` — ✅ preset table, inputType, prompt, flow
 - `.pi/skills/validation/SKILL.md` — ✅ inputType param, sentence behavior
 - `.pi/skills/bot/SKILL.md` — ✅ new renderer/keyboard, session changes

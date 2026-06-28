@@ -14,7 +14,7 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-import type { SourceUsage, VocabTranslationDetails } from "./repositories/vocabulary.repository.js";
+import type { SourceUsage, VocabTranslationDetails, VocabularySource } from "./repositories/vocabulary.repository.js";
 
 // ─────────────────────────────────────────────
 // Languages — single source of truth for all language metadata
@@ -134,6 +134,7 @@ export const vocabularyEntries = pgTable(
     emoji: text("emoji"),
     nativeMeaning: text("native_meaning"),
     sourceUsage: jsonb("source_usage").$type<SourceUsage>(),
+    source: jsonb("source").$type<VocabularySource>(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -639,3 +640,112 @@ export const translationPresets = pgTable("translation_presets", {
 });
 
 export type TranslationPreset = typeof translationPresets.$inferSelect;
+
+// ─────────────────────────────────────────────
+// User learning languages — per-language proficiency level
+// Extends the text[] learningLangs in userLanguageSettings with per-language metadata
+// ─────────────────────────────────────────────
+export const userLearningLanguages = pgTable(
+  "user_learning_languages",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    languageCode: text("language_code").notNull(),
+    /** CEFR proficiency level: A1, A2, B1, B2, C1, C2 */
+    proficiencyLevel: text("proficiency_level").default("B1").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("ull_user_lang_idx").on(t.userId, t.languageCode), index("ull_user_id_idx").on(t.userId)],
+);
+
+export type UserLearningLanguage = typeof userLearningLanguages.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Video vocabulary — YouTube video processing requests
+// ─────────────────────────────────────────────
+export const videoProcesses = pgTable(
+  "video_processes",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /** YouTube video ID (e.g. "dQw4w9WgXcQ") */
+    videoId: text("video_id").notNull(),
+    videoUrl: text("video_url").notNull(),
+    title: text("title"),
+    durationSeconds: integer("duration_seconds"),
+    /** Transcript language code (ISO 639-1) */
+    language: text("language").notNull(),
+    /** 'manual' | 'auto-generated' */
+    transcriptType: text("transcript_type"),
+    /** 'pending' | 'processing' | 'completed' | 'failed' */
+    status: text("status").$type<"pending" | "processing" | "completed" | "failed">().default("pending").notNull(),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("vp_user_id_idx").on(t.userId),
+    index("vp_video_lang_idx").on(t.videoId, t.language),
+    index("vp_user_status_idx").on(t.userId, t.status),
+  ],
+);
+
+export type VideoProcess = typeof videoProcesses.$inferSelect;
+export type VideoProcessStatus = "pending" | "processing" | "completed" | "failed";
+
+// ─────────────────────────────────────────────
+// Video phrases — extracted phrases from video transcripts
+// ─────────────────────────────────────────────
+export const videoPhrases = pgTable(
+  "video_phrases",
+  {
+    id: serial("id").primaryKey(),
+    videoProcessId: integer("video_process_id")
+      .references(() => videoProcesses.id, { onDelete: "cascade" })
+      .notNull(),
+    phrase: text("phrase").notNull(),
+    /** Translation of the phrase into user's native language */
+    nativeTranslation: text("native_translation"),
+    /** Emoji representing the phrase */
+    emoji: text("emoji"),
+    /** 'word' | 'idiom' | 'collocation' | 'phrasal_verb' */
+    phraseType: text("phrase_type"),
+    /** CEFR level: A1-C2 */
+    level: text("level"),
+    /** Sentence from transcript where the phrase appears */
+    context: text("context"),
+    /** Position in video (seconds) for deep link */
+    timestampSeconds: integer("timestamp_seconds"),
+    /** Learning value rank (1 = most useful) */
+    sortOrder: integer("sort_order").notNull(),
+    /** Set when user saves phrase to vocabulary dictionary */
+    savedEntryId: integer("saved_entry_id").references(() => vocabularyEntries.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [index("vph_process_sort_idx").on(t.videoProcessId, t.sortOrder)],
+);
+
+export type VideoPhrase = typeof videoPhrases.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Video transcript cache — shared across users
+// Avoids re-fetching the same transcript from YouTube
+// ─────────────────────────────────────────────
+export const videoTranscriptCache = pgTable(
+  "video_transcript_cache",
+  {
+    id: serial("id").primaryKey(),
+    videoId: text("video_id").notNull(),
+    language: text("language").notNull(),
+    transcript: text("transcript").notNull(),
+    /** 'manual' | 'auto-generated' */
+    transcriptType: text("transcript_type"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("vtc_video_lang_idx").on(t.videoId, t.language)],
+);

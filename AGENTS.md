@@ -47,9 +47,23 @@ Index files (e.g. `index.ts`) must contain **only** re-exports. Never add logic,
 - If a barrel file already exists, do not expand it — import from the underlying file directly.
 - Exception: framework-required entry points are allowed.
 
+### 5. Spec-First Testing Workflow
+
+For every feature, bug fix, refactor, or behavior change that touches source code, work from a behavior specification before implementation:
+
+1. Restate or write a concise spec: public interface/workflow, expected behavior, important constraints, edge cases, and non-goals.
+2. Use the `testing-strategy-tdd` skill automatically whenever tests are being planned, written, reviewed, or changed; its canonical guidance is `@docs/agents/testing-strategy-tdd.md`.
+3. Derive tests from the spec before writing production code. Prefer behavior and integration tests that cross meaningful module boundaries.
+4. Avoid low-value tests that only prove variables, trivial getters/setters, internal call counts, private methods, framework behavior, or types already enforced by TypeScript.
+5. Implement through small red-green-refactor slices: one meaningful failing test, minimal code to pass, refactor after green, then the next scenario.
+6. Cover realistic happy paths plus high-risk edge cases: validation failure, permissions, empty data, duplicates, boundaries, external failure, retries, idempotency, and persistence where relevant.
+
+If a change is too small to need a new test, explicitly state why existing tests or static checks already cover the behavior.
+
 ## Project Context
 
 - **Monorepo**: pnpm workspaces (`packages/*`, `packages/adapters/*`, `apps/*`)
 - **Stack**: TypeScript, Biome (lint/format), Vitest (tests), dependency-cruiser
 - **Database**: PostgreSQL via Drizzle ORM (`packages/adapters/db`)
-- **Agent skills**: `.pi/skills/` (read `dev-standards` skill after every change)
+- **Documentation**: `@docs/` is the canonical documentation directory. Do not create or write to a top-level `docs/` directory.
+- **Agent guidance**: `@docs/agents/` is the canonical harness-neutral agent guidance. `.pi/skills/` contains only thin Pi-specific adapters.

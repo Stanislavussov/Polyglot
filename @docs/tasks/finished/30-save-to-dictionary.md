@@ -1,8 +1,8 @@
 # Task 30: Save to Dictionary (FEAT-30)
 
 **Status:** ✅ Done  
-**Tech design:** `docs/tech-reqs/30-save-to-dictionary.md`  
-**Upstream task:** `docs/tasks/27-input-type-detection-and-text-limits.md` (prerequisite — must be complete)
+**Tech design:** `@docs/tech-reqs/30-save-to-dictionary.md`  
+**Upstream task:** `@docs/tasks/27-input-type-detection-and-text-limits.md` (prerequisite — must be complete)
 
 ---
 
@@ -437,7 +437,7 @@ T10 is the final quality gate.
 
 ## Open Items (Out of Scope for This Task)
 
-These are explicitly deferred per `docs/tech-reqs/30-save-to-dictionary.md §11`:
+These are explicitly deferred per `@docs/tech-reqs/30-save-to-dictionary.md §11`:
 
 | Item | Status |
 |------|--------|

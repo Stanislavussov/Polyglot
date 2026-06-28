@@ -91,4 +91,4 @@ None (schema-only, no algorithm)
 - `packages/adapters/db/src/schema.ts` — add SRS columns or new table
 - `packages/adapters/db/drizzle/0016_srs_scheduling.sql` — NEW migration
 - `packages/adapters/db/drizzle/meta/` — updated migration metadata
-- `docs/tech-reqs/05-db-schema.md` — update schema documentation
+- `@docs/tech-reqs/05-db-schema.md` — update schema documentation

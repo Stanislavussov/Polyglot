@@ -4,10 +4,10 @@
 **Date:** 2026-03-28  
 **Status:** Draft — awaiting product-owner prioritization  
 **References:**
-- Research evaluation: `docs/research/30-save-to-dictionary-evaluation.md`
-- Competitor intelligence: `docs/research/30-save-to-dictionary-competitors.md`
-- Input type detection: `docs/tasks/27-input-type-detection-and-text-limits.md`
-- BRD Section: §7.1 — Personal Dictionary (updated in `docs/BRD.md`)
+- Research evaluation: `@docs/research/30-save-to-dictionary-evaluation.md`
+- Competitor intelligence: `@docs/research/30-save-to-dictionary-competitors.md`
+- Input type detection: `@docs/tasks/27-input-type-detection-and-text-limits.md`
+- BRD Section: §7.1 — Personal Dictionary (updated in `@docs/BRD.md`)
 
 ---
 

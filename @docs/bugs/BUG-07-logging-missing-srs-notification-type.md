@@ -1,7 +1,7 @@
 # BUG-07: Task 05 Logging Stub Only Supports `'suggested'` Notification Type — BRD Requires `'srs'` Too
 
 **Severity:** 🟡 Minor  
-**Source Task:** Task 05 (`docs/tasks/05-logging.md`)  
+**Source Task:** Task 05 (`@docs/tasks/05-logging.md`)  
 **BRD Reference:** §2.5 (Post-MVP) Notifications  
 **Status:** ✅ Resolved
 

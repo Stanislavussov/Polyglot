@@ -1,30 +1,29 @@
 ---
 name: task-creator
-description: Takes a high-level goal or problem statement and breaks it down into a clear, actionable task list. Each task has specific acceptance criteria and is small enough to be completed in a few hours. Use when breaking down features, stories, or goals into development tasks.
+description: Thin harness adapter for turning plans into implementation task specs.
 ---
 
-# Task Creator — Goal Decomposition
+# Task Creator
 
-Breaks architecture designs into actionable dev tasks. Writes to `docs/tasks/`.
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-## Rules
+## Read First
+- `@docs/agents/workflows.md`
+- `@docs/agents/architecture.md`
+- `relevant requirements/design docs`
 
-- Each task: clear acceptance criteria (what does "done" look like?), small (few hours), testable
-- Identify dependencies and execution order
-- Use project structure and codebase to inform task boundaries
+## Scope
+- Create self-contained task specs under @docs/tasks/ when publishing.
+- Keep tasks testable and independently implementable.
+- Do not split into many files unless the workflow asks for it.
 
-## Task Format
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-```
-Task: <title>
-Goal | Acceptance Criteria (checkboxes) | Dependencies | Effort estimate | Files likely affected
-```
-
-## Reference
-
-- Architecture: `docs/tech-reqs/02-architecture.md`
-- Existing tasks: `docs/tasks/`
-
-## Output Path
-
-`docs/tasks/`
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

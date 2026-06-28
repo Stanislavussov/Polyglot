@@ -19,11 +19,12 @@ export function getLocalizedCommands(lang: SupportedLang, options: { includeChan
   const commands = [
     { command: "start", description: t("cmdDescStart", lang) },
     { command: "translate", description: t("cmdDescTranslate", lang) },
-    { command: "mentor", description: t("cmdDescMentor", lang) },
+    // { command: "mentor", description: t("cmdDescMentor", lang) },
     { command: "flashcard", description: t("cmdDescFlashcard", lang) },
-    { command: "review", description: t("cmdDescReview", lang) },
+    // { command: "review", description: t("cmdDescReview", lang) },
     { command: "dictionary", description: t("cmdDescDictionary", lang) },
     { command: "template", description: t("cmdDescTemplate", lang) },
+    { command: "videos", description: t("cmdDescVideos", lang) },
     { command: "settings", description: t("cmdDescSettings", lang) },
     { command: "report", description: t("cmdDescReport", lang) },
   ];

@@ -27,7 +27,7 @@ User settings: `nativeLang: "ru"`, `learningLangs: ["cs", "en"]`
 - `.pi/skills/translation/SKILL.md` (translate flow, `TranslateInput`)
 - `.pi/skills/bot/SKILL.md` (translate-mode helper)
 - `.pi/skills/validation/SKILL.md` (franc language detection already used)
-- `docs/tech-reqs/02-architecture.md` (layer separation)
+- `@docs/tech-reqs/02-architecture.md` (layer separation)
 
 ---
 

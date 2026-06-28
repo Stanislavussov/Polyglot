@@ -20,11 +20,11 @@ Currently **nothing** in the pipeline guards against this:
 - **Wiktionary cross-check** — dictionary data exists in `word_context` but isn't used for post-translation verification
 
 **References:**
-- `docs/tech-reqs/08-ai-prompt.md` (prompt structure)
-- `docs/tech-reqs/07-ai-validation.md` (validation pipeline)
-- `docs/tech-reqs/05-db-schema.md` (languages table)
-- `docs/tasks/06-token-optimization.md` (soft warnings pattern)
-- `docs/tasks/15-context-enrichment-layer.md` (Wiktionary context)
+- `@docs/tech-reqs/08-ai-prompt.md` (prompt structure)
+- `@docs/tech-reqs/07-ai-validation.md` (validation pipeline)
+- `@docs/tech-reqs/05-db-schema.md` (languages table)
+- `@docs/tasks/06-token-optimization.md` (soft warnings pattern)
+- `@docs/tasks/15-context-enrichment-layer.md` (Wiktionary context)
 
 ---
 

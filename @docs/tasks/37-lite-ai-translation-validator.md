@@ -3,7 +3,7 @@
 **Status:** 🟡 Partial — Types, schemas, prompt, risk detector, and service implemented. DB migration, wiring, and rendering NOT done.  
 **Type:** Feature (new core module + infra config + DB migration + bot integration)  
 **Priority:** Medium — closes the semantic validation blind spot; no structural changes blocked  
-**Source:** `docs/research/evaluation.md` — verdict: RECOMMEND with selective application (Alternative E)  
+**Source:** `@docs/research/evaluation.md` — verdict: RECOMMEND with selective application (Alternative E)  
 **Last verified:** 2026-05-16
 
 > **Reality check:** Sub-tasks 37.2–37.5, 37.7, 37.8, 37.9, 37.10 have acceptance criteria checked in this file, but the `lite-ai/` directory does NOT exist on disk. The checkboxes reflect design intent, not implemented code. Sub-tasks 37.1 (env var), 37.6 (DB migration), and 37.9 (rendering) remain unimplemented.

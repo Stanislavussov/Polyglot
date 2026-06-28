@@ -1069,7 +1069,7 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
 
 /** Escape HTML for safe Telegram rendering */
 function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 /**

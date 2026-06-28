@@ -11,14 +11,14 @@
 - **MVP = smallest set of Must-haves that delivers user value end-to-end.**
 - Prioritize by **user value × feasibility**, not technical elegance.
 - "Won't have" means "not this release" — nothing is cut permanently.
-- Requirements are tagged, never modified. Source of truth for requirements remains `docs/BRD.md` and `docs/requirements/`.
+- Requirements are tagged, never modified. Source of truth for requirements remains `@docs/BRD.md` and `@docs/requirements/`.
 
 ---
 
 ## 2. FEAT-30 — Save to Dictionary: MVP Scope
 
 **Feature:** Store AI translation output as a personal vocabulary entry, triggered by a Telegram inline button.  
-**Source requirements:** `docs/requirements/30-save-to-dictionary.md`  
+**Source requirements:** `@docs/requirements/30-save-to-dictionary.md`  
 **Input types in scope:** `word` and `phrase` only. `sentence` is explicitly excluded.
 
 ---
@@ -69,7 +69,7 @@
 
 ### 2.2 Open Questions — Product Owner Decisions
 
-The following clarifications were outstanding in `docs/requirements/30-save-to-dictionary.md`. This section provides **binding product decisions**.
+The following clarifications were outstanding in `@docs/requirements/30-save-to-dictionary.md`. This section provides **binding product decisions**.
 
 | ID | Question | **PO Decision** |
 |----|----------|----------------|
@@ -166,7 +166,7 @@ Per BRD §6 and current implementation state, the following are must-haves for t
 
 ## 4. Prioritized Backlog (Post FEAT-30)
 
-Items below are tagged with priority for the roadmap. See `docs/roadmap.md` for milestone assignments.
+Items below are tagged with priority for the roadmap. See `@docs/roadmap.md` for milestone assignments.
 
 | Feature | MoSCoW | Milestone | Notes |
 |---------|--------|-----------|-------|

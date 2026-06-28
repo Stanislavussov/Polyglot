@@ -1,7 +1,7 @@
 # BUG-09: Task 14 Creates `userLearningLanguages` Junction Table With No Max-4 Language Enforcement
 
 **Severity:** 🟡 Minor  
-**Source Task:** Task 14 (`docs/tasks/14-language-table-refactor.md`)  
+**Source Task:** Task 14 (`@docs/tasks/14-language-table-refactor.md`)  
 **BRD Reference:** §5 Onboarding ("Language limit: maximum 4 target languages"), §12 Non-Functional Requirements ("Max languages per user: 4")  
 **Status:** ✅ Resolved
 

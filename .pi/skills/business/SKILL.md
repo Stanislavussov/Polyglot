@@ -1,35 +1,29 @@
 ---
 name: business
-description: Business analysis and planning composite pipeline. Orchestrates research, requirements analysis, prioritization, architecture design, task creation, and cross-cutting validation. Produces artifacts in docs/ that the technical pipeline consumes asynchronously.
+description: Thin harness adapter for orchestrating research, requirements, prioritization, design, and task creation.
 ---
 
-# Business Pipeline — Composite Skill
+# Business Pipeline
 
-Orchestrates business analysis. Each sub-agent reads upstream artifacts and writes its own to `docs/`.
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-## Pipeline Flow
+## Read First
+- `@docs/agents/README.md`
+- `@docs/agents/workflows.md`
+- `@docs/agents/skills.md`
 
-```
-Wave 1 (parallel): product + researcher
-Wave 2: business-analyst → Wave 3: product-owner → Wave 4: architect → Wave 5: task-creator
-Wave 6 (parallel): brd-grooming + integrator
-```
+## Scope
+- Use @docs/agents/workflows.md as the canonical pipeline description.
+- Keep intermediate artifacts temporary unless the workflow publishes them.
+- Publish final durable docs under @docs/ only.
 
-## Artifacts
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-| Agent | Output |
-|-------|--------|
-| product | `docs/research/competitors.md` |
-| researcher | `docs/research/evaluation.md` |
-| business-analyst | `docs/BRD.md`, `docs/requirements/` |
-| product-owner | `docs/roadmap.md`, `docs/mvp-scope.md` |
-| architect | `docs/tech-reqs/` |
-| task-creator | `docs/tasks/` |
-| brd-grooming | `docs/reviews/brd-grooming.md` |
-| integrator | `docs/reviews/integration-review.md` |
-
-## Constraints
-
-- **Write only to `docs/`** — never touch source code, tests, or configs
-- Artifacts flow: research → BRD → scope → architecture → tasks → validation
-- Technical pipeline reads `docs/tasks/` and `docs/tech-reqs/` later — no direct coupling
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

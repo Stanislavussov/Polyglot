@@ -98,7 +98,7 @@ Alternatively, use a single file per environment with Docker Compose profiles:
 - [ ] VPS deploy step uses the correct compose file and script per cluster
 
 ### Documentation
-- [ ] `docs/deployment-checklist.md` updated with cluster-specific steps
+- [ ] `@docs/deployment-checklist.md` updated with cluster-specific steps
 - [ ] `@docs/tech-reqs/12-deployment.md` updated with cluster architecture diagram
 - [ ] `README.md` updated with cluster-specific commands
 - [ ] New `deploy/scripts/README.md` explains each script and when to use it
@@ -131,7 +131,7 @@ Alternatively, use a single file per environment with Docker Compose profiles:
 - **DELETE** `deploy/docker-compose.yml` (or deprecate)
 - `.github/workflows/deploy.yml` — add cluster input and conditional logic
 - `package.json` — update docker scripts to point to new compose files
-- `docs/deployment-checklist.md` — cluster-specific steps
+- `@docs/deployment-checklist.md` — cluster-specific steps
 - `@docs/tech-reqs/12-deployment.md` — architecture diagram
 
 ## Notes

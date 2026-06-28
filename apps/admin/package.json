@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "pnpm --dir ../.. reports:sync-admin",
     "build": "astro build",
     "preview": "astro preview",
     "clean": "rm -rf dist .astro node_modules/.astro"

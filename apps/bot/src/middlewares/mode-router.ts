@@ -7,6 +7,7 @@
  */
 
 import { userRepository } from "@polyglot/adapter-db";
+import { isVideoUrl, isYouTubeUrl } from "@polyglot/adapter-youtube";
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
@@ -16,6 +17,7 @@ import {
   handleTranslateText,
   handleTranslationClarificationContextText,
 } from "../scenes/helpers/translate-mode.helper.js";
+import { handleVideoVocabularyUrl } from "../scenes/helpers/video-vocabulary.helper.js";
 import type { BotContext } from "../types.js";
 import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
@@ -87,6 +89,19 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
 
   if (ctx.session.awaitingTranslationClarificationContext) {
     await handleTranslationClarificationContextText(ctx, text);
+    return;
+  }
+
+  // YouTube URL → video vocabulary flow
+  if (ctx.user?.onboarded && isYouTubeUrl(text)) {
+    await handleVideoVocabularyUrl(ctx, text);
+    return;
+  }
+  // Non-YouTube video URL → "only YouTube supported"
+  if (ctx.user?.onboarded && isVideoUrl(text)) {
+    const lang = await resolveInterfaceLang(ctx);
+    const msg = await ctx.reply(t("videoOnlyYouTube", lang));
+    trackTechnicalMessage(ctx, msg.message_id);
     return;
   }
 

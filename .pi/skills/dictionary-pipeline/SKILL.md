@@ -1,91 +1,29 @@
 ---
 name: dictionary-pipeline
-description: Config-driven pipeline for reading words from a user's personal dictionary. Provides createDictionaryPipeline(), preset configs (FLASHCARD_CONFIG, NOTIFICATION_DICT_CONFIG, WORD_OF_DAY_DICT_CONFIG), and display data types. Use when implementing or modifying flashcard rendering, word-of-the-day selection, or dictionary word display.
+description: Thin harness adapter for dictionary-derived display/read model work.
 ---
 
-# dictionary-pipeline Agent Skill
+# Dictionary Pipeline
 
-## Module Location
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-`packages/core/src/modules/dictionary-pipeline/` — core platform-independent module.
+## Read First
+- `@docs/agents/architecture.md`
+- `@docs/agents/quality-gate.md`
+- `active @docs/tasks/ spec`
 
-## Architecture Context
+## Scope
+- Work mainly in packages/core/src/modules/dictionary-pipeline/.
+- Keep the module platform-independent.
+- Use current source and tests for exact API shape.
 
-- **Layer:** Core (platform-independent)
-- **Dependencies:** `translation` module (for `Register`, `ExpressionType`, and other translation types), `shared/` (for `TemplateFields`)
-- **Dependents:** `bot` agent (flashcard scene, notification rendering), `notifications` agent (word-of-the-day)
-- **Injection:** All adapter dependencies (`findEntriesByUser`, `getReviewCounts`) are injected via `DictionaryPipelineDeps` — core never imports adapters directly.
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-## Current State
-
-Fully implemented with config-driven pipeline, preset configs, and word display types. The display model carries saved entry-level `sourceUsage` and per-target `usageNote` through the pipeline so renderers preserve both source guidance and target-specific usage guidance.
-
-## File Structure
-
-```
-packages/core/src/modules/dictionary-pipeline/
-├── __tests__/
-│   ├── pipeline.test.ts
-│   └── presets.test.ts
-├── index.ts           # barrel re-exports
-├── pipeline.ts        # createDictionaryPipeline() factory
-├── presets.ts         # FLASHCARD_CONFIG, NOTIFICATION_DICT_CONFIG, WORD_OF_DAY_DICT_CONFIG
-└── types.ts           # all interfaces and types
-```
-
-## Public API
-
-### `createDictionaryPipeline(deps: DictionaryPipelineDeps)`
-
-Factory function that returns a pipeline runner. Accepts injected dependencies for DB access.
-
-- `deps.findEntriesByUser` — fetches vocabulary entries for a user
-- `deps.getReviewCounts` — fetches review counts for word IDs
-- Returns `(userId, config: DictionaryWordConfig) => Promise<WordPipelineResult>`
-
-### Preset Configs
-
-| Preset | Strategy | Limit | Use Case |
-|---|---|---|---|
-| `FLASHCARD_CONFIG` | `random` | 10 | Flashcard practice |
-| `NOTIFICATION_DICT_CONFIG` | `oldest_first` | 1 | Scheduled notification word |
-| `WORD_OF_DAY_DICT_CONFIG` | `oldest_first` | 1 | Word-of-the-day display |
-
-## Key Types
-
-```typescript
-type WordSelectionStrategy = "random" | "oldest_first";
-
-interface DictionaryWordConfig {
-  selection: WordSelectionConfig;
-  presentation: PresentationConfig;
-}
-
-interface WordDisplayData {
-  id: number;
-  original: string;
-  sourceLang: string;
-  inputType: string;
-  emoji: string | null;
-  sourceUsage?: SourceUsage;
-  createdAt: Date;
-  translations: WordDisplayTranslation[];
-}
-
-interface WordPipelineResult {
-  words: WordDisplayData[];
-  meta: { total: number; returned: number; strategy: WordSelectionStrategy };
-}
-
-interface DictionaryPipelineDeps {
-  findEntriesByUser: (...) => Promise<PipelineEntry[]>;
-  getReviewCounts: (...) => Promise<Map<number, number>>;
-}
-```
-
-## Rules
-
-- Pure core module — no adapter imports, all deps injected via `DictionaryPipelineDeps`.
-- Preset configs are the single source of truth for word selection strategies.
-- `TemplateFields` controls which translation fields are visible — loaded from the user's saved template.
-- Never hardcode language codes or user settings.
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

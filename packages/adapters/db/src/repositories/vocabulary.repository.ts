@@ -8,6 +8,7 @@ import type {
   VocabularyEntry,
   VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
+  VocabularySource,
   VocabularyTranslation,
 } from "@polyglot/core";
 import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or } from "drizzle-orm";
@@ -24,6 +25,7 @@ export type {
   VocabularyEntry,
   VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
+  VocabularySource,
   VocabularyTranslation,
 };
 
@@ -78,6 +80,7 @@ export const vocabularyRepository = {
           emoji: input.emoji,
           nativeMeaning: input.nativeMeaning,
           sourceUsage: input.sourceUsage,
+          source: input.source ?? null,
         })
         .returning();
 
@@ -239,6 +242,25 @@ export const vocabularyRepository = {
 
     // Only include the matching translations (not all languages)
     return assembleEntriesWithTranslations(entries, matchingTranslations);
+  },
+
+  /** Update entry-level fields (emoji, nativeMeaning, sourceUsage, source). */
+  async updateEntry(
+    entryId: number,
+    data: {
+      emoji?: string | null;
+      nativeMeaning?: string | null;
+      sourceUsage?: SourceUsage | null;
+      source?: VocabularySource | null;
+    },
+  ): Promise<void> {
+    const db = getDb();
+    const set: Record<string, unknown> = { updatedAt: new Date() };
+    if (data.emoji !== undefined) set.emoji = data.emoji;
+    if (data.nativeMeaning !== undefined) set.nativeMeaning = data.nativeMeaning;
+    if (data.sourceUsage !== undefined) set.sourceUsage = data.sourceUsage;
+    if (data.source !== undefined) set.source = data.source;
+    await db.update(vocabularyEntries).set(set).where(eq(vocabularyEntries.id, entryId));
   },
 
   /**
@@ -442,6 +464,7 @@ export const vocabularyRepository = {
               emoji: vocabularyEntries.emoji,
               nativeMeaning: vocabularyEntries.nativeMeaning,
               sourceUsage: vocabularyEntries.sourceUsage,
+              source: vocabularyEntries.source,
               isActive: vocabularyEntries.isActive,
               createdAt: vocabularyEntries.createdAt,
               updatedAt: vocabularyEntries.updatedAt,

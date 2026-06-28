@@ -39,9 +39,27 @@ export function createNotificationService(deps: NotificationServiceDeps) {
     const candidates = filtered.length > 0 ? filtered : entries;
     const entry = candidates[Math.floor(Math.random() * candidates.length)]!;
 
+    let entryTranslations = entry.translations;
+
+    // JIT translation for entries with no translations (e.g. video vocabulary lazy saves)
+    if (entryTranslations.length === 0 && deps.translateEntry) {
+      logger.info(
+        { userId, entryId: entry.id },
+        "pickDictionaryWord: entry has no translations — attempting JIT translation",
+      );
+      try {
+        const jitTranslations = await deps.translateEntry(userId, entry.id);
+        if (jitTranslations && jitTranslations.length > 0) {
+          entryTranslations = jitTranslations;
+        }
+      } catch (err) {
+        logger.warn({ err, userId, entryId: entry.id }, "pickDictionaryWord: JIT translation failed");
+      }
+    }
+
     const translations: Record<string, string> = {};
     const translationDetails: Record<string, { synonyms: string[] }> = {};
-    for (const t of entry.translations) {
+    for (const t of entryTranslations) {
       const code = deps.getLangCode(t.targetLangId);
       if (code) {
         translations[code] = t.text;

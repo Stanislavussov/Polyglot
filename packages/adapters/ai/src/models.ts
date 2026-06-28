@@ -63,6 +63,14 @@ const MODEL_REGISTRY: AIModel[] = [
     costPer1kInput: 0.00015,
     costPer1kOutput: 0.0006,
   },
+  {
+    id: "google/gemini-3.1-flash-lite",
+    name: "Gemini 3.1 Flash Lite",
+    provider: "google",
+    maxTokens: 65_536,
+    costPer1kInput: 0.00025,
+    costPer1kOutput: 0.0015,
+  },
 ];
 
 /** Default cost if model is not in registry */

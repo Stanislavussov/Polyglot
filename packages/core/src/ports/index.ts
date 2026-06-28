@@ -20,6 +20,13 @@ export type {
   UserRepository,
 } from "./user.repository.js";
 export type {
+  CreateVideoProcessInput,
+  SaveVideoPhraseInput,
+  VideoPhrase,
+  VideoProcess,
+  VideoVocabularyRepository,
+} from "./video-vocabulary.repository.js";
+export type {
   CreateVocabularyInput,
   UpdateTranslationData,
   VocabTranslationDetails,
@@ -27,6 +34,7 @@ export type {
   VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularyRepository,
+  VocabularySource,
   VocabularyTranslation,
 } from "./vocabulary.repository.js";
 export type { WordReviewRepository } from "./word-review.repository.js";

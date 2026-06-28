@@ -40,6 +40,11 @@ export interface UserLanguageSettings {
   updatedAt: Date;
 }
 
+export interface UserLearningLanguage {
+  languageCode: string;
+  proficiencyLevel: string;
+}
+
 export interface UserRepository {
   findByTelegramId(telegramId: number): Promise<User | null>;
   create(data: NewUser): Promise<User>;
@@ -60,4 +65,6 @@ export interface UserRepository {
   hasReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<boolean>;
   recordReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<void>;
   markOnboarded(userId: number): Promise<void>;
+  getLanguageLevels(userId: number): Promise<UserLearningLanguage[]>;
+  setLanguageLevel(userId: number, languageCode: string, proficiencyLevel: string): Promise<void>;
 }

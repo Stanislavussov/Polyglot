@@ -22,7 +22,7 @@ Containerize the Polyglot bot with Docker and provide a `docker-compose.yml` for
 1. Multi-stage `Dockerfile` that builds the pnpm monorepo and produces a minimal production image running `apps/bot`
 2. `docker-compose.yml` with the bot service (connects to external Neon DB via `DATABASE_URL`)
 3. `.dockerignore` to keep the image lean
-4. Environment variables injected via `.env` file (already exists per `docs/tech-reqs/13-env.md`)
+4. Environment variables injected via `.env` file (already exists per `@docs/tech-reqs/13-env.md`)
 5. Drizzle migrations run automatically on bot startup (or via a compose entrypoint)
 
 ## Acceptance Criteria
@@ -50,7 +50,7 @@ Containerize the Polyglot bot with Docker and provide a `docker-compose.yml` for
 - [ ] `docker compose up` from a clean clone + `.env` file starts the bot successfully
 - [ ] `docker compose up --build` rebuilds after code changes
 - [ ] `docker compose down` cleanly stops the bot
-- [ ] README or `docs/tech-reqs/12-deployment.md` updated with Docker instructions
+- [ ] README or `@docs/tech-reqs/12-deployment.md` updated with Docker instructions
 
 ### Production Readiness
 - [ ] Bot container runs as non-root user (`USER node` or custom)
@@ -74,5 +74,5 @@ Containerize the Polyglot bot with Docker and provide a `docker-compose.yml` for
 - `Dockerfile` — **NEW** multi-stage build
 - `docker-compose.yml` — **NEW** service orchestration
 - `.dockerignore` — **NEW** build context filter
-- `docs/tech-reqs/12-deployment.md` — update with Docker instructions
+- `@docs/tech-reqs/12-deployment.md` — update with Docker instructions
 - `apps/bot/src/index.ts` — verify graceful shutdown on SIGTERM

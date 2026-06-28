@@ -1,138 +1,29 @@
 ---
 name: dev-standards
-description: Testing and documentation conventions for all technical agents. Covers mandatory quality gates (tsc, lint, deps, tests), SKILL.md updates, and task tracking. Read after implementing any feature.
+description: Thin harness adapter for quality gate, changelog, and documentation conventions.
 ---
 
 # Development Standards
 
-## ⚠️ Mandatory Changelog + Quality Gate — Run After EVERY Iteration
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-**Every subagent MUST update the changelog and run the full quality gate after each round of code changes, no matter how small.**
-No exceptions. Do not skip steps. Do not defer to "later". Fix issues before moving on.
+## Read First
+- `@docs/agents/quality-gate.md`
+- `@docs/agents/architecture.md`
+- `@docs/agents/workflows.md`
 
-### 0. Changelog
+## Scope
+- Use @docs/agents/quality-gate.md as the canonical quality gate.
+- Use @docs/agents/architecture.md for stable engineering rules.
+- Keep this file short; do not duplicate the full gate here.
 
-```bash
-$EDITOR CHANGELOG.md
-```
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-- Keep user-facing and operational changes under `## [Unreleased]`
-- Use Keep a Changelog sections such as `Added`, `Changed`, `Fixed`, and `Removed`
-- Update the changelog during the same implementation iteration as the code change
-
-Run these commands **in order** after every code change, including small features:
-
-### 1. TypeScript type-check (build)
-
-```bash
-pnpm build
-```
-
-- Runs `tsc` across all packages/apps in dependency order
-- **Fix all type errors before proceeding** — never use `any`, `// @ts-ignore`, or `// @ts-expect-error`
-- If a type error is in another package, fix it there first
-
-### 2. Linting & Formatting (Biome)
-
-```bash
-pnpm lint
-```
-
-- If there are errors, fix with `pnpm lint:fix`, then re-run `pnpm lint`
-- If `lint:fix` can't auto-fix something, fix manually or add `// biome-ignore` with a reason
-
-### 3. Dependency rules (dependency-cruiser)
-
-```bash
-pnpm lint:deps
-```
-
-- Enforces package boundary rules (no circular deps, correct layer imports)
-- **Fix all violations** — do not add exceptions without explicit user approval
-
-### 4. Unused files/dependencies (Knip)
-
-```bash
-pnpm lint:knip
-```
-
-- Finds unused files, dependencies, binaries, and other dead-code signals
-- Keep `knip.json` baseline exceptions explicit and narrow
-- If Knip reports a new issue, remove the dead code/dependency or document a targeted exception in `knip.json`
-
-### 5. Tests
-
-```bash
-pnpm test
-```
-
-- All existing tests must still pass
-- If you changed behavior, update affected tests
-- If you added new code, add tests for it
-
-### Summary checklist (copy-paste into your workflow)
-
-```bash
-pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test
-```
-
-**If any command fails → fix → re-run the full chain.**
-Do NOT proceed to documentation updates or mark tasks done until all five pass.
-
----
-
-## Testing (conventions)
-
-- Write Vitest tests next to source as `<module>.test.ts`
-- Imports: `import { describe, it, expect, vi } from 'vitest'`
-- Cover: happy path, edge cases, error handling
-- Mock external dependencies — tests run without real DB/API
-- Use `.js` extensions in all imports
-
-## Database Handling (Drizzle Kit)
-
-All database schema changes and migration generation **must be done through `drizzle-kit`**. Never modify migration files manually or interact with the database directly.
-
-Agents must not run production-style migrations from a local run. Migration application via `pnpm db:migrate` belongs only inside CI/deploy pipelines such as GitHub Actions or GitLab CI, unless the user makes an explicit, separate request for that exact command.
-
-### Allowed commands
-
-```bash
-# Generate migrations from schema changes
-pnpm db:generate
-
-# Push schema changes to the local/dev database
-pnpm db:push
-
-# Check for schema drift
-pnpm db:check
-```
-
-### Rules
-
-- Schema changes flow for agents: edit `packages/adapters/db/src/schema.ts` → run `pnpm db:generate` → review generated migrations
-- When database structure changes on the `develop` branch, run `pnpm db:push` after `pnpm db:generate` to update the local/dev database
-- Never hand-edit files in `packages/adapters/db/drizzle/`
-- Never use raw SQL or external tools to modify the database structure
-- Always commit generated migration files alongside the schema changes
-- `pnpm db:push` is allowed and often necessary for local/dev databases
-- Do **not** run `pnpm db:migrate` locally as an agent
-- Production/staging migration application via `pnpm db:migrate` must happen only inside CI/deploy pipelines such as GitHub Actions or GitLab CI
-
-## Documentation Updates
-
-After implementing, update two things:
-
-### 1. SKILL.md (`.pi/skills/<agent>/SKILL.md`)
-
-- **Current State** — what's implemented vs still needed
-- **File Structure** — add/remove files to match disk
-- **Skills (Public API)** — update signatures if changed
-- **Types** — update if modified
-- **Schema** (db only) — match actual Drizzle schema
-
-### 2. Task files (`docs/tasks/`)
-
-- Check completed subtask boxes
-- Add files to "Files created/modified"
-- Update `docs/tasks/README.md` status when task is done
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

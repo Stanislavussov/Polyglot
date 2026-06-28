@@ -9,7 +9,7 @@ import {
   vocabularyRepository,
 } from "@polyglot/adapter-db";
 import type { SupportedLang, VocabularyDictionaryWithCount } from "@polyglot/core";
-import { isSupported, logger, t } from "@polyglot/core";
+import { isSupported, logger, resolveOutputConfig, resolveTemplate, t, translate } from "@polyglot/core";
 import {
   buildDeleteConfirmKeyboard,
   buildDictionaryChoiceKeyboard,
@@ -23,6 +23,7 @@ import {
   renderDictionaryList,
   renderDictionarySwitcher,
 } from "../../renderers/dictionary.renderer.js";
+import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 
@@ -31,6 +32,14 @@ const MAX_DICTIONARY_NAME_LENGTH = 32;
 function getLangCodeById(id: number): string | undefined {
   const all = getAllLangs();
   return all.find((l) => l.id === id)?.code;
+}
+
+async function resolveNativeLangId(ctx: BotContext): Promise<number | undefined> {
+  const settings = await userRepository.getSettings(ctx.user.id);
+  const nativeLangCode = settings?.nativeLang;
+  if (!nativeLangCode) return undefined;
+  const found = getAllLangs().find((l) => l.code === nativeLangCode);
+  return found?.id;
 }
 
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
@@ -193,8 +202,10 @@ export async function handleDictView(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const text = renderDictionaryEntry(entry, getLangCodeById, lang);
-  const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId);
+  const nativeLangId = await resolveNativeLangId(ctx);
+  const text = renderDictionaryEntry(entry, getLangCodeById, lang, { nativeLangId });
+  const hasTranslations = entry.translations.length > 0;
+  const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations });
 
   try {
     await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
@@ -444,4 +455,145 @@ export async function handleDictClose(ctx: BotContext): Promise<void> {
 
 export async function handleDictNoop(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
+}
+
+/**
+ * Translate a dictionary entry that has no translations.
+ * Uses the full translation pipeline (same AI prompts as normal translate mode)
+ * to generate translations with synonyms, examples, usage notes etc.
+ */
+export async function handleDictTranslate(ctx: BotContext): Promise<void> {
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const dictionaryId = parsePositiveInteger(parts[2]);
+  const entryId = parsePositiveInteger(parts[3]);
+  const page = parsePositiveInteger(parts[4]);
+  const lang = await getUserLang(ctx);
+
+  if (!dictionaryId || !entryId || !page) {
+    await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+    return;
+  }
+
+  const userId = ctx.user.id;
+  const entry = await getOwnedEntry(ctx, entryId);
+  if (!entry) {
+    await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+    return;
+  }
+
+  await ctx.answerCallbackQuery();
+
+  // Show loading state in the message itself (persists until translation completes)
+  const nativeLangId = await resolveNativeLangId(ctx);
+  const loadingText = renderDictionaryEntry(entry, getLangCodeById, lang, { nativeLangId });
+  try {
+    await ctx.editMessageText(`${loadingText}\n\n⏳ ${t("videoProcessingStarted", lang)}`, {
+      parse_mode: "HTML",
+      reply_markup: undefined,
+    });
+  } catch {
+    // ignore
+  }
+
+  const settings = await userRepository.getSettings(userId);
+  if (!settings) return;
+
+  const sourceLangObj = getAllLangs().find((l) => l.id === entry.sourceLangId);
+  if (!sourceLangObj) return;
+
+  const targetLangs = settings.learningLangs.filter((l) => l !== sourceLangObj.code);
+  if (settings.nativeLang !== sourceLangObj.code && !targetLangs.includes(settings.nativeLang)) {
+    targetLangs.push(settings.nativeLang);
+  }
+  if (targetLangs.length === 0) return;
+
+  try {
+    const modelId =
+      (await ctx.services.settings.getDefaultAIModelForPlan(ctx.user.subscriptionPlan)) ??
+      (await ctx.services.settings.getDefaultAIModel()) ??
+      "openai/gpt-5-nano";
+
+    // Load user's translation template for output config
+    // Use "phrase" context to ensure grammar breakdown is included (if enabled in template)
+    const userTpl = await ctx.services.translationTemplateRepository.getByUserId(userId);
+    const outputConfig = resolveOutputConfig(userTpl, "phrase");
+
+    const decision = await translate(
+      {
+        word: entry.original,
+        sourceLang: sourceLangObj.code,
+        targetLangs,
+        nativeLang: settings.nativeLang,
+        model: modelId,
+        userId,
+        inputType: entry.inputType,
+        outputConfig,
+      },
+      ctx.services.ai.generateObject,
+    );
+
+    if (decision.status === "needs_clarification") {
+      logger.warn({ entryId, userId, status: decision.status }, "Dict translate: needs clarification");
+      return;
+    }
+
+    const { output } = decision;
+    const translationRows = Object.entries(output.translations)
+      .map(([code, lt]) => {
+        const found = getAllLangs().find((l) => l.code === code);
+        if (!found) return null;
+        return {
+          targetLangId: found.id,
+          text: lt.text,
+          expressionType: lt.expressionType ?? undefined,
+          equivalentNote: lt.equivalentNote ?? undefined,
+          usageNote: lt.usageNote ?? undefined,
+          connotationWarning: lt.connotationWarning ?? undefined,
+          details: {
+            synonyms: lt.synonyms ?? [],
+            examples: lt.examples ?? [],
+            alternatives: lt.alternatives ?? undefined,
+          },
+        };
+      })
+      .filter((r) => r !== null);
+
+    if (translationRows.length > 0) {
+      await vocabularyRepository.updateAllTranslations(entryId, translationRows);
+    }
+
+    // Update entry-level fields (emoji, nativeMeaning, sourceUsage with examples)
+    await vocabularyRepository.updateEntry(entryId, {
+      emoji: output.emoji || entry.emoji,
+      nativeMeaning: output.nativeMeaning || entry.nativeMeaning,
+      sourceUsage: output.sourceUsage ?? entry.sourceUsage,
+    });
+
+    // Render using the SAME renderer as normal translate mode — identical output
+    const templateFields = resolveTemplate(userTpl).fields;
+    const translationText = renderTranslation(output, lang, templateFields, settings.nativeLang);
+
+    // Update the message with the translation result + dictionary buttons
+    const updatedEntry = await vocabularyRepository.findById(entryId);
+    const hasTranslations = (updatedEntry?.translations.length ?? 0) > 0;
+    const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations });
+    try {
+      await ctx.editMessageText(translationText, { parse_mode: "HTML", reply_markup: kb });
+    } catch {
+      // Message unchanged
+    }
+  } catch (err) {
+    logger.error({ err, entryId, userId }, "Failed to translate dictionary entry");
+    // Restore the card on error
+    const text = renderDictionaryEntry(entry, getLangCodeById, lang, { nativeLangId });
+    const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations: false });
+    try {
+      await ctx.editMessageText(`${text}\n\n❌ ${t("videoProcessingFailed", lang)}`, {
+        parse_mode: "HTML",
+        reply_markup: kb,
+      });
+    } catch {
+      // ignore
+    }
+  }
 }

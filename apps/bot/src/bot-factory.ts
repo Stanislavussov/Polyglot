@@ -28,6 +28,7 @@ import {
   handleDictOpen,
   handleDictPage,
   handleDictRename,
+  handleDictTranslate,
   handleDictView,
 } from "./scenes/helpers/dictionary.helper.js";
 import {
@@ -90,6 +91,17 @@ import {
   handleSkipCallback,
   handleTranslationClarificationCallback,
 } from "./scenes/helpers/translate-mode.helper.js";
+import {
+  handleVideoBrowseCallback,
+  handleVideoCancelCallback,
+  handleVideoCloseCallback,
+  handleVideoConfirmCallback,
+  handleVideoListCallback,
+  handleVideoNoopCallback,
+  handleVideoSaveAllCallback,
+  handleVideoSavePhraseCallback,
+  handleVideosCommand,
+} from "./scenes/helpers/video-vocabulary.helper.js";
 import { handleMentorCommand } from "./scenes/mentor.scene.js";
 import { onboarding } from "./scenes/onboarding.scene.js";
 import { handleReportIssue } from "./scenes/report-issue.scene.js";
@@ -201,6 +213,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.command("review", handleReviewCommand);
   bot.command("settings", handleSettingsCommand);
   bot.command("changes", changesCommand);
+  bot.command("videos", handleVideosCommand);
   bot.command("report", async (ctx) => {
     await ctx.conversation.enter("handleReportIssue");
   });
@@ -269,8 +282,18 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery(/^dict:move-menu:/, handleDictMoveMenu);
   bot.callbackQuery(/^dict:add:/, handleDictAdd);
   bot.callbackQuery(/^dict:move:/, handleDictMove);
+  bot.callbackQuery(/^dict:translate:/, handleDictTranslate);
   bot.callbackQuery("dict:close", handleDictClose);
   bot.callbackQuery("dict:noop", handleDictNoop);
+
+  bot.callbackQuery(/^vid:confirm:/, handleVideoConfirmCallback);
+  bot.callbackQuery(/^vid:cancel:/, handleVideoCancelCallback);
+  bot.callbackQuery(/^vid:browse:/, handleVideoBrowseCallback);
+  bot.callbackQuery(/^vid:save:/, handleVideoSavePhraseCallback);
+  bot.callbackQuery(/^vid:saveall:/, handleVideoSaveAllCallback);
+  bot.callbackQuery(/^vid:list:/, handleVideoListCallback);
+  bot.callbackQuery("vid:close", handleVideoCloseCallback);
+  bot.callbackQuery(/^vid:noop:/, handleVideoNoopCallback);
 
   bot.callbackQuery("tpl:customize", handleCustomizeCallback);
   bot.callbackQuery(/^tpl:toggle:/, handleToggleCallback);

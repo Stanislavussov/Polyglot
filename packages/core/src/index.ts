@@ -18,6 +18,7 @@ export type {
   SettingsPort,
   SrsConfig,
   TranslationPresetConfig,
+  VideoVocabularyConfig,
 } from "./ports/settings.port.js";
 export type {
   TranslationRequest,
@@ -29,7 +30,13 @@ export type {
   SubscriptionPlan,
   User,
   UserLanguageSettings,
+  UserLearningLanguage,
 } from "./ports/user.repository.js";
+export type {
+  VideoPhrase,
+  VideoProcess,
+  VideoVocabularyRepository,
+} from "./ports/video-vocabulary.repository.js";
 export type {
   CreateVocabularyInput,
   SrsDueVocabularyCard,
@@ -40,6 +47,7 @@ export type {
   VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularyRepository,
+  VocabularySource,
   VocabularyTranslation,
 } from "./ports/vocabulary.repository.js";
 export type {
@@ -101,6 +109,13 @@ export {
   validateSchema,
   validateSemantic,
 } from "./modules/validation/index.js";
+export type { ExtractedPhrase, ExtractionResult } from "./modules/video-vocabulary/index.js";
+export {
+  buildExtractionPrompt,
+  extractedPhraseSchema,
+  extractionResultSchema,
+  extractPhrasesFromTranscript,
+} from "./modules/video-vocabulary/index.js";
 
 // Shared
 export * from "./shared/errors.js";

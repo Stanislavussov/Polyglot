@@ -1,6 +1,7 @@
 import { generateObject } from "@polyglot/adapter-ai";
 import {
   getAllLangs,
+  getLang,
   notificationRepository,
   settingsAdapter,
   userRepository,
@@ -15,8 +16,18 @@ import {
 } from "@polyglot/adapter-notifications";
 import { type GenerateObjectFn, isSupported, logger, SettingsService, type SupportedLang, t } from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
+import { z } from "zod";
 import { resolveDefaultAIModel } from "../utils/ai-model.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
+
+const jitTranslationSchema = z.object({
+  translations: z.array(
+    z.object({
+      languageCode: z.string(),
+      text: z.string(),
+    }),
+  ),
+});
 
 export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void> {
   const settings = new SettingsService(settingsAdapter);
@@ -45,6 +56,41 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
       return generateObject(prompt, schema, model, options);
     }) satisfies GenerateObjectFn,
     contextualModel,
+    translateEntry: async (userId: number, entryId: number) => {
+      const entry = await vocabularyRepository.findById(entryId);
+      if (!entry) return null;
+
+      const userSettings = await userRepository.getSettings(userId);
+      if (!userSettings) return null;
+
+      const targetLangs = userSettings.learningLangs;
+      if (targetLangs.length === 0) return null;
+
+      const sourceLang = getAllLangs().find((l) => l.id === entry.sourceLangId);
+      if (!sourceLang) return null;
+
+      const model = contextualModel;
+      if (!model) return null;
+
+      const prompt = `Translate the following phrase from ${sourceLang.name} into these languages: ${targetLangs.join(", ")}.
+
+Phrase: "${entry.original}"
+
+Return translations as JSON array.`;
+
+      const result = await generateObject(prompt, jitTranslationSchema, model, { userId });
+
+      const translations: Array<{ targetLangId: number; text: string; synonyms?: string[] }> = [];
+      for (const tr of result.translations) {
+        const lang = getLang(tr.languageCode);
+        if (lang) {
+          translations.push({ targetLangId: lang.id, text: tr.text });
+          // Save to DB for future use (upsert)
+          await vocabularyRepository.updateTranslation(entryId, lang.id, { text: tr.text });
+        }
+      }
+      return translations.length > 0 ? translations : null;
+    },
   });
 
   const sendFn = async (telegramId: number, payload: NotificationPayload): Promise<void> => {

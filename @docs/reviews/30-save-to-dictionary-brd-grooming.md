@@ -1,7 +1,7 @@
 # BRD Grooming Review — FEAT-30: Save to Dictionary
-**Task reviewed:** `docs/tasks/30-save-to-dictionary.md`  
-**BRD reference:** `docs/BRD.md`  
-**Requirements reference:** `docs/requirements/30-save-to-dictionary.md`  
+**Task reviewed:** `@docs/tasks/30-save-to-dictionary.md`  
+**BRD reference:** `@docs/BRD.md`  
+**Requirements reference:** `@docs/requirements/30-save-to-dictionary.md`  
 **Date:** 2026-03-28  
 **Reviewer:** brd-grooming agent
 
@@ -80,7 +80,7 @@ However, **five contradictions** were identified: three involve tasks making con
 **BRD requirement (exact quote):**
 > "Duplicate detection: tapping Save on an already-saved word shows 'Already in dictionary' instead of creating a duplicate entry" — BRD §6.1
 
-*The associated requirements document (`docs/requirements/30-save-to-dictionary.md`) is referenced by the BRD via "See detailed requirements: `docs/requirements/30-save-to-dictionary.md` (FEAT-30)" and specifies REQ-3010: "The `original` value is trimmed of leading/trailing whitespace before save and before duplicate lookup. At minimum: whitespace trim is applied."*
+*The associated requirements document (`@docs/requirements/30-save-to-dictionary.md`) is referenced by the BRD via "See detailed requirements: `@docs/requirements/30-save-to-dictionary.md` (FEAT-30)" and specifies REQ-3010: "The `original` value is trimmed of leading/trailing whitespace before save and before duplicate lookup. At minimum: whitespace trim is applied."*
 
 **Conflicting task:** T3 — Update wordRepository; T7 — Update handleSaveCallback(); T9 — Update handleRegenLoop()
 

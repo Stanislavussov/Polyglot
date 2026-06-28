@@ -155,7 +155,7 @@ docker compose -f deploy/docker-compose.test.yml --env-file .env.test up -d
 - [ ] Manual workflow dispatch can target either environment
 
 ### Documentation
-- [ ] `docs/deployment-checklist.md` updated with dual-environment deploy steps
+- [ ] `@docs/deployment-checklist.md` updated with dual-environment deploy steps
 - [ ] `@docs/tech-reqs/12-deployment.md` updated with environment architecture diagram
 - [ ] `README.md` updated with environment startup commands
 - [ ] New `deploy/README.md` explains compose file structure and commands
@@ -185,7 +185,7 @@ docker compose -f deploy/docker-compose.test.yml --env-file .env.test up -d
 - `.env.prod` — new env file for production
 - `.env.test` — new env file for testing
 - `.github/workflows/deploy.yml` — add environment-specific deploy steps
-- `docs/deployment-checklist.md` — add dual-environment deploy steps
+- `@docs/deployment-checklist.md` — add dual-environment deploy steps
 - `@docs/tech-reqs/12-deployment.md` — add environment architecture diagram
 - `deploy/docker-compose.yml` — deprecated or removed in favor of `docker-compose.prod.yml`
 

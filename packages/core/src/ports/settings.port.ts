@@ -48,6 +48,12 @@ export interface TranslationPresetConfig {
   isActive: boolean;
 }
 
+export interface VideoVocabularyConfig {
+  monthlyLimit: number;
+  maxPhrasesDefault: number;
+  extractionModelId: string;
+}
+
 export interface SettingsPort {
   getPlanLimits(): Promise<PlanLimitConfig[]>;
   getPlanLimit(plan: SubscriptionPlan): Promise<PlanLimitConfig | null>;
@@ -61,4 +67,5 @@ export interface SettingsPort {
   getNotificationDefaults(): Promise<NotificationDefaults>;
   getDictionaryConfig(): Promise<DictionaryConfig>;
   getTranslationPresets(): Promise<TranslationPresetConfig[]>;
+  getVideoVocabularyConfig(): Promise<VideoVocabularyConfig>;
 }

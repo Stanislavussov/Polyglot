@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Polyglot — Отчёт по качеству перевода</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --bg-soft: #1e293b;
+    --card: #1b2436;
+    --card-2: #223049;
+    --border: #334155;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-mute: #64748b;
+    --accent: #6366f1;
+    --accent-2: #22d3ee;
+    --p0: #ef4444;
+    --p1: #f59e0b;
+    --p2: #10b981;
+    --ok: #34d399;
+    --warn: #fbbf24;
+    --grid: rgba(148, 163, 184, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+  /* Sidebar */
+  nav {
+    position: sticky; top: 0; height: 100vh;
+    background: var(--bg-soft); border-right: 1px solid var(--border);
+    padding: 28px 18px; overflow-y: auto;
+  }
+  nav .brand { font-size: 14px; font-weight: 700; color: var(--accent-2); letter-spacing: .5px; margin-bottom: 4px; }
+  nav .brand-sub { font-size: 11px; color: var(--text-mute); margin-bottom: 28px; }
+  nav a {
+    display: block; color: var(--text-dim); text-decoration: none;
+    font-size: 13px; padding: 9px 12px; border-radius: 8px; margin-bottom: 2px;
+    transition: all .15s;
+  }
+  nav a:hover { background: var(--card); color: var(--text); }
+  nav a .n { color: var(--accent); font-weight: 600; margin-right: 8px; }
+  nav .sect-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-mute); margin: 22px 8px 8px; }
+  /* Main */
+  main { padding: 56px 64px 120px; max-width: 1100px; }
+  section { margin-bottom: 88px; scroll-margin-top: 24px; }
+  h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 10px; }
+  h1 .grad { background: linear-gradient(120deg, var(--accent-2), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  h2 .num { font-size: 13px; font-weight: 700; color: var(--bg); background: var(--accent-2); padding: 3px 10px; border-radius: 20px; }
+  h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .sub { color: var(--text-dim); font-size: 15px; max-width: 720px; margin-bottom: 32px; }
+  .lead { color: var(--text-dim); font-size: 17px; max-width: 760px; margin-bottom: 36px; }
+  p { margin-bottom: 12px; color: var(--text); }
+  code, .mono { font-family: "SF Mono", "JetBrains Mono", Menlo, monospace; font-size: 12.5px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+  .chip.p0 { background: rgba(239,68,68,.15); color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+  .chip.p1 { background: rgba(245,158,11,.15); color: #fcd34d; border: 1px solid rgba(245,158,11,.3); }
+  .chip.p2 { background: rgba(16,185,129,.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
+  .chip.ok { background: rgba(52,211,153,.15); color: var(--ok); }
+  .chip.warn { background: rgba(251,191,36,.15); color: var(--warn); }
+  .chip.bad { background: rgba(239,68,68,.15); color: #fca5a5; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .stat .v { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+  .stat .l { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .stat.p0 .v { color: var(--p0); }
+  .stat.p1 .v { color: var(--p1); }
+  .stat.p2 .v { color: var(--p2); }
+  .stat .v .unit { font-size: 14px; color: var(--text-mute); font-weight: 500; margin-left: 3px; }
+  ul.clean { list-style: none; padding: 0; }
+  ul.clean li { padding: 7px 0 7px 22px; position: relative; color: var(--text); }
+  ul.clean li::before { content: "▸"; position: absolute; left: 0; color: var(--accent-2); }
+  ul.check li::before { content: "✓"; color: var(--ok); }
+  ul.cross li::before { content: "✕"; color: var(--p0); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 12px; color: var(--text-mute); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; border-bottom: 1px solid var(--border); }
+  td { padding: 12px; border-bottom: 1px solid var(--grid); color: var(--text); vertical-align: top; }
+  td code { color: var(--accent-2); }
+  tr:hover td { background: rgba(99,102,241,.04); }
+  .file { color: var(--accent-2); font-family: "SF Mono", Menlo, monospace; font-size: 12px; }
+  /* Pipeline diagram */
+  .pipeline { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px; overflow-x: auto; }
+  .pipeline svg { display: block; min-width: 900px; }
+  /* Problem card */
+  .prob { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 16px; border-left: 4px solid var(--text-mute); }
+  .prob.p0 { border-left-color: var(--p0); }
+  .prob.p1 { border-left-color: var(--p1); }
+  .prob.p2 { border-left-color: var(--p2); }
+  .prob .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 10px; }
+  .prob .head h3 { margin: 0; }
+  .prob .where { font-size: 12px; color: var(--text-mute); margin: 8px 0 4px; }
+  .prob .where .file { color: var(--accent-2); }
+  .prob .desc { font-size: 14px; color: var(--text-dim); }
+  .prob .fix { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: 13px; }
+  .prob .fix b { color: var(--ok); }
+  /* Roadmap */
+  .road { display: grid; grid-template-columns: 90px 1fr; gap: 0; }
+  .road .phase { padding: 18px 14px; font-weight: 700; font-size: 13px; text-align: right; border-right: 3px solid; }
+  .road .phase.p0 { color: var(--p0); border-color: var(--p0); }
+  .road .phase.p1 { color: var(--p1); border-color: var(--p1); }
+  .road .phase.p2 { color: var(--p2); border-color: var(--p2); }
+  .road .items { padding: 14px 18px 18px 22px; }
+  .road .item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--grid); align-items: flex-start; }
+  .road .item:last-child { border-bottom: none; }
+  .road .item .idx { font-weight: 700; color: var(--accent); min-width: 24px; font-size: 13px; }
+  .road .item .body { flex: 1; font-size: 14px; }
+  .road .item .body small { color: var(--text-mute); display: block; margin-top: 2px; }
+  .note { background: rgba(99,102,241,.08); border: 1px solid rgba(99,102,241,.25); border-radius: 10px; padding: 14px 16px; font-size: 13.5px; color: #c7d2fe; margin: 16px 0; }
+  .note b { color: #fff; }
+  .warn-box { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.25); border-radius: 10px; padding: 14px 16px; font-size: 13.5px; color: #fde68a; margin: 16px 0; }
+  .bad-box { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25); border-radius: 10px; padding: 14px 16px; font-size: 13.5px; color: #fecaca; margin: 16px 0; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--text-dim); margin-top: 14px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .hr { height: 1px; background: var(--border); margin: 28px 0; border: none; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 32px 22px 80px; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav>
+  <div class="brand">POLYGLOT</div>
+  <div class="brand-sub">Отчёт по качеству перевода · 19.06.2026</div>
+  <div class="sect-label">Анализ</div>
+  <a href="#summary"><span class="n">0</span>Краткое резюме</a>
+  <a href="#arch"><span class="n">1</span>Архитектура</a>
+  <a href="#model"><span class="n">2</span>Кризис модели</a>
+  <a href="#problems"><span class="n">3</span>Каталог проблем</a>
+  <a href="#rootcauses"><span class="n">4</span>Корневые причины</a>
+  <a href="#priorities"><span class="n">5</span>Приоритеты (график)</a>
+  <div class="sect-label">План</div>
+  <a href="#p0"><span class="n">P0</span>Немедленно</a>
+  <a href="#p1"><span class="n">P1</span>Целостность данных</a>
+  <a href="#p1eval"><span class="n">P1</span>Evaluation</a>
+  <a href="#p2"><span class="n">P2</span>Архитектура качества</a>
+  <a href="#roadmap"><span class="n">→</span>Дорожная карта</a>
+  <a href="#locations"><span class="n">⌖</span>Карта кода</a>
+  <a href="#risks"><span class="n">!</span>Риски и корректировки</a>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+<!-- 0. SUMMARY -->
+<section id="summary">
+  <h1>Качество перевода: <span class="grad">полный аудит и план</span></h1>
+  <p class="lead">Доскональный разбор системы перевода Polyglot: архитектура потока, подтверждённые дефекты, корневые причины и приоритезированный бэклог с метриками effort/impact.</p>
+
+  <div class="grid-4" style="margin-bottom: 28px;">
+    <div class="stat p0"><div class="v">14</div><div class="l">Подтверждённых дефектов</div></div>
+    <div class="stat p0"><div class="v">1</div><div class="l">Эксплуатационный кризис (модель shutdown)</div></div>
+    <div class="stat p1"><div class="v">5</div><div class="l">Задач P0 — критичные, дешёвые</div></div>
+    <div class="stat p2"><div class="v">15</div><div class="l">Всего задач в бэклоге</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Главный вывод</h3>
+    <p style="margin-bottom: 8px;">Проблема не в одном неудачном промпте. Система гарантирует <b>корректную форму JSON</b>, но почти не гарантирует содержательную правильность: язык каждого поля, употребление переведённого выражения в примерах, отсутствие транслитерации, корректную связь пояснения с языком.</p>
+    <p style="margin-bottom: 0;">Два независимых фактора складываются: <b>(1)</b> используемая preview-модель <code>gemini-2.5-flash-lite-preview-09-2025</code> выключена Google 31.03.2026 — пайплайн работает в неопределённом degraded-режиме ~2,5 месяца; <b>(2)</b> валидаторы пропускают семантически неверные строки, поэтому даже сильная модель будет периодически давать ошибки.</p>
+  </div>
+
+  <div class="grid-2" style="margin-top: 18px;">
+    <div class="card">
+      <h3 style="color: var(--ok);">Что крепко в системе</h3>
+      <ul class="clean check">
+        <li>Многоуровневый retry: generation error + validation fail → strict prompt (до 2 раз)</li>
+        <li>Dictionary enrichment через Wiktionary (fail-open, не ломает перевод)</li>
+        <li>Per-language output config (можно отключать поля)</li>
+        <li>Чёткая DI: AI-adapter инжектируется, core не зависит от провайдера</li>
+        <li>Structured output через Zod + Vercel AI SDK</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="color: var(--p0);">Где главный провал</h3>
+      <ul class="clean cross">
+        <li><code>validateLanguage()</code> — полный no-op, всегда возвращает valid</li>
+        <li>Проверка headword отключается для любого multi-word выражения</li>
+        <li><code>frequencyPenalty: 0.5</code> штрафует повтор главного слова в примерах</li>
+        <li><code>native</code> требуется даже когда target === nativeLang</li>
+        <li><code>sourceUsage</code> не сохраняется в БД и не показывается во флешкартах</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 1. ARCHITECTURE -->
+<section id="arch">
+  <h2><span class="num">1</span>Архитектура потока перевода</h2>
+  <p class="sub">От ввода слова в Telegram до отображения карточки и сохранения в словарь. Красные узлы — места, где обнаружены дефекты.</p>
+
+  <div class="pipeline">
+    <svg viewBox="0 0 980 520" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, sans-serif">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+        </marker>
+        <marker id="arrRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#ef4444"/>
+        </marker>
+      </defs>
+
+      <!-- Layer labels -->
+      <text x="20" y="30" fill="#64748b" font-size="11" font-weight="700" letter-spacing="1">BOT LAYER</text>
+      <text x="20" y="160" fill="#64748b" font-size="11" font-weight="700" letter-spacing="1">CORE / ENRICHMENT</text>
+      <text x="20" y="280" fill="#64748b" font-size="11" font-weight="700" letter-spacing="1">CORE / TRANSLATION</text>
+      <text x="20" y="400" fill="#64748b" font-size="11" font-weight="700" letter-spacing="1">AI / VALIDATION / DB</text>
+
+      <!-- Nodes -->
+      <!-- 1. Bot input -->
+      <g>
+        <rect x="160" y="40" width="170" height="54" rx="10" fill="#223049" stroke="#334155"/>
+        <text x="245" y="64" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">handleTranslateText</text>
+        <text x="245" y="82" text-anchor="middle" fill="#94a3b8" font-size="10">parse + detect lang + quota</text>
+      </g>
+      <line x1="245" y1="94" x2="245" y2="130" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- 2. Context enrichment -->
+      <g>
+        <rect x="160" y="130" width="170" height="54" rx="10" fill="#223049" stroke="#334155"/>
+        <text x="245" y="154" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">translateWithContext</text>
+        <text x="245" y="172" text-anchor="middle" fill="#94a3b8" font-size="10">context-enrichment.service</text>
+      </g>
+      <line x1="245" y1="184" x2="245" y2="210" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- 3. Dict lookup -->
+      <g>
+        <rect x="380" y="130" width="170" height="54" rx="10" fill="#223049" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="465" y="154" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="600">context-lookup</text>
+        <text x="465" y="172" text-anchor="middle" fill="#94a3b8" font-size="10">⚠️ берёт только results[0]</text>
+      </g>
+      <line x1="330" y1="157" x2="378" y2="157" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- 4. translate() -->
+      <g>
+        <rect x="160" y="210" width="170" height="54" rx="10" fill="#223049" stroke="#334155"/>
+        <text x="245" y="234" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">translate()</text>
+        <text x="245" y="252" text-anchor="middle" fill="#94a3b8" font-size="10">retry loop × 2</text>
+      </g>
+      <line x1="245" y1="184" x2="245" y2="208" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- 5. prompt builder -->
+      <g>
+        <rect x="380" y="210" width="170" height="54" rx="10" fill="#223049" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="465" y="234" text-anchor="middle" fill="#fcd34d" font-size="13" font-weight="600">buildTranslationPrompt</text>
+        <text x="465" y="252" text-anchor="middle" fill="#94a3b8" font-size="10">⚠️ нет запрета романизации</text>
+      </g>
+      <line x1="330" y1="237" x2="378" y2="237" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- 6. schema -->
+      <g>
+        <rect x="600" y="210" width="170" height="54" rx="10" fill="#223049" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="685" y="234" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="600">Zod schema</text>
+        <text x="685" y="252" text-anchor="middle" fill="#94a3b8" font-size="10">⚠️ native требуется везде</text>
+      </g>
+      <line x1="550" y1="237" x2="598" y2="237" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- 7. AI adapter -->
+      <g>
+        <rect x="600" y="320" width="170" height="54" rx="10" fill="#223049" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="685" y="344" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="600">generateObject</text>
+        <text x="685" y="362" text-anchor="middle" fill="#94a3b8" font-size="10">⚠️ freqPenalty 0.5 + dead model</text>
+      </g>
+      <line x1="685" y1="264" x2="685" y2="318" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrRed)"/>
+
+      <!-- 8. validation -->
+      <g>
+        <rect x="380" y="320" width="170" height="54" rx="10" fill="#223049" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="465" y="344" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="600">validate()</text>
+        <text x="465" y="362" text-anchor="middle" fill="#94a3b8" font-size="10">⚠️ language validator = no-op</text>
+      </g>
+      <line x1="600" y1="347" x2="552" y2="347" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrRed)"/>
+
+      <!-- 9. renderer -->
+      <g>
+        <rect x="160" y="320" width="170" height="54" rx="10" fill="#223049" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="245" y="344" text-anchor="middle" fill="#fcd34d" font-size="13" font-weight="600">renderTranslation</text>
+        <text x="245" y="362" text-anchor="middle" fill="#94a3b8" font-size="10">⚠️ только тут sourceUsage</text>
+      </g>
+      <line x1="330" y1="347" x2="378" y2="347" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrRed)"/>
+
+      <!-- 10. flashcard renderer -->
+      <g>
+        <rect x="160" y="410" width="170" height="54" rx="10" fill="#223049" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="245" y="434" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="600">flashcard/dict/SRS</text>
+        <text x="245" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">⚠️ нет sourceUsage/conn</text>
+      </g>
+      <line x1="245" y1="374" x2="245" y2="408" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- 11. DB save -->
+      <g>
+        <rect x="380" y="410" width="170" height="54" rx="10" fill="#223049" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="465" y="434" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="600">vocabularyRepository</text>
+        <text x="465" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">⚠️ sourceUsage не сохраняется</text>
+      </g>
+      <line x1="330" y1="437" x2="378" y2="437" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrRed)"/>
+
+      <!-- Legend -->
+      <g transform="translate(620, 410)">
+        <rect x="0" y="0" width="14" height="14" rx="3" fill="#223049" stroke="#334155"/>
+        <text x="20" y="11" fill="#94a3b8" font-size="11">здоровый узел</text>
+        <rect x="0" y="22" width="14" height="14" rx="3" fill="#223049" stroke="#f59e0b"/>
+        <text x="20" y="33" fill="#94a3b8" font-size="11">проблема в промпте/рендере</text>
+        <rect x="0" y="44" width="14" height="14" rx="3" fill="#223049" stroke="#ef4444"/>
+        <text x="20" y="55" fill="#94a3b8" font-size="11">проблема в логике/данных</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:#223049;border:1px solid #334155"></i>здоровый узел</span>
+    <span><i style="background:#223049;border:1px solid #f59e0b"></i>проблема в промпте/рендере</span>
+    <span><i style="background:#223049;border:1px solid #ef4444"></i>проблема в логике/данных</span>
+  </div>
+</section>
+
+<!-- 2. MODEL CRISIS -->
+<section id="model">
+  <h2><span class="num">2</span>Эксплуатационный кризис модели</h2>
+  <p class="sub">Самый срочный и дешёвый фактор качества — и при этом не только вопрос качества.</p>
+
+  <div class="bad-box">
+    <b>gemini-2.5-flash-lite-preview-09-2025 выключена Google 31 марта 2026 года.</b> Сегодня 19 июня 2026 — модель отсутствует уже ~2,5 месяца. Пайплайн продолжает работать: OpenRouter молча подставляет fallback-модель в неопределённом degraded-режиме. Это само по себе правдоподобно объясняет существенную часть деградации качества, независимо от дефектов схемы и валидаторов.
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>Быстрый вариант</h3>
+      <p style="font-size: 20px; font-weight: 700; color: var(--ok); margin: 8px 0;">gemini-3.5-flash</p>
+      <p style="font-size: 13px; color: var(--text-dim);">Актуальная стабильная Flash. Frontier-класс, скорость, цена/performance.</p>
+    </div>
+    <div class="card">
+      <h3>Бюджетный кандидат</h3>
+      <p style="font-size: 20px; font-weight: 700; color: var(--accent-2); margin: 8px 0;">gemini-3.1-flash-lite</p>
+      <p style="font-size: 13px; color: var(--text-dim);">Рекомендованная Google замена для lite-preview.</p>
+    </div>
+    <div class="card">
+      <h3>Сильный референс</h3>
+      <p style="font-size: 20px; font-weight: 700; color: var(--accent); margin: 8px 0;">claude-sonnet-4</p>
+      <p style="font-size: 13px; color: var(--text-dim);">Для бенчмарка верхнего качества и routing сложных случаев.</p>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top: 18px;">
+    <b>Важно:</b> выбор подтверждать мини-бенчмарком (20–30 кейсов из P0), а не предположением. Промпт требует structured output с многоязычными блоками и строгими правилами языка — lite-модели исторически плохо следуют таким инструкциям. Но <b>смена модели не устраняет дефекты контракта</b>: даже сильная модель будет периодически ошибаться, потому что валидаторы пропускают семантически неверные строки. Модель + контракт — два независимых фактора, чинить оба.
+  </div>
+</section>
+
+<!-- 3. PROBLEMS CATALOG -->
+<section id="problems">
+  <h2><span class="num">3</span>Каталог подтверждённых проблем</h2>
+  <p class="sub">14 дефектов, верифицированных по исходному коду. Каждый — с локацией и минимальным фиксом.</p>
+
+  <div class="prob p0">
+    <div class="head">
+      <h3>Транслитерация латиницей в поле native</h3>
+      <span class="chip p0">P0 · критично</span>
+    </div>
+    <div class="where">📍 <span class="file">flashcard.renderer.ts:78-83</span> · <span class="file">translation.schema.ts:32-40</span> · <span class="file">translation.service.ts:77</span></div>
+    <div class="desc">Рендерер ставит <code>ex.native</code> в скобки после примера. Для русского блока модель заполняет native романизацией латиницей, для чешского — дублирует чешский текст. Схема требует поле всегда, валидатор языка — no-op.</div>
+    <div class="fix"><b>Фикс:</b> per-language schema (native отсутствует при target===native), deterministic-валидатор «Cyrillic-expected → ноль кириллических кодпоинтов = reject», запрет романизации в основном промпте.</div>
+  </div>
+
+  <div class="prob p0">
+    <div class="head">
+      <h3>Модель в shutdown-состоянии ~2,5 месяца</h3>
+      <span class="chip p0">P0 · критично</span>
+    </div>
+    <div class="where">📍 <span class="file">system_settings</span> · <span class="file">ai-model.ts</span></div>
+    <div class="desc">Preview-модель выключена Google 31.03.2026. OpenRouter молча подставляет fallback. Качество непредсказуемо.</div>
+    <div class="fix"><b>Фикс:</b> мигрировать на gemini-3.5-flash / gemini-3.1-flash-lite, подтвердить мини-бенчмарком.</div>
+  </div>
+
+  <div class="prob p0">
+    <div class="head">
+      <h3>frequencyPenalty: 0.5 штрафует повтор изучаемого слова</h3>
+      <span class="chip p0">P0 · критично</span>
+    </div>
+    <div class="where">📍 <span class="file">ai/index.ts:42</span></div>
+    <div class="desc">Настройка подталкивает модель избегать повторения главного выражения, хотя педагогически его как раз нужно повторить в примерах. Параметр общий для всех callers (chat/detection тоже).</div>
+    <div class="fix"><b>Фикс:</b> параметризовать per-call, translation → 0. Не менять глобально без проверки других callers.</div>
+  </div>
+
+  <div class="prob p0">
+    <div class="head">
+      <h3>Запрет романизации только в retry-промпте</h3>
+      <span class="chip p0">P0 · высокоimpact</span>
+    </div>
+    <div class="where">📍 <span class="file">prompt.builder.ts:78-160</span> vs <span class="file">prompt.builder.ts:188</span></div>
+    <div class="desc">«No transcription, IPA, romanization» есть только в buildStrictPrompt. Основной промпт этого не говорит — модель не знает, что латинская романизация русского недопустима.</div>
+    <div class="fix"><b>Фикс:</b> добавить правило в основной промпт: «Do not include IPA, romanization, transliteration in any field».</div>
+  </div>
+
+  <div class="prob p0">
+    <div class="head">
+      <h3>Проверка headword отключается для multi-word выражений</h3>
+      <span class="chip p0">P0 · критично</span>
+    </div>
+    <div class="where">📍 <span class="file">example.validator.ts:67-76</span></div>
+    <div class="desc"><code>shouldValidateFirstExampleHeadword</code> возвращает false при наличии пробела. «phase out» содержит пробел → проверка полностью выключена → модель может вернуть любые предложения. Это объясняет «ни одного примера с нужным словом».</div>
+    <div class="fix"><b>Фикс:</b> token-aware / lemma-aware проверка: разбить выражение на токены, проверить что хотя бы один токен (или лемма) присутствует в первом примере.</div>
+  </div>
+
+  <div class="prob p1">
+    <div class="head">
+      <h3>validateLanguage() — полный no-op</h3>
+      <span class="chip p1">P1 · высокоimpact</span>
+    </div>
+    <div class="where">📍 <span class="file">language.validator.ts:18</span></div>
+    <div class="desc">Функция всегда возвращает <code>{ valid: true, errors: [] }</code>. Комментарий: franc-min был удалён за ложные срабатывания на коротких текстах. Итог: язык НЕ проверяется нигде — ни у native, ни у connotationWarning, ни у nativeMeaning.</div>
+    <div class="fix"><b>Фикс:</b> комбинированный подход: проверка письменности (Cyrillic/Latin/Han) + детект романизации + native≠target + AI-валидатор для неоднозначных + franc только для длинных строк.</div>
+  </div>
+
+  <div class="prob p1">
+    <div class="head">
+      <h3>sourceUsage не сохраняется в БД</h3>
+      <span class="chip p1">P1 · высокоimpact</span>
+    </div>
+    <div class="where">📍 <span class="file">toVocabularyInput()</span> · <span class="file">vocabulary.repository.ts</span> · <span class="file">schema.ts</span></div>
+    <div class="desc">При сохранении слова sourceUsage теряется. После сохранения восстановить невозможно. Флешкарты/словарь/SRS не могут показать примеры с исходным словом.</div>
+    <div class="fix"><b>Фикс:</b> добавить JSONB-колонку <code>sourceUsage</code> на <code>vocabulary_entries</code> (это metadata исходного выражения), миграция, mapper, repository.create/update.</div>
+  </div>
+
+  <div class="prob p1">
+    <div class="head">
+      <h3>sourceUsage отображается только в translation renderer</h3>
+      <span class="chip p1">P1 · высокоimpact</span>
+    </div>
+    <div class="where">📍 <span class="file">flashcard.renderer.ts</span> · <span class="file">dictionary.renderer.ts</span> · <span class="file">srs.renderer.ts</span></div>
+    <div class="desc">Промпт запрашивает 3 примера на языке источника с переводом на родной, схема требует, сервис делает обязательными — но ни одна карточка кроме карточки перевода их не показывает.</div>
+    <div class="fix"><b>Фикс:</b> протянуть sourceUsage в три рендерера + mapper/repository types.</div>
+  </div>
+
+  <div class="prob p1">
+    <div class="head">
+      <h3>connotationWarning не показывается во флешкарте</h3>
+      <span class="chip p1">P1 · средне</span>
+    </div>
+    <div class="where">📍 <span class="file">flashcard.renderer.ts</span></div>
+    <div class="desc">Helper уже передаёт connotationWarning в WordDisplayData, но рендерер его не отрисовывает. Пользователь не видит предупреждение о коннотации при повторении.</div>
+    <div class="fix"><b>Фикс:</b> добавить отрисовку в flashcard/dictionary/SRS рендереры.</div>
+  </div>
+
+  <div class="prob p1">
+    <div class="head">
+      <h3>Смешаны sourceUsage / usageNote / connotationWarning</h3>
+      <span class="chip p1">P1 · архитектура</span>
+    </div>
+    <div class="where">📍 <span class="file">prompt.builder.ts:246</span> · <span class="file">types.ts</span></div>
+    <div class="desc">Сейчас connotationWarning опционален и задуман только для редких «опасных» коннотаций. Но пользователь ожидает постоянное пояснение к каждому переводу (оттенок, регистр) на родном языке. Это другая семантика.</div>
+    <div class="fix"><b>Фикс:</b> ввести поле <code>usageNote</code>: всегда, родной язык, описывает translation.text, оттенок/регистр/употребление. connotationWarning оставить для редких рисков. Валидировать связь с target, отсутствие дублирования, отсутствие объяснения исходного слова.</div>
+  </div>
+
+  <div class="prob p2">
+    <div class="head">
+      <h3>context-lookup берёт только results[0]</h3>
+      <span class="chip p2">P2 · средне</span>
+    </div>
+    <div class="where">📍 <span class="file">context-lookup.ts:30</span></div>
+    <div class="desc">Для многозначных слов берётся первый sense из Wiktionary. Нет нормализации (lowercase, Unicode, trim, lemmatization), нет отбора sense по контексту. «bank» в финансовом и географическом контексте получит одно и то же значение.</div>
+    <div class="fix"><b>Фикс:</b> возвращать все senses, нормализовать lookup, выбирать sense по пользовательскому контексту/POS/частоте.</div>
+  </div>
+
+  <div class="prob p2">
+    <div class="head">
+      <h3>Нет versioned translation cache</h3>
+      <span class="chip p2">P2 · средне</span>
+    </div>
+    <div class="where">📍 <span class="file">topic_translation_cache</span> (привязан к topicId)</div>
+    <div class="desc">Повторный перевод того же слова = новый платный LLM-запрос. Общего кэша нет. Но кэшировать любые AI-ответы опасно — ошибки станут постоянными.</div>
+    <div class="fix"><b>Фикс:</b> кэш только верифицированных переводов. Ключ: normalized source + source/target langs + native + normalized target set + sense/context hash + output/template config + <b>prompt/schema version</b>. Версионирование промпта — prerequisite.</div>
+  </div>
+
+  <div class="prob p2">
+    <div class="head">
+      <h3>Нет prompt versioning</h3>
+      <span class="chip p2">P2 · blocker для кэша</span>
+    </div>
+    <div class="where">📍 <span class="file">prompt.builder.ts</span></div>
+    <div class="desc">Кэш-ключ ссылается на «prompt/schema version», но в коде нет константы версии. Без неё кэш никогда не инвалидируется и молча подаст устаревшие переводы после правки промпта.</div>
+    <div class="fix"><b>Фикс:</b> ввести <code>PROMPT_VERSION</code> в prompt.builder.ts, bump при каждом изменении. Fold в P1 — кэш без этого невозможен.</div>
+  </div>
+
+  <div class="prob p2">
+    <div class="head">
+      <h3>Модель не в MODEL_REGISTRY</h3>
+      <span class="chip p2">P2 · низко</span>
+    </div>
+    <div class="where">📍 <span class="file">models.ts</span></div>
+    <div class="desc">gemini-2.5-flash-lite-preview отсутствует в реестре → нет данных по стоимости, лимитам, не учитывается в estimateCost. Adapter принимает любой OpenRouter ID, так что на качество не влияет, но ломает observability.</div>
+    <div class="fix"><b>Фикс:</b> при миграции модели добавить новую в реестр с cost-данными.</div>
+  </div>
+</section>
+
+<!-- 4. ROOT CAUSES -->
+<section id="rootcauses">
+  <h2><span class="num">4</span>Корневые причины</h2>
+  <p class="sub">Три независимых системных провала складываются. Каждый фиксится отдельно, но ни один не покрывается другим.</p>
+
+  <div class="grid-3">
+    <div class="card" style="border-top: 3px solid var(--p0);">
+      <h3>1 · Контракт пропускает семантику</h3>
+      <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 12px;">Schema проверяет форму JSON, но не содержимое. <code>validateLanguage</code> — no-op. Headword-чек отключается для phrases. Романизация не детектируется. Сильная модель всё равно будет периодически ошибаться.</p>
+      <ul class="clean" style="font-size: 13px;">
+        <li>Переводчик: deterministic validators + per-language schema</li>
+        <li>Архитектурно: разделить usageNote / connotationWarning</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top: 3px solid var(--p1);">
+      <h3>2 · Данные теряются по пути</h3>
+      <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 12px;">Промпт запрашивает sourceUsage, схема требует, сервис делает обязательным — но <code>toVocabularyInput</code> не сохраняет, а 3 рендерера не показывают. Пользователь видит «нет примеров с нужным словом», хотя данные генерируются.</p>
+      <ul class="clean" style="font-size: 13px;">
+        <li>Переводчик: sourceUsage → vocabulary_entries JSONB + 3 рендерера</li>
+        <li>Архитектурно: sourceUsage на entry, не на translation</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top: 3px solid var(--p2);">
+      <h3>3 · Модель + параметры</h3>
+      <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 12px;">Dead preview-модель + <code>frequencyPenalty: 0.5</code> + нет запрета романизации в основном промпте. Складывается с фактором 1: lite-модель хуже следует инструкциям, а инструкции и так дырявые.</p>
+      <ul class="clean" style="font-size: 13px;">
+        <li>Переводчик: миграция модели + freqPenalty 0 + правило в промпт</li>
+        <li>Архитектурно: model routing по сложности</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 5. PRIORITIES CHART -->
+<section id="priorities">
+  <h2><span class="num">5</span>Приоритизация: Effort × Impact</h2>
+  <p class="sub">Каждая задача — точка. Ось X — усилия (S/M/L/XL), ось Y — ожидаемый impact. Размер — приоритет. Левый-верхний квадрант = делать первыми.</p>
+
+  <div class="pipeline">
+    <svg viewBox="0 0 820 460" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, sans-serif">
+      <!-- grid -->
+      <g stroke="rgba(148,163,184,0.12)" stroke-width="1">
+        <line x1="80" y1="60" x2="80" y2="400"/>
+        <line x1="80" y1="400" x2="780" y2="400"/>
+        <line x1="250" y1="60" x2="250" y2="400"/>
+        <line x1="420" y1="60" x2="420" y2="400"/>
+        <line x1="590" y1="60" x2="590" y2="400"/>
+        <line x1="80" y1="145" x2="780" y2="145"/>
+        <line x1="80" y1="230" x2="780" y2="230"/>
+        <line x1="80" y1="315" x2="780" y2="315"/>
+      </g>
+      <!-- axes labels -->
+      <text x="430" y="440" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="600">Effort →</text>
+      <text x="35" y="230" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="600" transform="rotate(-90 35 230)">Impact →</text>
+      <text x="165" y="420" fill="#64748b" font-size="11">S</text>
+      <text x="335" y="420" fill="#64748b" font-size="11">M</text>
+      <text x="505" y="420" fill="#64748b" font-size="11">L</text>
+      <text x="685" y="420" fill="#64748b" font-size="11">XL</text>
+      <text x="60" y="365" fill="#64748b" font-size="11" text-anchor="end">low</text>
+      <text x="60" y="280" fill="#64748b" font-size="11" text-anchor="end">med</text>
+      <text x="60" y="195" fill="#64748b" font-size="11" text-anchor="end">high</text>
+      <text x="60" y="110" fill="#64748b" font-size="11" text-anchor="end">crit</text>
+      <!-- quadrant shade -->
+      <rect x="80" y="60" width="250" height="170" fill="rgba(16,185,129,0.06)"/>
+      <text x="100" y="80" fill="#6ee7b7" font-size="11" font-weight="700">DO FIRST</text>
+
+      <!-- Points: P0 (red, big), P1 (amber, med), P2 (green, small) -->
+      <!-- 1 Миграция модели: S effort, crit impact -->
+      <circle cx="165" cy="95" r="18" fill="#ef4444" opacity="0.85"/>
+      <text x="165" y="99" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">1</text>
+      <text x="165" y="75" text-anchor="middle" fill="#fca5a5" font-size="10">Миграция модели</text>
+
+      <!-- 4 freqPenalty: S, high -->
+      <circle cx="200" cy="180" r="15" fill="#ef4444" opacity="0.85"/>
+      <text x="200" y="184" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">4</text>
+      <text x="200" y="160" text-anchor="middle" fill="#fca5a5" font-size="10">freqPenalty 0</text>
+
+      <!-- 3 Запрет романизации: S, high -->
+      <circle cx="155" cy="210" r="15" fill="#ef4444" opacity="0.85"/>
+      <text x="155" y="214" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">3</text>
+      <text x="155" y="237" text-anchor="middle" fill="#fca5a5" font-size="10">Запрет романизации</text>
+
+      <!-- 2 Per-language native schema: M, crit -->
+      <circle cx="335" cy="100" r="17" fill="#ef4444" opacity="0.85"/>
+      <text x="335" y="104" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">2</text>
+      <text x="335" y="80" text-anchor="middle" fill="#fca5a5" font-size="10">Per-lang native schema</text>
+
+      <!-- 5 Headword для phrases: M, crit -->
+      <circle cx="370" cy="130" r="16" fill="#ef4444" opacity="0.85"/>
+      <text x="370" y="134" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">5</text>
+      <text x="370" y="110" text-anchor="middle" fill="#fca5a5" font-size="10">Headword для phrases</text>
+
+      <!-- P1: sourceUsage в БД: M, high -->
+      <circle cx="310" cy="200" r="13" fill="#f59e0b" opacity="0.85"/>
+      <text x="310" y="204" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">6</text>
+      <text x="310" y="225" text-anchor="middle" fill="#fcd34d" font-size="10">sourceUsage в БД</text>
+
+      <!-- P1: sourceUsage в 3 рендерерах: S, high -->
+      <circle cx="180" cy="250" r="12" fill="#f59e0b" opacity="0.85"/>
+      <text x="180" y="254" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">7</text>
+      <text x="180" y="273" text-anchor="middle" fill="#fcd34d" font-size="10">sourceUsage в рендеры</text>
+
+      <!-- P1: connotation в рендерах: S, med -->
+      <circle cx="220" cy="285" r="11" fill="#f59e0b" opacity="0.85"/>
+      <text x="220" y="289" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">8</text>
+
+      <!-- P1: deterministic validators: M, high -->
+      <circle cx="360" cy="175" r="13" fill="#f59e0b" opacity="0.85"/>
+      <text x="360" y="179" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">9</text>
+      <text x="360" y="158" text-anchor="middle" fill="#fcd34d" font-size="10">Validators</text>
+
+      <!-- P1: usageNote разделение: M, high -->
+      <circle cx="395" cy="215" r="13" fill="#f59e0b" opacity="0.85"/>
+      <text x="395" y="219" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">10</text>
+      <text x="395" y="237" text-anchor="middle" fill="#fcd34d" font-size="10">usageNote</text>
+
+      <!-- P1 eval: dataset L, high (long-term enabler) -->
+      <circle cx="505" cy="190" r="13" fill="#f59e0b" opacity="0.85"/>
+      <text x="505" y="194" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">11</text>
+      <text x="505" y="172" text-anchor="middle" fill="#fcd34d" font-size="10">Eval dataset</text>
+
+      <!-- P2 model routing: L, high -->
+      <circle cx="540" cy="160" r="12" fill="#10b981" opacity="0.85"/>
+      <text x="540" y="164" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">13</text>
+      <text x="540" y="142" text-anchor="middle" fill="#6ee7b7" font-size="10">Model routing</text>
+
+      <!-- P2 field repair: M, med -->
+      <circle cx="420" cy="295" r="11" fill="#10b981" opacity="0.85"/>
+      <text x="420" y="299" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">14</text>
+
+      <!-- P2 cache: L, med -->
+      <circle cx="560" cy="270" r="12" fill="#10b981" opacity="0.85"/>
+      <text x="560" y="274" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">15</text>
+      <text x="560" y="252" text-anchor="middle" fill="#6ee7b7" font-size="10">Versioned cache</text>
+
+      <!-- P2 prompt versioning: S, med (prereq) -->
+      <circle cx="240" cy="330" r="10" fill="#10b981" opacity="0.85"/>
+      <text x="240" y="334" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">12</text>
+      <text x="240" y="352" text-anchor="middle" fill="#6ee7b7" font-size="10">Prompt versioning</text>
+
+      <!-- P2 registry: S, low -->
+      <circle cx="140" cy="360" r="9" fill="#10b981" opacity="0.85"/>
+      <text x="140" y="364" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">·</text>
+      <text x="140" y="380" text-anchor="middle" fill="#6ee7b7" font-size="10">Registry</text>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:#ef4444"></i>P0 — критично</span>
+    <span><i style="background:#f59e0b"></i>P1 — важно</span>
+    <span><i style="background:#10b981"></i>P2 — архитектура</span>
+    <span><i style="background:rgba(16,185,129,0.15); border:1px solid #10b981"></i>DO FIRST квадрант</span>
+  </div>
+</section>
+
+<!-- P0 -->
+<section id="p0">
+  <h2><span class="chip p0">P0</span>Немедленно</h2>
+  <p class="sub">Дешёвые высокоimpactные фиксы. Закрывают большую часть видимых пользователю проблем за минимальные усилия.</p>
+
+  <div class="road">
+    <div class="phase p0">P0</div>
+    <div class="items">
+      <div class="item"><div class="idx">1</div><div class="body">Заменить shutdown preview-модель. <small>Быстрый: gemini-3.5-flash. Бюджет: gemini-3.1-flash-lite. Выбор подтвердить мини-бенчмарком 20–30 кейсов (inline с P0, не ждать P1 dataset).</small></div></div>
+      <div class="item"><div class="idx">2</div><div class="body">Per-language example schema. <small>target === native → native отсутствует. Иначе native обязателен. Затронет 3 слоя: schema + prompt builder + spike-confirm Vercel AI SDK на per-key-different object schemas.</small></div></div>
+      <div class="item"><div class="idx">3</div><div class="body">Добавить в основной промпт запрет IPA, транслитерации и романизации во всех полях.</div></div>
+      <div class="item"><div class="idx">4</div><div class="body">Установить frequencyPenalty: 0 для translation requests. <small>Параметризовать per-call — общий параметр shared с chat/detection, глобальная смена может сломать остальных callers.</small></div></div>
+      <div class="item"><div class="idx">5</div><div class="body">Regression fixture для <code>phase out → cs, ru</code>. <small>Точный воспроизводимый кейс, чтобы каждый последующий фикс был измерим.</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- P1 -->
+<section id="p1">
+  <h2><span class="chip p1">P1</span>Целостность данных</h2>
+  <p class="sub">Данные генерируются, но теряются по пути. Без этих фиксов даже идеальный промпт не дойдёт до пользователя.</p>
+
+  <div class="road">
+    <div class="phase p1">P1</div>
+    <div class="items">
+      <div class="item"><div class="idx">6</div><div class="body">Сохранять sourceUsage на уровне <code>vocabulary_entries</code>. <small>JSONB-колонка + миграция + mapper + repository.create/update. Это metadata исходного выражения, не отдельного перевода.</small></div></div>
+      <div class="item"><div class="idx">7</div><div class="body">Протянуть sourceUsage в flashcard, dictionary detail, SRS, mapper и repository types.</div></div>
+      <div class="item"><div class="idx">8</div><div class="body">Показывать connotationWarning во flashcard, dictionary и SRS рендерерах.</div></div>
+      <div class="item"><div class="idx">9</div><div class="body">Deterministic validators: <small>native ≠ target; Cyrillic-expected → ноль кириллических кодпоинтов = reject (romanization); nativeMeaning в ожидаемой письменности; connotationWarning на native language; первый пример содержит основной перевод или допустимую словоформу.</small></div></div>
+      <div class="item"><div class="idx">10</div><div class="body">Разделить поля: <code>usageNote</code> (всегда, родной язык, описывает translation.text, оттенок/регистр) vs <code>connotationWarning</code> (редко, риск). Валидация связи с target, отсутствие дублирования, отсутствие объяснения исходного слова.</div></div>
+      <div class="item"><div class="idx">12</div><div class="body">Ввести <code>PROMPT_VERSION</code> в prompt.builder.ts, bump при каждом изменении. <small>Prerequisite для кэша P2 — fold сюда, не откладывать.</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- P1 EVAL -->
+<section id="p1eval">
+  <h2><span class="chip p1">P1</span>Evaluation suite</h2>
+  <p class="sub">Без метрик смена модели и правки промпта — субъективная оценка. Нужен систематический датасет.</p>
+
+  <div class="road">
+    <div class="phase p1">EVAL</div>
+    <div class="items">
+      <div class="item"><div class="idx">11</div><div class="body">Создать dataset из реальных проблем. <small>phase out, phrasal verbs, Czech/Russian morphology, target equals native, idioms, false friends, context-dependent words, transliteration leakage. Расширить P0 mini-eval до 200–500 кейсов.</small></div></div>
+      <div class="item"><div class="idx">11b</div><div class="body">Для каждого кейса хранить: допустимые основные переводы, запрещённые ответы, ожидаемый смысл, обязательные лексемы в примерах, язык каждого поля, наличие/отсутствие usage note.</div></div>
+      <div class="item"><div class="idx">11c</div><div class="body">Сравнить минимум 3 класса: gemini-3.1-flash-lite, gemini-3.5-flash, одну сильную модель другого провайдера (claude-sonnet-4).</div></div>
+      <div class="item"><div class="idx">11d</div><div class="body">Метрики: wrong-language rate, transliteration rate, invalid native duplication, example headword coverage, retry rate, latency, cost.</div></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Не переключать production-модель сразу.</b> Shadow evaluation или A/B на фиксированном dataset. Выбирать модель по языковой паре и сложности — routing в P2.
+  </div>
+</section>
+
+<!-- P2 -->
+<section id="p2">
+  <h2><span class="chip p2">P2</span>Архитектура качества</h2>
+  <p class="sub">Долгосрочные инвестиции после стабилизации контракта и появления eval-метрик.</p>
+
+  <div class="road">
+    <div class="phase p2">P2</div>
+    <div class="items">
+      <div class="item"><div class="idx">13</div><div class="body">Model routing: простое слово + dictionary hit → бюджетная модель; phrase/idiom/context miss → сильная; failed validation → repair конкретного поля сильной моделью.</div></div>
+      <div class="item"><div class="idx">14</div><div class="body">Validator полей, а не повтор полной генерации. <small>Repair request только для конкретного поля — дешевле и быстрее.</small></div></div>
+      <div class="item"><div class="idx">15</div><div class="body">Versioned translation cache только после стабилизации schema и prompt. <small>Ключ: normalized source + langs + native + normalized target set + sense/context hash + output/template config + PROMPT_VERSION. Кэшировать ТОЛЬКО верифицированные переводы — иначе ошибки станут постоянными.</small></div></div>
+      <div class="item"><div class="idx">·</div><div class="body">Добавить мигрированную модель в MODEL_REGISTRY с cost-данными.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <h2><span class="num">→</span>Дорожная карта выполнения</h2>
+  <p class="sub">Линейный порядок с двумя контрольными точками. Каждая фаза верифицируется eval-метриками перед переходом к следующей.</p>
+
+  <div class="pipeline">
+    <svg viewBox="0 0 980 280" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, sans-serif">
+      <!-- timeline -->
+      <line x1="40" y1="140" x2="940" y2="140" stroke="#334155" stroke-width="2"/>
+      <!-- phases -->
+      <g>
+        <circle cx="120" cy="140" r="14" fill="#ef4444"/>
+        <text x="120" y="144" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">P0</text>
+        <text x="120" y="110" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="600">Неделя 1–2</text>
+        <text x="120" y="180" text-anchor="middle" fill="#94a3b8" font-size="11">Миграция модели</text>
+        <text x="120" y="196" text-anchor="middle" fill="#94a3b8" font-size="11">+ 5 критичных фиксов</text>
+      </g>
+      <g>
+        <circle cx="340" cy="140" r="14" fill="#f59e0b"/>
+        <text x="340" y="144" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">P1</text>
+        <text x="340" y="110" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="600">Неделя 3–5</text>
+        <text x="340" y="180" text-anchor="middle" fill="#94a3b8" font-size="11">sourceUsage в БД</text>
+        <text x="340" y="196" text-anchor="middle" fill="#94a3b8" font-size="11">+ рендереры + usageNote</text>
+      </g>
+      <g>
+        <circle cx="560" cy="140" r="14" fill="#f59e0b"/>
+        <text x="560" y="144" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">EVAL</text>
+        <text x="560" y="110" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="600">Контрольная точка</text>
+        <text x="560" y="180" text-anchor="middle" fill="#94a3b8" font-size="11">Dataset 200–500</text>
+        <text x="560" y="196" text-anchor="middle" fill="#94a3b8" font-size="11">Benchmark моделей</text>
+      </g>
+      <g>
+        <circle cx="780" cy="140" r="14" fill="#10b981"/>
+        <text x="780" y="144" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">P2</text>
+        <text x="780" y="110" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Неделя 6+</text>
+        <text x="780" y="180" text-anchor="middle" fill="#94a3b8" font-size="11">Routing + cache</text>
+        <text x="780" y="196" text-anchor="middle" fill="#94a3b8" font-size="11">+ field repair</text>
+      </g>
+      <!-- arrows -->
+      <path d="M134 140 L326 140" stroke="#ef4444" stroke-width="2" marker-end="url(#arr)"/>
+      <path d="M354 140 L546 140" stroke="#f59e0b" stroke-width="2" marker-end="url(#arr)"/>
+      <path d="M574 140 L766 140" stroke="#10b981" stroke-width="2" marker-end="url(#arr)"/>
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="grid-2" style="margin-top: 18px;">
+    <div class="card">
+      <h3 style="color: var(--p0);">Что даст P0</h3>
+      <p style="font-size: 14px; color: var(--text-dim);">Уберёт транслитерацию латиницей в 80% случаев, восстановит предсказуемость модели, вернёт headword в примеры для phrases. Заметное улучшение качества за 1–2 недели.</p>
+    </div>
+    <div class="card">
+      <h3 style="color: var(--p1);">Что даст P1</h3>
+      <p style="font-size: 14px; color: var(--text-dim);">Данные дойдут до пользователя: примеры с исходным словом во флешкартах, пояснения к каждому переводу, валидация языка. После EVAL — объективное доказательство улучшения.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CODE LOCATIONS -->
+<section id="locations">
+  <h2><span class="num">⌖</span>Карта кода</h2>
+  <p class="sub">Все файлы, которых коснутся изменения. Сортировка по приоритету затрагивающих задач.</p>
+
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <table>
+      <thead>
+        <tr><th>Файл</th><th>Задачи</th><th>Что меняется</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="file">apps/bot/src/utils/ai-model.ts</span></td><td><span class="chip p0">P0.1</span></td><td>Миграция default-модели</td></tr>
+        <tr><td><span class="file">packages/adapters/ai/src/index.ts</span></td><td><span class="chip p0">P0.4</span></td><td>Параметризация frequencyPenalty per-call</td></tr>
+        <tr><td><span class="file">packages/core/.../prompt.builder.ts</span></td><td><span class="chip p0">P0.3</span> <span class="chip p1">P1.12</span></td><td>Запрет романизации + PROMPT_VERSION</td></tr>
+        <tr><td><span class="file">packages/core/.../translation.schema.ts</span></td><td><span class="chip p0">P0.2</span> <span class="chip p1">P1.10</span></td><td>Per-language native schema + usageNote</td></tr>
+        <tr><td><span class="file">packages/core/.../translation.service.ts</span></td><td><span class="chip p0">P0.2</span></td><td>Per-language requireNative логика</td></tr>
+        <tr><td><span class="file">packages/core/.../example.validator.ts</span></td><td><span class="chip p0">P0.5</span></td><td>Token-aware headword для phrases</td></tr>
+        <tr><td><span class="file">packages/core/.../language.validator.ts</span></td><td><span class="chip p1">P1.9</span></td><td>Deterministic script + romanization checks</td></tr>
+        <tr><td><span class="file">packages/core/.../validation/index.ts</span></td><td><span class="chip p1">P1.9</span></td><td>Новые правила валидации</td></tr>
+        <tr><td><span class="file">packages/adapters/db/src/schema.ts</span></td><td><span class="chip p1">P1.6</span></td><td>JSONB sourceUsage на vocabulary_entries</td></tr>
+        <tr><td><span class="file">packages/adapters/db/.../vocabulary.repository.ts</span></td><td><span class="chip p1">P1.6</span></td><td>create/update sourceUsage</td></tr>
+        <tr><td><span class="file">apps/bot/.../toVocabularyInput (mapper)</span></td><td><span class="chip p1">P1.6</span></td><td>Прокинуть sourceUsage в input</td></tr>
+        <tr><td><span class="file">apps/bot/src/renderers/flashcard.renderer.ts</span></td><td><span class="chip p1">P1.7</span> <span class="chip p1">P1.8</span></td><td>sourceUsage + connotationWarning</td></tr>
+        <tr><td><span class="file">apps/bot/src/renderers/dictionary.renderer.ts</span></td><td><span class="chip p1">P1.7</span> <span class="chip p1">P1.8</span></td><td>sourceUsage + connotationWarning</td></tr>
+        <tr><td><span class="file">apps/bot/src/renderers/srs.renderer.ts</span></td><td><span class="chip p1">P1.7</span> <span class="chip p1">P1.8</span></td><td>sourceUsage + connotationWarning</td></tr>
+        <tr><td><span class="file">packages/adapters/db/src/context-lookup.ts</span></td><td><span class="chip p2">P2</span></td><td>Все senses + нормализация</td></tr>
+        <tr><td><span class="file">packages/adapters/ai/src/models.ts</span></td><td><span class="chip p2">P2</span></td><td>Новая модель в реестре</td></tr>
+        <tr><td><span class="file">apps/bot/src/utils/ai-model.ts (routing)</span></td><td><span class="chip p2">P2.13</span></td><td>Model routing по сложности</td></tr>
+        <tr><td><span class="file">packages/adapters/db/src/schema.ts (cache table)</span></td><td><span class="chip p2">P2.15</span></td><td>Новая translation_cache таблица</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- RISKS -->
+<section id="risks">
+  <h2><span class="num">!</span>Риски и корректировки</h2>
+  <p class="sub">Подводные камни, выявленные при сверке планов. Учтены в бэклоге выше.</p>
+
+  <div class="warn-box">
+    <b>P0 #1 vs P1 #10 — chicken-and-egg.</b> «Подтвердить модель бенчмарком» требует eval-кейсов, но dataset в P1. Решение: собрать мини-eval на 20–30 кейсов inline с P0 (phase out + дюжина phrasal verbs + target==native + transliteration), выбрать модель, затем расширить до 200–500 в P1. Иначе «бенчмарк» субъективен — то, против чего план сам возражает.
+  </div>
+
+  <div class="warn-box">
+    <b>frequencyPenalty общий.</b> Хардкод в AI-adapter используется translation, chat, detection. Смена на 0 глобально может сломать chat/detection. Параметризовать per-call (translation→0, остальные — текущее) или проверить остальных callers перед глобальной сменой.
+  </div>
+
+  <div class="warn-box">
+    <b>Per-language native schema — 3 слоя, не 1.</b> <code>buildTranslationResultSchema</code> сейчас emits единый shape для всех lang keys. Гетерогенная per-key схема (native required для одних, отсутствует для других) требует: Zod поддерживает, prompt builder должен варьировать per-language инструкции, spike-confirm что Vercel AI SDK structured output не сглаживает per-key-different object schemas. Бюджет — mini spike, не one-liner.
+  </div>
+
+  <div class="warn-box">
+    <b>Кэш требует prompt versioning.</b> Кэш-ключ ссылается на «prompt/schema version», но в коде нет константы. Без неё кэш никогда не инвалидируется и молча подаст устаревшие переводы после любой правки промпта. PROMPT_VERSION — prerequisite, fold в P1.
+  </div>
+
+  <div class="warn-box">
+    <b>Правило романизации — точный триггер.</b> «Russian native с только Latin = reject» определить как «ожидаемая письменность Cyrillic И строка содержит ноль кириллических кодпоинтов». Иначе русское предложение с цитатой английского бренда попадёт в ложное срабатывание. Mixed-script — исторический источник false positives franc, не повторять ошибку.
+  </div>
+
+  <div class="warn-box">
+    <b>Не кэшировать любые AI-ответы.</b> Кэш только верифицированных переводов. Иначе ошибки модели станут постоянными — пользователь не сможет их исправить, а банк в финансовом и географическом контексте столкнётся в одном cache entry. Ключ требует: sense/context hash + normalized target set + PROMPT_VERSION.
+  </div>
+
+  <div class="note" style="margin-top: 24px;">
+    <b>Файн-тюн — нет, пока.</b> Имеет смысл только после: стабильного response contract, нескольких тысяч исправленных примеров, evaluation dataset, доказательства что ошибки систематические и prompt/model routing их не решают. Сейчас закрепит нынешние противоречия (романизация, неверные языки полей, смешение usage/connotation).
+  </div>
+</section>
+
+<section style="border-top: 1px solid var(--border); padding-top: 32px;">
+  <p style="color: var(--text-mute); font-size: 13px; text-align: center;">
+    Polyglot · Отчёт по качеству перевода · Сгенерировано 19.06.2026<br/>
+    На основе досконального аудита пайплайна translation → schema → validation → renderer → model
+  </p>
+</section>
+
+</main>
+</div>
+</body>
+</html>

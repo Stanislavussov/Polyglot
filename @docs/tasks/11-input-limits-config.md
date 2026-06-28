@@ -120,8 +120,8 @@ The infra config in `packages/infra/src/config.ts` has no input-related fields; 
 
 ### Step 7: Update tech-reqs
 
-- [ ] In `docs/tech-reqs/13-env.md`, document the three new env variables with defaults, description, and example values
-- [ ] In `docs/tech-reqs/10-bot-commands.md` (or create `10-input-guard.md`), document the validation rules and rejection reasons
+- [ ] In `@docs/tech-reqs/13-env.md`, document the three new env variables with defaults, description, and example values
+- [ ] In `@docs/tech-reqs/10-bot-commands.md` (or create `10-input-guard.md`), document the validation rules and rejection reasons
 
 ---
 
@@ -165,7 +165,7 @@ Using a `(user_id, date)` primary key with `INSERT … ON CONFLICT DO UPDATE SET
 | `packages/adapter-db/`      | New table + repository                           | Migration required; existing tables untouched                        |
 | `packages/core/`            | New `input-guard` module + i18n keys             | Pure logic — no bot or DB imports                                     |
 | `apps/bot/`                 | `translate.scene.ts` — add guard + limit checks  | No new files; scene grows ~20 lines                                   |
-| `docs/tech-reqs/`           | Env doc update                                   | Document new variables                                                |
+| `@docs/tech-reqs/`           | Env doc update                                   | Document new variables                                                |
 
 ---
 
@@ -186,7 +186,7 @@ Using a `(user_id, date)` primary key with `INSERT … ON CONFLICT DO UPDATE SET
 - `packages/core/src/modules/i18n/types.ts` — extend `TranslationKey`
 - `packages/core/src/index.ts` — re-export `input-guard`
 - `apps/bot/src/scenes/translate.scene.ts` — add guard + daily-limit check
-- `docs/tech-reqs/13-env.md` — document new env vars
+- `@docs/tech-reqs/13-env.md` — document new env vars
 
 ---
 

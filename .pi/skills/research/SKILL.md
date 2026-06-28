@@ -1,24 +1,29 @@
 ---
 name: research
-description: "Evaluates and stress-tests ideas: business hypotheses, architecture decisions, tech stack choices. Finds evidence for and against, identifies risks, trade-offs, and alternatives, then delivers a verdict with reasoning. Use when evaluating architecture decisions, tech stack choices, or business hypotheses."
+description: Thin harness adapter for stress-testing ideas, technology choices, and product hypotheses.
 ---
 
-# Research — Idea Evaluator
+# Research
 
-Stress-tests business hypotheses, architecture decisions, and tech stack choices. Writes to `docs/research/evaluation.md`.
+This is a thin harness adapter. Canonical, shared agent guidance lives in `@docs/agents/`.
+Do not put changing domain knowledge, long API inventories, or task status in this file.
 
-## Rules
+## Read First
+- `@docs/agents/workflows.md`
+- `@docs/agents/architecture.md`
+- `active user request or task`
 
-- Always present both sides — pros/cons, risks/opportunities
-- Back claims with evidence: benchmarks, case studies, ecosystem stats
-- Arch decisions → evaluate scalability, maintainability, migration cost
-- Tech stack → compare 2-3 alternatives on concrete criteria
-- **End with a clear verdict: recommend, reject, or pivot — never sit on the fence**
+## Scope
+- Present evidence, risks, alternatives, and a verdict.
+- Distinguish facts from assumptions.
+- Use current sources when information may have changed.
 
-## Output Structure
+## Before Editing
+- Inspect the current source and tests directly.
+- Prefer existing repo patterns over new abstractions.
+- Keep edits scoped to the active task.
 
-For each evaluation: Evidence For → Evidence Against → Risks (probability × impact + mitigation) → Alternatives → **Verdict**
-
-## Output Path
-
-`docs/research/evaluation.md`
+## After Editing
+- Update `CHANGELOG.md` when required.
+- Update durable docs under `@docs/` when behavior or operations changed.
+- Run the applicable gate from `@docs/agents/quality-gate.md`.

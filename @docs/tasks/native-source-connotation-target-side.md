@@ -57,4 +57,4 @@ For each target translation, connotation should answer: what does the translated
 
 ## Notes
 
-This is related to the existing response-shape work in `docs/tasks/learning-source-response-shape.md`, but covers the opposite direction: native-language source input translated into learning languages.
+This is related to the existing response-shape work in `@docs/tasks/learning-source-response-shape.md`, but covers the opposite direction: native-language source input translated into learning languages.

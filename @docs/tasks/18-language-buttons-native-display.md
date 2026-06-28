@@ -51,6 +51,6 @@ The `getLangDisplay(code)` function in `@polyglot/adapter-db` already formats th
 
 ### References
 
-- `docs/tasks/14-language-table-refactor.md` — DB as single source of truth
+- `@docs/tasks/14-language-table-refactor.md` — DB as single source of truth
 - `.pi/skills/bot/SKILL.md` — bot scenes and rendering
 - `.pi/skills/db/SKILL.md` — language cache API

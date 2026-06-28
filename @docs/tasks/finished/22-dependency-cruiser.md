@@ -184,7 +184,7 @@ Add two scripts:
 ```json
 "scripts": {
   "lint:deps": "depcruise --config .dependency-cruiser.cjs packages apps/bot/src",
-  "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > docs/dependency-graph.svg"
+  "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > @docs/dependency-graph.svg"
 }
 ```
 
@@ -236,7 +236,7 @@ For every violation reported by `pnpm lint:deps`, fix the source code or restruc
 
 ### Step 7 — (Optional) Generate & Commit Dependency Graph SVG
 
-**File:** `docs/dependency-graph.svg`
+**File:** `@docs/dependency-graph.svg`
 
 If `graphviz` is available:
 
@@ -247,7 +247,7 @@ pnpm lint:deps:graph
 Commit the generated SVG as a visual reference for the canonical module dependency map.
 
 **Acceptance criteria:**
-- `docs/dependency-graph.svg` exists and renders a correct directed acyclic graph.
+- `@docs/dependency-graph.svg` exists and renders a correct directed acyclic graph.
 - The graph matches the canonical dependency map in this document.
 
 ---
@@ -322,7 +322,7 @@ Add `deps-validator` to the `test-runner` agent's `dependsOn` array so it runs a
 | File | Purpose |
 |---|---|
 | `.dependency-cruiser.cjs` | dependency-cruiser rule configuration |
-| `docs/dependency-graph.svg` | (optional) visual graph of module dependencies |
+| `@docs/dependency-graph.svg` | (optional) visual graph of module dependencies |
 
 ## Files to Modify
 
@@ -352,8 +352,8 @@ Add `deps-validator` to the `test-runner` agent's `dependsOn` array so it runs a
 
 ## References
 
-- Architecture: `docs/tech-reqs/02-architecture.md`
-- Adapter contract: `docs/tech-reqs/04-adapter-contract.md`
+- Architecture: `@docs/tech-reqs/02-architecture.md`
+- Adapter contract: `@docs/tech-reqs/04-adapter-contract.md`
 - dependency-cruiser docs: https://github.com/sverweij/dependency-cruiser
 - dependency-cruiser rule format: https://github.com/sverweij/dependency-cruiser/blob/main/doc/rules-reference.md
 
