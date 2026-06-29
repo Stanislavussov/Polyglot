@@ -80,6 +80,7 @@ import {
 import {
   handleAltMeaningCallback,
   handleClarifyPostCallback,
+  handleEtymologyCallback,
   handleGrammarBreakdownCallback,
   handleGrammarDetailCallback,
   handleGrammarLangSelectCallback,
@@ -249,6 +250,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery(/^tr:gramdetail:/, handleGrammarDetailCallback);
   bot.callbackQuery(/^tr:gramlang:/, handleGrammarLangSelectCallback);
   bot.callbackQuery(/^tr:grammar:/, handleGrammarBreakdownCallback);
+  bot.callbackQuery(/^tr:etymology:/, handleEtymologyCallback);
   bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);
   bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
   bot.callbackQuery(/^tr:langselect:/, handleLangSelectCallback);

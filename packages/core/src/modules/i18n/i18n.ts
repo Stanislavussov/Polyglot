@@ -10,6 +10,14 @@ const require = createRequire(import.meta.url);
 const enMessages = require("./locales/en.json") as LocaleMessages;
 const ruMessages = require("./locales/ru.json") as LocaleMessages;
 const csMessages = require("./locales/cs.json") as LocaleMessages;
+const deMessages = require("./locales/de.json") as LocaleMessages;
+const frMessages = require("./locales/fr.json") as LocaleMessages;
+const esMessages = require("./locales/es.json") as LocaleMessages;
+const itMessages = require("./locales/it.json") as LocaleMessages;
+const ptMessages = require("./locales/pt.json") as LocaleMessages;
+const ukMessages = require("./locales/uk.json") as LocaleMessages;
+const plMessages = require("./locales/pl.json") as LocaleMessages;
+const kkMessages = require("./locales/kk.json") as LocaleMessages;
 
 /**
  * All loaded locale dictionaries.
@@ -19,13 +27,33 @@ const messages: Partial<Record<SupportedLang, LocaleMessages>> = {
   en: enMessages,
   ru: ruMessages,
   cs: csMessages,
+  de: deMessages,
+  fr: frMessages,
+  es: esMessages,
+  it: itMessages,
+  pt: ptMessages,
+  uk: ukMessages,
+  pl: plMessages,
+  kk: kkMessages,
 };
 
 /* ------------------------------------------------------------------ */
-/*  Supported-language list (all 10 codes from BRD)                    */
+/*  Supported-language list (all 11 interface codes)                   */
 /* ------------------------------------------------------------------ */
 
-const SUPPORTED_LANGS: readonly SupportedLang[] = ["en", "ru", "cs", "de", "fr", "es", "it", "pt", "uk", "pl"] as const;
+const SUPPORTED_LANGS: readonly SupportedLang[] = [
+  "en",
+  "ru",
+  "cs",
+  "de",
+  "fr",
+  "es",
+  "it",
+  "pt",
+  "uk",
+  "pl",
+  "kk",
+] as const;
 
 const supportedSet = new Set<string>(SUPPORTED_LANGS);
 

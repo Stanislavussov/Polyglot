@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import { describe, expect, it } from "vitest";
 import { getSupportedLangs, isSupported, t } from "../i18n.js";
 import type { I18nKey, SupportedLang } from "../types.js";
@@ -15,14 +16,15 @@ describe("i18n — t()", () => {
     expect(t("welcome", "cs")).toBe("Vítejte!");
   });
 
-  it("falls back to English when locale has no dedicated file", () => {
-    // German is a supported lang but has no locale file yet
-    expect(t("welcome", "de")).toBe("Welcome!");
+  it("returns German text for a known key (de has its own locale file)", () => {
+    // German now ships a full locale file — it must NOT fall back to English.
+    expect(t("welcome", "de")).not.toBe("Welcome!");
+    expect(t("welcome", "de")).not.toBe("welcome");
   });
 
-  it("falls back to English when key is missing in locale (never throws)", () => {
-    // All keys exist in en.json, so this tests the fallback path
-    const result = t("welcome", "fr");
+  it("falls back to English when locale has no dedicated file (unknown lang)", () => {
+    // No file is registered for an unknown code → falls back to English, never throws.
+    const result = t("welcome", "xx" as SupportedLang);
     expect(result).toBe("Welcome!");
   });
 
@@ -36,9 +38,10 @@ describe("i18n — t()", () => {
     expect(result).toBe("Добавлено: English");
   });
 
-  it("returns English fallback for lang with no locale file + interpolation", () => {
+  it("interpolates params in a translated locale (de)", () => {
     const result = t("maxLangsReached", "de", { max: 3 });
-    expect(result).toBe("⚠️ You can select up to 3 languages.");
+    expect(result).toContain("3");
+    expect(result).not.toBe("⚠️ You can select up to 3 languages.");
   });
 
   // Translation pipeline keys
@@ -87,10 +90,6 @@ describe("i18n — t()", () => {
     expect(t("regenerated", "cs", { lang: "DE" })).toBe("✅ Překlad pro DE aktualizován");
   });
 
-  it("falls back to English for regeneration keys when locale has no file", () => {
-    expect(t("regenerating", "de", { lang: "FR" })).toBe("⏳ Regenerating FR...");
-  });
-
   // Translate mode keys (task 09)
   it("returns translateModeOn with parameters in English", () => {
     expect(t("translateModeOn", "en", { fromLang: "English", toLangs: "Czech" })).toBe("🔤 English → Czech");
@@ -108,11 +107,6 @@ describe("i18n — t()", () => {
   it("returns translate mode keys in Czech", () => {
     expect(t("translateModeOn", "cs", { fromLang: "English", toLangs: "Čeština" })).toBe("🔤 English → Čeština");
     expect(t("translateModeHint", "cs")).toBe("Pošli další slovo nebo frázi.");
-  });
-
-  it("falls back to English for translate mode keys when locale has no file", () => {
-    expect(t("translateModeOn", "de", { fromLang: "Deutsch", toLangs: "English" })).toBe("🔤 Deutsch → English");
-    expect(t("translateModeHint", "de")).toBe("Send the next word or phrase.");
   });
 
   // Wiktionary / dictionary context keys (task 13)
@@ -152,11 +146,6 @@ describe("i18n — t()", () => {
     expect(t("dictionaryContext", "cs")).toBe("📚 Slovníkový kontext");
   });
 
-  it("falls back to English for Wiktionary keys when locale has no file", () => {
-    expect(t("wiktionaryDefinition", "de")).toBe("📖 Wiktionary definition");
-    expect(t("dictionaryContext", "de")).toBe("📚 Dictionary context");
-  });
-
   // Detected language key (task 16)
   it("returns detectedLang with {lang} interpolation in English", () => {
     expect(t("detectedLang", "en", { lang: "English" })).toBe("🔍 Detected: English");
@@ -168,10 +157,6 @@ describe("i18n — t()", () => {
 
   it("returns detectedLang with {lang} interpolation in Czech", () => {
     expect(t("detectedLang", "cs", { lang: "Angličtina" })).toBe("🔍 Rozpoznáno: Angličtina");
-  });
-
-  it("falls back to English for detectedLang when locale has no file", () => {
-    expect(t("detectedLang", "de", { lang: "Englisch" })).toBe("🔍 Detected: Englisch");
   });
 
   // Next source language selection keys (task 17)
@@ -199,14 +184,6 @@ describe("i18n — t()", () => {
     expect(t("nextSourceSet", "cs", { lang: "Angličtina" })).toBe("🔤 Příště z: Angličtina");
   });
 
-  it("falls back to English for nextTranslationFrom when locale has no file", () => {
-    expect(t("nextTranslationFrom", "de")).toBe("Next translation from:");
-  });
-
-  it("falls back to English for nextSourceSet when locale has no file", () => {
-    expect(t("nextSourceSet", "de", { lang: "Englisch" })).toBe("🔤 Next from: Englisch");
-  });
-
   // Sentence translation key (task 27)
   it("returns sentenceTranslation in English", () => {
     expect(t("sentenceTranslation", "en")).toBe("📝 Sentence translation");
@@ -220,10 +197,6 @@ describe("i18n — t()", () => {
     expect(t("sentenceTranslation", "cs")).toBe("📝 Překlad věty");
   });
 
-  it("falls back to English for sentenceTranslation when locale has no file", () => {
-    expect(t("sentenceTranslation", "de")).toBe("📝 Sentence translation");
-  });
-
   // Save key (generic, no word/phrase distinction)
   it("returns save in English", () => {
     expect(t("save", "en")).toBe("💾 Save");
@@ -235,10 +208,6 @@ describe("i18n — t()", () => {
 
   it("returns save in Czech", () => {
     expect(t("save", "cs")).toBe("💾 Uložit");
-  });
-
-  it("falls back to English for save when locale has no file", () => {
-    expect(t("save", "de")).toBe("💾 Save");
   });
 
   // Connotation warning key (task 31)
@@ -257,12 +226,6 @@ describe("i18n — t()", () => {
   it("returns connotationWarning with {warning} interpolation in Czech", () => {
     expect(t("connotationWarning", "cs", { warning: "vzrušit — sexuální konotace" })).toBe(
       "ℹ️ vzrušit — sexuální konotace",
-    );
-  });
-
-  it("falls back to English for connotationWarning when locale has no file", () => {
-    expect(t("connotationWarning", "de", { warning: "erregen — sexuelle Konnotation" })).toBe(
-      "ℹ️ erregen — sexuelle Konnotation",
     );
   });
 
@@ -393,13 +356,6 @@ describe("i18n — t()", () => {
     expect(t("templateSessionExpired", "cs")).toContain("Relace vypršela");
   });
 
-  it("falls back to English for template keys when locale has no file", () => {
-    expect(t("templateTitle", "de")).toBe("⚙️ Translation Template");
-    expect(t("templateCurrent", "de", { name: "Test" })).toBe("Current template: <b>Test</b>");
-    expect(t("templateCustomize", "de")).toBe("📝 Customize");
-    expect(t("templateSessionExpired", "de")).toContain("Session expired");
-  });
-
   // Bot command description keys (task 35)
   it("returns cmdDescStart in English", () => {
     expect(t("cmdDescStart", "en")).toBe("Start the bot / restart onboarding");
@@ -437,14 +393,6 @@ describe("i18n — t()", () => {
     expect(t("cmdDescSettings", "cs")).toBe("Nastavení jazyků a notifikací");
   });
 
-  it("falls back to English for command description keys when locale has no file", () => {
-    expect(t("cmdDescStart", "de")).toBe("Start the bot / restart onboarding");
-    expect(t("cmdDescTranslate", "de")).toBe("Translate a word or phrase");
-    expect(t("cmdDescDictionary", "de")).toBe("Open your personal dictionary");
-    expect(t("cmdDescTemplate", "de")).toBe("Customize translation template");
-    expect(t("cmdDescSettings", "de")).toBe("Language & notification settings");
-  });
-
   // Quality uncertain key (task 37)
   it("returns qualityUncertain in English", () => {
     expect(t("qualityUncertain", "en")).toBe("⚠️ Translation quality uncertain");
@@ -456,10 +404,6 @@ describe("i18n — t()", () => {
 
   it("returns qualityUncertain in Czech", () => {
     expect(t("qualityUncertain", "cs")).toBe("⚠️ Kvalita překladu nejistá");
-  });
-
-  it("falls back to English for qualityUncertain when locale has no file", () => {
-    expect(t("qualityUncertain", "de")).toBe("⚠️ Translation quality uncertain");
   });
 
   // Flash card keys (task 33)
@@ -585,24 +529,6 @@ describe("i18n — t()", () => {
     expect(t("inputTypeSentence", "cs")).toBe("věta");
   });
 
-  it("falls back to English for flashcard keys when locale has no file", () => {
-    expect(t("flashcardStart", "de", { count: 5 })).toBe("📚 Flash Cards — 5 words in your deck.");
-    expect(t("flashcardStartBtn", "de")).toBe("▶️ Start");
-    expect(t("flashcardEmpty", "de")).toContain("dictionary is empty");
-    expect(t("flashcardReveal", "de")).toBe("👁 Reveal");
-    expect(t("flashcardNext", "de")).toBe("▶️ Next");
-    expect(t("flashcardDone", "de", { count: 10 })).toBe("🎉 Done! You reviewed 10 words.");
-    expect(t("flashcardQuit", "de")).toContain("session ended");
-    expect(t("flashcardProgress", "de", { current: 1, total: 5 })).toBe("Card 1 of 5");
-    expect(t("flashcardQuitBtn", "de")).toBe("✕ Quit");
-    expect(t("flashcardDoneBtn", "de")).toBe("🎉 Done!");
-    expect(t("flashcardNewDeckBtn", "de")).toBe("🔄 New Deck");
-    expect(t("flashcardSessionExpired", "de")).toContain("Session expired");
-    expect(t("cmdDescFlashcard", "de")).toBe("Start a flash card session");
-    expect(t("cmdDescReview", "de")).toBe("Review due words with spaced repetition");
-    expect(t("srsProgress", "de", { current: 1, total: 5 })).toBe("Review 1 of 5");
-  });
-
   // Dictionary browse/delete keys (task 40)
   it("returns dictionaryHeader with {count} interpolation in English", () => {
     expect(t("dictionaryHeader", "en", { count: 42 })).toBe("📖 Your Dictionary (42 words)");
@@ -686,20 +612,6 @@ describe("i18n — t()", () => {
     expect(t("dictionarySessionExpired", "en")).toContain("Session expired");
     expect(t("dictionarySessionExpired", "ru")).toContain("Сессия истекла");
     expect(t("dictionarySessionExpired", "cs")).toContain("Relace vypršela");
-  });
-
-  it("falls back to English for dictionary browse keys when locale has no file", () => {
-    expect(t("dictionaryHeader", "de", { count: 10 })).toBe("📖 Your Dictionary (10 words)");
-    expect(t("dictionaryPage", "de", { page: 1, total: 2 })).toBe("Page 1 of 2");
-    expect(t("dictionaryPrev", "de")).toBe("◀️");
-    expect(t("dictionaryNext", "de")).toBe("▶️");
-    expect(t("dictionaryClose", "de")).toBe("✕ Close");
-    expect(t("dictionaryBack", "de")).toBe("← Back to list");
-    expect(t("dictionaryDelete", "de")).toBe("🗑 Delete");
-    expect(t("dictionaryDeleteConfirm", "de", { word: "haus" })).toBe('⚠️ Delete "haus" from your dictionary?');
-    expect(t("dictionaryDeleteYes", "de")).toBe("✅ Yes, delete");
-    expect(t("dictionaryDeleteCancel", "de")).toBe("← Cancel");
-    expect(t("dictionarySessionExpired", "de")).toContain("Session expired");
   });
 
   // Settings command keys (task 37)
@@ -792,30 +704,12 @@ describe("i18n — t()", () => {
     expect(t("settingsSessionExpired", "ru")).toContain("Сессия истекла");
     expect(t("settingsSessionExpired", "cs")).toContain("Relace vypršela");
   });
-
-  it("falls back to English for settings keys when locale has no file", () => {
-    expect(t("settingsTitle", "de")).toBe("⚙️ Settings");
-    expect(t("settingsNativeLang", "de", { lang: "German" })).toBe("🗣 Native language: German");
-    expect(t("settingsLearningLangs", "de", { langs: "English" })).toBe("📚 Learning: English");
-    expect(t("settingsInterfaceLang", "de", { lang: "German" })).toBe("🌐 Interface: German");
-    expect(t("settingsChangeNative", "de")).toBe("🗣 Change native");
-    expect(t("settingsChangeLearning", "de")).toBe("📚 Change learning");
-    expect(t("settingsChangeInterface", "de")).toBe("🌐 Change interface");
-    expect(t("settingsClose", "de")).toBe("❌ Close");
-    expect(t("settingsChooseNative", "de")).toContain("native language");
-    expect(t("settingsChooseLearning", "de")).toContain("learning");
-    expect(t("settingsChooseInterface", "de")).toContain("interface language");
-    expect(t("settingsNativeUpdated", "de", { lang: "French" })).toBe("✅ Native language set to French");
-    expect(t("settingsLearningUpdated", "de")).toBe("✅ Learning languages updated");
-    expect(t("settingsInterfaceUpdated", "de", { lang: "Czech" })).toBe("✅ Interface language set to Czech");
-    expect(t("settingsSessionExpired", "de")).toContain("Session expired");
-  });
 });
 
 describe("i18n — getSupportedLangs()", () => {
-  it("returns all 10 supported languages", () => {
+  it("returns all 11 supported languages", () => {
     const langs = getSupportedLangs();
-    expect(langs).toHaveLength(10);
+    expect(langs).toHaveLength(11);
     expect(langs).toContain("en");
     expect(langs).toContain("ru");
     expect(langs).toContain("cs");
@@ -826,6 +720,7 @@ describe("i18n — getSupportedLangs()", () => {
     expect(langs).toContain("pt");
     expect(langs).toContain("uk");
     expect(langs).toContain("pl");
+    expect(langs).toContain("kk");
   });
 
   it("returns a new array each time (no mutation risk)", () => {
@@ -843,6 +738,7 @@ describe("i18n — isSupported()", () => {
     expect(isSupported("cs")).toBe(true);
     expect(isSupported("de")).toBe(true);
     expect(isSupported("pl")).toBe(true);
+    expect(isSupported("kk")).toBe(true);
   });
 
   it("returns false for unsupported languages", () => {
@@ -1157,11 +1053,43 @@ describe("i18n — notification keys (Task 41.6)", () => {
     expect(result).toBe("🌍 Časová zóna: Europe/Prague");
   });
 
-  it("notification keys fallback to en for unsupported language", () => {
+  it("notification keys fall back to en for an unknown language", () => {
     for (const key of notifKeys) {
       const enResult = t(key, "en");
-      const deResult = t(key, "de");
-      expect(deResult).toBe(enResult);
+      const unknownResult = t(key, "xx" as SupportedLang);
+      expect(unknownResult).toBe(enResult);
     }
   });
+});
+
+describe("i18n — locale completeness across all interface languages", () => {
+  const require = createRequire(import.meta.url);
+  const en = require("../locales/en.json") as Record<string, string>;
+  const enKeys = Object.keys(en);
+
+  // Every interface language that has a dedicated locale file.
+  const TRANSLATED_LANGS: SupportedLang[] = ["ru", "cs", "de", "fr", "es", "it", "pt", "uk", "pl", "kk"];
+
+  const placeholders = (value: string): string[] => (value.match(/\{[a-zA-Z]+\}/g) ?? []).sort();
+
+  for (const lang of TRANSLATED_LANGS) {
+    const dict = require(`../locales/${lang}.json`) as Record<string, string>;
+
+    it(`${lang}.json has exactly the same keys as en.json`, () => {
+      expect(Object.keys(dict).sort()).toEqual([...enKeys].sort());
+    });
+
+    it(`${lang}.json has no empty values`, () => {
+      for (const key of enKeys) {
+        expect(typeof dict[key]).toBe("string");
+        expect(dict[key].trim().length).toBeGreaterThan(0);
+      }
+    });
+
+    it(`${lang}.json preserves every {placeholder} from en.json`, () => {
+      for (const key of enKeys) {
+        expect(placeholders(dict[key])).toEqual(placeholders(en[key]));
+      }
+    });
+  }
 });

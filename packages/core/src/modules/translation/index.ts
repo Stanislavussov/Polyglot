@@ -1,5 +1,8 @@
 // Translation service — public API
 
+// Etymology
+export type { EtymologyInput } from "./etymology.service.js";
+export { generateEtymology } from "./etymology.service.js";
 // Grammar breakdown
 export type { GrammarBreakdownInput } from "./grammar-breakdown.service.js";
 export { generateGrammarBreakdown } from "./grammar-breakdown.service.js";

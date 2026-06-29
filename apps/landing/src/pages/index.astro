@@ -75,6 +75,39 @@ const cards = [
   { lang: "RU", text: "клятва Гиппократа", fg: "#B6502F", bg: "#FAE0D6", pos: "top-[31%] right-[9%]", anim: "animate-f2", z: "z-[7]" },
   { lang: "ES", text: "juramento hipocrático", fg: "#9A6B14", bg: "#F6E8C8", pos: "top-[59%] right-[2%]", anim: "animate-f3", z: "z-[6]" },
 ];
+
+// How the bot personalizes each answer with AI — three pillars of the learning flow.
+const aiPillars = [
+  {
+    title: "Tuned to your level",
+    desc: "Every card is graded to your CEFR level, so explanations and examples land exactly where you are — never too basic, never over your head.",
+  },
+  {
+    title: "Shaped around your goals",
+    desc: "The AI knows which languages you study and why — travel, work, or exams — and builds each answer around the words that move you forward.",
+  },
+  {
+    title: "A flow that learns with you",
+    desc: "Reviews, reminders, and new words adapt to your pace and the things you keep forgetting, so your study plan reshapes itself as you improve.",
+  },
+];
+
+// The 11 languages the bot fully supports — flags & native names mirror the DB language registry.
+const languages = [
+  { flag: "🇬🇧", name: "English", native: "English" },
+  { flag: "🇷🇺", name: "Russian", native: "Русский" },
+  { flag: "🇨🇿", name: "Czech", native: "Čeština" },
+  { flag: "🇩🇪", name: "German", native: "Deutsch" },
+  { flag: "🇫🇷", name: "French", native: "Français" },
+  { flag: "🇪🇸", name: "Spanish", native: "Español" },
+  { flag: "🇮🇹", name: "Italian", native: "Italiano" },
+  { flag: "🇵🇹", name: "Portuguese", native: "Português" },
+  { flag: "🇺🇦", name: "Ukrainian", native: "Українська" },
+  { flag: "🇵🇱", name: "Polish", native: "Polski" },
+  { flag: "🇰🇿", name: "Kazakh", native: "Қазақша" },
+];
+
+const SITE_URL = "https://polyglot.monster/";
 ---
 
 <!doctype html>
@@ -86,13 +119,37 @@ const cards = [
     <title>Polyglot Monster — Learn a phrase once. Remember it everywhere.</title>
     <meta
       name="description"
-      content="Send any phrase to Polyglot Monster on Telegram and get translations, examples, context, and review cards in every language you learn."
+      content="Send any phrase to Polyglot Monster's AI on Telegram and get translations, examples, context, and review cards tailored to your level in 11 languages: English, Russian, Czech, German, French, Spanish, Italian, Portuguese, Ukrainian, Polish, and Kazakh."
     />
-    <meta property="og:title" content="Polyglot Monster" />
-    <meta property="og:description" content="Learn a phrase once. Remember it everywhere." />
-    <meta property="og:url" content="https://polyglot.monster/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="AI language learning, Telegram bot, translation, flashcards, vocabulary, CEFR, English, Russian, Czech, German, French, Spanish, Italian, Portuguese, Ukrainian, Polish, Kazakh" />
+    <link rel="canonical" href={SITE_URL} />
+    <meta property="og:title" content="Polyglot Monster — AI language buddy" />
+    <meta property="og:description" content="Learn a phrase once. Remember it everywhere. AI-tailored translations and review cards in 11 languages, right inside Telegram." />
+    <meta property="og:url" content={SITE_URL} />
     <meta property="og:image" content="https://polyglot.monster/images/polyglot-woman.png" />
+    <meta property="og:image:alt" content="A learner reviewing language cards with the Polyglot Monster mascot" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Polyglot Monster" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Polyglot Monster — AI language buddy" />
+    <meta name="twitter:description" content="AI-tailored translations and review cards in 11 languages, right inside Telegram." />
+    <meta name="twitter:image" content="https://polyglot.monster/images/polyglot-woman.png" />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "Polyglot Monster",
+        applicationCategory: "EducationalApplication",
+        operatingSystem: "Telegram",
+        url: SITE_URL,
+        description:
+          "An AI-powered Telegram language buddy that turns any word or phrase into translations, context, examples, and review cards tailored to your level across 11 languages.",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        inLanguage: languages.map((l) => l.name),
+      })}
+    />
   </head>
 
   <body class="font-sans text-ink antialiased leading-relaxed overflow-x-hidden min-h-screen">
@@ -122,9 +179,9 @@ const cards = [
           <h1 class="font-display font-extrabold text-[clamp(2.4rem,7vw,4rem)] leading-[1.02] tracking-[-0.03em] mt-[18px]">
             Learn a phrase once.<br /><span class="text-teal">Remember it everywhere.</span>
           </h1>
-          <p class="text-[clamp(1.02rem,2.4vw,1.22rem)] text-ink-soft max-w-[34ch] mt-[18px] [text-wrap:pretty]">
-            Send any word or phrase — even slang like “spill the tea” — to Polyglot Monster and get translations,
-            examples, context, and review cards in the languages you learn.
+          <p class="text-[clamp(1.02rem,2.4vw,1.22rem)] text-ink-soft max-w-[36ch] mt-[18px] [text-wrap:pretty]">
+            Send any word or phrase — even slang like “spill the tea” — and Polyglot Monster's AI tailors
+            translations, examples, context, and review cards to your level and the languages you're learning.
           </p>
           <div class="flex flex-wrap gap-3 mt-7">
             <a href={TELEGRAM_URL} class="inline-flex items-center gap-[9px] bg-coral text-white font-bold text-[1.05rem] px-[26px] py-[15px] rounded-[14px] no-underline shadow-[0_12px_26px_-10px_rgba(242,107,78,0.75)] transition-all hover:bg-coral-deep hover:-translate-y-0.5">
@@ -198,7 +255,7 @@ const cards = [
           Everything a phrase needs to actually stick.
         </h2>
       </div>
-      <div class="grid gap-4 mt-[clamp(34px,5vw,52px)] [grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]">
+      <div class="grid gap-4 mt-[clamp(34px,5vw,52px)] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {
           features.map((f) => (
             <article class="bg-cream border border-ink/[0.08] rounded-[18px] px-[22px] py-6 transition-all hover:-translate-y-[3px] hover:border-teal/40">
@@ -214,6 +271,62 @@ const cards = [
           ))
         }
       </div>
+    </section>
+
+    <!-- PERSONALIZED BY AI -->
+    <section class="bg-cream border-y border-ink/[0.06]">
+      <div class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-[clamp(56px,8vw,104px)]">
+        <div class="max-w-[40ch]">
+          <span class="uppercase tracking-[0.16em] text-[0.78rem] font-bold text-teal">Powered by AI</span>
+          <h2 class="font-display font-extrabold text-[clamp(1.9rem,4.6vw,2.9rem)] tracking-[-0.025em] leading-[1.05] mt-3">
+            An AI tutor that adapts to how you learn.
+          </h2>
+          <p class="text-ink-soft text-[1.05rem] mt-4 [text-wrap:pretty]">
+            Polyglot Monster doesn't just translate — its AI reads your level, your goals, and the languages you
+            study, then customizes every card and the whole learning flow around you.
+          </p>
+        </div>
+        <div class="grid gap-4 mt-[clamp(34px,5vw,52px)] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {
+            aiPillars.map((p) => (
+              <article class="bg-paper border border-ink/[0.08] rounded-[18px] px-[22px] py-6">
+                <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-teal/[0.14] text-teal-deep font-display font-bold text-[1.1rem] mb-[18px]">
+                  ✦
+                </span>
+                <h3 class="font-display font-bold text-[1.14rem] tracking-[-0.01em] mb-[7px]">{p.title}</h3>
+                <p class="text-ink-soft text-[0.97rem] m-0 [text-wrap:pretty]">{p.desc}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- SUPPORTED LANGUAGES -->
+    <section id="languages" class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-[clamp(56px,8vw,104px)]">
+      <div class="max-w-[40ch]">
+        <span class="uppercase tracking-[0.16em] text-[0.78rem] font-bold text-coral">11 languages</span>
+        <h2 class="font-display font-extrabold text-[clamp(1.9rem,4.6vw,2.9rem)] tracking-[-0.025em] leading-[1.05] mt-3">
+          Study in the languages you actually live in.
+        </h2>
+        <p class="text-ink-soft text-[1.05rem] mt-4 [text-wrap:pretty]">
+          Send one phrase and get it back across every language you're learning — Polyglot Monster fully
+          supports all eleven.
+        </p>
+      </div>
+      <ul class="grid gap-3 mt-[clamp(34px,5vw,52px)] grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 list-none p-0 m-0">
+        {
+          languages.map((l) => (
+            <li class="flex items-center gap-3 bg-cream border border-ink/[0.08] rounded-2xl px-4 py-[15px] transition-all hover:-translate-y-[3px] hover:border-teal/40">
+              <span class="text-[1.6rem] leading-none" aria-hidden="true">{l.flag}</span>
+              <span class="min-w-0">
+                <span class="block font-display font-bold text-[1.02rem] tracking-[-0.01em] leading-tight">{l.native}</span>
+                <span class="block text-ink-faint text-[0.84rem] leading-tight">{l.name}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
     </section>
 
     <!-- USE CASES -->

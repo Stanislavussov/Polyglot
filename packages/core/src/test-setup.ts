@@ -93,6 +93,14 @@ const TEST_LANGUAGES: LanguageEntry[] = [
     localizedNames: { ru: "Польский", cs: "Polština" },
   },
   {
+    code: "kk",
+    name: "Kazakh",
+    nativeName: "Қазақша",
+    flag: "🇰🇿",
+    isSupported: true,
+    localizedNames: { ru: "Казахский", cs: "Kazaština" },
+  },
+  {
     code: "ja",
     name: "Japanese",
     nativeName: "日本語",
