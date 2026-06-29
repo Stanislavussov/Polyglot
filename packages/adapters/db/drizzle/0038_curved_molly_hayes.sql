@@ -1,0 +1,1 @@
+ALTER TABLE "user_language_settings" ADD COLUMN "notification_times" text[] DEFAULT '{"08:00"}' NOT NULL;

@@ -21,6 +21,16 @@ import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../types.js";
 import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 
+/** Format a list of "HH:MM" times as a sorted, normalized, comma-separated string ("—" when empty). */
+export function formatNotificationTimes(times: string[]): string {
+  if (times.length === 0) return "—";
+  return [...times]
+    .map(parseNotificationMinutes)
+    .sort((a, b) => a - b)
+    .map(formatNotificationTime)
+    .join(", ");
+}
+
 /**
  * Build the settings main menu text.
  * Notifications shown as a single status line.
@@ -31,12 +41,12 @@ export function buildSettingsText(
   interfaceLang: string,
   lang: SupportedLang,
   notifEnabled?: boolean,
-  notifTime?: string,
+  notifTimes?: string[],
   notifType?: string,
   planUsage?: string,
 ): string {
   const notifStatus = notifEnabled
-    ? `🔔 ${t("settingsNotifEnabled", lang)} · ${formatNotificationTime(parseNotificationMinutes(notifTime))} · ${notifType ?? "srs"}`
+    ? `🔔 ${t("settingsNotifEnabled", lang)} · ${formatNotificationTimes(notifTimes ?? [])} · ${notifType ?? "srs"}`
     : `🔕 ${t("settingsNotifDisabled", lang)}`;
 
   return [
@@ -72,7 +82,7 @@ export function buildSettingsKeyboard(lang: SupportedLang): InlineKeyboard {
 export function buildNotifSubText(
   lang: SupportedLang,
   notifEnabled: boolean,
-  notifTime: string,
+  notifTimes: string[],
   notifType: string,
   timezone: string,
   notifContext: string | null,
@@ -83,7 +93,7 @@ export function buildNotifSubText(
     t("settingsNotifSubTitle", lang),
     "",
     statusLine,
-    t("settingsNotifTime", lang, { time: formatNotificationTime(parseNotificationMinutes(notifTime)) }),
+    t("settingsNotifTimes", lang, { times: formatNotificationTimes(notifTimes) }),
     t("settingsNotifType", lang, { type: notifType }),
     t("settingsNotifTimezone", lang, { timezone }),
   ];
@@ -106,7 +116,7 @@ export function buildNotifSubKeyboard(lang: SupportedLang, notifEnabled: boolean
   const kb = new InlineKeyboard();
   kb.text(notifEnabled ? t("settingsNotifDisable", lang) : t("settingsNotifEnable", lang), "set:notif:toggle").row();
   if (notifEnabled) {
-    kb.text(t("settingsNotifChooseTime", lang), "set:notif:time").row();
+    kb.text(t("settingsNotifChooseTimes", lang), "set:notif:time").row();
     kb.text(t("settingsNotifChooseType", lang), "set:notif:type").row();
     kb.text(t("settingsNotifChooseTimezone", lang), "set:notif:tz").row();
     if (notifType === "contextual") {
@@ -127,7 +137,7 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   const learningLangs = settings?.learningLangs ?? [];
   const interfaceLang = settings?.interfaceLang ?? "en";
   const notifEnabled = settings?.notificationEnabled ?? false;
-  const notifTime = settings?.notificationTime ?? "08:00";
+  const notifTimes = settings?.notificationTimes ?? [];
   const notifType = settings?.notificationType ?? "srs";
   const plan = ctx.user.subscriptionPlan ?? "free";
   const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
@@ -145,7 +155,7 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
     interfaceLang,
     lang,
     notifEnabled,
-    notifTime,
+    notifTimes,
     notifType,
     planUsage,
   );

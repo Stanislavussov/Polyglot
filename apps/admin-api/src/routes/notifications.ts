@@ -7,12 +7,14 @@ const defaultsSchema = z.object({
   defaultTime: z.string().regex(/^\d{2}:\d{2}$/),
   defaultType: z.enum(["suggested", "srs", "contextual"]),
   inactivityDays: z.number().int().min(1),
+  notificationTimesLimit: z.number().int().min(1).max(48).default(12),
 });
 
 const DEFAULTS: NotificationDefaults = {
   defaultTime: "08:00",
   defaultType: "srs",
   inactivityDays: 14,
+  notificationTimesLimit: 12,
 };
 
 export async function notificationRoutes(app: FastifyInstance) {

@@ -27,6 +27,8 @@ export interface NotificationDefaults {
   defaultTime: string;
   defaultType: "suggested" | "srs" | "contextual";
   inactivityDays: number;
+  /** Max number of daily notification times a user can configure. */
+  notificationTimesLimit: number;
 }
 
 export interface DictionaryConfig {

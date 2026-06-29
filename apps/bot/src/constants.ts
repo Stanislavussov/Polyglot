@@ -7,3 +7,6 @@
 
 /** Max number of target languages a user can learn */
 export const MAX_LEARNING_LANGS = 4;
+
+/** Max number of daily notification times a user can configure */
+export const MAX_NOTIFICATION_TIMES = 12;

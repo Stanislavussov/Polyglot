@@ -1,0 +1,1 @@
+ALTER TABLE "user_language_settings" DROP COLUMN "notification_time";

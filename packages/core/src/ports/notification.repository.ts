@@ -11,7 +11,7 @@ export interface NotificationUser {
   learningLangs: string[];
   timezone: string;
   notificationEnabled: boolean;
-  notificationTime: string;
+  notificationTimes: string[];
   notificationType: NotificationType;
   notificationContext: string | null;
 }
@@ -21,12 +21,13 @@ export interface NotificationRepository {
   getInactiveUsers(): Promise<NotificationUser[]>;
   disableNotifications(userId: number): Promise<void>;
   recordSentWord(userId: number, original: string, source: string): Promise<void>;
-  getRecentSentWords(userId: number, limit?: number): Promise<string[]>;
+  /** Original words sent to the user since the given instant (rolling de-dup window). */
+  getSentWordsSince(userId: number, since: Date): Promise<string[]>;
   updatePrefs(
     userId: number,
     prefs: {
       notificationEnabled?: boolean;
-      notificationTime?: string;
+      notificationTimes?: string[];
       notificationType?: NotificationType;
       notificationContext?: string | null;
     },

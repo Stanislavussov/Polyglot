@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-06-28T15:25:19.824Z",
+  "generatedAt": "2026-06-29T16:56:07.601Z",
   "summary": {
-    "total": 1826,
+    "total": 1834,
     "business": 0,
-    "technical": 1826,
+    "technical": 1834,
     "workspaces": [
       "apps",
       "packages"
@@ -966,10 +966,26 @@
       "description": "Protects the bot build Notif Sub Text behavior: shows all notification details."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-179-buildnotifsubtext-shows-context-when-type-is-contextual",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-179-buildnotifsubtext-shows-multiple-times-as-a-sorted-list",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
       "sourceLine": 179,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildNotifSubText"
+      ],
+      "title": "shows multiple times as a sorted list",
+      "rawTitle": "shows multiple times as a sorted list",
+      "name": "Bot build Notif Sub Text shows multiple times as a sorted list",
+      "value": "Protects the bot build Notif Sub Text behavior: shows multiple times as a sorted list.",
+      "description": "Protects the bot build Notif Sub Text behavior: shows multiple times as a sorted list."
+    },
+    {
+      "id": "apps-bot-src-tests-notification-settings-test-ts-184-buildnotifsubtext-shows-context-when-type-is-contextual",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
+      "sourceLine": 184,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -982,10 +998,10 @@
       "description": "Protects the bot build Notif Sub Text behavior: shows context when type is contextual."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-186-buildnotifsubkeyboard-shows-toggle-and-all-settings-when-enabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-191-buildnotifsubkeyboard-shows-toggle-and-all-settings-when-enabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 186,
+      "sourceLine": 191,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -998,10 +1014,10 @@
       "description": "Protects the bot build Notif Sub Keyboard behavior: shows toggle and all settings when enabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-197-buildnotifsubkeyboard-shows-context-button-only-when-type-is-contextual",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-202-buildnotifsubkeyboard-shows-context-button-only-when-type-is-contextual",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 197,
+      "sourceLine": 202,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1014,10 +1030,10 @@
       "description": "Protects the bot build Notif Sub Keyboard behavior: shows context button only when type is contextual."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-207-buildnotifsubkeyboard-hides-settings-buttons-when-disabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-212-buildnotifsubkeyboard-hides-settings-buttons-when-disabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 207,
+      "sourceLine": 212,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1030,10 +1046,10 @@
       "description": "Protects the bot build Notif Sub Keyboard behavior: hides settings buttons when disabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-218-handlesettingscommand-shows-settings-with-notification-status",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-223-handlesettingscommand-shows-settings-with-notification-status",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 218,
+      "sourceLine": 223,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1046,10 +1062,10 @@
       "description": "Protects the bot handle Settings Command behavior: shows settings with notification status."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-227-handlesetnotiftogglecallback-enables-notifications-when-currently-disabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-232-handlesetnotiftogglecallback-enables-notifications-when-currently-disabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 232,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1062,10 +1078,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so enables notifications when currently disabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-233-handlesetnotiftogglecallback-disables-notifications-when-currently-enabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-238-handlesetnotiftogglecallback-disables-notifications-when-currently-enabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 233,
+      "sourceLine": 238,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1078,42 +1094,74 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so disables notifications when currently enabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-242-handlesetnotiftimecallback-shows-time-picker-with-30-min-interval-options",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-247-handlesetnotiftimecallback-shows-a-multi-select-grid-with-the-current-time-checked-and-a-done-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 242,
+      "sourceLine": 247,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleSetNotifTimeCallback"
       ],
-      "title": "shows time picker with 30-min interval options",
-      "rawTitle": "shows time picker with 30-min interval options",
-      "name": "Bot handle Set Notif Time Callback shows time picker with 30 min interval options",
-      "value": "Protects the bot handle Set Notif Time Callback behavior: shows time picker with 30 min interval options.",
-      "description": "Protects the bot handle Set Notif Time Callback behavior: shows time picker with 30 min interval options."
+      "title": "shows a multi-select grid with the current time checked and a Done button",
+      "rawTitle": "shows a multi-select grid with the current time checked and a Done button",
+      "name": "Bot handle Set Notif Time Callback shows a multi select grid with the current time checked and a Done button",
+      "value": "Protects the bot handle Set Notif Time Callback behavior: shows a multi select grid with the current time checked and a Done button.",
+      "description": "Protects the bot handle Set Notif Time Callback behavior: shows a multi select grid with the current time checked and a Done button."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-256-handlesetnotiftimeselectcallback-updates-notification-time",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-265-handlesetnotiftimeselectcallback-adds-a-new-time-to-the-list-toggle-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 256,
+      "sourceLine": 265,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleSetNotifTimeSelectCallback"
       ],
-      "title": "updates notification time",
-      "rawTitle": "updates notification time",
-      "name": "Bot handle Set Notif Time Select Callback updates notification time",
-      "value": "Protects the bot handle Set Notif Time Select Callback behavior: updates notification time.",
-      "description": "Protects the bot handle Set Notif Time Select Callback behavior: updates notification time."
+      "title": "adds a new time to the list (toggle on)",
+      "rawTitle": "adds a new time to the list (toggle on)",
+      "name": "Bot handle Set Notif Time Select Callback adds a new time to the list (toggle on)",
+      "value": "Protects the bot handle Set Notif Time Select Callback behavior: adds a new time to the list (toggle on).",
+      "description": "Protects the bot handle Set Notif Time Select Callback behavior: adds a new time to the list (toggle on)."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-262-handlesetnotiftimeselectcallback-rejects-invalid-minute-values",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-273-handlesetnotiftimeselectcallback-removes-an-already-selected-time-toggle-off",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 262,
+      "sourceLine": 273,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleSetNotifTimeSelectCallback"
+      ],
+      "title": "removes an already-selected time (toggle off)",
+      "rawTitle": "removes an already-selected time (toggle off)",
+      "name": "Bot handle Set Notif Time Select Callback removes an already selected time (toggle off)",
+      "value": "Protects the bot handle Set Notif Time Select Callback behavior so removes an already selected time (toggle off).",
+      "description": "Protects the bot handle Set Notif Time Select Callback behavior so removes an already selected time (toggle off)."
+    },
+    {
+      "id": "apps-bot-src-tests-notification-settings-test-ts-279-handlesetnotiftimeselectcallback-rejects-adding-a-13th-time-and-does-not-persist",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
+      "sourceLine": 279,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleSetNotifTimeSelectCallback"
+      ],
+      "title": "rejects adding a 13th time and does not persist",
+      "rawTitle": "rejects adding a 13th time and does not persist",
+      "name": "Bot handle Set Notif Time Select Callback rejects adding a 13th time and does not persist",
+      "value": "Protects the bot handle Set Notif Time Select Callback behavior: rejects adding a 13th time and does not persist.",
+      "description": "Protects the bot handle Set Notif Time Select Callback behavior: rejects adding a 13th time and does not persist."
+    },
+    {
+      "id": "apps-bot-src-tests-notification-settings-test-ts-291-handlesetnotiftimeselectcallback-rejects-invalid-minute-values",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
+      "sourceLine": 291,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1126,10 +1174,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior: rejects invalid minute values."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-271-handlesetnotiftypecallback-shows-type-picker-with-all-options",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-300-handlesetnotiftypecallback-shows-type-picker-with-all-options",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 271,
+      "sourceLine": 300,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1142,10 +1190,10 @@
       "description": "Protects the bot handle Set Notif Type Callback behavior: shows type picker with all options."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-285-handlesetnotiftypeselectcallback-updates-notification-type",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-314-handlesetnotiftypeselectcallback-updates-notification-type",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 314,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1158,10 +1206,10 @@
       "description": "Protects the bot handle Set Notif Type Select Callback behavior: updates notification type."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-293-handlesetnotiftzcallback-shows-timezone-picker",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-322-handlesetnotiftzcallback-shows-timezone-picker",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 293,
+      "sourceLine": 322,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1174,10 +1222,10 @@
       "description": "Protects the bot handle Set Notif Tz Callback behavior: shows timezone picker."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-306-handlesetnotiftzselectcallback-updates-timezone-for-a-valid-timezone",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-335-handlesetnotiftzselectcallback-updates-timezone-for-a-valid-timezone",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 306,
+      "sourceLine": 335,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1190,10 +1238,10 @@
       "description": "Protects the bot handle Set Notif Tz Select Callback behavior: updates timezone for a valid timezone."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-315-handlesetnotiftzselectcallback-rejects-invalid-timezone",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-344-handlesetnotiftzselectcallback-rejects-invalid-timezone",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 315,
+      "sourceLine": 344,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10370,10 +10418,44 @@
       "description": "Protects the database adapter notification Repository get Users For Window behavior: filters mixed users correctly."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-394-notificationrepository-getusersforwindow-calls-select-with-innerjoin",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-394-notificationrepository-getusersforwindow-matches-a-user-with-multiple-times-in-each-of-their-windows",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
       "sourceLine": 394,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository",
+        "getUsersForWindow"
+      ],
+      "title": "matches a user with multiple times in each of their windows",
+      "rawTitle": "matches a user with multiple times in each of their windows",
+      "name": "Database adapter notification Repository get Users For Window matches a user with multiple times in each of their windows",
+      "value": "Protects the database adapter notification Repository get Users For Window behavior so matches a user with multiple times in each of their windows.",
+      "description": "Protects the database adapter notification Repository get Users For Window behavior so matches a user with multiple times in each of their windows."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-410-notificationrepository-getusersforwindow-excludes-users-with-an-empty-notificationtimes-list",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
+      "sourceLine": 410,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository",
+        "getUsersForWindow"
+      ],
+      "title": "excludes users with an empty notificationTimes list",
+      "rawTitle": "excludes users with an empty notificationTimes list",
+      "name": "Database adapter notification Repository get Users For Window excludes users with an empty notification Times list",
+      "value": "Protects the database adapter notification Repository get Users For Window behavior: excludes users with an empty notification Times list.",
+      "description": "Protects the database adapter notification Repository get Users For Window behavior: excludes users with an empty notification Times list."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-419-notificationrepository-getusersforwindow-calls-select-with-innerjoin",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
+      "sourceLine": 419,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -10387,10 +10469,10 @@
       "description": "Protects the database adapter notification Repository get Users For Window behavior: calls select with inner Join."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-404-notificationrepository-getinactiveusers-returns-inactive-users-from-db",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-429-notificationrepository-getinactiveusers-returns-inactive-users-from-db",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 404,
+      "sourceLine": 429,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -10404,10 +10486,10 @@
       "description": "Protects the database adapter notification Repository get Inactive Users behavior: returns inactive users from DB."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-414-notificationrepository-getinactiveusers-returns-empty-array-when-no-inactive-users-exist",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-439-notificationrepository-getinactiveusers-returns-empty-array-when-no-inactive-users-exist",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 414,
+      "sourceLine": 439,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -10421,10 +10503,10 @@
       "description": "Protects the database adapter notification Repository get Inactive Users behavior: returns empty array when no inactive users exist."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-424-notificationrepository-disablenotifications-updates-notificationenabled-to-false",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-449-notificationrepository-disablenotifications-updates-notificationenabled-to-false",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 424,
+      "sourceLine": 449,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -10438,10 +10520,10 @@
       "description": "Protects the database adapter notification Repository disable Notifications behavior: updates notification Enabled to false."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-432-notificationrepository-disablenotifications-sets-updatedat-timestamp",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-457-notificationrepository-disablenotifications-sets-updatedat-timestamp",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 432,
+      "sourceLine": 457,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -10455,10 +10537,10 @@
       "description": "Protects the database adapter notification Repository disable Notifications behavior so sets updated At timestamp."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-444-notificationrepository-disablenotifications-only-sets-notificationenabled-and-updatedat",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-469-notificationrepository-disablenotifications-only-sets-notificationenabled-and-updatedat",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 444,
+      "sourceLine": 469,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -10470,6 +10552,40 @@
       "name": "Database adapter notification Repository disable Notifications only sets notification Enabled and updated At",
       "value": "Protects the database adapter notification Repository disable Notifications behavior so only sets notification Enabled and updated At.",
       "description": "Protects the database adapter notification Repository disable Notifications behavior so only sets notification Enabled and updated At."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-480-notificationrepository-getsentwordssince-returns-the-original-words-sent-since-the-given-instant",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
+      "sourceLine": 480,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository",
+        "getSentWordsSince"
+      ],
+      "title": "returns the original words sent since the given instant",
+      "rawTitle": "returns the original words sent since the given instant",
+      "name": "Database adapter notification Repository get Sent Words Since returns the original words sent since the given instant",
+      "value": "Protects the database adapter notification Repository get Sent Words Since behavior: returns the original words sent since the given instant.",
+      "description": "Protects the database adapter notification Repository get Sent Words Since behavior: returns the original words sent since the given instant."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-489-notificationrepository-getsentwordssince-returns-an-empty-array-when-nothing-was-sent-in-the-window",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
+      "sourceLine": 489,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository",
+        "getSentWordsSince"
+      ],
+      "title": "returns an empty array when nothing was sent in the window",
+      "rawTitle": "returns an empty array when nothing was sent in the window",
+      "name": "Database adapter notification Repository get Sent Words Since returns an empty array when nothing was sent in the window",
+      "value": "Protects the database adapter notification Repository get Sent Words Since behavior: returns an empty array when nothing was sent in the window.",
+      "description": "Protects the database adapter notification Repository get Sent Words Since behavior: returns an empty array when nothing was sent in the window."
     },
     {
       "id": "packages-adapters-db-src-tests-reported-issue-repository-test-ts-87-reportedissuerepository-create-inserts-a-new-reported-issue-and-returns-it",
@@ -13472,10 +13588,10 @@
       "description": "Protects the notification adapter pick Dictionary Word error handling behavior: returns null when get User Vocabulary throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-112-buildnotificationpayload-builds-a-payload-with-user-s-preferred-time",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-116-buildnotificationpayload-builds-a-payload-with-user-s-preferred-time",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 112,
+      "sourceLine": 116,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13488,42 +13604,42 @@
       "description": "Protects the notification adapter build Notification Payload behavior: builds a payload with user's preferred time."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-124-buildnotificationpayload-builds-a-payload-with-custom-time-20-00",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-128-buildnotificationpayload-derives-the-hour-from-the-current-local-time",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 124,
+      "sourceLine": 128,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
         "buildNotificationPayload"
       ],
-      "title": "builds a payload with custom time (20:00)",
-      "rawTitle": "builds a payload with custom time (20:00)",
-      "name": "Notification adapter build Notification Payload builds a payload with custom time (20:00)",
-      "value": "Protects the notification adapter build Notification Payload behavior: builds a payload with custom time (20:00).",
-      "description": "Protects the notification adapter build Notification Payload behavior: builds a payload with custom time (20:00)."
+      "title": "derives the hour from the current local time",
+      "rawTitle": "derives the hour from the current local time",
+      "name": "Notification adapter build Notification Payload derives the hour from the current local time",
+      "value": "Protects the notification adapter build Notification Payload behavior so derives the hour from the current local time.",
+      "description": "Protects the notification adapter build Notification Payload behavior so derives the hour from the current local time."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-132-buildnotificationpayload-defaults-to-hour-8-for-invalid-notificationtime",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-137-buildnotificationpayload-defaults-to-hour-8-when-the-timezone-is-invalid",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 132,
+      "sourceLine": 137,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
         "buildNotificationPayload"
       ],
-      "title": "defaults to hour 8 for invalid notificationTime",
-      "rawTitle": "defaults to hour 8 for invalid notificationTime",
-      "name": "Notification adapter build Notification Payload defaults to hour 8 for invalid notification Time",
-      "value": "Protects the notification adapter build Notification Payload behavior: defaults to hour 8 for invalid notification Time.",
-      "description": "Protects the notification adapter build Notification Payload behavior: defaults to hour 8 for invalid notification Time."
+      "title": "defaults to hour 8 when the timezone is invalid",
+      "rawTitle": "defaults to hour 8 when the timezone is invalid",
+      "name": "Notification adapter build Notification Payload defaults to hour 8 when the timezone is invalid",
+      "value": "Protects the notification adapter build Notification Payload behavior: defaults to hour 8 when the timezone is invalid.",
+      "description": "Protects the notification adapter build Notification Payload behavior: defaults to hour 8 when the timezone is invalid."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-139-buildnotificationpayload-uses-user-s-interface-language-for-i18n",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-144-buildnotificationpayload-uses-user-s-interface-language-for-i18n",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 139,
+      "sourceLine": 144,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13536,10 +13652,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: uses user's interface language for i18n."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-146-buildnotificationpayload-uses-notifwordfromdict-label-for-srs-source",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-151-buildnotificationpayload-uses-notifwordfromdict-label-for-srs-source",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 146,
+      "sourceLine": 151,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13552,10 +13668,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: uses notif Word From Dict label for srs source."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-165-checkandsend-sends-notifications-to-eligible-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-170-checkandsend-sends-notifications-to-eligible-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 165,
+      "sourceLine": 170,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13568,10 +13684,10 @@
       "description": "Protects the notification adapter check And Send behavior: sends notifications to eligible users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-175-checkandsend-handles-multiple-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-180-checkandsend-handles-multiple-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 175,
+      "sourceLine": 180,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13584,10 +13700,10 @@
       "description": "Protects the notification adapter check And Send behavior: handles multiple users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-193-checkandsend-returns-zero-sent-when-no-users-are-eligible",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-198-checkandsend-returns-zero-sent-when-no-users-are-eligible",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 193,
+      "sourceLine": 198,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13600,10 +13716,10 @@
       "description": "Protects the notification adapter check And Send behavior: returns zero sent when no users are eligible."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-204-checkandsend-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-209-checkandsend-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 204,
+      "sourceLine": 209,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13616,10 +13732,10 @@
       "description": "Protects the notification adapter check And Send behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-225-checkandsend-retries-failed-sends-up-to-3-times-before-giving-up",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-230-checkandsend-retries-failed-sends-up-to-3-times-before-giving-up",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 225,
+      "sourceLine": 230,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13632,10 +13748,10 @@
       "description": "Protects the notification adapter check And Send behavior so retries failed sends up to 3 times before giving up."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-235-checkandsend-succeeds-on-retry-when-transient-error-resolves",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-240-checkandsend-succeeds-on-retry-when-transient-error-resolves",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 235,
+      "sourceLine": 240,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13648,10 +13764,10 @@
       "description": "Protects the notification adapter check And Send behavior so succeeds on retry when transient error resolves."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-252-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-257-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 252,
+      "sourceLine": 257,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13664,10 +13780,10 @@
       "description": "Protects the notification adapter check And Send behavior: sends empty dictionary prompt when no word could be picked."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-264-checkandsend-returns-error-when-getusersforwindow-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-269-checkandsend-returns-error-when-getusersforwindow-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 264,
+      "sourceLine": 269,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13680,10 +13796,10 @@
       "description": "Protects the notification adapter check And Send behavior: returns error when get Users For Window throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-276-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-281-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 276,
+      "sourceLine": 281,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13697,10 +13813,27 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: uses pick Dictionary Word for all users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-298-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-289-checkandsend-word-picking-strategy-passes-words-sent-in-the-last-24h-to-the-dictionary-picker-for-de-dup",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 298,
+      "sourceLine": 289,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "checkAndSend",
+        "word picking strategy"
+      ],
+      "title": "passes words sent in the last 24h to the dictionary picker for de-dup",
+      "rawTitle": "passes words sent in the last 24h to the dictionary picker for de-dup",
+      "name": "Notification adapter check And Send word picking strategy passes words sent in the last 24h to the dictionary picker for de dup",
+      "value": "Protects the notification adapter check And Send word picking strategy behavior so passes words sent in the last 24h to the dictionary picker for de dup.",
+      "description": "Protects the notification adapter check And Send word picking strategy behavior so passes words sent in the last 24h to the dictionary picker for de dup."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-314-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 314,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13713,10 +13846,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: sends re engagement message and disables notifications."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-314-processinactiveusers-processes-multiple-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-330-processinactiveusers-processes-multiple-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 314,
+      "sourceLine": 330,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13729,10 +13862,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: processes multiple inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-333-processinactiveusers-returns-zero-when-no-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-349-processinactiveusers-returns-zero-when-no-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 333,
+      "sourceLine": 349,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13745,10 +13878,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns zero when no inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-341-processinactiveusers-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-357-processinactiveusers-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 341,
+      "sourceLine": 357,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13761,10 +13894,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-354-processinactiveusers-returns-error-when-getinactiveusers-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-370-processinactiveusers-returns-error-when-getinactiveusers-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 354,
+      "sourceLine": 370,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13777,10 +13910,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns error when get Inactive Users throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-365-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-381-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 365,
+      "sourceLine": 381,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13793,10 +13926,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: uses user interface language for re engagement message."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-398-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-414-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 398,
+      "sourceLine": 414,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13809,10 +13942,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so registers a cron job with hourly schedule."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-408-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-424-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 408,
+      "sourceLine": 424,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13825,10 +13958,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior: does not register duplicate cron jobs."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-421-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-437-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 421,
+      "sourceLine": 437,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -13841,10 +13974,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler stops the cron task."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-433-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-449-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 433,
+      "sourceLine": 449,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -17432,10 +17565,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so en json has all I18n Key entries."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1039-i18n-locale-consistency-ru-json-covers-all-keys-from-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1042-i18n-locale-consistency-ru-json-covers-all-keys-from-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1039,
+      "sourceLine": 1042,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17448,10 +17581,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so ru json covers all keys from en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1058-i18n-locale-consistency-cs-json-covers-all-keys-from-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1061-i18n-locale-consistency-cs-json-covers-all-keys-from-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1058,
+      "sourceLine": 1061,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17464,10 +17597,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so cs json covers all keys from en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1101-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1107-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1101,
+      "sourceLine": 1107,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17480,10 +17613,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1108-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1114-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1108,
+      "sourceLine": 1114,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17496,10 +17629,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in ru json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1116-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1122-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1116,
+      "sourceLine": 1122,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17512,26 +17645,26 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in cs json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1124-i18n-notification-keys-task-41-6-settingsnotiftime-interpolates-time",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1130-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1124,
+      "sourceLine": 1130,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "i18n — notification keys (Task 41.6)"
       ],
-      "title": "settingsNotifTime interpolates {time}",
-      "rawTitle": "settingsNotifTime interpolates {time}",
-      "name": "Core domain i18n — notification keys (Task 41 6) settings Notif Time interpolates {time}",
-      "value": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Time interpolates {time}.",
-      "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Time interpolates {time}."
+      "title": "settingsNotifTimes interpolates {times}",
+      "rawTitle": "settingsNotifTimes interpolates {times}",
+      "name": "Core domain i18n — notification keys (Task 41 6) settings Notif Times interpolates {times}",
+      "value": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times}.",
+      "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1129-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1135-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1129,
+      "sourceLine": 1135,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17544,10 +17677,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1134-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1140-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1134,
+      "sourceLine": 1140,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17560,26 +17693,26 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1139-i18n-notification-keys-task-41-6-settingsnotiftime-interpolates-time-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1145-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1139,
+      "sourceLine": 1145,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "i18n — notification keys (Task 41.6)"
       ],
-      "title": "settingsNotifTime interpolates {time} in Russian",
-      "rawTitle": "settingsNotifTime interpolates {time} in Russian",
-      "name": "Core domain i18n — notification keys (Task 41 6) settings Notif Time interpolates {time} in Russian",
-      "value": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Time interpolates {time} in Russian.",
-      "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Time interpolates {time} in Russian."
+      "title": "settingsNotifTimes interpolates {times} in Russian",
+      "rawTitle": "settingsNotifTimes interpolates {times} in Russian",
+      "name": "Core domain i18n — notification keys (Task 41 6) settings Notif Times interpolates {times} in Russian",
+      "value": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times} in Russian.",
+      "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times} in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1144-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1150-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1144,
+      "sourceLine": 1150,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17592,10 +17725,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1149-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1155-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1149,
+      "sourceLine": 1155,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17608,10 +17741,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1154-i18n-notification-keys-task-41-6-notification-keys-fallback-to-en-for-unsupported-language",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1160-i18n-notification-keys-task-41-6-notification-keys-fallback-to-en-for-unsupported-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1154,
+      "sourceLine": 1160,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

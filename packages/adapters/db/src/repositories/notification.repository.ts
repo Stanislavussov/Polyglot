@@ -1,5 +1,5 @@
 import type { NotificationType, NotificationUser } from "@polyglot/core";
-import { and, desc, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
+import { and, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { notificationHistory, userLanguageSettings, users } from "../schema.js";
 
@@ -85,7 +85,7 @@ const notificationUserSelect = {
   learningLangs: userLanguageSettings.learningLangs,
   timezone: userLanguageSettings.timezone,
   notificationEnabled: userLanguageSettings.notificationEnabled,
-  notificationTime: userLanguageSettings.notificationTime,
+  notificationTimes: userLanguageSettings.notificationTimes,
   notificationType: userLanguageSettings.notificationType,
   notificationContext: userLanguageSettings.notificationContext,
 } as const;
@@ -115,8 +115,10 @@ export const notificationRepository = {
     return rows.filter((user) => {
       const localMinutes = getLocalMinutes(user.timezone, utcHour, utcMinute);
       if (localMinutes < 0) return false;
-      const targetMinutes = parseNotificationMinutes(user.notificationTime);
-      return isWithinCurrentNotificationSlot(localMinutes, targetMinutes);
+      // Eligible if ANY configured slot falls in the current window. Empty list = not configured.
+      return user.notificationTimes.some((time) =>
+        isWithinCurrentNotificationSlot(localMinutes, parseNotificationMinutes(time)),
+      );
     });
   },
 
@@ -159,7 +161,7 @@ export const notificationRepository = {
     userId: number,
     prefs: {
       notificationEnabled?: boolean;
-      notificationTime?: string;
+      notificationTimes?: string[];
       notificationType?: NotificationType;
       notificationContext?: string | null;
     },
@@ -167,7 +169,7 @@ export const notificationRepository = {
     const db = getDb();
     const set: Record<string, unknown> = {};
     if (prefs.notificationEnabled !== undefined) set.notificationEnabled = prefs.notificationEnabled;
-    if (prefs.notificationTime !== undefined) set.notificationTime = prefs.notificationTime;
+    if (prefs.notificationTimes !== undefined) set.notificationTimes = prefs.notificationTimes;
     if (prefs.notificationType !== undefined) set.notificationType = prefs.notificationType;
     if (prefs.notificationContext !== undefined) set.notificationContext = prefs.notificationContext;
     set.updatedAt = new Date();
@@ -180,14 +182,12 @@ export const notificationRepository = {
     await db.insert(notificationHistory).values({ userId, original, source });
   },
 
-  async getRecentSentWords(userId: number, limit = 3): Promise<string[]> {
+  async getSentWordsSince(userId: number, since: Date): Promise<string[]> {
     const db = getDb();
     const rows = await db
       .select({ original: notificationHistory.original })
       .from(notificationHistory)
-      .where(eq(notificationHistory.userId, userId))
-      .orderBy(desc(notificationHistory.sentAt))
-      .limit(limit);
+      .where(and(eq(notificationHistory.userId, userId), gte(notificationHistory.sentAt, since)));
     return rows.map((r) => r.original);
   },
 };

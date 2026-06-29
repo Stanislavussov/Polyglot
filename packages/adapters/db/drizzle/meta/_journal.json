@@ -267,6 +267,20 @@
       "when": 1782654169063,
       "tag": "0037_wide_dexter_bennett",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1782751833190,
+      "tag": "0038_curved_molly_hayes",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1782751985312,
+      "tag": "0039_moaning_colonel_america",
+      "breakpoints": true
     }
   ]
 }

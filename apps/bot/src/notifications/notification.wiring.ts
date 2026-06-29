@@ -119,7 +119,7 @@ Return translations as JSON array.`;
     getUsersForWindow: (hour: number, minute = 0) => notificationRepository.getUsersForWindow(hour, minute),
     getInactiveUsers: () => notificationRepository.getInactiveUsers(),
     disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
-    getRecentSentWords: (userId: number, limit = 3) => notificationRepository.getRecentSentWords(userId, limit),
+    getSentWordsSince: (userId: number, since: Date) => notificationRepository.getSentWordsSince(userId, since),
     recordSentWord: (userId: number, original: string, source: string) =>
       notificationRepository.recordSentWord(userId, original, source),
     pickDictionaryWord: (userId: number, recentWords) => notifService.pickDictionaryWord(userId, recentWords),
