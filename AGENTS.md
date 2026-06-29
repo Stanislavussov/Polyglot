@@ -60,6 +60,25 @@ For every feature, bug fix, refactor, or behavior change that touches source cod
 
 If a change is too small to need a new test, explicitly state why existing tests or static checks already cover the behavior.
 
+### 6. Deployment & Host Provisioning
+
+Two **separate** pipelines — never conflate them. Canonical guidance: `@docs/agents/deployment.md`.
+
+- **App deploy** (`.github/workflows/deploy.yml`, on push to `master`): builds/pushes images and runs `docker compose up`. Touches containers only — never nginx, TLS, or host config.
+- **Host provisioning** (`deploy/ansible/site.yml`, run via `pnpm ansible` → `scripts/run-ansible.sh`): UFW, Docker, nginx reverse proxies, certbot TLS. Reads `.env.prod`; each routing block is gated by its domain env var (`LANDING_DOMAIN`, `ADMIN_PANEL_DOMAIN` + `ADMIN_API_DOMAIN`, `GRAFANA_DOMAIN`; any TLS needs `ACME_EMAIL`).
+
+Rules:
+
+- Production provisioning is a manual, explicit step. Do **not** run `pnpm ansible` against production without an explicit, separate user request for that exact action — same posture as `pnpm db:migrate`.
+- Before provisioning a new domain, confirm DNS points at the VPS (certbot fails and burns Let's Encrypt quota otherwise). The playbook is idempotent; certs are guarded by `creates:`.
+- Manage GitHub Actions secrets with `gh secret set` (value via stdin). Sync infra/Ansible vars from `.env.prod`. Do **not** push derived/generated vars (`*_IMAGE_NAME`, ports, `NODE_ENV`, `*_URL` — the deploy workflow computes them), and do **not** sync `VPS_SSH_KEY` from `.env.prod` (it is a file *path* locally but must hold the key *contents* in GitHub).
+
+Run these steps **when there are related code changes** (a change isn't done until handled — surface it even if you can't execute it):
+
+- Changed `deploy/ansible/**` / nginx routing, or added a domain or service needing host routing → re-apply with `pnpm ansible` (still gated by the explicit-prod rule above; confirm DNS first). The change is dormant until then.
+- Added/changed an infra var in `.env.prod` that Ansible or the deploy workflow consumes → push it with `gh secret set`, or CI runs with stale values.
+- App-code/container-only changes → none of this applies; the app-deploy pipeline covers it.
+
 ## Project Context
 
 - **Monorepo**: pnpm workspaces (`packages/*`, `packages/adapters/*`, `apps/*`)
