@@ -269,8 +269,10 @@ function buildNotifTimesKeyboard(selected: Set<number>, lang: SupportedLang): In
   const kb = new InlineKeyboard();
   for (let slot = 0; slot < 48; slot++) {
     const totalMinutes = slot * 30;
-    const prefix = selected.has(totalMinutes) ? "✅ " : "";
-    const label = `${prefix}${hourIcon(Math.floor(totalMinutes / 60))} ${formatNotificationTime(totalMinutes)}`;
+    // Replace the time-of-day icon with ✅ when selected, so the label width
+    // stays the same (one glyph + time) and the time isn't truncated.
+    const icon = selected.has(totalMinutes) ? "✅" : hourIcon(Math.floor(totalMinutes / 60));
+    const label = `${icon} ${formatNotificationTime(totalMinutes)}`;
     kb.text(label, `set:notif:time:${totalMinutes}`);
     if ((slot + 1) % 4 === 0) kb.row();
   }
