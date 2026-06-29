@@ -10,6 +10,7 @@
     "bot": "pnpm --filter @polyglot/bot run dev",
     "admin-api": "pnpm --filter @polyglot/admin-api run dev",
     "admin": "pnpm --filter @polyglot/admin run dev",
+    "landing": "pnpm --filter @polyglot/landing run dev",
     "translation:benchmark": "pnpm --filter @polyglot/translation-benchmark run benchmark",
     "dev": "pnpm -r --parallel run dev",
     "build": "pnpm -r run build",

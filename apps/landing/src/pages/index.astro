@@ -1,9 +1,8 @@
 ---
 import "../styles/global.css";
 
-// Single source of truth for the bot link — change here when the real
-// username is confirmed.
-const TELEGRAM_URL = "https://t.me/polyglot_monster_bot";
+// Single source of truth for the bot link.
+const TELEGRAM_URL = "https://t.me/polyglot_lang_ai_bot";
 
 const steps = [
   {
@@ -83,7 +82,7 @@ const cards = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/images/polyglot-monster.png" />
+    <link rel="icon" type="image/png" href="/images/logo.png" />
     <title>Polyglot Monster — Learn a phrase once. Remember it everywhere.</title>
     <meta
       name="description"
@@ -100,8 +99,8 @@ const cards = [
     <header class="sticky top-0 z-40 backdrop-blur-md bg-paper/85 border-b border-ink/[0.07]">
       <div class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-3.5 flex items-center justify-between gap-3.5">
         <a href={TELEGRAM_URL} class="flex items-center gap-[11px] no-underline text-ink">
-          <span class="w-10 h-10 rounded-[13px] bg-[#D8EEE6] flex items-center justify-center overflow-hidden border border-teal/25 shrink-0">
-            <img src="/images/polyglot-monster.png" alt="Polyglot Monster" class="w-[150%] h-[150%] object-contain object-[center_30%]" />
+          <span class="w-10 h-10 flex items-center justify-center shrink-0">
+            <img src="/images/logo.png" alt="Polyglot Monster" class="w-full h-full object-contain" />
           </span>
           <span class="font-display font-bold text-[1.08rem] tracking-[-0.01em] whitespace-nowrap">Polyglot&nbsp;Monster</span>
         </a>
@@ -265,13 +264,13 @@ const cards = [
     <footer class="border-t border-ink/[0.08]">
       <div class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-7 flex flex-wrap items-center justify-between gap-3.5">
         <div class="flex items-center gap-2.5">
-          <span class="w-8 h-8 rounded-[10px] bg-[#D8EEE6] flex items-center justify-center overflow-hidden border border-teal/25">
-            <img src="/images/polyglot-monster.png" alt="" class="w-[150%] h-[150%] object-contain object-[center_30%]" />
+          <span class="w-8 h-8 flex items-center justify-center shrink-0">
+            <img src="/images/logo.png" alt="" class="w-full h-full object-contain" />
           </span>
           <span class="font-display font-bold text-[0.98rem]">Polyglot Monster</span>
         </div>
         <p class="text-ink-faint text-[0.86rem] m-0">Made for people who learn languages every day.</p>
-        <a href={TELEGRAM_URL} class="text-teal-deep font-semibold text-[0.9rem] no-underline">@polyglot_monster_bot →</a>
+        <a href={TELEGRAM_URL} class="text-teal-deep font-semibold text-[0.9rem] no-underline">@polyglot_lang_ai_bot →</a>
       </div>
     </footer>
   </body>
