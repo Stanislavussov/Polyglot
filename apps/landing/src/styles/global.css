@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Warm flashcard "study paper" texture — a subtle dot grid on the base. */
+body {
+  background-color: theme("colors.paper");
+  background-image: radial-gradient(rgba(35, 29, 22, 0.06) 1.3px, transparent 1.3px);
+  background-size: 25px 25px;
+  background-position: -2px -2px;
+}

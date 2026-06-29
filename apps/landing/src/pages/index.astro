@@ -1,0 +1,278 @@
+---
+import "../styles/global.css";
+
+// Single source of truth for the bot link.
+const TELEGRAM_URL = "https://t.me/polyglot_lang_ai_bot";
+
+const steps = [
+  {
+    n: "1",
+    title: "Send a phrase",
+    desc: "Type or paste any word, idiom, or sentence — even a tricky one like “schadenfreude.”",
+  },
+  {
+    n: "2",
+    title: "Get rich cards",
+    desc: "Polyglot Monster returns translations, examples, and context across the languages you study.",
+  },
+  {
+    n: "3",
+    title: "Save and review",
+    desc: "Keep the cards that matter in your personal dictionary and revisit them until they stick.",
+  },
+];
+
+const features = [
+  {
+    title: "All your languages at once",
+    desc: "Send one word and get it back in every language you study — no switching between separate tools.",
+    color: "#2E9E86",
+    shape: "circle",
+  },
+  {
+    title: "Register & CEFR on every card",
+    desc: "See whether a word is slang, formal, or neutral, plus its CEFR level — so you know when to use it.",
+    color: "#F26B4E",
+    shape: "diamond",
+  },
+  {
+    title: "Context, examples & synonyms",
+    desc: "Transcription, real example sentences, and synonyms turn a translation into actual understanding.",
+    color: "#E0A33A",
+    shadow: "rgba(224,163,58,0.32)",
+    shape: "stack",
+  },
+  {
+    title: "Personal dictionary",
+    desc: "Save any word with a single tap and build a vocabulary that travels with you across every chat.",
+    color: "#6FA8D6",
+    shape: "ring",
+  },
+  {
+    title: "Words from YouTube",
+    desc: "Paste a YouTube link and the bot pulls the most useful words from the transcript into study cards.",
+    color: "#D0708A",
+    shape: "play",
+  },
+  {
+    title: "Flash-card review & reminders",
+    desc: "Review saved words at your own pace, with daily reminders that bring them back before you forget.",
+    color: "#9B8BD0",
+    shape: "pill",
+  },
+];
+
+const useCases = [
+  { tag: "Travel", title: "Travel phrases", desc: "Order, ask, and get around in a new city with phrases that sound natural.", color: "#7FD3BF" },
+  { tag: "Work", title: "Work vocabulary", desc: "Master the terms your job runs on, in every language your team speaks.", color: "#F2A98E" },
+  { tag: "Life", title: "Relocation life", desc: "Handle paperwork, leases, and doctors after a move abroad.", color: "#F0CE84" },
+  { tag: "Study", title: "Exam prep", desc: "Build the focused vocabulary lists that carry you through language exams.", color: "#A9CBEA" },
+  { tag: "Watch", title: "Video vocabulary", desc: "Turn words from films and YouTube videos into cards you actually remember.", color: "#C5B8E8" },
+];
+
+const cards = [
+  { lang: "EN", text: "Hippocratic oath", fg: "#1F8A74", bg: "#DCEFE8", pos: "top-[3%] right-[1%]", anim: "animate-f1", z: "z-[6]" },
+  { lang: "RU", text: "клятва Гиппократа", fg: "#B6502F", bg: "#FAE0D6", pos: "top-[31%] right-[9%]", anim: "animate-f2", z: "z-[7]" },
+  { lang: "ES", text: "juramento hipocrático", fg: "#9A6B14", bg: "#F6E8C8", pos: "top-[59%] right-[2%]", anim: "animate-f3", z: "z-[6]" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/images/logo.png" />
+    <title>Polyglot Monster — Learn a phrase once. Remember it everywhere.</title>
+    <meta
+      name="description"
+      content="Send any phrase to Polyglot Monster on Telegram and get translations, examples, context, and review cards in every language you learn."
+    />
+    <meta property="og:title" content="Polyglot Monster" />
+    <meta property="og:description" content="Learn a phrase once. Remember it everywhere." />
+    <meta property="og:url" content="https://polyglot.monster/" />
+    <meta property="og:image" content="https://polyglot.monster/images/polyglot-woman.png" />
+    <meta property="og:type" content="website" />
+  </head>
+
+  <body class="font-sans text-ink antialiased leading-relaxed overflow-x-hidden min-h-screen">
+    <!-- NAV -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-paper/85 border-b border-ink/[0.07]">
+      <div class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-3.5 flex items-center justify-between gap-3.5">
+        <a href={TELEGRAM_URL} class="flex items-center gap-[11px] no-underline text-ink">
+          <span class="w-10 h-10 flex items-center justify-center shrink-0">
+            <img src="/images/logo.png" alt="Polyglot Monster" class="w-full h-full object-contain" />
+          </span>
+          <span class="font-display font-bold text-[1.08rem] tracking-[-0.01em] whitespace-nowrap">Polyglot&nbsp;Monster</span>
+        </a>
+        <a href={TELEGRAM_URL} class="inline-flex items-center gap-2 bg-ink text-paper font-semibold text-[0.95rem] px-[18px] py-[11px] rounded-xl no-underline transition-colors hover:bg-[#3a3025]">
+          Try in Telegram <span class="text-[1.05em]">→</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="relative">
+      <div class="relative w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] pt-[clamp(28px,5vw,64px)] pb-[clamp(40px,6vw,80px)] grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center">
+        <!-- text -->
+        <div class="min-w-0">
+          <span class="inline-flex items-center gap-2 bg-[#DCEFE8] text-teal-deep font-bold text-[0.8rem] tracking-[0.02em] pl-2.5 pr-[13px] py-[7px] rounded-full border border-teal/[0.22]">
+            <span class="w-[7px] h-[7px] rounded-full bg-teal shadow-[0_0_0_4px_rgba(46,158,134,0.18)]"></span>AI-powered language buddy
+          </span>
+          <h1 class="font-display font-extrabold text-[clamp(2.4rem,7vw,4rem)] leading-[1.02] tracking-[-0.03em] mt-[18px]">
+            Learn a phrase once.<br /><span class="text-teal">Remember it everywhere.</span>
+          </h1>
+          <p class="text-[clamp(1.02rem,2.4vw,1.22rem)] text-ink-soft max-w-[34ch] mt-[18px] [text-wrap:pretty]">
+            Send any word or phrase — even slang like “spill the tea” — to Polyglot Monster and get translations,
+            examples, context, and review cards in the languages you learn.
+          </p>
+          <div class="flex flex-wrap gap-3 mt-7">
+            <a href={TELEGRAM_URL} class="inline-flex items-center gap-[9px] bg-coral text-white font-bold text-[1.05rem] px-[26px] py-[15px] rounded-[14px] no-underline shadow-[0_12px_26px_-10px_rgba(242,107,78,0.75)] transition-all hover:bg-coral-deep hover:-translate-y-0.5">
+              Try in Telegram <span class="text-[1.1em]">→</span>
+            </a>
+            <a href="#how" class="inline-flex items-center gap-2 text-ink font-semibold text-[1.02rem] px-5 py-[15px] rounded-[14px] no-underline border border-[#D9CBB2] bg-cream transition-colors hover:bg-paper">
+              See how it works
+            </a>
+          </div>
+          <p class="text-[0.86rem] text-ink-faint mt-[18px] flex items-center gap-2 flex-wrap">
+            <span>Free to start</span><span class="opacity-40">•</span><span>Lives right inside Telegram</span>
+          </p>
+        </div>
+
+        <!-- scene -->
+        <div class="min-w-0 flex justify-center">
+          <div class="relative w-full max-w-[440px] aspect-[5/6]">
+            <div class="absolute inset-0 rounded-[30px] overflow-hidden border border-ink/[0.08] shadow-[0_30px_60px_-28px_rgba(35,29,22,0.45),inset_0_2px_0_rgba(255,255,255,0.6)] bg-[#cdbfa8]">
+              <img src="/images/polyglot-woman.png" alt="Learner reviewing language cards in a cafe" class="w-full h-full object-cover object-[39%_36%]" />
+            </div>
+
+            {
+              cards.map((c) => (
+                <div class={`absolute ${c.pos} w-[min(58%,184px)] bg-[#FFFDF8] rounded-[15px] px-[13px] py-[11px] shadow-[0_16px_30px_-14px_rgba(35,29,22,0.5)] border border-ink/[0.06] ${c.anim} ${c.z}`}>
+                  <span class="inline-block text-[0.66rem] font-bold tracking-[0.08em] px-2 py-[3px] rounded-md" style={`color:${c.fg};background:${c.bg}`}>
+                    {c.lang}
+                  </span>
+                  <div class="font-display font-bold text-base mt-[7px] text-ink">{c.text}</div>
+                </div>
+              ))
+            }
+
+            <img
+              src="/images/polyglot-monster.png"
+              alt="Polyglot Monster sorting language cards"
+              class="absolute left-[-17%] bottom-[-15%] w-[76%] max-w-[330px] animate-bob z-[9] [filter:drop-shadow(0_20px_26px_rgba(35,29,22,0.36))]"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how" class="bg-cream border-y border-ink/[0.06]">
+      <div class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-[clamp(56px,8vw,104px)]">
+        <span class="uppercase tracking-[0.16em] text-[0.78rem] font-bold text-teal">How it works</span>
+        <h2 class="font-display font-extrabold text-[clamp(1.9rem,4.6vw,2.9rem)] tracking-[-0.025em] leading-[1.05] mt-3 max-w-[18ch]">
+          One phrase in. A whole study deck out.
+        </h2>
+        <div class="grid gap-[18px] mt-[clamp(34px,5vw,52px)] [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
+          {
+            steps.map((step) => (
+              <div class="bg-paper border border-ink/[0.08] rounded-[20px] px-6 pt-[26px] pb-7">
+                <span class="flex items-center justify-center w-[42px] h-[42px] rounded-xl bg-teal text-white font-display font-bold text-[1.15rem]">
+                  {step.n}
+                </span>
+                <h3 class="font-display font-bold text-[1.28rem] tracking-[-0.01em] mt-[18px] mb-2">{step.title}</h3>
+                <p class="text-ink-soft text-base m-0 [text-wrap:pretty]">{step.desc}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-[clamp(56px,8vw,104px)]">
+      <div class="max-w-[34ch]">
+        <span class="uppercase tracking-[0.16em] text-[0.78rem] font-bold text-coral">Features</span>
+        <h2 class="font-display font-extrabold text-[clamp(1.9rem,4.6vw,2.9rem)] tracking-[-0.025em] leading-[1.05] mt-3">
+          Everything a phrase needs to actually stick.
+        </h2>
+      </div>
+      <div class="grid gap-4 mt-[clamp(34px,5vw,52px)] [grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]">
+        {
+          features.map((f) => (
+            <article class="bg-cream border border-ink/[0.08] rounded-[18px] px-[22px] py-6 transition-all hover:-translate-y-[3px] hover:border-teal/40">
+              {f.shape === "circle" && <span class="block w-8 h-8 rounded-full mb-[18px] mt-0.5" style={`background:${f.color}`} />}
+              {f.shape === "diamond" && <span class="block w-7 h-7 rounded-[7px] rotate-45 mt-[7px] mb-[23px] ml-[3px]" style={`background:${f.color}`} />}
+              {f.shape === "stack" && <span class="block w-7 h-7 rounded-lg mb-5 mt-0.5" style={`background:${f.color};box-shadow:7px 7px 0 ${f.shadow}`} />}
+              {f.shape === "ring" && <span class="block w-8 h-8 rounded-full mb-[18px] mt-0.5" style={`border:7px solid ${f.color}`} />}
+              {f.shape === "play" && <span class="block mt-2 mb-6 ml-[3px]" style={`width:0;height:0;border-style:solid;border-width:11px 0 11px 19px;border-color:transparent transparent transparent ${f.color}`} />}
+              {f.shape === "pill" && <span class="block w-9 h-4 rounded-full mt-2.5 mb-[22px]" style={`background:${f.color}`} />}
+              <h3 class="font-display font-bold text-[1.14rem] tracking-[-0.01em] mb-[7px]">{f.title}</h3>
+              <p class="text-ink-soft text-[0.97rem] m-0 [text-wrap:pretty]">{f.desc}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- USE CASES -->
+    <section class="bg-[#26201A] text-paper">
+      <div class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-[clamp(56px,8vw,104px)]">
+        <span class="uppercase tracking-[0.16em] text-[0.78rem] font-bold text-[#7FD3BF]">Use cases</span>
+        <h2 class="font-display font-extrabold text-[clamp(1.9rem,4.6vw,2.9rem)] tracking-[-0.025em] leading-[1.05] mt-3 max-w-[20ch] text-cream">
+          Wherever you meet a new language.
+        </h2>
+        <div class="grid gap-3.5 mt-[clamp(34px,5vw,52px)] [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
+          {
+            useCases.map((uc) => (
+              <div class="bg-white/[0.05] border border-paper/[0.14] rounded-2xl px-5 py-[22px] transition-colors hover:bg-white/[0.09]">
+                <span class="inline-block text-[0.72rem] font-bold tracking-[0.04em] text-[#26201A] px-2.5 py-1 rounded-full" style={`background:${uc.color}`}>
+                  {uc.tag}
+                </span>
+                <h3 class="font-display font-bold text-[1.18rem] mt-3.5 mb-[7px] text-cream">{uc.title}</h3>
+                <p class="text-[#C3B8A6] text-[0.95rem] m-0 [text-wrap:pretty]">{uc.desc}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-[clamp(48px,7vw,96px)]">
+      <div class="relative overflow-hidden bg-teal-deep rounded-[30px] p-[clamp(36px,6vw,68px)] flex flex-wrap items-center gap-7 shadow-[0_30px_60px_-30px_rgba(31,138,116,0.7)]">
+        <div class="absolute -top-20 -right-10 w-[320px] h-[320px] [background:radial-gradient(circle,rgba(255,255,255,0.16),transparent_65%)] pointer-events-none"></div>
+        <div class="flex-1 min-w-0 basis-[320px] relative z-[2]">
+          <span class="uppercase tracking-[0.16em] text-[0.78rem] font-bold text-[#BDE9DD]">Ready when you are</span>
+          <h2 class="font-display font-extrabold text-[clamp(2rem,5vw,3rem)] tracking-[-0.025em] leading-[1.04] text-cream mt-3 max-w-[16ch]">
+            Open Telegram and try your first card.
+          </h2>
+          <p class="text-[#D4EDE5] text-[1.06rem] mt-4 mb-7 max-w-[40ch]">
+            Send any word or phrase right now — your first set of learning cards is one message away.
+          </p>
+          <a href={TELEGRAM_URL} class="inline-flex items-center gap-[9px] bg-coral text-white font-bold text-[1.08rem] px-[30px] py-4 rounded-[14px] no-underline shadow-[0_14px_28px_-12px_rgba(0,0,0,0.5)] transition-all hover:bg-coral-deep hover:-translate-y-0.5">
+            Try in Telegram <span class="text-[1.1em]">→</span>
+          </a>
+        </div>
+        <div class="flex-[1.25] min-w-0 basis-[300px] relative z-[2] flex justify-center">
+          <img src="/images/polyglot-monster.png" alt="Polyglot Monster" class="w-full max-w-[560px] [filter:drop-shadow(0_26px_36px_rgba(0,0,0,0.4))]" />
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-ink/[0.08]">
+      <div class="w-full max-w-[1140px] mx-auto px-[clamp(18px,4vw,40px)] py-7 flex flex-wrap items-center justify-between gap-3.5">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 flex items-center justify-center shrink-0">
+            <img src="/images/logo.png" alt="" class="w-full h-full object-contain" />
+          </span>
+          <span class="font-display font-bold text-[0.98rem]">Polyglot Monster</span>
+        </div>
+        <p class="text-ink-faint text-[0.86rem] m-0">Made for people who learn languages every day.</p>
+        <a href={TELEGRAM_URL} class="text-teal-deep font-semibold text-[0.9rem] no-underline">@polyglot_lang_ai_bot →</a>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -37,3 +37,11 @@ services:
       - PUBLIC_API_URL=http://localhost:3001
     ports:
       - "4321:4321"
+
+  landing:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.landing
+      target: production
+    ports:
+      - "8080:80"
