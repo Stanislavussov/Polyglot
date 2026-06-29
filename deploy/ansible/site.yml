@@ -12,6 +12,10 @@
     acme_email: "{{ lookup('env', 'ACME_EMAIL') }}"
     configure_public_routing: "{{ admin_panel_domain | length > 0 and admin_api_domain | length > 0 }}"
     configure_grafana_routing: "{{ grafana_domain | length > 0 }}"
+    landing_domain: "{{ lookup('env', 'LANDING_DOMAIN') }}"
+    landing_www_domain: "{{ lookup('env', 'LANDING_WWW_DOMAIN') }}"
+    landing_port: "{{ lookup('env', 'LANDING_PORT') | default('8080', true) }}"
+    configure_landing_routing: "{{ landing_domain | length > 0 }}"
 
   tasks:
     - name: Install essential packages
@@ -398,6 +402,121 @@
         creates: "/etc/letsencrypt/live/{{ grafana_domain }}/fullchain.pem"
       when:
         - configure_grafana_routing | bool
+        - acme_email | length > 0
+
+    # ── Landing site (polyglot.monster) — separate nginx site, admin routing untouched ──
+    - name: Install public routing packages (landing)
+      ansible.builtin.apt:
+        name:
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+        state: present
+        update_cache: true
+      when: configure_landing_routing | bool
+
+    - name: Check landing TLS certificate
+      ansible.builtin.stat:
+        path: "/etc/letsencrypt/live/{{ landing_domain }}/fullchain.pem"
+      register: landing_tls_certificate
+      when: configure_landing_routing | bool
+
+    - name: Configure nginx for the landing site
+      ansible.builtin.copy:
+        dest: /etc/nginx/sites-available/polyglot-landing
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          {% if landing_tls_certificate.stat.exists | default(false) %}
+          # HTTP → HTTPS
+          server {
+              listen 80;
+              server_name {{ landing_domain }}{% if landing_www_domain | length > 0 %} {{ landing_www_domain }}{% endif %};
+
+              location / {
+                  return 301 https://{{ landing_domain }}$request_uri;
+              }
+          }
+
+          {% if landing_www_domain | length > 0 %}
+          # www → apex (HTTPS)
+          server {
+              listen 443 ssl http2;
+              server_name {{ landing_www_domain }};
+
+              ssl_certificate /etc/letsencrypt/live/{{ landing_domain }}/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/{{ landing_domain }}/privkey.pem;
+
+              return 301 https://{{ landing_domain }}$request_uri;
+          }
+          {% endif %}
+
+          server {
+              listen 443 ssl http2;
+              server_name {{ landing_domain }};
+
+              ssl_certificate /etc/letsencrypt/live/{{ landing_domain }}/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/{{ landing_domain }}/privkey.pem;
+
+              location / {
+                  proxy_pass http://localhost:{{ landing_port }};
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+          }
+          {% else %}
+          # Pre-TLS bootstrap: plain HTTP so certbot can issue the certificate.
+          server {
+              listen 80;
+              server_name {{ landing_domain }}{% if landing_www_domain | length > 0 %} {{ landing_www_domain }}{% endif %};
+
+              location / {
+                  proxy_pass http://localhost:{{ landing_port }};
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+          }
+          {% endif %}
+      when: configure_landing_routing | bool
+      notify: Reload nginx
+
+    - name: Enable landing nginx site
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/polyglot-landing
+        dest: /etc/nginx/sites-enabled/polyglot-landing
+        state: link
+      when: configure_landing_routing | bool
+      notify: Reload nginx
+
+    - name: Validate nginx config (landing)
+      ansible.builtin.command: nginx -t
+      changed_when: false
+      when: configure_landing_routing | bool
+
+    - name: Start nginx (landing)
+      ansible.builtin.systemd:
+        name: nginx
+        enabled: true
+        state: started
+      when: configure_landing_routing | bool
+
+    - name: Issue landing TLS certificate
+      ansible.builtin.command:
+        cmd: >-
+          certbot --nginx --non-interactive --agree-tos
+          --email {{ acme_email }}
+          -d {{ landing_domain }}
+          {% if landing_www_domain | length > 0 %}-d {{ landing_www_domain }}{% endif %}
+        creates: "/etc/letsencrypt/live/{{ landing_domain }}/fullchain.pem"
+      when:
+        - configure_landing_routing | bool
         - acme_email | length > 0
 
   handlers:

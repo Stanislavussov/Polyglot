@@ -10,6 +10,10 @@
     "apps/admin-api": {
       "project": ["src/**/*.ts"]
     },
+    "apps/landing": {
+      "entry": ["src/pages/**/*.astro"],
+      "project": ["src/**/*.{astro,ts}"]
+    },
     "apps/bot": {
       "entry": ["src/release-announcement.cli.ts"],
       "project": ["src/**/*.ts"]

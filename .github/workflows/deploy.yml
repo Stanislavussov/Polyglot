@@ -75,6 +75,14 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
+          file: deploy/Dockerfile.landing
+          target: production
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ github.sha }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
           file: deploy/Dockerfile
           target: migrate
           push: true
@@ -118,6 +126,7 @@ jobs:
           echo "MIGRATE_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot:migrate-${{ github.sha }}" >> .env
           echo "ADMIN_API_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ github.sha }}" >> .env
           echo "ADMIN_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin:${{ github.sha }}" >> .env
+          echo "LANDING_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ github.sha }}" >> .env
           echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env

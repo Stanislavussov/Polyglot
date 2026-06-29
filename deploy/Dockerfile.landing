@@ -1,0 +1,44 @@
+# ── Stage 1: base ─────────────────────────────────────────────────────
+FROM node:26-alpine AS base
+RUN npm install -g pnpm@10.14.0
+WORKDIR /app
+
+# ── Stage 2: deps ─────────────────────────────────────────────────────
+FROM base AS deps
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/bot/package.json apps/bot/
+COPY apps/admin-api/package.json apps/admin-api/
+COPY apps/admin/package.json apps/admin/
+COPY apps/landing/package.json apps/landing/
+COPY apps/translation-benchmark/package.json apps/translation-benchmark/
+COPY packages/@types/package.json packages/@types/
+COPY packages/core/package.json packages/core/
+COPY packages/infra/package.json packages/infra/
+COPY packages/adapters/ai/package.json packages/adapters/ai/
+COPY packages/adapters/db/package.json packages/adapters/db/
+COPY packages/adapters/notifications/package.json packages/adapters/notifications/
+COPY packages/adapters/youtube/package.json packages/adapters/youtube/
+
+RUN pnpm install --frozen-lockfile
+
+# ── Stage 3: build (static Astro output) ──────────────────────────────
+FROM deps AS build
+
+COPY tsconfig.json ./
+COPY apps/landing/ apps/landing/
+
+RUN pnpm --filter @polyglot/landing exec astro build
+
+# ── Stage 4: production (nginx serving static dist) ───────────────────
+FROM nginx:1.27-alpine AS production
+
+COPY deploy/nginx-landing.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/apps/landing/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://127.0.0.1/ || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
