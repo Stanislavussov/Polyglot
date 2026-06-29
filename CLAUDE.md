@@ -36,9 +36,9 @@ pnpm db:check      # check for schema drift
 - When database structure changes on the `develop` branch, run `pnpm db:generate`, review the generated migration, then run `pnpm db:push` against the local/dev database
 - Never hand-edit migration files or use raw SQL
 - `pnpm db:push` is allowed and often necessary for local/dev databases
-- Do **not** run `pnpm db:migrate` locally as an agent
-- Production/staging migration application via `pnpm db:migrate` must happen only inside CI/deploy pipelines such as GitHub Actions or GitLab CI
-- Local `pnpm db:migrate` requires an explicit, separate user request for that exact command
+- **`pnpm db:migrate` is forbidden on the `develop` branch — never run it there, even with user approval.** On `develop` the only DB workflow is `pnpm db:generate` (capture the migration) followed by `pnpm db:push` (apply schema to the local/dev DB). Migrations are *applied* (`db:migrate`) exclusively by CI/deploy pipelines (GitHub Actions / GitLab CI) when merging to `master`.
+- Do **not** run `pnpm db:migrate` locally as an agent on any branch
+- `pnpm db:push` syncs **schema only** — it does **not** insert seed/row data (e.g. the `languages` table rows). Seed data reaches dev DBs via the migration applied in CI, or via an idempotent Drizzle-based (never raw SQL) seed/upsert — never by hand-running `db:migrate` on `develop`.
 
 ### 4. No Logic in Index Files
 
