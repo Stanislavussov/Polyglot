@@ -61,6 +61,7 @@
   "expressionDetected": "💬 Detekován výraz: {expression}",
   "dictionaryContext": "📚 Slovníkový kontext",
   "detectedLang": "🔍 Rozpoznáno: {lang}",
+  "languageNotSelected": "🚫 {lang} není mezi vašimi jazyky. Přidejte ho v nastavení, abyste z něj mohli překládat.",
   "nextTranslationFrom": "Další překlad z:",
   "nextSourceSet": "🔤 Příště z: {lang}",
   "sentenceTranslation": "📝 Překlad věty",

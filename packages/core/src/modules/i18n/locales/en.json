@@ -61,6 +61,7 @@
   "expressionDetected": "💬 Expression detected: {expression}",
   "dictionaryContext": "📚 Dictionary context",
   "detectedLang": "🔍 Detected: {lang}",
+  "languageNotSelected": "🚫 {lang} isn't in your selected languages. Add it in settings to translate from it.",
   "nextTranslationFrom": "Next translation from:",
   "nextSourceSet": "🔤 Next from: {lang}",
   "sentenceTranslation": "📝 Sentence translation",

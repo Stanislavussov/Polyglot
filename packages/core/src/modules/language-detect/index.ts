@@ -12,6 +12,7 @@ export {
   detectLanguageAsync,
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
+  detectOutOfSetLanguage,
   FrancStrategy,
   ISO1_TO_ISO3,
   // Strategy classes

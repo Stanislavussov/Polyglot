@@ -61,6 +61,7 @@
   "expressionDetected": "💬 Обнаружено выражение: {expression}",
   "dictionaryContext": "📚 Словарный контекст",
   "detectedLang": "🔍 Определён: {lang}",
+  "languageNotSelected": "🚫 {lang} нет в ваших языках. Добавьте его в настройках, чтобы переводить с него.",
   "nextTranslationFrom": "Следующий перевод с:",
   "nextSourceSet": "🔤 Далее с: {lang}",
   "sentenceTranslation": "📝 Перевод предложения",

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-06-29T19:52:03.065Z",
+  "generatedAt": "2026-06-29T22:24:14.100Z",
   "summary": {
-    "total": 1836,
+    "total": 1853,
     "business": 0,
-    "technical": 1836,
+    "technical": 1853,
     "workspaces": [
       "apps",
       "packages"
@@ -12564,10 +12564,44 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: applies offset correctly for page 2."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-242-vocabularyrepository-pagination-harddelete-harddelete-deletes-entry-from-the-database-not-soft-delete",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-243-vocabularyrepository-pagination-harddelete-findbyuserpaginated-accepts-sort-search-options-and-still-assembles-entries",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 242,
+      "sourceLine": 243,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "vocabularyRepository — pagination & hardDelete",
+        "findByUserPaginated"
+      ],
+      "title": "accepts sort + search options and still assembles entries",
+      "rawTitle": "accepts sort + search options and still assembles entries",
+      "name": "Database adapter vocabulary Repository — pagination & hard Delete find By User Paginated accepts sort + search options and still assembles entries",
+      "value": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: accepts sort + search options and still assembles entries.",
+      "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: accepts sort + search options and still assembles entries."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-259-vocabularyrepository-pagination-harddelete-countbyuser-with-search-accepts-an-optional-search-filter",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
+      "sourceLine": 259,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "vocabularyRepository — pagination & hardDelete",
+        "countByUser with search"
+      ],
+      "title": "accepts an optional search filter",
+      "rawTitle": "accepts an optional search filter",
+      "name": "Database adapter vocabulary Repository — pagination & hard Delete count By User with search accepts an optional search filter",
+      "value": "Protects the database adapter vocabulary Repository — pagination & hard Delete count By User with search behavior: accepts an optional search filter.",
+      "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete count By User with search behavior: accepts an optional search filter."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-269-vocabularyrepository-pagination-harddelete-harddelete-deletes-entry-from-the-database-not-soft-delete",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
+      "sourceLine": 269,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12581,10 +12615,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete hard Delete behavior so deletes entry from the database (not soft delete)."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-249-vocabularyrepository-pagination-harddelete-harddelete-calls-delete-on-vocabularyentries-table",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-276-vocabularyrepository-pagination-harddelete-harddelete-calls-delete-on-vocabularyentries-table",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 249,
+      "sourceLine": 276,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12598,10 +12632,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete hard Delete behavior: calls delete on vocabulary Entries table."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-257-vocabularyrepository-pagination-harddelete-harddelete-is-a-no-op-when-entry-does-not-exist",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-284-vocabularyrepository-pagination-harddelete-harddelete-is-a-no-op-when-entry-does-not-exist",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 257,
+      "sourceLine": 284,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -20605,6 +20639,118 @@
       "description": "Protects the core domain ISO1 TO ISO3 mapping behavior: maps Czech correctly."
     },
     {
+      "id": "packages-core-src-modules-language-detect-tests-detect-out-of-set-test-ts-7-detectoutofsetlanguage-flags-a-german-phrase-as-out-of-set-for-a-ru-en-cs-kk-user",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-out-of-set.test.ts",
+      "sourceLine": 7,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectOutOfSetLanguage"
+      ],
+      "title": "flags a German phrase as out-of-set for a ru/en/cs/kk user",
+      "rawTitle": "flags a German phrase as out-of-set for a ru/en/cs/kk user",
+      "name": "Core domain detect Out Of Set Language flags a German phrase as out of set for a ru en cs kk user",
+      "value": "Protects the core domain detect Out Of Set Language behavior so flags a German phrase as out of set for a ru en cs kk user.",
+      "description": "Protects the core domain detect Out Of Set Language behavior so flags a German phrase as out of set for a ru en cs kk user."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-out-of-set-test-ts-11-detectoutofsetlanguage-returns-undefined-when-the-language-is-in-the-candidate-set",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-out-of-set.test.ts",
+      "sourceLine": 11,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectOutOfSetLanguage"
+      ],
+      "title": "returns undefined when the language IS in the candidate set",
+      "rawTitle": "returns undefined when the language IS in the candidate set",
+      "name": "Core domain detect Out Of Set Language returns undefined when the language IS in the candidate set",
+      "value": "Protects the core domain detect Out Of Set Language behavior: returns undefined when the language IS in the candidate set.",
+      "description": "Protects the core domain detect Out Of Set Language behavior: returns undefined when the language IS in the candidate set."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-out-of-set-test-ts-16-detectoutofsetlanguage-does-not-flag-a-genuine-in-set-english-phrase",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-out-of-set.test.ts",
+      "sourceLine": 16,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectOutOfSetLanguage"
+      ],
+      "title": "does not flag a genuine in-set English phrase",
+      "rawTitle": "does not flag a genuine in-set English phrase",
+      "name": "Core domain detect Out Of Set Language does not flag a genuine in set English phrase",
+      "value": "Protects the core domain detect Out Of Set Language behavior: does not flag a genuine in set English phrase.",
+      "description": "Protects the core domain detect Out Of Set Language behavior: does not flag a genuine in set English phrase."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-out-of-set-test-ts-20-detectoutofsetlanguage-is-conservative-on-short-inputs-3-words",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-out-of-set.test.ts",
+      "sourceLine": 20,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectOutOfSetLanguage"
+      ],
+      "title": "is conservative on short inputs (< 3 words)",
+      "rawTitle": "is conservative on short inputs (< 3 words)",
+      "name": "Core domain detect Out Of Set Language is conservative on short inputs (< 3 words)",
+      "value": "Protects the core domain detect Out Of Set Language behavior so is conservative on short inputs (< 3 words).",
+      "description": "Protects the core domain detect Out Of Set Language behavior so is conservative on short inputs (< 3 words)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-out-of-set-test-ts-26-detectoutofsetlanguage-returns-undefined-for-empty-input",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-out-of-set.test.ts",
+      "sourceLine": 26,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectOutOfSetLanguage"
+      ],
+      "title": "returns undefined for empty input",
+      "rawTitle": "returns undefined for empty input",
+      "name": "Core domain detect Out Of Set Language returns undefined for empty input",
+      "value": "Protects the core domain detect Out Of Set Language behavior: returns undefined for empty input.",
+      "description": "Protects the core domain detect Out Of Set Language behavior: returns undefined for empty input."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-out-of-set-test-ts-32-kazakh-detection-gaps-fixed-maps-kk-kaz-so-franc-can-consider-kazakh",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-out-of-set.test.ts",
+      "sourceLine": 32,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "Kazakh detection gaps fixed"
+      ],
+      "title": "maps kk → kaz so franc can consider Kazakh",
+      "rawTitle": "maps kk → kaz so franc can consider Kazakh",
+      "name": "Core domain Kazakh detection gaps fixed maps kk → kaz so franc can consider Kazakh",
+      "value": "Protects the core domain Kazakh detection gaps fixed behavior: maps kk → kaz so franc can consider Kazakh.",
+      "description": "Protects the core domain Kazakh detection gaps fixed behavior: maps kk → kaz so franc can consider Kazakh."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-out-of-set-test-ts-36-kazakh-detection-gaps-fixed-resolves-a-cyrillic-word-to-kk-when-it-is-the-only-cyrillic-candidate",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-out-of-set.test.ts",
+      "sourceLine": 36,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "Kazakh detection gaps fixed"
+      ],
+      "title": "resolves a Cyrillic word to kk when it is the only Cyrillic candidate",
+      "rawTitle": "resolves a Cyrillic word to kk when it is the only Cyrillic candidate",
+      "name": "Core domain Kazakh detection gaps fixed resolves a Cyrillic word to kk when it is the only Cyrillic candidate",
+      "value": "Protects the core domain Kazakh detection gaps fixed behavior: resolves a Cyrillic word to kk when it is the only Cyrillic candidate.",
+      "description": "Protects the core domain Kazakh detection gaps fixed behavior: resolves a Cyrillic word to kk when it is the only Cyrillic candidate."
+    },
+    {
       "id": "packages-core-src-modules-language-detect-tests-iso1-to-iso3-test-ts-5-iso1-to-iso3-local-map-contains-all-supported-bot-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/iso1-to-iso3.test.ts",
@@ -23799,6 +23945,134 @@
       "name": "Core domain Prompt — idiomatic rule strict prompt mentions expression Type in correction guidance",
       "value": "Protects the core domain Prompt — idiomatic rule behavior so strict prompt mentions expression Type in correction guidance.",
       "description": "Protects the core domain Prompt — idiomatic rule behavior so strict prompt mentions expression Type in correction guidance."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-language-traits-test-ts-14-language-traits-covers-every-supported-language-with-a-non-empty-directive",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/language-traits.test.ts",
+      "sourceLine": 14,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "language traits"
+      ],
+      "title": "covers every supported language with a non-empty directive",
+      "rawTitle": "covers every supported language with a non-empty directive",
+      "name": "Core domain language traits covers every supported language with a non empty directive",
+      "value": "Protects the core domain language traits behavior so covers every supported language with a non empty directive.",
+      "description": "Protects the core domain language traits behavior so covers every supported language with a non empty directive."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-language-traits-test-ts-22-language-traits-keeps-every-directive-within-the-lite-model-token-budget",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/language-traits.test.ts",
+      "sourceLine": 22,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "language traits"
+      ],
+      "title": "keeps every directive within the lite-model token budget",
+      "rawTitle": "keeps every directive within the lite-model token budget",
+      "name": "Core domain language traits keeps every directive within the lite model token budget",
+      "value": "Protects the core domain language traits behavior: keeps every directive within the lite model token budget.",
+      "description": "Protects the core domain language traits behavior: keeps every directive within the lite model token budget."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-language-traits-test-ts-28-language-traits-keeps-the-all-languages-hint-compact",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/language-traits.test.ts",
+      "sourceLine": 28,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "language traits"
+      ],
+      "title": "keeps the all-languages hint compact",
+      "rawTitle": "keeps the all-languages hint compact",
+      "name": "Core domain language traits keeps the all languages hint compact",
+      "value": "Protects the core domain language traits behavior: keeps the all languages hint compact.",
+      "description": "Protects the core domain language traits behavior: keeps the all languages hint compact."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-language-traits-test-ts-35-buildlanguagetraitshint-injects-only-the-requested-language-not-the-whole-table",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/language-traits.test.ts",
+      "sourceLine": 35,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildLanguageTraitsHint"
+      ],
+      "title": "injects only the requested language, not the whole table",
+      "rawTitle": "injects only the requested language, not the whole table",
+      "name": "Core domain build Language Traits Hint injects only the requested language, not the whole table",
+      "value": "Protects the core domain build Language Traits Hint behavior so injects only the requested language, not the whole table.",
+      "description": "Protects the core domain build Language Traits Hint behavior so injects only the requested language, not the whole table."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-language-traits-test-ts-42-buildlanguagetraitshint-returns-empty-string-for-unknown-codes",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/language-traits.test.ts",
+      "sourceLine": 42,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildLanguageTraitsHint"
+      ],
+      "title": "returns empty string for unknown codes",
+      "rawTitle": "returns empty string for unknown codes",
+      "name": "Core domain build Language Traits Hint returns empty string for unknown codes",
+      "value": "Protects the core domain build Language Traits Hint behavior: returns empty string for unknown codes.",
+      "description": "Protects the core domain build Language Traits Hint behavior: returns empty string for unknown codes."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-language-traits-test-ts-46-buildlanguagetraitshint-emits-only-known-codes-when-mixed-with-unknown-ones",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/language-traits.test.ts",
+      "sourceLine": 46,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildLanguageTraitsHint"
+      ],
+      "title": "emits only known codes when mixed with unknown ones",
+      "rawTitle": "emits only known codes when mixed with unknown ones",
+      "name": "Core domain build Language Traits Hint emits only known codes when mixed with unknown ones",
+      "value": "Protects the core domain build Language Traits Hint behavior so emits only known codes when mixed with unknown ones.",
+      "description": "Protects the core domain build Language Traits Hint behavior so emits only known codes when mixed with unknown ones."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-language-traits-test-ts-61-prompt-integration-includes-the-target-language-directive-in-the-per-language-prompt",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/language-traits.test.ts",
+      "sourceLine": 61,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "prompt integration"
+      ],
+      "title": "includes the target language directive in the per-language prompt",
+      "rawTitle": "includes the target language directive in the per-language prompt",
+      "name": "Core domain prompt integration includes the target language directive in the per language prompt",
+      "value": "Protects the core domain prompt integration behavior: includes the target language directive in the per language prompt.",
+      "description": "Protects the core domain prompt integration behavior: includes the target language directive in the per language prompt."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-language-traits-test-ts-67-prompt-integration-lists-one-directive-per-requested-target-in-the-base-prompt",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/language-traits.test.ts",
+      "sourceLine": 67,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "prompt integration"
+      ],
+      "title": "lists one directive per requested target in the base prompt",
+      "rawTitle": "lists one directive per requested target in the base prompt",
+      "name": "Core domain prompt integration lists one directive per requested target in the base prompt",
+      "value": "Protects the core domain prompt integration behavior so lists one directive per requested target in the base prompt.",
+      "description": "Protects the core domain prompt integration behavior so lists one directive per requested target in the base prompt."
     },
     {
       "id": "packages-core-src-modules-translation-tests-output-config-test-ts-70-presets-defines-output-presets-without-transcription-fields",

@@ -39,6 +39,8 @@ export type {
 } from "./ports/video-vocabulary.repository.js";
 export type {
   CreateVocabularyInput,
+  DictionaryListOptions,
+  DictionaryListSort,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
   UpdateTranslationData,

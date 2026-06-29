@@ -122,6 +122,17 @@ export interface UpdateSrsStateInput {
   reviewCount: number;
 }
 
+/** Sort order for the dictionary browse list. */
+export type DictionaryListSort = "recent" | "alpha";
+
+/** Optional filters/ordering for the paginated dictionary browse list. */
+export interface DictionaryListOptions {
+  /** Ordering: "recent" = newest first (default), "alpha" = A→Z by original. */
+  sort?: DictionaryListSort;
+  /** Case-insensitive substring filter on the original term. Empty/whitespace = no filter. */
+  search?: string;
+}
+
 export interface VocabularyRepository {
   findById(id: number): Promise<VocabularyEntryWithTranslations | null>;
   findByUser(userId: number, page?: number, pageSize?: number): Promise<VocabularyEntryWithTranslations[]>;
@@ -148,12 +159,13 @@ export interface VocabularyRepository {
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
   updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
   search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;
-  countByUser(userId: number, dictionaryId?: number): Promise<number>;
+  countByUser(userId: number, dictionaryId?: number, search?: string): Promise<number>;
   findByUserPaginated(
     userId: number,
     offset: number,
     limit: number,
     dictionaryId?: number,
+    options?: DictionaryListOptions,
   ): Promise<VocabularyEntryWithTranslations[]>;
   delete(entryId: number, userId: number): Promise<void>;
 }
