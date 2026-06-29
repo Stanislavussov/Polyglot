@@ -1,4 +1,4 @@
-import { franc } from "franc";
+import { franc, francAll } from "franc";
 import type { DictionaryContextCandidate } from "../context-enrichment/types.js";
 import type { DetectionEvidence, DetectionResult } from "./types.js";
 
@@ -49,7 +49,7 @@ function classifyCodePoint(cp: number): ScriptId | undefined {
 }
 
 const SCRIPT_TO_LANGS: Record<ScriptId, string[]> = {
-  cyrillic: ["ru", "uk", "bg", "sr"],
+  cyrillic: ["ru", "uk", "bg", "sr", "kk"],
   latin: [
     "en",
     "cs",
@@ -148,6 +148,7 @@ export const ISO1_TO_ISO3: Readonly<Record<string, string>> = Object.freeze({
   pt: "por",
   uk: "ukr",
   pl: "pol",
+  kk: "kaz",
   ja: "jpn",
   zh: "cmn",
   ko: "kor",
@@ -186,6 +187,48 @@ export const ISO1_TO_ISO3: Readonly<Record<string, string>> = Object.freeze({
 
 function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+/** Reverse of ISO1_TO_ISO3, built by inversion (no separate hardcoded table). */
+const ISO3_TO_ISO1: Readonly<Record<string, string>> = Object.freeze(
+  Object.fromEntries(Object.entries(ISO1_TO_ISO3).map(([iso1, iso3]) => [iso3, iso1])),
+);
+
+/** How far the global winner must beat the best in-set candidate to be "out of set". */
+const OUT_OF_SET_MARGIN = 0.22;
+
+/**
+ * Detects when the text is confidently in a language OUTSIDE the user's candidate set.
+ *
+ * The closed-set detector (`detectLanguage`) can only ever return a candidate, so an input
+ * in an unconfigured language (e.g. German for a user with ru/en/cs/kk) gets silently coerced
+ * to the nearest allowed language. This runs an UNCONSTRAINED `francAll` pass — the signal the
+ * closed-set path discards — and returns the out-of-set language so the caller can tell the
+ * user it isn't selected instead of mistranslating.
+ *
+ * Conservative by design: requires ≥3 words (franc is unreliable below that) and a clear
+ * margin over the best in-set candidate, so legitimate in-set input never trips it.
+ *
+ * @returns ISO 639-1 code of the out-of-set language, or undefined.
+ */
+export function detectOutOfSetLanguage(text: string, candidates: string[]): string | undefined {
+  const trimmed = text.trim();
+  if (wordCount(trimmed) < 3) return undefined;
+
+  const candidateSet = new Set(candidates);
+  const all = francAll(trimmed);
+  const topIso3 = all[0]?.[0];
+  const topIso1 = topIso3 ? ISO3_TO_ISO1[topIso3] : undefined;
+
+  // Unknown language we can't name, or the global winner is already a candidate → fine.
+  if (!topIso1 || candidateSet.has(topIso1)) return undefined;
+
+  const bestInSet = Math.max(
+    0,
+    ...all.filter(([iso3]) => candidateSet.has(ISO3_TO_ISO1[iso3] ?? "")).map(([, score]) => score),
+  );
+
+  return 1 - bestInSet >= OUT_OF_SET_MARGIN ? topIso1 : undefined;
 }
 
 /**

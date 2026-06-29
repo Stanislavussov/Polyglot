@@ -65,6 +65,7 @@ export type I18nKey =
   | "expressionDetected"
   | "dictionaryContext"
   | "detectedLang"
+  | "languageNotSelected"
   | "nextTranslationFrom"
   | "nextSourceSet"
   | "sentenceTranslation"
@@ -281,6 +282,13 @@ export type I18nKey =
   | "videoNoPhrases"
   | "videoBrowse"
   | "dictionaryTranslate"
+  | "dictionarySortRecent"
+  | "dictionarySortAlpha"
+  | "dictionarySearch"
+  | "dictionarySearchClear"
+  | "dictionarySearchPrompt"
+  | "dictionarySearchHeader"
+  | "dictionarySearchEmpty"
   | "videoSaveAll"
   | "videoClose"
   | "videoPhraseNotFound"
@@ -325,6 +333,7 @@ export interface I18nParams {
   partOfSpeech: { pos: string };
   expressionDetected: { expression: string };
   detectedLang: { lang: string };
+  languageNotSelected: { lang: string };
   nextSourceSet: { lang: string };
   connotationWarning: { warning: string };
   templateCurrent: { name: string };
@@ -345,6 +354,8 @@ export interface I18nParams {
   dictionaryEntryAdded: { name: string };
   dictionaryEntryMoved: { name: string };
   dictionaryDeleteConfirm: { word: string };
+  dictionarySearchHeader: { query: string; count: string | number };
+  dictionarySearchEmpty: { query: string };
   settingsNativeLang: { lang: string };
   settingsLearningLangs: { langs: string };
   settingsInterfaceLang: { lang: string };

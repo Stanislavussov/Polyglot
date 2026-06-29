@@ -61,6 +61,7 @@
   "expressionDetected": "💬 Тіркес анықталды: {expression}",
   "dictionaryContext": "📚 Сөздік контексті",
   "detectedLang": "🔍 Анықталды: {lang}",
+  "languageNotSelected": "🚫 {lang} таңдалған тілдеріңізде жоқ. Одан аудару үшін оны баптаулардан қосыңыз.",
   "nextTranslationFrom": "Келесі аударма мынадан:",
   "nextSourceSet": "🔤 Келесі мынадан: {lang}",
   "sentenceTranslation": "📝 Сөйлем аудармасы",

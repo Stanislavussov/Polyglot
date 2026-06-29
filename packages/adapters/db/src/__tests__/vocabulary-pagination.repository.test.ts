@@ -236,6 +236,33 @@ describe("vocabularyRepository — pagination & hardDelete", () => {
       expect(selectFn).toHaveBeenCalled();
       expect(result).toHaveLength(1);
     });
+
+    // Signature/back-compat guard: the optional sort+search options must not break
+    // the existing assembly path. SQL-level semantics (actual ordering/filtering)
+    // are validated against a real DB, not this query-builder mock.
+    it("accepts sort + search options and still assembles entries", async () => {
+      const entry = makeEntry({ id: 1, original: "apple" });
+      const translation = makeTranslation({ entryId: 1, text: "jablko" });
+      selectResultQueue.push([entry], [translation]);
+
+      const result = await vocabularyRepository.findByUserPaginated(42, 0, 15, undefined, {
+        sort: "alpha",
+        search: "app",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]!.translations[0]!.text).toBe("jablko");
+    });
+  });
+
+  describe("countByUser with search", () => {
+    it("accepts an optional search filter", async () => {
+      selectResultQueue.push([{ value: 3 }]);
+
+      const result = await vocabularyRepository.countByUser(42, undefined, "app");
+
+      expect(result).toBe(3);
+    });
   });
 
   describe("hardDelete", () => {

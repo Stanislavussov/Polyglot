@@ -61,6 +61,7 @@
   "expressionDetected": "💬 Виявлено вираз: {expression}",
   "dictionaryContext": "📚 Словниковий контекст",
   "detectedLang": "🔍 Визначено: {lang}",
+  "languageNotSelected": "🚫 {lang} немає серед ваших мов. Додайте її в налаштуваннях, щоб перекладати з неї.",
   "nextTranslationFrom": "Наступний переклад з:",
   "nextSourceSet": "🔤 Далі з: {lang}",
   "sentenceTranslation": "📝 Переклад речення",

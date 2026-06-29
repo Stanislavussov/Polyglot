@@ -11,6 +11,7 @@ import {
   defaultFeatureAccess,
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
+  detectOutOfSetLanguage,
   evaluatePlanRateLimit,
   evaluateRateLimit,
   generateEtymology,
@@ -306,6 +307,15 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     },
     "Language detection result",
   );
+
+  // Out-of-set guard: input is confidently in a language the user hasn't configured.
+  // The closed-set detector would otherwise coerce it to the nearest candidate (e.g. German
+  // → English), so tell the user it isn't selected instead of mistranslating.
+  const outOfSetLang = detectOutOfSetLanguage(cleanWord, candidatesWithEnglish);
+  if (outOfSetLang) {
+    await ctx.reply(t("languageNotSelected", lang, { lang: getLanguageName(outOfSetLang, lang) }));
+    return;
+  }
 
   let sourceLang: string;
   let targetLangs: string[];

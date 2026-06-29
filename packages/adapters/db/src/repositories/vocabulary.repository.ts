@@ -1,5 +1,7 @@
 import type {
   CreateVocabularyInput,
+  DictionaryListOptions,
+  DictionaryListSort,
   SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
@@ -11,12 +13,14 @@ import type {
   VocabularySource,
   VocabularyTranslation,
 } from "@polyglot/core";
-import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or, type SQL } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations } from "../schema.js";
 
 export type {
   CreateVocabularyInput,
+  DictionaryListOptions,
+  DictionaryListSort,
   SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
@@ -56,6 +60,18 @@ function tomorrow(): Date {
   const date = new Date();
   date.setDate(date.getDate() + 1);
   return date;
+}
+
+/** Build a case-insensitive substring filter on the original term, or undefined when no query. */
+function originalSearchFilter(search?: string): SQL | undefined {
+  const trimmed = search?.trim();
+  if (!trimmed) return undefined;
+  return ilike(vocabularyEntries.original, `%${trimmed}%`);
+}
+
+/** Resolve the ORDER BY clause for the dictionary browse list. */
+function dictionaryListOrder(sort: DictionaryListSort | undefined): SQL {
+  return sort === "alpha" ? asc(vocabularyEntries.original) : desc(vocabularyEntries.createdAt);
 }
 
 /* ------------------------------------------------------------------ */
@@ -349,8 +365,9 @@ export const vocabularyRepository = {
    * Count active vocabulary entries for a user.
    * Returns 0 for users with no entries.
    */
-  async countByUser(userId: number, dictionaryId?: number): Promise<number> {
+  async countByUser(userId: number, dictionaryId?: number, search?: string): Promise<number> {
     const db = getDb();
+    const searchFilter = originalSearchFilter(search);
     if (dictionaryId !== undefined) {
       const result = await db
         .select({ value: count() })
@@ -361,6 +378,7 @@ export const vocabularyRepository = {
             eq(vocabularyEntries.userId, userId),
             eq(vocabularyEntries.isActive, true),
             eq(vocabularyDictionaryEntries.dictionaryId, dictionaryId),
+            searchFilter,
           ),
         );
 
@@ -370,7 +388,7 @@ export const vocabularyRepository = {
     const result = await db
       .select({ value: count() })
       .from(vocabularyEntries)
-      .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true)));
+      .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true), searchFilter));
 
     return result[0]?.value ?? 0;
   },
@@ -443,15 +461,18 @@ export const vocabularyRepository = {
     offset: number,
     limit: number,
     dictionaryId?: number,
+    options?: DictionaryListOptions,
   ): Promise<VocabularyEntryWithTranslations[]> {
     const db = getDb();
+    const order = dictionaryListOrder(options?.sort);
+    const searchFilter = originalSearchFilter(options?.search);
     const entries =
       dictionaryId === undefined
         ? await db
             .select()
             .from(vocabularyEntries)
-            .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true)))
-            .orderBy(desc(vocabularyEntries.createdAt))
+            .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true), searchFilter))
+            .orderBy(order)
             .limit(limit)
             .offset(offset)
         : await db
@@ -476,9 +497,10 @@ export const vocabularyRepository = {
                 eq(vocabularyEntries.userId, userId),
                 eq(vocabularyEntries.isActive, true),
                 eq(vocabularyDictionaryEntries.dictionaryId, dictionaryId),
+                searchFilter,
               ),
             )
-            .orderBy(desc(vocabularyEntries.createdAt))
+            .orderBy(order)
             .limit(limit)
             .offset(offset);
 

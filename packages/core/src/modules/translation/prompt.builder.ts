@@ -6,6 +6,7 @@
  */
 
 import { getLanguageName } from "../i18n/language-registry.js";
+import { buildLanguageTraitsHint } from "./language-traits.js";
 import type { DictionaryContext, TranslationOutputConfig, TranslationRequest } from "./types.js";
 
 /**
@@ -94,7 +95,7 @@ Also include one relevant emoji.
 Prefer ONE natural, accurate main translation. Do not invent extra nuance in the main translation.
 
 Rules:
-- Include all grammatically essential markers that a learner needs to use the translated word correctly — such as articles, grammatical gender, verb aspect, or other conventions specific to each target language.${
+- Include all grammatically essential markers that a learner needs to use the translated word correctly — such as articles, grammatical gender, verb aspect, or other conventions specific to each target language.${buildLanguageTraitsHint(targetLangs)}${
     nativeLangName
       ? `
 - Include top-level "nativeMeaning" written in ${nativeLangName}. It must explain the original expression's meaning naturally in the user's native language, independent of the target-language translation blocks.`

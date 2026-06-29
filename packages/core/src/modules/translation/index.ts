@@ -9,6 +9,9 @@ export { generateGrammarBreakdown } from "./grammar-breakdown.service.js";
 // Grammar detail (second tier)
 export type { GrammarDetailInput } from "./grammar-detail.service.js";
 export { generateGrammarDetail } from "./grammar-detail.service.js";
+// Language traits
+export type { LanguageTraits } from "./language-traits.js";
+export { buildLanguageTraitsHint, getLanguageTraits, LANGUAGE_TRAITS } from "./language-traits.js";
 export type { PreflightScoringConfig } from "./preflight.config.js";
 export { PREFLIGHT_DEFAULTS } from "./preflight.config.js";
 export type { PreflightResult } from "./preflight.schema.js";
