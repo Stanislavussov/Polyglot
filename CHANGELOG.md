@@ -6,8 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Added on-demand **Etymology** (`🔍 Этимология`) to translation cards: tapping the button generates a concise 2–4 sentence etymology of the original term, written in the user's native language, explaining where it comes from and how it acquired its meaning. Shown for single words and short phrases when the source term is in a learning language (`sourceLang !== nativeLang`) — hidden for sentences and native-language input. The button sits next to the grammar button and disappears once its section is added; the result is cached per card and cleared on "Другое значение" regeneration. Gated behind a new `etymology` feature key (via `FeatureAccessPort`) for future premium integration. New `generateEtymology` core service and i18n keys (`etymology`, `etymologySection`, `etymologyLocked`) in en/ru/cs.
+
 ### Changed
 
+- Translation card keyboard: moved the **Save** button to the bottom row (below the learning-aid buttons) and renamed **Clarify** → **Clarify meaning** (`🎯 Уточнить значение` / `🎯 Upřesnit význam`) for clarity.
 - Notifications: users can now configure **multiple notification times per day** (up to 12) instead of a single time. The `/settings → notifications → choose times` picker became a multi-select 30-min grid (✅ on selected slots), and the sub-menu shows the full list of times. Replaced the single `notificationTime` column with a `notificationTimes` text array (existing times preserved via backfill). De-dup for dictionary (`srs`) notifications now avoids any word sent in the last 24h (was: last 3 words), so high-frequency users don't see same-day repeats. The enable/disable toggle stays separate, so pausing keeps configured times. Limit is configurable via `NotificationDefaults.notificationTimesLimit` (default 12). See `@docs/tasks/68-multiple-daily-notifications.md`.
 
 - Parallelized AI translation calls: split single heavy multi-language generation into N+1 concurrent calls (1 metadata + 1 per target language), reducing translation latency from ~5s to ~1.5s.

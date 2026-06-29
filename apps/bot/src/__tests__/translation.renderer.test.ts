@@ -446,56 +446,137 @@ describe("renderTopicWord", () => {
 
 describe("buildTranslationKeyboard", () => {
   const cbData = (btn: unknown): string | undefined => (btn as { callback_data?: string }).callback_data;
+  const lastRow = (kb: ReturnType<typeof buildTranslationKeyboard>) =>
+    kb.inline_keyboard[kb.inline_keyboard.length - 1]!;
 
-  it("has save button in first row", () => {
+  it("has clarify and other meaning buttons in the first row", () => {
     const kb = buildTranslationKeyboard("en", 42);
-    const saveRow = kb.inline_keyboard[0]!;
-    expect(saveRow).toHaveLength(1);
-    expect(cbData(saveRow[0])).toBe("tr:save:42");
-  });
-
-  it("has clarify and other meaning buttons in second row", () => {
-    const kb = buildTranslationKeyboard("en", 42);
-    const actionRow = kb.inline_keyboard[1]!;
+    const actionRow = kb.inline_keyboard[0]!;
     expect(actionRow).toHaveLength(2);
     expect(cbData(actionRow[0])).toBe("tr:clarifypost:42");
     expect(cbData(actionRow[1])).toBe("tr:altmeaning:42");
   });
 
-  it("has exactly 2 rows", () => {
+  it("renames the clarify button to 'Clarify meaning'", () => {
+    const kb = buildTranslationKeyboard("en", 42);
+    const clarifyBtn = kb.inline_keyboard[0]![0]!;
+    expect(clarifyBtn.text).toContain("Clarify meaning");
+  });
+
+  it("uses 'Уточнить значение' for the clarify button in ru locale", () => {
+    const kb = buildTranslationKeyboard("ru", 42);
+    const clarifyBtn = kb.inline_keyboard[0]![0]!;
+    expect(clarifyBtn.text).toContain("Уточнить значение");
+  });
+
+  it("pins the save button to the last row", () => {
+    const kb = buildTranslationKeyboard("en", 42);
+    const saveRow = lastRow(kb);
+    expect(saveRow).toHaveLength(1);
+    expect(cbData(saveRow[0])).toBe("tr:save:42");
+  });
+
+  it("keeps save last even with grammar and etymology rows present", () => {
+    const kb = buildTranslationKeyboard("en", 42, false, true, false, true);
+    const saveRow = lastRow(kb);
+    expect(saveRow).toHaveLength(1);
+    expect(cbData(saveRow[0])).toBe("tr:save:42");
+  });
+
+  it("has exactly 2 rows when no learning aids are shown", () => {
     const kb = buildTranslationKeyboard("en", 42);
     expect(kb.inline_keyboard).toHaveLength(2);
   });
 
+  it("places grammar and etymology together on a shared row", () => {
+    const kb = buildTranslationKeyboard("en", 42, false, true, false, true);
+    const aidRow = kb.inline_keyboard[1]!;
+    expect(aidRow).toHaveLength(2);
+    expect(cbData(aidRow[0])).toBe("tr:grammar:42");
+    expect(cbData(aidRow[1])).toBe("tr:etymology:42");
+  });
+
+  it("shows the etymology button alone when grammar is hidden (single word)", () => {
+    const kb = buildTranslationKeyboard("en", 42, false, false, false, true);
+    const aidRow = kb.inline_keyboard[1]!;
+    expect(aidRow).toHaveLength(1);
+    expect(cbData(aidRow[0])).toBe("tr:etymology:42");
+    // rows: actions, etymology, save
+    expect(kb.inline_keyboard).toHaveLength(3);
+  });
+
   it("shows disabled save button when isAlreadySaved is true", () => {
     const kb = buildTranslationKeyboard("en", 0, true);
-    const saveBtn = kb.inline_keyboard[0]![0]!;
+    const saveBtn = lastRow(kb)[0]!;
     expect(saveBtn.text).toContain("Saved");
     expect(cbData(saveBtn)).toBe("tr:save:0");
   });
 
   it("shows active save button when isAlreadySaved is false", () => {
     const kb = buildTranslationKeyboard("en", 0, false);
-    const saveBtn = kb.inline_keyboard[0]![0]!;
+    const saveBtn = lastRow(kb)[0]!;
     expect(saveBtn.text).toContain("Save");
     expect(cbData(saveBtn)).toBe("tr:save:0");
   });
 
   it("falls back to en for unknown interface language", () => {
     const kb = buildTranslationKeyboard("xx");
-    const saveBtn = kb.inline_keyboard[0]![0]!;
+    const saveBtn = lastRow(kb)[0]!;
     expect(saveBtn.text).toContain("Save");
   });
 
   it("uses Russian labels for ru locale", () => {
     const kb = buildTranslationKeyboard("ru", 0);
-    const saveBtn = kb.inline_keyboard[0]![0]!;
+    const saveBtn = lastRow(kb)[0]!;
     expect(saveBtn.text).toContain("Сохранить");
   });
 
   it("defaults msgId to 0 when not provided", () => {
     const kb = buildTranslationKeyboard("en");
-    expect(cbData(kb.inline_keyboard[0]![0])).toBe("tr:save:0");
+    expect(cbData(lastRow(kb)[0])).toBe("tr:save:0");
+  });
+});
+
+describe("renderTranslation — etymology section", () => {
+  it("renders the etymology section when provided", () => {
+    const result = renderTranslation(
+      sampleOutput,
+      "ru",
+      undefined,
+      "ru",
+      false,
+      undefined,
+      "Из латинского corpus — тело.",
+    );
+    expect(result).toContain("🔍 Этимология");
+    expect(result).toContain("Из латинского corpus — тело.");
+  });
+
+  it("does not render an etymology section when absent", () => {
+    const result = renderTranslation(sampleOutput, "ru", undefined, "ru");
+    expect(result).not.toContain("🔍 Этимология");
+  });
+
+  it("escapes HTML in etymology prose", () => {
+    const result = renderTranslation(sampleOutput, "en", undefined, "ru", false, undefined, "from <i>x</i> & y");
+    expect(result).toContain("from &lt;i&gt;x&lt;/i&gt; &amp; y");
+    expect(result).not.toContain("<i>x</i>");
+  });
+
+  it("renders etymology after the grammar breakdown section", () => {
+    const result = renderTranslation(
+      sampleOutput,
+      "ru",
+      undefined,
+      "ru",
+      false,
+      { cs: ["nějaká konstrukce — пояснение"] },
+      "Происхождение слова.",
+    );
+    const grammarIdx = result.indexOf("nějaká konstrukce");
+    const etymologyIdx = result.indexOf("Происхождение слова.");
+    expect(grammarIdx).toBeGreaterThan(-1);
+    expect(etymologyIdx).toBeGreaterThan(grammarIdx);
   });
 });
 

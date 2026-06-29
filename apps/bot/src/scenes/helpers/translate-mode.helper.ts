@@ -13,12 +13,14 @@ import {
   detectLanguageWithConfidenceAsync,
   evaluatePlanRateLimit,
   evaluateRateLimit,
+  generateEtymology,
   generateGrammarBreakdown,
   generateGrammarDetail,
   getDailyWindowReset,
   getDailyWindowStart,
   getLangFlag,
   getLanguageName,
+  type InputType,
   isSupported,
   logger,
   resolveDirectionFromSource,
@@ -54,6 +56,17 @@ const lookupContext = createContextLookup();
 /** Check if any LanguageTranslation has grammarBreakdown data */
 function hasGrammarBreakdownData(output: TranslateOutput): boolean {
   return Object.values(output.translations).some((tr) => tr.grammarBreakdown && tr.grammarBreakdown.length > 0);
+}
+
+/**
+ * Whether the Etymology button should be offered for this translation.
+ *
+ * Etymology applies to words and short phrases in a language the user is
+ * learning — i.e. the source term is NOT in their native language. Sentences
+ * and native-language input are excluded.
+ */
+export function isEtymologyEligible(inputType: InputType, sourceLang: string, nativeLang: string): boolean {
+  return (inputType === "word" || inputType === "phrase") && sourceLang !== nativeLang;
 }
 
 /** Collect grammarBreakdown from LanguageTranslation blocks into a flat record */
@@ -573,12 +586,14 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         classification.type === "phrase" &&
         effectiveTemplate.fields.grammarBreakdown &&
         hasGrammarBreakdownData(output);
+      const showEtymologyButton = isEtymologyEligible(classification.type, output.sourceLang, nativeLang);
       const keyboard = buildTranslationKeyboard(
         lang,
         cardMsg.message_id,
         isAlreadySaved,
         showGrammarButton,
         hasInlineGrammar,
+        showEtymologyButton,
       );
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
@@ -840,13 +855,22 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
 
     entry.output = decision.output;
     entry.grammarBreakdown = undefined;
+    entry.etymology = undefined;
 
     const cardText = isSentence
       ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
       : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
 
     const showGrammarButton = entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
-    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, showGrammarButton);
+    const showEtymologyButton = isEtymologyEligible(entry.inputType, decision.output.sourceLang, nativeLang);
+    const keyboard = buildTranslationKeyboard(
+      lang,
+      msgId,
+      undefined,
+      showGrammarButton,
+      undefined,
+      showEtymologyButton,
+    );
     await ctx.editMessageText(cardText, {
       reply_markup: keyboard,
       parse_mode: "HTML",
@@ -891,7 +915,7 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
 
   // Use cached if available
   if (entry.grammarBreakdown) {
-    await reRenderCardWithGrammar(ctx, entry, msgId, lang, nativeLang);
+    await reRenderCard(ctx, entry, msgId, lang, nativeLang);
     await ctx.answerCallbackQuery();
     return;
   }
@@ -920,13 +944,82 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
     );
 
     entry.grammarBreakdown = result;
-    await reRenderCardWithGrammar(ctx, entry, msgId, lang, nativeLang);
+    await reRenderCard(ctx, entry, msgId, lang, nativeLang);
   } catch (err) {
     logger.error({ err, word: entry.output.original }, "Grammar breakdown generation failed");
   }
 }
 
-async function reRenderCardWithGrammar(
+/**
+ * Handles etymology callback (tr:etymology:{msgId}).
+ * Generates on-demand etymology for the original term, in the native language.
+ */
+export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
+  const data = ctx.callbackQuery?.data ?? "";
+  const msgId = parseInt(data.split(":")[2] ?? "0", 10);
+  const entry = ctx.session.translationMap?.[String(msgId)];
+
+  if (!entry) {
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
+    return;
+  }
+
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
+
+  // Check feature access
+  const featureAccess = ctx.services.featureAccess ?? defaultFeatureAccess;
+  const access = await featureAccess.checkFeatureAccess(ctx.user.id, "etymology");
+  if (!access.hasAccess) {
+    await ctx.answerCallbackQuery({
+      text: t("etymologyLocked", lang),
+      show_alert: true,
+    });
+    return;
+  }
+
+  // Use cached if available
+  if (entry.etymology) {
+    await reRenderCard(ctx, entry, msgId, lang, nativeLang);
+    await ctx.answerCallbackQuery();
+    return;
+  }
+
+  await ctx.answerCallbackQuery();
+
+  try {
+    const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
+
+    const result = await generateEtymology(
+      {
+        originalText: entry.output.original,
+        sourceLang: entry.output.sourceLang,
+        nativeLang,
+        inputType: entry.inputType === "word" ? "word" : "phrase",
+      },
+      ctx.services.ai.generateObject,
+      model,
+      ctx.user.id,
+    );
+
+    entry.etymology = result;
+    await reRenderCard(ctx, entry, msgId, lang, nativeLang);
+  } catch (err) {
+    logger.error({ err, word: entry.output.original }, "Etymology generation failed");
+  }
+}
+
+/**
+ * Re-render a translation card with whichever on-demand sections have been
+ * generated (grammar breakdown and/or etymology), and rebuild the keyboard so
+ * each learning-aid button hides once its section is shown.
+ */
+async function reRenderCard(
   ctx: BotContext,
   entry: NonNullable<BotContext["session"]["translationMap"]>[string],
   msgId: number,
@@ -940,11 +1033,35 @@ async function reRenderCardWithGrammar(
 
   const cardText = isSentence
     ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(entry.output, lang, nativeLang, false, entry.grammarBreakdown)}`
-    : renderTranslation(entry.output, lang, effectiveTemplate.fields, nativeLang, false, entry.grammarBreakdown);
+    : renderTranslation(
+        entry.output,
+        lang,
+        effectiveTemplate.fields,
+        nativeLang,
+        false,
+        entry.grammarBreakdown,
+        entry.etymology,
+      );
 
-  // Replace grammar button with "Details" button for phrases
-  const showDetail = !isSentence;
-  const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, showDetail);
+  const grammarShown = !!entry.grammarBreakdown;
+  const etymologyShown = !!entry.etymology;
+  const grammarEligible = entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
+
+  // Grammar button hides once shown (replaced by the Details button for phrases);
+  // etymology button hides once its section is on the card.
+  const showGrammarButton = grammarEligible && !grammarShown;
+  const showGrammarDetailButton = grammarShown && !isSentence;
+  const showEtymologyButton =
+    isEtymologyEligible(entry.inputType, entry.output.sourceLang, nativeLang) && !etymologyShown;
+
+  const keyboard = buildTranslationKeyboard(
+    lang,
+    msgId,
+    undefined,
+    showGrammarButton,
+    showGrammarDetailButton,
+    showEtymologyButton,
+  );
   await ctx.api.editMessageText(ctx.chat!.id, msgId, cardText, {
     reply_markup: keyboard,
     parse_mode: "HTML",
@@ -1214,7 +1331,15 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
       const showGrammarButton =
         classification.type !== "word" &&
         (classification.type === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
-      const keyboard = buildTranslationKeyboard(lang, cardMsg.message_id, isAlreadySaved, showGrammarButton);
+      const showEtymologyButton = isEtymologyEligible(classification.type, output.sourceLang, nativeLang);
+      const keyboard = buildTranslationKeyboard(
+        lang,
+        cardMsg.message_id,
+        isAlreadySaved,
+        showGrammarButton,
+        undefined,
+        showEtymologyButton,
+      );
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
       ctx.session.pendingCardMsgId = cardMsg.message_id;
@@ -1511,6 +1636,7 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
 
       entry.output = decision.output;
       entry.grammarBreakdown = undefined;
+      entry.etymology = undefined;
 
       const cardText = isSentence
         ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
@@ -1518,7 +1644,15 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
 
       const showGrammarButton =
         entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
-      const keyboard = buildTranslationKeyboard(lang, postClarifyMsgId, undefined, showGrammarButton);
+      const showEtymologyButton = isEtymologyEligible(entry.inputType, decision.output.sourceLang, nativeLang);
+      const keyboard = buildTranslationKeyboard(
+        lang,
+        postClarifyMsgId,
+        undefined,
+        showGrammarButton,
+        undefined,
+        showEtymologyButton,
+      );
       await ctx.api.editMessageText(ctx.chat!.id, postClarifyMsgId, cardText, {
         reply_markup: keyboard,
         parse_mode: "HTML",

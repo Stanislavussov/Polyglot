@@ -98,6 +98,7 @@ export function renderTranslation(
   nativeLang?: string,
   needsReview?: boolean,
   grammarBreakdown?: Record<string, string[]>,
+  etymology?: string,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
@@ -130,6 +131,12 @@ export function renderTranslation(
   const gbData = grammarBreakdown ?? collectInlineGrammarBreakdown(output);
   if (gbData && Object.keys(gbData).length > 0 && templateFields?.grammarBreakdown !== false) {
     lines.push(renderGrammarBreakdownSection(gbData, lang));
+    lines.push("");
+  }
+
+  // Etymology section — cached on-demand, rendered next to grammar
+  if (etymology) {
+    lines.push(renderEtymologySection(etymology, lang));
     lines.push("");
   }
 
@@ -170,6 +177,11 @@ function renderGrammarBreakdownSection(breakdown: Record<string, string[]>, lang
     }
   }
   return lines.join("\n");
+}
+
+/** Render etymology section — concise prose about the original term's origin */
+function renderEtymologySection(etymology: string, lang: SupportedLang): string {
+  return `<b>${esc(t("etymologySection", lang))}</b>\n${esc(etymology)}`;
 }
 
 /** Render a single language translation block */
@@ -291,8 +303,10 @@ function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string 
  * Build unified inline keyboard for translation results.
  *
  * Layout:
- * Row 1: Save button
- * Row 2: Clarify + Other meaning
+ * Row 1: Clarify meaning + Other meaning
+ * Row 2: Grammar + Etymology (learning aids, each shown when enabled — share a row)
+ * Row 3: Grammar detail (when expanded)
+ * Row 4: Save button (always last)
  *
  * Used for all input types (words, phrases, sentences).
  */
@@ -302,29 +316,37 @@ export function buildTranslationKeyboard(
   isAlreadySaved?: boolean,
   showGrammarButton?: boolean,
   showGrammarDetailButton?: boolean,
+  showEtymologyButton?: boolean,
 ): InlineKeyboard {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
 
-  if (isAlreadySaved) {
-    kb.text(t("alreadySavedButton", lang), `tr:save:${mid}`);
-  } else {
-    kb.text(t("save", lang), `tr:save:${mid}`);
-  }
-  kb.row();
-
   kb.text(t("clarifyTranslation", lang), `tr:clarifypost:${mid}`);
   kb.text(t("otherMeaning", lang), `tr:altmeaning:${mid}`);
 
-  if (showGrammarButton) {
+  // Learning aids share a row, next to each other
+  if (showGrammarButton || showEtymologyButton) {
     kb.row();
-    kb.text(t("grammarBreakdownButton", lang), `tr:grammar:${mid}`);
+    if (showGrammarButton) {
+      kb.text(t("grammarBreakdownButton", lang), `tr:grammar:${mid}`);
+    }
+    if (showEtymologyButton) {
+      kb.text(t("etymology", lang), `tr:etymology:${mid}`);
+    }
   }
 
   if (showGrammarDetailButton) {
     kb.row();
     kb.text(t("grammarDetailButton", lang), `tr:gramdetail:${mid}`);
+  }
+
+  // Save is always the last row
+  kb.row();
+  if (isAlreadySaved) {
+    kb.text(t("alreadySavedButton", lang), `tr:save:${mid}`);
+  } else {
+    kb.text(t("save", lang), `tr:save:${mid}`);
   }
 
   return kb;

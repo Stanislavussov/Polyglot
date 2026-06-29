@@ -134,6 +134,7 @@ import {
   handleTranslateText,
   handleTranslationClarificationCallback,
   handleTranslationClarificationContextText,
+  isEtymologyEligible,
 } from "./translate-mode.helper.js";
 
 function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string): BotContext {
@@ -770,5 +771,24 @@ describe("handleTranslateText — context enrichment", () => {
     expect(ctx.session.pendingClarification).toBeUndefined();
     expect(ctx.session.awaitingTranslationClarificationContext).toBeUndefined();
     expect(translateWithContext).not.toHaveBeenCalled();
+  });
+});
+
+describe("isEtymologyEligible", () => {
+  it("is eligible for a learning-language word", () => {
+    expect(isEtymologyEligible("word", "cs", "ru")).toBe(true);
+  });
+
+  it("is eligible for a learning-language phrase", () => {
+    expect(isEtymologyEligible("phrase", "de", "ru")).toBe(true);
+  });
+
+  it("is NOT eligible for sentences", () => {
+    expect(isEtymologyEligible("sentence", "cs", "ru")).toBe(false);
+  });
+
+  it("is NOT eligible when the source term is in the native language", () => {
+    expect(isEtymologyEligible("word", "ru", "ru")).toBe(false);
+    expect(isEtymologyEligible("phrase", "ru", "ru")).toBe(false);
   });
 });
