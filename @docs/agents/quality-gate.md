@@ -20,6 +20,16 @@ change is user-facing or operational.
 - Do not run `pnpm db:migrate` locally unless the user explicitly asks for it.
 - If schema changed, generate and review migrations before pushing.
 
+## Test Catalog
+
+`apps/admin/public/reports/test-catalog.{json,html}` is generated from the test files
+(scenario extraction) and is also rewritten as a side effect of `pnpm reports:sync-admin`.
+
+- Run `pnpm test:catalog` and commit the regenerated artifacts **only when test files
+  changed**.
+- If they show as modified but no tests changed (spurious regeneration), keep them out of
+  the commit: `git restore apps/admin/public/reports/test-catalog.*`.
+
 ## Changelog
 
 Keep user-facing and operational changes under `## [Unreleased]`.
