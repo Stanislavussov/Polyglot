@@ -111,8 +111,8 @@ export interface SchedulerDeps {
   /** Disable notifications for a user (e.g., due to inactivity). */
   disableNotifications: (userId: number) => Promise<void>;
 
-  /** Get recent sent words for a user (to avoid repeats). */
-  getRecentSentWords: (userId: number, limit?: number) => Promise<string[]>;
+  /** Get words sent to a user since the given instant (rolling de-dup window). */
+  getSentWordsSince: (userId: number, since: Date) => Promise<string[]>;
 
   /** Record a sent word in history. */
   recordSentWord: (userId: number, original: string, source: string) => Promise<void>;

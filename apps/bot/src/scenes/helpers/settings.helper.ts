@@ -2,11 +2,11 @@
  * Settings callback handlers — set:* callbacks.
  * Manages native/learning/interface language pickers, notification prefs, and close.
  */
-import { formatNotificationTime, NOTIFICATION_TYPES } from "@polyglot/adapter-db";
+import { formatNotificationTime, NOTIFICATION_TYPES, parseNotificationMinutes } from "@polyglot/adapter-db";
 import { getDailyWindowStart, isSupported, type NotificationType, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../../commands/commands.js";
-import { MAX_LEARNING_LANGS } from "../../constants.js";
+import { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "../../constants.js";
 import type { BotContext } from "../../types.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import {
@@ -30,7 +30,7 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const notifEnabled = settings?.notificationEnabled ?? false;
-  const notifTime = settings?.notificationTime ?? "08:00";
+  const notifTimes = settings?.notificationTimes ?? [];
   const notifType = settings?.notificationType ?? "srs";
   const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
     ctx.user.id,
@@ -44,7 +44,7 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
     settings?.interfaceLang ?? "en",
     lang,
     notifEnabled,
-    notifTime,
+    notifTimes,
     notifType,
     planUsage,
   );
@@ -58,12 +58,12 @@ async function showNotifSubMenu(ctx: BotContext): Promise<void> {
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const notifEnabled = settings?.notificationEnabled ?? false;
-  const notifTime = settings?.notificationTime ?? "08:00";
+  const notifTimes = settings?.notificationTimes ?? [];
   const notifType = settings?.notificationType ?? "srs";
   const timezone = settings?.timezone ?? "UTC";
   const notifContext = settings?.notificationContext ?? null;
 
-  const text = buildNotifSubText(lang, notifEnabled, notifTime, notifType, timezone, notifContext);
+  const text = buildNotifSubText(lang, notifEnabled, notifTimes, notifType, timezone, notifContext);
   const kb = buildNotifSubKeyboard(lang, notifEnabled, notifType);
   await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
 }
@@ -264,49 +264,70 @@ function hourIcon(hour: number): string {
   return "🌑";
 }
 
-/** set:notif:time — show notification time picker with 30-min grid */
-export async function handleSetNotifTimeCallback(ctx: BotContext): Promise<void> {
-  const lang = await getLang(ctx);
+/** Build the multi-select 30-min grid, marking currently-selected slots with ✅ */
+function buildNotifTimesKeyboard(selected: Set<number>, lang: SupportedLang): InlineKeyboard {
   const kb = new InlineKeyboard();
-
   for (let slot = 0; slot < 48; slot++) {
     const totalMinutes = slot * 30;
-    const label = `${hourIcon(Math.floor(totalMinutes / 60))} ${formatNotificationTime(totalMinutes)}`;
+    // Replace the time-of-day icon with ✅ when selected, so the label width
+    // stays the same (one glyph + time) and the time isn't truncated.
+    const icon = selected.has(totalMinutes) ? "✅" : hourIcon(Math.floor(totalMinutes / 60));
+    const label = `${icon} ${formatNotificationTime(totalMinutes)}`;
     kb.text(label, `set:notif:time:${totalMinutes}`);
     if ((slot + 1) % 4 === 0) kb.row();
   }
   kb.row();
-  kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
+  kb.text(t("done", lang), "set:notif").row();
+  return kb;
+}
 
-  await ctx.editMessageText(t("settingsNotifChooseTime", lang), {
-    reply_markup: kb,
+/** set:notif:time — show the multi-select notification time grid */
+export async function handleSetNotifTimeCallback(ctx: BotContext): Promise<void> {
+  const lang = await getLang(ctx);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const selected = new Set((settings?.notificationTimes ?? []).map(parseNotificationMinutes));
+
+  await ctx.editMessageText(t("settingsNotifChooseTimes", lang), {
+    reply_markup: buildNotifTimesKeyboard(selected, lang),
     parse_mode: "HTML",
   });
   await ctx.answerCallbackQuery();
 }
 
-/** set:notif:time:{minutes} — select a notification time */
+/** set:notif:time:{minutes} — toggle a notification time on/off (multi-select) */
 export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data ?? "";
   const minutesStr = data.replace("set:notif:time:", "");
   const totalMinutes = Number.parseInt(minutesStr, 10);
+  const lang = await getLang(ctx);
 
   if (Number.isNaN(totalMinutes) || totalMinutes < 0 || totalMinutes > 23 * 60 + 30) {
     await ctx.answerCallbackQuery({ text: "Invalid time", show_alert: true });
     return;
   }
 
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const selected = new Set((settings?.notificationTimes ?? []).map(parseNotificationMinutes));
   const timeStr = formatNotificationTime(totalMinutes);
-  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
-    notificationTime: timeStr,
-  });
 
-  const lang = await getLang(ctx);
-  await ctx.answerCallbackQuery({
-    text: t("settingsNotifTime", lang, { time: timeStr }),
-  });
-  await cleanupTechnicalMessages(ctx);
-  await showNotifSubMenu(ctx);
+  if (selected.has(totalMinutes)) {
+    selected.delete(totalMinutes);
+    await ctx.answerCallbackQuery({ text: t("settingsNotifTimeRemoved", lang, { time: timeStr }) });
+  } else if (selected.size >= MAX_NOTIFICATION_TIMES) {
+    await ctx.answerCallbackQuery({
+      text: t("settingsNotifTimesMax", lang, { max: MAX_NOTIFICATION_TIMES }),
+      show_alert: true,
+    });
+    return;
+  } else {
+    selected.add(totalMinutes);
+    await ctx.answerCallbackQuery({ text: t("settingsNotifTimeAdded", lang, { time: timeStr }) });
+  }
+
+  const times = [...selected].sort((a, b) => a - b).map(formatNotificationTime);
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, { notificationTimes: times });
+
+  await ctx.editMessageReplyMarkup({ reply_markup: buildNotifTimesKeyboard(selected, lang) });
 }
 
 /** set:notif:type — show notification type picker */

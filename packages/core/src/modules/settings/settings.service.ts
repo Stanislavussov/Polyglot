@@ -129,6 +129,7 @@ const FALLBACK_NOTIFICATIONS: NotificationDefaults = {
   defaultTime: "08:00",
   defaultType: "srs",
   inactivityDays: 14,
+  notificationTimesLimit: 12,
 };
 
 const FALLBACK_DICTIONARY: DictionaryConfig = {

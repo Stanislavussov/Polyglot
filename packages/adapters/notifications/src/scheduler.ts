@@ -27,6 +27,9 @@ let cronTask: cron.ScheduledTask | null = null;
 const MAX_RETRIES = 3;
 const RETRY_DELAYS_MS = [1000, 2000, 4000];
 
+/** Rolling window for de-dup: don't repeat a word sent within the last 24h. */
+const DEDUP_WINDOW_MS = 24 * 60 * 60 * 1000;
+
 async function retryWithBackoff<T>(
   fn: () => Promise<T>,
   maxRetries: number,
@@ -97,8 +100,14 @@ export function buildNotificationPayload(
   t: (key: string, lang: string, params?: Record<string, string>) => string,
 ): NotificationPayload {
   const lang = user.interfaceLang;
-  const timeParts = (user.notificationTime || "08:00").split(":");
-  const hour = Number.parseInt(timeParts[0], 10) || 8;
+  // Eligible users have a valid timezone (invalid ones are filtered in getUsersForWindow);
+  // derive the send hour from the current local time since there's no single configured time.
+  let hour = 8;
+  try {
+    hour = Temporal.Now.zonedDateTimeISO(user.timezone).hour;
+  } catch {
+    // invalid timezone — keep default
+  }
 
   const title = t("notifTitle", lang);
   const sourceLabel =
@@ -154,7 +163,7 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
             userId: u.userId,
             telegramId: u.telegramId,
             timezone: u.timezone,
-            notificationTime: u.notificationTime,
+            notificationTimes: u.notificationTimes,
             notificationEnabled: u.notificationEnabled,
           },
           "Eligible user details",
@@ -177,11 +186,12 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
   for (const user of users) {
     try {
       logger.info({ userId: user.userId }, "Processing user");
+      const since = new Date(Date.now() - DEDUP_WINDOW_MS);
       const recentWords = await retryWithBackoff(
-        () => deps.getRecentSentWords(user.userId),
+        () => deps.getSentWordsSince(user.userId, since),
         2,
         500,
-        "getRecentSentWords",
+        "getSentWordsSince",
       );
       const word = await pickWordForUser(user, deps, recentWords);
       if (!word) {

@@ -104,7 +104,7 @@ const DEFAULT_SETTINGS = {
   timezone: "UTC",
   lastSourceLang: null,
   notificationEnabled: false,
-  notificationTime: "08:00",
+  notificationTimes: ["08:00"],
   notificationType: "srs",
   notificationContext: null,
 };
@@ -139,12 +139,12 @@ beforeEach(() => {
 
 describe("buildSettingsText", () => {
   it("shows notification status line", () => {
-    const text = buildSettingsText("en", ["cs"], "en", "en", false, "08:00", "srs");
+    const text = buildSettingsText("en", ["cs"], "en", "en", false, ["08:00"], "srs");
     expect(text).toMatch(/notification/i);
   });
 
   it("shows enabled status with time and type", () => {
-    const text = buildSettingsText("en", ["cs"], "en", "en", true, "08:00", "srs");
+    const text = buildSettingsText("en", ["cs"], "en", "en", true, ["08:00"], "srs");
     expect(text).toContain("08:00");
     expect(text).toContain("srs");
   });
@@ -170,14 +170,19 @@ describe("buildSettingsKeyboard", () => {
 
 describe("buildNotifSubText", () => {
   it("shows all notification details", () => {
-    const text = buildNotifSubText("en", true, "08:00", "srs", "Europe/Prague", null);
+    const text = buildNotifSubText("en", true, ["08:00"], "srs", "Europe/Prague", null);
     expect(text).toContain("08:00");
     expect(text).toContain("srs");
     expect(text).toContain("Europe/Prague");
   });
 
+  it("shows multiple times as a sorted list", () => {
+    const text = buildNotifSubText("en", true, ["20:00", "08:00"], "srs", "UTC", null);
+    expect(text).toContain("08:00, 20:00");
+  });
+
   it("shows context when type is contextual", () => {
-    const text = buildNotifSubText("en", true, "08:00", "contextual", "UTC", "job interview");
+    const text = buildNotifSubText("en", true, ["08:00"], "contextual", "UTC", "job interview");
     expect(text).toContain("job interview");
   });
 });
@@ -239,7 +244,7 @@ describe("handleSetNotifToggleCallback", () => {
 });
 
 describe("handleSetNotifTimeCallback", () => {
-  it("shows time picker with 30-min interval options", async () => {
+  it("shows a multi-select grid with the current time checked and a Done button", async () => {
     const ctx = createMockCtx("set:notif:time");
     await handleSetNotifTimeCallback(ctx);
     const opts = ctx.editMessageText.mock.calls[0][1];
@@ -248,15 +253,39 @@ describe("handleSetNotifTimeCallback", () => {
     expect(cbData).toContain("set:notif:time:0");
     expect(cbData).toContain("set:notif:time:480");
     expect(cbData).toContain("set:notif:time:1410");
-    expect(cbData).toContain("set:notif:back");
+    // Done returns to the notification sub-menu
+    expect(cbData).toContain("set:notif");
+    // The currently-selected 08:00 (480) slot is marked with a check
+    const selected = buttons.find((b: any) => b.callback_data === "set:notif:time:480");
+    expect(selected.text).toContain("✅");
   });
 });
 
 describe("handleSetNotifTimeSelectCallback", () => {
-  it("updates notification time", async () => {
+  it("adds a new time to the list (toggle on)", async () => {
     const ctx = createMockCtx("set:notif:time:870");
     await handleSetNotifTimeSelectCallback(ctx);
-    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationTime: "14:30" });
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, {
+      notificationTimes: ["08:00", "14:30"],
+    });
+  });
+
+  it("removes an already-selected time (toggle off)", async () => {
+    const ctx = createMockCtx("set:notif:time:480");
+    await handleSetNotifTimeSelectCallback(ctx);
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationTimes: [] });
+  });
+
+  it("rejects adding a 13th time and does not persist", async () => {
+    const twelveTimes = Array.from({ length: 12 }, (_, i) => `${String(i).padStart(2, "0")}:00`);
+    mockUserRepository.getSettings.mockResolvedValue({
+      ...DEFAULT_SETTINGS,
+      notificationTimes: twelveTimes,
+    } as any);
+    const ctx = createMockCtx("set:notif:time:870");
+    await handleSetNotifTimeSelectCallback(ctx);
+    expect(mockNotificationRepository.updatePrefs).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });
 
   it("rejects invalid minute values", async () => {

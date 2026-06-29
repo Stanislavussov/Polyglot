@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Notifications: users can now configure **multiple notification times per day** (up to 12) instead of a single time. The `/settings → notifications → choose times` picker became a multi-select 30-min grid (✅ on selected slots), and the sub-menu shows the full list of times. Replaced the single `notificationTime` column with a `notificationTimes` text array (existing times preserved via backfill). De-dup for dictionary (`srs`) notifications now avoids any word sent in the last 24h (was: last 3 words), so high-frequency users don't see same-day repeats. The enable/disable toggle stays separate, so pausing keeps configured times. Limit is configurable via `NotificationDefaults.notificationTimesLimit` (default 12). See `@docs/tasks/68-multiple-daily-notifications.md`.
+
 - Parallelized AI translation calls: split single heavy multi-language generation into N+1 concurrent calls (1 metadata + 1 per target language), reducing translation latency from ~5s to ~1.5s.
 - Added universal language-specific directive to translation prompt: AI now includes grammatically essential markers (articles, gender, verb aspect) appropriate for each target language.
 

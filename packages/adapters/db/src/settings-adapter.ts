@@ -23,7 +23,7 @@ const DEFAULTS: {
 } = {
   ai: { maxTokens: 4096, temperature: 0.3, frequencyPenalty: 0.5, maxRetries: 2 },
   srs: { minEaseFactor: 1.3, defaultEaseFactor: 2.5 },
-  notifications: { defaultTime: "08:00", defaultType: "srs", inactivityDays: 14 },
+  notifications: { defaultTime: "08:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 },
   dictionary: { flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 },
   videoVocabulary: { monthlyLimit: 3, maxPhrasesDefault: 30, extractionModelId: "google/gemini-3.1-flash-lite" },
 };

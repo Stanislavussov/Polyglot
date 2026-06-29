@@ -156,7 +156,7 @@ function makeNotifUser(overrides: Record<string, unknown> = {}) {
     nativeLang: "ru",
     learningLangs: ["cs", "de"],
     timezone: "UTC",
-    notificationTime: "08:00",
+    notificationTimes: ["08:00"],
     notificationType: "both",
     ...overrides,
   };
@@ -264,7 +264,7 @@ describe("getLocalMinutes", () => {
 describe("notificationRepository", () => {
   describe("getUsersForWindow", () => {
     it("returns users when UTC time matches their preferred local time", async () => {
-      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      const user = makeNotifUser({ timezone: "UTC", notificationTimes: ["08:00"] });
       queryResults = [[user]];
 
       const result = await notificationRepository.getUsersForWindow(8, 0);
@@ -274,7 +274,7 @@ describe("notificationRepository", () => {
     });
 
     it("returns users with custom time (e.g. 14:30)", async () => {
-      const user = makeNotifUser({ timezone: "UTC", notificationTime: "14:30" });
+      const user = makeNotifUser({ timezone: "UTC", notificationTimes: ["14:30"] });
       queryResults = [[user]];
 
       const result = await notificationRepository.getUsersForWindow(14, 30);
@@ -284,7 +284,7 @@ describe("notificationRepository", () => {
     });
 
     it("excludes users whose local time does not match", async () => {
-      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      const user = makeNotifUser({ timezone: "UTC", notificationTimes: ["08:00"] });
       queryResults = [[user]];
 
       const result = await notificationRepository.getUsersForWindow(10, 0);
@@ -293,7 +293,7 @@ describe("notificationRepository", () => {
     });
 
     it("matches users only at exact preferred time", async () => {
-      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      const user = makeNotifUser({ timezone: "UTC", notificationTimes: ["08:00"] });
       queryResults = [[user]];
       queryIndex = 0;
 
@@ -302,7 +302,7 @@ describe("notificationRepository", () => {
     });
 
     it("matches users after preferred time to tolerate scheduler delay", async () => {
-      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      const user = makeNotifUser({ timezone: "UTC", notificationTimes: ["08:00"] });
       queryResults = [[user]];
       queryIndex = 0;
 
@@ -312,7 +312,7 @@ describe("notificationRepository", () => {
     });
 
     it("excludes users before preferred time and at the next scheduler slot", async () => {
-      const user = makeNotifUser({ timezone: "UTC", notificationTime: "08:00" });
+      const user = makeNotifUser({ timezone: "UTC", notificationTimes: ["08:00"] });
       queryResults = [[user]];
       queryIndex = 0;
 
@@ -328,7 +328,7 @@ describe("notificationRepository", () => {
     });
 
     it("does not match all adjacent half-hour ticks for a half-hour preference", async () => {
-      const user = makeNotifUser({ timezone: "UTC", notificationTime: "07:30" });
+      const user = makeNotifUser({ timezone: "UTC", notificationTimes: ["07:30"] });
       queryResults = [[user]];
       queryIndex = 0;
 
@@ -348,7 +348,7 @@ describe("notificationRepository", () => {
 
     it("handles timezone offset filtering", async () => {
       // User in UTC+5: when UTC hour = 3, their local time = 08:00
-      const user = makeNotifUser({ timezone: "Etc/GMT-5", notificationTime: "08:00" });
+      const user = makeNotifUser({ timezone: "Etc/GMT-5", notificationTimes: ["08:00"] });
       queryResults = [[user]];
 
       const result = await notificationRepository.getUsersForWindow(3, 0);
@@ -374,13 +374,13 @@ describe("notificationRepository", () => {
     });
 
     it("filters mixed users correctly", async () => {
-      const utcAt8 = makeNotifUser({ userId: 1, timezone: "UTC", notificationTime: "08:00" });
-      const utcAt20 = makeNotifUser({ userId: 2, telegramId: 222, timezone: "UTC", notificationTime: "20:00" });
+      const utcAt8 = makeNotifUser({ userId: 1, timezone: "UTC", notificationTimes: ["08:00"] });
+      const utcAt20 = makeNotifUser({ userId: 2, telegramId: 222, timezone: "UTC", notificationTimes: ["20:00"] });
       const offsetAt8 = makeNotifUser({
         userId: 3,
         telegramId: 333,
         timezone: "Etc/GMT-5",
-        notificationTime: "08:00",
+        notificationTimes: ["08:00"],
       });
       queryResults = [[utcAt8, utcAt20, offsetAt8]];
 
@@ -389,6 +389,31 @@ describe("notificationRepository", () => {
 
       expect(result).toHaveLength(1);
       expect(result[0]!.userId).toBe(1);
+    });
+
+    it("matches a user with multiple times in each of their windows", async () => {
+      const user = makeNotifUser({ timezone: "UTC", notificationTimes: ["08:00", "20:00"] });
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      expect(await notificationRepository.getUsersForWindow(8, 0)).toHaveLength(1);
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      expect(await notificationRepository.getUsersForWindow(20, 0)).toHaveLength(1);
+
+      queryResults = [[user]];
+      queryIndex = 0;
+      expect(await notificationRepository.getUsersForWindow(10, 0)).toHaveLength(0);
+    });
+
+    it("excludes users with an empty notificationTimes list", async () => {
+      const user = makeNotifUser({ timezone: "UTC", notificationTimes: [] });
+      queryResults = [[user]];
+
+      const result = await notificationRepository.getUsersForWindow(8, 0);
+
+      expect(result).toHaveLength(0);
     });
 
     it("calls select with innerJoin", async () => {
@@ -448,6 +473,25 @@ describe("notificationRepository", () => {
       expect(setKeys).toContain("notificationEnabled");
       expect(setKeys).toContain("updatedAt");
       expect(setKeys).toHaveLength(2);
+    });
+  });
+
+  describe("getSentWordsSince", () => {
+    it("returns the original words sent since the given instant", async () => {
+      queryResults = [[{ original: "casa" }, { original: "perro" }]];
+
+      const result = await notificationRepository.getSentWordsSince(1, new Date("2026-07-15T00:00:00Z"));
+
+      expect(result).toEqual(["casa", "perro"]);
+      expect(mockDb.select).toHaveBeenCalledOnce();
+    });
+
+    it("returns an empty array when nothing was sent in the window", async () => {
+      queryResults = [[]];
+
+      const result = await notificationRepository.getSentWordsSince(1, new Date("2026-07-15T00:00:00Z"));
+
+      expect(result).toEqual([]);
     });
   });
 });

@@ -156,7 +156,7 @@ export const userRepository = {
     userId: number,
     prefs: {
       notificationEnabled?: boolean;
-      notificationTime?: string;
+      notificationTimes?: string[];
       notificationType?: string;
       notificationContext?: string | null;
     },
@@ -164,7 +164,7 @@ export const userRepository = {
     const db = getDb();
     const set: Record<string, unknown> = { updatedAt: new Date() };
     if (prefs.notificationEnabled !== undefined) set.notificationEnabled = prefs.notificationEnabled;
-    if (prefs.notificationTime !== undefined) set.notificationTime = prefs.notificationTime;
+    if (prefs.notificationTimes !== undefined) set.notificationTimes = prefs.notificationTimes;
     if (prefs.notificationType !== undefined) set.notificationType = prefs.notificationType;
     if (prefs.notificationContext !== undefined) set.notificationContext = prefs.notificationContext;
 

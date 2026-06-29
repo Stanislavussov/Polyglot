@@ -1018,11 +1018,14 @@ describe("i18n — locale consistency", () => {
       "settingsNotifSection",
       "settingsNotifEnabled",
       "settingsNotifDisabled",
-      "settingsNotifTime",
+      "settingsNotifTimes",
+      "settingsNotifTimeAdded",
+      "settingsNotifTimeRemoved",
+      "settingsNotifTimesMax",
       "settingsNotifType",
       "settingsNotifTimezone",
       "settingsNotifToggle",
-      "settingsNotifChooseTime",
+      "settingsNotifChooseTimes",
       "settingsNotifChooseType",
       "settingsNotifChooseTimezone",
       "notifPaused",
@@ -1087,11 +1090,14 @@ describe("i18n — notification keys (Task 41.6)", () => {
     "settingsNotifSection",
     "settingsNotifEnabled",
     "settingsNotifDisabled",
-    "settingsNotifTime",
+    "settingsNotifTimes",
+    "settingsNotifTimeAdded",
+    "settingsNotifTimeRemoved",
+    "settingsNotifTimesMax",
     "settingsNotifType",
     "settingsNotifTimezone",
     "settingsNotifToggle",
-    "settingsNotifChooseTime",
+    "settingsNotifChooseTimes",
     "settingsNotifChooseType",
     "settingsNotifChooseTimezone",
     "notifPaused",
@@ -1121,9 +1127,9 @@ describe("i18n — notification keys (Task 41.6)", () => {
     }
   });
 
-  it("settingsNotifTime interpolates {time}", () => {
-    const result = t("settingsNotifTime", "en", { time: "Morning (8:00)" });
-    expect(result).toBe("⏰ Time: Morning (8:00)");
+  it("settingsNotifTimes interpolates {times}", () => {
+    const result = t("settingsNotifTimes", "en", { times: "08:00, 20:00" });
+    expect(result).toBe("⏰ Times: 08:00, 20:00");
   });
 
   it("settingsNotifType interpolates {type}", () => {
@@ -1136,9 +1142,9 @@ describe("i18n — notification keys (Task 41.6)", () => {
     expect(result).toBe("🌍 Timezone: Europe/Prague");
   });
 
-  it("settingsNotifTime interpolates {time} in Russian", () => {
-    const result = t("settingsNotifTime", "ru", { time: "Утро (8:00)" });
-    expect(result).toBe("⏰ Время: Утро (8:00)");
+  it("settingsNotifTimes interpolates {times} in Russian", () => {
+    const result = t("settingsNotifTimes", "ru", { times: "08:00, 20:00" });
+    expect(result).toBe("⏰ Время: 08:00, 20:00");
   });
 
   it("settingsNotifType interpolates {type} in Czech", () => {

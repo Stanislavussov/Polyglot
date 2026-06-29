@@ -32,7 +32,7 @@ export interface UserLanguageSettings {
   activeMode: string;
   lastSourceLang: string | null;
   notificationEnabled: boolean;
-  notificationTime: string;
+  notificationTimes: string[];
   notificationType: string;
   notificationContext: string | null;
   lastInteractionAt: Date | null;
@@ -57,7 +57,7 @@ export interface UserRepository {
   updateLastSourceLang(userId: number, lang: string | null): Promise<void>;
   updateNotificationPrefs(
     userId: number,
-    prefs: { notificationEnabled?: boolean; notificationTime?: string; notificationType?: string },
+    prefs: { notificationEnabled?: boolean; notificationTimes?: string[]; notificationType?: string },
   ): Promise<void>;
   updateLastInteraction(userId: number): Promise<void>;
   listActiveByAudienceGroups(audienceGroups: AudienceGroup[]): Promise<User[]>;

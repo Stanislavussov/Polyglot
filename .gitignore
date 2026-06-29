@@ -9,3 +9,4 @@ coverage
 .omo/*
 .env.prod
 .pnpm-store/*
+.claude/

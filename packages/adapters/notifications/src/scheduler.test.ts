@@ -12,7 +12,11 @@ const mockTemporalNow = { hour: 8, minute: 0 };
 
 vi.stubGlobal("Temporal", {
   Now: {
-    zonedDateTimeISO: () => mockTemporalNow,
+    zonedDateTimeISO: (tz?: string) => {
+      // Mirror Temporal throwing on an invalid IANA zone (used to test the payload-hour fallback).
+      if (tz === "Invalid/TZ") throw new Error("invalid timezone");
+      return mockTemporalNow;
+    },
   },
 });
 
@@ -65,7 +69,7 @@ const mockUser: NotificationUser = {
   learningLangs: ["cs", "de"],
   timezone: "Europe/Prague",
   notificationEnabled: true,
-  notificationTime: "08:00",
+  notificationTimes: ["08:00"],
   notificationType: "srs",
   notificationContext: null,
 };
@@ -94,7 +98,7 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
     getUsersForWindow: vi.fn().mockResolvedValue([mockUser]),
     getInactiveUsers: vi.fn().mockResolvedValue([]),
     disableNotifications: vi.fn().mockResolvedValue(undefined),
-    getRecentSentWords: vi.fn().mockResolvedValue([]),
+    getSentWordsSince: vi.fn().mockResolvedValue([]),
     recordSentWord: vi.fn().mockResolvedValue(undefined),
     pickDictionaryWord: vi.fn().mockResolvedValue(mockDictWord),
     pickContextualWord: vi.fn().mockResolvedValue(mockDictWord),
@@ -121,16 +125,17 @@ describe("buildNotificationPayload", () => {
     expect(payload.message).toContain("Haus");
   });
 
-  it("builds a payload with custom time (20:00)", () => {
-    const eveningUser = { ...mockUser, notificationTime: "20:00" };
-    const payload = buildNotificationPayload(eveningUser, mockDictWord, mockT);
+  it("derives the hour from the current local time", () => {
+    mockTemporalNow.hour = 20;
+    const payload = buildNotificationPayload(mockUser, mockDictWord, mockT);
 
     expect(payload.hour).toBe(20);
     expect(payload.message).toContain("From your dictionary");
+    mockTemporalNow.hour = 8;
   });
 
-  it("defaults to hour 8 for invalid notificationTime", () => {
-    const badUser = { ...mockUser, notificationTime: "invalid" };
+  it("defaults to hour 8 when the timezone is invalid", () => {
+    const badUser = { ...mockUser, timezone: "Invalid/TZ" };
     const payload = buildNotificationPayload(badUser, mockDictWord, mockT);
 
     expect(payload.hour).toBe(8);
@@ -178,7 +183,7 @@ describe("checkAndSend", () => {
       userId: 2,
       telegramId: 67890,
       interfaceLang: "ru",
-      notificationTime: "20:00",
+      notificationTimes: ["20:00"],
       notificationContext: null,
     };
     const deps = buildSchedulerDeps({
@@ -208,7 +213,7 @@ describe("checkAndSend", () => {
       userId: 2,
       telegramId: 67890,
       interfaceLang: "ru",
-      notificationTime: "20:00",
+      notificationTimes: ["20:00"],
       notificationContext: null,
     };
     const deps = buildSchedulerDeps({
@@ -279,6 +284,17 @@ describe("checkAndSend", () => {
       await checkAndSend(mockSendFn, deps);
 
       expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
+    });
+
+    it("passes words sent in the last 24h to the dictionary picker for de-dup", async () => {
+      const deps = buildSchedulerDeps({
+        getSentWordsSince: vi.fn().mockResolvedValue(["house", "car"]),
+      });
+
+      await checkAndSend(mockSendFn, deps);
+
+      expect(deps.getSentWordsSince).toHaveBeenCalledWith(1, expect.any(Date));
+      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, ["house", "car"]);
     });
   });
 });
