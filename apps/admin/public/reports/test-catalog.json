@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-06-29T19:32:27.352Z",
+  "generatedAt": "2026-06-29T19:52:03.065Z",
   "summary": {
-    "total": 1851,
+    "total": 1836,
     "business": 0,
-    "technical": 1851,
+    "technical": 1836,
     "workspaces": [
       "apps",
       "packages"
@@ -2927,10 +2927,10 @@
       "description": "Protects the bot render Topic Word behavior: escapes HTML in word text."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-451-buildtranslationkeyboard-has-clarify-and-other-meaning-buttons-in-the-first-row",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-452-buildtranslationkeyboard-has-clarify-and-other-meaning-buttons-in-the-first-row",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 451,
+      "sourceLine": 452,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2943,10 +2943,10 @@
       "description": "Protects the bot build Translation Keyboard behavior so has clarify and other meaning buttons in the first row."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-459-buildtranslationkeyboard-renames-the-clarify-button-to-clarify-meaning",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-460-buildtranslationkeyboard-renames-the-clarify-button-to-clarify-meaning",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 459,
+      "sourceLine": 460,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2959,10 +2959,10 @@
       "description": "Protects the bot build Translation Keyboard behavior so renames the clarify button to 'Clarify meaning'."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-465-buildtranslationkeyboard-uses-for-the-clarify-button-in-ru-locale",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-466-buildtranslationkeyboard-uses-for-the-clarify-button-in-ru-locale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 465,
+      "sourceLine": 466,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2975,10 +2975,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: uses 'Уточнить значение' for the clarify button in ru locale."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-471-buildtranslationkeyboard-pins-the-save-button-to-the-last-row",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-472-buildtranslationkeyboard-pins-the-save-button-to-the-last-row",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 471,
+      "sourceLine": 472,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2991,10 +2991,10 @@
       "description": "Protects the bot build Translation Keyboard behavior so pins the save button to the last row."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-478-buildtranslationkeyboard-keeps-save-last-even-with-grammar-and-etymology-rows-present",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-479-buildtranslationkeyboard-keeps-save-last-even-with-grammar-and-etymology-rows-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 478,
+      "sourceLine": 479,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3007,10 +3007,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: keeps save last even with grammar and etymology rows present."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-485-buildtranslationkeyboard-has-exactly-2-rows-when-no-learning-aids-are-shown",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-486-buildtranslationkeyboard-has-exactly-2-rows-when-no-learning-aids-are-shown",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 485,
+      "sourceLine": 486,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3023,10 +3023,10 @@
       "description": "Protects the bot build Translation Keyboard behavior so has exactly 2 rows when no learning aids are shown."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-490-buildtranslationkeyboard-places-grammar-and-etymology-together-on-a-shared-row",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-491-buildtranslationkeyboard-places-grammar-and-etymology-together-on-a-shared-row",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 490,
+      "sourceLine": 491,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3039,10 +3039,10 @@
       "description": "Protects the bot build Translation Keyboard behavior so places grammar and etymology together on a shared row."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-498-buildtranslationkeyboard-shows-the-etymology-button-alone-when-grammar-is-hidden-single-word",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-499-buildtranslationkeyboard-shows-the-etymology-button-alone-when-grammar-is-hidden-single-word",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 498,
+      "sourceLine": 499,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3055,10 +3055,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: shows the etymology button alone when grammar is hidden (single word)."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-507-buildtranslationkeyboard-shows-disabled-save-button-when-isalreadysaved-is-true",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-508-buildtranslationkeyboard-shows-disabled-save-button-when-isalreadysaved-is-true",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 507,
+      "sourceLine": 508,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3071,10 +3071,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: shows disabled save button when is Already Saved is true."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-514-buildtranslationkeyboard-shows-active-save-button-when-isalreadysaved-is-false",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-515-buildtranslationkeyboard-shows-active-save-button-when-isalreadysaved-is-false",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 514,
+      "sourceLine": 515,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3087,10 +3087,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: shows active save button when is Already Saved is false."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-521-buildtranslationkeyboard-falls-back-to-en-for-unknown-interface-language",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-522-buildtranslationkeyboard-falls-back-to-en-for-unknown-interface-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 521,
+      "sourceLine": 522,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3103,10 +3103,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: falls back to en for unknown interface language."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-527-buildtranslationkeyboard-uses-russian-labels-for-ru-locale",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-528-buildtranslationkeyboard-uses-russian-labels-for-ru-locale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 527,
+      "sourceLine": 528,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3119,10 +3119,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: uses Russian labels for ru locale."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-533-buildtranslationkeyboard-defaults-msgid-to-0-when-not-provided",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-534-buildtranslationkeyboard-defaults-msgid-to-0-when-not-provided",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 533,
+      "sourceLine": 534,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3135,10 +3135,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: defaults msg Id to 0 when not provided."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-540-rendertranslation-etymology-section-renders-the-etymology-section-when-provided",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-541-rendertranslation-etymology-section-renders-the-etymology-section-when-provided",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 540,
+      "sourceLine": 541,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3151,10 +3151,10 @@
       "description": "Protects the bot render Translation — etymology section behavior: renders the etymology section when provided."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-546-rendertranslation-etymology-section-does-not-render-an-etymology-section-when-absent",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-555-rendertranslation-etymology-section-does-not-render-an-etymology-section-when-absent",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 546,
+      "sourceLine": 555,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3167,10 +3167,10 @@
       "description": "Protects the bot render Translation — etymology section behavior: does not render an etymology section when absent."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-551-rendertranslation-etymology-section-escapes-html-in-etymology-prose",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-560-rendertranslation-etymology-section-escapes-html-in-etymology-prose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 551,
+      "sourceLine": 560,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3183,10 +3183,10 @@
       "description": "Protects the bot render Translation — etymology section behavior: escapes HTML in etymology prose."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-557-rendertranslation-etymology-section-renders-etymology-after-the-grammar-breakdown-section",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-566-rendertranslation-etymology-section-renders-etymology-after-the-grammar-breakdown-section",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 557,
+      "sourceLine": 566,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3199,10 +3199,10 @@
       "description": "Protects the bot render Translation — etymology section behavior: renders etymology after the grammar breakdown section."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-601-rendertranslation-alternatives-renders-alternative-without-synonyms-no-dash",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-610-rendertranslation-alternatives-renders-alternative-without-synonyms-no-dash",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 601,
+      "sourceLine": 610,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3215,10 +3215,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: renders alternative without synonyms (no dash)."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-607-rendertranslation-alternatives-renders-alternatives-after-main-translation-header",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-616-rendertranslation-alternatives-renders-alternatives-after-main-translation-header",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 607,
+      "sourceLine": 616,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3231,10 +3231,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: renders alternatives after main translation header."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-615-rendertranslation-alternatives-does-not-render-alternatives-section-when-not-present",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-624-rendertranslation-alternatives-does-not-render-alternatives-section-when-not-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 615,
+      "sourceLine": 624,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3247,10 +3247,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: does not render alternatives section when not present."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-620-rendertranslation-alternatives-does-not-render-alternatives-section-when-array-is-empty",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-629-rendertranslation-alternatives-does-not-render-alternatives-section-when-array-is-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 620,
+      "sourceLine": 629,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3263,10 +3263,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: does not render alternatives section when array is empty."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-634-rendertranslation-alternatives-escapes-html-in-alternative-text-and-synonyms",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-643-rendertranslation-alternatives-escapes-html-in-alternative-text-and-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 634,
+      "sourceLine": 643,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3279,10 +3279,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: escapes HTML in alternative text and synonyms."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-687-rendertranslation-idiomatic-equivalents-renders-idiomatic-translations-using-the-text-field-as-before",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-696-rendertranslation-idiomatic-equivalents-renders-idiomatic-translations-using-the-text-field-as-before",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 687,
+      "sourceLine": 696,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3295,10 +3295,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: renders idiomatic translations using the text field as before."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-693-rendertranslation-idiomatic-equivalents-renders-the-original-proverb-in-the-header",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-702-rendertranslation-idiomatic-equivalents-renders-the-original-proverb-in-the-header",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 693,
+      "sourceLine": 702,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3311,10 +3311,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: renders the original proverb in the header."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-698-rendertranslation-idiomatic-equivalents-does-not-leak-expressiontype-or-equivalentnote-into-output",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-707-rendertranslation-idiomatic-equivalents-does-not-leak-expressiontype-or-equivalentnote-into-output",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 698,
+      "sourceLine": 707,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3327,10 +3327,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: does not leak expression Type or equivalent Note into output."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-705-rendertranslation-idiomatic-equivalents-renders-examples-from-idiomatic-translations",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-714-rendertranslation-idiomatic-equivalents-renders-examples-from-idiomatic-translations",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 705,
+      "sourceLine": 714,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3343,10 +3343,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: renders examples from idiomatic translations."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-712-rendertranslation-idiomatic-equivalents-handles-mix-of-literal-and-idiomatic-translations",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-721-rendertranslation-idiomatic-equivalents-handles-mix-of-literal-and-idiomatic-translations",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 712,
+      "sourceLine": 721,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3359,10 +3359,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: handles mix of literal and idiomatic translations."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-738-rendertopicword-idiomatic-equivalents-renders-topic-word-with-idiomatic-fields-transparently",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-747-rendertopicword-idiomatic-equivalents-renders-topic-word-with-idiomatic-fields-transparently",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 738,
+      "sourceLine": 747,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3375,10 +3375,10 @@
       "description": "Protects the bot render Topic Word — idiomatic equivalents behavior: renders topic word with idiomatic fields transparently."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-762-rendertranslation-connotation-warnings-renders-regular-usage-guidance-with-a-distinct-marker",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-771-rendertranslation-connotation-warnings-renders-regular-usage-guidance-with-a-distinct-marker",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 762,
+      "sourceLine": 771,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3391,10 +3391,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: renders regular usage guidance with a distinct marker."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-780-rendertranslation-connotation-warnings-renders-connotation-warning-when-present",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-789-rendertranslation-connotation-warnings-renders-connotation-warning-when-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 780,
+      "sourceLine": 789,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3407,10 +3407,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: renders connotation warning when present."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-794-rendertranslation-connotation-warnings-does-not-render-connotation-warning-when-absent",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-803-rendertranslation-connotation-warnings-does-not-render-connotation-warning-when-absent",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 794,
+      "sourceLine": 803,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3423,10 +3423,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: does not render connotation warning when absent."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-799-rendertranslation-connotation-warnings-does-not-render-connotation-warning-when-field-is-undefined",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-808-rendertranslation-connotation-warnings-does-not-render-connotation-warning-when-field-is-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 799,
+      "sourceLine": 808,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3439,10 +3439,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: does not render connotation warning when field is undefined."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-813-rendertranslation-connotation-warnings-renders-connotation-warning-after-examples",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-822-rendertranslation-connotation-warnings-renders-connotation-warning-after-examples",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 813,
+      "sourceLine": 822,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3455,10 +3455,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: renders connotation warning after examples."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-829-rendertranslation-connotation-warnings-escapes-html-in-connotation-warning-text",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-838-rendertranslation-connotation-warnings-escapes-html-in-connotation-warning-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 829,
+      "sourceLine": 838,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3471,10 +3471,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: escapes HTML in connotation warning text."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-843-rendertranslation-connotation-warnings-uses-i18n-connotationwarning-key-with-locale",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-852-rendertranslation-connotation-warnings-uses-i18n-connotationwarning-key-with-locale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 843,
+      "sourceLine": 852,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3487,10 +3487,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: uses i18n connotation Warning key with locale."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-864-rendertranslation-backward-compat-with-old-examples-gracefully-handles-old-examples-without-register-field",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-873-rendertranslation-backward-compat-with-old-examples-gracefully-handles-old-examples-without-register-field",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 864,
+      "sourceLine": 873,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3503,10 +3503,10 @@
       "description": "Protects the bot render Translation — backward compat with old examples behavior so gracefully handles old examples without register field."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-881-rendertranslation-backward-compat-with-old-examples-renders-native-field-from-examples-when-present",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-890-rendertranslation-backward-compat-with-old-examples-renders-native-field-from-examples-when-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 881,
+      "sourceLine": 890,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3519,10 +3519,10 @@
       "description": "Protects the bot render Translation — backward compat with old examples behavior: renders native field from examples when present."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-899-rendertranslation-inline-synonyms-shows-synonyms-inline-after-translation-text",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-908-rendertranslation-inline-synonyms-shows-synonyms-inline-after-translation-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 899,
+      "sourceLine": 908,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3535,10 +3535,10 @@
       "description": "Protects the bot render Translation — inline synonyms behavior: shows synonyms inline after translation text."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-906-rendertranslation-inline-synonyms-shows-no-parenthetical-when-zero-synonyms",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-915-rendertranslation-inline-synonyms-shows-no-parenthetical-when-zero-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 906,
+      "sourceLine": 915,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3551,10 +3551,10 @@
       "description": "Protects the bot render Translation — inline synonyms behavior: shows no parenthetical when zero synonyms."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-918-rendertranslation-inline-synonyms-shows-single-synonym-in-parenthetical",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-927-rendertranslation-inline-synonyms-shows-single-synonym-in-parenthetical",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 918,
+      "sourceLine": 927,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3567,10 +3567,10 @@
       "description": "Protects the bot render Translation — inline synonyms behavior: shows single synonym in parenthetical."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-957-rendersentencetranslation-renders-emoji-and-original-sentence-as-bold-header",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-966-rendersentencetranslation-renders-emoji-and-original-sentence-as-bold-header",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 957,
+      "sourceLine": 966,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3583,10 +3583,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders emoji and original sentence as bold header."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-962-rendersentencetranslation-renders-native-meaning-for-sentence-translations",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-971-rendersentencetranslation-renders-native-meaning-for-sentence-translations",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 962,
+      "sourceLine": 971,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3599,10 +3599,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders native meaning for sentence translations."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-967-rendersentencetranslation-does-not-render-native-meaning-when-nativelang-equals-sourcelang",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-976-rendersentencetranslation-does-not-render-native-meaning-when-nativelang-equals-sourcelang",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 967,
+      "sourceLine": 976,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3615,10 +3615,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render native meaning when native Lang equals source Lang."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-973-rendersentencetranslation-renders-translation-text-as-bold-per-language",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-982-rendersentencetranslation-renders-translation-text-as-bold-per-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 973,
+      "sourceLine": 982,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3631,10 +3631,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders translation text as bold per language."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-979-rendersentencetranslation-renders-sentence-translations-without-transcription",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-988-rendersentencetranslation-renders-sentence-translations-without-transcription",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 979,
+      "sourceLine": 988,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3647,10 +3647,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders sentence translations without transcription."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-986-rendersentencetranslation-renders-language-flags-from-db",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-995-rendersentencetranslation-renders-language-flags-from-db",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 986,
+      "sourceLine": 995,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3663,10 +3663,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders language flags from DB."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-992-rendersentencetranslation-does-not-render-synonyms",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1001-rendersentencetranslation-does-not-render-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 992,
+      "sourceLine": 1001,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3679,10 +3679,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render synonyms."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-997-rendersentencetranslation-does-not-render-examples",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1006-rendersentencetranslation-does-not-render-examples",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 997,
+      "sourceLine": 1006,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3695,10 +3695,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render examples."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1005-rendersentencetranslation-does-not-render-alternatives",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1014-rendersentencetranslation-does-not-render-alternatives",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1005,
+      "sourceLine": 1014,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3711,10 +3711,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render alternatives."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1010-rendersentencetranslation-does-not-render-register-line",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1019-rendersentencetranslation-does-not-render-register-line",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1010,
+      "sourceLine": 1019,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3727,10 +3727,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render register line."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1015-rendersentencetranslation-shows-needsreview-warning-when-true",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1024-rendersentencetranslation-shows-needsreview-warning-when-true",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1015,
+      "sourceLine": 1024,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3743,10 +3743,10 @@
       "description": "Protects the bot render Sentence Translation behavior: shows needs Review warning when true."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1020-rendersentencetranslation-does-not-show-needsreview-when-false",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1029-rendersentencetranslation-does-not-show-needsreview-when-false",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1020,
+      "sourceLine": 1029,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3759,10 +3759,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does not show needs Review when false."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1025-rendersentencetranslation-escapes-html-special-characters",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1034-rendersentencetranslation-escapes-html-special-characters",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1025,
+      "sourceLine": 1034,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3775,10 +3775,10 @@
       "description": "Protects the bot render Sentence Translation behavior: escapes HTML special characters."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1035-rendersentencetranslation-falls-back-to-en-for-unknown-interfacelang",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1044-rendersentencetranslation-falls-back-to-en-for-unknown-interfacelang",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1035,
+      "sourceLine": 1044,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3791,10 +3791,10 @@
       "description": "Protects the bot render Sentence Translation behavior: falls back to en for unknown interface Lang."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1041-rendersentencetranslation-falls-back-to-when-getlangflag-returns-undefined",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1050-rendersentencetranslation-falls-back-to-when-getlangflag-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1041,
+      "sourceLine": 1050,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3807,10 +3807,10 @@
       "description": "Protects the bot render Sentence Translation behavior: falls back to 🔤 when get Lang Flag returns undefined."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1062-renderqualitywarning-renders-quality-warning-in-english",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1071-renderqualitywarning-renders-quality-warning-in-english",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1062,
+      "sourceLine": 1071,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3823,10 +3823,10 @@
       "description": "Protects the bot render Quality Warning behavior: renders quality warning in English."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1067-renderqualitywarning-renders-quality-warning-in-russian",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1076-renderqualitywarning-renders-quality-warning-in-russian",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1067,
+      "sourceLine": 1076,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3839,10 +3839,10 @@
       "description": "Protects the bot render Quality Warning behavior: renders quality warning in Russian."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1072-renderqualitywarning-renders-quality-warning-in-czech",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1081-renderqualitywarning-renders-quality-warning-in-czech",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1072,
+      "sourceLine": 1081,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3855,10 +3855,10 @@
       "description": "Protects the bot render Quality Warning behavior: renders quality warning in Czech."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1077-renderqualitywarning-falls-back-to-english-for-unknown-lang",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1086-renderqualitywarning-falls-back-to-english-for-unknown-lang",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1077,
+      "sourceLine": 1086,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3871,10 +3871,10 @@
       "description": "Protects the bot render Quality Warning behavior: falls back to English for unknown lang."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1082-renderqualitywarning-escapes-html-in-warning-text",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1091-renderqualitywarning-escapes-html-in-warning-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1082,
+      "sourceLine": 1091,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3887,10 +3887,10 @@
       "description": "Protects the bot render Quality Warning behavior: escapes HTML in warning text."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1087-renderqualitywarning-is-different-from-translationneedsreview-text",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1096-renderqualitywarning-is-different-from-translationneedsreview-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1087,
+      "sourceLine": 1096,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15309,10 +15309,10 @@
       "description": "Protects the core domain dictionary pipeline presets behavior so presets satisfy Dictionary Word Config."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-6-i18n-t-returns-english-text-for-a-known-key",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-7-i18n-t-returns-english-text-for-a-known-key",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 6,
+      "sourceLine": 7,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15325,10 +15325,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns English text for a known key."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-10-i18n-t-returns-russian-text-for-a-known-key",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-11-i18n-t-returns-russian-text-for-a-known-key",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 10,
+      "sourceLine": 11,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15341,10 +15341,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns Russian text for a known key."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-14-i18n-t-returns-czech-text-for-a-known-key",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-15-i18n-t-returns-czech-text-for-a-known-key",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 14,
+      "sourceLine": 15,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15357,42 +15357,42 @@
       "description": "Protects the core domain i18n — t() behavior: returns Czech text for a known key."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-18-i18n-t-falls-back-to-english-when-locale-has-no-dedicated-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-19-i18n-t-returns-german-text-for-a-known-key-de-has-its-own-locale-file",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 18,
+      "sourceLine": 19,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "i18n — t()"
       ],
-      "title": "falls back to English when locale has no dedicated file",
-      "rawTitle": "falls back to English when locale has no dedicated file",
-      "name": "Core domain i18n — t() falls back to English when locale has no dedicated file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English when locale has no dedicated file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English when locale has no dedicated file."
+      "title": "returns German text for a known key (de has its own locale file)",
+      "rawTitle": "returns German text for a known key (de has its own locale file)",
+      "name": "Core domain i18n — t() returns German text for a known key (de has its own locale file)",
+      "value": "Protects the core domain i18n — t() behavior: returns German text for a known key (de has its own locale file).",
+      "description": "Protects the core domain i18n — t() behavior: returns German text for a known key (de has its own locale file)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-23-i18n-t-falls-back-to-english-when-key-is-missing-in-locale-never-throws",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-25-i18n-t-falls-back-to-english-when-locale-has-no-dedicated-file-unknown-lang",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 23,
+      "sourceLine": 25,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "i18n — t()"
       ],
-      "title": "falls back to English when key is missing in locale (never throws)",
-      "rawTitle": "falls back to English when key is missing in locale (never throws)",
-      "name": "Core domain i18n — t() falls back to English when key is missing in locale (never throws)",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English when key is missing in locale (never throws).",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English when key is missing in locale (never throws)."
+      "title": "falls back to English when locale has no dedicated file (unknown lang)",
+      "rawTitle": "falls back to English when locale has no dedicated file (unknown lang)",
+      "name": "Core domain i18n — t() falls back to English when locale has no dedicated file (unknown lang)",
+      "value": "Protects the core domain i18n — t() behavior: falls back to English when locale has no dedicated file (unknown lang).",
+      "description": "Protects the core domain i18n — t() behavior: falls back to English when locale has no dedicated file (unknown lang)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-29-i18n-t-interpolates-param-placeholders",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-31-i18n-t-interpolates-param-placeholders",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 29,
+      "sourceLine": 31,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15405,10 +15405,10 @@
       "description": "Protects the core domain i18n — t() behavior so interpolates {param} placeholders."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-34-i18n-t-interpolates-multiple-params",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-36-i18n-t-interpolates-multiple-params",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 34,
+      "sourceLine": 36,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15421,26 +15421,26 @@
       "description": "Protects the core domain i18n — t() behavior so interpolates multiple params."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-39-i18n-t-returns-english-fallback-for-lang-with-no-locale-file-interpolation",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-41-i18n-t-interpolates-params-in-a-translated-locale-de",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 39,
+      "sourceLine": 41,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "i18n — t()"
       ],
-      "title": "returns English fallback for lang with no locale file + interpolation",
-      "rawTitle": "returns English fallback for lang with no locale file + interpolation",
-      "name": "Core domain i18n — t() returns English fallback for lang with no locale file + interpolation",
-      "value": "Protects the core domain i18n — t() behavior: returns English fallback for lang with no locale file + interpolation.",
-      "description": "Protects the core domain i18n — t() behavior: returns English fallback for lang with no locale file + interpolation."
+      "title": "interpolates params in a translated locale (de)",
+      "rawTitle": "interpolates params in a translated locale (de)",
+      "name": "Core domain i18n — t() interpolates params in a translated locale (de)",
+      "value": "Protects the core domain i18n — t() behavior so interpolates params in a translated locale (de).",
+      "description": "Protects the core domain i18n — t() behavior so interpolates params in a translated locale (de)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-45-i18n-t-returns-translation-pipeline-keys",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-48-i18n-t-returns-translation-pipeline-keys",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 45,
+      "sourceLine": 48,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15453,10 +15453,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns translation pipeline keys."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-52-i18n-t-returns-translation-pipeline-keys-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-55-i18n-t-returns-translation-pipeline-keys-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 52,
+      "sourceLine": 55,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15469,10 +15469,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns translation pipeline keys in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-58-i18n-t-returns-translation-pipeline-keys-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-61-i18n-t-returns-translation-pipeline-keys-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 58,
+      "sourceLine": 61,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15485,10 +15485,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns translation pipeline keys in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-63-i18n-t-returns-register-key-with-interpolation",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-66-i18n-t-returns-register-key-with-interpolation",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 63,
+      "sourceLine": 66,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15501,10 +15501,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns register key with interpolation."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-66-i18n-t-returns-regeneratelang-with-lang-interpolation-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-69-i18n-t-returns-regeneratelang-with-lang-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 66,
+      "sourceLine": 69,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15517,10 +15517,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns regenerate Lang with {lang} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-70-i18n-t-returns-regenerating-with-lang-interpolation-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-73-i18n-t-returns-regenerating-with-lang-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 70,
+      "sourceLine": 73,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15533,10 +15533,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns regenerating with {lang} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-74-i18n-t-returns-regenerated-with-lang-interpolation-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-77-i18n-t-returns-regenerated-with-lang-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 77,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15549,10 +15549,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns regenerated with {lang} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-78-i18n-t-returns-regeneration-keys-in-russian-with-interpolation",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-81-i18n-t-returns-regeneration-keys-in-russian-with-interpolation",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 78,
+      "sourceLine": 81,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15565,10 +15565,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns regeneration keys in Russian with interpolation."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-84-i18n-t-returns-regeneration-keys-in-czech-with-interpolation",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-87-i18n-t-returns-regeneration-keys-in-czech-with-interpolation",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 84,
+      "sourceLine": 87,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15581,26 +15581,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns regeneration keys in Czech with interpolation."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-90-i18n-t-falls-back-to-english-for-regeneration-keys-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-94-i18n-t-returns-translatemodeon-with-parameters-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 90,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for regeneration keys when locale has no file",
-      "rawTitle": "falls back to English for regeneration keys when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for regeneration keys when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for regeneration keys when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for regeneration keys when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-95-i18n-t-returns-translatemodeon-with-parameters-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 94,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15613,10 +15597,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns translate Mode On with parameters in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-99-i18n-t-returns-translatemodehint-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-98-i18n-t-returns-translatemodehint-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 99,
+      "sourceLine": 98,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15629,10 +15613,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns translate Mode Hint in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-103-i18n-t-returns-translate-mode-keys-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-102-i18n-t-returns-translate-mode-keys-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 103,
+      "sourceLine": 102,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15645,10 +15629,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns translate mode keys in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-108-i18n-t-returns-translate-mode-keys-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-107-i18n-t-returns-translate-mode-keys-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 107,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15661,26 +15645,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns translate mode keys in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-113-i18n-t-falls-back-to-english-for-translate-mode-keys-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-113-i18n-t-returns-wiktionarydefinition-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
       "sourceLine": 113,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for translate mode keys when locale has no file",
-      "rawTitle": "falls back to English for translate mode keys when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for translate mode keys when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for translate mode keys when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for translate mode keys when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-119-i18n-t-returns-wiktionarydefinition-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 119,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15693,10 +15661,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns wiktionary Definition in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-123-i18n-t-returns-wiktionarysource-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-117-i18n-t-returns-wiktionarysource-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 123,
+      "sourceLine": 117,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15709,10 +15677,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns wiktionary Source in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-127-i18n-t-returns-partofspeech-with-interpolation",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-121-i18n-t-returns-partofspeech-with-interpolation",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 127,
+      "sourceLine": 121,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15725,10 +15693,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns part Of Speech with interpolation."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-131-i18n-t-returns-expressiondetected-with-interpolation",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-125-i18n-t-returns-expressiondetected-with-interpolation",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 125,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15741,10 +15709,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns expression Detected with interpolation."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-135-i18n-t-returns-dictionarycontext-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-129-i18n-t-returns-dictionarycontext-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 135,
+      "sourceLine": 129,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15757,10 +15725,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Context in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-139-i18n-t-returns-wiktionary-keys-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-133-i18n-t-returns-wiktionary-keys-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 139,
+      "sourceLine": 133,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15773,10 +15741,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns Wiktionary keys in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-147-i18n-t-returns-wiktionary-keys-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-141-i18n-t-returns-wiktionary-keys-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 147,
+      "sourceLine": 141,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15789,26 +15757,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns Wiktionary keys in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-155-i18n-t-falls-back-to-english-for-wiktionary-keys-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-150-i18n-t-returns-detectedlang-with-lang-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 155,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for Wiktionary keys when locale has no file",
-      "rawTitle": "falls back to English for Wiktionary keys when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for Wiktionary keys when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for Wiktionary keys when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for Wiktionary keys when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-161-i18n-t-returns-detectedlang-with-lang-interpolation-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 161,
+      "sourceLine": 150,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15821,10 +15773,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns detected Lang with {lang} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-165-i18n-t-returns-detectedlang-with-lang-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-154-i18n-t-returns-detectedlang-with-lang-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 165,
+      "sourceLine": 154,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15837,10 +15789,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns detected Lang with {lang} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-169-i18n-t-returns-detectedlang-with-lang-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-158-i18n-t-returns-detectedlang-with-lang-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 169,
+      "sourceLine": 158,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15853,26 +15805,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns detected Lang with {lang} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-173-i18n-t-falls-back-to-english-for-detectedlang-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-163-i18n-t-returns-nexttranslationfrom-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 173,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for detectedLang when locale has no file",
-      "rawTitle": "falls back to English for detectedLang when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for detected Lang when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for detected Lang when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for detected Lang when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-178-i18n-t-returns-nexttranslationfrom-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 178,
+      "sourceLine": 163,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15885,10 +15821,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns next Translation From in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-182-i18n-t-returns-nextsourceset-with-lang-interpolation-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-167-i18n-t-returns-nextsourceset-with-lang-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 182,
+      "sourceLine": 167,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15901,10 +15837,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns next Source Set with {lang} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-186-i18n-t-returns-nexttranslationfrom-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-171-i18n-t-returns-nexttranslationfrom-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 186,
+      "sourceLine": 171,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15917,10 +15853,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns next Translation From in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-190-i18n-t-returns-nextsourceset-with-lang-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-175-i18n-t-returns-nextsourceset-with-lang-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 190,
+      "sourceLine": 175,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15933,10 +15869,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns next Source Set with {lang} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-194-i18n-t-returns-nexttranslationfrom-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-179-i18n-t-returns-nexttranslationfrom-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 194,
+      "sourceLine": 179,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15949,10 +15885,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns next Translation From in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-198-i18n-t-returns-nextsourceset-with-lang-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-183-i18n-t-returns-nextsourceset-with-lang-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 198,
+      "sourceLine": 183,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15965,42 +15901,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns next Source Set with {lang} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-202-i18n-t-falls-back-to-english-for-nexttranslationfrom-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-188-i18n-t-returns-sentencetranslation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 202,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for nextTranslationFrom when locale has no file",
-      "rawTitle": "falls back to English for nextTranslationFrom when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for next Translation From when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for next Translation From when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for next Translation From when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-206-i18n-t-falls-back-to-english-for-nextsourceset-when-locale-has-no-file",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 206,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for nextSourceSet when locale has no file",
-      "rawTitle": "falls back to English for nextSourceSet when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for next Source Set when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for next Source Set when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for next Source Set when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-211-i18n-t-returns-sentencetranslation-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 211,
+      "sourceLine": 188,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16013,10 +15917,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns sentence Translation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-215-i18n-t-returns-sentencetranslation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-192-i18n-t-returns-sentencetranslation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 215,
+      "sourceLine": 192,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16029,10 +15933,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns sentence Translation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-219-i18n-t-returns-sentencetranslation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-196-i18n-t-returns-sentencetranslation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 196,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16045,26 +15949,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns sentence Translation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-223-i18n-t-falls-back-to-english-for-sentencetranslation-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-201-i18n-t-returns-save-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 223,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for sentenceTranslation when locale has no file",
-      "rawTitle": "falls back to English for sentenceTranslation when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for sentence Translation when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for sentence Translation when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for sentence Translation when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-228-i18n-t-returns-save-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 228,
+      "sourceLine": 201,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16077,10 +15965,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns save in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-232-i18n-t-returns-save-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-205-i18n-t-returns-save-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 232,
+      "sourceLine": 205,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16093,10 +15981,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns save in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-236-i18n-t-returns-save-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-209-i18n-t-returns-save-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 236,
+      "sourceLine": 209,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16109,26 +15997,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns save in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-240-i18n-t-falls-back-to-english-for-save-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-214-i18n-t-returns-connotationwarning-with-warning-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 240,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for save when locale has no file",
-      "rawTitle": "falls back to English for save when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for save when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for save when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for save when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-245-i18n-t-returns-connotationwarning-with-warning-interpolation-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 245,
+      "sourceLine": 214,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16141,10 +16013,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns connotation Warning with {warning} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-251-i18n-t-returns-connotationwarning-with-warning-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-220-i18n-t-returns-connotationwarning-with-warning-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 251,
+      "sourceLine": 220,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16157,10 +16029,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns connotation Warning with {warning} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-257-i18n-t-returns-connotationwarning-with-warning-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-226-i18n-t-returns-connotationwarning-with-warning-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 257,
+      "sourceLine": 226,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16173,26 +16045,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns connotation Warning with {warning} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-263-i18n-t-falls-back-to-english-for-connotationwarning-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-233-i18n-t-returns-templatetitle-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 263,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for connotationWarning when locale has no file",
-      "rawTitle": "falls back to English for connotationWarning when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for connotation Warning when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for connotation Warning when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for connotation Warning when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-270-i18n-t-returns-templatetitle-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 270,
+      "sourceLine": 233,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16205,10 +16061,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Title in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-274-i18n-t-returns-templatetitle-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-237-i18n-t-returns-templatetitle-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 274,
+      "sourceLine": 237,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16221,10 +16077,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Title in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-278-i18n-t-returns-templatetitle-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-241-i18n-t-returns-templatetitle-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 278,
+      "sourceLine": 241,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16237,10 +16093,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Title in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-282-i18n-t-returns-templatecurrent-with-name-interpolation-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-245-i18n-t-returns-templatecurrent-with-name-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 282,
+      "sourceLine": 245,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16253,10 +16109,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Current with {name} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-286-i18n-t-returns-templatecurrent-with-name-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-249-i18n-t-returns-templatecurrent-with-name-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 286,
+      "sourceLine": 249,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16269,10 +16125,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Current with {name} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-290-i18n-t-returns-templatecurrent-with-name-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-253-i18n-t-returns-templatecurrent-with-name-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 290,
+      "sourceLine": 253,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16285,10 +16141,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Current with {name} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-294-i18n-t-returns-templatedefault-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-257-i18n-t-returns-templatedefault-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 294,
+      "sourceLine": 257,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16301,10 +16157,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Default in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-298-i18n-t-returns-templatecustom-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-261-i18n-t-returns-templatecustom-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 298,
+      "sourceLine": 261,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16317,10 +16173,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Custom in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-302-i18n-t-returns-template-button-labels-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-265-i18n-t-returns-template-button-labels-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 302,
+      "sourceLine": 265,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16333,10 +16189,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template button labels in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-311-i18n-t-returns-template-button-labels-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-274-i18n-t-returns-template-button-labels-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 311,
+      "sourceLine": 274,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16349,10 +16205,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template button labels in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-320-i18n-t-returns-template-button-labels-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-283-i18n-t-returns-template-button-labels-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 320,
+      "sourceLine": 283,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16365,10 +16221,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template button labels in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-329-i18n-t-returns-templateconstructor-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-292-i18n-t-returns-templateconstructor-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 329,
+      "sourceLine": 292,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16381,10 +16237,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Constructor in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-334-i18n-t-returns-templateconstructor-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-297-i18n-t-returns-templateconstructor-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 334,
+      "sourceLine": 297,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16397,10 +16253,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Constructor in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-338-i18n-t-returns-templateconstructor-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-301-i18n-t-returns-templateconstructor-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 338,
+      "sourceLine": 301,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16413,10 +16269,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Constructor in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-342-i18n-t-returns-templatesaved-confirmation-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-305-i18n-t-returns-templatesaved-confirmation-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 342,
+      "sourceLine": 305,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16429,10 +16285,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Saved confirmation in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-348-i18n-t-returns-templateresetdone-confirmation-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-311-i18n-t-returns-templateresetdone-confirmation-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 348,
+      "sourceLine": 311,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16445,10 +16301,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Reset Done confirmation in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-354-i18n-t-returns-templatecancelled-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-317-i18n-t-returns-templatecancelled-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 354,
+      "sourceLine": 317,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16461,10 +16317,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Cancelled in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-360-i18n-t-returns-template-field-labels-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-323-i18n-t-returns-template-field-labels-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 360,
+      "sourceLine": 323,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16477,10 +16333,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template field labels in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-368-i18n-t-returns-template-field-labels-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-331-i18n-t-returns-template-field-labels-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 368,
+      "sourceLine": 331,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16493,10 +16349,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template field labels in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-376-i18n-t-returns-template-field-labels-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-339-i18n-t-returns-template-field-labels-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 376,
+      "sourceLine": 339,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16509,10 +16365,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template field labels in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-384-i18n-t-returns-templatepreviewheader-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-347-i18n-t-returns-templatepreviewheader-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 384,
+      "sourceLine": 347,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16525,10 +16381,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Preview Header in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-390-i18n-t-returns-templatesessionexpired-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-353-i18n-t-returns-templatesessionexpired-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 390,
+      "sourceLine": 353,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16541,26 +16397,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns template Session Expired in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-396-i18n-t-falls-back-to-english-for-template-keys-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-360-i18n-t-returns-cmddescstart-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 396,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for template keys when locale has no file",
-      "rawTitle": "falls back to English for template keys when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for template keys when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for template keys when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for template keys when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-404-i18n-t-returns-cmddescstart-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 404,
+      "sourceLine": 360,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16573,10 +16413,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns cmd Desc Start in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-408-i18n-t-returns-cmddesctranslate-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-364-i18n-t-returns-cmddesctranslate-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 408,
+      "sourceLine": 364,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16589,10 +16429,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns cmd Desc Translate in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-412-i18n-t-returns-cmddescdictionary-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-368-i18n-t-returns-cmddescdictionary-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 412,
+      "sourceLine": 368,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16605,10 +16445,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns cmd Desc Dictionary in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-416-i18n-t-returns-cmddesctemplate-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-372-i18n-t-returns-cmddesctemplate-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 416,
+      "sourceLine": 372,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16621,10 +16461,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns cmd Desc Template in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-420-i18n-t-returns-cmddescsettings-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-376-i18n-t-returns-cmddescsettings-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 420,
+      "sourceLine": 376,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16637,10 +16477,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns cmd Desc Settings in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-424-i18n-t-returns-command-description-keys-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-380-i18n-t-returns-command-description-keys-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 424,
+      "sourceLine": 380,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16653,10 +16493,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns command description keys in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-432-i18n-t-returns-command-description-keys-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-388-i18n-t-returns-command-description-keys-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 432,
+      "sourceLine": 388,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16669,26 +16509,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns command description keys in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-440-i18n-t-falls-back-to-english-for-command-description-keys-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-397-i18n-t-returns-qualityuncertain-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 440,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for command description keys when locale has no file",
-      "rawTitle": "falls back to English for command description keys when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for command description keys when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for command description keys when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for command description keys when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-449-i18n-t-returns-qualityuncertain-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 449,
+      "sourceLine": 397,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16701,10 +16525,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns quality Uncertain in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-453-i18n-t-returns-qualityuncertain-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-401-i18n-t-returns-qualityuncertain-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 453,
+      "sourceLine": 401,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16717,10 +16541,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns quality Uncertain in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-457-i18n-t-returns-qualityuncertain-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-405-i18n-t-returns-qualityuncertain-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 457,
+      "sourceLine": 405,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16733,26 +16557,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns quality Uncertain in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-461-i18n-t-falls-back-to-english-for-qualityuncertain-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-410-i18n-t-returns-flashcardstart-with-count-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 461,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for qualityUncertain when locale has no file",
-      "rawTitle": "falls back to English for qualityUncertain when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for quality Uncertain when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for quality Uncertain when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for quality Uncertain when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-466-i18n-t-returns-flashcardstart-with-count-interpolation-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 466,
+      "sourceLine": 410,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16765,10 +16573,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Start with {count} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-470-i18n-t-returns-flashcardstart-with-count-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-414-i18n-t-returns-flashcardstart-with-count-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 470,
+      "sourceLine": 414,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16781,10 +16589,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Start with {count} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-474-i18n-t-returns-flashcardstart-with-count-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-418-i18n-t-returns-flashcardstart-with-count-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 474,
+      "sourceLine": 418,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16797,10 +16605,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Start with {count} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-478-i18n-t-returns-flashcardstartbtn-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-422-i18n-t-returns-flashcardstartbtn-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 478,
+      "sourceLine": 422,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16813,10 +16621,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Start Btn in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-484-i18n-t-returns-flashcardempty-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-428-i18n-t-returns-flashcardempty-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 484,
+      "sourceLine": 428,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16829,10 +16637,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Empty in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-490-i18n-t-returns-flashcardreveal-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-434-i18n-t-returns-flashcardreveal-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 490,
+      "sourceLine": 434,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16845,10 +16653,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Reveal in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-496-i18n-t-returns-flashcardnext-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-440-i18n-t-returns-flashcardnext-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 496,
+      "sourceLine": 440,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16861,10 +16669,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Next in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-502-i18n-t-returns-flashcarddone-with-count-interpolation-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-446-i18n-t-returns-flashcarddone-with-count-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 502,
+      "sourceLine": 446,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16877,10 +16685,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Done with {count} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-506-i18n-t-returns-flashcarddone-with-count-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-450-i18n-t-returns-flashcarddone-with-count-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 506,
+      "sourceLine": 450,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16893,10 +16701,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Done with {count} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-510-i18n-t-returns-flashcarddone-with-count-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-454-i18n-t-returns-flashcarddone-with-count-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 510,
+      "sourceLine": 454,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16909,10 +16717,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Done with {count} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-514-i18n-t-returns-flashcardquit-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-458-i18n-t-returns-flashcardquit-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 514,
+      "sourceLine": 458,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16925,10 +16733,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Quit in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-520-i18n-t-returns-flashcardrestart-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-464-i18n-t-returns-flashcardrestart-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 520,
+      "sourceLine": 464,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16941,10 +16749,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Restart in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-526-i18n-t-returns-flashcardclose-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-470-i18n-t-returns-flashcardclose-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 526,
+      "sourceLine": 470,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16957,10 +16765,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Close in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-532-i18n-t-returns-flashcardprogress-with-current-and-total-interpolation-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-476-i18n-t-returns-flashcardprogress-with-current-and-total-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 532,
+      "sourceLine": 476,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16973,10 +16781,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Progress with {current} and {total} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-536-i18n-t-returns-flashcardprogress-with-current-and-total-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-480-i18n-t-returns-flashcardprogress-with-current-and-total-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 536,
+      "sourceLine": 480,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -16989,10 +16797,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Progress with {current} and {total} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-540-i18n-t-returns-flashcardprogress-with-current-and-total-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-484-i18n-t-returns-flashcardprogress-with-current-and-total-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 540,
+      "sourceLine": 484,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17005,10 +16813,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Progress with {current} and {total} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-544-i18n-t-returns-flashcardquitbtn-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-488-i18n-t-returns-flashcardquitbtn-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 544,
+      "sourceLine": 488,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17021,10 +16829,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Quit Btn in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-550-i18n-t-returns-flashcarddonebtn-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-494-i18n-t-returns-flashcarddonebtn-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 550,
+      "sourceLine": 494,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17037,10 +16845,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Done Btn in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-556-i18n-t-returns-flashcardnewdeckbtn-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-500-i18n-t-returns-flashcardnewdeckbtn-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 556,
+      "sourceLine": 500,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17053,10 +16861,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard New Deck Btn in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-562-i18n-t-returns-flashcardsessionexpired-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-506-i18n-t-returns-flashcardsessionexpired-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 562,
+      "sourceLine": 506,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17069,10 +16877,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns flashcard Session Expired in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-568-i18n-t-returns-cmddescflashcard-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-512-i18n-t-returns-cmddescflashcard-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 568,
+      "sourceLine": 512,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17085,10 +16893,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns cmd Desc Flashcard in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-574-i18n-t-returns-srs-review-keys-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-518-i18n-t-returns-srs-review-keys-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 574,
+      "sourceLine": 518,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17101,10 +16909,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns SRS review keys in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-581-i18n-t-returns-localized-input-type-labels",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-525-i18n-t-returns-localized-input-type-labels",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 581,
+      "sourceLine": 525,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17117,26 +16925,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns localized input type labels."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-588-i18n-t-falls-back-to-english-for-flashcard-keys-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-533-i18n-t-returns-dictionaryheader-with-count-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 588,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for flashcard keys when locale has no file",
-      "rawTitle": "falls back to English for flashcard keys when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for flashcard keys when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for flashcard keys when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for flashcard keys when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-607-i18n-t-returns-dictionaryheader-with-count-interpolation-in-english",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 607,
+      "sourceLine": 533,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17149,10 +16941,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Header with {count} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-611-i18n-t-returns-dictionaryheader-with-count-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-537-i18n-t-returns-dictionaryheader-with-count-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 611,
+      "sourceLine": 537,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17165,10 +16957,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Header with {count} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-615-i18n-t-returns-dictionaryheader-with-count-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-541-i18n-t-returns-dictionaryheader-with-count-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 615,
+      "sourceLine": 541,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17181,10 +16973,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Header with {count} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-619-i18n-t-returns-dictionarypage-with-page-and-total-interpolation-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-545-i18n-t-returns-dictionarypage-with-page-and-total-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 619,
+      "sourceLine": 545,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17197,10 +16989,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Page with {page} and {total} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-623-i18n-t-returns-dictionarypage-with-page-and-total-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-549-i18n-t-returns-dictionarypage-with-page-and-total-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 623,
+      "sourceLine": 549,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17213,10 +17005,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Page with {page} and {total} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-627-i18n-t-returns-dictionarypage-with-page-and-total-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-553-i18n-t-returns-dictionarypage-with-page-and-total-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 627,
+      "sourceLine": 553,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17229,10 +17021,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Page with {page} and {total} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-631-i18n-t-returns-dictionaryprev-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-557-i18n-t-returns-dictionaryprev-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 631,
+      "sourceLine": 557,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17245,10 +17037,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Prev in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-637-i18n-t-returns-dictionarynext-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-563-i18n-t-returns-dictionarynext-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 637,
+      "sourceLine": 563,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17261,10 +17053,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Next in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-643-i18n-t-returns-dictionaryclose-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-569-i18n-t-returns-dictionaryclose-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 643,
+      "sourceLine": 569,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17277,10 +17069,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Close in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-649-i18n-t-returns-dictionaryback-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-575-i18n-t-returns-dictionaryback-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 649,
+      "sourceLine": 575,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17293,10 +17085,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Back in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-655-i18n-t-returns-dictionarydelete-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-581-i18n-t-returns-dictionarydelete-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 655,
+      "sourceLine": 581,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17309,10 +17101,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Delete in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-661-i18n-t-returns-dictionarydeleteconfirm-with-word-interpolation-in-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-587-i18n-t-returns-dictionarydeleteconfirm-with-word-interpolation-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 661,
+      "sourceLine": 587,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17325,10 +17117,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Delete Confirm with {word} interpolation in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-665-i18n-t-returns-dictionarydeleteconfirm-with-word-interpolation-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-591-i18n-t-returns-dictionarydeleteconfirm-with-word-interpolation-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 665,
+      "sourceLine": 591,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17341,10 +17133,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Delete Confirm with {word} interpolation in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-669-i18n-t-returns-dictionarydeleteconfirm-with-word-interpolation-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-595-i18n-t-returns-dictionarydeleteconfirm-with-word-interpolation-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 669,
+      "sourceLine": 595,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17357,10 +17149,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Delete Confirm with {word} interpolation in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-673-i18n-t-returns-dictionarydeleteyes-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-599-i18n-t-returns-dictionarydeleteyes-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 673,
+      "sourceLine": 599,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17373,10 +17165,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Delete Yes in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-679-i18n-t-returns-dictionarydeletecancel-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-605-i18n-t-returns-dictionarydeletecancel-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 679,
+      "sourceLine": 605,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17389,10 +17181,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Delete Cancel in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-685-i18n-t-returns-dictionarysessionexpired-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-611-i18n-t-returns-dictionarysessionexpired-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 685,
+      "sourceLine": 611,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17405,26 +17197,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns dictionary Session Expired in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-691-i18n-t-falls-back-to-english-for-dictionary-browse-keys-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-618-i18n-t-returns-settingstitle-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 691,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for dictionary browse keys when locale has no file",
-      "rawTitle": "falls back to English for dictionary browse keys when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for dictionary browse keys when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for dictionary browse keys when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for dictionary browse keys when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-706-i18n-t-returns-settingstitle-in-all-locales",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 706,
+      "sourceLine": 618,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17437,10 +17213,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Title in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-712-i18n-t-returns-settingsnativelang-with-lang-interpolation-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-624-i18n-t-returns-settingsnativelang-with-lang-interpolation-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 712,
+      "sourceLine": 624,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17453,10 +17229,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Native Lang with {lang} interpolation in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-718-i18n-t-returns-settingslearninglangs-with-langs-interpolation-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-630-i18n-t-returns-settingslearninglangs-with-langs-interpolation-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 718,
+      "sourceLine": 630,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17469,10 +17245,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Learning Langs with {langs} interpolation in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-724-i18n-t-returns-settingsinterfacelang-with-lang-interpolation-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-636-i18n-t-returns-settingsinterfacelang-with-lang-interpolation-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 724,
+      "sourceLine": 636,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17485,10 +17261,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Interface Lang with {lang} interpolation in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-730-i18n-t-returns-settingschangenative-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-642-i18n-t-returns-settingschangenative-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 730,
+      "sourceLine": 642,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17501,10 +17277,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Change Native in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-736-i18n-t-returns-settingschangelearning-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-648-i18n-t-returns-settingschangelearning-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 736,
+      "sourceLine": 648,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17517,10 +17293,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Change Learning in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-742-i18n-t-returns-settingschangeinterface-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-654-i18n-t-returns-settingschangeinterface-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 742,
+      "sourceLine": 654,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17533,10 +17309,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Change Interface in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-748-i18n-t-returns-settingsclose-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-660-i18n-t-returns-settingsclose-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 748,
+      "sourceLine": 660,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17549,10 +17325,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Close in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-754-i18n-t-returns-settingschoosenative-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-666-i18n-t-returns-settingschoosenative-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 754,
+      "sourceLine": 666,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17565,10 +17341,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Choose Native in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-760-i18n-t-returns-settingschooselearning-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-672-i18n-t-returns-settingschooselearning-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 760,
+      "sourceLine": 672,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17581,10 +17357,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Choose Learning in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-766-i18n-t-returns-settingschooseinterface-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-678-i18n-t-returns-settingschooseinterface-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 766,
+      "sourceLine": 678,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17597,10 +17373,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Choose Interface in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-772-i18n-t-returns-settingsnativeupdated-with-lang-interpolation-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-684-i18n-t-returns-settingsnativeupdated-with-lang-interpolation-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 772,
+      "sourceLine": 684,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17613,10 +17389,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Native Updated with {lang} interpolation in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-778-i18n-t-returns-settingslearningupdated-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-690-i18n-t-returns-settingslearningupdated-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 778,
+      "sourceLine": 690,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17629,10 +17405,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Learning Updated in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-784-i18n-t-returns-settingsinterfaceupdated-with-lang-interpolation-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-696-i18n-t-returns-settingsinterfaceupdated-with-lang-interpolation-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 784,
+      "sourceLine": 696,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17645,10 +17421,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Interface Updated with {lang} interpolation in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-790-i18n-t-returns-settingssessionexpired-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-702-i18n-t-returns-settingssessionexpired-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 790,
+      "sourceLine": 702,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17661,42 +17437,26 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Session Expired in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-796-i18n-t-falls-back-to-english-for-settings-keys-when-locale-has-no-file",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-710-i18n-getsupportedlangs-returns-all-11-supported-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 796,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "falls back to English for settings keys when locale has no file",
-      "rawTitle": "falls back to English for settings keys when locale has no file",
-      "name": "Core domain i18n — t() falls back to English for settings keys when locale has no file",
-      "value": "Protects the core domain i18n — t() behavior: falls back to English for settings keys when locale has no file.",
-      "description": "Protects the core domain i18n — t() behavior: falls back to English for settings keys when locale has no file."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-816-i18n-getsupportedlangs-returns-all-10-supported-languages",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 816,
+      "sourceLine": 710,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "i18n — getSupportedLangs()"
       ],
-      "title": "returns all 10 supported languages",
-      "rawTitle": "returns all 10 supported languages",
-      "name": "Core domain i18n — get Supported Langs() returns all 10 supported languages",
-      "value": "Protects the core domain i18n — get Supported Langs() behavior: returns all 10 supported languages.",
-      "description": "Protects the core domain i18n — get Supported Langs() behavior: returns all 10 supported languages."
+      "title": "returns all 11 supported languages",
+      "rawTitle": "returns all 11 supported languages",
+      "name": "Core domain i18n — get Supported Langs() returns all 11 supported languages",
+      "value": "Protects the core domain i18n — get Supported Langs() behavior: returns all 11 supported languages.",
+      "description": "Protects the core domain i18n — get Supported Langs() behavior: returns all 11 supported languages."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-831-i18n-getsupportedlangs-returns-a-new-array-each-time-no-mutation-risk",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-726-i18n-getsupportedlangs-returns-a-new-array-each-time-no-mutation-risk",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 831,
+      "sourceLine": 726,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17709,10 +17469,10 @@
       "description": "Protects the core domain i18n — get Supported Langs() behavior: returns a new array each time (no mutation risk)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-840-i18n-issupported-returns-true-for-supported-languages",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-735-i18n-issupported-returns-true-for-supported-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 840,
+      "sourceLine": 735,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17725,10 +17485,10 @@
       "description": "Protects the core domain i18n — is Supported() behavior: returns true for supported languages."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-848-i18n-issupported-returns-false-for-unsupported-languages",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-744-i18n-issupported-returns-false-for-unsupported-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 848,
+      "sourceLine": 744,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17741,10 +17501,10 @@
       "description": "Protects the core domain i18n — is Supported() behavior: returns false for unsupported languages."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-855-i18n-issupported-narrows-the-type-type-guard",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-751-i18n-issupported-narrows-the-type-type-guard",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 855,
+      "sourceLine": 751,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17757,10 +17517,10 @@
       "description": "Protects the core domain i18n — is Supported() behavior so narrows the type (type guard)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-866-i18n-locale-consistency-en-json-has-all-i18nkey-entries",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-762-i18n-locale-consistency-en-json-has-all-i18nkey-entries",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 866,
+      "sourceLine": 762,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17773,10 +17533,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so en json has all I18n Key entries."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1042-i18n-locale-consistency-ru-json-covers-all-keys-from-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-938-i18n-locale-consistency-ru-json-covers-all-keys-from-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1042,
+      "sourceLine": 938,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17789,10 +17549,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so ru json covers all keys from en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1061-i18n-locale-consistency-cs-json-covers-all-keys-from-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-957-i18n-locale-consistency-cs-json-covers-all-keys-from-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1061,
+      "sourceLine": 957,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17805,10 +17565,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so cs json covers all keys from en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1107-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1003-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1107,
+      "sourceLine": 1003,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17821,10 +17581,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1114-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1010-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1114,
+      "sourceLine": 1010,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17837,10 +17597,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in ru json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1122-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1018-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1122,
+      "sourceLine": 1018,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17853,10 +17613,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in cs json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1130-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1026-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1130,
+      "sourceLine": 1026,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17869,10 +17629,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1135-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1031-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1135,
+      "sourceLine": 1031,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17885,10 +17645,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1140-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1036-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1140,
+      "sourceLine": 1036,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17901,10 +17661,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1145-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1041-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1145,
+      "sourceLine": 1041,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17917,10 +17677,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times} in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1150-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1046-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1150,
+      "sourceLine": 1046,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17933,10 +17693,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1155-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1051-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1155,
+      "sourceLine": 1051,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -17949,20 +17709,20 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1160-i18n-notification-keys-task-41-6-notification-keys-fallback-to-en-for-unsupported-language",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1056-i18n-notification-keys-task-41-6-notification-keys-fall-back-to-en-for-an-unknown-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1160,
+      "sourceLine": 1056,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "i18n — notification keys (Task 41.6)"
       ],
-      "title": "notification keys fallback to en for unsupported language",
-      "rawTitle": "notification keys fallback to en for unsupported language",
-      "name": "Core domain i18n — notification keys (Task 41 6) notification keys fallback to en for unsupported language",
-      "value": "Protects the core domain i18n — notification keys (Task 41 6) behavior so notification keys fallback to en for unsupported language.",
-      "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so notification keys fallback to en for unsupported language."
+      "title": "notification keys fall back to en for an unknown language",
+      "rawTitle": "notification keys fall back to en for an unknown language",
+      "name": "Core domain i18n — notification keys (Task 41 6) notification keys fall back to en for an unknown language",
+      "value": "Protects the core domain i18n — notification keys (Task 41 6) behavior so notification keys fall back to en for an unknown language.",
+      "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so notification keys fall back to en for an unknown language."
     },
     {
       "id": "packages-core-src-modules-i18n-tests-language-codes-test-ts-11-normalizetoiso1-passes-through-iso-639-1-codes",

@@ -299,7 +299,7 @@ export type I18nKey =
  * Supported interface languages.
  * Matches the LANGUAGES array in apps/bot/src/constants.ts.
  */
-export type SupportedLang = "en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl";
+export type SupportedLang = "en" | "ru" | "cs" | "de" | "fr" | "es" | "it" | "pt" | "uk" | "pl" | "kk";
 
 /**
  * A flat dictionary of i18n keys → localized strings.
