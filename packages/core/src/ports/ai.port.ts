@@ -16,6 +16,8 @@ export interface GenerateOptions {
   maxRetries?: number;
   userId?: number;
   frequencyPenalty?: number;
+  /** Maximum output tokens. When omitted, the adapter uses its default cap. */
+  maxTokens?: number;
 }
 
 /** A single chat message with a role (system/user/assistant) and content. */

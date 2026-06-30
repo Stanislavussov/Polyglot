@@ -52,7 +52,10 @@ export interface TranslationPresetConfig {
 
 export interface VideoVocabularyConfig {
   monthlyLimit: number;
-  maxPhrasesDefault: number;
+  /** Floor for the per-video phrase target (used for short videos). */
+  minPhrases: number;
+  /** Ceiling for the per-video phrase target (used for long videos). */
+  maxPhrases: number;
   extractionModelId: string;
 }
 

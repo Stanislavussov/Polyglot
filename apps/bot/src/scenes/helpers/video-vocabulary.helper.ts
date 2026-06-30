@@ -11,6 +11,7 @@ import {
   TranscriptNotAvailableError,
 } from "@polyglot/adapter-youtube";
 import {
+  computePhraseTarget,
   extractPhrasesFromTranscript,
   isSupported,
   logger,
@@ -45,6 +46,21 @@ async function resolveInterfaceLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = ctx.user?.settings;
   const rawLang = settings?.interfaceLang ?? "en";
   return isSupported(rawLang) ? rawLang : "en";
+}
+
+/**
+ * Estimate video duration (seconds) from the [Ns] timestamp markers embedded in
+ * a formatted transcript. oEmbed does not expose duration, so the last marker —
+ * inserted roughly every 5 seconds — is the most reliable signal available for
+ * both freshly fetched and cached transcripts.
+ */
+function estimateDurationSeconds(transcriptText: string): number {
+  let max = 0;
+  for (const match of transcriptText.matchAll(/\[(\d+)s\]/g)) {
+    const seconds = Number.parseInt(match[1], 10);
+    if (seconds > max) max = seconds;
+  }
+  return max;
 }
 
 interface VideoPhraseForSave {
@@ -661,18 +677,22 @@ async function processVideoInBackground(
       const userSettings = await ctx.services.userRepository.getSettings(userId);
       const nativeLang = userSettings?.nativeLang ?? "en";
 
-      // 4. Extract phrases using AI
+      // 4. Scale the phrase target to the video length
+      const durationSeconds = estimateDurationSeconds(transcriptText);
+      const targetPhrases = computePhraseTarget(durationSeconds, config.minPhrases, config.maxPhrases);
+
+      // 5. Extract phrases using AI
       const phrases = await extractPhrasesFromTranscript(
         transcriptText,
         process.language,
         userLevel,
-        config.maxPhrasesDefault,
+        targetPhrases,
         ctx.services.ai.generateObject,
         config.extractionModelId,
         nativeLang,
       );
 
-      // 5. Save phrases to DB
+      // 6. Save phrases to DB
       await videoVocabularyRepository.savePhrases(
         processId,
         phrases.map((p, i) => ({
@@ -687,14 +707,14 @@ async function processVideoInBackground(
         })),
       );
 
-      // 6. Mark as completed
+      // 7. Mark as completed
       await videoVocabularyRepository.updateProcessStatus(processId, "completed");
 
       stopTimer();
       videoProcessingCounter.inc({ status: "completed" });
       logger.info({ processId, phraseCount: phrases.length, userId }, "Video processing completed");
 
-      // 7. Notify user (outside retry scope — don't retry on notification failure)
+      // 8. Notify user (outside retry scope — don't retry on notification failure)
       const chatId = ctx.chat?.id;
       if (chatId) {
         try {

@@ -97,7 +97,7 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
-    mem_limit: 256m
+    mem_limit: 512m
     logging:
       driver: "json-file"
       options:

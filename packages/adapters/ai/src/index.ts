@@ -44,7 +44,7 @@ export async function generateObject<T>(
       schema,
       prompt,
       maxRetries,
-      maxTokens: 4096,
+      maxTokens: options?.maxTokens ?? 4096,
       temperature: 0.3,
       frequencyPenalty: options?.frequencyPenalty ?? 0.5,
     });

@@ -47,7 +47,7 @@ describe("extractPhrasesFromTranscript", () => {
     expect(phrases[1].phrase).toBe("cut to the chase");
   });
 
-  it("truncates results to maxPhrases", async () => {
+  it("truncates results to the target count", async () => {
     const mockResult: ExtractionResult = {
       phrases: Array.from({ length: 50 }, (_, i) => ({
         phrase: `phrase ${i}`,
@@ -74,18 +74,26 @@ describe("extractPhrasesFromTranscript", () => {
     expect(phrases).toHaveLength(30);
   });
 
-  it("passes model ID to generateObject", async () => {
+  it("passes model ID and a token budget scaled to the target", async () => {
     const generateObject = vi.fn().mockResolvedValue({ phrases: [] });
     await extractPhrasesFromTranscript(
       "text",
       "English",
       "B2",
-      30,
+      40,
       generateObject,
       "google/gemini-3.1-flash-lite",
       "Russian",
     );
 
-    expect(generateObject).toHaveBeenCalledWith(expect.any(String), expect.anything(), "google/gemini-3.1-flash-lite");
+    expect(generateObject).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.anything(),
+      "google/gemini-3.1-flash-lite",
+      expect.objectContaining({ maxTokens: expect.any(Number) }),
+    );
+    // 40 phrases * 160 tokens = 6400, above the 4096 floor.
+    const passedMaxTokens = generateObject.mock.calls[0][3].maxTokens;
+    expect(passedMaxTokens).toBeGreaterThanOrEqual(6400);
   });
 });

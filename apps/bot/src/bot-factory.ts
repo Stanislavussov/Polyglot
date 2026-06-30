@@ -46,6 +46,7 @@ import {
   handleSetIfaceSelectCallback,
   handleSetInterfaceCallback,
   handleSetLearningCallback,
+  handleSetLearnLevelCallback,
   handleSetLearnToggleCallback,
   handleSetNativeCallback,
   handleSetNativeSelectCallback,
@@ -222,6 +223,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery("set:native", handleSetNativeCallback);
   bot.callbackQuery(/^set:native:/, handleSetNativeSelectCallback);
   bot.callbackQuery("set:learning", handleSetLearningCallback);
+  bot.callbackQuery(/^set:learn:lvl:/, handleSetLearnLevelCallback);
   bot.callbackQuery(/^set:learn:/, handleSetLearnToggleCallback);
   bot.callbackQuery("set:interface", handleSetInterfaceCallback);
   bot.callbackQuery(/^set:iface:/, handleSetIfaceSelectCallback);

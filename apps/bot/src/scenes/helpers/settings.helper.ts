@@ -114,6 +114,9 @@ export async function handleSetLearningCallback(ctx: BotContext): Promise<void> 
   await ctx.answerCallbackQuery();
 }
 
+/** CEFR proficiency levels offered when adding a learning language. */
+const PROFICIENCY_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+
 /** Build multi-select keyboard for learning languages */
 function buildLearningKeyboard(
   ctx: BotContext,
@@ -128,21 +131,29 @@ function buildLearningKeyboard(
     const prefix = isSelected ? "✅ " : "";
     kb.text(`${prefix}${ctx.services.languageCache.getLangDisplay(l.code)}`, `set:learn:${l.code}`).row();
   }
-  if (selected.length > 0) {
-    kb.text(t("done", lang), "set:learn:done").row();
-  }
   kb.text(`⬅️ ${t("back", lang)}`, "set:back").row();
   return kb;
 }
 
-/** set:learn:{code} — toggle a learning language */
+/** Build the CEFR level picker shown after a new learning language is chosen. */
+function buildLevelKeyboard(code: string, lang: SupportedLang): InlineKeyboard {
+  const kb = new InlineKeyboard();
+  for (const level of PROFICIENCY_LEVELS) {
+    kb.text(level, `set:learn:lvl:${code}:${level}`).row();
+  }
+  kb.text(`⬅️ ${t("back", lang)}`, "set:learning").row();
+  return kb;
+}
+
+/**
+ * set:learn:{code} — tap a learning language.
+ * Removing an already-selected language is immediate; adding a new one first
+ * asks for its CEFR level, and the language is saved only once the level is
+ * confirmed (see handleSetLearnLevelCallback).
+ */
 export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data ?? "";
   const code = data.replace("set:learn:", "");
-
-  if (code === "done") {
-    return handleSetLearnDoneCallback(ctx);
-  }
 
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
@@ -152,47 +163,70 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
 
   const idx = selected.indexOf(code);
   if (idx >= 0) {
+    // Already a learning language → remove it immediately.
     selected.splice(idx, 1);
+    await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
     await ctx.answerCallbackQuery({
       text: t("langRemoved", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
     });
-  } else if (selected.length >= MAX_LEARNING_LANGS) {
+    const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
+    await ctx.editMessageReplyMarkup({ reply_markup: kb });
+    return;
+  }
+
+  if (selected.length >= MAX_LEARNING_LANGS) {
     await ctx.answerCallbackQuery({
       text: t("maxLangsReached", lang, { max: MAX_LEARNING_LANGS }),
       show_alert: true,
     });
     return;
-  } else {
-    selected.push(code);
-    await ctx.answerCallbackQuery({
-      text: t("langAdded", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
-    });
   }
 
-  await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
-
-  const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
-  await ctx.editMessageReplyMarkup({ reply_markup: kb });
+  // New language → ask for the proficiency level before saving.
+  await ctx.answerCallbackQuery();
+  const langName = ctx.services.languageCache.getLangDisplay(code);
+  await ctx.editMessageText(t("chooseProficiencyLevel", lang, { lang: langName }), {
+    reply_markup: buildLevelKeyboard(code, lang),
+    parse_mode: "HTML",
+  });
 }
 
-/** set:learn:done — confirm learning language selection */
-async function handleSetLearnDoneCallback(ctx: BotContext): Promise<void> {
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const selected = settings?.learningLangs ?? [];
+/** set:learn:lvl:{code}:{level} — confirm level and save the new learning language. */
+export async function handleSetLearnLevelCallback(ctx: BotContext): Promise<void> {
+  const data = ctx.callbackQuery?.data ?? "";
+  const [, , , code, level] = data.split(":");
 
-  if (selected.length === 0) {
-    const lang = await getLang(ctx);
-    await ctx.answerCallbackQuery({
-      text: t("selectAtLeastOne", lang),
-      show_alert: true,
-    });
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
+  const selected = [...(settings?.learningLangs ?? [])];
+
+  if (!code || !level) {
+    await ctx.answerCallbackQuery();
     return;
   }
 
-  const lang = await getLang(ctx);
-  await ctx.answerCallbackQuery({ text: t("settingsLearningUpdated", lang) });
-  await cleanupTechnicalMessages(ctx);
-  await showSettingsMenu(ctx);
+  if (!selected.includes(code)) {
+    if (selected.length >= MAX_LEARNING_LANGS) {
+      await ctx.answerCallbackQuery({
+        text: t("maxLangsReached", lang, { max: MAX_LEARNING_LANGS }),
+        show_alert: true,
+      });
+      return;
+    }
+    selected.push(code);
+    await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
+  }
+  await ctx.services.userRepository.setLanguageLevel(ctx.user.id, code, level);
+
+  await ctx.answerCallbackQuery({
+    text: t("langAdded", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
+  });
+  await ctx.editMessageText(t("settingsChooseLearning", lang), {
+    reply_markup: buildLearningKeyboard(ctx, selected, nativeLang, lang),
+    parse_mode: "HTML",
+  });
 }
 
 /** set:interface — show interface language picker */

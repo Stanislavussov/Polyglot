@@ -337,6 +337,13 @@ export interface DictionarySettings {
   [key: string]: string | number | boolean;
 }
 
+export interface VideoVocabularySettings {
+  monthlyLimit: number;
+  minPhrases: number;
+  maxPhrases: number;
+  extractionModelId: string;
+}
+
 export const settings = {
   aiDefaults: {
     get: () => get<AIDefaults>("/api/settings/ai-defaults"),
@@ -353,6 +360,10 @@ export const settings = {
   dictionary: {
     get: () => get<DictionarySettings>("/api/settings/dictionary"),
     update: (s: DictionarySettings) => put<DictionarySettings>("/api/settings/dictionary", s),
+  },
+  videoVocabulary: {
+    get: () => get<VideoVocabularySettings>("/api/settings/video-vocabulary"),
+    update: (s: VideoVocabularySettings) => put<VideoVocabularySettings>("/api/settings/video-vocabulary", s),
   },
 };
 
