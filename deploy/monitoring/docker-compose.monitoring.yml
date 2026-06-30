@@ -33,7 +33,7 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards-provisioned:ro
       - /opt/monitoring/data/grafana:/var/lib/grafana
-    mem_limit: 256m
+    mem_limit: 384m
     logging:
       driver: "json-file"
       options:
@@ -97,7 +97,7 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
-    mem_limit: 128m
+    mem_limit: 256m
     logging:
       driver: "json-file"
       options:

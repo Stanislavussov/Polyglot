@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Monitoring stack (`deploy/monitoring/docker-compose.monitoring.yml`): raised container memory limits that were running hot — `cadvisor` 128m → 256m (was at ~99.8% usage) and `grafana` 256m → 384m (was at ~84%) — to give both headroom and avoid OOM pressure.
 - Translation card keyboard: moved the **Save** button to the bottom row (below the learning-aid buttons) and renamed **Clarify** → **Clarify meaning** (`🎯 Уточнить значение` / `🎯 Upřesnit význam`) for clarity.
 - Notifications: users can now configure **multiple notification times per day** (up to 12) instead of a single time. The `/settings → notifications → choose times` picker became a multi-select 30-min grid (✅ on selected slots), and the sub-menu shows the full list of times. Replaced the single `notificationTime` column with a `notificationTimes` text array (existing times preserved via backfill). De-dup for dictionary (`srs`) notifications now avoids any word sent in the last 24h (was: last 3 words), so high-frequency users don't see same-day repeats. The enable/disable toggle stays separate, so pausing keeps configured times. Limit is configurable via `NotificationDefaults.notificationTimesLimit` (default 12). See `@docs/tasks/68-multiple-daily-notifications.md`.
 
