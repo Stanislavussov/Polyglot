@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-06-29T22:24:14.100Z",
+  "generatedAt": "2026-06-30T19:06:41.911Z",
   "summary": {
-    "total": 1853,
+    "total": 1860,
     "business": 0,
-    "technical": 1853,
+    "technical": 1860,
     "workspaces": [
       "apps",
       "packages"
@@ -374,10 +374,10 @@
       "description": "Protects the admin UI admin API client behavior: updates user audience groups."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-116-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-119-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 116,
+      "sourceLine": 119,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -390,10 +390,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-132-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-135-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 132,
+      "sourceLine": 135,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -406,10 +406,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-142-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-145-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 142,
+      "sourceLine": 145,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -422,10 +422,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-152-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-155-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 152,
+      "sourceLine": 155,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1560,10 +1560,10 @@
       "description": "Protects the bot onboarding back button presence in keyboards behavior so step 4 (demo result) does NOT have Save Skip buttons."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-110-handlesettingscommand-shows-settings-with-current-language-configuration",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-112-handlesettingscommand-shows-settings-with-current-language-configuration",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 110,
+      "sourceLine": 112,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1576,10 +1576,10 @@
       "description": "Protects the bot handle Settings Command behavior: shows settings with current language configuration."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-124-handlesettingscommand-shows-inline-keyboard-with-change-buttons",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-126-handlesettingscommand-shows-inline-keyboard-with-change-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 124,
+      "sourceLine": 126,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1592,10 +1592,10 @@
       "description": "Protects the bot handle Settings Command behavior: shows inline keyboard with change buttons."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-138-handlesettingscommand-handles-missing-settings-gracefully",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-140-handlesettingscommand-handles-missing-settings-gracefully",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 138,
+      "sourceLine": 140,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1608,10 +1608,10 @@
       "description": "Protects the bot handle Settings Command behavior: handles missing settings gracefully."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-151-handlesetnativecallback-shows-language-picker-with-all-supported-languages",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-153-handlesetnativecallback-shows-language-picker-with-all-supported-languages",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 151,
+      "sourceLine": 153,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1624,10 +1624,10 @@
       "description": "Protects the bot handle Set Native Callback behavior: shows language picker with all supported languages."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-170-handlesetnativeselectcallback-updates-native-language-and-returns-to-settings-menu",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-172-handlesetnativeselectcallback-updates-native-language-and-returns-to-settings-menu",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 172,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1640,10 +1640,10 @@
       "description": "Protects the bot handle Set Native Select Callback behavior: updates native language and returns to settings menu."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-187-handlesetlearningcallback-shows-multi-select-with-currently-selected-languages-checked",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-189-handlesetlearningcallback-shows-multi-select-with-currently-selected-languages-checked",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 187,
+      "sourceLine": 189,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1656,10 +1656,10 @@
       "description": "Protects the bot handle Set Learning Callback behavior: shows multi select with currently selected languages checked."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-201-handlesetlearningcallback-excludes-native-language-from-the-picker",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-203-handlesetlearningcallback-excludes-native-language-from-the-picker",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 201,
+      "sourceLine": 203,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1672,26 +1672,26 @@
       "description": "Protects the bot handle Set Learning Callback behavior: excludes native language from the picker."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-215-handlesetlearntogglecallback-adds-a-new-learning-language",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-217-handlesetlearntogglecallback-asks-for-the-level-before-saving-a-new-learning-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 215,
+      "sourceLine": 217,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleSetLearnToggleCallback"
       ],
-      "title": "adds a new learning language",
-      "rawTitle": "adds a new learning language",
-      "name": "Bot handle Set Learn Toggle Callback adds a new learning language",
-      "value": "Protects the bot handle Set Learn Toggle Callback behavior: adds a new learning language.",
-      "description": "Protects the bot handle Set Learn Toggle Callback behavior: adds a new learning language."
+      "title": "asks for the level before saving a new learning language",
+      "rawTitle": "asks for the level before saving a new learning language",
+      "name": "Bot handle Set Learn Toggle Callback asks for the level before saving a new learning language",
+      "value": "Protects the bot handle Set Learn Toggle Callback behavior so asks for the level before saving a new learning language.",
+      "description": "Protects the bot handle Set Learn Toggle Callback behavior so asks for the level before saving a new learning language."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-228-handlesetlearntogglecallback-removes-an-existing-learning-language",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-233-handlesetlearntogglecallback-removes-an-existing-learning-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 228,
+      "sourceLine": 233,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1704,10 +1704,10 @@
       "description": "Protects the bot handle Set Learn Toggle Callback behavior so removes an existing learning language."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-241-handlesetlearntogglecallback-shows-alert-when-max-languages-reached",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-246-handlesetlearntogglecallback-shows-alert-when-max-languages-reached",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 241,
+      "sourceLine": 246,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1720,42 +1720,58 @@
       "description": "Protects the bot handle Set Learn Toggle Callback behavior: shows alert when max languages reached."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-254-handlesetlearntogglecallback-confirms-when-pressing-done-with-valid-selection",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-261-handlesetlearnlevelcallback-saves-the-new-language-and-its-level-on-confirmation",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 254,
+      "sourceLine": 261,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
-        "handleSetLearnToggleCallback"
+        "handleSetLearnLevelCallback"
       ],
-      "title": "confirms when pressing done with valid selection",
-      "rawTitle": "confirms when pressing done with valid selection",
-      "name": "Bot handle Set Learn Toggle Callback confirms when pressing done with valid selection",
-      "value": "Protects the bot handle Set Learn Toggle Callback behavior so confirms when pressing done with valid selection.",
-      "description": "Protects the bot handle Set Learn Toggle Callback behavior so confirms when pressing done with valid selection."
+      "title": "saves the new language and its level on confirmation",
+      "rawTitle": "saves the new language and its level on confirmation",
+      "name": "Bot handle Set Learn Level Callback saves the new language and its level on confirmation",
+      "value": "Protects the bot handle Set Learn Level Callback behavior: saves the new language and its level on confirmation.",
+      "description": "Protects the bot handle Set Learn Level Callback behavior: saves the new language and its level on confirmation."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-268-handlesetlearntogglecallback-shows-alert-when-pressing-done-with-no-selection",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-272-handlesetlearnlevelcallback-updates-the-level-without-duplicating-an-already-selected-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 268,
+      "sourceLine": 272,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
-        "handleSetLearnToggleCallback"
+        "handleSetLearnLevelCallback"
       ],
-      "title": "shows alert when pressing done with no selection",
-      "rawTitle": "shows alert when pressing done with no selection",
-      "name": "Bot handle Set Learn Toggle Callback shows alert when pressing done with no selection",
-      "value": "Protects the bot handle Set Learn Toggle Callback behavior: shows alert when pressing done with no selection.",
-      "description": "Protects the bot handle Set Learn Toggle Callback behavior: shows alert when pressing done with no selection."
+      "title": "updates the level without duplicating an already-selected language",
+      "rawTitle": "updates the level without duplicating an already-selected language",
+      "name": "Bot handle Set Learn Level Callback updates the level without duplicating an already selected language",
+      "value": "Protects the bot handle Set Learn Level Callback behavior: updates the level without duplicating an already selected language.",
+      "description": "Protects the bot handle Set Learn Level Callback behavior: updates the level without duplicating an already selected language."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-282-handlesetinterfacecallback-shows-interface-language-picker",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-281-handlesetlearnlevelcallback-rejects-adding-a-level-when-max-languages-reached",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 282,
+      "sourceLine": 281,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleSetLearnLevelCallback"
+      ],
+      "title": "rejects adding a level when max languages reached",
+      "rawTitle": "rejects adding a level when max languages reached",
+      "name": "Bot handle Set Learn Level Callback rejects adding a level when max languages reached",
+      "value": "Protects the bot handle Set Learn Level Callback behavior: rejects adding a level when max languages reached.",
+      "description": "Protects the bot handle Set Learn Level Callback behavior: rejects adding a level when max languages reached."
+    },
+    {
+      "id": "apps-bot-src-tests-settings-scene-test-ts-297-handlesetinterfacecallback-shows-interface-language-picker",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
+      "sourceLine": 297,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1768,10 +1784,10 @@
       "description": "Protects the bot handle Set Interface Callback behavior: shows interface language picker."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-301-handlesetifaceselectcallback-updates-interface-language-and-calls-setusercommands",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-316-handlesetifaceselectcallback-updates-interface-language-and-calls-setusercommands",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 301,
+      "sourceLine": 316,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1784,10 +1800,10 @@
       "description": "Protects the bot handle Set Iface Select Callback behavior: updates interface language and calls set User Commands."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-319-handlesetbackcallback-returns-to-settings-main-menu",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-334-handlesetbackcallback-returns-to-settings-main-menu",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 319,
+      "sourceLine": 334,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1800,10 +1816,10 @@
       "description": "Protects the bot handle Set Back Callback behavior: returns to settings main menu."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-332-handlesetclosecallback-deletes-the-settings-message",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-347-handlesetclosecallback-deletes-the-settings-message",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 332,
+      "sourceLine": 347,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1816,10 +1832,10 @@
       "description": "Protects the bot handle Set Close Callback behavior so deletes the settings message."
     },
     {
-      "id": "apps-bot-src-tests-settings-scene-test-ts-341-handlesetclosecallback-falls-back-to-removing-keyboard-when-delete-fails",
+      "id": "apps-bot-src-tests-settings-scene-test-ts-356-handlesetclosecallback-falls-back-to-removing-keyboard-when-delete-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/settings.scene.test.ts",
-      "sourceLine": 341,
+      "sourceLine": 356,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -29691,7 +29707,7 @@
       "description": "Protects the core domain validate Pos behavior so exports KNOWN POS with expected entries."
     },
     {
-      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-5-buildextractionprompt-includes-transcript-language-level-max-phrases-and-native-language",
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-5-buildextractionprompt-includes-transcript-language-level-target-phrases-and-native-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts",
       "sourceLine": 5,
@@ -29700,14 +29716,14 @@
       "suitePath": [
         "buildExtractionPrompt"
       ],
-      "title": "includes transcript, language, level, max phrases, and native language",
-      "rawTitle": "includes transcript, language, level, max phrases, and native language",
-      "name": "Core domain build Extraction Prompt includes transcript, language, level, max phrases, and native language",
-      "value": "Protects the core domain build Extraction Prompt behavior: includes transcript, language, level, max phrases, and native language.",
-      "description": "Protects the core domain build Extraction Prompt behavior: includes transcript, language, level, max phrases, and native language."
+      "title": "includes transcript, language, level, target phrases, and native language",
+      "rawTitle": "includes transcript, language, level, target phrases, and native language",
+      "name": "Core domain build Extraction Prompt includes transcript, language, level, target phrases, and native language",
+      "value": "Protects the core domain build Extraction Prompt behavior: includes transcript, language, level, target phrases, and native language.",
+      "description": "Protects the core domain build Extraction Prompt behavior: includes transcript, language, level, target phrases, and native language."
     },
     {
-      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-15-buildextractionprompt-instructs-to-extract-up-to-maxphrases",
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-15-buildextractionprompt-instructs-to-extract-the-full-target-count-not-a-soft-maximum",
       "kind": "technical",
       "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts",
       "sourceLine": 15,
@@ -29716,33 +29732,33 @@
       "suitePath": [
         "buildExtractionPrompt"
       ],
-      "title": "instructs to extract up to maxPhrases",
-      "rawTitle": "instructs to extract up to maxPhrases",
-      "name": "Core domain build Extraction Prompt instructs to extract up to max Phrases",
-      "value": "Protects the core domain build Extraction Prompt behavior so instructs to extract up to max Phrases.",
-      "description": "Protects the core domain build Extraction Prompt behavior so instructs to extract up to max Phrases."
+      "title": "instructs to extract the full target count, not a soft maximum",
+      "rawTitle": "instructs to extract the full target count, not a soft maximum",
+      "name": "Core domain build Extraction Prompt instructs to extract the full target count, not a soft maximum",
+      "value": "Protects the core domain build Extraction Prompt behavior so instructs to extract the full target count, not a soft maximum.",
+      "description": "Protects the core domain build Extraction Prompt behavior so instructs to extract the full target count, not a soft maximum."
     },
     {
-      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-20-buildextractionprompt-mentions-cefr-level-filtering",
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-23-buildextractionprompt-tailors-selection-to-the-cefr-level",
       "kind": "technical",
       "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts",
-      "sourceLine": 20,
+      "sourceLine": 23,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "buildExtractionPrompt"
       ],
-      "title": "mentions CEFR level filtering",
-      "rawTitle": "mentions CEFR level filtering",
-      "name": "Core domain build Extraction Prompt mentions CEFR level filtering",
-      "value": "Protects the core domain build Extraction Prompt behavior so mentions CEFR level filtering.",
-      "description": "Protects the core domain build Extraction Prompt behavior so mentions CEFR level filtering."
+      "title": "tailors selection to the CEFR level",
+      "rawTitle": "tailors selection to the CEFR level",
+      "name": "Core domain build Extraction Prompt tailors selection to the CEFR level",
+      "value": "Protects the core domain build Extraction Prompt behavior so tailors selection to the CEFR level.",
+      "description": "Protects the core domain build Extraction Prompt behavior so tailors selection to the CEFR level."
     },
     {
-      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-26-buildextractionprompt-asks-for-idioms-phrasal-verbs-and-collocations",
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-30-buildextractionprompt-asks-for-idioms-phrasal-verbs-and-collocations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts",
-      "sourceLine": 26,
+      "sourceLine": 30,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29755,10 +29771,10 @@
       "description": "Protects the core domain build Extraction Prompt behavior so asks for idioms, phrasal verbs, and collocations."
     },
     {
-      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-33-buildextractionprompt-includes-native-language-translation-instruction",
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-37-buildextractionprompt-includes-native-language-translation-instruction",
       "kind": "technical",
       "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts",
-      "sourceLine": 33,
+      "sourceLine": 37,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29787,7 +29803,7 @@
       "description": "Protects the core domain extract Phrases From Transcript behavior: calls generate Object with correct params and returns phrases."
     },
     {
-      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-service-test-ts-50-extractphrasesfromtranscript-truncates-results-to-maxphrases",
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-service-test-ts-50-extractphrasesfromtranscript-truncates-results-to-the-target-count",
       "kind": "technical",
       "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts",
       "sourceLine": 50,
@@ -29796,14 +29812,14 @@
       "suitePath": [
         "extractPhrasesFromTranscript"
       ],
-      "title": "truncates results to maxPhrases",
-      "rawTitle": "truncates results to maxPhrases",
-      "name": "Core domain extract Phrases From Transcript truncates results to max Phrases",
-      "value": "Protects the core domain extract Phrases From Transcript behavior so truncates results to max Phrases.",
-      "description": "Protects the core domain extract Phrases From Transcript behavior so truncates results to max Phrases."
+      "title": "truncates results to the target count",
+      "rawTitle": "truncates results to the target count",
+      "name": "Core domain extract Phrases From Transcript truncates results to the target count",
+      "value": "Protects the core domain extract Phrases From Transcript behavior so truncates results to the target count.",
+      "description": "Protects the core domain extract Phrases From Transcript behavior so truncates results to the target count."
     },
     {
-      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-service-test-ts-77-extractphrasesfromtranscript-passes-model-id-to-generateobject",
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-service-test-ts-77-extractphrasesfromtranscript-passes-model-id-and-a-token-budget-scaled-to-the-target",
       "kind": "technical",
       "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts",
       "sourceLine": 77,
@@ -29812,11 +29828,107 @@
       "suitePath": [
         "extractPhrasesFromTranscript"
       ],
-      "title": "passes model ID to generateObject",
-      "rawTitle": "passes model ID to generateObject",
-      "name": "Core domain extract Phrases From Transcript passes model ID to generate Object",
-      "value": "Protects the core domain extract Phrases From Transcript behavior so passes model ID to generate Object.",
-      "description": "Protects the core domain extract Phrases From Transcript behavior so passes model ID to generate Object."
+      "title": "passes model ID and a token budget scaled to the target",
+      "rawTitle": "passes model ID and a token budget scaled to the target",
+      "name": "Core domain extract Phrases From Transcript passes model ID and a token budget scaled to the target",
+      "value": "Protects the core domain extract Phrases From Transcript behavior so passes model ID and a token budget scaled to the target.",
+      "description": "Protects the core domain extract Phrases From Transcript behavior so passes model ID and a token budget scaled to the target."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-target-test-ts-8-computephrasetarget-anchors-to-the-product-spec-20-at-30min-30-at-1h-40-at-2h",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/target.test.ts",
+      "sourceLine": 8,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "computePhraseTarget"
+      ],
+      "title": "anchors to the product spec: ~20 at 30min, ~30 at 1h, ~40 at 2h",
+      "rawTitle": "anchors to the product spec: ~20 at 30min, ~30 at 1h, ~40 at 2h",
+      "name": "Core domain compute Phrase Target anchors to the product spec: ~20 at 30min, ~30 at 1h, ~40 at 2h",
+      "value": "Protects the core domain compute Phrase Target behavior so anchors to the product spec: ~20 at 30min, ~30 at 1h, ~40 at 2h.",
+      "description": "Protects the core domain compute Phrase Target behavior so anchors to the product spec: ~20 at 30min, ~30 at 1h, ~40 at 2h."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-target-test-ts-14-computephrasetarget-clamps-short-videos-to-the-minimum",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/target.test.ts",
+      "sourceLine": 14,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "computePhraseTarget"
+      ],
+      "title": "clamps short videos to the minimum",
+      "rawTitle": "clamps short videos to the minimum",
+      "name": "Core domain compute Phrase Target clamps short videos to the minimum",
+      "value": "Protects the core domain compute Phrase Target behavior so clamps short videos to the minimum.",
+      "description": "Protects the core domain compute Phrase Target behavior so clamps short videos to the minimum."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-target-test-ts-19-computephrasetarget-clamps-very-long-videos-to-the-maximum",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/target.test.ts",
+      "sourceLine": 19,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "computePhraseTarget"
+      ],
+      "title": "clamps very long videos to the maximum",
+      "rawTitle": "clamps very long videos to the maximum",
+      "name": "Core domain compute Phrase Target clamps very long videos to the maximum",
+      "value": "Protects the core domain compute Phrase Target behavior so clamps very long videos to the maximum.",
+      "description": "Protects the core domain compute Phrase Target behavior so clamps very long videos to the maximum."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-target-test-ts-24-computephrasetarget-falls-back-to-the-baseline-when-duration-is-unknown",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/target.test.ts",
+      "sourceLine": 24,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "computePhraseTarget"
+      ],
+      "title": "falls back to the baseline when duration is unknown",
+      "rawTitle": "falls back to the baseline when duration is unknown",
+      "name": "Core domain compute Phrase Target falls back to the baseline when duration is unknown",
+      "value": "Protects the core domain compute Phrase Target behavior: falls back to the baseline when duration is unknown.",
+      "description": "Protects the core domain compute Phrase Target behavior: falls back to the baseline when duration is unknown."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-target-test-ts-29-computephrasetarget-respects-admin-configured-min-max-bounds",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/target.test.ts",
+      "sourceLine": 29,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "computePhraseTarget"
+      ],
+      "title": "respects admin-configured min/max bounds",
+      "rawTitle": "respects admin-configured min/max bounds",
+      "name": "Core domain compute Phrase Target respects admin configured min max bounds",
+      "value": "Protects the core domain compute Phrase Target behavior: respects admin configured min max bounds.",
+      "description": "Protects the core domain compute Phrase Target behavior: respects admin configured min max bounds."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-target-test-ts-36-computephrasetarget-never-exceeds-the-bounds-even-if-min-max-is-misconfigured",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/target.test.ts",
+      "sourceLine": 36,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "computePhraseTarget"
+      ],
+      "title": "never exceeds the bounds even if min > max is misconfigured",
+      "rawTitle": "never exceeds the bounds even if min > max is misconfigured",
+      "name": "Core domain compute Phrase Target never exceeds the bounds even if min > max is misconfigured",
+      "value": "Protects the core domain compute Phrase Target behavior so never exceeds the bounds even if min > max is misconfigured.",
+      "description": "Protects the core domain compute Phrase Target behavior so never exceeds the bounds even if min > max is misconfigured."
     },
     {
       "id": "packages-core-src-shared-tests-translation-template-test-ts-12-default-template-has-learner-friendly-default-fields-for-words-and-phrases",

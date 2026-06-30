@@ -10,6 +10,7 @@ const { mockLogger, mockUserRepository, mockLanguageCache, mockTranslationReques
     updateNativeLang: vi.fn().mockResolvedValue({}),
     updateLearningLangs: vi.fn().mockResolvedValue({}),
     updateInterfaceLang: vi.fn().mockResolvedValue({}),
+    setLanguageLevel: vi.fn().mockResolvedValue(undefined),
   };
   const mockLC = {
     getSupportedLangs: vi.fn(() => [{ code: "en" }, { code: "ru" }, { code: "cs" }, { code: "de" }]),
@@ -62,6 +63,7 @@ import {
   handleSetIfaceSelectCallback,
   handleSetInterfaceCallback,
   handleSetLearningCallback,
+  handleSetLearnLevelCallback,
   handleSetLearnToggleCallback,
   handleSetNativeCallback,
   handleSetNativeSelectCallback,
@@ -212,17 +214,20 @@ describe("handleSetLearningCallback", () => {
 });
 
 describe("handleSetLearnToggleCallback", () => {
-  it("adds a new learning language", async () => {
+  it("asks for the level before saving a new learning language", async () => {
     const ctx = createMockCtx("set:learn:de");
 
     await handleSetLearnToggleCallback(ctx);
 
-    expect(mockUserRepository.updateLearningLangs).toHaveBeenCalledWith(1, ["cs", "ru", "de"]);
-    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text: expect.stringContaining("Added"),
-      }),
-    );
+    // Language is NOT saved yet — only saved once the level is confirmed.
+    expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
+    expect(mockUserRepository.setLanguageLevel).not.toHaveBeenCalled();
+    // The CEFR level picker is shown for that language.
+    expect(ctx.editMessageText).toHaveBeenCalled();
+    const markup = ctx.editMessageText.mock.calls[0][1].reply_markup;
+    const cbData = markup.inline_keyboard.flat().map((b: { callback_data: string }) => b.callback_data);
+    expect(cbData).toContain("set:learn:lvl:de:A1");
+    expect(cbData).toContain("set:learn:lvl:de:C2");
   });
 
   it("removes an existing learning language", async () => {
@@ -250,30 +255,40 @@ describe("handleSetLearnToggleCallback", () => {
     expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });
+});
 
-  it("confirms when pressing done with valid selection", async () => {
-    const ctx = createMockCtx("set:learn:done");
+describe("handleSetLearnLevelCallback", () => {
+  it("saves the new language and its level on confirmation", async () => {
+    const ctx = createMockCtx("set:learn:lvl:de:B2");
 
-    await handleSetLearnToggleCallback(ctx);
+    await handleSetLearnLevelCallback(ctx);
 
-    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text: expect.stringContaining("updated"),
-      }),
-    );
-    // Should show settings menu
+    expect(mockUserRepository.updateLearningLangs).toHaveBeenCalledWith(1, ["cs", "ru", "de"]);
+    expect(mockUserRepository.setLanguageLevel).toHaveBeenCalledWith(1, "de", "B2");
+    // Returns to the learning-language list.
     expect(ctx.editMessageText).toHaveBeenCalled();
   });
 
-  it("shows alert when pressing done with no selection", async () => {
+  it("updates the level without duplicating an already-selected language", async () => {
+    const ctx = createMockCtx("set:learn:lvl:cs:C1");
+
+    await handleSetLearnLevelCallback(ctx);
+
+    expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
+    expect(mockUserRepository.setLanguageLevel).toHaveBeenCalledWith(1, "cs", "C1");
+  });
+
+  it("rejects adding a level when max languages reached", async () => {
     mockUserRepository.getSettings.mockResolvedValue({
       ...DEFAULT_SETTINGS,
-      learningLangs: [],
+      learningLangs: ["cs", "ru", "de", "fr"],
     } as any);
-    const ctx = createMockCtx("set:learn:done");
+    const ctx = createMockCtx("set:learn:lvl:it:A2");
 
-    await handleSetLearnToggleCallback(ctx);
+    await handleSetLearnLevelCallback(ctx);
 
+    expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
+    expect(mockUserRepository.setLanguageLevel).not.toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });
 });

@@ -114,6 +114,7 @@ export {
 export type { ExtractedPhrase, ExtractionResult } from "./modules/video-vocabulary/index.js";
 export {
   buildExtractionPrompt,
+  computePhraseTarget,
   extractedPhraseSchema,
   extractionResultSchema,
   extractPhrasesFromTranscript,

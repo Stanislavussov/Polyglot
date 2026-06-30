@@ -89,7 +89,7 @@ import { settings } from "../lib/api";
 
 type SettingsValue = string | number | boolean;
 type SettingsRecord = Record<string, SettingsValue>;
-type SettingsGroup = "ai-defaults" | "notifications" | "srs" | "dictionary";
+type SettingsGroup = "ai-defaults" | "notifications" | "srs" | "dictionary" | "video-vocabulary";
 type FieldDescriptionMap = Record<SettingsGroup, Record<string, string>>;
 
 const tabs: Array<{ key: SettingsGroup; label: string }> = [
@@ -97,6 +97,7 @@ const tabs: Array<{ key: SettingsGroup; label: string }> = [
   { key: "notifications", label: "Notifications" },
   { key: "srs", label: "SRS" },
   { key: "dictionary", label: "Dictionary" },
+  { key: "video-vocabulary", label: "Video Vocabulary" },
 ];
 
 const activeTab = ref<SettingsGroup>("ai-defaults");
@@ -128,6 +129,12 @@ const fieldDescriptions: FieldDescriptionMap = {
     notificationDictLimit: "Maximum number of dictionary entries considered when selecting notification content.",
     wordOfDayLimit: "Maximum number of dictionary entries considered for word-of-day style suggestions.",
   },
+  "video-vocabulary": {
+    monthlyLimit: "Maximum number of videos a user can process per calendar month.",
+    minPhrases: "Floor for the per-video phrase target. Short videos generate at least this many phrases.",
+    maxPhrases: "Ceiling for the per-video phrase target. Long videos generate at most this many phrases.",
+    extractionModelId: "OpenRouter model ID used to extract vocabulary from video transcripts.",
+  },
 };
 
 const tabDescriptions: Record<SettingsGroup, string> = {
@@ -135,6 +142,7 @@ const tabDescriptions: Record<SettingsGroup, string> = {
   notifications: "Defaults for scheduled notification timing, source selection, and inactivity handling.",
   srs: "Scheduling parameters for spaced repetition cards and review intervals.",
   dictionary: "Caps used when dictionary entries are selected for flashcards, notifications, and daily suggestions.",
+  "video-vocabulary": "Limits and AI model used when extracting vocabulary phrases from YouTube videos. Phrase count scales with video length between the min and max.",
 };
 
 const fields = computed(() =>
@@ -188,7 +196,8 @@ async function loadTab(group: SettingsGroup): Promise<void> {
     if (group === "ai-defaults") data = toRecord(await settings.aiDefaults.get());
     else if (group === "notifications") data = toRecord(await settings.notifications.get());
     else if (group === "srs") data = toRecord(await settings.srs.get());
-    else data = toRecord(await settings.dictionary.get());
+    else if (group === "dictionary") data = toRecord(await settings.dictionary.get());
+    else data = toRecord(await settings.videoVocabulary.get());
 
     original.value = data;
     syncForm(data);
@@ -243,8 +252,15 @@ async function save(): Promise<void> {
         minEaseFactor: Number(payload.minEaseFactor),
         defaultEaseFactor: Number(payload.defaultEaseFactor),
       });
-    } else {
+    } else if (activeTab.value === "dictionary") {
       await settings.dictionary.update(payload);
+    } else {
+      await settings.videoVocabulary.update({
+        monthlyLimit: Number(payload.monthlyLimit),
+        minPhrases: Number(payload.minPhrases),
+        maxPhrases: Number(payload.maxPhrases),
+        extractionModelId: String(payload.extractionModelId),
+      });
     }
     original.value = payload;
     success.value = true;
