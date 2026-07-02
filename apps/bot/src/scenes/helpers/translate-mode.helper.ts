@@ -42,7 +42,7 @@ import {
   translateWithContext,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
-import { translationCounter, translationDuration } from "../../metrics.js";
+import { inputCorrectionCounter, translationCounter, translationDuration } from "../../metrics.js";
 import {
   buildGrammarLangKeyboard,
   buildTranslationKeyboard,
@@ -176,26 +176,63 @@ async function showTranslationClarification(
   };
   ctx.session.awaitingTranslationClarificationContext = undefined;
 
+  if (params.ambiguity.reason === "possible_typo") {
+    inputCorrectionCounter.inc({ outcome: "confirm_shown", input_type: params.inputType });
+  }
+
   const keyboard = new InlineKeyboard();
   const options = params.ambiguity.options ?? [];
-  const hasSourceLanguageOptions = options.some((option) => option.kind === "source_language");
-  options.forEach((option, index) => {
-    keyboard.text(option.label, `tr:clarify:option:${index}`).row();
-  });
+  // Language choices render as flag + code buttons (🇬🇧 EN) in rows of up to 4,
+  // built on our side from langCode — the model must not put language names in
+  // labels. Everything else (typo corrections, "translate as written", meanings)
+  // keeps its model-authored label, one per row.
+  const indexed = options.map((option, index) => ({ option, index }));
+  const languageOptions = indexed.filter(({ option }) => option.kind === "source_language" && option.langCode);
+  const otherOptions = indexed.filter(({ option }) => !(option.kind === "source_language" && option.langCode));
 
-  if (params.ambiguity.reason === "source_language" && !hasSourceLanguageOptions) {
-    for (const code of getUserLanguageGroup(params.nativeLang, params.learningLangs)) {
-      keyboard.text(getLanguageName(code, params.lang), `tr:clarify:lang:${code}`).row();
+  const addFlagRows = (entries: { label: string; data: string }[]): void => {
+    for (let i = 0; i < entries.length; i += 4) {
+      for (const entry of entries.slice(i, i + 4)) {
+        keyboard.text(entry.label, entry.data);
+      }
+      keyboard.row();
     }
+  };
+
+  addFlagRows(
+    languageOptions.map(({ option, index }) => ({
+      label: `${getLangFlag(option.langCode as string) ?? "🔤"} ${(option.langCode as string).toUpperCase()}`,
+      data: `tr:clarify:option:${index}`,
+    })),
+  );
+
+  for (const { option, index } of otherOptions) {
+    keyboard.text(option.label, `tr:clarify:option:${index}`).row();
   }
+
+  // No model-supplied language options but we still need a language choice —
+  // offer the user's configured languages as flag + code buttons.
+  const showFallbackLanguages = params.ambiguity.reason === "source_language" && languageOptions.length === 0;
+  if (showFallbackLanguages) {
+    addFlagRows(
+      getUserLanguageGroup(params.nativeLang, params.learningLangs).map((code) => ({
+        label: `${getLangFlag(code) ?? "🔤"} ${code.toUpperCase()}`,
+        data: `tr:clarify:lang:${code}`,
+      })),
+    );
+  }
+
   keyboard.text(t("translationClarifyContextButton", params.lang), "tr:clarify:context").row();
 
-  await ctx.reply(
-    t("translationClarifyPrompt", params.lang, {
-      reason: clarificationReasonText(params.ambiguity, params.lang),
-    }),
-    { reply_markup: keyboard },
-  );
+  const hasLanguageButtons = languageOptions.length > 0 || showFallbackLanguages;
+  const promptText = t("translationClarifyPrompt", params.lang, {
+    reason: clarificationReasonText(params.ambiguity, params.lang),
+  });
+  const message = hasLanguageButtons
+    ? `${promptText}\n\n${t("translationClarifyLanguageHint", params.lang)}`
+    : promptText;
+
+  await ctx.reply(message, { reply_markup: keyboard });
 }
 
 async function runClarifiedTranslation(
@@ -578,6 +615,9 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     const needsReview = decision.status === "needs_review";
     const recordedModelId = decision.status === "accepted" ? decision.quality.modelId : model;
     translationCounter.inc({ status: "success" });
+    if (output.correction) {
+      inputCorrectionCounter.inc({ outcome: "auto_corrected", input_type: classification.type });
+    }
     await ctx.services.translationRequestRepository.logTranslationRequest(
       ctx.user.id,
       cleanWord,
@@ -1391,6 +1431,9 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
           interfaceLang: lang,
           outputConfig,
           inputType: classification.type,
+          // The user already confirmed the language / chose a correction (or
+          // "translate as written") — never re-ask about the same input.
+          skipInputCorrection: true,
         },
         {
           lookupContext: lookupContextFn,
@@ -1673,11 +1716,13 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
         option.langCode !== undefined
           ? resolveTargetsForClarifiedSource(option.langCode, nativeLang, learningLangs, pending.targetLangs)
           : pending.targetLangs;
+      inputCorrectionCounter.inc({ outcome: "confirmed", input_type: pending.inputType });
       await ctx.answerCallbackQuery();
       await runClarifiedTranslation(ctx, pending, sourceLang, targetLangs, pending.contextHint, option.correctedText);
       return;
     }
     if (option.kind === "translate_as_written") {
+      inputCorrectionCounter.inc({ outcome: "translate_as_written", input_type: pending.inputType });
       await ctx.answerCallbackQuery();
       await runClarifiedTranslation(ctx, pending, pending.sourceLang, pending.targetLangs, pending.contextHint);
       return;

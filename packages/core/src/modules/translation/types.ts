@@ -162,6 +162,31 @@ export interface TranslateInput {
   modelRouting?: TranslationModelRoutingPolicy;
   /** Previous translations to avoid — for "other meaning" regeneration */
   negativeConstraints?: Record<string, string[]>;
+  /**
+   * Suppress AI input-correction (Task 69). When true, the preflight never
+   * auto-corrects (`proceed_with_correction`) nor asks about typos
+   * (`confirm_typo_suggestion`) — the input is translated verbatim. Set on
+   * "translate as written" re-runs and after the language/mistype confirmation
+   * flow so the user is not re-asked about the same word.
+   */
+  skipInputCorrection?: boolean;
+}
+
+/**
+ * A silently-applied input correction (Task 69 — `proceed_with_correction`).
+ *
+ * Produced by the AI preflight when the user's input contains a minor,
+ * unambiguous typo. The pipeline translates the `corrected` text but keeps a
+ * record of what was fixed so the bot can annotate the reply
+ * ("✏️ Fixed: original → corrected — explanation").
+ */
+export interface InputCorrection {
+  /** The text the user actually typed */
+  original: string;
+  /** The corrected text that was translated */
+  corrected: string;
+  /** Short native-language explanation of the fix */
+  explanation: string;
 }
 
 /** Output from translate() — enriched TranslationResult with metadata */
@@ -174,6 +199,13 @@ export interface TranslateOutput {
   nativeSynonyms: Synonym[];
   translations: Record<string, LanguageTranslation>;
   dictionaryContext?: DictionaryContext;
+  /**
+   * Set when the input was silently corrected before translation.
+   * `original` is the user's verbatim text; `original`/`corrected`/`explanation`
+   * drive the "✏️ Fixed" annotation. `TranslateOutput.original` already holds
+   * the corrected form (that is what was translated and what gets saved).
+   */
+  correction?: InputCorrection;
 }
 
 // ─────────────────────────────────────────────

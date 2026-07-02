@@ -137,9 +137,12 @@ import {
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
   generateEtymology,
+  getLangFlag,
+  t,
   translateOneWithContext,
   translateWithContext,
 } from "@polyglot/core";
+import { inputCorrectionCounter } from "../../metrics.js";
 import type { BotContext, SessionData } from "../../types.js";
 import {
   handleEtymologyCallback,
@@ -859,6 +862,114 @@ describe("handleTranslateText — out-of-set language detection", () => {
     expect(mockLanguageDetectionRecord).toHaveBeenCalledWith(
       expect.objectContaining({ eventType: "detected", word: "hello", sourceLang: "ru" }),
     );
+  });
+});
+
+describe("input typo correction (Task 69)", () => {
+  async function readCounter(outcome: string, inputType: string): Promise<number> {
+    const metric = await inputCorrectionCounter.get();
+    const row = metric.values.find((v) => v.labels.outcome === outcome && v.labels.input_type === inputType);
+    return row?.value ?? 0;
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de"],
+    });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
+  });
+
+  it("annotates the card with a ✏️ Fixed line when the input was auto-corrected", async () => {
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "accepted",
+      output: {
+        original: "hello",
+        sourceLang: "ru",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: { cs: { text: "ahoj", synonyms: [], examples: [] } },
+        correction: { original: "helllo", corrected: "hello", explanation: "extra letter removed" },
+      },
+      quality: {
+        promptVersion: "translation-v1",
+        schemaVersion: 1,
+        riskLevel: "low",
+        modelId: "test-model",
+        attemptCount: 1,
+        issues: [],
+      },
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "helllo");
+
+    const cardCall = vi.mocked(ctx.reply).mock.calls.find((c) => typeof c[0] === "string" && c[0].includes("✏️"));
+    expect(cardCall).toBeDefined();
+    expect(cardCall?.[0]).toContain("helllo");
+    expect(cardCall?.[0]).toContain("hello");
+  });
+
+  it("renders language choices as flag + code buttons with a hint, not language names", async () => {
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "source_language",
+        message: "This spelling exists in multiple languages.",
+        options: [
+          { label: "English: quick", value: "en", kind: "source_language", langCode: "en" },
+          { label: "German: almost", value: "de", kind: "source_language", langCode: "de" },
+        ],
+      },
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "fast");
+
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((c) => c[1]?.reply_markup !== undefined);
+    const keyboard = promptCall?.[1]?.reply_markup as {
+      inline_keyboard: Array<Array<{ text: string; callback_data: string }>>;
+    };
+    const rows = keyboard.inline_keyboard.filter((r) => r.length > 0);
+    // Both language buttons share the first row (rows of up to 4); flag + code, no language names.
+    const firstRow = rows[0];
+    expect(firstRow.map((b) => b.text)).toEqual([`${getLangFlag("en") ?? "🔤"} EN`, `${getLangFlag("de") ?? "🔤"} DE`]);
+    expect(firstRow.every((b) => !/English|German/.test(b.text))).toBe(true);
+    // Context button sits alone on its own row.
+    const contextRow = rows.find((r) => r.some((b) => b.callback_data === "tr:clarify:context"));
+    expect(contextRow).toHaveLength(1);
+    // Message text explains the flag + code options.
+    expect(promptCall?.[0]).toContain(t("translationClarifyLanguageHint", "en"));
+  });
+
+  it("re-runs verbatim with skipInputCorrection when the user picks 'translate as written'", async () => {
+    const before = await readCounter("translate_as_written", "word");
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "helllo",
+          sourceLang: "ru",
+          targetLangs: ["cs", "de"],
+          inputType: "word",
+          reason: "possible_typo",
+          options: [
+            { id: "fix", label: "hello", value: "hello", kind: "typo_correction", correctedText: "hello" },
+            { id: "asis", label: "Translate as written", value: "helllo", kind: "translate_as_written" },
+          ],
+        },
+      },
+      "tr:clarify:option:1",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({ word: "helllo", skipInputCorrection: true }),
+      expect.anything(),
+    );
+    expect(await readCounter("translate_as_written", "word")).toBe(before + 1);
   });
 });
 

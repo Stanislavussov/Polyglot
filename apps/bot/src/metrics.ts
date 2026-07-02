@@ -23,6 +23,12 @@ export const translationDuration = new Histogram({
   buckets: [0.5, 1, 2, 5, 10, 30],
 });
 
+export const inputCorrectionCounter = new Counter({
+  name: "bot_input_correction_total",
+  help: "Input typo detection/correction outcomes in translate mode",
+  labelNames: ["outcome", "input_type"] as const,
+});
+
 export const mentorCounter = new Counter({
   name: "bot_mentor_requests_total",
   help: "Total mentor chat requests",

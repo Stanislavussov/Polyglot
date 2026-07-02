@@ -58,6 +58,7 @@ export type {
   DictionaryContext,
   Example,
   ExpressionType,
+  InputCorrection,
   InputType,
   LanguageTranslation,
   QualityIssue,
