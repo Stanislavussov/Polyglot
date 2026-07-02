@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "grafana": {
+      "command": "/opt/homebrew/bin/mcp-grafana",
+      "args": ["-t", "stdio"],
+      "env": {
+        "GRAFANA_URL": "https://grafana.polyglot.monster",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "${GRAFANA_SERVICE_ACCOUNT_TOKEN}"
+      }
+    }
+  }
+}
