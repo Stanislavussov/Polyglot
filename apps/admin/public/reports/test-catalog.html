@@ -175,15 +175,15 @@
   </head>
   <body>
     <header>
-      <p class="generated">Generated 2026-07-02T19:44:06.424Z</p>
+      <p class="generated">Generated 2026-07-02T19:59:12.147Z</p>
       <h1>Polyglot Test Catalog</h1>
       <p class="summary">
         Business-readable inventory of automated scenarios. Open a scenario to see the suite, source file, and the behavior it protects.
       </p>
       <div class="stats">
-        <div class="stat"><strong>1925</strong><span>scenarios</span></div>
+        <div class="stat"><strong>1930</strong><span>scenarios</span></div>
         <div class="stat"><strong>0</strong><span>business</span></div>
-        <div class="stat"><strong>1925</strong><span>technical</span></div>
+        <div class="stat"><strong>1930</strong><span>technical</span></div>
       </div>
     </header>
     <main>
@@ -11640,109 +11640,139 @@
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1908">Core domain extract Phrases From Transcript calls generate Object with correct params and returns phrases</a></td>
+          <td><a href="#scenario-1908">Core domain build Extraction Prompt omits the &#39;already known&#39; section when no known phrases are provided</a></td>
+          <td>technical</td>
+          <td>buildExtractionPrompt</td>
+          <td><code>packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts</code></td>
+        </tr>
+        <tr class="technical">
+          <td><a href="#scenario-1909">Core domain build Extraction Prompt lists known phrases and de duplicates them case insensitively</a></td>
+          <td>technical</td>
+          <td>buildExtractionPrompt</td>
+          <td><code>packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts</code></td>
+        </tr>
+        <tr class="technical">
+          <td><a href="#scenario-1910">Core domain extract Phrases From Transcript calls generate Object with correct params and returns phrases</a></td>
           <td>technical</td>
           <td>extractPhrasesFromTranscript</td>
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1909">Core domain extract Phrases From Transcript truncates results to the target count</a></td>
+          <td><a href="#scenario-1911">Core domain extract Phrases From Transcript truncates results to the target count</a></td>
           <td>technical</td>
           <td>extractPhrasesFromTranscript</td>
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1910">Core domain extract Phrases From Transcript passes model ID and a token budget scaled to the target</a></td>
+          <td><a href="#scenario-1912">Core domain extract Phrases From Transcript passes model ID and a token budget scaled to the target</a></td>
           <td>technical</td>
           <td>extractPhrasesFromTranscript</td>
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1911">Core domain compute Phrase Target anchors to the product spec: ~20 at 30min, ~30 at 1h, ~40 at 2h</a></td>
+          <td><a href="#scenario-1913">Core domain extract Phrases From Transcript filters out phrases the learner already knows, case insensitively</a></td>
+          <td>technical</td>
+          <td>extractPhrasesFromTranscript</td>
+          <td><code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code></td>
+        </tr>
+        <tr class="technical">
+          <td><a href="#scenario-1914">Core domain extract Phrases From Transcript passes the known phrases into the prompt as a hint</a></td>
+          <td>technical</td>
+          <td>extractPhrasesFromTranscript</td>
+          <td><code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code></td>
+        </tr>
+        <tr class="technical">
+          <td><a href="#scenario-1915">Core domain extract Phrases From Transcript behaves as before when no known phrases are given</a></td>
+          <td>technical</td>
+          <td>extractPhrasesFromTranscript</td>
+          <td><code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code></td>
+        </tr>
+        <tr class="technical">
+          <td><a href="#scenario-1916">Core domain compute Phrase Target anchors to the product spec: ~20 at 30min, ~30 at 1h, ~40 at 2h</a></td>
           <td>technical</td>
           <td>computePhraseTarget</td>
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1912">Core domain compute Phrase Target clamps short videos to the minimum</a></td>
+          <td><a href="#scenario-1917">Core domain compute Phrase Target clamps short videos to the minimum</a></td>
           <td>technical</td>
           <td>computePhraseTarget</td>
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1913">Core domain compute Phrase Target clamps very long videos to the maximum</a></td>
+          <td><a href="#scenario-1918">Core domain compute Phrase Target clamps very long videos to the maximum</a></td>
           <td>technical</td>
           <td>computePhraseTarget</td>
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1914">Core domain compute Phrase Target falls back to the baseline when duration is unknown</a></td>
+          <td><a href="#scenario-1919">Core domain compute Phrase Target falls back to the baseline when duration is unknown</a></td>
           <td>technical</td>
           <td>computePhraseTarget</td>
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1915">Core domain compute Phrase Target respects admin configured min max bounds</a></td>
+          <td><a href="#scenario-1920">Core domain compute Phrase Target respects admin configured min max bounds</a></td>
           <td>technical</td>
           <td>computePhraseTarget</td>
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1916">Core domain compute Phrase Target never exceeds the bounds even if min &gt; max is misconfigured</a></td>
+          <td><a href="#scenario-1921">Core domain compute Phrase Target never exceeds the bounds even if min &gt; max is misconfigured</a></td>
           <td>technical</td>
           <td>computePhraseTarget</td>
           <td><code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1917">Core domain DEFAULT TEMPLATE has learner friendly default fields for words and phrases</a></td>
+          <td><a href="#scenario-1922">Core domain DEFAULT TEMPLATE has learner friendly default fields for words and phrases</a></td>
           <td>technical</td>
           <td>DEFAULT_TEMPLATE</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1918">Core domain TEMPLATE FIELD KEYS contains all field keys in display order</a></td>
+          <td><a href="#scenario-1923">Core domain TEMPLATE FIELD KEYS contains all field keys in display order</a></td>
           <td>technical</td>
           <td>TEMPLATE_FIELD_KEYS</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1919">Core domain template To Output Config converts default template to learner friendly output</a></td>
+          <td><a href="#scenario-1924">Core domain template To Output Config converts default template to learner friendly output</a></td>
           <td>technical</td>
           <td>templateToOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1920">Core domain template To Output Config maps template fields to output config flags</a></td>
+          <td><a href="#scenario-1925">Core domain template To Output Config maps template fields to output config flags</a></td>
           <td>technical</td>
           <td>templateToOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1921">Core domain resolve Output Config returns sentence output for sentence input regardless of user template</a></td>
+          <td><a href="#scenario-1926">Core domain resolve Output Config returns sentence output for sentence input regardless of user template</a></td>
           <td>technical</td>
           <td>resolveOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1922">Core domain resolve Output Config returns default config when user template is null for words and phrases</a></td>
+          <td><a href="#scenario-1927">Core domain resolve Output Config returns default config when user template is null for words and phrases</a></td>
           <td>technical</td>
           <td>resolveOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1923">Core domain resolve Output Config returns custom config for word and phrase input</a></td>
+          <td><a href="#scenario-1928">Core domain resolve Output Config returns custom config for word and phrase input</a></td>
           <td>technical</td>
           <td>resolveOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1924">Core domain resolve Template returns DEFAULT TEMPLATE when input is null</a></td>
+          <td><a href="#scenario-1929">Core domain resolve Template returns DEFAULT TEMPLATE when input is null</a></td>
           <td>technical</td>
           <td>resolveTemplate</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-1925">Core domain resolve Template returns the custom template as is when provided</a></td>
+          <td><a href="#scenario-1930">Core domain resolve Template returns the custom template as is when provided</a></td>
           <td>technical</td>
           <td>resolveTemplate</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
@@ -16956,7 +16986,7 @@
                 </article>
         </section>
         <section class="group">
-          <h2>packages <span>1347</span></h2>
+          <h2>packages <span>1352</span></h2>
           
                 <article id="scenario-579" class="scenario">
                   <div class="scenario-meta">
@@ -28922,13 +28952,31 @@
                 <article id="scenario-1908" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
+                    <code>packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts</code>
+                    <span>buildExtractionPrompt</span>
+                  </div>
+                  <h3>Core domain build Extraction Prompt omits the &#39;already known&#39; section when no known phrases are provided</h3>
+                  <p>Protects the core domain build Extraction Prompt behavior: omits the &#39;already known&#39; section when no known phrases are provided.</p>
+                </article>
+                <article id="scenario-1909" class="scenario">
+                  <div class="scenario-meta">
+                    <strong>technical</strong>
+                    <code>packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts</code>
+                    <span>buildExtractionPrompt</span>
+                  </div>
+                  <h3>Core domain build Extraction Prompt lists known phrases and de duplicates them case insensitively</h3>
+                  <p>Protects the core domain build Extraction Prompt behavior so lists known phrases and de duplicates them case insensitively.</p>
+                </article>
+                <article id="scenario-1910" class="scenario">
+                  <div class="scenario-meta">
+                    <strong>technical</strong>
                     <code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code>
                     <span>extractPhrasesFromTranscript</span>
                   </div>
                   <h3>Core domain extract Phrases From Transcript calls generate Object with correct params and returns phrases</h3>
                   <p>Protects the core domain extract Phrases From Transcript behavior: calls generate Object with correct params and returns phrases.</p>
                 </article>
-                <article id="scenario-1909" class="scenario">
+                <article id="scenario-1911" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code>
@@ -28937,7 +28985,7 @@
                   <h3>Core domain extract Phrases From Transcript truncates results to the target count</h3>
                   <p>Protects the core domain extract Phrases From Transcript behavior so truncates results to the target count.</p>
                 </article>
-                <article id="scenario-1910" class="scenario">
+                <article id="scenario-1912" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code>
@@ -28946,7 +28994,34 @@
                   <h3>Core domain extract Phrases From Transcript passes model ID and a token budget scaled to the target</h3>
                   <p>Protects the core domain extract Phrases From Transcript behavior so passes model ID and a token budget scaled to the target.</p>
                 </article>
-                <article id="scenario-1911" class="scenario">
+                <article id="scenario-1913" class="scenario">
+                  <div class="scenario-meta">
+                    <strong>technical</strong>
+                    <code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code>
+                    <span>extractPhrasesFromTranscript</span>
+                  </div>
+                  <h3>Core domain extract Phrases From Transcript filters out phrases the learner already knows, case insensitively</h3>
+                  <p>Protects the core domain extract Phrases From Transcript behavior: filters out phrases the learner already knows, case insensitively.</p>
+                </article>
+                <article id="scenario-1914" class="scenario">
+                  <div class="scenario-meta">
+                    <strong>technical</strong>
+                    <code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code>
+                    <span>extractPhrasesFromTranscript</span>
+                  </div>
+                  <h3>Core domain extract Phrases From Transcript passes the known phrases into the prompt as a hint</h3>
+                  <p>Protects the core domain extract Phrases From Transcript behavior so passes the known phrases into the prompt as a hint.</p>
+                </article>
+                <article id="scenario-1915" class="scenario">
+                  <div class="scenario-meta">
+                    <strong>technical</strong>
+                    <code>packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts</code>
+                    <span>extractPhrasesFromTranscript</span>
+                  </div>
+                  <h3>Core domain extract Phrases From Transcript behaves as before when no known phrases are given</h3>
+                  <p>Protects the core domain extract Phrases From Transcript behavior so behaves as before when no known phrases are given.</p>
+                </article>
+                <article id="scenario-1916" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code>
@@ -28955,7 +29030,7 @@
                   <h3>Core domain compute Phrase Target anchors to the product spec: ~20 at 30min, ~30 at 1h, ~40 at 2h</h3>
                   <p>Protects the core domain compute Phrase Target behavior so anchors to the product spec: ~20 at 30min, ~30 at 1h, ~40 at 2h.</p>
                 </article>
-                <article id="scenario-1912" class="scenario">
+                <article id="scenario-1917" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code>
@@ -28964,7 +29039,7 @@
                   <h3>Core domain compute Phrase Target clamps short videos to the minimum</h3>
                   <p>Protects the core domain compute Phrase Target behavior so clamps short videos to the minimum.</p>
                 </article>
-                <article id="scenario-1913" class="scenario">
+                <article id="scenario-1918" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code>
@@ -28973,7 +29048,7 @@
                   <h3>Core domain compute Phrase Target clamps very long videos to the maximum</h3>
                   <p>Protects the core domain compute Phrase Target behavior so clamps very long videos to the maximum.</p>
                 </article>
-                <article id="scenario-1914" class="scenario">
+                <article id="scenario-1919" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code>
@@ -28982,7 +29057,7 @@
                   <h3>Core domain compute Phrase Target falls back to the baseline when duration is unknown</h3>
                   <p>Protects the core domain compute Phrase Target behavior: falls back to the baseline when duration is unknown.</p>
                 </article>
-                <article id="scenario-1915" class="scenario">
+                <article id="scenario-1920" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code>
@@ -28991,7 +29066,7 @@
                   <h3>Core domain compute Phrase Target respects admin configured min max bounds</h3>
                   <p>Protects the core domain compute Phrase Target behavior: respects admin configured min max bounds.</p>
                 </article>
-                <article id="scenario-1916" class="scenario">
+                <article id="scenario-1921" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/modules/video-vocabulary/__tests__/target.test.ts</code>
@@ -29000,7 +29075,7 @@
                   <h3>Core domain compute Phrase Target never exceeds the bounds even if min &gt; max is misconfigured</h3>
                   <p>Protects the core domain compute Phrase Target behavior so never exceeds the bounds even if min &gt; max is misconfigured.</p>
                 </article>
-                <article id="scenario-1917" class="scenario">
+                <article id="scenario-1922" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -29009,7 +29084,7 @@
                   <h3>Core domain DEFAULT TEMPLATE has learner friendly default fields for words and phrases</h3>
                   <p>Protects the core domain DEFAULT TEMPLATE behavior so has learner friendly default fields for words and phrases.</p>
                 </article>
-                <article id="scenario-1918" class="scenario">
+                <article id="scenario-1923" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -29018,7 +29093,7 @@
                   <h3>Core domain TEMPLATE FIELD KEYS contains all field keys in display order</h3>
                   <p>Protects the core domain TEMPLATE FIELD KEYS behavior so contains all field keys in display order.</p>
                 </article>
-                <article id="scenario-1919" class="scenario">
+                <article id="scenario-1924" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -29027,7 +29102,7 @@
                   <h3>Core domain template To Output Config converts default template to learner friendly output</h3>
                   <p>Protects the core domain template To Output Config behavior: converts default template to learner friendly output.</p>
                 </article>
-                <article id="scenario-1920" class="scenario">
+                <article id="scenario-1925" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -29036,7 +29111,7 @@
                   <h3>Core domain template To Output Config maps template fields to output config flags</h3>
                   <p>Protects the core domain template To Output Config behavior: maps template fields to output config flags.</p>
                 </article>
-                <article id="scenario-1921" class="scenario">
+                <article id="scenario-1926" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -29045,7 +29120,7 @@
                   <h3>Core domain resolve Output Config returns sentence output for sentence input regardless of user template</h3>
                   <p>Protects the core domain resolve Output Config behavior: returns sentence output for sentence input regardless of user template.</p>
                 </article>
-                <article id="scenario-1922" class="scenario">
+                <article id="scenario-1927" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -29054,7 +29129,7 @@
                   <h3>Core domain resolve Output Config returns default config when user template is null for words and phrases</h3>
                   <p>Protects the core domain resolve Output Config behavior: returns default config when user template is null for words and phrases.</p>
                 </article>
-                <article id="scenario-1923" class="scenario">
+                <article id="scenario-1928" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -29063,7 +29138,7 @@
                   <h3>Core domain resolve Output Config returns custom config for word and phrase input</h3>
                   <p>Protects the core domain resolve Output Config behavior: returns custom config for word and phrase input.</p>
                 </article>
-                <article id="scenario-1924" class="scenario">
+                <article id="scenario-1929" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -29072,7 +29147,7 @@
                   <h3>Core domain resolve Template returns DEFAULT TEMPLATE when input is null</h3>
                   <p>Protects the core domain resolve Template behavior: returns DEFAULT TEMPLATE when input is null.</p>
                 </article>
-                <article id="scenario-1925" class="scenario">
+                <article id="scenario-1930" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>

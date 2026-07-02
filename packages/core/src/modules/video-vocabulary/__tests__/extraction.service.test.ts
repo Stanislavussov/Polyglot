@@ -96,4 +96,87 @@ describe("extractPhrasesFromTranscript", () => {
     const passedMaxTokens = generateObject.mock.calls[0][3].maxTokens;
     expect(passedMaxTokens).toBeGreaterThanOrEqual(6400);
   });
+
+  it("filters out phrases the learner already knows, case-insensitively", async () => {
+    const mockResult: ExtractionResult = {
+      phrases: [
+        {
+          phrase: "Break It Down",
+          nativeTranslation: "разобрать",
+          emoji: "🔨",
+          type: "idiom",
+          level: "B2",
+          context: "ctx",
+          timestampSeconds: 10,
+        },
+        {
+          phrase: "cut to the chase",
+          nativeTranslation: "перейти к делу",
+          emoji: "✂️",
+          type: "idiom",
+          level: "C1",
+          context: "ctx",
+          timestampSeconds: 20,
+        },
+      ],
+    };
+    const generateObject = vi.fn().mockResolvedValue(mockResult);
+
+    const phrases = await extractPhrasesFromTranscript(
+      "text",
+      "English",
+      "B2",
+      30,
+      generateObject,
+      "model-id",
+      "Russian",
+      ["  break it down  ", "already saved word"],
+    );
+
+    expect(phrases).toHaveLength(1);
+    expect(phrases[0].phrase).toBe("cut to the chase");
+  });
+
+  it("passes the known phrases into the prompt as a hint", async () => {
+    const generateObject = vi.fn().mockResolvedValue({ phrases: [] });
+
+    await extractPhrasesFromTranscript("text", "English", "B2", 30, generateObject, "model-id", "Russian", [
+      "serendipity",
+    ]);
+
+    const prompt = generateObject.mock.calls[0][0] as string;
+    expect(prompt).toContain("serendipity");
+    expect(prompt).toContain("DO NOT extract");
+  });
+
+  it("behaves as before when no known phrases are given", async () => {
+    const mockResult: ExtractionResult = {
+      phrases: [
+        {
+          phrase: "break it down",
+          nativeTranslation: "разобрать",
+          emoji: "🔨",
+          type: "idiom",
+          level: "B2",
+          context: "ctx",
+          timestampSeconds: 10,
+        },
+      ],
+    };
+    const generateObject = vi.fn().mockResolvedValue(mockResult);
+
+    const phrases = await extractPhrasesFromTranscript(
+      "text",
+      "English",
+      "B2",
+      30,
+      generateObject,
+      "model-id",
+      "Russian",
+    );
+
+    expect(phrases).toHaveLength(1);
+    const prompt = generateObject.mock.calls[0][0] as string;
+    expect(prompt).not.toContain("Already Known");
+  });
 });

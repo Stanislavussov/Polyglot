@@ -141,6 +141,7 @@ export interface VocabularyRepository {
     original: string,
     sourceLangId: number,
   ): Promise<VocabularyEntryWithTranslations | null>;
+  findOriginalsByUserAndSource(userId: number, sourceLangId: number): Promise<string[]>;
   findByUserWithSourceLang(
     userId: number,
     langResolver: (id: number) => string | undefined,

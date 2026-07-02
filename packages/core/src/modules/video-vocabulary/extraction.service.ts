@@ -7,6 +7,7 @@ import type { ZodSchema } from "zod";
 import type { GenerateOptions } from "../../ports/ai.port.js";
 import { buildExtractionPrompt } from "./extraction.prompt.js";
 import { extractionResultSchema } from "./extraction.schema.js";
+import { normalizePhrase } from "./normalize.js";
 import type { ExtractedPhrase, ExtractionResult } from "./types.js";
 
 type GenerateObjectFn = <T>(
@@ -30,7 +31,10 @@ const MIN_OUTPUT_TOKENS = 4096;
  * @param generateObjectFn - AI generation function (injected from adapter)
  * @param modelId - AI model ID to use
  * @param nativeLanguage - The user's native language for translations
- * @returns Extracted phrases sorted by learning value
+ * @param knownPhrases - Phrases the learner already has (saved dictionary + prior videos)
+ *   in this language; excluded from the result so they are never regenerated. Passed to
+ *   the prompt as a soft hint and enforced as a hard post-filter.
+ * @returns Extracted phrases sorted by learning value, with known phrases removed
  */
 export async function extractPhrasesFromTranscript(
   transcript: string,
@@ -40,9 +44,21 @@ export async function extractPhrasesFromTranscript(
   generateObjectFn: GenerateObjectFn,
   modelId: string,
   nativeLanguage: string,
+  knownPhrases: string[] = [],
 ): Promise<ExtractedPhrase[]> {
-  const prompt = buildExtractionPrompt(transcript, videoLanguage, userLevel, targetPhrases, nativeLanguage);
+  const prompt = buildExtractionPrompt(
+    transcript,
+    videoLanguage,
+    userLevel,
+    targetPhrases,
+    nativeLanguage,
+    knownPhrases,
+  );
   const maxTokens = Math.max(MIN_OUTPUT_TOKENS, targetPhrases * TOKENS_PER_PHRASE);
   const result = await generateObjectFn<ExtractionResult>(prompt, extractionResultSchema, modelId, { maxTokens });
-  return result.phrases.slice(0, targetPhrases);
+
+  // Hard guarantee: drop anything the learner already knows even if the model ignored the hint.
+  const known = new Set(knownPhrases.map(normalizePhrase));
+  const fresh = known.size === 0 ? result.phrases : result.phrases.filter((p) => !known.has(normalizePhrase(p.phrase)));
+  return fresh.slice(0, targetPhrases);
 }

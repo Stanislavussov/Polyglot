@@ -39,4 +39,22 @@ describe("buildExtractionPrompt", () => {
     expect(prompt).toContain("translation");
     expect(prompt).toContain("Russian");
   });
+
+  it("omits the 'already known' section when no known phrases are provided", () => {
+    const prompt = buildExtractionPrompt("Some text", "English", "B2", 30, "Russian", []);
+    expect(prompt).not.toContain("Already Known");
+  });
+
+  it("lists known phrases and de-duplicates them case-insensitively", () => {
+    const prompt = buildExtractionPrompt("Some text", "English", "B2", 30, "Russian", [
+      "break it down",
+      "Break It Down",
+      "serendipity",
+    ]);
+    expect(prompt).toContain("Already Known — DO NOT extract these");
+    expect(prompt).toContain("break it down");
+    expect(prompt).toContain("serendipity");
+    // De-duplicated: the two casings of "break it down" collapse to one → 2 items.
+    expect(prompt).toContain("already has the following 2 items");
+  });
 });

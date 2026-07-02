@@ -75,6 +75,7 @@ export interface VideoVocabularyRepository {
   countPhrasesByProcess(processId: number): Promise<number>;
   findPhraseById(phraseId: number): Promise<VideoPhrase | null>;
   markPhraseSaved(phraseId: number, entryId: number): Promise<void>;
+  findKnownPhrasesByUser(userId: number, language: string, excludeProcessId?: number): Promise<string[]>;
   findCachedTranscript(
     videoId: string,
     language: string,
