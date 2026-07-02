@@ -11,6 +11,8 @@ vi.mock("@polyglot/adapter-ai", () => ({
 
 const {
   mockLookupContext,
+  mockSweepWordLanguages,
+  mockLanguageDetectionRecord,
   mockUserRepository,
   mockVocabularyRepository,
   mockTranslationTemplateRepository,
@@ -20,6 +22,8 @@ const {
   mockAi,
 } = vi.hoisted(() => ({
   mockLookupContext: vi.fn().mockResolvedValue([]),
+  mockSweepWordLanguages: vi.fn().mockResolvedValue([]),
+  mockLanguageDetectionRecord: vi.fn().mockResolvedValue(undefined),
   mockUserRepository: {
     getSettings: vi.fn(),
   },
@@ -50,11 +54,12 @@ vi.mock("@polyglot/adapter-db", () => ({
   userRepository: mockUserRepository,
   vocabularyRepository: mockVocabularyRepository,
   createContextLookup: () => mockLookupContext,
+  createWordLanguageSweep: () => mockSweepWordLanguages,
   getLang: mockLanguageCache.getLang,
   translationTemplateRepository: mockTranslationTemplateRepository,
   requestTimingRepository: mockRequestTimingRepository,
   languageDetectionRepository: {
-    record: vi.fn().mockResolvedValue(undefined),
+    record: mockLanguageDetectionRecord,
   },
 }));
 
@@ -119,6 +124,7 @@ vi.mock("@polyglot/core", async () => {
         : { confidence: 0, evidence: [] };
     }),
     detectLanguageWithConfidenceAsync: vi.fn(async () => ({ confidence: 0, evidence: [] })),
+    generateEtymology: vi.fn().mockResolvedValue("From Old English hāl — a greeting wishing good health."),
   };
 });
 
@@ -127,9 +133,19 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { translateOneWithContext, translateWithContext } from "@polyglot/core";
+import {
+  detectLanguageWithConfidence,
+  detectLanguageWithConfidenceAsync,
+  generateEtymology,
+  getLangFlag,
+  t,
+  translateOneWithContext,
+  translateWithContext,
+} from "@polyglot/core";
+import { inputCorrectionCounter } from "../../metrics.js";
 import type { BotContext, SessionData } from "../../types.js";
 import {
+  handleEtymologyCallback,
   handleRegenCallback,
   handleTranslateText,
   handleTranslationClarificationCallback,
@@ -167,6 +183,7 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string):
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
     },
     user: { id: 1, telegramId: 123456789 },
     services: {
@@ -774,6 +791,188 @@ describe("handleTranslateText — context enrichment", () => {
   });
 });
 
+describe("handleTranslateText — out-of-set language detection", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de"],
+    });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
+  });
+
+  it("replies languageNotSelected and skips translation when async detection is out-of-set", async () => {
+    vi.mocked(detectLanguageWithConfidence).mockReturnValueOnce({ confidence: 0, evidence: [] });
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce({
+      confidence: 0,
+      evidence: [],
+      outOfSetLanguages: ["pl"],
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "przepraszam");
+
+    expect(ctx.reply).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your selected languages");
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(mockLanguageDetectionRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: "out_of_set", word: "przepraszam", sourceLang: "pl" }),
+    );
+  });
+
+  it("re-verifies a confident heuristic-only diacritic detection via the async path", async () => {
+    // Sync detection is confident but rests on script/diacritics heuristics only —
+    // needsDictionaryVerification must force the async dictionary sweep.
+    vi.mocked(detectLanguageWithConfidence).mockReturnValueOnce({
+      language: "de",
+      confidence: 0.9,
+      evidence: [{ strategy: "script", candidate: "de", score: 0.9, reason: "unique latin script candidate" }],
+    });
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce({
+      confidence: 0,
+      evidence: [],
+      outOfSetLanguages: ["cs"],
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "Strohá");
+
+    expect(detectLanguageWithConfidenceAsync).toHaveBeenCalledWith(
+      "Strohá",
+      expect.arrayContaining(["en", "ru", "cs", "de"]),
+      expect.objectContaining({ findWordLanguages: mockSweepWordLanguages }),
+    );
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your selected languages");
+  });
+
+  it("does not re-verify confident ASCII detections", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "hello");
+
+    expect(detectLanguageWithConfidenceAsync).not.toHaveBeenCalled();
+    expect(translateWithContext).toHaveBeenCalled();
+  });
+
+  it("records a 'detected' telemetry event for confident detections", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "hello");
+
+    expect(mockLanguageDetectionRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: "detected", word: "hello", sourceLang: "ru" }),
+    );
+  });
+});
+
+describe("input typo correction (Task 69)", () => {
+  async function readCounter(outcome: string, inputType: string): Promise<number> {
+    const metric = await inputCorrectionCounter.get();
+    const row = metric.values.find((v) => v.labels.outcome === outcome && v.labels.input_type === inputType);
+    return row?.value ?? 0;
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de"],
+    });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
+  });
+
+  it("annotates the card with a ✏️ Fixed line when the input was auto-corrected", async () => {
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "accepted",
+      output: {
+        original: "hello",
+        sourceLang: "ru",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: { cs: { text: "ahoj", synonyms: [], examples: [] } },
+        correction: { original: "helllo", corrected: "hello", explanation: "extra letter removed" },
+      },
+      quality: {
+        promptVersion: "translation-v1",
+        schemaVersion: 1,
+        riskLevel: "low",
+        modelId: "test-model",
+        attemptCount: 1,
+        issues: [],
+      },
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "helllo");
+
+    const cardCall = vi.mocked(ctx.reply).mock.calls.find((c) => typeof c[0] === "string" && c[0].includes("✏️"));
+    expect(cardCall).toBeDefined();
+    expect(cardCall?.[0]).toContain("helllo");
+    expect(cardCall?.[0]).toContain("hello");
+  });
+
+  it("renders language choices as flag + code buttons with a hint, not language names", async () => {
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "source_language",
+        message: "This spelling exists in multiple languages.",
+        options: [
+          { label: "English: quick", value: "en", kind: "source_language", langCode: "en" },
+          { label: "German: almost", value: "de", kind: "source_language", langCode: "de" },
+        ],
+      },
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "fast");
+
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((c) => c[1]?.reply_markup !== undefined);
+    const keyboard = promptCall?.[1]?.reply_markup as {
+      inline_keyboard: Array<Array<{ text: string; callback_data: string }>>;
+    };
+    const rows = keyboard.inline_keyboard.filter((r) => r.length > 0);
+    // Both language buttons share the first row (rows of up to 4); flag + code, no language names.
+    const firstRow = rows[0];
+    expect(firstRow.map((b) => b.text)).toEqual([`${getLangFlag("en") ?? "🔤"} EN`, `${getLangFlag("de") ?? "🔤"} DE`]);
+    expect(firstRow.every((b) => !/English|German/.test(b.text))).toBe(true);
+    // Context button sits alone on its own row.
+    const contextRow = rows.find((r) => r.some((b) => b.callback_data === "tr:clarify:context"));
+    expect(contextRow).toHaveLength(1);
+    // Message text explains the flag + code options.
+    expect(promptCall?.[0]).toContain(t("translationClarifyLanguageHint", "en"));
+  });
+
+  it("re-runs verbatim with skipInputCorrection when the user picks 'translate as written'", async () => {
+    const before = await readCounter("translate_as_written", "word");
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "helllo",
+          sourceLang: "ru",
+          targetLangs: ["cs", "de"],
+          inputType: "word",
+          reason: "possible_typo",
+          options: [
+            { id: "fix", label: "hello", value: "hello", kind: "typo_correction", correctedText: "hello" },
+            { id: "asis", label: "Translate as written", value: "helllo", kind: "translate_as_written" },
+          ],
+        },
+      },
+      "tr:clarify:option:1",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({ word: "helllo", skipInputCorrection: true }),
+      expect.anything(),
+    );
+    expect(await readCounter("translate_as_written", "word")).toBe(before + 1);
+  });
+});
+
 describe("isEtymologyEligible", () => {
   it("is eligible for a learning-language word", () => {
     expect(isEtymologyEligible("word", "cs", "ru")).toBe(true);
@@ -790,5 +989,74 @@ describe("isEtymologyEligible", () => {
   it("is NOT eligible when the source term is in the native language", () => {
     expect(isEtymologyEligible("word", "ru", "ru")).toBe(false);
     expect(isEtymologyEligible("phrase", "ru", "ru")).toBe(false);
+  });
+});
+
+describe("handleEtymologyCallback — loading feedback on the card", () => {
+  function cardEntry() {
+    return {
+      output: {
+        original: "hello",
+        sourceLang: "en",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: { cs: { text: "ahoj", synonyms: [], examples: [] } },
+      },
+      inputType: "word" as const,
+    };
+  }
+
+  function etymologyCtx(): BotContext {
+    const ctx = createMockCtx({ translationMap: { "77": cardEntry() } as never }, "tr:etymology:77");
+    (ctx as unknown as { editMessageReplyMarkup: unknown }).editMessageReplyMarkup = vi
+      .fn()
+      .mockResolvedValue(undefined);
+    (ctx.services as unknown as { featureAccess: unknown }).featureAccess = {
+      checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: true }),
+    };
+    return ctx;
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({ interfaceLang: "en", nativeLang: "ru", learningLangs: ["cs"] });
+    mockTranslationTemplateRepository.getByUserId.mockResolvedValue(null);
+    vi.mocked(generateEtymology).mockResolvedValue("From Old English hāl — a greeting wishing good health.");
+  });
+
+  it("keeps a loading button on the card and answers the tap only when the section is rendered", async () => {
+    const ctx = etymologyCtx();
+
+    await handleEtymologyCallback(ctx);
+
+    const markupCalls = vi.mocked(
+      (ctx as unknown as { editMessageReplyMarkup: ReturnType<typeof vi.fn> }).editMessageReplyMarkup,
+    ).mock.calls;
+    expect(markupCalls[0]?.[0]?.reply_markup?.inline_keyboard?.[0]?.[0]).toMatchObject({ callback_data: "noop" });
+    expect(ctx.api.editMessageText).toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith();
+  });
+
+  it("restores the card and alerts the user when generation takes too long", async () => {
+    vi.useFakeTimers();
+    try {
+      const ctx = etymologyCtx();
+      vi.mocked(generateEtymology).mockReturnValue(
+        new Promise(() => {
+          /* model never answers */
+        }) as never,
+      );
+
+      const flow = handleEtymologyCallback(ctx);
+      await vi.advanceTimersByTimeAsync(20_000);
+      await flow;
+
+      expect(ctx.api.editMessageText).toHaveBeenCalled();
+      expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
+        expect.objectContaining({ show_alert: true, text: expect.stringContaining("⌛") }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

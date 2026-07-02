@@ -246,6 +246,9 @@
   "translationClarifyReasonFormat": "Есть сомнения из-за даты, формата или смешанных алфавитов.",
   "translationClarifyContextButton": "Уточнить контекст",
   "translationClarifyContextPrompt": "Отправьте короткое уточнение или контекст для этого перевода.",
+  "translationClarifyLanguageHint": "Выберите язык ниже (флаг + код) или отправьте уточнение.",
+  "correctionNotice": "✏️ Исправлено: {original} → {corrected} — {explanation}",
+  "sentenceErrorNotice": "✏️ Исправлено: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Дневной лимит переводов исчерпан. Откройте /settings, чтобы проверить план.",
   "mentorModeOn": "🧑‍🏫 Режим наставника активен! Спросите меня о любом слове, и я помогу вам его выучить — я не просто переведу, я буду вас направлять.",
   "mentorThinking": "🧠 Думаю...",
@@ -291,5 +294,7 @@
   "videoSavedToast": "Сохранено!",
   "videoProcessingCancelled": "Обработка видео отменена.",
   "videoPhrasesExtracted": "Извлечено фраз: {count}",
-  "chooseProficiencyLevel": "Какой у вас уровень в {lang}?"
+  "chooseProficiencyLevel": "Какой у вас уровень в {lang}?",
+  "loading": "⏳ Загружаю...",
+  "loadingTimeout": "⌛ Это заняло слишком много времени. Попробуйте ещё раз."
 }

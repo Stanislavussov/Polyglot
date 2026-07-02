@@ -246,6 +246,9 @@
   "translationClarifyReasonFormat": "Il y a une ambiguïté due à une date, un format ou des systèmes d'écriture mélangés.",
   "translationClarifyContextButton": "Ajouter du contexte",
   "translationClarifyContextPrompt": "Envoie une courte précision ou un contexte pour cette traduction.",
+  "translationClarifyLanguageHint": "Choisissez une langue ci-dessous (drapeau + code) ou envoyez une précision.",
+  "correctionNotice": "✏️ Corrigé: {original} → {corrected} — {explanation}",
+  "sentenceErrorNotice": "✏️ Corrigé: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Limite quotidienne de traductions atteinte. Ouvre /settings pour vérifier ton forfait.",
   "mentorModeOn": "🧑‍🏫 Mode mentor activé ! Pose-moi des questions sur n'importe quel mot et je t'aiderai à l'apprendre — je ne me contente pas de traduire, je t'accompagne.",
   "mentorThinking": "🧠 Réflexion...",
@@ -291,5 +294,7 @@
   "videoSavedToast": "Enregistré !",
   "videoProcessingCancelled": "Traitement de la vidéo annulé.",
   "videoPhrasesExtracted": "{count} expressions extraites",
-  "chooseProficiencyLevel": "Quel est ton niveau en {lang} ?"
+  "chooseProficiencyLevel": "Quel est ton niveau en {lang} ?",
+  "loading": "⏳ Chargement...",
+  "loadingTimeout": "⌛ Cela prend plus de temps que prévu. Veuillez réessayer."
 }

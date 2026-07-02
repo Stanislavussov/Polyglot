@@ -246,6 +246,9 @@
   "translationClarifyReasonFormat": "Text je nejasný kvůli datu, formátu nebo smíšeným písmům.",
   "translationClarifyContextButton": "Upřesnit kontext",
   "translationClarifyContextPrompt": "Pošlete krátké upřesnění nebo kontext pro tento překlad.",
+  "translationClarifyLanguageHint": "Vyberte jazyk níže (vlajka + kód) nebo pošlete upřesnění.",
+  "correctionNotice": "✏️ Opraveno: {original} → {corrected} — {explanation}",
+  "sentenceErrorNotice": "✏️ Opraveno: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Denní limit překladů byl vyčerpán. Otevřete /settings a zkontrolujte svůj tarif.",
   "mentorModeOn": "🧑‍🏫 Režim mentora aktivní! Zeptejte se mě na jakékoli slovo a pomůžu vám se ho naučit — nepřeložím ho jen tak, budu vás provázet.",
   "mentorThinking": "🧠 Přemýšlím...",
@@ -291,5 +294,7 @@
   "videoSavedToast": "Uloženo!",
   "videoProcessingCancelled": "Zpracování videa zrušeno.",
   "videoPhrasesExtracted": "Extrahováno frází: {count}",
-  "chooseProficiencyLevel": "Jaká je vaše úroveň v {lang}?"
+  "chooseProficiencyLevel": "Jaká je vaše úroveň v {lang}?",
+  "loading": "⏳ Načítám...",
+  "loadingTimeout": "⌛ Trvá to déle, než obvykle. Zkuste to prosím znovu."
 }

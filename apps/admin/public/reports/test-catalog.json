@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-06-30T19:06:41.911Z",
+  "generatedAt": "2026-07-02T19:44:06.424Z",
   "summary": {
-    "total": 1860,
+    "total": 1925,
     "business": 0,
-    "technical": 1860,
+    "technical": 1925,
     "workspaces": [
       "apps",
       "packages"
@@ -3919,6 +3919,54 @@
       "description": "Protects the bot render Quality Warning behavior so is different from translation Needs Review text."
     },
     {
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1107-input-correction-annotations-task-69-shows-a-fixed-line-with-original-corrected-explanation-for-a-word-auto-fix",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
+      "sourceLine": 1107,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "input correction annotations (Task 69)"
+      ],
+      "title": "shows a ✏️ Fixed line with original → corrected — explanation for a word auto-fix",
+      "rawTitle": "shows a ✏️ Fixed line with original → corrected — explanation for a word auto-fix",
+      "name": "Bot input correction annotations (Task 69) shows a ✏️ Fixed line with original → corrected — explanation for a word auto fix",
+      "value": "Protects the bot input correction annotations (Task 69) behavior: shows a ✏️ Fixed line with original → corrected — explanation for a word auto fix.",
+      "description": "Protects the bot input correction annotations (Task 69) behavior: shows a ✏️ Fixed line with original → corrected — explanation for a word auto fix."
+    },
+    {
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1123-input-correction-annotations-task-69-renders-no-correction-notice-when-the-input-was-not-corrected",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
+      "sourceLine": 1123,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "input correction annotations (Task 69)"
+      ],
+      "title": "renders no correction notice when the input was not corrected",
+      "rawTitle": "renders no correction notice when the input was not corrected",
+      "name": "Bot input correction annotations (Task 69) renders no correction notice when the input was not corrected",
+      "value": "Protects the bot input correction annotations (Task 69) behavior: renders no correction notice when the input was not corrected.",
+      "description": "Protects the bot input correction annotations (Task 69) behavior: renders no correction notice when the input was not corrected."
+    },
+    {
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1127-input-correction-annotations-task-69-shows-the-corrected-sentence-and-error-explanation-on-a-sentence-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
+      "sourceLine": 1127,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "input correction annotations (Task 69)"
+      ],
+      "title": "shows the corrected sentence and error explanation on a sentence card",
+      "rawTitle": "shows the corrected sentence and error explanation on a sentence card",
+      "name": "Bot input correction annotations (Task 69) shows the corrected sentence and error explanation on a sentence card",
+      "value": "Protects the bot input correction annotations (Task 69) behavior: shows the corrected sentence and error explanation on a sentence card.",
+      "description": "Protects the bot input correction annotations (Task 69) behavior: shows the corrected sentence and error explanation on a sentence card."
+    },
+    {
       "id": "apps-bot-src-callbacks-contracts-test-ts-10-callback-restart-safety-contracts-documents-all-required-callback-families",
       "kind": "technical",
       "filePath": "apps/bot/src/callbacks/contracts.test.ts",
@@ -4335,10 +4383,106 @@
       "description": "Protects the bot auth Middleware behavior: does not block request when update Last Interaction fails."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-54-handlenotifrevealcallback-renders-full-dictionary-entry-and-updates-message",
+      "id": "apps-bot-src-middlewares-update-metrics-test-ts-50-updatemetricsmiddleware-records-handling-duration-and-delivery-lag-for-a-text-message-update",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/update-metrics.test.ts",
+      "sourceLine": 50,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateMetricsMiddleware"
+      ],
+      "title": "records handling duration and delivery lag for a text message update",
+      "rawTitle": "records handling duration and delivery lag for a text message update",
+      "name": "Bot update Metrics Middleware records handling duration and delivery lag for a text message update",
+      "value": "Protects the bot update Metrics Middleware behavior: records handling duration and delivery lag for a text message update.",
+      "description": "Protects the bot update Metrics Middleware behavior: records handling duration and delivery lag for a text message update."
+    },
+    {
+      "id": "apps-bot-src-middlewares-update-metrics-test-ts-64-updatemetricsmiddleware-records-a-callback-tap-without-delivery-lag-telegram-does-not-timestamp-taps",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/update-metrics.test.ts",
+      "sourceLine": 64,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateMetricsMiddleware"
+      ],
+      "title": "records a callback tap without delivery lag (Telegram does not timestamp taps)",
+      "rawTitle": "records a callback tap without delivery lag (Telegram does not timestamp taps)",
+      "name": "Bot update Metrics Middleware records a callback tap without delivery lag (Telegram does not timestamp taps)",
+      "value": "Protects the bot update Metrics Middleware behavior: records a callback tap without delivery lag (Telegram does not timestamp taps).",
+      "description": "Protects the bot update Metrics Middleware behavior: records a callback tap without delivery lag (Telegram does not timestamp taps)."
+    },
+    {
+      "id": "apps-bot-src-middlewares-update-metrics-test-ts-73-updatemetricsmiddleware-classifies-updates-that-are-neither-message-nor-callback-as-other",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/update-metrics.test.ts",
+      "sourceLine": 73,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateMetricsMiddleware"
+      ],
+      "title": "classifies updates that are neither message nor callback as other",
+      "rawTitle": "classifies updates that are neither message nor callback as other",
+      "name": "Bot update Metrics Middleware classifies updates that are neither message nor callback as other",
+      "value": "Protects the bot update Metrics Middleware behavior: classifies updates that are neither message nor callback as other.",
+      "description": "Protects the bot update Metrics Middleware behavior: classifies updates that are neither message nor callback as other."
+    },
+    {
+      "id": "apps-bot-src-middlewares-update-metrics-test-ts-81-updatemetricsmiddleware-re-throws-handler-failures-while-still-recording-the-duration",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/update-metrics.test.ts",
+      "sourceLine": 81,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateMetricsMiddleware"
+      ],
+      "title": "re-throws handler failures while still recording the duration",
+      "rawTitle": "re-throws handler failures while still recording the duration",
+      "name": "Bot update Metrics Middleware re throws handler failures while still recording the duration",
+      "value": "Protects the bot update Metrics Middleware behavior so re throws handler failures while still recording the duration.",
+      "description": "Protects the bot update Metrics Middleware behavior so re throws handler failures while still recording the duration."
+    },
+    {
+      "id": "apps-bot-src-middlewares-update-metrics-test-ts-90-updatemetricsmiddleware-warns-about-slow-updates-so-they-are-visible-in-loki",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/update-metrics.test.ts",
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateMetricsMiddleware"
+      ],
+      "title": "warns about slow updates so they are visible in Loki",
+      "rawTitle": "warns about slow updates so they are visible in Loki",
+      "name": "Bot update Metrics Middleware warns about slow updates so they are visible in Loki",
+      "value": "Protects the bot update Metrics Middleware behavior so warns about slow updates so they are visible in Loki.",
+      "description": "Protects the bot update Metrics Middleware behavior so warns about slow updates so they are visible in Loki."
+    },
+    {
+      "id": "apps-bot-src-middlewares-update-metrics-test-ts-105-updatemetricsmiddleware-does-not-warn-about-fast-updates",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/update-metrics.test.ts",
+      "sourceLine": 105,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateMetricsMiddleware"
+      ],
+      "title": "does not warn about fast updates",
+      "rawTitle": "does not warn about fast updates",
+      "name": "Bot update Metrics Middleware does not warn about fast updates",
+      "value": "Protects the bot update Metrics Middleware behavior: does not warn about fast updates.",
+      "description": "Protects the bot update Metrics Middleware behavior: does not warn about fast updates."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-57-handlenotifrevealcallback-renders-full-dictionary-entry-and-updates-message",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 54,
+      "sourceLine": 57,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4351,10 +4495,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: renders full dictionary entry and updates message."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-78-handlenotifrevealcallback-handles-missing-entry-gracefully",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-81-handlenotifrevealcallback-handles-missing-entry-gracefully",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 78,
+      "sourceLine": 81,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4367,10 +4511,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: handles missing entry gracefully."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-90-handlenotifrevealcallback-handles-invalid-entryid-gracefully",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-93-handlenotifrevealcallback-handles-invalid-entryid-gracefully",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 90,
+      "sourceLine": 93,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4383,10 +4527,42 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: handles invalid entry Id gracefully."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-101-handlenotiflearnedcallback-soft-deletes-entry-and-shows-confirmation",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-102-handlenotifrevealcallback-shows-a-persistent-loading-button-on-the-notification-while-the-card-loads",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 101,
+      "sourceLine": 102,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleNotifRevealCallback"
+      ],
+      "title": "shows a persistent loading button on the notification while the card loads",
+      "rawTitle": "shows a persistent loading button on the notification while the card loads",
+      "name": "Bot handle Notif Reveal Callback shows a persistent loading button on the notification while the card loads",
+      "value": "Protects the bot handle Notif Reveal Callback behavior: shows a persistent loading button on the notification while the card loads.",
+      "description": "Protects the bot handle Notif Reveal Callback behavior: shows a persistent loading button on the notification while the card loads."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-112-handlenotifrevealcallback-restores-the-buttons-and-tells-the-user-when-loading-takes-too-long",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
+      "sourceLine": 112,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleNotifRevealCallback"
+      ],
+      "title": "restores the buttons and tells the user when loading takes too long",
+      "rawTitle": "restores the buttons and tells the user when loading takes too long",
+      "name": "Bot handle Notif Reveal Callback restores the buttons and tells the user when loading takes too long",
+      "value": "Protects the bot handle Notif Reveal Callback behavior so restores the buttons and tells the user when loading takes too long.",
+      "description": "Protects the bot handle Notif Reveal Callback behavior so restores the buttons and tells the user when loading takes too long."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-138-handlenotiflearnedcallback-soft-deletes-entry-and-shows-confirmation",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
+      "sourceLine": 138,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4399,10 +4575,10 @@
       "description": "Protects the bot handle Notif Learned Callback behavior so soft deletes entry and shows confirmation."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-115-handlenotiflearnedcallback-handles-invalid-entryid-gracefully",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-152-handlenotiflearnedcallback-handles-invalid-entryid-gracefully",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 115,
+      "sourceLine": 152,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5519,10 +5695,10 @@
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict Confirm Delete validates ownership before deleting."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-190-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-191-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 190,
+      "sourceLine": 191,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5535,10 +5711,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with user Id and word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-202-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-203-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 202,
+      "sourceLine": 203,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5551,10 +5727,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: detects language from clean text without trailing context marker."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-209-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-210-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 209,
+      "sourceLine": 210,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5567,10 +5743,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with correct model and output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-218-handletranslatetext-auto-detect-language-direction-logs-debug-info-about-resolved-direction",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-219-handletranslatetext-auto-detect-language-direction-logs-debug-info-about-resolved-direction",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 218,
+      "sourceLine": 219,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5583,10 +5759,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: logs debug info about resolved direction."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-230-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-231-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 230,
+      "sourceLine": 231,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5599,10 +5775,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: handles Russian (Cyrillic) input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-240-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-241-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 241,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5615,10 +5791,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: falls back to native→learning for ambiguous input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-261-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-262-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 261,
+      "sourceLine": 262,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5631,10 +5807,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: shows mistype warning when detect Language returns undefined."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-272-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-273-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 272,
+      "sourceLine": 273,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5647,10 +5823,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores pending state in session when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-281-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-282-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 281,
+      "sourceLine": 282,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5663,10 +5839,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores clean pending word and context hint when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-289-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-290-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 289,
+      "sourceLine": 290,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5679,10 +5855,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not call translate With Context when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-296-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-297-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 296,
+      "sourceLine": 297,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5695,10 +5871,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior so asks for source language when fast has dictionary evidence in English and German."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-329-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-330-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 329,
+      "sourceLine": 330,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5711,10 +5887,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not ask for source language for weak shared script ambiguity only."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-389-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-390-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 389,
+      "sourceLine": 390,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5727,10 +5903,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior so proceeds with translation when confirm callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-405-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-406-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 405,
+      "sourceLine": 406,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5743,10 +5919,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior: shows session expired alert when no pending state."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-426-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-427-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 426,
+      "sourceLine": 427,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5759,10 +5935,10 @@
       "description": "Protects the bot handle Mistype Cancel Callback — Task 58 behavior so clears pending state when cancel callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-439-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-440-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 439,
+      "sourceLine": 440,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5775,10 +5951,10 @@
       "description": "Protects the bot handle Mistype Cancel Callback — Task 58 behavior so replies with translate mode hint after cancel."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-145-persist-source-lang-lazy-hydration-task-36-hydrates-nextsourcelang-from-db-when-session-is-empty",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-146-persist-source-lang-lazy-hydration-task-36-hydrates-nextsourcelang-from-db-when-session-is-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 145,
+      "sourceLine": 146,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5791,10 +5967,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so hydrates next Source Lang from DB when session is empty."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-166-persist-source-lang-lazy-hydration-task-36-session-value-takes-precedence-over-db-value-if-both-present",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-167-persist-source-lang-lazy-hydration-task-36-session-value-takes-precedence-over-db-value-if-both-present",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 166,
+      "sourceLine": 167,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5807,10 +5983,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so session value takes precedence over DB value (if both present)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-187-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-hydrated-value-becomes-invalid-on-resolvedirectionfromsource",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-188-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-hydrated-value-becomes-invalid-on-resolvedirectionfromsource",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 187,
+      "sourceLine": 188,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5823,10 +5999,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so clears from DB when hydrated value becomes invalid on resolve Direction From Source."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-204-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-lastsourcelang-is-null-in-db-first-time-user",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-205-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-lastsourcelang-is-null-in-db-first-time-user",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 204,
+      "sourceLine": 205,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5839,10 +6015,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so clears from DB when last Source Lang is null in DB (first time user)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-219-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-hydrated-value-becomes-invalid-on-resolvedirectionfromsource",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-220-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-hydrated-value-becomes-invalid-on-resolvedirectionfromsource",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 220,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5855,10 +6031,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so clears from DB when hydrated value becomes invalid on resolve Direction From Source."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-157-needstranslatereminder-non-blocking-reminder-task-36-clears-reminder-flag-without-showing-source-lang-menu-task-58",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-170-needstranslatereminder-non-blocking-reminder-task-36-clears-reminder-flag-without-showing-source-lang-menu-task-58",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 157,
+      "sourceLine": 170,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5871,10 +6047,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior so clears reminder flag without showing source lang menu (Task 58)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-180-needstranslatereminder-non-blocking-reminder-task-36-does-not-show-reminder-when-flag-is-false",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-193-needstranslatereminder-non-blocking-reminder-task-36-does-not-show-reminder-when-flag-is-false",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 180,
+      "sourceLine": 193,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5887,10 +6063,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior: does NOT show reminder when flag is false."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-195-needstranslatereminder-non-blocking-reminder-task-36-does-not-show-reminder-when-flag-is-true-but-nextsourcelang-is-null",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-208-needstranslatereminder-non-blocking-reminder-task-36-does-not-show-reminder-when-flag-is-true-but-nextsourcelang-is-null",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 195,
+      "sourceLine": 208,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5903,10 +6079,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior: does NOT show reminder when flag is true but next Source Lang is null."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-207-needstranslatereminder-non-blocking-reminder-task-36-consecutive-translations-don-t-show-reminder-flag-cleared-after-first",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-220-needstranslatereminder-non-blocking-reminder-task-36-consecutive-translations-don-t-show-reminder-flag-cleared-after-first",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 207,
+      "sourceLine": 220,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5919,10 +6095,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior so consecutive translations don't show reminder (flag cleared after first)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-227-needstranslatereminder-non-blocking-reminder-task-36-reminder-hydration-fresh-session-hydrates-from-db-no-reminder-menu-per-task-58",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-240-needstranslatereminder-non-blocking-reminder-task-36-reminder-hydration-fresh-session-hydrates-from-db-no-reminder-menu-per-task-58",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 240,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5935,10 +6111,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior so reminder + hydration: fresh session hydrates from DB (no reminder menu per Task 58)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-253-needstranslatereminder-non-blocking-reminder-task-36-2-language-user-no-source-lang-keyboard-in-reminder-only-hint-text",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-266-needstranslatereminder-non-blocking-reminder-task-36-2-language-user-no-source-lang-keyboard-in-reminder-only-hint-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 253,
+      "sourceLine": 266,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5951,10 +6127,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior so 2 language user: no source lang keyboard in reminder (only hint text)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-144-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-cs",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-145-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-cs",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 144,
+      "sourceLine": 145,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5967,10 +6143,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: uses explicit source when next Source Lang='cs'."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-154-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-ru-native-lang",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-155-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-ru-native-lang",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 154,
+      "sourceLine": 155,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5983,10 +6159,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: uses explicit source when next Source Lang='ru' (native lang)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-162-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-en",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-163-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-en",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 162,
+      "sourceLine": 163,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5999,10 +6175,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: uses explicit source when next Source Lang='en'."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-170-handletranslatetext-nextsourcelang-integration-falls-back-to-auto-detect-when-nextsourcelang-is-null",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-171-handletranslatetext-nextsourcelang-integration-falls-back-to-auto-detect-when-nextsourcelang-is-null",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 171,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6015,10 +6191,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: falls back to auto detect when next Source Lang is null."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-180-handletranslatetext-nextsourcelang-integration-clears-nextsourcelang-when-source-is-invalid-and-shows-mistype-warning",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-181-handletranslatetext-nextsourcelang-integration-clears-nextsourcelang-when-source-is-invalid-and-shows-mistype-warning",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 180,
+      "sourceLine": 181,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6031,10 +6207,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior so clears next Source Lang when source is invalid and shows mistype warning."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-193-handletranslatetext-nextsourcelang-integration-logs-detectedlang-in-debug-output-when-language-is-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-194-handletranslatetext-nextsourcelang-integration-logs-detectedlang-in-debug-output-when-language-is-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 193,
+      "sourceLine": 194,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6047,10 +6223,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: logs detected Lang in debug output when language is detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-210-handlesavecallback-feat-30-save-flow-edits-card-in-place-with-savedtodict-text-and-post-save-keyboard",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-211-handlesavecallback-feat-30-save-flow-edits-card-in-place-with-savedtodict-text-and-post-save-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 210,
+      "sourceLine": 211,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6063,10 +6239,10 @@
       "description": "Protects the bot handle Save Callback — FEAT 30 save flow behavior so edits card in place with saved To Dict text and post save keyboard."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-238-handlesavecallback-feat-30-save-flow-sets-savedwordid-in-translation-entry-after-save",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-239-handlesavecallback-feat-30-save-flow-sets-savedwordid-in-translation-entry-after-save",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 238,
+      "sourceLine": 239,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6079,10 +6255,10 @@
       "description": "Protects the bot handle Save Callback — FEAT 30 save flow behavior so sets saved Word Id in translation entry after save."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-272-handleskipcallback-source-lang-menu-answers-callback-query-on-skip-without-editing-message",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-273-handleskipcallback-source-lang-menu-answers-callback-query-on-skip-without-editing-message",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 272,
+      "sourceLine": 273,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6095,10 +6271,10 @@
       "description": "Protects the bot handle Skip Callback — source lang menu behavior so answers callback query on skip without editing message."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-295-handleskipcallback-source-lang-menu-answers-callback-query-without-editing-message-or-keyboard",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-296-handleskipcallback-source-lang-menu-answers-callback-query-without-editing-message-or-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 295,
+      "sourceLine": 296,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6111,10 +6287,10 @@
       "description": "Protects the bot handle Skip Callback — source lang menu behavior so answers callback query without editing message or keyboard."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-318-handleskipcallback-source-lang-menu-answers-callback-query-after-skip",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-319-handleskipcallback-source-lang-menu-answers-callback-query-after-skip",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 318,
+      "sourceLine": 319,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6511,10 +6687,10 @@
       "description": "Protects the bot handle Regen Loop behavior so passes input Type to vocabulary Repository create."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-195-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-212-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 195,
+      "sourceLine": 212,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6527,10 +6703,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: calls translate With Context with correct input and deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-216-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-233-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 216,
+      "sourceLine": 233,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6543,10 +6719,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: logs one credit after successful incoming translation request."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-230-handletranslatetext-context-enrichment-does-not-call-ai-when-daily-credits-are-exhausted",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-247-handletranslatetext-context-enrichment-does-not-call-ai-when-daily-credits-are-exhausted",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 230,
+      "sourceLine": 247,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6559,10 +6735,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not call AI when daily credits are exhausted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-240-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-257-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 257,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6575,10 +6751,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes learner friendly default output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-257-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-274-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 257,
+      "sourceLine": 274,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6591,10 +6767,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes lookup Context from create Context Lookup to deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-265-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-282-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 265,
+      "sourceLine": 282,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6607,10 +6783,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not include dictionary Context in input (layer fills it)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-273-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-290-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 273,
+      "sourceLine": 290,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6623,10 +6799,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: includes user Id in translate With Context input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-285-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-302-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 302,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6639,10 +6815,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes clean text and context hint to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-298-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-315-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 298,
+      "sourceLine": 315,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6655,10 +6831,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: records the routed translation model in request timing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-334-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-351-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 334,
+      "sourceLine": 351,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6671,10 +6847,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes free form context description to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-347-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-364-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 347,
+      "sourceLine": 364,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6687,10 +6863,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not request a native language translation block for native source text."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-368-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-385-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 368,
+      "sourceLine": 385,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6703,10 +6879,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: stores context hint in translation Map for regeneration."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-375-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-392-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 375,
+      "sourceLine": 392,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6719,10 +6895,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: rejects marker only input before calling AI."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-383-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-400-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 383,
+      "sourceLine": 400,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6735,10 +6911,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback is a stub that just answers the callback query."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-416-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-433-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 416,
+      "sourceLine": 433,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6751,10 +6927,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback does not call AI even when credits are available."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-449-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-466-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 449,
+      "sourceLine": 466,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6767,10 +6943,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: shows clarification UI instead of generic translation error."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-484-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-501-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 484,
+      "sourceLine": 501,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6783,10 +6959,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not add source language buttons to meaning clarification."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-507-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-524-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 507,
+      "sourceLine": 524,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6799,10 +6975,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses only core source language options when source language ambiguity is returned."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-540-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-557-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 540,
+      "sourceLine": 557,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6815,10 +6991,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so sets awaiting state when clarification context is requested."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-560-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-577-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 560,
+      "sourceLine": 577,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6831,10 +7007,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the next text message as clarification context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-587-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-604-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 587,
+      "sourceLine": 604,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6847,10 +7023,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with the selected source language and user language targets."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-613-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-630-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 613,
+      "sourceLine": 630,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6863,10 +7039,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with a source language option from core preflight."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-648-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-665-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 648,
+      "sourceLine": 665,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6879,10 +7055,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with corrected text when a typo option is selected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-689-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-706-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 689,
+      "sourceLine": 706,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6895,10 +7071,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the corrected text language when a typo option includes lang Code."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-725-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-742-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 725,
+      "sourceLine": 742,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6911,10 +7087,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses ambiguity option as context hint when no structured pipeline field exists."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-754-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-771-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 754,
+      "sourceLine": 771,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6927,10 +7103,122 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so clears pending clarification on a stale cancel callback."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-778-isetymologyeligible-is-eligible-for-a-learning-language-word",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-805-handletranslatetext-out-of-set-language-detection-replies-languagenotselected-and-skips-translation-when-async-detection-is-out-of-set",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 778,
+      "sourceLine": 805,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — out-of-set language detection"
+      ],
+      "title": "replies languageNotSelected and skips translation when async detection is out-of-set",
+      "rawTitle": "replies languageNotSelected and skips translation when async detection is out-of-set",
+      "name": "Bot handle Translate Text — out of set language detection replies language Not Selected and skips translation when async detection is out of set",
+      "value": "Protects the bot handle Translate Text — out of set language detection behavior so replies language Not Selected and skips translation when async detection is out of set.",
+      "description": "Protects the bot handle Translate Text — out of set language detection behavior so replies language Not Selected and skips translation when async detection is out of set."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-824-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 824,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — out-of-set language detection"
+      ],
+      "title": "re-verifies a confident heuristic-only diacritic detection via the async path",
+      "rawTitle": "re-verifies a confident heuristic-only diacritic detection via the async path",
+      "name": "Bot handle Translate Text — out of set language detection re verifies a confident heuristic only diacritic detection via the async path",
+      "value": "Protects the bot handle Translate Text — out of set language detection behavior so re verifies a confident heuristic only diacritic detection via the async path.",
+      "description": "Protects the bot handle Translate Text — out of set language detection behavior so re verifies a confident heuristic only diacritic detection via the async path."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-850-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 850,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — out-of-set language detection"
+      ],
+      "title": "does not re-verify confident ASCII detections",
+      "rawTitle": "does not re-verify confident ASCII detections",
+      "name": "Bot handle Translate Text — out of set language detection does not re verify confident ASCII detections",
+      "value": "Protects the bot handle Translate Text — out of set language detection behavior: does not re verify confident ASCII detections.",
+      "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not re verify confident ASCII detections."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-858-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 858,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — out-of-set language detection"
+      ],
+      "title": "records a 'detected' telemetry event for confident detections",
+      "rawTitle": "records a 'detected' telemetry event for confident detections",
+      "name": "Bot handle Translate Text — out of set language detection records a 'detected' telemetry event for confident detections",
+      "value": "Protects the bot handle Translate Text — out of set language detection behavior: records a 'detected' telemetry event for confident detections.",
+      "description": "Protects the bot handle Translate Text — out of set language detection behavior: records a 'detected' telemetry event for confident detections."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-885-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 885,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "input typo correction (Task 69)"
+      ],
+      "title": "annotates the card with a ✏️ Fixed line when the input was auto-corrected",
+      "rawTitle": "annotates the card with a ✏️ Fixed line when the input was auto-corrected",
+      "name": "Bot input typo correction (Task 69) annotates the card with a ✏️ Fixed line when the input was auto corrected",
+      "value": "Protects the bot input typo correction (Task 69) behavior so annotates the card with a ✏️ Fixed line when the input was auto corrected.",
+      "description": "Protects the bot input typo correction (Task 69) behavior so annotates the card with a ✏️ Fixed line when the input was auto corrected."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-915-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 915,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "input typo correction (Task 69)"
+      ],
+      "title": "renders language choices as flag + code buttons with a hint, not language names",
+      "rawTitle": "renders language choices as flag + code buttons with a hint, not language names",
+      "name": "Bot input typo correction (Task 69) renders language choices as flag + code buttons with a hint, not language names",
+      "value": "Protects the bot input typo correction (Task 69) behavior: renders language choices as flag + code buttons with a hint, not language names.",
+      "description": "Protects the bot input typo correction (Task 69) behavior: renders language choices as flag + code buttons with a hint, not language names."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-947-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 947,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "input typo correction (Task 69)"
+      ],
+      "title": "re-runs verbatim with skipInputCorrection when the user picks 'translate as written'",
+      "rawTitle": "re-runs verbatim with skipInputCorrection when the user picks 'translate as written'",
+      "name": "Bot input typo correction (Task 69) re runs verbatim with skip Input Correction when the user picks 'translate as written'",
+      "value": "Protects the bot input typo correction (Task 69) behavior so re runs verbatim with skip Input Correction when the user picks 'translate as written'.",
+      "description": "Protects the bot input typo correction (Task 69) behavior so re runs verbatim with skip Input Correction when the user picks 'translate as written'."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-977-isetymologyeligible-is-eligible-for-a-learning-language-word",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 977,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6943,10 +7231,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-782-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-981-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 782,
+      "sourceLine": 981,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6959,10 +7247,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-786-isetymologyeligible-is-not-eligible-for-sentences",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-985-isetymologyeligible-is-not-eligible-for-sentences",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 786,
+      "sourceLine": 985,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6975,10 +7263,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible for sentences."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-790-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-989-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 790,
+      "sourceLine": 989,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6989,6 +7277,38 @@
       "name": "Bot is Etymology Eligible is NOT eligible when the source term is in the native language",
       "value": "Protects the bot is Etymology Eligible behavior so is NOT eligible when the source term is in the native language.",
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible when the source term is in the native language."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1027-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 1027,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleEtymologyCallback — loading feedback on the card"
+      ],
+      "title": "keeps a loading button on the card and answers the tap only when the section is rendered",
+      "rawTitle": "keeps a loading button on the card and answers the tap only when the section is rendered",
+      "name": "Bot handle Etymology Callback — loading feedback on the card keeps a loading button on the card and answers the tap only when the section is rendered",
+      "value": "Protects the bot handle Etymology Callback — loading feedback on the card behavior: keeps a loading button on the card and answers the tap only when the section is rendered.",
+      "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior: keeps a loading button on the card and answers the tap only when the section is rendered."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1040-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 1040,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleEtymologyCallback — loading feedback on the card"
+      ],
+      "title": "restores the card and alerts the user when generation takes too long",
+      "rawTitle": "restores the card and alerts the user when generation takes too long",
+      "name": "Bot handle Etymology Callback — loading feedback on the card restores the card and alerts the user when generation takes too long",
+      "value": "Protects the bot handle Etymology Callback — loading feedback on the card behavior so restores the card and alerts the user when generation takes too long.",
+      "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior so restores the card and alerts the user when generation takes too long."
     },
     {
       "id": "apps-bot-src-scenes-mentor-scene-test-ts-47-handlementorcommand-sets-session-activemode-to-mentor",
@@ -7135,10 +7455,10 @@
       "description": "Protects the bot handle Translate Command behavior so clears needs Translate Reminder after translate."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-66-isvalidsessiondata-accepts-current-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-73-isvalidsessiondata-accepts-current-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 66,
+      "sourceLine": 73,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7151,10 +7471,10 @@
       "description": "Protects the bot is Valid Session Data behavior: accepts current session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-70-isvalidsessiondata-rejects-corrupt-session-payloads",
+      "id": "apps-bot-src-session-storage-test-ts-77-isvalidsessiondata-rejects-corrupt-session-payloads",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 70,
+      "sourceLine": 77,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7167,10 +7487,10 @@
       "description": "Protects the bot is Valid Session Data behavior: rejects corrupt session payloads."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-78-createpostgressessionstorage-reads-valid-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-85-createpostgressessionstorage-reads-valid-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 78,
+      "sourceLine": 85,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7183,10 +7503,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior so reads valid session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-85-createpostgressessionstorage-returns-undefined-and-deletes-corrupt-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-92-createpostgressessionstorage-returns-undefined-and-deletes-corrupt-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 85,
+      "sourceLine": 92,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7199,10 +7519,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior: returns undefined and deletes corrupt session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-93-createpostgressessionstorage-upserts-session-data-on-write",
+      "id": "apps-bot-src-session-storage-test-ts-100-createpostgressessionstorage-upserts-session-data-on-write",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 100,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7215,10 +7535,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior so upserts session data on write."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-101-createpostgressessionstorage-deletes-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-108-createpostgressessionstorage-deletes-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 101,
+      "sourceLine": 108,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7229,6 +7549,22 @@
       "name": "Bot create Postgres Session Storage deletes session data",
       "value": "Protects the bot create Postgres Session Storage behavior so deletes session data.",
       "description": "Protects the bot create Postgres Session Storage behavior so deletes session data."
+    },
+    {
+      "id": "apps-bot-src-session-storage-test-ts-114-createpostgressessionstorage-records-the-latency-of-every-storage-round-trip-so-db-slowness-is-visible-in-prometheus",
+      "kind": "technical",
+      "filePath": "apps/bot/src/session-storage.test.ts",
+      "sourceLine": 114,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "createPostgresSessionStorage"
+      ],
+      "title": "records the latency of every storage round-trip so DB slowness is visible in Prometheus",
+      "rawTitle": "records the latency of every storage round-trip so DB slowness is visible in Prometheus",
+      "name": "Bot create Postgres Session Storage records the latency of every storage round trip so DB slowness is visible in Prometheus",
+      "value": "Protects the bot create Postgres Session Storage behavior: records the latency of every storage round trip so DB slowness is visible in Prometheus.",
+      "description": "Protects the bot create Postgres Session Storage behavior: records the latency of every storage round trip so DB slowness is visible in Prometheus."
     },
     {
       "id": "apps-bot-src-utils-classify-input-test-ts-5-classifyinput-classifies-a-single-word-as-word",
@@ -7517,6 +7853,70 @@
       "name": "Bot classify Input trims leading trailing whitespace before classification",
       "value": "Protects the bot classify Input behavior so trims leading trailing whitespace before classification.",
       "description": "Protects the bot classify Input behavior so trims leading trailing whitespace before classification."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-14-withtimeout-returns-the-result-when-the-work-finishes-in-time",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 14,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "withTimeout"
+      ],
+      "title": "returns the result when the work finishes in time",
+      "rawTitle": "returns the result when the work finishes in time",
+      "name": "Bot with Timeout returns the result when the work finishes in time",
+      "value": "Protects the bot with Timeout behavior: returns the result when the work finishes in time.",
+      "description": "Protects the bot with Timeout behavior: returns the result when the work finishes in time."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-18-withtimeout-rejects-with-operationtimeouterror-when-the-work-exceeds-the-limit",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 18,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "withTimeout"
+      ],
+      "title": "rejects with OperationTimeoutError when the work exceeds the limit",
+      "rawTitle": "rejects with OperationTimeoutError when the work exceeds the limit",
+      "name": "Bot with Timeout rejects with Operation Timeout Error when the work exceeds the limit",
+      "value": "Protects the bot with Timeout behavior: rejects with Operation Timeout Error when the work exceeds the limit.",
+      "description": "Protects the bot with Timeout behavior: rejects with Operation Timeout Error when the work exceeds the limit."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-31-withtimeout-propagates-the-work-s-own-failure-unchanged",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 31,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "withTimeout"
+      ],
+      "title": "propagates the work's own failure unchanged",
+      "rawTitle": "propagates the work's own failure unchanged",
+      "name": "Bot with Timeout propagates the work's own failure unchanged",
+      "value": "Protects the bot with Timeout behavior so propagates the work's own failure unchanged.",
+      "description": "Protects the bot with Timeout behavior so propagates the work's own failure unchanged."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-37-sendtypingindicator-never-fails-the-flow-when-telegram-rejects-the-chat-action",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 37,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendTypingIndicator"
+      ],
+      "title": "never fails the flow when Telegram rejects the chat action",
+      "rawTitle": "never fails the flow when Telegram rejects the chat action",
+      "name": "Bot send Typing Indicator never fails the flow when Telegram rejects the chat action",
+      "value": "Protects the bot send Typing Indicator behavior so never fails the flow when Telegram rejects the chat action.",
+      "description": "Protects the bot send Typing Indicator behavior so never fails the flow when Telegram rejects the chat action."
     },
     {
       "id": "apps-bot-src-utils-parse-translate-input-test-ts-14-parsetranslateinput-parses-free-form-multi-word-context-after-a-separator",
@@ -13292,6 +13692,102 @@
       "name": "Database adapter word Context Repository find By Id returns null when not found",
       "value": "Protects the database adapter word Context Repository find By Id behavior: returns null when not found.",
       "description": "Protects the database adapter word Context Repository find By Id behavior: returns null when not found."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-word-language-sweep-test-ts-30-createwordlanguagesweep-returns-a-function",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/word-language-sweep.test.ts",
+      "sourceLine": 30,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "createWordLanguageSweep"
+      ],
+      "title": "returns a function",
+      "rawTitle": "returns a function",
+      "name": "Database adapter create Word Language Sweep returns a function",
+      "value": "Protects the database adapter create Word Language Sweep behavior: returns a function.",
+      "description": "Protects the database adapter create Word Language Sweep behavior: returns a function."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-word-language-sweep-test-ts-34-createwordlanguagesweep-normalizes-unicode-and-case-before-the-query",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/word-language-sweep.test.ts",
+      "sourceLine": 34,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "createWordLanguageSweep"
+      ],
+      "title": "normalizes Unicode and case before the query",
+      "rawTitle": "normalizes Unicode and case before the query",
+      "name": "Database adapter create Word Language Sweep normalizes Unicode and case before the query",
+      "value": "Protects the database adapter create Word Language Sweep behavior: normalizes Unicode and case before the query.",
+      "description": "Protects the database adapter create Word Language Sweep behavior: normalizes Unicode and case before the query."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-word-language-sweep-test-ts-43-createwordlanguagesweep-returns-language-codes-in-repository-order",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/word-language-sweep.test.ts",
+      "sourceLine": 43,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "createWordLanguageSweep"
+      ],
+      "title": "returns language codes in repository order",
+      "rawTitle": "returns language codes in repository order",
+      "name": "Database adapter create Word Language Sweep returns language codes in repository order",
+      "value": "Protects the database adapter create Word Language Sweep behavior: returns language codes in repository order.",
+      "description": "Protects the database adapter create Word Language Sweep behavior: returns language codes in repository order."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-word-language-sweep-test-ts-53-createwordlanguagesweep-short-circuits-multi-word-input-without-querying",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/word-language-sweep.test.ts",
+      "sourceLine": 53,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "createWordLanguageSweep"
+      ],
+      "title": "short-circuits multi-word input without querying",
+      "rawTitle": "short-circuits multi-word input without querying",
+      "name": "Database adapter create Word Language Sweep short circuits multi word input without querying",
+      "value": "Protects the database adapter create Word Language Sweep behavior so short circuits multi word input without querying.",
+      "description": "Protects the database adapter create Word Language Sweep behavior so short circuits multi word input without querying."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-word-language-sweep-test-ts-60-createwordlanguagesweep-short-circuits-empty-input-without-querying",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/word-language-sweep.test.ts",
+      "sourceLine": 60,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "createWordLanguageSweep"
+      ],
+      "title": "short-circuits empty input without querying",
+      "rawTitle": "short-circuits empty input without querying",
+      "name": "Database adapter create Word Language Sweep short circuits empty input without querying",
+      "value": "Protects the database adapter create Word Language Sweep behavior so short circuits empty input without querying.",
+      "description": "Protects the database adapter create Word Language Sweep behavior so short circuits empty input without querying."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-word-language-sweep-test-ts-67-createwordlanguagesweep-returns-when-the-repository-throws-fail-open",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/word-language-sweep.test.ts",
+      "sourceLine": 67,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "createWordLanguageSweep"
+      ],
+      "title": "returns [] when the repository throws (fail-open)",
+      "rawTitle": "returns [] when the repository throws (fail-open)",
+      "name": "Database adapter create Word Language Sweep returns [] when the repository throws (fail open)",
+      "value": "Protects the database adapter create Word Language Sweep behavior: returns [] when the repository throws (fail open).",
+      "description": "Protects the database adapter create Word Language Sweep behavior: returns [] when the repository throws (fail open)."
     },
     {
       "id": "packages-adapters-db-src-tests-word-review-repository-test-ts-79-wordreviewrepository-logreview-inserts-a-row-into-word-review-log",
@@ -19391,6 +19887,166 @@
       "description": "Protects the core domain classify Input — backward compatibility behavior: classifies 2 word exclamation as \"word\" (despite punctuation)."
     },
     {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-5-getalphabet-returns-undefined-for-unknown-languages",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 5,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "getAlphabet"
+      ],
+      "title": "returns undefined for unknown languages",
+      "rawTitle": "returns undefined for unknown languages",
+      "name": "Core domain get Alphabet returns undefined for unknown languages",
+      "value": "Protects the core domain get Alphabet behavior: returns undefined for unknown languages.",
+      "description": "Protects the core domain get Alphabet behavior: returns undefined for unknown languages."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-9-getalphabet-contains-language-specific-letters",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 9,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "getAlphabet"
+      ],
+      "title": "contains language-specific letters",
+      "rawTitle": "contains language-specific letters",
+      "name": "Core domain get Alphabet contains language specific letters",
+      "value": "Protects the core domain get Alphabet behavior so contains language specific letters.",
+      "description": "Protects the core domain get Alphabet behavior so contains language specific letters."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-18-findlettersoutsidealphabet-reports-as-outside-the-english-alphabet",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 18,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "findLettersOutsideAlphabet"
+      ],
+      "title": "reports á as outside the English alphabet",
+      "rawTitle": "reports á as outside the English alphabet",
+      "name": "Core domain find Letters Outside Alphabet reports á as outside the English alphabet",
+      "value": "Protects the core domain find Letters Outside Alphabet behavior: reports á as outside the English alphabet.",
+      "description": "Protects the core domain find Letters Outside Alphabet behavior: reports á as outside the English alphabet."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-22-findlettersoutsidealphabet-is-case-insensitive",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 22,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "findLettersOutsideAlphabet"
+      ],
+      "title": "is case-insensitive",
+      "rawTitle": "is case-insensitive",
+      "name": "Core domain find Letters Outside Alphabet is case insensitive",
+      "value": "Protects the core domain find Letters Outside Alphabet behavior so is case insensitive.",
+      "description": "Protects the core domain find Letters Outside Alphabet behavior so is case insensitive."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-26-findlettersoutsidealphabet-accepts-inside-czech-spanish-and-portuguese-alphabets",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 26,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "findLettersOutsideAlphabet"
+      ],
+      "title": "accepts á inside Czech, Spanish and Portuguese alphabets",
+      "rawTitle": "accepts á inside Czech, Spanish and Portuguese alphabets",
+      "name": "Core domain find Letters Outside Alphabet accepts á inside Czech, Spanish and Portuguese alphabets",
+      "value": "Protects the core domain find Letters Outside Alphabet behavior: accepts á inside Czech, Spanish and Portuguese alphabets.",
+      "description": "Protects the core domain find Letters Outside Alphabet behavior: accepts á inside Czech, Spanish and Portuguese alphabets."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-32-findlettersoutsidealphabet-ignores-digits-apostrophes-hyphens-and-punctuation",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 32,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "findLettersOutsideAlphabet"
+      ],
+      "title": "ignores digits, apostrophes, hyphens and punctuation",
+      "rawTitle": "ignores digits, apostrophes, hyphens and punctuation",
+      "name": "Core domain find Letters Outside Alphabet ignores digits, apostrophes, hyphens and punctuation",
+      "value": "Protects the core domain find Letters Outside Alphabet behavior: ignores digits, apostrophes, hyphens and punctuation.",
+      "description": "Protects the core domain find Letters Outside Alphabet behavior: ignores digits, apostrophes, hyphens and punctuation."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-36-findlettersoutsidealphabet-reports-ukrainian-only-letters-as-outside-russian",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 36,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "findLettersOutsideAlphabet"
+      ],
+      "title": "reports Ukrainian-only letters as outside Russian",
+      "rawTitle": "reports Ukrainian-only letters as outside Russian",
+      "name": "Core domain find Letters Outside Alphabet reports Ukrainian only letters as outside Russian",
+      "value": "Protects the core domain find Letters Outside Alphabet behavior: reports Ukrainian only letters as outside Russian.",
+      "description": "Protects the core domain find Letters Outside Alphabet behavior: reports Ukrainian only letters as outside Russian."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-40-findlettersoutsidealphabet-accepts-russian-letters-inside-the-kazakh-superset-alphabet",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 40,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "findLettersOutsideAlphabet"
+      ],
+      "title": "accepts Russian letters inside the Kazakh superset alphabet",
+      "rawTitle": "accepts Russian letters inside the Kazakh superset alphabet",
+      "name": "Core domain find Letters Outside Alphabet accepts Russian letters inside the Kazakh superset alphabet",
+      "value": "Protects the core domain find Letters Outside Alphabet behavior: accepts Russian letters inside the Kazakh superset alphabet.",
+      "description": "Protects the core domain find Letters Outside Alphabet behavior: accepts Russian letters inside the Kazakh superset alphabet."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-44-findlettersoutsidealphabet-returns-empty-for-unknown-languages-no-negative-evidence",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 44,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "findLettersOutsideAlphabet"
+      ],
+      "title": "returns empty for unknown languages (no negative evidence)",
+      "rawTitle": "returns empty for unknown languages (no negative evidence)",
+      "name": "Core domain find Letters Outside Alphabet returns empty for unknown languages (no negative evidence)",
+      "value": "Protects the core domain find Letters Outside Alphabet behavior: returns empty for unknown languages (no negative evidence).",
+      "description": "Protects the core domain find Letters Outside Alphabet behavior: returns empty for unknown languages (no negative evidence)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-alphabets-test-ts-48-findlettersoutsidealphabet-normalizes-nfd-input-to-nfc-before-checking",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/alphabets.test.ts",
+      "sourceLine": 48,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "findLettersOutsideAlphabet"
+      ],
+      "title": "normalizes NFD input to NFC before checking",
+      "rawTitle": "normalizes NFD input to NFC before checking",
+      "name": "Core domain find Letters Outside Alphabet normalizes NFD input to NFC before checking",
+      "value": "Protects the core domain find Letters Outside Alphabet behavior: normalizes NFD input to NFC before checking.",
+      "description": "Protects the core domain find Letters Outside Alphabet behavior: normalizes NFD input to NFC before checking."
+    },
+    {
       "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-7-detectlanguagewithconfidence-returns-zero-confidence-result-for-empty-text",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
@@ -19535,7 +20191,7 @@
       "description": "Protects the core domain detect Language With Confidence behavior: returns ambiguous for hr sr shared word 'dobar' (no distinguishing diacritics)."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-72-detectlanguagewithconfidence-returns-ambiguous-for-ru-uk-shared-cyrillic-word",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-72-detectlanguagewithconfidence-detects-ukrainian-from-which-is-not-a-russian-letter",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
       "sourceLine": 72,
@@ -19544,17 +20200,129 @@
       "suitePath": [
         "detectLanguageWithConfidence"
       ],
-      "title": "returns ambiguous for ru/uk shared Cyrillic word",
-      "rawTitle": "returns ambiguous for ru/uk shared Cyrillic word",
-      "name": "Core domain detect Language With Confidence returns ambiguous for ru uk shared Cyrillic word",
-      "value": "Protects the core domain detect Language With Confidence behavior: returns ambiguous for ru uk shared Cyrillic word.",
-      "description": "Protects the core domain detect Language With Confidence behavior: returns ambiguous for ru uk shared Cyrillic word."
+      "title": "detects Ukrainian from і which is not a Russian letter",
+      "rawTitle": "detects Ukrainian from і which is not a Russian letter",
+      "name": "Core domain detect Language With Confidence detects Ukrainian from і which is not a Russian letter",
+      "value": "Protects the core domain detect Language With Confidence behavior: detects Ukrainian from і which is not a Russian letter.",
+      "description": "Protects the core domain detect Language With Confidence behavior: detects Ukrainian from і which is not a Russian letter."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-82-detectlanguagewithconfidence-detects-hungarian-from-diacritic",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-78-detectlanguagewithconfidence-returns-ambiguous-for-ru-uk-word-valid-in-both-alphabets",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 82,
+      "sourceLine": 78,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence"
+      ],
+      "title": "returns ambiguous for ru/uk word valid in both alphabets",
+      "rawTitle": "returns ambiguous for ru/uk word valid in both alphabets",
+      "name": "Core domain detect Language With Confidence returns ambiguous for ru uk word valid in both alphabets",
+      "value": "Protects the core domain detect Language With Confidence behavior: returns ambiguous for ru uk word valid in both alphabets.",
+      "description": "Protects the core domain detect Language With Confidence behavior: returns ambiguous for ru uk word valid in both alphabets."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-88-detectlanguagewithconfidence-does-not-claim-english-for-a-latin-word-with-a-diacritic-outside-the-english-alphabet",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 88,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence"
+      ],
+      "title": "does not claim English for a Latin word with a diacritic outside the English alphabet",
+      "rawTitle": "does not claim English for a Latin word with a diacritic outside the English alphabet",
+      "name": "Core domain detect Language With Confidence does not claim English for a Latin word with a diacritic outside the English alphabet",
+      "value": "Protects the core domain detect Language With Confidence behavior: does not claim English for a Latin word with a diacritic outside the English alphabet.",
+      "description": "Protects the core domain detect Language With Confidence behavior: does not claim English for a Latin word with a diacritic outside the English alphabet."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-93-detectlanguagewithconfidence-alphabet-exclusion-is-case-insensitive",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 93,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence"
+      ],
+      "title": "alphabet exclusion is case-insensitive",
+      "rawTitle": "alphabet exclusion is case-insensitive",
+      "name": "Core domain detect Language With Confidence alphabet exclusion is case insensitive",
+      "value": "Protects the core domain detect Language With Confidence behavior so alphabet exclusion is case insensitive.",
+      "description": "Protects the core domain detect Language With Confidence behavior so alphabet exclusion is case insensitive."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-98-detectlanguagewithconfidence-keeps-the-fast-path-for-plain-ascii-with-a-sole-latin-candidate",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 98,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence"
+      ],
+      "title": "keeps the fast path for plain ASCII with a sole Latin candidate",
+      "rawTitle": "keeps the fast path for plain ASCII with a sole Latin candidate",
+      "name": "Core domain detect Language With Confidence keeps the fast path for plain ASCII with a sole Latin candidate",
+      "value": "Protects the core domain detect Language With Confidence behavior: keeps the fast path for plain ASCII with a sole Latin candidate.",
+      "description": "Protects the core domain detect Language With Confidence behavior: keeps the fast path for plain ASCII with a sole Latin candidate."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-104-detectlanguagewithconfidence-ignores-apostrophes-when-checking-the-alphabet",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 104,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence"
+      ],
+      "title": "ignores apostrophes when checking the alphabet",
+      "rawTitle": "ignores apostrophes when checking the alphabet",
+      "name": "Core domain detect Language With Confidence ignores apostrophes when checking the alphabet",
+      "value": "Protects the core domain detect Language With Confidence behavior: ignores apostrophes when checking the alphabet.",
+      "description": "Protects the core domain detect Language With Confidence behavior: ignores apostrophes when checking the alphabet."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-110-detectlanguagewithconfidence-narrows-shared-script-candidates-via-alphabet-exclusion-gr-e-de",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 110,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence"
+      ],
+      "title": "narrows shared-script candidates via alphabet exclusion (Größe → de)",
+      "rawTitle": "narrows shared-script candidates via alphabet exclusion (Größe → de)",
+      "name": "Core domain detect Language With Confidence narrows shared script candidates via alphabet exclusion (Größe → de)",
+      "value": "Protects the core domain detect Language With Confidence behavior so narrows shared script candidates via alphabet exclusion (Größe → de).",
+      "description": "Protects the core domain detect Language With Confidence behavior so narrows shared script candidates via alphabet exclusion (Größe → de)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-116-detectlanguagewithconfidence-keeps-all-candidates-when-exclusion-would-eliminate-every-one-safety-valve",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 116,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence"
+      ],
+      "title": "keeps all candidates when exclusion would eliminate every one (safety valve)",
+      "rawTitle": "keeps all candidates when exclusion would eliminate every one (safety valve)",
+      "name": "Core domain detect Language With Confidence keeps all candidates when exclusion would eliminate every one (safety valve)",
+      "value": "Protects the core domain detect Language With Confidence behavior: keeps all candidates when exclusion would eliminate every one (safety valve).",
+      "description": "Protects the core domain detect Language With Confidence behavior: keeps all candidates when exclusion would eliminate every one (safety valve)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-124-detectlanguagewithconfidence-detects-hungarian-from-diacritic",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 124,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19567,10 +20335,10 @@
       "description": "Protects the core domain detect Language With Confidence behavior: detects Hungarian from ű diacritic."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-88-detectlanguagewithconfidence-detects-polish-from-diacritic",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-130-detectlanguagewithconfidence-detects-polish-from-diacritic",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 88,
+      "sourceLine": 130,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19583,10 +20351,10 @@
       "description": "Protects the core domain detect Language With Confidence behavior: detects Polish from ł diacritic."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-94-detectlanguagewithconfidence-detects-german-from-diacritic",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-136-detectlanguagewithconfidence-detects-german-from-diacritic",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 94,
+      "sourceLine": 136,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19599,10 +20367,10 @@
       "description": "Protects the core domain detect Language With Confidence behavior: detects German from ü diacritic."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-102-detectlanguagewithconfidence-detects-english-from-longer-latin-text-via-franc",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-144-detectlanguagewithconfidence-detects-english-from-longer-latin-text-via-franc",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 102,
+      "sourceLine": 144,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19615,10 +20383,10 @@
       "description": "Protects the core domain detect Language With Confidence behavior: detects English from longer Latin text via franc."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-108-detectlanguagewithconfidence-detects-czech-from-longer-czech-text-with-diacritics",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-150-detectlanguagewithconfidence-detects-czech-from-longer-czech-text-with-diacritics",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 150,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19631,10 +20399,10 @@
       "description": "Protects the core domain detect Language With Confidence behavior: detects Czech from longer Czech text with diacritics."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-116-detectlanguagewithconfidence-returns-ambiguous-for-latin-word-with-multiple-latin-candidates-and-no-diacritics",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-158-detectlanguagewithconfidence-returns-ambiguous-for-latin-word-with-multiple-latin-candidates-and-no-diacritics",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 116,
+      "sourceLine": 158,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19647,10 +20415,10 @@
       "description": "Protects the core domain detect Language With Confidence behavior: returns ambiguous for Latin word with multiple Latin candidates and no diacritics."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-122-detectlanguagewithconfidence-returns-ambiguous-for-fast-en-de-homograph",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-164-detectlanguagewithconfidence-returns-ambiguous-for-fast-en-de-homograph",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 122,
+      "sourceLine": 164,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19663,10 +20431,10 @@
       "description": "Protects the core domain detect Language With Confidence behavior: returns ambiguous for fast (en de homograph)."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-130-detectlanguagewithconfidence-includes-evidence-entries-from-contributing-strategies",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-172-detectlanguagewithconfidence-includes-evidence-entries-from-contributing-strategies",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 130,
+      "sourceLine": 172,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19679,10 +20447,10 @@
       "description": "Protects the core domain detect Language With Confidence behavior: includes evidence entries from contributing strategies."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-138-detectlanguagewithconfidence-includes-script-evidence-for-shared-script-candidates",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-180-detectlanguagewithconfidence-includes-script-evidence-for-shared-script-candidates",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 138,
+      "sourceLine": 180,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19695,10 +20463,10 @@
       "description": "Protects the core domain detect Language With Confidence behavior: includes script evidence for shared script candidates."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-146-detectlanguagewithconfidenceasync-returns-early-when-sync-strategies-are-confident",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-188-detectlanguagewithconfidenceasync-returns-early-when-sync-strategies-are-confident",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 146,
+      "sourceLine": 188,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19711,10 +20479,10 @@
       "description": "Protects the core domain detect Language With Confidence Async behavior: returns early when sync strategies are confident."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-152-detectlanguagewithconfidenceasync-uses-wiktionary-to-resolve-ambiguous-single-word",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-194-detectlanguagewithconfidenceasync-uses-wiktionary-to-resolve-ambiguous-single-word",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 152,
+      "sourceLine": 194,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19727,10 +20495,10 @@
       "description": "Protects the core domain detect Language With Confidence Async behavior: uses Wiktionary to resolve ambiguous single word."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-173-detectlanguagewithconfidenceasync-returns-ambiguous-when-wiktionary-finds-word-in-multiple-candidates",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-215-detectlanguagewithconfidenceasync-returns-ambiguous-when-wiktionary-finds-word-in-multiple-candidates",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 173,
+      "sourceLine": 215,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19743,10 +20511,10 @@
       "description": "Protects the core domain detect Language With Confidence Async behavior: returns ambiguous when Wiktionary finds word in multiple candidates."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-194-detectlanguagewithconfidenceasync-keeps-en-de-homographs-ambiguous-when-english-is-duplicated-in-candidates",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-236-detectlanguagewithconfidenceasync-keeps-en-de-homographs-ambiguous-when-english-is-duplicated-in-candidates",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 194,
+      "sourceLine": 236,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19759,10 +20527,10 @@
       "description": "Protects the core domain detect Language With Confidence Async behavior: keeps en de homographs ambiguous when English is duplicated in candidates."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-215-detectlanguagewithconfidenceasync-keeps-shared-script-short-words-ambiguous-when-dictionary-data-only-matches-english",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-257-detectlanguagewithconfidenceasync-keeps-shared-script-short-words-ambiguous-when-dictionary-data-only-matches-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 215,
+      "sourceLine": 257,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19775,10 +20543,10 @@
       "description": "Protects the core domain detect Language With Confidence Async behavior: keeps shared script short words ambiguous when dictionary data only matches English."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-237-detectlanguagewithconfidenceasync-does-not-score-dutch-from-a-single-i-in-an-english-word",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-279-detectlanguagewithconfidenceasync-does-not-score-dutch-from-a-single-i-in-an-english-word",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 237,
+      "sourceLine": 279,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19791,10 +20559,10 @@
       "description": "Protects the core domain detect Language With Confidence Async behavior: does not score Dutch from a single i in an English word."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-243-detectlanguagewithconfidenceasync-uses-ai-as-last-resort-when-all-other-strategies-are-inconclusive",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-285-detectlanguagewithconfidenceasync-uses-ai-as-last-resort-when-all-other-strategies-are-inconclusive",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 243,
+      "sourceLine": 285,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -19807,10 +20575,154 @@
       "description": "Protects the core domain detect Language With Confidence Async behavior: uses AI as last resort when all other strategies are inconclusive."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-253-detectlanguagewithconfidenceasync-does-not-call-ai-when-wiktionary-already-resolved",
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-297-detectlanguagewithconfidenceasync-flags-a-single-word-found-only-in-non-candidate-dictionaries-as-out-of-set",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
-      "sourceLine": 253,
+      "sourceLine": 297,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync"
+      ],
+      "title": "flags a single word found only in non-candidate dictionaries as out-of-set",
+      "rawTitle": "flags a single word found only in non-candidate dictionaries as out-of-set",
+      "name": "Core domain detect Language With Confidence Async flags a single word found only in non candidate dictionaries as out of set",
+      "value": "Protects the core domain detect Language With Confidence Async behavior so flags a single word found only in non candidate dictionaries as out of set.",
+      "description": "Protects the core domain detect Language With Confidence Async behavior so flags a single word found only in non candidate dictionaries as out of set."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-308-detectlanguagewithconfidenceasync-overrides-a-confident-diacritic-only-detection-when-the-dictionary-disagrees",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 308,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync"
+      ],
+      "title": "overrides a confident diacritic-only detection when the dictionary disagrees",
+      "rawTitle": "overrides a confident diacritic-only detection when the dictionary disagrees",
+      "name": "Core domain detect Language With Confidence Async overrides a confident diacritic only detection when the dictionary disagrees",
+      "value": "Protects the core domain detect Language With Confidence Async behavior so overrides a confident diacritic only detection when the dictionary disagrees.",
+      "description": "Protects the core domain detect Language With Confidence Async behavior so overrides a confident diacritic only detection when the dictionary disagrees."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-320-detectlanguagewithconfidenceasync-prefers-candidate-dictionary-matches-over-out-of-set-languages",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 320,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync"
+      ],
+      "title": "prefers candidate dictionary matches over out-of-set languages",
+      "rawTitle": "prefers candidate dictionary matches over out-of-set languages",
+      "name": "Core domain detect Language With Confidence Async prefers candidate dictionary matches over out of set languages",
+      "value": "Protects the core domain detect Language With Confidence Async behavior so prefers candidate dictionary matches over out of set languages.",
+      "description": "Protects the core domain detect Language With Confidence Async behavior so prefers candidate dictionary matches over out of set languages."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-331-detectlanguagewithconfidenceasync-resolves-a-unique-candidate-dictionary-match-r-sum-en",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 331,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync"
+      ],
+      "title": "resolves a unique candidate dictionary match (résumé → en)",
+      "rawTitle": "resolves a unique candidate dictionary match (résumé → en)",
+      "name": "Core domain detect Language With Confidence Async resolves a unique candidate dictionary match (résumé → en)",
+      "value": "Protects the core domain detect Language With Confidence Async behavior: resolves a unique candidate dictionary match (résumé → en).",
+      "description": "Protects the core domain detect Language With Confidence Async behavior: resolves a unique candidate dictionary match (résumé → en)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-341-detectlanguagewithconfidenceasync-does-not-sweep-confident-ascii-detections",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 341,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync"
+      ],
+      "title": "does not sweep confident ASCII detections",
+      "rawTitle": "does not sweep confident ASCII detections",
+      "name": "Core domain detect Language With Confidence Async does not sweep confident ASCII detections",
+      "value": "Protects the core domain detect Language With Confidence Async behavior: does not sweep confident ASCII detections.",
+      "description": "Protects the core domain detect Language With Confidence Async behavior: does not sweep confident ASCII detections."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-351-detectlanguagewithconfidenceasync-keeps-a-confident-detection-when-the-sweep-finds-nothing-fail-open",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 351,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync"
+      ],
+      "title": "keeps a confident detection when the sweep finds nothing (fail-open)",
+      "rawTitle": "keeps a confident detection when the sweep finds nothing (fail-open)",
+      "name": "Core domain detect Language With Confidence Async keeps a confident detection when the sweep finds nothing (fail open)",
+      "value": "Protects the core domain detect Language With Confidence Async behavior: keeps a confident detection when the sweep finds nothing (fail open).",
+      "description": "Protects the core domain detect Language With Confidence Async behavior: keeps a confident detection when the sweep finds nothing (fail open)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-360-detectlanguagewithconfidenceasync-treats-a-throwing-sweep-as-empty",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 360,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync"
+      ],
+      "title": "treats a throwing sweep as empty",
+      "rawTitle": "treats a throwing sweep as empty",
+      "name": "Core domain detect Language With Confidence Async treats a throwing sweep as empty",
+      "value": "Protects the core domain detect Language With Confidence Async behavior so treats a throwing sweep as empty.",
+      "description": "Protects the core domain detect Language With Confidence Async behavior so treats a throwing sweep as empty."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-374-detectlanguagewithconfidenceasync-returns-out-of-set-language-when-ai-names-a-non-candidate",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 374,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync"
+      ],
+      "title": "returns out-of-set language when AI names a non-candidate",
+      "rawTitle": "returns out-of-set language when AI names a non-candidate",
+      "name": "Core domain detect Language With Confidence Async returns out of set language when AI names a non candidate",
+      "value": "Protects the core domain detect Language With Confidence Async behavior: returns out of set language when AI names a non candidate.",
+      "description": "Protects the core domain detect Language With Confidence Async behavior: returns out of set language when AI names a non candidate."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-386-detectlanguagewithconfidenceasync-ignores-garbage-ai-answers",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 386,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync"
+      ],
+      "title": "ignores garbage AI answers",
+      "rawTitle": "ignores garbage AI answers",
+      "name": "Core domain detect Language With Confidence Async ignores garbage AI answers",
+      "value": "Protects the core domain detect Language With Confidence Async behavior: ignores garbage AI answers.",
+      "description": "Protects the core domain detect Language With Confidence Async behavior: ignores garbage AI answers."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-396-detectlanguagewithconfidenceasync-does-not-call-ai-when-wiktionary-already-resolved",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 396,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -24603,6 +25515,70 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so sentence translation strips disabled fields from AI response."
     },
     {
+      "id": "packages-core-src-modules-translation-tests-preflight-schema-test-ts-12-preflightresultschema-accepts-the-new-proceed-with-correction-outcome-with-correctedtext",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/preflight.schema.test.ts",
+      "sourceLine": 12,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "preflightResultSchema"
+      ],
+      "title": "accepts the new proceed_with_correction outcome with correctedText",
+      "rawTitle": "accepts the new proceed_with_correction outcome with correctedText",
+      "name": "Core domain preflight Result Schema accepts the new proceed with correction outcome with corrected Text",
+      "value": "Protects the core domain preflight Result Schema behavior: accepts the new proceed with correction outcome with corrected Text.",
+      "description": "Protects the core domain preflight Result Schema behavior: accepts the new proceed with correction outcome with corrected Text."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-preflight-schema-test-ts-22-preflightresultschema-rejects-proceed-with-correction-without-correctedtext",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/preflight.schema.test.ts",
+      "sourceLine": 22,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "preflightResultSchema"
+      ],
+      "title": "rejects proceed_with_correction without correctedText",
+      "rawTitle": "rejects proceed_with_correction without correctedText",
+      "name": "Core domain preflight Result Schema rejects proceed with correction without corrected Text",
+      "value": "Protects the core domain preflight Result Schema behavior: rejects proceed with correction without corrected Text.",
+      "description": "Protects the core domain preflight Result Schema behavior: rejects proceed with correction without corrected Text."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-preflight-schema-test-ts-30-preflightresultschema-allows-proceed-without-correctedtext",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/preflight.schema.test.ts",
+      "sourceLine": 30,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "preflightResultSchema"
+      ],
+      "title": "allows proceed without correctedText",
+      "rawTitle": "allows proceed without correctedText",
+      "name": "Core domain preflight Result Schema allows proceed without corrected Text",
+      "value": "Protects the core domain preflight Result Schema behavior: allows proceed without corrected Text.",
+      "description": "Protects the core domain preflight Result Schema behavior: allows proceed without corrected Text."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-preflight-schema-test-ts-38-preflightresultschema-caps-explanation-length",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/preflight.schema.test.ts",
+      "sourceLine": 38,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "preflightResultSchema"
+      ],
+      "title": "caps explanation length",
+      "rawTitle": "caps explanation length",
+      "name": "Core domain preflight Result Schema caps explanation length",
+      "value": "Protects the core domain preflight Result Schema behavior so caps explanation length.",
+      "description": "Protects the core domain preflight Result Schema behavior so caps explanation length."
+    },
+    {
       "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-13-buildtranslationprompt-includes-the-word-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
@@ -26475,10 +27451,74 @@
       "description": "Protects the core domain translate behavior: does not ask for clarification for ordinary single word part of speech ambiguity."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-391-translate-routes-low-risk-generation-through-the-configured-low-risk-model",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-391-translate-silently-corrects-a-minor-typo-and-translates-the-corrected-text-proceed-with-correction",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
       "sourceLine": 391,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate"
+      ],
+      "title": "silently corrects a minor typo and translates the corrected text (proceed_with_correction)",
+      "rawTitle": "silently corrects a minor typo and translates the corrected text (proceed_with_correction)",
+      "name": "Core domain translate silently corrects a minor typo and translates the corrected text (proceed with correction)",
+      "value": "Protects the core domain translate behavior so silently corrects a minor typo and translates the corrected text (proceed with correction).",
+      "description": "Protects the core domain translate behavior so silently corrects a minor typo and translates the corrected text (proceed with correction)."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-427-translate-does-not-produce-needs-clarification-for-a-minor-auto-correction",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 427,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate"
+      ],
+      "title": "does not produce needs_clarification for a minor auto-correction",
+      "rawTitle": "does not produce needs_clarification for a minor auto-correction",
+      "name": "Core domain translate does not produce needs clarification for a minor auto correction",
+      "value": "Protects the core domain translate behavior: does not produce needs clarification for a minor auto correction.",
+      "description": "Protects the core domain translate behavior: does not produce needs clarification for a minor auto correction."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-446-translate-skips-auto-correction-and-translates-verbatim-when-skipinputcorrection-is-set",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 446,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate"
+      ],
+      "title": "skips auto-correction and translates verbatim when skipInputCorrection is set",
+      "rawTitle": "skips auto-correction and translates verbatim when skipInputCorrection is set",
+      "name": "Core domain translate skips auto correction and translates verbatim when skip Input Correction is set",
+      "value": "Protects the core domain translate behavior: skips auto correction and translates verbatim when skip Input Correction is set.",
+      "description": "Protects the core domain translate behavior: skips auto correction and translates verbatim when skip Input Correction is set."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-473-translate-does-not-re-ask-about-a-typo-confirm-typo-suggestion-when-skipinputcorrection-is-set",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 473,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate"
+      ],
+      "title": "does not re-ask about a typo (confirm_typo_suggestion) when skipInputCorrection is set",
+      "rawTitle": "does not re-ask about a typo (confirm_typo_suggestion) when skipInputCorrection is set",
+      "name": "Core domain translate does not re ask about a typo (confirm typo suggestion) when skip Input Correction is set",
+      "value": "Protects the core domain translate behavior: does not re ask about a typo (confirm typo suggestion) when skip Input Correction is set.",
+      "description": "Protects the core domain translate behavior: does not re ask about a typo (confirm typo suggestion) when skip Input Correction is set."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-500-translate-routes-low-risk-generation-through-the-configured-low-risk-model",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 500,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26491,10 +27531,10 @@
       "description": "Protects the core domain translate behavior: routes low risk generation through the configured low risk model."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-423-translate-routes-high-risk-generation-and-judging-through-configured-models",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-532-translate-routes-high-risk-generation-and-judging-through-configured-models",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 423,
+      "sourceLine": 532,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26507,10 +27547,10 @@
       "description": "Protects the core domain translate behavior: routes high risk generation and judging through configured models."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-453-translate-returns-needs-clarification-for-an-ambiguous-numeric-date-before-calling-the-model",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-562-translate-returns-needs-clarification-for-an-ambiguous-numeric-date-before-calling-the-model",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 453,
+      "sourceLine": 562,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26523,10 +27563,10 @@
       "description": "Protects the core domain translate behavior: returns needs clarification for an ambiguous numeric date before calling the model."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-473-translate-does-not-hard-code-lexical-ambiguity-for-a-specific-sentence",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-582-translate-does-not-hard-code-lexical-ambiguity-for-a-specific-sentence",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 473,
+      "sourceLine": 582,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26539,10 +27579,10 @@
       "description": "Protects the core domain translate behavior: does not hard code lexical ambiguity for a specific sentence."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-514-translate-runs-the-semantic-judge-for-high-risk-sentence-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-623-translate-runs-the-semantic-judge-for-high-risk-sentence-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 514,
+      "sourceLine": 623,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26555,10 +27595,10 @@
       "description": "Protects the core domain translate behavior so runs the semantic judge for high risk sentence translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-554-translate-keeps-an-ordinary-unbacked-word-on-the-medium-risk-path-without-judge",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-663-translate-keeps-an-ordinary-unbacked-word-on-the-medium-risk-path-without-judge",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 554,
+      "sourceLine": 663,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26571,10 +27611,10 @@
       "description": "Protects the core domain translate behavior: keeps an ordinary unbacked word on the medium risk path without judge."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-568-translate-keeps-a-dictionary-backed-confident-word-on-the-low-risk-path-without-judge",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-677-translate-keeps-a-dictionary-backed-confident-word-on-the-low-risk-path-without-judge",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 568,
+      "sourceLine": 677,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26587,10 +27627,10 @@
       "description": "Protects the core domain translate behavior: keeps a dictionary backed confident word on the low risk path without judge."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-595-translate-runs-the-semantic-judge-for-phrase-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-704-translate-runs-the-semantic-judge-for-phrase-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 595,
+      "sourceLine": 704,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26603,10 +27643,10 @@
       "description": "Protects the core domain translate behavior so runs the semantic judge for phrase translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-618-translate-uses-translation-safe-generation-settings",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-727-translate-uses-translation-safe-generation-settings",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 618,
+      "sourceLine": 727,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26619,10 +27659,10 @@
       "description": "Protects the core domain translate behavior: uses translation safe generation settings."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-627-translate-handles-multi-language-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-736-translate-handles-multi-language-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 627,
+      "sourceLine": 736,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26635,10 +27675,10 @@
       "description": "Protects the core domain translate behavior: handles multi language translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-658-translate-preserves-source-usage-for-learning-language-source-words",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-767-translate-preserves-source-usage-for-learning-language-source-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 658,
+      "sourceLine": 767,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26651,10 +27691,10 @@
       "description": "Protects the core domain translate behavior: preserves source usage for learning language source words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-701-translate-retries-when-a-target-block-connotation-warning-is-written-in-the-target-language",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-810-translate-retries-when-a-target-block-connotation-warning-is-written-in-the-target-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 701,
+      "sourceLine": 810,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26667,10 +27707,10 @@
       "description": "Protects the core domain translate behavior so retries when a target block connotation warning is written in the target language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-743-translate-accepts-phase-out-examples-without-a-redundant-native-field-in-the-native-target-block",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-852-translate-accepts-phase-out-examples-without-a-redundant-native-field-in-the-native-target-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 743,
+      "sourceLine": 852,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26683,10 +27723,10 @@
       "description": "Protects the core domain translate behavior: accepts phase out examples without a redundant native field in the native target block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-814-translate-propagates-ai-adapter-errors",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-923-translate-propagates-ai-adapter-errors",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 814,
+      "sourceLine": 923,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26699,10 +27739,10 @@
       "description": "Protects the core domain translate behavior so propagates AI adapter errors."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-820-translate-sanitizes-non-emoji-string-in-emoji-field-to-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-929-translate-sanitizes-non-emoji-string-in-emoji-field-to-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 820,
+      "sourceLine": 929,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26715,10 +27755,10 @@
       "description": "Protects the core domain translate behavior so sanitizes non emoji string in emoji field to fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-834-translate-preserves-valid-emoji-from-ai-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-943-translate-preserves-valid-emoji-from-ai-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 834,
+      "sourceLine": 943,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26731,10 +27771,10 @@
       "description": "Protects the core domain translate behavior: preserves valid emoji from AI response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-844-translateone-calls-translate-with-single-element-targetlangs",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-953-translateone-calls-translate-with-single-element-targetlangs",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 844,
+      "sourceLine": 953,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26747,10 +27787,10 @@
       "description": "Protects the core domain translate One behavior: calls translate() with single element target Langs."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-856-translateone-returns-the-languagetranslation-for-the-requested-language",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-965-translateone-returns-the-languagetranslation-for-the-requested-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 856,
+      "sourceLine": 965,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26763,10 +27803,10 @@
       "description": "Protects the core domain translate One behavior: returns the Language Translation for the requested language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-869-translateone-propagates-errors-from-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-978-translateone-propagates-errors-from-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 869,
+      "sourceLine": 978,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26779,10 +27819,10 @@
       "description": "Protects the core domain translate One behavior so propagates errors from translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-880-translateone-passes-topic-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-989-translateone-passes-topic-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 880,
+      "sourceLine": 989,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26795,10 +27835,10 @@
       "description": "Protects the core domain translate One behavior so passes topic through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-900-translateone-passes-nativelang-and-inputtype-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1009-translateone-passes-nativelang-and-inputtype-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 900,
+      "sourceLine": 1009,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26811,10 +27851,10 @@
       "description": "Protects the core domain translate One behavior so passes native Lang and input Type through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-945-translateone-passes-userid-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1054-translateone-passes-userid-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 945,
+      "sourceLine": 1054,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26827,10 +27867,10 @@
       "description": "Protects the core domain translate One behavior so passes user Id through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-960-translateone-works-with-needsreview-results-validation-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1069-translateone-works-with-needsreview-results-validation-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 960,
+      "sourceLine": 1069,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26843,10 +27883,10 @@
       "description": "Protects the core domain translate One behavior so works with needs Review results (validation exhausted)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-993-translatebatch-translates-multiple-words",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1102-translatebatch-translates-multiple-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 993,
+      "sourceLine": 1102,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26859,10 +27899,10 @@
       "description": "Protects the core domain translate Batch behavior: translates multiple words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1028-translatebatch-returns-empty-array-for-empty-input",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1137-translatebatch-returns-empty-array-for-empty-input",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1028,
+      "sourceLine": 1137,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26875,10 +27915,10 @@
       "description": "Protects the core domain translate Batch behavior: returns empty array for empty input."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1037-translatebatch-calls-translate-sequentially-not-in-parallel",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1146-translatebatch-calls-translate-sequentially-not-in-parallel",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1037,
+      "sourceLine": 1146,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26891,10 +27931,10 @@
       "description": "Protects the core domain translate Batch behavior: calls translate sequentially, not in parallel."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1068-validation-logging-calls-logger-warn-on-each-failed-validation-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1177-validation-logging-calls-logger-warn-on-each-failed-validation-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1068,
+      "sourceLine": 1177,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26907,10 +27947,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger warn on each failed validation attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1095-validation-logging-calls-logger-error-after-all-retries-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1204-validation-logging-calls-logger-error-after-all-retries-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1095,
+      "sourceLine": 1204,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26923,10 +27963,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger error after all retries exhausted."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1120-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1229-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1120,
+      "sourceLine": 1229,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26939,10 +27979,10 @@
       "description": "Protects the core domain validation logging behavior: does not log when validation passes on first attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1129-validation-logging-logs-warn-but-not-error-when-repair-succeeds",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1238-validation-logging-logs-warn-but-not-error-when-repair-succeeds",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1129,
+      "sourceLine": 1238,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26955,10 +27995,10 @@
       "description": "Protects the core domain validation logging behavior: logs warn but not error when repair succeeds."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1167-validation-logging-includes-failreason-with-validation-error-details",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1276-validation-logging-includes-failreason-with-validation-error-details",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1167,
+      "sourceLine": 1276,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26971,10 +28011,10 @@
       "description": "Protects the core domain validation logging behavior: includes fail Reason with validation error details."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1197-parseresponse-parses-a-valid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1306-parseresponse-parses-a-valid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1197,
+      "sourceLine": 1306,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26987,10 +28027,10 @@
       "description": "Protects the core domain parse Response behavior: parses a valid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1205-parseresponse-throws-on-invalid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1314-parseresponse-throws-on-invalid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1205,
+      "sourceLine": 1314,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27003,10 +28043,10 @@
       "description": "Protects the core domain parse Response behavior: throws on invalid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1209-parseresponse-throws-on-missing-required-fields",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1318-parseresponse-throws-on-missing-required-fields",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1209,
+      "sourceLine": 1318,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27019,10 +28059,10 @@
       "description": "Protects the core domain parse Response behavior: throws on missing required fields."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1218-parseresponse-throws-on-empty-translations-record",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1327-parseresponse-throws-on-empty-translations-record",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1218,
+      "sourceLine": 1327,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27035,10 +28075,10 @@
       "description": "Protects the core domain parse Response behavior: throws on empty translations record."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1227-sanitizeemoji-passes-through-valid-single-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1336-sanitizeemoji-passes-through-valid-single-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1227,
+      "sourceLine": 1336,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27051,10 +28091,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through valid single emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1233-sanitizeemoji-passes-through-zwj-sequences",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1342-sanitizeemoji-passes-through-zwj-sequences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1233,
+      "sourceLine": 1342,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27067,10 +28107,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through ZWJ sequences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1237-sanitizeemoji-passes-through-flag-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1346-sanitizeemoji-passes-through-flag-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1237,
+      "sourceLine": 1346,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27083,10 +28123,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through flag emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1241-sanitizeemoji-replaces-plain-words-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1350-sanitizeemoji-replaces-plain-words-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1241,
+      "sourceLine": 1350,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27099,10 +28139,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so replaces plain words with fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1247-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1356-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1247,
+      "sourceLine": 1356,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

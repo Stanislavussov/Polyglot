@@ -55,6 +55,7 @@ vi.mock("@polyglot/adapter-db", () => ({
   vocabularyRepository: mockVocabularyRepository,
   vocabularyDictionaryRepository: mockVocabularyDictionaryRepository,
   createContextLookup: () => mockLookupContext,
+  createWordLanguageSweep: () => vi.fn().mockResolvedValue([]),
   getLang: mockLanguageCache.getLang,
   translationTemplateRepository: mockTranslationTemplateRepository,
   languageDetectionRepository: {

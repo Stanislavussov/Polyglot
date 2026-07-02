@@ -1102,3 +1102,48 @@ describe("renderQualityWarning", () => {
     expect(qualityWarning).not.toContain("inaccuracies");
   });
 });
+
+describe("input correction annotations (Task 69)", () => {
+  it("shows a ✏️ Fixed line with original → corrected — explanation for a word auto-fix", () => {
+    const card = renderTranslation(
+      {
+        ...sampleOutput,
+        correction: { original: "helllo", corrected: "hello", explanation: "extra letter removed" },
+      },
+      "en",
+    );
+
+    expect(card).toContain("✏️");
+    expect(card).toContain("helllo");
+    expect(card).toContain("extra letter removed");
+    // The corrected headword still renders below the notice.
+    expect(card).toContain("<b>hello</b>");
+  });
+
+  it("renders no correction notice when the input was not corrected", () => {
+    expect(renderTranslation(sampleOutput, "en")).not.toContain("✏️");
+  });
+
+  it("shows the corrected sentence and error explanation on a sentence card", () => {
+    const card = renderSentenceTranslation(
+      {
+        original: "I go to school",
+        sourceLang: "en",
+        emoji: "📝",
+        nativeSynonyms: [],
+        translations: { cs: { text: "Chodím do školy", synonyms: [], examples: [] } },
+        correction: {
+          original: "i go too school",
+          corrected: "I go to school",
+          explanation: "«too» should be «to»",
+        },
+      },
+      "en",
+      "ru",
+    );
+
+    expect(card).toContain("✏️");
+    expect(card).toContain("I go to school");
+    expect(card).toContain("«too» should be «to»");
+  });
+});

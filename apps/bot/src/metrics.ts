@@ -23,6 +23,12 @@ export const translationDuration = new Histogram({
   buckets: [0.5, 1, 2, 5, 10, 30],
 });
 
+export const inputCorrectionCounter = new Counter({
+  name: "bot_input_correction_total",
+  help: "Input typo detection/correction outcomes in translate mode",
+  labelNames: ["outcome", "input_type"] as const,
+});
+
 export const mentorCounter = new Counter({
   name: "bot_mentor_requests_total",
   help: "Total mentor chat requests",
@@ -80,6 +86,26 @@ export const videoEnrichmentCounter = new Counter({
   name: "bot_video_enrichment_total",
   help: "Total video phrase enrichment attempts",
   labelNames: ["status"] as const,
+});
+
+export const updateHandlingDuration = new Histogram({
+  name: "bot_update_handling_duration_seconds",
+  help: "Time from update receipt to handler completion",
+  labelNames: ["update_type"] as const,
+  buckets: [0.1, 0.25, 0.5, 1, 2, 5, 10, 30],
+});
+
+export const updateDeliveryLag = new Histogram({
+  name: "bot_update_delivery_lag_seconds",
+  help: "Lag between the Telegram message timestamp and bot receipt (long-polling delivery delay)",
+  buckets: [1, 2, 5, 10, 30, 60, 300],
+});
+
+export const sessionStorageDuration = new Histogram({
+  name: "bot_session_storage_duration_seconds",
+  help: "Postgres session storage operation duration",
+  labelNames: ["op"] as const,
+  buckets: [0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10],
 });
 
 // ── HTTP server ──────────────────────────────────────────────────────

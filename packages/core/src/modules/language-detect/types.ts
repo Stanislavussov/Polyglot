@@ -64,4 +64,17 @@ export interface DetectionResult {
   evidence: DetectionEvidence[];
   /** Candidates with score > 0 when ambiguous, sorted by score descending */
   ambiguousCandidates?: string[];
+  /**
+   * Languages OUTSIDE the candidate set that dictionary or AI evidence points
+   * to. Set only when no candidate explains the input — the caller should tell
+   * the user the language isn't selected instead of mistranslating.
+   */
+  outOfSetLanguages?: string[];
 }
+
+/**
+ * Dictionary sweep: ISO 639-1 codes of supported languages whose dictionary
+ * contains the word, best coverage first. Injected by the adapter layer
+ * (core stays DB-free), mirroring the ContextLookupFn pattern.
+ */
+export type FindWordLanguagesFn = (word: string) => Promise<string[]>;

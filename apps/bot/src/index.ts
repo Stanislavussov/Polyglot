@@ -1,3 +1,4 @@
+import { type RunnerHandle, run } from "@grammyjs/runner";
 import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
 import { stopScheduler } from "@polyglot/adapter-notifications";
 import { initLanguageRegistry, logger, setLogger } from "@polyglot/core";
@@ -16,6 +17,8 @@ const bot = createPolyglotBot({
   sessionStorage: createPostgresSessionStorage(),
 });
 
+let runner: RunnerHandle | null = null;
+
 function setupGracefulShutdown(): void {
   let shuttingDown = false;
 
@@ -25,7 +28,7 @@ function setupGracefulShutdown(): void {
 
     logger.info({ signal }, "Received shutdown signal");
     stopScheduler();
-    await bot.stop();
+    if (runner?.isRunning()) await runner.stop();
     await closeDb();
     logger.info("Bot stopped, scheduler stopped, and DB connection closed");
   };
@@ -52,11 +55,9 @@ async function main(): Promise<void> {
   startMetricsServer();
 
   logger.info({ sessionStorage: "postgres", languageCacheReady: true, pollingMode: "long-polling" }, "Starting bot");
-  await bot.start({
-    onStart: (botInfo) => {
-      logger.info({ username: botInfo.username, id: botInfo.id }, "Bot started");
-    },
-  });
+  await bot.init();
+  runner = run(bot);
+  logger.info({ username: bot.botInfo.username, id: bot.botInfo.id }, "Bot started (concurrent runner)");
 }
 
 main().catch((err) => {

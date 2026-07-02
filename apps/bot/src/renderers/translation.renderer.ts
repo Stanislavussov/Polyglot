@@ -102,6 +102,16 @@ export function renderTranslation(
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
+  if (output.correction) {
+    lines.push(
+      t("correctionNotice", lang, {
+        original: esc(output.correction.original),
+        corrected: esc(output.correction.corrected),
+        explanation: esc(output.correction.explanation),
+      }),
+    );
+    lines.push("");
+  }
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);
   const sourceUsageLines = hideSourceText ? renderSourceUsageBlock(output, nativeLang, templateFields) : [];
 
@@ -261,6 +271,15 @@ export function renderSentenceTranslation(
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
+  if (output.correction) {
+    lines.push(
+      t("sentenceErrorNotice", lang, {
+        corrected: esc(output.correction.corrected),
+        explanation: esc(output.correction.explanation),
+      }),
+    );
+    lines.push("");
+  }
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);
 
   const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";

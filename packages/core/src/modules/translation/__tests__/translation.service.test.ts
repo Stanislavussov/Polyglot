@@ -388,6 +388,115 @@ describe("translate", () => {
     expect(mockGenerate.mock.calls[1]?.[0]).toContain("Do NOT include any translations");
   });
 
+  it("silently corrects a minor typo and translates the corrected text (proceed_with_correction)", async () => {
+    const goodResult = makeValidResult();
+    const mockGenerate = createTranslateMock(goodResult, { issues: [], summary: "ok" }).mockResolvedValueOnce({
+      confidence: 0.55,
+      outcome: "proceed_with_correction",
+      reasonCode: "probable_typo",
+      explanation: "«helllo» — опечатка, исправлено на «hello».",
+      correctedText: "hello",
+      options: [],
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "helllo",
+        detectionConfidence: 0.2,
+        interfaceLang: "ru",
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    const output = unwrap(result);
+    // The corrected form is what was translated and what the dictionary stores.
+    expect(output.original).toBe("hello");
+    expect(output.correction).toEqual({
+      original: "helllo",
+      corrected: "hello",
+      explanation: "«helllo» — опечатка, исправлено на «hello».",
+    });
+    // The translation prompt was built from the corrected word, not the typo.
+    const metadataPrompt = mockGenerate.mock.calls[1]?.[0] as string;
+    expect(metadataPrompt).toContain("hello");
+    expect(metadataPrompt).not.toContain("helllo");
+  });
+
+  it("does not produce needs_clarification for a minor auto-correction", async () => {
+    const goodResult = makeValidResult();
+    const mockGenerate = createTranslateMock(goodResult, { issues: [], summary: "ok" }).mockResolvedValueOnce({
+      confidence: 0.55,
+      outcome: "proceed_with_correction",
+      reasonCode: "probable_typo",
+      explanation: "fixed",
+      correctedText: "hello",
+      options: [],
+    });
+
+    const result = await translate(
+      { ...defaultInput, word: "helllo", detectionConfidence: 0.2, nativeLang: "ru" },
+      mockGenerate,
+    );
+
+    expect(result.status).not.toBe("needs_clarification");
+  });
+
+  it("skips auto-correction and translates verbatim when skipInputCorrection is set", async () => {
+    const goodResult = makeValidResult();
+    const mockGenerate = createTranslateMock(goodResult, { issues: [], summary: "ok" }).mockResolvedValueOnce({
+      confidence: 0.55,
+      outcome: "proceed_with_correction",
+      reasonCode: "probable_typo",
+      explanation: "fixed",
+      correctedText: "hello",
+      options: [],
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "helllo",
+        detectionConfidence: 0.2,
+        skipInputCorrection: true,
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    const output = unwrap(result);
+    expect(output.original).toBe("helllo");
+    expect(output.correction).toBeUndefined();
+  });
+
+  it("does not re-ask about a typo (confirm_typo_suggestion) when skipInputCorrection is set", async () => {
+    const goodResult = makeValidResult();
+    const mockGenerate = createTranslateMock(goodResult, { issues: [], summary: "ok" }).mockResolvedValueOnce({
+      confidence: 0.4,
+      outcome: "confirm_typo_suggestion",
+      reasonCode: "probable_typo",
+      explanation: "Did you mean hello?",
+      options: [
+        { id: "fix", label: "hello", value: "hello", kind: "typo_correction", correctedText: "hello" },
+        { id: "asis", label: "as written", value: "helllo", kind: "translate_as_written" },
+      ],
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "helllo",
+        detectionConfidence: 0.2,
+        skipInputCorrection: true,
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(unwrap(result).original).toBe("helllo");
+  });
+
   it("routes low-risk generation through the configured low-risk model", async () => {
     const mockGenerate = createTranslateMock(makeValidResult());
 

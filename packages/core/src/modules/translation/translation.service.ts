@@ -34,6 +34,7 @@ import {
   translationResultSchema,
 } from "./schemas/translation.schema.js";
 import type {
+  InputCorrection,
   LanguageTranslation,
   QualityIssue,
   RiskLevel,
@@ -83,7 +84,7 @@ export async function translate(
   generateObjectFn: GenerateObjectFn,
 ): Promise<TranslationDecision> {
   const analysis = analyzeInput(input.word);
-  const normalizedInput: TranslateInput = {
+  let normalizedInput: TranslateInput = {
     ...input,
     inputType: input.inputType ?? analysis.type,
   };
@@ -92,9 +93,22 @@ export async function translate(
     return { status: "needs_clarification", ambiguity };
   }
 
-  const preflightAmbiguity = await detectAIPreflightAmbiguity(normalizedInput, generateObjectFn);
-  if (preflightAmbiguity) {
-    return { status: "needs_clarification", ambiguity: preflightAmbiguity };
+  const preflight = await runAIPreflight(normalizedInput, generateObjectFn);
+  if (preflight.kind === "clarify") {
+    return { status: "needs_clarification", ambiguity: preflight.ambiguity };
+  }
+
+  // Silent minor-typo fix: translate the corrected text but remember the fix so
+  // the reply can annotate it. `original` on the output becomes the corrected
+  // form (that is what was translated and what the dictionary should store).
+  let correction: InputCorrection | undefined;
+  if (preflight.kind === "correct") {
+    correction = {
+      original: normalizedInput.word,
+      corrected: preflight.correctedText,
+      explanation: preflight.explanation,
+    };
+    normalizedInput = { ...normalizedInput, word: preflight.correctedText };
   }
 
   const request: TranslationRequest = {
@@ -357,7 +371,7 @@ export async function translate(
   if (!hasBlockingIssues(issues)) {
     return {
       status: "accepted",
-      output: toOutput(normalizedInput, result),
+      output: toOutput(normalizedInput, result, correction),
       quality: {
         promptVersion: PROMPT_VERSION,
         schemaVersion: SCHEMA_VERSION,
@@ -382,7 +396,7 @@ export async function translate(
 
   return {
     status: "needs_review",
-    output: toOutput(normalizedInput, result),
+    output: toOutput(normalizedInput, result, correction),
     issues,
   };
 }
@@ -417,6 +431,7 @@ export async function translateOne(
       inputType: input.inputType,
       detectionConfidence: input.detectionConfidence,
       modelRouting: input.modelRouting,
+      skipInputCorrection: input.skipInputCorrection,
     },
     generateObjectFn,
   );
@@ -591,9 +606,6 @@ function shouldRunAIPreflight(input: TranslateInput): input is TranslateInput & 
   if (input.topic?.trim()) {
     return false;
   }
-  if (input.inputType === "sentence") {
-    return false;
-  }
   return (
     input.detectionConfidence !== undefined && input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence
   );
@@ -606,6 +618,7 @@ function preflightOutcomeToReason(outcome: PreflightResult["outcome"]): Translat
     case "clarify_meaning":
       return "word_sense";
     case "confirm_typo_suggestion":
+    case "proceed_with_correction":
       return "possible_typo";
     case "clarify_format":
       return "date_or_time";
@@ -616,12 +629,20 @@ function preflightOutcomeToReason(outcome: PreflightResult["outcome"]): Translat
   }
 }
 
-async function detectAIPreflightAmbiguity(
-  input: TranslateInput,
-  generateObjectFn: GenerateObjectFn,
-): Promise<TranslationAmbiguity | undefined> {
+/**
+ * Result of the AI preflight pass.
+ * - `proceed`: translate the input verbatim.
+ * - `correct`: translate `correctedText` and annotate the reply with the fix.
+ * - `clarify`: stop and ask the user (returned as `needs_clarification`).
+ */
+type PreflightDirective =
+  | { kind: "proceed" }
+  | { kind: "correct"; correctedText: string; explanation: string }
+  | { kind: "clarify"; ambiguity: TranslationAmbiguity };
+
+async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateObjectFn): Promise<PreflightDirective> {
   if (!shouldRunAIPreflight(input)) {
-    return undefined;
+    return { kind: "proceed" };
   }
 
   const result = await generateObjectFn(
@@ -643,11 +664,26 @@ async function detectAIPreflightAmbiguity(
   );
 
   if (result.outcome === "proceed" && result.confidence >= PREFLIGHT_DEFAULTS.autoProceedAboveConfidence) {
-    return undefined;
+    return { kind: "proceed" };
+  }
+
+  // Silent minor-typo fix (Task 69). Suppressed on verbatim re-runs, and a
+  // no-op "correction" (same text, or a missing corrected form) proceeds as-is.
+  if (result.outcome === "proceed_with_correction") {
+    if (input.skipInputCorrection || !result.correctedText || result.correctedText === input.word) {
+      return { kind: "proceed" };
+    }
+    return { kind: "correct", correctedText: result.correctedText, explanation: result.explanation };
+  }
+
+  // After the language/mistype confirmation, or on "translate as written",
+  // never re-ask about the same word — translate it verbatim.
+  if (result.outcome === "confirm_typo_suggestion" && input.skipInputCorrection) {
+    return { kind: "proceed" };
   }
 
   if (result.outcome === "clarify_meaning" && input.inputType === "word") {
-    return undefined;
+    return { kind: "proceed" };
   }
 
   const reason =
@@ -656,16 +692,19 @@ async function detectAIPreflightAmbiguity(
       : preflightOutcomeToReason(result.outcome);
 
   return {
-    reason,
-    message: result.explanation,
-    options: result.options.map((option) => ({
-      id: option.id,
-      label: option.label,
-      value: option.value,
-      kind: option.kind,
-      langCode: option.langCode,
-      correctedText: option.correctedText,
-    })),
+    kind: "clarify",
+    ambiguity: {
+      reason,
+      message: result.explanation,
+      options: result.options.map((option) => ({
+        id: option.id,
+        label: option.label,
+        value: option.value,
+        kind: option.kind,
+        langCode: option.langCode,
+        correctedText: option.correctedText,
+      })),
+    },
   };
 }
 
@@ -954,7 +993,7 @@ export function sanitizeEmoji(value: string): string {
   return looksLikeEmoji(value) ? value : DEFAULT_EMOJI;
 }
 
-function toOutput(input: TranslateInput, result: TranslationResult): TranslateOutput {
+function toOutput(input: TranslateInput, result: TranslationResult, correction?: InputCorrection): TranslateOutput {
   const translations = stripDisabledFields(result.translations, input.outputConfig);
 
   const emoji = sanitizeEmoji(result.emoji);
@@ -977,6 +1016,10 @@ function toOutput(input: TranslateInput, result: TranslationResult): TranslateOu
 
   if (input.dictionaryContext) {
     output.dictionaryContext = input.dictionaryContext;
+  }
+
+  if (correction) {
+    output.correction = correction;
   }
 
   return output;

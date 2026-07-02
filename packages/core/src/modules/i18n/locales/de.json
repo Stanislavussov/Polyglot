@@ -246,6 +246,9 @@
   "translationClarifyReasonFormat": "Es gibt Mehrdeutigkeit wegen eines Datums, Formats oder gemischter Schriftsysteme.",
   "translationClarifyContextButton": "Kontext hinzufügen",
   "translationClarifyContextPrompt": "Sende eine kurze Klärung oder Kontext für diese Übersetzung.",
+  "translationClarifyLanguageHint": "Wähle unten eine Sprache (Flagge + Code) oder sende eine Klarstellung.",
+  "correctionNotice": "✏️ Korrigiert: {original} → {corrected} — {explanation}",
+  "sentenceErrorNotice": "✏️ Korrigiert: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Tägliches Übersetzungslimit erreicht. Öffne /settings, um deinen Tarif zu prüfen.",
   "mentorModeOn": "🧑‍🏫 Mentor-Modus aktiv! Frag mich nach einem beliebigen Wort, und ich helfe dir, es zu lernen — ich übersetze nicht einfach nur, ich coache dich.",
   "mentorThinking": "🧠 Denke nach...",
@@ -291,5 +294,7 @@
   "videoSavedToast": "Gespeichert!",
   "videoProcessingCancelled": "Videoverarbeitung abgebrochen.",
   "videoPhrasesExtracted": "{count} Phrasen extrahiert",
-  "chooseProficiencyLevel": "Was ist dein Niveau in {lang}?"
+  "chooseProficiencyLevel": "Was ist dein Niveau in {lang}?",
+  "loading": "⏳ Wird geladen...",
+  "loadingTimeout": "⌛ Das dauert länger als erwartet. Bitte erneut versuchen."
 }

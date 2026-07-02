@@ -18,6 +18,7 @@ import {
 import { mentorCounter, mentorDuration } from "../../metrics.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { LONG_OP_TIMEOUT_MS, OperationTimeoutError, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
 
 /** Maximum output tokens for mentor responses — keeps replies short. */
 const MENTOR_MAX_TOKENS = 300;
@@ -31,6 +32,9 @@ const MENTOR_MAX_INPUT_LENGTH = 1000;
  * and replies with the AI's coaching response.
  */
 export async function handleMentorText(ctx: BotContext, text: string): Promise<void> {
+  // Instant feedback while settings/model resolve, before the loader message.
+  sendTypingIndicator(ctx);
+
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
@@ -65,10 +69,13 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
 
   const stopTimer = mentorDuration.startTimer();
   try {
-    const response = await ctx.services.ai.generateChat(messages, model, {
-      maxTokens: MENTOR_MAX_TOKENS,
-      userId: ctx.user.id,
-    });
+    const response = await withTimeout(
+      ctx.services.ai.generateChat(messages, model, {
+        maxTokens: MENTOR_MAX_TOKENS,
+        userId: ctx.user.id,
+      }),
+      LONG_OP_TIMEOUT_MS,
+    );
 
     stopTimer();
     mentorCounter.inc({ status: "success" });
@@ -94,6 +101,6 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
 
     // Delete loading indicator and show error
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(t("mentorError", lang));
+    await ctx.reply(err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("mentorError", lang));
   }
 }

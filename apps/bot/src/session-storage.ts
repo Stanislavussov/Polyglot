@@ -1,7 +1,17 @@
 import { BOT_SESSION_VERSION, botSessionRepository } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/core";
 import type { StorageAdapter } from "grammy";
+import { sessionStorageDuration } from "./metrics.js";
 import type { SessionData, UserMode } from "./types.js";
+
+async function timed<T>(op: "read" | "write" | "delete", fn: () => Promise<T>): Promise<T> {
+  const stop = sessionStorageDuration.startTimer({ op });
+  try {
+    return await fn();
+  } finally {
+    stop();
+  }
+}
 
 const VALID_MODES = new Set<UserMode>(["idle", "translate"]);
 
@@ -17,22 +27,24 @@ export function isValidSessionData(value: unknown): value is SessionData {
 export function createPostgresSessionStorage(): StorageAdapter<SessionData> {
   return {
     async read(key) {
-      const row = await botSessionRepository.get(key);
-      if (!row) return undefined;
+      return timed("read", async () => {
+        const row = await botSessionRepository.get(key);
+        if (!row) return undefined;
 
-      if (isValidSessionData(row.data)) return row.data;
+        if (isValidSessionData(row.data)) return row.data;
 
-      logger.warn({ sessionKey: key }, "Resetting corrupt bot session");
-      await botSessionRepository.delete(key);
-      return undefined;
+        logger.warn({ sessionKey: key }, "Resetting corrupt bot session");
+        await botSessionRepository.delete(key);
+        return undefined;
+      });
     },
 
     async write(key, value) {
-      await botSessionRepository.upsert(key, value);
+      await timed("write", () => botSessionRepository.upsert(key, value));
     },
 
     async delete(key) {
-      await botSessionRepository.delete(key);
+      await timed("delete", () => botSessionRepository.delete(key));
     },
   };
 }

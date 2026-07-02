@@ -37,6 +37,27 @@ export const wordContextRepository = {
   },
 
   /**
+   * Distinct supported-language codes whose dictionary contains the word
+   * (as headword/expression or known form), best coverage first.
+   * Powers single-word language detection across the whole supported set.
+   */
+  async findLanguageCodesByWord(word: string): Promise<{ code: string; entryCount: number }[]> {
+    const db = getDb();
+    return db
+      .select({ code: languages.code, entryCount: sql<number>`count(*)::int` })
+      .from(wordContext)
+      .innerJoin(languages, eq(wordContext.languageId, languages.id))
+      .where(
+        and(
+          or(ilike(wordContext.word, word), arrayContains(wordContext.forms, [word])),
+          eq(languages.isSupported, true),
+        ),
+      )
+      .groupBy(languages.code)
+      .orderBy(sql`count(*) desc`);
+  },
+
+  /**
    * Search word context entries by partial word match (case-insensitive).
    * Searches within a specific language by ID.
    */

@@ -132,4 +132,5 @@ export type {
 export * from "./schema.js";
 export { notificationHistory } from "./schema.js";
 export { settingsAdapter } from "./settings-adapter.js";
+export { createWordLanguageSweep } from "./word-language-sweep.js";
 export { schema };

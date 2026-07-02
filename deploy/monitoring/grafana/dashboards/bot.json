@@ -1,241 +1,422 @@
 {
-  "id": null,
-  "uid": "polyglot-bot",
-  "title": "Polyglot Bot",
-  "tags": ["polyglot", "bot"],
-  "timezone": "browser",
-  "refresh": "30s",
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "panels": [
+ "id": null,
+ "uid": "polyglot-bot",
+ "title": "Polyglot Bot",
+ "tags": [
+  "polyglot",
+  "bot"
+ ],
+ "timezone": "browser",
+ "refresh": "30s",
+ "time": {
+  "from": "now-1h",
+  "to": "now"
+ },
+ "panels": [
+  {
+   "id": 1,
+   "title": "Translation Requests Rate",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 0,
+    "y": 0
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
     {
-      "id": 1,
-      "title": "Translation Requests Rate",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "rate(bot_translations_total[5m])",
-          "legendFormat": "{{status}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps"
-        }
-      }
-    },
-    {
-      "id": 2,
-      "title": "Translation Duration (P95)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, rate(bot_translation_duration_seconds_bucket[5m]))",
-          "legendFormat": "p95"
-        },
-        {
-          "expr": "histogram_quantile(0.50, rate(bot_translation_duration_seconds_bucket[5m]))",
-          "legendFormat": "p50"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        }
-      }
-    },
-    {
-      "id": 3,
-      "title": "Mentor Requests Rate",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "rate(bot_mentor_requests_total[5m])",
-          "legendFormat": "{{status}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps"
-        }
-      }
-    },
-    {
-      "id": 4,
-      "title": "Mentor Duration (P95)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, rate(bot_mentor_duration_seconds_bucket[5m]))",
-          "legendFormat": "p95"
-        },
-        {
-          "expr": "histogram_quantile(0.50, rate(bot_mentor_duration_seconds_bucket[5m]))",
-          "legendFormat": "p50"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        }
-      }
-    },
-    {
-      "id": 5,
-      "title": "AI Requests Rate",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "rate(bot_ai_requests_total[5m])",
-          "legendFormat": "{{model}} ({{status}})"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps"
-        }
-      }
-    },
-    {
-      "id": 6,
-      "title": "AI Tokens Rate",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "rate(bot_ai_tokens_total[5m])",
-          "legendFormat": "{{model}} ({{type}})"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
-      }
-    },
-    {
-      "id": 7,
-      "title": "Telegram Messages Rate",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "rate(bot_telegram_messages_total[5m])",
-          "legendFormat": "{{type}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps"
-        }
-      }
-    },
-    {
-      "id": 8,
-      "title": "Notifications Rate",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "rate(bot_notifications_total[5m])",
-          "legendFormat": "{{status}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps"
-        }
-      }
-    },
-    {
-      "id": 9,
-      "title": "Active Users Total",
-      "type": "stat",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "bot_active_users_total",
-          "legendFormat": "users"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
-      }
-    },
-    {
-      "id": 10,
-      "title": "Error Rate (All Sources)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "rate(bot_translations_total{status=\"error\"}[5m])",
-          "legendFormat": "translations"
-        },
-        {
-          "expr": "rate(bot_mentor_requests_total{status=\"error\"}[5m])",
-          "legendFormat": "mentor"
-        },
-        {
-          "expr": "rate(bot_ai_requests_total{status=\"error\"}[5m])",
-          "legendFormat": "ai"
-        },
-        {
-          "expr": "rate(bot_notifications_total{status=\"error\"}[5m])",
-          "legendFormat": "notifications"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": {
-            "mode": "palette-classic"
-          }
-        }
-      }
-    },
-    {
-      "id": 11,
-      "title": "Process Memory (RSS)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "process_resident_memory_bytes{job=\"bot\"}",
-          "legendFormat": "RSS"
-        },
-        {
-          "expr": "process_heap_bytes{job=\"bot\"}",
-          "legendFormat": "Heap"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes"
-        }
-      }
+     "expr": "rate(bot_translations_total[5m])",
+     "legendFormat": "{{status}}"
     }
-  ],
-  "schemaVersion": 39,
-  "version": 1
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "reqps"
+    }
+   }
+  },
+  {
+   "id": 2,
+   "title": "Translation Duration (P95)",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 12,
+    "y": 0
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "histogram_quantile(0.95, rate(bot_translation_duration_seconds_bucket[5m]))",
+     "legendFormat": "p95"
+    },
+    {
+     "expr": "histogram_quantile(0.50, rate(bot_translation_duration_seconds_bucket[5m]))",
+     "legendFormat": "p50"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s"
+    }
+   }
+  },
+  {
+   "id": 3,
+   "title": "Mentor Requests Rate",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 0,
+    "y": 8
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "rate(bot_mentor_requests_total[5m])",
+     "legendFormat": "{{status}}"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "reqps"
+    }
+   }
+  },
+  {
+   "id": 4,
+   "title": "Mentor Duration (P95)",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 12,
+    "y": 8
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "histogram_quantile(0.95, rate(bot_mentor_duration_seconds_bucket[5m]))",
+     "legendFormat": "p95"
+    },
+    {
+     "expr": "histogram_quantile(0.50, rate(bot_mentor_duration_seconds_bucket[5m]))",
+     "legendFormat": "p50"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s"
+    }
+   }
+  },
+  {
+   "id": 5,
+   "title": "AI Requests Rate",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 0,
+    "y": 16
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "rate(bot_ai_requests_total[5m])",
+     "legendFormat": "{{model}} ({{status}})"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "reqps"
+    }
+   }
+  },
+  {
+   "id": 6,
+   "title": "AI Tokens Rate",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 12,
+    "y": 16
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "rate(bot_ai_tokens_total[5m])",
+     "legendFormat": "{{model}} ({{type}})"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    }
+   }
+  },
+  {
+   "id": 7,
+   "title": "Telegram Messages Rate",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 8,
+    "x": 0,
+    "y": 24
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "rate(bot_telegram_messages_total[5m])",
+     "legendFormat": "{{type}}"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "reqps"
+    }
+   }
+  },
+  {
+   "id": 8,
+   "title": "Notifications Rate",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 8,
+    "x": 8,
+    "y": 24
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "rate(bot_notifications_total[5m])",
+     "legendFormat": "{{status}}"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "reqps"
+    }
+   }
+  },
+  {
+   "id": 9,
+   "title": "Active Users Total",
+   "type": "stat",
+   "gridPos": {
+    "h": 8,
+    "w": 8,
+    "x": 16,
+    "y": 24
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "bot_active_users_total",
+     "legendFormat": "users"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    }
+   }
+  },
+  {
+   "id": 10,
+   "title": "Error Rate (All Sources)",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 0,
+    "y": 32
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "rate(bot_translations_total{status=\"error\"}[5m])",
+     "legendFormat": "translations"
+    },
+    {
+     "expr": "rate(bot_mentor_requests_total{status=\"error\"}[5m])",
+     "legendFormat": "mentor"
+    },
+    {
+     "expr": "rate(bot_ai_requests_total{status=\"error\"}[5m])",
+     "legendFormat": "ai"
+    },
+    {
+     "expr": "rate(bot_notifications_total{status=\"error\"}[5m])",
+     "legendFormat": "notifications"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "reqps",
+     "color": {
+      "mode": "palette-classic"
+     }
+    }
+   }
+  },
+  {
+   "id": 11,
+   "title": "Process Memory (RSS)",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 12,
+    "y": 32
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "process_resident_memory_bytes{job=\"bot\"}",
+     "legendFormat": "RSS"
+    },
+    {
+     "expr": "process_heap_bytes{job=\"bot\"}",
+     "legendFormat": "Heap"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "bytes"
+    }
+   }
+  },
+  {
+   "id": 12,
+   "title": "Update Handling Duration (P95)",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 0,
+    "y": 40
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "histogram_quantile(0.95, sum by (le, update_type) (rate(bot_update_handling_duration_seconds_bucket[5m])))",
+     "legendFormat": "p95 {{update_type}}"
+    },
+    {
+     "expr": "histogram_quantile(0.50, sum by (le, update_type) (rate(bot_update_handling_duration_seconds_bucket[5m])))",
+     "legendFormat": "p50 {{update_type}}"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s"
+    }
+   }
+  },
+  {
+   "id": 13,
+   "title": "Update Delivery Lag (P95)",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 12,
+    "y": 40
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "histogram_quantile(0.95, sum by (le) (rate(bot_update_delivery_lag_seconds_bucket[5m])))",
+     "legendFormat": "p95"
+    },
+    {
+     "expr": "histogram_quantile(0.50, sum by (le) (rate(bot_update_delivery_lag_seconds_bucket[5m])))",
+     "legendFormat": "p50"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s"
+    }
+   }
+  },
+  {
+   "id": 14,
+   "title": "Session Storage / Neon Latency (P95)",
+   "type": "timeseries",
+   "gridPos": {
+    "h": 8,
+    "w": 12,
+    "x": 0,
+    "y": 48
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "targets": [
+    {
+     "expr": "histogram_quantile(0.95, sum by (le, op) (rate(bot_session_storage_duration_seconds_bucket[5m])))",
+     "legendFormat": "p95 {{op}}"
+    },
+    {
+     "expr": "histogram_quantile(0.50, sum by (le, op) (rate(bot_session_storage_duration_seconds_bucket[5m])))",
+     "legendFormat": "p50 {{op}}"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s"
+    }
+   }
+  }
+ ],
+ "schemaVersion": 39,
+ "version": 1
 }

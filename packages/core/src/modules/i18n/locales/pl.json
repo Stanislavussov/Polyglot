@@ -246,6 +246,9 @@
   "translationClarifyReasonFormat": "Pojawia się niejasność z powodu daty, formatu lub mieszanych systemów pisma.",
   "translationClarifyContextButton": "Dodaj kontekst",
   "translationClarifyContextPrompt": "Wyślij krótkie doprecyzowanie lub kontekst dla tego tłumaczenia.",
+  "translationClarifyLanguageHint": "Wybierz język poniżej (flaga + kod) lub wyślij doprecyzowanie.",
+  "correctionNotice": "✏️ Poprawiono: {original} → {corrected} — {explanation}",
+  "sentenceErrorNotice": "✏️ Poprawiono: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Osiągnięto dzienny limit tłumaczeń. Otwórz /settings, aby sprawdzić swój plan.",
   "mentorModeOn": "🧑‍🏫 Tryb mentora aktywny! Zapytaj mnie o dowolne słowo, a pomogę Ci się go nauczyć — nie tylko przetłumaczę, ale poprowadzę Cię.",
   "mentorThinking": "🧠 Myślę...",
@@ -291,5 +294,7 @@
   "videoSavedToast": "Zapisano!",
   "videoProcessingCancelled": "Przetwarzanie filmu anulowane.",
   "videoPhrasesExtracted": "Wyodrębniono wyrażeń: {count}",
-  "chooseProficiencyLevel": "Jaki jest Twój poziom w {lang}?"
+  "chooseProficiencyLevel": "Jaki jest Twój poziom w {lang}?",
+  "loading": "⏳ Ładowanie...",
+  "loadingTimeout": "⌛ Trwa to dłużej niż zwykle. Spróbuj ponownie."
 }

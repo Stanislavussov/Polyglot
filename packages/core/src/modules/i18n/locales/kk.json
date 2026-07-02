@@ -246,6 +246,9 @@
   "translationClarifyReasonFormat": "Күн, пішім немесе аралас жазу жүйелеріне байланысты түсініксіздік бар.",
   "translationClarifyContextButton": "Контекст қосу",
   "translationClarifyContextPrompt": "Осы аудармаға арналған қысқаша нақтылау немесе контекст жіберіңіз.",
+  "translationClarifyLanguageHint": "Төменнен тілді таңдаңыз (жалауша + код) немесе нақтылау жіберіңіз.",
+  "correctionNotice": "✏️ Түзетілді: {original} → {corrected} — {explanation}",
+  "sentenceErrorNotice": "✏️ Түзетілді: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Күнделікті аударма шегіне жеттіңіз. Жоспарыңызды тексеру үшін /settings ашыңыз.",
   "mentorModeOn": "🧑‍🏫 Тәлімгер режимі қосулы! Кез келген сөз туралы сұраңыз, мен оны үйренуге көмектесемін — жай аударып қана қоймай, бағыт беремін.",
   "mentorThinking": "🧠 Ойланудамын...",
@@ -291,5 +294,7 @@
   "videoSavedToast": "Сақталды!",
   "videoProcessingCancelled": "Видеоны өңдеу болдырылмады.",
   "videoPhrasesExtracted": "{count} тіркес шығарылды",
-  "chooseProficiencyLevel": "{lang} тіліндегі деңгейіңіз қандай?"
+  "chooseProficiencyLevel": "{lang} тіліндегі деңгейіңіз қандай?",
+  "loading": "⏳ Жүктелуде...",
+  "loadingTimeout": "⌛ Күткеннен ұзағырақ болды. Қайталап көріңіз."
 }
