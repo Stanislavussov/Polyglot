@@ -49,6 +49,7 @@ vi.mock("@polyglot/adapter-db", () => ({
   userRepository: mockUserRepository,
   vocabularyRepository: mockVocabularyRepository,
   createContextLookup: () => mockLookupContext,
+  createWordLanguageSweep: () => vi.fn().mockResolvedValue([]),
   getLang: mockLanguageCache.getLang,
   getLangDisplay: mockLanguageCache.getLangDisplay,
   translationTemplateRepository: mockTranslationTemplateRepository,
@@ -88,7 +89,19 @@ vi.mock("@polyglot/core", async () => {
           }
         : { confidence: 0, evidence: [] };
     }),
-    detectLanguageWithConfidenceAsync: vi.fn(async () => ({ confidence: 0, evidence: [] })),
+    detectLanguageWithConfidenceAsync: vi.fn(async (text: string, candidates: string[]) => {
+      // Mirrors the sync mock — these tests exercise the reminder flag, not detection,
+      // so the dictionary-verification escalation must stay confident too.
+      const hasCyrillic = /[Ѐ-ӿ]/.test(text);
+      const language = hasCyrillic && candidates.includes("ru") ? "ru" : candidates[0];
+      return language
+        ? {
+            language,
+            confidence: 0.9,
+            evidence: [{ strategy: "mock", candidate: language, score: 0.9, reason: "test fixture" }],
+          }
+        : { confidence: 0, evidence: [] };
+    }),
   };
 });
 

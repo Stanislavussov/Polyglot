@@ -11,6 +11,8 @@ vi.mock("@polyglot/adapter-ai", () => ({
 
 const {
   mockLookupContext,
+  mockSweepWordLanguages,
+  mockLanguageDetectionRecord,
   mockUserRepository,
   mockVocabularyRepository,
   mockTranslationTemplateRepository,
@@ -20,6 +22,8 @@ const {
   mockAi,
 } = vi.hoisted(() => ({
   mockLookupContext: vi.fn().mockResolvedValue([]),
+  mockSweepWordLanguages: vi.fn().mockResolvedValue([]),
+  mockLanguageDetectionRecord: vi.fn().mockResolvedValue(undefined),
   mockUserRepository: {
     getSettings: vi.fn(),
   },
@@ -50,11 +54,12 @@ vi.mock("@polyglot/adapter-db", () => ({
   userRepository: mockUserRepository,
   vocabularyRepository: mockVocabularyRepository,
   createContextLookup: () => mockLookupContext,
+  createWordLanguageSweep: () => mockSweepWordLanguages,
   getLang: mockLanguageCache.getLang,
   translationTemplateRepository: mockTranslationTemplateRepository,
   requestTimingRepository: mockRequestTimingRepository,
   languageDetectionRepository: {
-    record: vi.fn().mockResolvedValue(undefined),
+    record: mockLanguageDetectionRecord,
   },
 }));
 
@@ -127,7 +132,12 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { translateOneWithContext, translateWithContext } from "@polyglot/core";
+import {
+  detectLanguageWithConfidence,
+  detectLanguageWithConfidenceAsync,
+  translateOneWithContext,
+  translateWithContext,
+} from "@polyglot/core";
 import type { BotContext, SessionData } from "../../types.js";
 import {
   handleRegenCallback,
@@ -771,6 +781,80 @@ describe("handleTranslateText — context enrichment", () => {
     expect(ctx.session.pendingClarification).toBeUndefined();
     expect(ctx.session.awaitingTranslationClarificationContext).toBeUndefined();
     expect(translateWithContext).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleTranslateText — out-of-set language detection", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de"],
+    });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
+  });
+
+  it("replies languageNotSelected and skips translation when async detection is out-of-set", async () => {
+    vi.mocked(detectLanguageWithConfidence).mockReturnValueOnce({ confidence: 0, evidence: [] });
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce({
+      confidence: 0,
+      evidence: [],
+      outOfSetLanguages: ["pl"],
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "przepraszam");
+
+    expect(ctx.reply).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your selected languages");
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(mockLanguageDetectionRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: "out_of_set", word: "przepraszam", sourceLang: "pl" }),
+    );
+  });
+
+  it("re-verifies a confident heuristic-only diacritic detection via the async path", async () => {
+    // Sync detection is confident but rests on script/diacritics heuristics only —
+    // needsDictionaryVerification must force the async dictionary sweep.
+    vi.mocked(detectLanguageWithConfidence).mockReturnValueOnce({
+      language: "de",
+      confidence: 0.9,
+      evidence: [{ strategy: "script", candidate: "de", score: 0.9, reason: "unique latin script candidate" }],
+    });
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce({
+      confidence: 0,
+      evidence: [],
+      outOfSetLanguages: ["cs"],
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "Strohá");
+
+    expect(detectLanguageWithConfidenceAsync).toHaveBeenCalledWith(
+      "Strohá",
+      expect.arrayContaining(["en", "ru", "cs", "de"]),
+      expect.objectContaining({ findWordLanguages: mockSweepWordLanguages }),
+    );
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your selected languages");
+  });
+
+  it("does not re-verify confident ASCII detections", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "hello");
+
+    expect(detectLanguageWithConfidenceAsync).not.toHaveBeenCalled();
+    expect(translateWithContext).toHaveBeenCalled();
+  });
+
+  it("records a 'detected' telemetry event for confident detections", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "hello");
+
+    expect(mockLanguageDetectionRecord).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: "detected", word: "hello", sourceLang: "ru" }),
+    );
   });
 });
 

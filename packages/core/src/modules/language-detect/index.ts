@@ -2,6 +2,7 @@
 export type { ContextLookupFn } from "../context-enrichment/types.js";
 export type {
   AIGenerateFn,
+  AIOpenDetection,
   LanguageDetectionStrategy,
 } from "./detect-language.js";
 export {
@@ -15,6 +16,7 @@ export {
   detectOutOfSetLanguage,
   FrancStrategy,
   ISO1_TO_ISO3,
+  needsDictionaryVerification,
   // Strategy classes
   ScriptStrategy,
   WiktionaryStrategy,
@@ -26,6 +28,7 @@ export {
 export type {
   DetectionEvidence,
   DetectionResult,
+  FindWordLanguagesFn,
   ResolveDirectionInput,
   ResolveFromSourceInput,
   TranslationDirection,

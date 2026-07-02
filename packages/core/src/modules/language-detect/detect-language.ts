@@ -1,6 +1,7 @@
 import { franc, francAll } from "franc";
 import type { DictionaryContextCandidate } from "../context-enrichment/types.js";
-import type { DetectionEvidence, DetectionResult } from "./types.js";
+import { findLettersOutsideAlphabet } from "./alphabets.js";
+import type { DetectionEvidence, DetectionResult, FindWordLanguagesFn } from "./types.js";
 
 /**
  * Language Detection Strategy Interface
@@ -370,6 +371,14 @@ export class WiktionaryStrategy implements LanguageDetectionStrategy {
 
 export type AIGenerateFn = (prompt: string) => Promise<string>;
 
+/** AI answer that may name a language outside the candidate set. */
+export interface AIOpenDetection {
+  /** ISO 639-1 code the model identified */
+  language: string;
+  /** Whether the identified language is one of the offered candidates */
+  inCandidates: boolean;
+}
+
 /**
  * AI-based strategy: uses language model to detect language.
  * Most flexible but slowest and most expensive.
@@ -383,25 +392,37 @@ export class AIStrategy implements LanguageDetectionStrategy {
     this.generate = generate;
   }
 
-  async detect(text: string, candidates: string[]): Promise<string | undefined> {
+  /**
+   * Open detection: the model prefers a candidate but may name a language
+   * outside the set, so the caller can tell the user the language isn't
+   * selected instead of coercing to the nearest candidate.
+   */
+  async detectOpen(text: string, candidates: string[]): Promise<AIOpenDetection | undefined> {
     if (candidates.length <= 1) return undefined; // No need for AI with single candidate
 
     const candidatesStr = candidates.join(", ");
-    const prompt = `Detect the language of this text from these candidates: ${candidatesStr}.
+    const prompt = `Detect the language of this text. Preferred candidates: ${candidatesStr}.
 Text: "${text}"
-Respond with ONLY the ISO 639-1 language code. If the text is valid in multiple candidate languages and context does not disambiguate it, respond with "ambiguous". No explanation.`;
+Respond with ONLY an ISO 639-1 language code. Prefer a candidate when the text is plausible in it. If the text clearly belongs to a language outside the candidates, respond with that language's code instead. If the text is valid in multiple candidate languages and context does not disambiguate it, respond with "ambiguous". No explanation.`;
 
     try {
       const response = await this.generate(prompt);
-      const detected = response.trim().toLowerCase().substring(0, 2);
-      if (candidates.includes(detected)) {
-        return detected;
-      }
+      const raw = response.trim().toLowerCase();
+      if (raw.startsWith("ambiguous")) return undefined;
+
+      const detected = raw.substring(0, 2);
+      if (!ISO1_TO_ISO3[detected]) return undefined; // not a code we can act on
+
+      return { language: detected, inCandidates: candidates.includes(detected) };
     } catch {
       // AI failed, return undefined
+      return undefined;
     }
+  }
 
-    return undefined;
+  async detect(text: string, candidates: string[]): Promise<string | undefined> {
+    const open = await this.detectOpen(text, candidates);
+    return open?.inCandidates ? open.language : undefined;
   }
 }
 
@@ -526,6 +547,40 @@ export async function detectLanguageAsync(
 const CONFIDENCE_THRESHOLD = 0.7;
 const MARGIN_THRESHOLD = 0.2;
 
+/**
+ * Scripts that map (nearly) one-to-one onto a language, so being the only
+ * candidate of that script is decisive on its own. Latin and Cyrillic are
+ * NOT here: hundreds of languages share them, so a sole candidate still
+ * needs its alphabet confirmed (e.g. "Strohá" must not count as English).
+ */
+const NEAR_UNIQUE_SCRIPTS: ReadonlySet<ScriptId> = new Set(["hangul", "kana", "greek", "devanagari", "arabic", "cjk"]);
+
+/** Zero-score evidence entry documenting an alphabet exclusion in the trail. */
+function alphabetExclusionEvidence(text: string, candidate: string): DetectionEvidence {
+  const outside = findLettersOutsideAlphabet(text, candidate);
+  return {
+    strategy: "alphabet",
+    candidate,
+    score: 0,
+    reason: `contains "${outside.join('", "')}" not in ${candidate} alphabet`,
+  };
+}
+
+function scoreSoleScriptCandidate(text: string, script: ScriptId, candidate: string): DetectionEvidence[] {
+  if (NEAR_UNIQUE_SCRIPTS.has(script) || findLettersOutsideAlphabet(text, candidate).length === 0) {
+    return [{ strategy: "script", candidate, score: 0.9, reason: `unique ${script} script candidate` }];
+  }
+  return [
+    {
+      strategy: "script",
+      candidate,
+      score: 0.3,
+      reason: `sole ${script} candidate but text has letters outside ${candidate} alphabet`,
+    },
+    alphabetExclusionEvidence(text, candidate),
+  ];
+}
+
 function scoreScript(text: string, candidates: string[]): DetectionEvidence[] {
   const script = detectScript(text);
   if (!script) return [];
@@ -533,41 +588,105 @@ function scoreScript(text: string, candidates: string[]): DetectionEvidence[] {
   const scriptLangs = SCRIPT_TO_LANGS[script] ?? [];
   const matches = candidates.filter((c) => scriptLangs.includes(c));
 
+  if (matches.length === 0) return [];
+
   if (matches.length === 1) {
-    return [{ strategy: "script", candidate: matches[0], score: 0.9, reason: `unique ${script} script candidate` }];
+    return scoreSoleScriptCandidate(text, script, matches[0]);
   }
-  if (matches.length > 1) {
-    return matches.map((c) => ({
-      strategy: "script",
-      candidate: c,
-      score: 0.3,
-      reason: `shared ${script} script with ${matches.length} candidates`,
-    }));
+
+  // Multiple candidates share the script — narrow via alphabet exclusion.
+  const admissible = matches.filter((c) => findLettersOutsideAlphabet(text, c).length === 0);
+
+  if (admissible.length === 1) {
+    const excluded = matches.filter((c) => c !== admissible[0]);
+    return [
+      ...scoreSoleScriptCandidate(text, script, admissible[0]),
+      ...excluded.map((c) => alphabetExclusionEvidence(text, c)),
+    ];
   }
-  return [];
+
+  // Safety valve: exclusion may not eliminate every candidate (loanwords,
+  // mixed-script input) — keep the unfiltered set rather than none.
+  const kept = admissible.length === 0 ? matches : admissible;
+  return kept.map((c) => ({
+    strategy: "script",
+    candidate: c,
+    score: 0.3,
+    reason: `shared ${script} script with ${kept.length} candidates`,
+  }));
 }
 
+/**
+ * Non-ASCII characters per language, derived from DIACRITIC_PATTERNS so both
+ * scoring paths share one source of truth. ASCII letters in a pattern (e.g.
+ * the Dutch "ij" digraph) carry no diacritic signal and are dropped.
+ */
+const DIACRITIC_CHARS: ReadonlyMap<string, ReadonlySet<string>> = (() => {
+  const map = new Map<string, ReadonlySet<string>>();
+  for (const [lang, pattern] of Object.entries(DIACRITIC_PATTERNS)) {
+    const chars = new Set<string>();
+    for (const char of pattern.source) {
+      const cp = char.codePointAt(0);
+      if (cp !== undefined && cp > 0x7f) chars.add(char);
+    }
+    if (chars.size > 0) map.set(lang, chars);
+  }
+  return map;
+})();
+
+/** Diacritic character → languages whose pattern contains it. */
+const DIACRITIC_CHAR_OWNERS: ReadonlyMap<string, readonly string[]> = (() => {
+  const owners = new Map<string, string[]>();
+  for (const [lang, chars] of DIACRITIC_CHARS) {
+    for (const char of chars) {
+      const list = owners.get(char) ?? [];
+      list.push(lang);
+      owners.set(char, list);
+    }
+  }
+  return owners;
+})();
+
+const DIACRITIC_UNIQUE_SCORE = 0.8;
+const DIACRITIC_SHARED_SCORE = 0.4;
+
+/**
+ * Scores candidates by diacritic evidence, weighted by how distinctive each
+ * character actually is. A character owned by a single language (ř → cs,
+ * ł → pl, ß → de) is near-conclusive; a widely shared one (á, é) is only a
+ * mild hint — "unique among the user's candidates" is NOT unique in reality,
+ * so it must not settle the detection on its own.
+ */
 function scoreDiacritics(text: string, candidates: string[]): DetectionEvidence[] {
-  const matchingCandidates: string[] = [];
+  const lowered = text.normalize("NFC").toLowerCase();
+  const evidence: DetectionEvidence[] = [];
+
   for (const candidate of candidates) {
-    const pattern = DIACRITIC_PATTERNS[candidate];
-    if (pattern?.test(text)) {
-      matchingCandidates.push(candidate);
+    const chars = DIACRITIC_CHARS.get(candidate);
+    if (!chars) continue;
+
+    const matched = [...new Set([...lowered].filter((char) => chars.has(char)))];
+    if (matched.length === 0) continue;
+
+    const uniqueChar = matched.find((char) => (DIACRITIC_CHAR_OWNERS.get(char) ?? []).length === 1);
+    if (uniqueChar) {
+      evidence.push({
+        strategy: "diacritics",
+        candidate,
+        score: DIACRITIC_UNIQUE_SCORE,
+        reason: `"${uniqueChar}" occurs only in ${candidate}`,
+      });
+    } else {
+      evidence.push({
+        strategy: "diacritics",
+        candidate,
+        score: DIACRITIC_SHARED_SCORE,
+        reason: `diacritics "${matched.join('", "')}" shared across languages`,
+      });
     }
   }
 
-  if (matchingCandidates.length === 1) {
-    return [{ strategy: "diacritics", candidate: matchingCandidates[0], score: 0.8, reason: "unique diacritic match" }];
-  }
-  if (matchingCandidates.length > 1) {
-    return matchingCandidates.map((c) => ({
-      strategy: "diacritics",
-      candidate: c,
-      score: 0.3,
-      reason: `shared diacritics with ${matchingCandidates.length} candidates`,
-    }));
-  }
-  return [];
+  return evidence;
 }
 
 function scoreFranc(text: string, candidates: string[]): DetectionEvidence[] {
@@ -626,6 +745,32 @@ function buildResult(evidence: DetectionEvidence[]): DetectionResult {
   };
 }
 
+function hasNonAsciiLatinLetter(text: string): boolean {
+  for (const char of text.normalize("NFC")) {
+    const cp = char.codePointAt(0);
+    if (cp !== undefined && cp > 0x7f && /\p{Script=Latin}/u.test(char)) return true;
+  }
+  return false;
+}
+
+/**
+ * Whether a confident sync detection still needs dictionary confirmation.
+ *
+ * True for a single word carrying non-ASCII Latin letters whose detection
+ * rests solely on script/diacritics heuristics — the exact class where
+ * "unique among candidates" goes wrong (e.g. Czech "Strohá" scored as Spanish
+ * for a [ru, es] user because á is also a Spanish letter). Evidence from
+ * dictionary, franc or AI already grounds the result, so no re-check then.
+ */
+export function needsDictionaryVerification(text: string, detection: DetectionResult): boolean {
+  if (detection.language === undefined) return false;
+  if (wordCount(text) !== 1) return false;
+  if (!hasNonAsciiLatinLetter(text)) return false;
+  return !detection.evidence.some(
+    (entry) => entry.strategy === "wiktionary" || entry.strategy === "ai" || entry.strategy === "franc",
+  );
+}
+
 function isEnglishOnlyLookupTooWeakForSharedScriptWord(
   text: string,
   evidence: readonly DetectionEvidence[],
@@ -672,12 +817,36 @@ export function detectLanguageWithConfidence(text: string, candidates: string[])
   return buildResult(evidence);
 }
 
+/** Adds dictionary-match evidence using the shared wiktionary scoring rules. */
+function pushWiktionaryEvidence(text: string, evidence: DetectionEvidence[], matches: readonly string[]): void {
+  if (matches.length === 1) {
+    if (!isEnglishOnlyLookupTooWeakForSharedScriptWord(text, evidence, matches)) {
+      evidence.push({
+        strategy: "wiktionary",
+        candidate: matches[0],
+        score: 0.9,
+        reason: "unique dictionary match",
+      });
+    }
+  } else if (matches.length > 1) {
+    for (const candidate of matches) {
+      evidence.push({
+        strategy: "wiktionary",
+        candidate,
+        score: 0.3,
+        reason: "word exists in multiple candidate dictionaries",
+      });
+    }
+  }
+}
+
 export async function detectLanguageWithConfidenceAsync(
   text: string,
   candidates: string[],
   deps: {
     contextLookup?: (word: string, langCode: string) => Promise<DictionaryContextCandidate[]>;
     aiGenerate?: AIGenerateFn;
+    findWordLanguages?: FindWordLanguagesFn;
   },
 ): Promise<DetectionResult> {
   const trimmed = text.trim();
@@ -707,33 +876,46 @@ export async function detectLanguageWithConfidenceAsync(
   ];
 
   const earlyResult = buildResult(evidence);
-  if (earlyResult.language !== undefined) {
+  const verifying = deps.findWordLanguages !== undefined && needsDictionaryVerification(trimmed, earlyResult);
+  if (earlyResult.language !== undefined && !verifying) {
     return earlyResult;
   }
 
-  if (deps.contextLookup) {
+  if (deps.findWordLanguages && wordCount(trimmed) === 1) {
+    // Dictionary sweep across ALL supported languages — the strongest signal
+    // for a single word, and the only one that can spot an out-of-set language.
+    let dictLangs: string[] = [];
+    try {
+      dictLangs = await deps.findWordLanguages(trimmed);
+    } catch {
+      dictLangs = []; // fail-open: sweep must never block detection
+    }
+
+    const candidateSet = new Set(uniqueCandidates);
+    const candidateMatches = uniqueCandidates.filter((c) => dictLangs.includes(c));
+    const outOfSet = dictLangs.filter((c) => !candidateSet.has(c));
+
+    if (candidateMatches.length === 0 && outOfSet.length > 0) {
+      return {
+        confidence: 0,
+        evidence: [
+          ...evidence,
+          {
+            strategy: "dictionary-sweep",
+            candidate: outOfSet[0],
+            score: 0,
+            reason: `word found only in non-candidate dictionaries: ${outOfSet.join(", ")}`,
+          },
+        ],
+        outOfSetLanguages: outOfSet,
+      };
+    }
+
+    pushWiktionaryEvidence(trimmed, evidence, candidateMatches);
+  } else if (deps.contextLookup) {
     const wiktionaryStrategy = new WiktionaryStrategy(deps.contextLookup);
     const wiktionaryMatches = await wiktionaryStrategy.findMatches(trimmed, uniqueCandidates);
-
-    if (wiktionaryMatches.length === 1) {
-      if (!isEnglishOnlyLookupTooWeakForSharedScriptWord(trimmed, evidence, wiktionaryMatches)) {
-        evidence.push({
-          strategy: "wiktionary",
-          candidate: wiktionaryMatches[0],
-          score: 0.9,
-          reason: "unique dictionary match",
-        });
-      }
-    } else if (wiktionaryMatches.length > 1) {
-      for (const candidate of wiktionaryMatches) {
-        evidence.push({
-          strategy: "wiktionary",
-          candidate,
-          score: 0.3,
-          reason: "word exists in multiple candidate dictionaries",
-        });
-      }
-    }
+    pushWiktionaryEvidence(trimmed, evidence, wiktionaryMatches);
   }
 
   const postWiktionaryResult = buildResult(evidence);
@@ -743,9 +925,18 @@ export async function detectLanguageWithConfidenceAsync(
 
   if (deps.aiGenerate) {
     const aiStrategy = new AIStrategy(deps.aiGenerate);
-    const aiResult = await aiStrategy.detect(trimmed, uniqueCandidates);
-    if (aiResult !== undefined) {
-      evidence.push({ strategy: "ai", candidate: aiResult, score: 0.6, reason: "AI language identification" });
+    const aiResult = await aiStrategy.detectOpen(trimmed, uniqueCandidates);
+    if (aiResult?.inCandidates) {
+      evidence.push({ strategy: "ai", candidate: aiResult.language, score: 0.6, reason: "AI language identification" });
+    } else if (aiResult) {
+      return {
+        confidence: 0,
+        evidence: [
+          ...evidence,
+          { strategy: "ai", candidate: aiResult.language, score: 0, reason: "AI identified a non-candidate language" },
+        ],
+        outOfSetLanguages: [aiResult.language],
+      };
     }
   }
 

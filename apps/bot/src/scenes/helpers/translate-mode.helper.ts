@@ -4,7 +4,12 @@
  */
 // Context lookup factory — utility function, not a repository (no DI needed)
 // Note: createContextLookup is a factory function, not a repository — kept as direct import
-import { createContextLookup, languageDetectionRepository, requestTimingRepository } from "@polyglot/adapter-db";
+import {
+  createContextLookup,
+  createWordLanguageSweep,
+  languageDetectionRepository,
+  requestTimingRepository,
+} from "@polyglot/adapter-db";
 import {
   calculateTranslationCreditCost,
   type DetectionResult,
@@ -24,6 +29,7 @@ import {
   type InputType,
   isSupported,
   logger,
+  needsDictionaryVerification,
   resolveDirectionFromSource,
   resolveOutputConfig,
   resolveTemplate,
@@ -53,6 +59,9 @@ import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
+
+/** Singleton dictionary sweep — which supported languages know a word. */
+const sweepWordLanguages = createWordLanguageSweep();
 
 /** Check if any LanguageTranslation has grammarBreakdown data */
 function hasGrammarBreakdownData(output: TranslateOutput): boolean {
@@ -283,8 +292,10 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   // Confidence-aware detection: sync first (script + diacritics + franc)
   let detection: DetectionResult = detectLanguageWithConfidence(cleanWord, allCandidates);
 
-  // If sync detection is ambiguous, try async with Wiktionary + AI
-  if (detection.language === undefined) {
+  // Escalate to async (dictionary sweep + Wiktionary + AI) when sync is
+  // ambiguous, or when a confident single-word result rests on heuristics
+  // alone and needs dictionary confirmation (e.g. "Strohá" is not English).
+  if (detection.language === undefined || needsDictionaryVerification(cleanWord, detection)) {
     const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
     const aiGenerate = async (prompt: string) => {
       const result = await ctx.services.ai.generateText(prompt, model);
@@ -293,6 +304,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
     detection = await detectLanguageWithConfidenceAsync(cleanWord, candidatesWithEnglish, {
       contextLookup: lookupContext,
+      findWordLanguages: sweepWordLanguages,
       aiGenerate,
     });
   }
@@ -303,6 +315,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       detectedLang: detection.language,
       confidence: detection.confidence,
       ambiguousCandidates: detection.ambiguousCandidates,
+      outOfSetLanguages: detection.outOfSetLanguages,
       evidenceCount: detection.evidence.length,
     },
     "Language detection result",
@@ -311,8 +324,20 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   // Out-of-set guard: input is confidently in a language the user hasn't configured.
   // The closed-set detector would otherwise coerce it to the nearest candidate (e.g. German
   // → English), so tell the user it isn't selected instead of mistranslating.
-  const outOfSetLang = detectOutOfSetLanguage(cleanWord, candidatesWithEnglish);
+  // Single-word signal (dictionary sweep / AI) takes precedence; the franc-based
+  // check still covers inputs of 3+ words.
+  const outOfSetLang = detection.outOfSetLanguages?.[0] ?? detectOutOfSetLanguage(cleanWord, candidatesWithEnglish);
   if (outOfSetLang) {
+    languageDetectionRepository
+      .record({
+        userId: ctx.user.id,
+        eventType: "out_of_set",
+        word: cleanWord,
+        sourceLang: outOfSetLang,
+      })
+      .catch((err: unknown) => {
+        logger.warn({ err }, "Failed to record language detection event");
+      });
     await ctx.reply(t("languageNotSelected", lang, { lang: getLanguageName(outOfSetLang, lang) }));
     return;
   }
@@ -435,6 +460,21 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
     await ctx.reply(warningText, { reply_markup: keyboard });
     return;
+  }
+
+  // Telemetry: confident detections feed the golden regression set.
+  if (detection.language !== undefined) {
+    languageDetectionRepository
+      .record({
+        userId: ctx.user.id,
+        eventType: "detected",
+        word: cleanWord,
+        sourceLang,
+        targetLangs,
+      })
+      .catch((err: unknown) => {
+        logger.warn({ err }, "Failed to record language detection event");
+      });
   }
 
   const classification = classifyInput(cleanWord);

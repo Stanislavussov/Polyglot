@@ -69,12 +69,54 @@ describe("detectLanguageWithConfidence", () => {
 
   // === Close-language disambiguation: ru/uk ===
 
-  it("returns ambiguous for ru/uk shared Cyrillic word", () => {
+  it("detects Ukrainian from і which is not a Russian letter", () => {
     const result = detectLanguageWithConfidence("привіт", ["en", "ru", "uk"]);
+    expect(result.language).toBe("uk");
+    expect(result.confidence).toBeGreaterThanOrEqual(0.7);
+  });
+
+  it("returns ambiguous for ru/uk word valid in both alphabets", () => {
+    const result = detectLanguageWithConfidence("мама", ["en", "ru", "uk"]);
     expect(result.language).toBeUndefined();
     expect(result.ambiguousCandidates).toBeDefined();
     expect(result.ambiguousCandidates).toContain("ru");
     expect(result.ambiguousCandidates).toContain("uk");
+  });
+
+  // === Alphabet exclusion (negative evidence) ===
+
+  it("does not claim English for a Latin word with a diacritic outside the English alphabet", () => {
+    const result = detectLanguageWithConfidence("Strohá", ["ru", "en"]);
+    expect(result.language).toBeUndefined();
+  });
+
+  it("alphabet exclusion is case-insensitive", () => {
+    const result = detectLanguageWithConfidence("STROHÁ", ["ru", "en"]);
+    expect(result.language).toBeUndefined();
+  });
+
+  it("keeps the fast path for plain ASCII with a sole Latin candidate", () => {
+    const result = detectLanguageWithConfidence("hello", ["ru", "en"]);
+    expect(result.language).toBe("en");
+    expect(result.confidence).toBeGreaterThanOrEqual(0.7);
+  });
+
+  it("ignores apostrophes when checking the alphabet", () => {
+    const result = detectLanguageWithConfidence("don't", ["ru", "en"]);
+    expect(result.language).toBe("en");
+    expect(result.confidence).toBeGreaterThanOrEqual(0.7);
+  });
+
+  it("narrows shared-script candidates via alphabet exclusion (Größe → de)", () => {
+    const result = detectLanguageWithConfidence("Größe", ["en", "de", "fr"]);
+    expect(result.language).toBe("de");
+    expect(result.confidence).toBeGreaterThanOrEqual(0.7);
+  });
+
+  it("keeps all candidates when exclusion would eliminate every one (safety valve)", () => {
+    const result = detectLanguageWithConfidence("ışık", ["en", "es"]);
+    expect(result.language).toBeUndefined();
+    expect(result.ambiguousCandidates).toEqual(expect.arrayContaining(["en", "es"]));
   });
 
   // === Diacritics detection ===
@@ -248,6 +290,107 @@ describe("detectLanguageWithConfidenceAsync", () => {
 
     expect(result.language).toBe("cs");
     expect(result.confidence).toBeGreaterThanOrEqual(0.7);
+  });
+
+  // === Dictionary sweep (findWordLanguages) — single-word out-of-set ===
+
+  it("flags a single word found only in non-candidate dictionaries as out-of-set", async () => {
+    const sweep = vi.fn(async () => ["cs", "sk"]);
+    const result = await detectLanguageWithConfidenceAsync("Strohá", ["ru", "en"], {
+      findWordLanguages: sweep,
+    });
+
+    expect(result.language).toBeUndefined();
+    expect(result.outOfSetLanguages).toEqual(["cs", "sk"]);
+    expect(sweep).toHaveBeenCalledWith("Strohá");
+  });
+
+  it("overrides a confident diacritic-only detection when the dictionary disagrees", async () => {
+    // Sync scoring is confident about es (sole Latin candidate + shared á),
+    // but the word only exists in Czech/Slovak dictionaries.
+    const sweep = vi.fn(async () => ["cs", "sk"]);
+    const result = await detectLanguageWithConfidenceAsync("Strohá", ["ru", "es"], {
+      findWordLanguages: sweep,
+    });
+
+    expect(result.language).toBeUndefined();
+    expect(result.outOfSetLanguages).toEqual(["cs", "sk"]);
+  });
+
+  it("prefers candidate dictionary matches over out-of-set languages", async () => {
+    const sweep = vi.fn(async () => ["en", "es", "it", "pl"]);
+    const result = await detectLanguageWithConfidenceAsync("no", ["en", "es"], {
+      findWordLanguages: sweep,
+    });
+
+    expect(result.outOfSetLanguages).toBeUndefined();
+    expect(result.language).toBeUndefined();
+    expect(result.ambiguousCandidates).toEqual(expect.arrayContaining(["en", "es"]));
+  });
+
+  it("resolves a unique candidate dictionary match (résumé → en)", async () => {
+    const sweep = vi.fn(async () => ["en", "fr"]);
+    const result = await detectLanguageWithConfidenceAsync("résumé", ["ru", "en"], {
+      findWordLanguages: sweep,
+    });
+
+    expect(result.language).toBe("en");
+    expect(result.confidence).toBeGreaterThanOrEqual(0.7);
+  });
+
+  it("does not sweep confident ASCII detections", async () => {
+    const sweep = vi.fn(async () => []);
+    const result = await detectLanguageWithConfidenceAsync("hello", ["ru", "en"], {
+      findWordLanguages: sweep,
+    });
+
+    expect(result.language).toBe("en");
+    expect(sweep).not.toHaveBeenCalled();
+  });
+
+  it("keeps a confident detection when the sweep finds nothing (fail-open)", async () => {
+    const sweep = vi.fn(async () => []);
+    const result = await detectLanguageWithConfidenceAsync("Strohá", ["ru", "es"], {
+      findWordLanguages: sweep,
+    });
+
+    expect(result.language).toBe("es");
+  });
+
+  it("treats a throwing sweep as empty", async () => {
+    const sweep = vi.fn(async () => {
+      throw new Error("db down");
+    });
+    const result = await detectLanguageWithConfidenceAsync("Strohá", ["ru", "es"], {
+      findWordLanguages: sweep,
+    });
+
+    expect(result.language).toBe("es");
+    expect(result.outOfSetLanguages).toBeUndefined();
+  });
+
+  // === AI open detection (out-of-set answers) ===
+
+  it("returns out-of-set language when AI names a non-candidate", async () => {
+    const sweep = vi.fn(async () => []);
+    const mockGenerate = vi.fn(async () => "cs");
+    const result = await detectLanguageWithConfidenceAsync("Strohá", ["ru", "en"], {
+      findWordLanguages: sweep,
+      aiGenerate: mockGenerate,
+    });
+
+    expect(result.language).toBeUndefined();
+    expect(result.outOfSetLanguages).toEqual(["cs"]);
+  });
+
+  it("ignores garbage AI answers", async () => {
+    const mockGenerate = vi.fn(async () => "zz-nonsense");
+    const result = await detectLanguageWithConfidenceAsync("Strohá", ["ru", "en"], {
+      aiGenerate: mockGenerate,
+    });
+
+    expect(result.language).toBeUndefined();
+    expect(result.outOfSetLanguages).toBeUndefined();
   });
 
   it("does not call AI when Wiktionary already resolved", async () => {
