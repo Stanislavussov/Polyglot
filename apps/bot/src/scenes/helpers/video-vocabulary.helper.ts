@@ -631,6 +631,27 @@ async function showVideoListEdit(ctx: BotContext, userId: number, page: number, 
 /*  Background processing                                              */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Collect every phrase the user already has in a given language so extraction can
+ * skip them: the originals of their saved vocabulary in that source language, plus
+ * every phrase generated in their previous videos of the same language. The source
+ * language may be missing from the cache — in that case only prior video phrases
+ * are used.
+ */
+async function collectKnownPhrases(
+  ctx: BotContext,
+  userId: number,
+  language: string,
+  currentProcessId: number,
+): Promise<string[]> {
+  const sourceLang = ctx.services.languageCache.getLang(language);
+  const [savedOriginals, priorPhrases] = await Promise.all([
+    sourceLang ? vocabularyRepository.findOriginalsByUserAndSource(userId, sourceLang.id) : Promise.resolve([]),
+    videoVocabularyRepository.findKnownPhrasesByUser(userId, language, currentProcessId),
+  ]);
+  return [...savedOriginals, ...priorPhrases];
+}
+
 async function processVideoInBackground(
   ctx: BotContext,
   processId: number,
@@ -681,6 +702,11 @@ async function processVideoInBackground(
       const durationSeconds = estimateDurationSeconds(transcriptText);
       const targetPhrases = computePhraseTarget(durationSeconds, config.minPhrases, config.maxPhrases);
 
+      // 4b. Gather phrases the user already knows in this language — their saved
+      // dictionary plus everything generated in their previous videos — so the AI
+      // does not regenerate them.
+      const knownPhrases = await collectKnownPhrases(ctx, userId, process.language, processId);
+
       // 5. Extract phrases using AI
       const phrases = await extractPhrasesFromTranscript(
         transcriptText,
@@ -690,6 +716,7 @@ async function processVideoInBackground(
         ctx.services.ai.generateObject,
         config.extractionModelId,
         nativeLang,
+        knownPhrases,
       );
 
       // 6. Save phrases to DB

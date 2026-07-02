@@ -197,6 +197,24 @@ export const videoVocabularyRepository = {
     await db.update(videoPhrases).set({ savedEntryId: entryId }).where(eq(videoPhrases.id, phraseId));
   },
 
+  /**
+   * List every phrase this user has already had generated across their previous
+   * videos in the given language. Used to avoid regenerating the same phrases on
+   * subsequent videos. `excludeProcessId` omits the current process (its rows are
+   * saved after extraction anyway, but this keeps the query intent explicit).
+   */
+  async findKnownPhrasesByUser(userId: number, language: string, excludeProcessId?: number): Promise<string[]> {
+    const db = getDb();
+    const conditions = [eq(videoProcesses.userId, userId), eq(videoProcesses.language, language)];
+    if (excludeProcessId !== undefined) conditions.push(ne(videoPhrases.videoProcessId, excludeProcessId));
+    const rows = await db
+      .select({ phrase: videoPhrases.phrase })
+      .from(videoPhrases)
+      .innerJoin(videoProcesses, eq(videoPhrases.videoProcessId, videoProcesses.id))
+      .where(and(...conditions));
+    return rows.map((r) => r.phrase);
+  },
+
   /* ---- Transcript cache ---- */
 
   async findCachedTranscript(videoId: string, language: string) {

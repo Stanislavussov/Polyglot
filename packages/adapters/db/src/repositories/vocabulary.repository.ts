@@ -159,6 +159,26 @@ export const vocabularyRepository = {
   },
 
   /**
+   * List the `original` strings of a user's active vocabulary entries in a given
+   * source language. Lightweight (no translations) — used to exclude already-saved
+   * words from video-vocabulary extraction so they are never regenerated.
+   */
+  async findOriginalsByUserAndSource(userId: number, sourceLangId: number): Promise<string[]> {
+    const db = getDb();
+    const rows = await db
+      .select({ original: vocabularyEntries.original })
+      .from(vocabularyEntries)
+      .where(
+        and(
+          eq(vocabularyEntries.userId, userId),
+          eq(vocabularyEntries.sourceLangId, sourceLangId),
+          eq(vocabularyEntries.isActive, true),
+        ),
+      );
+    return rows.map((r) => r.original);
+  },
+
+  /**
    * Find all active vocabulary entries for a user with their active translations.
    * Ordered by createdAt DESC.
    */

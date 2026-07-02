@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-02T19:44:06.424Z",
+  "generatedAt": "2026-07-02T19:59:12.147Z",
   "summary": {
-    "total": 1925,
+    "total": 1930,
     "business": 0,
-    "technical": 1925,
+    "technical": 1930,
     "workspaces": [
       "apps",
       "packages"
@@ -30827,6 +30827,38 @@
       "description": "Protects the core domain build Extraction Prompt behavior: includes native language translation instruction."
     },
     {
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-43-buildextractionprompt-omits-the-already-known-section-when-no-known-phrases-are-provided",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts",
+      "sourceLine": 43,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildExtractionPrompt"
+      ],
+      "title": "omits the 'already known' section when no known phrases are provided",
+      "rawTitle": "omits the 'already known' section when no known phrases are provided",
+      "name": "Core domain build Extraction Prompt omits the 'already known' section when no known phrases are provided",
+      "value": "Protects the core domain build Extraction Prompt behavior: omits the 'already known' section when no known phrases are provided.",
+      "description": "Protects the core domain build Extraction Prompt behavior: omits the 'already known' section when no known phrases are provided."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-prompt-test-ts-48-buildextractionprompt-lists-known-phrases-and-de-duplicates-them-case-insensitively",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.prompt.test.ts",
+      "sourceLine": 48,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildExtractionPrompt"
+      ],
+      "title": "lists known phrases and de-duplicates them case-insensitively",
+      "rawTitle": "lists known phrases and de-duplicates them case-insensitively",
+      "name": "Core domain build Extraction Prompt lists known phrases and de duplicates them case insensitively",
+      "value": "Protects the core domain build Extraction Prompt behavior so lists known phrases and de duplicates them case insensitively.",
+      "description": "Protects the core domain build Extraction Prompt behavior so lists known phrases and de duplicates them case insensitively."
+    },
+    {
       "id": "packages-core-src-modules-video-vocabulary-tests-extraction-service-test-ts-6-extractphrasesfromtranscript-calls-generateobject-with-correct-params-and-returns-phrases",
       "kind": "technical",
       "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts",
@@ -30873,6 +30905,54 @@
       "name": "Core domain extract Phrases From Transcript passes model ID and a token budget scaled to the target",
       "value": "Protects the core domain extract Phrases From Transcript behavior so passes model ID and a token budget scaled to the target.",
       "description": "Protects the core domain extract Phrases From Transcript behavior so passes model ID and a token budget scaled to the target."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-service-test-ts-100-extractphrasesfromtranscript-filters-out-phrases-the-learner-already-knows-case-insensitively",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts",
+      "sourceLine": 100,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "extractPhrasesFromTranscript"
+      ],
+      "title": "filters out phrases the learner already knows, case-insensitively",
+      "rawTitle": "filters out phrases the learner already knows, case-insensitively",
+      "name": "Core domain extract Phrases From Transcript filters out phrases the learner already knows, case insensitively",
+      "value": "Protects the core domain extract Phrases From Transcript behavior: filters out phrases the learner already knows, case insensitively.",
+      "description": "Protects the core domain extract Phrases From Transcript behavior: filters out phrases the learner already knows, case insensitively."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-service-test-ts-140-extractphrasesfromtranscript-passes-the-known-phrases-into-the-prompt-as-a-hint",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts",
+      "sourceLine": 140,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "extractPhrasesFromTranscript"
+      ],
+      "title": "passes the known phrases into the prompt as a hint",
+      "rawTitle": "passes the known phrases into the prompt as a hint",
+      "name": "Core domain extract Phrases From Transcript passes the known phrases into the prompt as a hint",
+      "value": "Protects the core domain extract Phrases From Transcript behavior so passes the known phrases into the prompt as a hint.",
+      "description": "Protects the core domain extract Phrases From Transcript behavior so passes the known phrases into the prompt as a hint."
+    },
+    {
+      "id": "packages-core-src-modules-video-vocabulary-tests-extraction-service-test-ts-152-extractphrasesfromtranscript-behaves-as-before-when-no-known-phrases-are-given",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/video-vocabulary/__tests__/extraction.service.test.ts",
+      "sourceLine": 152,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "extractPhrasesFromTranscript"
+      ],
+      "title": "behaves as before when no known phrases are given",
+      "rawTitle": "behaves as before when no known phrases are given",
+      "name": "Core domain extract Phrases From Transcript behaves as before when no known phrases are given",
+      "value": "Protects the core domain extract Phrases From Transcript behavior so behaves as before when no known phrases are given.",
+      "description": "Protects the core domain extract Phrases From Transcript behavior so behaves as before when no known phrases are given."
     },
     {
       "id": "packages-core-src-modules-video-vocabulary-tests-target-test-ts-8-computephrasetarget-anchors-to-the-product-spec-20-at-30min-30-at-1h-40-at-2h",
