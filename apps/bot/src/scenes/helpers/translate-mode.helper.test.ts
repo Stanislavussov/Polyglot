@@ -124,6 +124,7 @@ vi.mock("@polyglot/core", async () => {
         : { confidence: 0, evidence: [] };
     }),
     detectLanguageWithConfidenceAsync: vi.fn(async () => ({ confidence: 0, evidence: [] })),
+    generateEtymology: vi.fn().mockResolvedValue("From Old English hāl — a greeting wishing good health."),
   };
 });
 
@@ -135,11 +136,13 @@ vi.mock("@polyglot/infra", () => ({
 import {
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
+  generateEtymology,
   translateOneWithContext,
   translateWithContext,
 } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../types.js";
 import {
+  handleEtymologyCallback,
   handleRegenCallback,
   handleTranslateText,
   handleTranslationClarificationCallback,
@@ -177,6 +180,7 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string):
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
+      editMessageText: vi.fn().mockResolvedValue(undefined),
     },
     user: { id: 1, telegramId: 123456789 },
     services: {
@@ -874,5 +878,74 @@ describe("isEtymologyEligible", () => {
   it("is NOT eligible when the source term is in the native language", () => {
     expect(isEtymologyEligible("word", "ru", "ru")).toBe(false);
     expect(isEtymologyEligible("phrase", "ru", "ru")).toBe(false);
+  });
+});
+
+describe("handleEtymologyCallback — loading feedback on the card", () => {
+  function cardEntry() {
+    return {
+      output: {
+        original: "hello",
+        sourceLang: "en",
+        emoji: "👋",
+        nativeSynonyms: [],
+        translations: { cs: { text: "ahoj", synonyms: [], examples: [] } },
+      },
+      inputType: "word" as const,
+    };
+  }
+
+  function etymologyCtx(): BotContext {
+    const ctx = createMockCtx({ translationMap: { "77": cardEntry() } as never }, "tr:etymology:77");
+    (ctx as unknown as { editMessageReplyMarkup: unknown }).editMessageReplyMarkup = vi
+      .fn()
+      .mockResolvedValue(undefined);
+    (ctx.services as unknown as { featureAccess: unknown }).featureAccess = {
+      checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: true }),
+    };
+    return ctx;
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({ interfaceLang: "en", nativeLang: "ru", learningLangs: ["cs"] });
+    mockTranslationTemplateRepository.getByUserId.mockResolvedValue(null);
+    vi.mocked(generateEtymology).mockResolvedValue("From Old English hāl — a greeting wishing good health.");
+  });
+
+  it("keeps a loading button on the card and answers the tap only when the section is rendered", async () => {
+    const ctx = etymologyCtx();
+
+    await handleEtymologyCallback(ctx);
+
+    const markupCalls = vi.mocked(
+      (ctx as unknown as { editMessageReplyMarkup: ReturnType<typeof vi.fn> }).editMessageReplyMarkup,
+    ).mock.calls;
+    expect(markupCalls[0]?.[0]?.reply_markup?.inline_keyboard?.[0]?.[0]).toMatchObject({ callback_data: "noop" });
+    expect(ctx.api.editMessageText).toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith();
+  });
+
+  it("restores the card and alerts the user when generation takes too long", async () => {
+    vi.useFakeTimers();
+    try {
+      const ctx = etymologyCtx();
+      vi.mocked(generateEtymology).mockReturnValue(
+        new Promise(() => {
+          /* model never answers */
+        }) as never,
+      );
+
+      const flow = handleEtymologyCallback(ctx);
+      await vi.advanceTimersByTimeAsync(20_000);
+      await flow;
+
+      expect(ctx.api.editMessageText).toHaveBeenCalled();
+      expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
+        expect.objectContaining({ show_alert: true, text: expect.stringContaining("⌛") }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

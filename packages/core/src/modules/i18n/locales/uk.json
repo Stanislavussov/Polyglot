@@ -291,5 +291,7 @@
   "videoSavedToast": "Збережено!",
   "videoProcessingCancelled": "Обробку відео скасовано.",
   "videoPhrasesExtracted": "Витягнуто фраз: {count}",
-  "chooseProficiencyLevel": "Який у тебе рівень з {lang}?"
+  "chooseProficiencyLevel": "Який у тебе рівень з {lang}?",
+  "loading": "⏳ Завантажую...",
+  "loadingTimeout": "⌛ Це триває довше, ніж очікувалось. Спробуй ще раз."
 }

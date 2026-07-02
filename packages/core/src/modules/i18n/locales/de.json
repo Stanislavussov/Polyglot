@@ -291,5 +291,7 @@
   "videoSavedToast": "Gespeichert!",
   "videoProcessingCancelled": "Videoverarbeitung abgebrochen.",
   "videoPhrasesExtracted": "{count} Phrasen extrahiert",
-  "chooseProficiencyLevel": "Was ist dein Niveau in {lang}?"
+  "chooseProficiencyLevel": "Was ist dein Niveau in {lang}?",
+  "loading": "⏳ Wird geladen...",
+  "loadingTimeout": "⌛ Das dauert länger als erwartet. Bitte erneut versuchen."
 }

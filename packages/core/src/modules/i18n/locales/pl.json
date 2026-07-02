@@ -291,5 +291,7 @@
   "videoSavedToast": "Zapisano!",
   "videoProcessingCancelled": "Przetwarzanie filmu anulowane.",
   "videoPhrasesExtracted": "Wyodrębniono wyrażeń: {count}",
-  "chooseProficiencyLevel": "Jaki jest Twój poziom w {lang}?"
+  "chooseProficiencyLevel": "Jaki jest Twój poziom w {lang}?",
+  "loading": "⏳ Ładowanie...",
+  "loadingTimeout": "⌛ Trwa to dłużej niż zwykle. Spróbuj ponownie."
 }

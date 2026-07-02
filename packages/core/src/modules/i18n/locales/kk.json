@@ -291,5 +291,7 @@
   "videoSavedToast": "Сақталды!",
   "videoProcessingCancelled": "Видеоны өңдеу болдырылмады.",
   "videoPhrasesExtracted": "{count} тіркес шығарылды",
-  "chooseProficiencyLevel": "{lang} тіліндегі деңгейіңіз қандай?"
+  "chooseProficiencyLevel": "{lang} тіліндегі деңгейіңіз қандай?",
+  "loading": "⏳ Жүктелуде...",
+  "loadingTimeout": "⌛ Күткеннен ұзағырақ болды. Қайталап көріңіз."
 }

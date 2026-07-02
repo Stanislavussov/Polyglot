@@ -291,5 +291,7 @@
   "videoSavedToast": "Сохранено!",
   "videoProcessingCancelled": "Обработка видео отменена.",
   "videoPhrasesExtracted": "Извлечено фраз: {count}",
-  "chooseProficiencyLevel": "Какой у вас уровень в {lang}?"
+  "chooseProficiencyLevel": "Какой у вас уровень в {lang}?",
+  "loading": "⏳ Загружаю...",
+  "loadingTimeout": "⌛ Это заняло слишком много времени. Попробуйте ещё раз."
 }

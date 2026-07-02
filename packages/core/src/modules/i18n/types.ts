@@ -26,6 +26,8 @@ export type I18nKey =
   | "langRemoved"
   | "enterWordToTranslate"
   | "translating"
+  | "loading"
+  | "loadingTimeout"
   | "translationError"
   | "translationUnavailable"
   | "contextMarkerNeedsText"

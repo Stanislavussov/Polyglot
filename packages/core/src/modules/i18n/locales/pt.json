@@ -291,5 +291,7 @@
   "videoSavedToast": "Guardado!",
   "videoProcessingCancelled": "Processamento do vídeo cancelado.",
   "videoPhrasesExtracted": "{count} frases extraídas",
-  "chooseProficiencyLevel": "Qual é o teu nível em {lang}?"
+  "chooseProficiencyLevel": "Qual é o teu nível em {lang}?",
+  "loading": "⏳ Carregando...",
+  "loadingTimeout": "⌛ Está demorando mais que o esperado. Tente novamente."
 }

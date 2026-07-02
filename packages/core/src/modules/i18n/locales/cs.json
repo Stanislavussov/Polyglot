@@ -291,5 +291,7 @@
   "videoSavedToast": "Uloženo!",
   "videoProcessingCancelled": "Zpracování videa zrušeno.",
   "videoPhrasesExtracted": "Extrahováno frází: {count}",
-  "chooseProficiencyLevel": "Jaká je vaše úroveň v {lang}?"
+  "chooseProficiencyLevel": "Jaká je vaše úroveň v {lang}?",
+  "loading": "⏳ Načítám...",
+  "loadingTimeout": "⌛ Trvá to déle, než obvykle. Zkuste to prosím znovu."
 }

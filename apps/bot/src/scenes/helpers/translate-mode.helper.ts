@@ -52,6 +52,13 @@ import {
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
+import {
+  LONG_OP_TIMEOUT_MS,
+  loadingKeyboard,
+  OperationTimeoutError,
+  sendTypingIndicator,
+  withTimeout,
+} from "../../utils/long-op.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
@@ -241,6 +248,10 @@ async function ensureTranslationQuota(
 export async function handleTranslateText(ctx: BotContext, word: string): Promise<void> {
   const totalStart = Date.now();
   const telegramId = ctx.from!.id;
+
+  // Instant feedback while the silent pre-phase (settings, quota, language
+  // detection) runs — the "translating" loader appears only after it.
+  sendTypingIndicator(ctx);
 
   // Get user settings
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
@@ -521,24 +532,27 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 
     const stopTimer = translationDuration.startTimer();
     const aiStart = Date.now();
-    const decision = await translateWithContext(
-      {
-        word: cleanWord,
-        sourceLang,
-        targetLangs,
-        nativeLang,
-        model,
-        topic: contextHint,
-        userId: ctx.user.id,
-        interfaceLang: lang,
-        detectionConfidence: detection.confidence,
-        outputConfig,
-        inputType: classification.type,
-      },
-      {
-        lookupContext: lookupContextFn,
-        generateObjectFn: ctx.services.ai.generateObject,
-      },
+    const decision = await withTimeout(
+      translateWithContext(
+        {
+          word: cleanWord,
+          sourceLang,
+          targetLangs,
+          nativeLang,
+          model,
+          topic: contextHint,
+          userId: ctx.user.id,
+          interfaceLang: lang,
+          detectionConfidence: detection.confidence,
+          outputConfig,
+          inputType: classification.type,
+        },
+        {
+          lookupContext: lookupContextFn,
+          generateObjectFn: ctx.services.ai.generateObject,
+        },
+      ),
+      LONG_OP_TIMEOUT_MS,
     );
     const aiRequestMs = Date.now() - aiStart;
     stopTimer();
@@ -685,7 +699,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       });
 
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(t("translationError", lang));
+    await ctx.reply(err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("translationError", lang));
   }
 }
 
@@ -836,6 +850,22 @@ export async function handleClarifyPostCallback(ctx: BotContext): Promise<void> 
  * Handles "Other meaning" callback (tr:altmeaning:{msgId}).
  * Retranslates all languages with negative constraints to avoid repeating previous translations.
  */
+/**
+ * Swap the card's keyboard for the inert loading button while an on-demand
+ * section generates. Best-effort: the operation proceeds even if the swap fails.
+ */
+async function showCardLoading(ctx: BotContext, lang: SupportedLang): Promise<void> {
+  try {
+    await ctx.editMessageReplyMarkup({ reply_markup: loadingKeyboard(lang) });
+  } catch {
+    // Message may be too old to edit — the loader is cosmetic.
+  }
+}
+
+function longOpFailureText(err: unknown, lang: SupportedLang): string {
+  return err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("translationError", lang);
+}
+
 export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data ?? "";
   const msgId = parseInt(data.split(":")[2] ?? "0", 10);
@@ -862,7 +892,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
   }
   entry.previousTranslations = prev;
 
-  await ctx.answerCallbackQuery({ text: t("regeneratingAll", lang) });
+  await showCardLoading(ctx, lang);
 
   try {
     const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
@@ -880,23 +910,26 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
 
     const lookupContextFn = isSentence ? async () => [] : lookupContext;
 
-    const decision = await translateWithContext(
-      {
-        word: entry.output.original,
-        sourceLang: entry.output.sourceLang,
-        targetLangs,
-        nativeLang,
-        model,
-        topic: entry.contextHint,
-        userId: ctx.user.id,
-        outputConfig,
-        inputType: entry.inputType,
-        negativeConstraints: entry.previousTranslations,
-      },
-      {
-        lookupContext: lookupContextFn,
-        generateObjectFn: ctx.services.ai.generateObject,
-      },
+    const decision = await withTimeout(
+      translateWithContext(
+        {
+          word: entry.output.original,
+          sourceLang: entry.output.sourceLang,
+          targetLangs,
+          nativeLang,
+          model,
+          topic: entry.contextHint,
+          userId: ctx.user.id,
+          outputConfig,
+          inputType: entry.inputType,
+          negativeConstraints: entry.previousTranslations,
+        },
+        {
+          lookupContext: lookupContextFn,
+          generateObjectFn: ctx.services.ai.generateObject,
+        },
+      ),
+      LONG_OP_TIMEOUT_MS,
     );
 
     if (decision.status === "needs_clarification") {
@@ -927,7 +960,15 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
     });
   } catch (err) {
     logger.error({ err, word: entry.output.original }, "Alt meaning regeneration failed");
+    try {
+      await reRenderCard(ctx, entry, msgId, lang, nativeLang);
+    } catch {
+      // Card restore is best-effort; the alert below explains the failure.
+    }
+    await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
+    return;
   }
+  await ctx.answerCallbackQuery();
 }
 
 /**
@@ -970,7 +1011,7 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
     return;
   }
 
-  await ctx.answerCallbackQuery();
+  await showCardLoading(ctx, lang);
 
   try {
     const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
@@ -979,25 +1020,36 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
       translations[code] = tr.text;
     }
 
-    const result = await generateGrammarBreakdown(
-      {
-        originalText: entry.output.original,
-        translations,
-        sourceLang: entry.output.sourceLang,
-        targetLangs: Object.keys(entry.output.translations),
-        nativeLang,
-        inputType: entry.inputType === "sentence" ? "sentence" : "phrase",
-      },
-      ctx.services.ai.generateObject,
-      model,
-      ctx.user.id,
+    const result = await withTimeout(
+      generateGrammarBreakdown(
+        {
+          originalText: entry.output.original,
+          translations,
+          sourceLang: entry.output.sourceLang,
+          targetLangs: Object.keys(entry.output.translations),
+          nativeLang,
+          inputType: entry.inputType === "sentence" ? "sentence" : "phrase",
+        },
+        ctx.services.ai.generateObject,
+        model,
+        ctx.user.id,
+      ),
+      LONG_OP_TIMEOUT_MS,
     );
 
     entry.grammarBreakdown = result;
     await reRenderCard(ctx, entry, msgId, lang, nativeLang);
   } catch (err) {
     logger.error({ err, word: entry.output.original }, "Grammar breakdown generation failed");
+    try {
+      await reRenderCard(ctx, entry, msgId, lang, nativeLang);
+    } catch {
+      // Card restore is best-effort; the alert below explains the failure.
+    }
+    await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
+    return;
   }
+  await ctx.answerCallbackQuery();
 }
 
 /**
@@ -1040,28 +1092,39 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
     return;
   }
 
-  await ctx.answerCallbackQuery();
+  await showCardLoading(ctx, lang);
 
   try {
     const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
 
-    const result = await generateEtymology(
-      {
-        originalText: entry.output.original,
-        sourceLang: entry.output.sourceLang,
-        nativeLang,
-        inputType: entry.inputType === "word" ? "word" : "phrase",
-      },
-      ctx.services.ai.generateObject,
-      model,
-      ctx.user.id,
+    const result = await withTimeout(
+      generateEtymology(
+        {
+          originalText: entry.output.original,
+          sourceLang: entry.output.sourceLang,
+          nativeLang,
+          inputType: entry.inputType === "word" ? "word" : "phrase",
+        },
+        ctx.services.ai.generateObject,
+        model,
+        ctx.user.id,
+      ),
+      LONG_OP_TIMEOUT_MS,
     );
 
     entry.etymology = result;
     await reRenderCard(ctx, entry, msgId, lang, nativeLang);
   } catch (err) {
     logger.error({ err, word: entry.output.original }, "Etymology generation failed");
+    try {
+      await reRenderCard(ctx, entry, msgId, lang, nativeLang);
+    } catch {
+      // Card restore is best-effort; the alert below explains the failure.
+    }
+    await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
+    return;
   }
+  await ctx.answerCallbackQuery();
 }
 
 /**
@@ -1203,22 +1266,25 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
     return;
   }
 
-  await ctx.answerCallbackQuery();
+  await showCardLoading(ctx, lang);
 
   try {
     const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
 
-    const detailText = await generateGrammarDetail(
-      {
-        originalText: entry.output.original,
-        translation: translation.text,
-        langCode,
-        nativeLang,
-        grammarBreakdown: breakdown,
-      },
-      ctx.services.ai.generateText,
-      model,
-      ctx.user.id,
+    const detailText = await withTimeout(
+      generateGrammarDetail(
+        {
+          originalText: entry.output.original,
+          translation: translation.text,
+          langCode,
+          nativeLang,
+          grammarBreakdown: breakdown,
+        },
+        ctx.services.ai.generateText,
+        model,
+        ctx.user.id,
+      ),
+      LONG_OP_TIMEOUT_MS,
     );
 
     // Send as separate message
@@ -1231,7 +1297,12 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
   } catch (err) {
     logger.error({ err, word: entry.output.original, langCode }, "Grammar detail generation failed");
+    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
+    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard }).catch(() => {});
+    await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
+    return;
   }
+  await ctx.answerCallbackQuery();
 }
 
 /** Escape HTML for safe Telegram rendering */
@@ -1307,23 +1378,26 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     const lookupContextFn = isSentence ? async () => [] : lookupContext;
 
     const stopTimer = translationDuration.startTimer();
-    const decision = await translateWithContext(
-      {
-        word: pendingWord,
-        sourceLang,
-        targetLangs,
-        nativeLang,
-        model,
-        topic: pendingContextHint,
-        userId: ctx.user.id,
-        interfaceLang: lang,
-        outputConfig,
-        inputType: classification.type,
-      },
-      {
-        lookupContext: lookupContextFn,
-        generateObjectFn: ctx.services.ai.generateObject,
-      },
+    const decision = await withTimeout(
+      translateWithContext(
+        {
+          word: pendingWord,
+          sourceLang,
+          targetLangs,
+          nativeLang,
+          model,
+          topic: pendingContextHint,
+          userId: ctx.user.id,
+          interfaceLang: lang,
+          outputConfig,
+          inputType: classification.type,
+        },
+        {
+          lookupContext: lookupContextFn,
+          generateObjectFn: ctx.services.ai.generateObject,
+        },
+      ),
+      LONG_OP_TIMEOUT_MS,
     );
     stopTimer();
 
@@ -1405,7 +1479,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     translationCounter.inc({ status: "error" });
     logger.error({ err, word: pendingWord }, "Translation failed after mistype confirm");
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(t("translationError", lang));
+    await ctx.reply(err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("translationError", lang));
   }
 
   await ctx.answerCallbackQuery();

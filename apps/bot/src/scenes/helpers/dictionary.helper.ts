@@ -25,6 +25,7 @@ import {
 } from "../../renderers/dictionary.renderer.js";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
+import { LONG_OP_TIMEOUT_MS, OperationTimeoutError, withTimeout } from "../../utils/long-op.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 
 const MAX_DICTIONARY_NAME_LENGTH = 32;
@@ -518,18 +519,21 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
     const userTpl = await ctx.services.translationTemplateRepository.getByUserId(userId);
     const outputConfig = resolveOutputConfig(userTpl, "phrase");
 
-    const decision = await translate(
-      {
-        word: entry.original,
-        sourceLang: sourceLangObj.code,
-        targetLangs,
-        nativeLang: settings.nativeLang,
-        model: modelId,
-        userId,
-        inputType: entry.inputType,
-        outputConfig,
-      },
-      ctx.services.ai.generateObject,
+    const decision = await withTimeout(
+      translate(
+        {
+          word: entry.original,
+          sourceLang: sourceLangObj.code,
+          targetLangs,
+          nativeLang: settings.nativeLang,
+          model: modelId,
+          userId,
+          inputType: entry.inputType,
+          outputConfig,
+        },
+        ctx.services.ai.generateObject,
+      ),
+      LONG_OP_TIMEOUT_MS,
     );
 
     if (decision.status === "needs_clarification") {
@@ -587,8 +591,10 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
     // Restore the card on error
     const text = renderDictionaryEntry(entry, getLangCodeById, lang, { nativeLangId });
     const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations: false });
+    const failureNote =
+      err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : `❌ ${t("videoProcessingFailed", lang)}`;
     try {
-      await ctx.editMessageText(`${text}\n\n❌ ${t("videoProcessingFailed", lang)}`, {
+      await ctx.editMessageText(`${text}\n\n${failureNote}`, {
         parse_mode: "HTML",
         reply_markup: kb,
       });

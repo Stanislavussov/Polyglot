@@ -32,6 +32,13 @@ vi.mock("@polyglot/core", async () => {
 });
 
 const { createPostgresSessionStorage, isValidSessionData } = await import("./session-storage.js");
+const { sessionStorageDuration } = await import("./metrics.js");
+
+async function storageOpCount(op: "read" | "write" | "delete"): Promise<number> {
+  const { values } = await sessionStorageDuration.get();
+  const match = values.find((v) => (v as { metricName?: string }).metricName?.endsWith("_count") && v.labels.op === op);
+  return match?.value ?? 0;
+}
 
 function makeSession(overrides: Partial<SessionData> = {}): SessionData {
   return {
@@ -102,5 +109,18 @@ describe("createPostgresSessionStorage", () => {
     await createPostgresSessionStorage().delete("123");
 
     expect(deleteSessionFn).toHaveBeenCalledWith("123");
+  });
+
+  it("records the latency of every storage round-trip so DB slowness is visible in Prometheus", async () => {
+    sessionStorageDuration.reset();
+    const storage = createPostgresSessionStorage();
+
+    await storage.read("123");
+    await storage.write("123", makeSession());
+    await storage.delete("123");
+
+    expect(await storageOpCount("read")).toBe(1);
+    expect(await storageOpCount("write")).toBe(1);
+    expect(await storageOpCount("delete")).toBe(1);
   });
 });
