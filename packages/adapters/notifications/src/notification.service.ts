@@ -31,12 +31,20 @@ export function createNotificationService(deps: NotificationServiceDeps) {
       return null;
     }
 
-    const filtered = entries.filter((e) => !recentWords.includes(e.original));
+    // Task 70 — never suggest entries flagged unverified (translated as written
+    // for an unrecognized word).
+    const verified = entries.filter((e) => e.unverified !== true);
+    if (verified.length === 0) {
+      logger.info({ userId }, "pickDictionaryWord: all entries are unverified — nothing to suggest");
+      return null;
+    }
+
+    const filtered = verified.filter((e) => !recentWords.includes(e.original));
     if (filtered.length === 0) {
       logger.info({ userId }, "pickDictionaryWord: all words recently sent — picking from full set");
     }
 
-    const candidates = filtered.length > 0 ? filtered : entries;
+    const candidates = filtered.length > 0 ? filtered : verified;
     const entry = candidates[Math.floor(Math.random() * candidates.length)]!;
 
     let entryTranslations = entry.translations;

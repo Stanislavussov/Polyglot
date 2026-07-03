@@ -71,6 +71,7 @@ export function toVocabularyInput(
     emoji: output.emoji,
     nativeMeaning: output.nativeMeaning,
     sourceUsage: output.sourceUsage,
+    unverified: output.unverified === true,
     translations,
   };
 }

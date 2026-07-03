@@ -296,5 +296,9 @@
   "videoPhrasesExtracted": "Extrahováno frází: {count}",
   "chooseProficiencyLevel": "Jaká je vaše úroveň v {lang}?",
   "loading": "⏳ Načítám...",
-  "loadingTimeout": "⌛ Trvá to déle, než obvykle. Zkuste to prosím znovu."
+  "loadingTimeout": "⌛ Trvá to déle, než obvykle. Zkuste to prosím znovu.",
+  "translationClarifyReasonUnrecognized": "„{word}“ nevypadá jako běžné slovo v jazyce {lang}.",
+  "translationTranslateAsWritten": "➡️ Přeložit tak, jak je",
+  "translationAsWrittenCaveat": "⚠️ Nenalezeno ve standardních slovnících — přeloženo doslovně.",
+  "translationNoMoreMeanings": "ℹ️ Žádné další významy nejsou k dispozici."
 }

@@ -296,5 +296,9 @@
   "videoPhrasesExtracted": "Wyodrębniono wyrażeń: {count}",
   "chooseProficiencyLevel": "Jaki jest Twój poziom w {lang}?",
   "loading": "⏳ Ładowanie...",
-  "loadingTimeout": "⌛ Trwa to dłużej niż zwykle. Spróbuj ponownie."
+  "loadingTimeout": "⌛ Trwa to dłużej niż zwykle. Spróbuj ponownie.",
+  "translationClarifyReasonUnrecognized": "„{word}” nie wygląda na standardowe słowo w języku {lang}.",
+  "translationTranslateAsWritten": "➡️ Przetłumacz tak jak jest",
+  "translationAsWrittenCaveat": "⚠️ Nie znaleziono w standardowych słownikach — przetłumaczono dosłownie.",
+  "translationNoMoreMeanings": "ℹ️ Brak innych znaczeń."
 }

@@ -228,6 +228,7 @@ export function buildMetadataSchema(
   requireNative = false,
   requireSourceUsage = false,
   requireExampleNative = false,
+  assessExistence = false,
 ) {
   const includeNativeSynonyms = config?.includeNativeSynonyms !== false;
   return z.object({
@@ -235,6 +236,13 @@ export function buildMetadataSchema(
     ...(requireNative && { nativeMeaning: z.string().min(1, "Native meaning is required") }),
     ...(requireSourceUsage && { sourceUsage: buildSourceUsageSchema(config, requireExampleNative) }),
     ...(includeNativeSynonyms && { nativeSynonyms: z.array(synonymSchema) }),
+    ...(assessExistence && {
+      // Task 70 — defense-in-depth existence guard. `sourceWordRecognized`
+      // is false for misspellings, missing diacritics, and invented words.
+      // `suggestedCorrection` holds the confident correct spelling (or null).
+      sourceWordRecognized: z.boolean(),
+      suggestedCorrection: z.string().nullable(),
+    }),
   });
 }
 

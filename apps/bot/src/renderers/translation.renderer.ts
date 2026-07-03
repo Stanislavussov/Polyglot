@@ -112,6 +112,10 @@ export function renderTranslation(
     );
     lines.push("");
   }
+  if (output.unverified) {
+    lines.push(esc(t("translationAsWrittenCaveat", lang)));
+    lines.push("");
+  }
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);
   const sourceUsageLines = hideSourceText ? renderSourceUsageBlock(output, nativeLang, templateFields) : [];
 
@@ -278,6 +282,10 @@ export function renderSentenceTranslation(
         explanation: esc(output.correction.explanation),
       }),
     );
+    lines.push("");
+  }
+  if (output.unverified) {
+    lines.push(esc(t("translationAsWrittenCaveat", lang)));
     lines.push("");
   }
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);

@@ -4,7 +4,6 @@ export type { ExampleInput, ExpressionType } from "./validators/example.validato
 export { validateExamples } from "./validators/example.validator.js";
 export { validateNativeFields } from "./validators/field-language.validator.js";
 export { validateImmutableContent } from "./validators/immutable.validator.js";
-export { validateLanguage } from "./validators/language.validator.js";
 export { validateSchema } from "./validators/schema.validator.js";
 export { validateSemantic } from "./validators/semantic.validator.js";
 export type {

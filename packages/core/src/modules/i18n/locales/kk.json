@@ -296,5 +296,9 @@
   "videoPhrasesExtracted": "{count} тіркес шығарылды",
   "chooseProficiencyLevel": "{lang} тіліндегі деңгейіңіз қандай?",
   "loading": "⏳ Жүктелуде...",
-  "loadingTimeout": "⌛ Күткеннен ұзағырақ болды. Қайталап көріңіз."
+  "loadingTimeout": "⌛ Күткеннен ұзағырақ болды. Қайталап көріңіз.",
+  "translationClarifyReasonUnrecognized": "«{word}» {lang} тіліндегі қалыпты сөзге ұқсамайды.",
+  "translationTranslateAsWritten": "➡️ Жазылған күйінде аудару",
+  "translationAsWrittenCaveat": "⚠️ Стандартты сөздіктерден табылмады — сөзбе-сөз аударылды.",
+  "translationNoMoreMeanings": "ℹ️ Басқа мағыналар жоқ."
 }

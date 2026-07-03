@@ -51,6 +51,12 @@ export interface VocabEntry {
   emoji: string | null;
   nativeMeaning?: string | null;
   createdAt: Date;
+  /**
+   * Task 70 — true when the entry was translated on a "translate as written"
+   * override for an unrecognized word. Such entries are never suggested in
+   * notifications/SRS picks.
+   */
+  unverified?: boolean;
   translations: Array<{
     targetLangId: number;
     text: string;

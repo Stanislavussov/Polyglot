@@ -296,5 +296,9 @@
   "videoPhrasesExtracted": "Витягнуто фраз: {count}",
   "chooseProficiencyLevel": "Який у тебе рівень з {lang}?",
   "loading": "⏳ Завантажую...",
-  "loadingTimeout": "⌛ Це триває довше, ніж очікувалось. Спробуй ще раз."
+  "loadingTimeout": "⌛ Це триває довше, ніж очікувалось. Спробуй ще раз.",
+  "translationClarifyReasonUnrecognized": "«{word}» не схоже на звичайне слово в мові {lang}.",
+  "translationTranslateAsWritten": "➡️ Перекласти як є",
+  "translationAsWrittenCaveat": "⚠️ Не знайдено у стандартних словниках — перекладено буквально.",
+  "translationNoMoreMeanings": "ℹ️ Інших значень немає."
 }

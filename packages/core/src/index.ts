@@ -107,7 +107,6 @@ export type {
 export {
   validate,
   validateExamples,
-  validateLanguage,
   validateSchema,
   validateSemantic,
 } from "./modules/validation/index.js";

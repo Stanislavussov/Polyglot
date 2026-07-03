@@ -42,7 +42,12 @@ import {
   translateWithContext,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
-import { inputCorrectionCounter, translationCounter, translationDuration } from "../../metrics.js";
+import {
+  inputCorrectionCounter,
+  translationCounter,
+  translationDuration,
+  unrecognizedWordCounter,
+} from "../../metrics.js";
 import {
   buildGrammarLangKeyboard,
   buildTranslationKeyboard,
@@ -142,6 +147,7 @@ function clarificationReasonText(ambiguity: TranslationAmbiguity, lang: Supporte
     placeholder_grammar: t("translationClarifyReasonFormat", lang),
     mixed_or_transliterated_input: t("translationClarifyReasonFormat", lang),
     unsupported_input: t("translationClarifyReasonFormat", lang),
+    unrecognized_word: t("translationClarifyReasonUnrecognized", lang, { word: "", lang: "" }),
   };
   const technicalPattern = /\b(sourceLang|targetLangs|JSON|schema|pipeline|validation|fieldPath)\b/i;
   if (ambiguity.message.trim() && !technicalPattern.test(ambiguity.message)) {
@@ -178,6 +184,11 @@ async function showTranslationClarification(
 
   if (params.ambiguity.reason === "possible_typo") {
     inputCorrectionCounter.inc({ outcome: "confirm_shown", input_type: params.inputType });
+  }
+
+  if (params.ambiguity.reason === "unrecognized_word") {
+    const hasCorrection = (params.ambiguity.options ?? []).some((o) => o.kind === "typo_correction");
+    unrecognizedWordCounter.inc({ outcome: hasCorrection ? "correction_offered" : "rejected" });
   }
 
   const keyboard = new InlineKeyboard();
@@ -583,6 +594,8 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
           detectionConfidence: detection.confidence,
           outputConfig,
           inputType: classification.type,
+          // Task 70 — let the main call flag unrecognized/fabricated headwords.
+          assessSourceExistence: true,
         },
         {
           lookupContext: lookupContextFn,
@@ -972,8 +985,14 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       LONG_OP_TIMEOUT_MS,
     );
 
+    // Unlike the first translation, "Other meaning" is a best-effort extra: if
+    // the pipeline now wants clarification (e.g. no genuinely different sense to
+    // offer), don't surface a scary error — restore the card and tell the user
+    // there are no more meanings.
     if (decision.status === "needs_clarification") {
-      throw new Error("Unexpected needs_clarification in alt meaning flow");
+      await reRenderCard(ctx, entry, msgId, lang, nativeLang);
+      await ctx.answerCallbackQuery({ text: t("translationNoMoreMeanings", lang), show_alert: true });
+      return;
     }
 
     entry.output = decision.output;
@@ -1005,7 +1024,11 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
     } catch {
       // Card restore is best-effort; the alert below explains the failure.
     }
-    await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
+    // A timeout is worth surfacing as such; any other regeneration failure on
+    // the secondary "Other meaning" action reads better as "no more meanings".
+    const alertText =
+      err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("translationNoMoreMeanings", lang);
+    await ctx.answerCallbackQuery({ text: alertText, show_alert: true });
     return;
   }
   await ctx.answerCallbackQuery();
@@ -1434,6 +1457,9 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
           // The user already confirmed the language / chose a correction (or
           // "translate as written") — never re-ask about the same input.
           skipInputCorrection: true,
+          // Task 70 — still assess existence so an unrecognized word translated
+          // as written is flagged unverified with a caveat (no re-prompt).
+          assessSourceExistence: true,
         },
         {
           lookupContext: lookupContextFn,
@@ -1723,6 +1749,9 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
     }
     if (option.kind === "translate_as_written") {
       inputCorrectionCounter.inc({ outcome: "translate_as_written", input_type: pending.inputType });
+      if (pending.reason === "unrecognized_word") {
+        unrecognizedWordCounter.inc({ outcome: "translated_as_written" });
+      }
       await ctx.answerCallbackQuery();
       await runClarifiedTranslation(ctx, pending, pending.sourceLang, pending.targetLangs, pending.contextHint);
       return;

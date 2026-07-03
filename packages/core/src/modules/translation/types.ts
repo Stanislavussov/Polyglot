@@ -179,6 +179,17 @@ export interface TranslateInput {
    * flow so the user is not re-asked about the same word.
    */
   skipInputCorrection?: boolean;
+  /**
+   * Opt into the source-word existence assessment (Task 70). When true and the
+   * input is a word/phrase, the main translation call also judges whether the
+   * source headword is a real, correctly-spelled word/expression in the source
+   * language. An unrecognized headword yields a `needs_clarification`
+   * ("unrecognized_word") outcome unless `skipInputCorrection` is set (the user
+   * already chose to translate as written), in which case the card is produced
+   * but flagged `unverified` with a visible caveat. Off by default so batch,
+   * topic, and video-vocabulary flows are unaffected.
+   */
+  assessSourceExistence?: boolean;
 }
 
 /**
@@ -215,6 +226,13 @@ export interface TranslateOutput {
    * the corrected form (that is what was translated and what gets saved).
    */
   correction?: InputCorrection;
+  /**
+   * True when the source headword was assessed as not a recognized word in the
+   * source language but translated anyway on the user's "translate as written"
+   * override (Task 70). The card renders a caveat line and, when saved, the
+   * entry is flagged `unverified` and excluded from notifications/SRS picks.
+   */
+  unverified?: boolean;
 }
 
 // ─────────────────────────────────────────────
@@ -234,7 +252,11 @@ export type TranslationAmbiguityReason =
   | "date_or_time"
   | "placeholder_grammar"
   | "mixed_or_transliterated_input"
-  | "unsupported_input";
+  | "unsupported_input"
+  // The main translation call assessed the source headword as not a real,
+  // correctly-spelled word/expression in the source language (Task 70). The
+  // user is offered any confident correction plus "translate as written".
+  | "unrecognized_word";
 
 export type TranslationAmbiguityOptionKind =
   | "source_language"

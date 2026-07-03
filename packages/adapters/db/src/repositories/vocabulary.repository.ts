@@ -97,6 +97,7 @@ export const vocabularyRepository = {
           nativeMeaning: input.nativeMeaning,
           sourceUsage: input.sourceUsage,
           source: input.source ?? null,
+          unverified: input.unverified ?? false,
         })
         .returning();
 
@@ -506,6 +507,7 @@ export const vocabularyRepository = {
               nativeMeaning: vocabularyEntries.nativeMeaning,
               sourceUsage: vocabularyEntries.sourceUsage,
               source: vocabularyEntries.source,
+              unverified: vocabularyEntries.unverified,
               isActive: vocabularyEntries.isActive,
               createdAt: vocabularyEntries.createdAt,
               updatedAt: vocabularyEntries.updatedAt,

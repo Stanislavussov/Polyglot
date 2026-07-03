@@ -201,6 +201,53 @@ describe("pickDictionaryWord", () => {
         expect.stringContaining("missing deps"),
       );
     });
+
+    // Task 70 — never suggest entries translated as written for an unrecognized word.
+    it("never selects an unverified entry", async () => {
+      const entries: VocabEntry[] = [
+        {
+          id: 40,
+          original: "stroha",
+          emoji: "🌾",
+          createdAt: new Date("2025-01-01"),
+          unverified: true,
+          translations: [{ targetLangId: 1, text: "sláma" }],
+        },
+        {
+          id: 41,
+          original: "house",
+          emoji: "🏠",
+          createdAt: new Date("2025-01-02"),
+          translations: [{ targetLangId: 1, text: "dům" }],
+        },
+      ];
+      const deps = buildDeps({ getUserVocabulary: vi.fn().mockResolvedValue(entries) });
+      const service = createNotificationService(deps);
+
+      // Math.random is stubbed to 0 → index 0 would be the unverified entry if not filtered.
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result?.original).toBe("house");
+    });
+
+    it("returns null when every entry is unverified", async () => {
+      const entries: VocabEntry[] = [
+        {
+          id: 40,
+          original: "stroha",
+          emoji: "🌾",
+          createdAt: new Date("2025-01-01"),
+          unverified: true,
+          translations: [{ targetLangId: 1, text: "sláma" }],
+        },
+      ];
+      const deps = buildDeps({ getUserVocabulary: vi.fn().mockResolvedValue(entries) });
+      const service = createNotificationService(deps);
+
+      const result = await service.pickDictionaryWord(1);
+
+      expect(result).toBeNull();
+    });
   });
 
   describe("error handling", () => {

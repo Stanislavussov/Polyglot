@@ -70,6 +70,7 @@ function makeEntry(id: number, original: string): VocabularyEntryWithTranslation
     nativeMeaning: null,
     sourceUsage: null,
     source: null,
+    unverified: false,
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
