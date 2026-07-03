@@ -156,6 +156,15 @@ export interface TranslateInput {
   inputType?: InputType;
   /** Confidence from upstream source-language detection when available */
   detectionConfidence?: number;
+  /**
+   * Whether the input text was found in the source-language dictionary.
+   * Set by the context-enrichment layer from its lookup result. `false` is a
+   * strong typo/missing-diacritics signal and forces the AI preflight to run
+   * even when language detection was confident (e.g. "stroha" detected as
+   * Czech with high confidence but only valid as "strohá"). `undefined` means
+   * no lookup was performed — the preflight falls back to the confidence gate.
+   */
+  dictionaryHit?: boolean;
   /** User interface language for preflight explanations and option labels */
   interfaceLang?: string;
   /** Optional benchmark-derived routing policy for generation and judge models */

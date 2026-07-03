@@ -430,6 +430,7 @@ export async function translateOne(
       outputConfig: input.outputConfig,
       inputType: input.inputType,
       detectionConfidence: input.detectionConfidence,
+      dictionaryHit: input.dictionaryHit,
       modelRouting: input.modelRouting,
       skipInputCorrection: input.skipInputCorrection,
     },
@@ -606,9 +607,17 @@ function shouldRunAIPreflight(input: TranslateInput): input is TranslateInput & 
   if (input.topic?.trim()) {
     return false;
   }
-  return (
-    input.detectionConfidence !== undefined && input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence
-  );
+  if (input.detectionConfidence === undefined) {
+    return false;
+  }
+  if (input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence) {
+    return true;
+  }
+  // Confident language detection does not mean correct spelling: an input
+  // missing from the source-language dictionary (e.g. "stroha" — only valid
+  // in Czech as "strohá") is a typo/missing-diacritics signal that must be
+  // checked regardless of detection confidence.
+  return input.dictionaryHit === false;
 }
 
 function preflightOutcomeToReason(outcome: PreflightResult["outcome"]): TranslationAmbiguity["reason"] {
@@ -654,6 +663,7 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
       interfaceLang: input.interfaceLang,
       inputType: input.inputType ?? "word",
       detectionConfidence: input.detectionConfidence,
+      dictionaryHit: input.dictionaryHit,
       config: PREFLIGHT_DEFAULTS,
     }),
     preflightResultSchema,

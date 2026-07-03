@@ -497,6 +497,53 @@ describe("translate", () => {
     expect(unwrap(result).original).toBe("helllo");
   });
 
+  it("runs the typo preflight on a dictionary miss even when language detection is confident", async () => {
+    const goodResult = makeValidResult();
+    const mockGenerate = createTranslateMock(goodResult, { issues: [], summary: "ok" }).mockResolvedValueOnce({
+      confidence: 0.6,
+      outcome: "proceed_with_correction",
+      reasonCode: "probable_typo",
+      explanation: "missing diacritic restored",
+      correctedText: "strohá",
+      options: [],
+    });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "stroha",
+        sourceLang: "cs",
+        targetLangs: ["en"],
+        // Confident detection — the old gate would skip the preflight entirely.
+        detectionConfidence: 0.95,
+        dictionaryHit: false,
+      },
+      mockGenerate,
+    );
+
+    expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
+    expect(mockGenerate.mock.calls[0]?.[0]).toContain("Found in cs dictionary: NO");
+    const output = unwrap(result);
+    expect(output.original).toBe("strohá");
+    expect(output.correction).toMatchObject({ original: "stroha", corrected: "strohá" });
+  });
+
+  it("skips the preflight for a confidently detected word that exists in the dictionary", async () => {
+    const mockGenerate = createTranslateMock(makeValidResult());
+
+    await translate({ ...defaultInput, detectionConfidence: 0.95, dictionaryHit: true }, mockGenerate);
+
+    expect(mockGenerate.mock.calls[0]?.[0]).not.toContain("preflight ambiguity checker");
+  });
+
+  it("keeps the confidence-only gate when no dictionary lookup was performed", async () => {
+    const mockGenerate = createTranslateMock(makeValidResult());
+
+    await translate({ ...defaultInput, detectionConfidence: 0.95 }, mockGenerate);
+
+    expect(mockGenerate.mock.calls[0]?.[0]).not.toContain("preflight ambiguity checker");
+  });
+
   it("routes low-risk generation through the configured low-risk model", async () => {
     const mockGenerate = createTranslateMock(makeValidResult());
 
