@@ -41,6 +41,7 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
         emoji: e.emoji,
         nativeMeaning: e.nativeMeaning,
         createdAt: e.createdAt,
+        unverified: e.unverified,
         translations: e.translations.map((tr) => ({
           targetLangId: tr.targetLangId,
           text: tr.text,

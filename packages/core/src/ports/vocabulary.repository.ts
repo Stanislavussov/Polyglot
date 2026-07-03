@@ -51,6 +51,8 @@ export interface VocabularyEntry {
   nativeMeaning: string | null;
   sourceUsage: SourceUsage | null;
   source: VocabularySource | null;
+  /** Task 70 — translated on a "translate as written" override; excluded from notifications/SRS. */
+  unverified: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -73,6 +75,8 @@ export interface CreateVocabularyInput {
   nativeMeaning?: string;
   sourceUsage?: SourceUsage;
   source?: VocabularySource;
+  /** Task 70 — flag the entry as unverified (translated as written). Defaults to false. */
+  unverified?: boolean;
   translations: Array<{
     targetLangId: number;
     text: string;

@@ -98,6 +98,7 @@ function makeEntry(overrides: Partial<VocabularyEntry> = {}): VocabularyEntry {
     inputType: "word",
     emoji: "👋",
     nativeMeaning: null,
+    unverified: false,
     isActive: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),

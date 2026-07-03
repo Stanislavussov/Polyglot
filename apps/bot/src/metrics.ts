@@ -29,6 +29,12 @@ export const inputCorrectionCounter = new Counter({
   labelNames: ["outcome", "input_type"] as const,
 });
 
+export const unrecognizedWordCounter = new Counter({
+  name: "bot_unrecognized_word_total",
+  help: "Unrecognized-word guard outcomes in translate mode (Task 70)",
+  labelNames: ["outcome"] as const,
+});
+
 export const mentorCounter = new Counter({
   name: "bot_mentor_requests_total",
   help: "Total mentor chat requests",

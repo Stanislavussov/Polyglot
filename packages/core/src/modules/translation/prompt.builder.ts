@@ -271,7 +271,7 @@ ${checkItems.join("\n")}`;
  * no translations block. Used alongside per-language prompts that each
  * produce a single LanguageTranslation block.
  */
-export function buildMetadataPrompt(request: TranslationRequest): string {
+export function buildMetadataPrompt(request: TranslationRequest, assessExistence = false): string {
   const { text, sourceLang, targetLangs, nativeLang, topic, dictionaryContext, outputConfig, inputType } = request;
   const cfg = resolveConfig(outputConfig);
   const isSentence = inputType === "sentence";
@@ -299,6 +299,18 @@ export function buildMetadataPrompt(request: TranslationRequest): string {
       `sourceUsage: usage guidance for "${text}" with explanation in ${nativeLangName ?? "the user's native language"}`,
     );
   }
+  if (assessExistence) {
+    requestedFields.push("sourceWordRecognized (boolean) and suggestedCorrection (string or null)");
+  }
+
+  const existenceRule = assessExistence
+    ? `
+- Assess whether the source headword "${text}" is a real, correctly-spelled word or fixed expression in ${sourceLangName}:
+  * Set "sourceWordRecognized" to false when it is NOT a standard word — a misspelling, missing/wrong diacritics (e.g. Czech "stroha" is not a word; the real word is "strohá"), or invented/gibberish. Otherwise set it to true.
+  * When "sourceWordRecognized" is false AND you are confident of the intended correct spelling, put that correct form in "suggestedCorrection" (e.g. "strohá"). Otherwise set "suggestedCorrection" to null.
+  * Judge the exact written form: high confidence about the language does NOT mean the spelling is correct.
+  * NEVER invent meanings, senses, or synonyms for an unrecognized word.`
+    : "";
 
   return `${intro}${topicHint}${negativeHint}${dictionaryHint}
 
@@ -325,7 +337,7 @@ Rules:${
       ? `
 - Provide 2–3 synonyms of the source word "${text}" in ${nativeLangName} in the "nativeSynonyms" array.`
       : ""
-  }
+  }${existenceRule}
 - Do not include pronunciation, IPA, romanization, or transliteration in any field.
 - Return ONLY the JSON object. No additional text before or after.`;
 }
@@ -368,8 +380,12 @@ Please fix these issues and return a corrected JSON response.`;
 /**
  * Builds a strict retry prompt for the metadata call after validation failure.
  */
-export function buildMetadataStrictPrompt(request: TranslationRequest, errors: string[]): string {
-  const base = buildMetadataPrompt(request);
+export function buildMetadataStrictPrompt(
+  request: TranslationRequest,
+  errors: string[],
+  assessExistence = false,
+): string {
+  const base = buildMetadataPrompt(request, assessExistence);
   const errorFeedback = errors.map((e) => `  - ${e}`).join("\n");
   return `${base}
 

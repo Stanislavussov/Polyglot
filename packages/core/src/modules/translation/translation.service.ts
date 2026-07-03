@@ -14,6 +14,9 @@
  */
 
 import { getLogger } from "../../logger.js";
+import { isSupported, t } from "../i18n/i18n.js";
+import { getLanguageName } from "../i18n/language-registry.js";
+import type { SupportedLang } from "../i18n/types.js";
 import { analyzeInput } from "../input-analysis/input-analyzer.js";
 import { validate } from "../validation/validation.service.js";
 import { PREFLIGHT_DEFAULTS } from "./preflight.config.js";
@@ -156,12 +159,18 @@ export async function translate(
     normalizedInput.sourceLang,
   );
 
+  // Task 70 — assess the source headword's existence on the main call for
+  // word/phrase inputs when the caller opts in. Defense-in-depth behind the
+  // AI preflight; never runs for sentences or batch/topic/video flows.
+  const assessExistence = normalizedInput.assessSourceExistence === true && normalizedInput.inputType !== "sentence";
+
   // Build parallel generation tasks: 1 metadata + N per-language calls
   const metadataSchema = buildMetadataSchema(
     normalizedInput.outputConfig,
     requiresNativeOutput,
     requiresSourceUsage,
     requiresNativeOutput,
+    assessExistence,
   );
 
   const isLearningSource =
@@ -184,11 +193,12 @@ export async function translate(
     ...(normalizedInput.userId !== undefined ? { userId: normalizedInput.userId } : {}),
   };
 
-  let metadataPrompt = buildMetadataPrompt(request);
+  let metadataPrompt = buildMetadataPrompt(request, assessExistence);
   let languagePrompts = new Map(
     normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguagePrompt(request, lang)]),
   );
   let result: TranslationResult | undefined;
+  let sourceAssessment: { recognized: boolean; correction: string | null } | undefined;
   let lastErrors: string[] = [];
   let attemptCount = 0;
 
@@ -226,6 +236,13 @@ export async function translate(
             : [],
         translations,
       };
+
+      if (assessExistence && "sourceWordRecognized" in metadataResult) {
+        sourceAssessment = {
+          recognized: metadataResult.sourceWordRecognized as boolean,
+          correction: (metadataResult.suggestedCorrection as string | null) ?? null,
+        };
+      }
     } catch (generationError) {
       const errorMsg = generationError instanceof Error ? generationError.message : String(generationError);
 
@@ -243,7 +260,7 @@ export async function translate(
       }
 
       lastErrors = [`[generation] ${errorMsg}`];
-      metadataPrompt = buildMetadataStrictPrompt(request, lastErrors);
+      metadataPrompt = buildMetadataStrictPrompt(request, lastErrors, assessExistence);
       languagePrompts = new Map(
         normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguageStrictPrompt(request, lang, lastErrors)]),
       );
@@ -277,7 +294,7 @@ export async function translate(
       "translation schema validation failed",
     );
 
-    metadataPrompt = buildMetadataStrictPrompt(request, lastErrors);
+    metadataPrompt = buildMetadataStrictPrompt(request, lastErrors, assessExistence);
     languagePrompts = new Map(
       normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguageStrictPrompt(request, lang, lastErrors)]),
     );
@@ -285,6 +302,23 @@ export async function translate(
 
   if (!result) {
     throw new Error("Translation generation produced no result");
+  }
+
+  // Task 70 — unrecognized-word guard. When the source headword was assessed as
+  // not a real word and the user has NOT already chosen to translate as written,
+  // stop and offer the correction / "translate as written" instead of a
+  // confident fabricated card. On the override re-run (skipInputCorrection),
+  // translate anyway but flag the result unverified so the reply carries a caveat
+  // and the saved entry is excluded from notifications/SRS suggestions.
+  let unverified = false;
+  if (sourceAssessment && !sourceAssessment.recognized) {
+    if (normalizedInput.skipInputCorrection !== true) {
+      return {
+        status: "needs_clarification",
+        ambiguity: buildUnrecognizedAmbiguity(normalizedInput, sourceAssessment.correction),
+      };
+    }
+    unverified = true;
   }
 
   let issues = collectQualityIssues(
@@ -371,7 +405,7 @@ export async function translate(
   if (!hasBlockingIssues(issues)) {
     return {
       status: "accepted",
-      output: toOutput(normalizedInput, result, correction),
+      output: toOutput(normalizedInput, result, correction, unverified),
       quality: {
         promptVersion: PROMPT_VERSION,
         schemaVersion: SCHEMA_VERSION,
@@ -396,7 +430,7 @@ export async function translate(
 
   return {
     status: "needs_review",
-    output: toOutput(normalizedInput, result, correction),
+    output: toOutput(normalizedInput, result, correction, unverified),
     issues,
   };
 }
@@ -430,6 +464,7 @@ export async function translateOne(
       outputConfig: input.outputConfig,
       inputType: input.inputType,
       detectionConfidence: input.detectionConfidence,
+      dictionaryHit: input.dictionaryHit,
       modelRouting: input.modelRouting,
       skipInputCorrection: input.skipInputCorrection,
     },
@@ -606,9 +641,17 @@ function shouldRunAIPreflight(input: TranslateInput): input is TranslateInput & 
   if (input.topic?.trim()) {
     return false;
   }
-  return (
-    input.detectionConfidence !== undefined && input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence
-  );
+  if (input.detectionConfidence === undefined) {
+    return false;
+  }
+  if (input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence) {
+    return true;
+  }
+  // Confident language detection does not mean correct spelling: an input
+  // missing from the source-language dictionary (e.g. "stroha" — only valid
+  // in Czech as "strohá") is a typo/missing-diacritics signal that must be
+  // checked regardless of detection confidence.
+  return input.dictionaryHit === false;
 }
 
 function preflightOutcomeToReason(outcome: PreflightResult["outcome"]): TranslationAmbiguity["reason"] {
@@ -654,6 +697,7 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
       interfaceLang: input.interfaceLang,
       inputType: input.inputType ?? "word",
       detectionConfidence: input.detectionConfidence,
+      dictionaryHit: input.dictionaryHit,
       config: PREFLIGHT_DEFAULTS,
     }),
     preflightResultSchema,
@@ -993,7 +1037,49 @@ export function sanitizeEmoji(value: string): string {
   return looksLikeEmoji(value) ? value : DEFAULT_EMOJI;
 }
 
-function toOutput(input: TranslateInput, result: TranslationResult, correction?: InputCorrection): TranslateOutput {
+/**
+ * Build the "unrecognized word" clarification (Task 70).
+ *
+ * Offers any confident correction as a typo_correction option plus an explicit
+ * "translate as written" escape hatch. Labels are localized to the user's
+ * interface language; the correction option's label is the corrected word
+ * itself. Reuses the Task 69 clarification UI/plumbing on the bot side.
+ */
+function buildUnrecognizedAmbiguity(input: TranslateInput, correction: string | null): TranslationAmbiguity {
+  const lang: SupportedLang = isSupported(input.interfaceLang ?? "en") ? (input.interfaceLang as SupportedLang) : "en";
+  const options: TranslationAmbiguity["options"] = [];
+
+  if (correction && correction.trim() && correction !== input.word) {
+    options.push({
+      kind: "typo_correction",
+      label: correction,
+      value: correction,
+      correctedText: correction,
+    });
+  }
+
+  options.push({
+    kind: "translate_as_written",
+    label: t("translationTranslateAsWritten", lang),
+    value: "as_written",
+  });
+
+  return {
+    reason: "unrecognized_word",
+    message: t("translationClarifyReasonUnrecognized", lang, {
+      word: input.word,
+      lang: getLanguageName(input.sourceLang, lang),
+    }),
+    options,
+  };
+}
+
+function toOutput(
+  input: TranslateInput,
+  result: TranslationResult,
+  correction?: InputCorrection,
+  unverified = false,
+): TranslateOutput {
   const translations = stripDisabledFields(result.translations, input.outputConfig);
 
   const emoji = sanitizeEmoji(result.emoji);
@@ -1020,6 +1106,10 @@ function toOutput(input: TranslateInput, result: TranslationResult, correction?:
 
   if (correction) {
     output.correction = correction;
+  }
+
+  if (unverified) {
+    output.unverified = true;
   }
 
   return output;

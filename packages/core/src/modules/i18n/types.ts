@@ -252,6 +252,10 @@ export type I18nKey =
   | "translationClarifyContextButton"
   | "translationClarifyContextPrompt"
   | "translationClarifyLanguageHint"
+  | "translationClarifyReasonUnrecognized"
+  | "translationTranslateAsWritten"
+  | "translationAsWrittenCaveat"
+  | "translationNoMoreMeanings"
   | "correctionNotice"
   | "sentenceErrorNotice"
   | "rateLimitExceeded"
@@ -378,6 +382,7 @@ export interface I18nParams {
   mistypeWarning: { word: string };
   langSelectPrompt: { word: string };
   correctionNotice: { original: string; corrected: string; explanation: string };
+  translationClarifyReasonUnrecognized: { word: string; lang: string };
   sentenceErrorNotice: { corrected: string; explanation: string };
   chooseProficiencyLevel: { lang: string };
   videoPage: { page: string | number; total: string | number };

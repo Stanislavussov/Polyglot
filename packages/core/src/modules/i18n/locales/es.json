@@ -296,5 +296,9 @@
   "videoPhrasesExtracted": "{count} frases extraídas",
   "chooseProficiencyLevel": "¿Cuál es tu nivel en {lang}?",
   "loading": "⏳ Cargando...",
-  "loadingTimeout": "⌛ Está tardando más de lo esperado. Inténtalo de nuevo."
+  "loadingTimeout": "⌛ Está tardando más de lo esperado. Inténtalo de nuevo.",
+  "translationClarifyReasonUnrecognized": "«{word}» no parece una palabra estándar en {lang}.",
+  "translationTranslateAsWritten": "➡️ Traducir tal cual",
+  "translationAsWrittenCaveat": "⚠️ No se encontró en diccionarios estándar — traducido literalmente.",
+  "translationNoMoreMeanings": "ℹ️ No hay otros significados disponibles."
 }

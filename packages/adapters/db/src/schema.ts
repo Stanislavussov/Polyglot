@@ -163,6 +163,12 @@ export const vocabularyEntries = pgTable(
     nativeMeaning: text("native_meaning"),
     sourceUsage: jsonb("source_usage").$type<SourceUsage>(),
     source: jsonb("source").$type<VocabularySource>(),
+    /**
+     * Task 70 — set when the source headword was not recognized as a real word
+     * but translated anyway on the user's "translate as written" override.
+     * Unverified entries are excluded from daily notifications and SRS picks.
+     */
+    unverified: boolean("unverified").default(false).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

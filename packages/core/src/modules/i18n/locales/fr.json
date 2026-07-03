@@ -296,5 +296,9 @@
   "videoPhrasesExtracted": "{count} expressions extraites",
   "chooseProficiencyLevel": "Quel est ton niveau en {lang} ?",
   "loading": "⏳ Chargement...",
-  "loadingTimeout": "⌛ Cela prend plus de temps que prévu. Veuillez réessayer."
+  "loadingTimeout": "⌛ Cela prend plus de temps que prévu. Veuillez réessayer.",
+  "translationClarifyReasonUnrecognized": "« {word} » ne ressemble pas à un mot standard en {lang}.",
+  "translationTranslateAsWritten": "➡️ Traduire tel quel",
+  "translationAsWrittenCaveat": "⚠️ Introuvable dans les dictionnaires standard — traduit littéralement.",
+  "translationNoMoreMeanings": "ℹ️ Aucun autre sens disponible."
 }

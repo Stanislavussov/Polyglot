@@ -260,6 +260,50 @@ describe("translateWithContext", () => {
 
     await expect(translateWithContext(baseInput, deps)).rejects.toThrow("AI generation failed");
   });
+
+  it("passes dictionaryHit=false when the word is not in the dictionary", async () => {
+    const deps = createMockDeps(undefined); // lookup → []
+    vi.mocked(translate).mockResolvedValue(makeAcceptedDecision(makeTranslateOutput("stroha", ["en"])));
+
+    await translateWithContext({ ...baseInput, word: "stroha" }, deps);
+
+    expect(translate).toHaveBeenCalledWith(
+      expect.objectContaining({ word: "stroha", dictionaryHit: false }),
+      deps.generateObjectFn,
+    );
+  });
+
+  it("passes dictionaryHit=true when the word exists in the dictionary (even ambiguously)", async () => {
+    const first = makeDictionaryContext("bank");
+    const second = { ...makeDictionaryContext("bank"), glosses: ["river edge"] };
+    const deps: ContextEnrichmentDeps = {
+      lookupContext: vi.fn().mockResolvedValue([
+        { matchType: "lemma", context: first },
+        { matchType: "lemma", context: second },
+      ]),
+      generateObjectFn: vi.fn(),
+    };
+    vi.mocked(translate).mockResolvedValue(makeAcceptedDecision(makeTranslateOutput("bank", ["cs"])));
+
+    await translateWithContext({ ...baseInput, word: "bank" }, deps);
+
+    expect(translate).toHaveBeenCalledWith(
+      expect.objectContaining({ word: "bank", dictionaryHit: true, dictionaryContext: undefined }),
+      deps.generateObjectFn,
+    );
+  });
+
+  it("passes dictionaryHit=undefined when the lookup fails (no fabricated miss signal)", async () => {
+    const deps = createMockDeps(undefined, new Error("DB connection failed"));
+    vi.mocked(translate).mockResolvedValue(makeAcceptedDecision(makeTranslateOutput("apple", ["cs", "de"])));
+
+    await translateWithContext(baseInput, deps);
+
+    expect(translate).toHaveBeenCalledWith(
+      expect.objectContaining({ dictionaryHit: undefined }),
+      deps.generateObjectFn,
+    );
+  });
 });
 
 // ─────────────────────────────────────────────

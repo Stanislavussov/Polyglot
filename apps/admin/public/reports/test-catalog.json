@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-02T19:59:12.147Z",
+  "generatedAt": "2026-07-03T18:51:50.815Z",
   "summary": {
-    "total": 1930,
+    "total": 1945,
     "business": 0,
-    "technical": 1930,
+    "technical": 1945,
     "workspaces": [
       "apps",
       "packages"
@@ -4895,10 +4895,10 @@
       "description": "Protects the bot send Release Announcement behavior so continues when one Telegram send fails."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-153-renderdictionarylist-contains-header-with-word-count",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-155-renderdictionarylist-contains-header-with-word-count",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 153,
+      "sourceLine": 155,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4911,10 +4911,10 @@
       "description": "Protects the bot render Dictionary List behavior so contains header with word count."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-158-renderdictionarylist-each-entry-shows-emoji-original-translation-summaries",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-160-renderdictionarylist-each-entry-shows-emoji-original-translation-summaries",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 158,
+      "sourceLine": 160,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4927,10 +4927,10 @@
       "description": "Protects the bot render Dictionary List behavior so each entry shows emoji + original + translation summaries."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-166-renderdictionarylist-entries-with-2-translations-show-n-suffix",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-168-renderdictionarylist-entries-with-2-translations-show-n-suffix",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 166,
+      "sourceLine": 168,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4943,10 +4943,10 @@
       "description": "Protects the bot render Dictionary List behavior so entries with >2 translations show +N suffix."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-176-renderdictionarylist-global-indexing-page-2-starts-at-16",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-178-renderdictionarylist-global-indexing-page-2-starts-at-16",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 176,
+      "sourceLine": 178,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4959,10 +4959,10 @@
       "description": "Protects the bot render Dictionary List behavior so global indexing — page 2 starts at 16."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-183-renderdictionarylist-html-characters-are-escaped",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-185-renderdictionarylist-html-characters-are-escaped",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 183,
+      "sourceLine": 185,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4975,10 +4975,10 @@
       "description": "Protects the bot render Dictionary List behavior so HTML characters are escaped."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-190-renderdictionarylist-no-page-indicator-when-single-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-192-renderdictionarylist-no-page-indicator-when-single-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 190,
+      "sourceLine": 192,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4991,10 +4991,10 @@
       "description": "Protects the bot render Dictionary List behavior so no page indicator when single page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-195-renderdictionarylist-shows-page-indicator-when-multiple-pages",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-197-renderdictionarylist-shows-page-indicator-when-multiple-pages",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 195,
+      "sourceLine": 197,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5007,10 +5007,10 @@
       "description": "Protects the bot render Dictionary List behavior: shows page indicator when multiple pages."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-200-renderdictionarylist-handles-entries-without-emoji",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-202-renderdictionarylist-handles-entries-without-emoji",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 200,
+      "sourceLine": 202,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5023,10 +5023,10 @@
       "description": "Protects the bot render Dictionary List behavior: handles entries without emoji."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-206-renderdictionarylist-truncates-long-words",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-208-renderdictionarylist-truncates-long-words",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 206,
+      "sourceLine": 208,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5039,10 +5039,10 @@
       "description": "Protects the bot render Dictionary List behavior so truncates long words."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-223-renderdictionaryentry-contains-original-word-with-emoji",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-225-renderdictionaryentry-contains-original-word-with-emoji",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 223,
+      "sourceLine": 225,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5055,10 +5055,10 @@
       "description": "Protects the bot render Dictionary Entry behavior so contains original word with emoji."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-228-renderdictionaryentry-shows-source-language-flag-and-input-type",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-230-renderdictionaryentry-shows-source-language-flag-and-input-type",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 228,
+      "sourceLine": 230,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5071,10 +5071,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows source language flag and input type."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-233-renderdictionaryentry-localizes-source-input-type",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-235-renderdictionaryentry-localizes-source-input-type",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 233,
+      "sourceLine": 235,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5087,10 +5087,10 @@
       "description": "Protects the bot render Dictionary Entry behavior so localizes source input type."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-239-renderdictionaryentry-contains-translations-without-transcription",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-241-renderdictionaryentry-contains-translations-without-transcription",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 239,
+      "sourceLine": 241,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5103,10 +5103,10 @@
       "description": "Protects the bot render Dictionary Entry behavior so contains translations without transcription."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-246-renderdictionaryentry-shows-synonyms-from-details",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-248-renderdictionaryentry-shows-synonyms-from-details",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 246,
+      "sourceLine": 248,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5119,10 +5119,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows synonyms from details."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-251-renderdictionaryentry-shows-examples-from-details",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-253-renderdictionaryentry-shows-examples-from-details",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 251,
+      "sourceLine": 253,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5135,10 +5135,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows examples from details."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-256-renderdictionaryentry-shows-regular-usage-guidance-separately-from-warnings",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-258-renderdictionaryentry-shows-regular-usage-guidance-separately-from-warnings",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 256,
+      "sourceLine": 258,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5151,10 +5151,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows regular usage guidance separately from warnings."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-262-renderdictionaryentry-preserves-the-full-saved-source-language-learning-card",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-264-renderdictionaryentry-preserves-the-full-saved-source-language-learning-card",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 262,
+      "sourceLine": 264,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5167,10 +5167,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: preserves the full saved source language learning card."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-270-renderdictionaryentry-escapes-html-inside-saved-source-usage",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-272-renderdictionaryentry-escapes-html-inside-saved-source-usage",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 270,
+      "sourceLine": 272,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5183,10 +5183,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: escapes HTML inside saved source usage."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-290-renderdictionaryentry-falls-back-to-when-langresolver-returns-undefined",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-292-renderdictionaryentry-falls-back-to-when-langresolver-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 290,
+      "sourceLine": 292,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5199,10 +5199,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: falls back to 🔤 when lang Resolver returns undefined."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-300-builddictionarylistkeyboard-has-one-button-per-entry-with-dict-view-dictionaryid-id-page-callback",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-302-builddictionarylistkeyboard-has-one-button-per-entry-with-dict-view-dictionaryid-id-page-callback",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 300,
+      "sourceLine": 302,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5215,10 +5215,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so has one button per entry with dict:view:{dictionary Id}:{id}:{page} callback."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-309-builddictionarylistkeyboard-has-navigation-buttons-when-1-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-311-builddictionarylistkeyboard-has-navigation-buttons-when-1-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 309,
+      "sourceLine": 311,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5231,10 +5231,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so has navigation buttons when > 1 page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-320-builddictionarylistkeyboard-no-prev-button-on-page-1",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-322-builddictionarylistkeyboard-no-prev-button-on-page-1",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 320,
+      "sourceLine": 322,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5247,10 +5247,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so no prev button on page 1."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-330-builddictionarylistkeyboard-no-next-button-on-last-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-332-builddictionarylistkeyboard-no-next-button-on-last-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 330,
+      "sourceLine": 332,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5263,10 +5263,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so no next button on last page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-340-builddictionarylistkeyboard-no-navigation-row-when-1-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-342-builddictionarylistkeyboard-no-navigation-row-when-1-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 340,
+      "sourceLine": 342,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5279,10 +5279,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so no navigation row when 1 page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-349-builddictionarylistkeyboard-has-close-button",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-351-builddictionarylistkeyboard-has-close-button",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 349,
+      "sourceLine": 351,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5295,10 +5295,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so has close button."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-356-builddictionarylistkeyboard-entry-buttons-show-emoji-original",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-358-builddictionarylistkeyboard-entry-buttons-show-emoji-original",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 356,
+      "sourceLine": 358,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5311,10 +5311,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so entry buttons show emoji + original."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-366-builddictionaryentrykeyboard-has-delete-and-back-buttons",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-368-builddictionaryentrykeyboard-has-delete-and-back-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 366,
+      "sourceLine": 368,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5327,10 +5327,10 @@
       "description": "Protects the bot build Dictionary Entry Keyboard behavior so has delete and back buttons."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-376-builddictionaryentrykeyboard-uses-i18n-for-button-labels",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-378-builddictionaryentrykeyboard-uses-i18n-for-button-labels",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 376,
+      "sourceLine": 378,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5343,10 +5343,10 @@
       "description": "Protects the bot build Dictionary Entry Keyboard behavior: uses i18n for button labels."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-386-builddeleteconfirmkeyboard-has-confirm-delete-and-cancel-buttons",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-388-builddeleteconfirmkeyboard-has-confirm-delete-and-cancel-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 386,
+      "sourceLine": 388,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5359,10 +5359,10 @@
       "description": "Protects the bot build Delete Confirm Keyboard behavior so has confirm delete and cancel buttons."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-394-builddeleteconfirmkeyboard-uses-i18n-for-button-labels",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-396-builddeleteconfirmkeyboard-uses-i18n-for-button-labels",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 394,
+      "sourceLine": 396,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5375,10 +5375,10 @@
       "description": "Protects the bot build Delete Confirm Keyboard behavior: uses i18n for button labels."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-404-dictionary-page-size-is-15",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-406-dictionary-page-size-is-15",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 404,
+      "sourceLine": 406,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5423,10 +5423,42 @@
       "description": "Protects the bot render Srs Back behavior: shows a compact source example before the target example."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-146-handledictpage-calls-findbyuserpaginated-with-correct-offset",
+      "id": "apps-bot-src-renderers-tests-translation-renderer-test-ts-24-rendertranslation-unverified-caveat-task-70-renders-the-caveat-line-for-an-unverified-translate-as-written-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.test.ts",
+      "sourceLine": 24,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderTranslation — unverified caveat (Task 70)"
+      ],
+      "title": "renders the caveat line for an unverified (translate-as-written) card",
+      "rawTitle": "renders the caveat line for an unverified (translate-as-written) card",
+      "name": "Bot render Translation — unverified caveat (Task 70) renders the caveat line for an unverified (translate as written) card",
+      "value": "Protects the bot render Translation — unverified caveat (Task 70) behavior: renders the caveat line for an unverified (translate as written) card.",
+      "description": "Protects the bot render Translation — unverified caveat (Task 70) behavior: renders the caveat line for an unverified (translate as written) card."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-test-ts-29-rendertranslation-unverified-caveat-task-70-omits-the-caveat-for-a-normal-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.test.ts",
+      "sourceLine": 29,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderTranslation — unverified caveat (Task 70)"
+      ],
+      "title": "omits the caveat for a normal card",
+      "rawTitle": "omits the caveat for a normal card",
+      "name": "Bot render Translation — unverified caveat (Task 70) omits the caveat for a normal card",
+      "value": "Protects the bot render Translation — unverified caveat (Task 70) behavior: omits the caveat for a normal card.",
+      "description": "Protects the bot render Translation — unverified caveat (Task 70) behavior: omits the caveat for a normal card."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-147-handledictpage-calls-findbyuserpaginated-with-correct-offset",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 146,
+      "sourceLine": 147,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5439,10 +5471,10 @@
       "description": "Protects the bot handle Dict Page behavior: calls find By User Paginated with correct offset."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-159-handledictpage-updates-session-currentpage",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-160-handledictpage-updates-session-currentpage",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 159,
+      "sourceLine": 160,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5455,10 +5487,10 @@
       "description": "Protects the bot handle Dict Page behavior: updates session current Page."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-169-handledictpage-shows-emptydictionary-when-total-is-0",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-170-handledictpage-shows-emptydictionary-when-total-is-0",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 169,
+      "sourceLine": 170,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5471,10 +5503,10 @@
       "description": "Protects the bot handle Dict Page behavior: shows empty Dictionary when total is 0."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-187-handledictview-calls-findbyid-and-edits-message-with-entry-view",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-188-handledictview-calls-findbyid-and-edits-message-with-entry-view",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 187,
+      "sourceLine": 188,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5487,10 +5519,10 @@
       "description": "Protects the bot handle Dict View behavior: calls find By Id and edits message with entry view."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-199-handledictview-shows-noresults-when-entry-not-found",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-200-handledictview-shows-noresults-when-entry-not-found",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 199,
+      "sourceLine": 200,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5503,10 +5535,10 @@
       "description": "Protects the bot handle Dict View behavior: shows no Results when entry not found."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-211-handledictview-uses-page-from-callback-data-when-provided",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-212-handledictview-uses-page-from-callback-data-when-provided",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 211,
+      "sourceLine": 212,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5519,10 +5551,10 @@
       "description": "Protects the bot handle Dict View behavior: uses page from callback data when provided."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-230-handledictdelete-shows-confirmation-with-word-name",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-231-handledictdelete-shows-confirmation-with-word-name",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 230,
+      "sourceLine": 231,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5535,10 +5567,10 @@
       "description": "Protects the bot handle Dict Delete behavior: shows confirmation with word name."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-240-handledictdelete-shows-noresults-when-entry-not-found",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-241-handledictdelete-shows-noresults-when-entry-not-found",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 241,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5551,10 +5583,10 @@
       "description": "Protects the bot handle Dict Delete behavior: shows no Results when entry not found."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-255-handledictconfirmdelete-calls-harddelete-and-returns-to-list",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-256-handledictconfirmdelete-calls-harddelete-and-returns-to-list",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 255,
+      "sourceLine": 256,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5567,10 +5599,10 @@
       "description": "Protects the bot handle Dict Confirm Delete behavior: calls hard Delete and returns to list."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-271-handledictconfirmdelete-goes-to-previous-page-when-current-page-becomes-empty",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-272-handledictconfirmdelete-goes-to-previous-page-when-current-page-becomes-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 271,
+      "sourceLine": 272,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5583,10 +5615,10 @@
       "description": "Protects the bot handle Dict Confirm Delete behavior so goes to previous page when current page becomes empty."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-286-handledictconfirmdelete-shows-emptydictionary-when-last-word-deleted",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-287-handledictconfirmdelete-shows-emptydictionary-when-last-word-deleted",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 286,
+      "sourceLine": 287,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5599,10 +5631,10 @@
       "description": "Protects the bot handle Dict Confirm Delete behavior: shows empty Dictionary when last word deleted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-306-handledictclose-deletes-message-and-clears-session",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-307-handledictclose-deletes-message-and-clears-session",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 306,
+      "sourceLine": 307,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5615,10 +5647,10 @@
       "description": "Protects the bot handle Dict Close behavior so deletes message and clears session."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-320-handledictnoop-answers-callback-query-with-no-parameters",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-321-handledictnoop-answers-callback-query-with-no-parameters",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 320,
+      "sourceLine": 321,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5631,10 +5663,10 @@
       "description": "Protects the bot handle Dict Noop behavior so answers callback query with no parameters."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-332-restart-recovery-and-ownership-handledictpage-re-renders-from-db-when-session-is-missing",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-333-restart-recovery-and-ownership-handledictpage-re-renders-from-db-when-session-is-missing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 332,
+      "sourceLine": 333,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5647,10 +5679,10 @@
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict Page re renders from DB when session is missing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-344-restart-recovery-and-ownership-handledictview-re-renders-owned-entries-when-session-is-missing",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-345-restart-recovery-and-ownership-handledictview-re-renders-owned-entries-when-session-is-missing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 344,
+      "sourceLine": 345,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5663,10 +5695,10 @@
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict View re renders owned entries when session is missing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-354-restart-recovery-and-ownership-handledictdelete-rejects-entries-owned-by-another-user",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-355-restart-recovery-and-ownership-handledictdelete-rejects-entries-owned-by-another-user",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 354,
+      "sourceLine": 355,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5679,10 +5711,10 @@
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict Delete rejects entries owned by another user."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-368-restart-recovery-and-ownership-handledictconfirmdelete-validates-ownership-before-deleting",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-369-restart-recovery-and-ownership-handledictconfirmdelete-validates-ownership-before-deleting",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 368,
+      "sourceLine": 369,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8973,6 +9005,38 @@
       "name": "Bot to Vocabulary Input handles missing optional fields on Language Translation gracefully",
       "value": "Protects the bot to Vocabulary Input behavior: handles missing optional fields on Language Translation gracefully.",
       "description": "Protects the bot to Vocabulary Input behavior: handles missing optional fields on Language Translation gracefully."
+    },
+    {
+      "id": "apps-bot-src-utils-vocabulary-mapper-test-ts-217-tovocabularyinput-sets-unverified-true-when-the-output-is-flagged-unverified",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/vocabulary-mapper.test.ts",
+      "sourceLine": 217,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "toVocabularyInput"
+      ],
+      "title": "sets unverified=true when the output is flagged unverified",
+      "rawTitle": "sets unverified=true when the output is flagged unverified",
+      "name": "Bot to Vocabulary Input sets unverified=true when the output is flagged unverified",
+      "value": "Protects the bot to Vocabulary Input behavior so sets unverified=true when the output is flagged unverified.",
+      "description": "Protects the bot to Vocabulary Input behavior so sets unverified=true when the output is flagged unverified."
+    },
+    {
+      "id": "apps-bot-src-utils-vocabulary-mapper-test-ts-222-tovocabularyinput-defaults-unverified-to-false-for-normal-output",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/vocabulary-mapper.test.ts",
+      "sourceLine": 222,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "toVocabularyInput"
+      ],
+      "title": "defaults unverified to false for normal output",
+      "rawTitle": "defaults unverified to false for normal output",
+      "name": "Bot to Vocabulary Input defaults unverified to false for normal output",
+      "value": "Protects the bot to Vocabulary Input behavior: defaults unverified to false for normal output.",
+      "description": "Protects the bot to Vocabulary Input behavior: defaults unverified to false for normal output."
     },
     {
       "id": "apps-translation-benchmark-src-benchmark-groups-test-ts-7-selectbenchmarkcases-selects-a-small-representative-smoke-group",
@@ -12827,10 +12891,10 @@
       "description": "Protects the database adapter user Repository get Settings returns last Source Lang behavior: returns last Source Lang as null when not set."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-130-vocabularyrepository-pagination-harddelete-countbyuser-returns-correct-count-for-user-with-entries",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-131-vocabularyrepository-pagination-harddelete-countbyuser-returns-correct-count-for-user-with-entries",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 130,
+      "sourceLine": 131,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12844,10 +12908,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete count By User behavior: returns correct count for user with entries."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-139-vocabularyrepository-pagination-harddelete-countbyuser-returns-0-for-user-with-no-entries",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-140-vocabularyrepository-pagination-harddelete-countbyuser-returns-0-for-user-with-no-entries",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 139,
+      "sourceLine": 140,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12861,10 +12925,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete count By User behavior: returns 0 for user with no entries."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-147-vocabularyrepository-pagination-harddelete-countbyuser-returns-0-when-query-returns-empty-result",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-148-vocabularyrepository-pagination-harddelete-countbyuser-returns-0-when-query-returns-empty-result",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 147,
+      "sourceLine": 148,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12878,10 +12942,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete count By User behavior: returns 0 when query returns empty result."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-157-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-correct-page-of-entries-with-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-158-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-correct-page-of-entries-with-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 157,
+      "sourceLine": 158,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12895,10 +12959,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: returns correct page of entries with translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-176-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-empty-array-when-offset-is-beyond-total",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-177-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-empty-array-when-offset-is-beyond-total",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 176,
+      "sourceLine": 177,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12912,10 +12976,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: returns empty array when offset is beyond total."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-184-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-entries-with-multiple-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-185-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-entries-with-multiple-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 184,
+      "sourceLine": 185,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12929,10 +12993,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: returns entries with multiple translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-201-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-entries-ordered-by-createdat-desc",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-202-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-entries-ordered-by-createdat-desc",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 201,
+      "sourceLine": 202,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12946,10 +13010,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: returns entries ordered by created At DESC."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-213-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-only-active-translations-for-entries",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-214-vocabularyrepository-pagination-harddelete-findbyuserpaginated-returns-only-active-translations-for-entries",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 213,
+      "sourceLine": 214,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12963,10 +13027,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: returns only active translations for entries."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-229-vocabularyrepository-pagination-harddelete-findbyuserpaginated-applies-offset-correctly-for-page-2",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-230-vocabularyrepository-pagination-harddelete-findbyuserpaginated-applies-offset-correctly-for-page-2",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 229,
+      "sourceLine": 230,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12980,10 +13044,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: applies offset correctly for page 2."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-243-vocabularyrepository-pagination-harddelete-findbyuserpaginated-accepts-sort-search-options-and-still-assembles-entries",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-244-vocabularyrepository-pagination-harddelete-findbyuserpaginated-accepts-sort-search-options-and-still-assembles-entries",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 243,
+      "sourceLine": 244,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12997,10 +13061,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete find By User Paginated behavior: accepts sort + search options and still assembles entries."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-259-vocabularyrepository-pagination-harddelete-countbyuser-with-search-accepts-an-optional-search-filter",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-260-vocabularyrepository-pagination-harddelete-countbyuser-with-search-accepts-an-optional-search-filter",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 259,
+      "sourceLine": 260,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13014,10 +13078,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete count By User with search behavior: accepts an optional search filter."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-269-vocabularyrepository-pagination-harddelete-harddelete-deletes-entry-from-the-database-not-soft-delete",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-270-vocabularyrepository-pagination-harddelete-harddelete-deletes-entry-from-the-database-not-soft-delete",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 269,
+      "sourceLine": 270,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13031,10 +13095,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete hard Delete behavior so deletes entry from the database (not soft delete)."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-276-vocabularyrepository-pagination-harddelete-harddelete-calls-delete-on-vocabularyentries-table",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-277-vocabularyrepository-pagination-harddelete-harddelete-calls-delete-on-vocabularyentries-table",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 276,
+      "sourceLine": 277,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13048,10 +13112,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete hard Delete behavior: calls delete on vocabulary Entries table."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-284-vocabularyrepository-pagination-harddelete-harddelete-is-a-no-op-when-entry-does-not-exist",
+      "id": "packages-adapters-db-src-tests-vocabulary-pagination-repository-test-ts-285-vocabularyrepository-pagination-harddelete-harddelete-is-a-no-op-when-entry-does-not-exist",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-pagination.repository.test.ts",
-      "sourceLine": 284,
+      "sourceLine": 285,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13065,10 +13129,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete hard Delete behavior so is a no op when entry does not exist."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-174-vocabularyrepository-create-inserts-parent-entry-translation-rows-and-returns-full-entry",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-175-vocabularyrepository-create-inserts-parent-entry-translation-rows-and-returns-full-entry",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 175,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13082,10 +13146,10 @@
       "description": "Protects the database adapter vocabulary Repository create behavior so inserts parent entry + translation rows and returns full entry."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-189-vocabularyrepository-create-inserts-entry-only-when-translations-array-is-empty",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-190-vocabularyrepository-create-inserts-entry-only-when-translations-array-is-empty",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 189,
+      "sourceLine": 190,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13099,10 +13163,10 @@
       "description": "Protects the database adapter vocabulary Repository create behavior so inserts entry only when translations array is empty."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-200-vocabularyrepository-create-passes-correct-values-for-parent-insert",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-201-vocabularyrepository-create-passes-correct-values-for-parent-insert",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 200,
+      "sourceLine": 201,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13116,10 +13180,10 @@
       "description": "Protects the database adapter vocabulary Repository create behavior so passes correct values for parent insert."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-222-vocabularyrepository-create-passes-correct-values-for-translation-insert",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-223-vocabularyrepository-create-passes-correct-values-for-translation-insert",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 222,
+      "sourceLine": 223,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13133,10 +13197,10 @@
       "description": "Protects the database adapter vocabulary Repository create behavior so passes correct values for translation insert."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-239-vocabularyrepository-create-handles-multiple-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-240-vocabularyrepository-create-handles-multiple-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 239,
+      "sourceLine": 240,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13150,10 +13214,10 @@
       "description": "Protects the database adapter vocabulary Repository create behavior: handles multiple translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-259-vocabularyrepository-findbyoriginalandsource-preserves-source-usage-from-the-parent-entry",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-260-vocabularyrepository-findbyoriginalandsource-preserves-source-usage-from-the-parent-entry",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 259,
+      "sourceLine": 260,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13167,10 +13231,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Original And Source behavior: preserves source usage from the parent entry."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-273-vocabularyrepository-findbyoriginalandsource-returns-entry-with-translations-when-match-exists",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-274-vocabularyrepository-findbyoriginalandsource-returns-entry-with-translations-when-match-exists",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 273,
+      "sourceLine": 274,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13184,10 +13248,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Original And Source behavior: returns entry with translations when match exists."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-287-vocabularyrepository-findbyoriginalandsource-returns-null-when-no-match-found",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-288-vocabularyrepository-findbyoriginalandsource-returns-null-when-no-match-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 287,
+      "sourceLine": 288,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13201,10 +13265,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Original And Source behavior: returns null when no match found."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-297-vocabularyrepository-findbyuser-returns-entries-with-translations-ordered-by-createdat-desc",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-298-vocabularyrepository-findbyuser-returns-entries-with-translations-ordered-by-createdat-desc",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 297,
+      "sourceLine": 298,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13218,10 +13282,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User behavior: returns entries with translations ordered by created At DESC."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-312-vocabularyrepository-findbyuser-returns-empty-array-when-user-has-no-entries",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-313-vocabularyrepository-findbyuser-returns-empty-array-when-user-has-no-entries",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 312,
+      "sourceLine": 313,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13235,10 +13299,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User behavior: returns empty array when user has no entries."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-322-vocabularyrepository-findbyid-returns-entry-with-translations-when-found",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-323-vocabularyrepository-findbyid-returns-entry-with-translations-when-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 322,
+      "sourceLine": 323,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13252,10 +13316,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Id behavior: returns entry with translations when found."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-334-vocabularyrepository-findbyid-returns-null-when-not-found",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-335-vocabularyrepository-findbyid-returns-null-when-not-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 334,
+      "sourceLine": 335,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13269,10 +13333,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Id behavior: returns null when not found."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-344-vocabularyrepository-search-returns-matching-entries-with-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-345-vocabularyrepository-search-returns-matching-entries-with-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 344,
+      "sourceLine": 345,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13286,10 +13350,10 @@
       "description": "Protects the database adapter vocabulary Repository search behavior: returns matching entries with translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-355-vocabularyrepository-search-returns-empty-array-when-nothing-matches",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-356-vocabularyrepository-search-returns-empty-array-when-nothing-matches",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 355,
+      "sourceLine": 356,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13303,10 +13367,10 @@
       "description": "Protects the database adapter vocabulary Repository search behavior: returns empty array when nothing matches."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-365-vocabularyrepository-findbyuserandlang-returns-entries-with-only-matching-target-language-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-366-vocabularyrepository-findbyuserandlang-returns-entries-with-only-matching-target-language-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 365,
+      "sourceLine": 366,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13320,10 +13384,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User And Lang behavior: returns entries with only matching target language translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-377-vocabularyrepository-findbyuserandlang-returns-empty-array-when-no-translations-for-target-language",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-378-vocabularyrepository-findbyuserandlang-returns-empty-array-when-no-translations-for-target-language",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 377,
+      "sourceLine": 378,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13337,10 +13401,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User And Lang behavior: returns empty array when no translations for target language."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-387-vocabularyrepository-updatetranslation-updates-only-the-specified-language-row",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-388-vocabularyrepository-updatetranslation-updates-only-the-specified-language-row",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 387,
+      "sourceLine": 388,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13354,10 +13418,10 @@
       "description": "Protects the database adapter vocabulary Repository update Translation behavior: updates only the specified language row."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-399-vocabularyrepository-updatetranslation-sets-updatedat-on-update",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-400-vocabularyrepository-updatetranslation-sets-updatedat-on-update",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 399,
+      "sourceLine": 400,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13371,10 +13435,10 @@
       "description": "Protects the database adapter vocabulary Repository update Translation behavior so sets updated At on update."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-413-vocabularyrepository-updatetranslation-upserts-inserts-when-no-existing-row-for-entry-lang",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-414-vocabularyrepository-updatetranslation-upserts-inserts-when-no-existing-row-for-entry-lang",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 413,
+      "sourceLine": 414,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13388,10 +13452,10 @@
       "description": "Protects the database adapter vocabulary Repository update Translation behavior so upserts (inserts) when no existing row for entry+lang."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-431-vocabularyrepository-updatealltranslations-deletes-old-and-inserts-new-translations-in-a-transaction",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-432-vocabularyrepository-updatealltranslations-deletes-old-and-inserts-new-translations-in-a-transaction",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 431,
+      "sourceLine": 432,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13405,10 +13469,10 @@
       "description": "Protects the database adapter vocabulary Repository update All Translations behavior so deletes old and inserts new translations in a transaction."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-447-vocabularyrepository-updatealltranslations-returns-empty-array-when-translations-list-is-empty",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-448-vocabularyrepository-updatealltranslations-returns-empty-array-when-translations-list-is-empty",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 447,
+      "sourceLine": 448,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13422,10 +13486,10 @@
       "description": "Protects the database adapter vocabulary Repository update All Translations behavior: returns empty array when translations list is empty."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-458-vocabularyrepository-delete-soft-deletes-parent-and-all-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-459-vocabularyrepository-delete-soft-deletes-parent-and-all-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 458,
+      "sourceLine": 459,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13439,10 +13503,10 @@
       "description": "Protects the database adapter vocabulary Repository delete behavior so soft deletes parent and all translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-471-vocabularyrepository-findbyuserwithsourcelang-resolves-sourcelangid-to-code-using-langresolver",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-472-vocabularyrepository-findbyuserwithsourcelang-resolves-sourcelangid-to-code-using-langresolver",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 471,
+      "sourceLine": 472,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13456,10 +13520,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User With Source Lang behavior: resolves source Lang Id to code using lang Resolver."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-484-vocabularyrepository-findbyuserwithsourcelang-filters-out-entries-with-unresolvable-sourcelangid",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-485-vocabularyrepository-findbyuserwithsourcelang-filters-out-entries-with-unresolvable-sourcelangid",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 484,
+      "sourceLine": 485,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -14325,10 +14389,44 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when deps are missing."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-207-pickdictionaryword-error-handling-returns-null-when-getuservocabulary-throws",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-206-pickdictionaryword-edge-cases-never-selects-an-unverified-entry",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 207,
+      "sourceLine": 206,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "edge cases"
+      ],
+      "title": "never selects an unverified entry",
+      "rawTitle": "never selects an unverified entry",
+      "name": "Notification adapter pick Dictionary Word edge cases never selects an unverified entry",
+      "value": "Protects the notification adapter pick Dictionary Word edge cases behavior so never selects an unverified entry.",
+      "description": "Protects the notification adapter pick Dictionary Word edge cases behavior so never selects an unverified entry."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-233-pickdictionaryword-edge-cases-returns-null-when-every-entry-is-unverified",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 233,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "edge cases"
+      ],
+      "title": "returns null when every entry is unverified",
+      "rawTitle": "returns null when every entry is unverified",
+      "name": "Notification adapter pick Dictionary Word edge cases returns null when every entry is unverified",
+      "value": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when every entry is unverified.",
+      "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when every entry is unverified."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-254-pickdictionaryword-error-handling-returns-null-when-getuservocabulary-throws",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 254,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15192,10 +15290,58 @@
       "description": "Protects the core domain translate With Context behavior: does not swallow errors from translate()."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-276-translateonewithcontext-calls-lookupcontext-with-word-and-sourcelang",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-264-translatewithcontext-passes-dictionaryhit-false-when-the-word-is-not-in-the-dictionary",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
+      "sourceLine": 264,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translateWithContext"
+      ],
+      "title": "passes dictionaryHit=false when the word is not in the dictionary",
+      "rawTitle": "passes dictionaryHit=false when the word is not in the dictionary",
+      "name": "Core domain translate With Context passes dictionary Hit=false when the word is not in the dictionary",
+      "value": "Protects the core domain translate With Context behavior so passes dictionary Hit=false when the word is not in the dictionary.",
+      "description": "Protects the core domain translate With Context behavior so passes dictionary Hit=false when the word is not in the dictionary."
+    },
+    {
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-276-translatewithcontext-passes-dictionaryhit-true-when-the-word-exists-in-the-dictionary-even-ambiguously",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
       "sourceLine": 276,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translateWithContext"
+      ],
+      "title": "passes dictionaryHit=true when the word exists in the dictionary (even ambiguously)",
+      "rawTitle": "passes dictionaryHit=true when the word exists in the dictionary (even ambiguously)",
+      "name": "Core domain translate With Context passes dictionary Hit=true when the word exists in the dictionary (even ambiguously)",
+      "value": "Protects the core domain translate With Context behavior so passes dictionary Hit=true when the word exists in the dictionary (even ambiguously).",
+      "description": "Protects the core domain translate With Context behavior so passes dictionary Hit=true when the word exists in the dictionary (even ambiguously)."
+    },
+    {
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-296-translatewithcontext-passes-dictionaryhit-undefined-when-the-lookup-fails-no-fabricated-miss-signal",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
+      "sourceLine": 296,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translateWithContext"
+      ],
+      "title": "passes dictionaryHit=undefined when the lookup fails (no fabricated miss signal)",
+      "rawTitle": "passes dictionaryHit=undefined when the lookup fails (no fabricated miss signal)",
+      "name": "Core domain translate With Context passes dictionary Hit=undefined when the lookup fails (no fabricated miss signal)",
+      "value": "Protects the core domain translate With Context behavior so passes dictionary Hit=undefined when the lookup fails (no fabricated miss signal).",
+      "description": "Protects the core domain translate With Context behavior so passes dictionary Hit=undefined when the lookup fails (no fabricated miss signal)."
+    },
+    {
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-320-translateonewithcontext-calls-lookupcontext-with-word-and-sourcelang",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
+      "sourceLine": 320,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15208,10 +15354,10 @@
       "description": "Protects the core domain translate One With Context behavior: calls lookup Context with word and source Lang."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-285-translateonewithcontext-passes-dictionarycontext-to-translateone-when-found",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-329-translateonewithcontext-passes-dictionarycontext-to-translateone-when-found",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 329,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15224,10 +15370,10 @@
       "description": "Protects the core domain translate One With Context behavior so passes dictionary Context to translate One when found."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-302-translateonewithcontext-calls-translateone-without-dictionarycontext-when-lookup-returns-undefined",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-346-translateonewithcontext-calls-translateone-without-dictionarycontext-when-lookup-returns-undefined",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 302,
+      "sourceLine": 346,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15240,10 +15386,10 @@
       "description": "Protects the core domain translate One With Context behavior: calls translate One without dictionary Context when lookup returns undefined."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-316-translateonewithcontext-handles-lookup-errors-gracefully-fail-open",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-360-translateonewithcontext-handles-lookup-errors-gracefully-fail-open",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 316,
+      "sourceLine": 360,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15256,10 +15402,10 @@
       "description": "Protects the core domain translate One With Context behavior: handles lookup errors gracefully (fail open)."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-330-translateonewithcontext-returns-translationdecision-from-translateone-as-is",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-374-translateonewithcontext-returns-translationdecision-from-translateone-as-is",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 330,
+      "sourceLine": 374,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15272,10 +15418,10 @@
       "description": "Protects the core domain translate One With Context behavior: returns Translation Decision from translate One() as is."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-350-translatebatchwithcontext-calls-lookupcontext-for-each-word-in-the-batch",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-394-translatebatchwithcontext-calls-lookupcontext-for-each-word-in-the-batch",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 350,
+      "sourceLine": 394,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15288,10 +15434,10 @@
       "description": "Protects the core domain translate Batch With Context behavior: calls lookup Context for each word in the batch."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-364-translatebatchwithcontext-processes-words-sequentially-not-in-parallel",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-408-translatebatchwithcontext-processes-words-sequentially-not-in-parallel",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 364,
+      "sourceLine": 408,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15304,10 +15450,10 @@
       "description": "Protects the core domain translate Batch With Context behavior: processes words sequentially (not in parallel)."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-377-translatebatchwithcontext-returns-translationdecision-for-each-word",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-421-translatebatchwithcontext-returns-translationdecision-for-each-word",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 377,
+      "sourceLine": 421,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15320,10 +15466,10 @@
       "description": "Protects the core domain translate Batch With Context behavior: returns Translation Decision for each word."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-390-translatebatchwithcontext-enriches-each-word-with-its-own-dictionary-context",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-434-translatebatchwithcontext-enriches-each-word-with-its-own-dictionary-context",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 390,
+      "sourceLine": 434,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15336,10 +15482,10 @@
       "description": "Protects the core domain translate Batch With Context behavior so enriches each word with its own dictionary context."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-419-translatebatchwithcontext-returns-empty-array-for-empty-word-list",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-463-translatebatchwithcontext-returns-empty-array-for-empty-word-list",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 419,
+      "sourceLine": 463,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15352,10 +15498,10 @@
       "description": "Protects the core domain translate Batch With Context behavior: returns empty array for empty word list."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-429-translatebatchwithcontext-continues-batch-when-one-lookup-fails-fail-open",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-473-translatebatchwithcontext-continues-batch-when-one-lookup-fails-fail-open",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 429,
+      "sourceLine": 473,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15368,10 +15514,10 @@
       "description": "Protects the core domain translate Batch With Context behavior so continues batch when one lookup fails (fail open)."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-459-context-enrichment-general-uses-sourcelang-for-dictionary-lookup-not-targetlang",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-503-context-enrichment-general-uses-sourcelang-for-dictionary-lookup-not-targetlang",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 459,
+      "sourceLine": 503,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -15384,10 +15530,10 @@
       "description": "Protects the core domain context enrichment — general behavior: uses source Lang for dictionary lookup, not target Lang."
     },
     {
-      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-468-context-enrichment-general-all-deps-are-injected-no-real-db-or-ai-calls",
+      "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-512-context-enrichment-general-all-deps-are-injected-no-real-db-or-ai-calls",
       "kind": "technical",
       "filePath": "packages/core/src/modules/context-enrichment/__tests__/context-enrichment.service.test.ts",
-      "sourceLine": 468,
+      "sourceLine": 512,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27515,10 +27661,58 @@
       "description": "Protects the core domain translate behavior: does not re ask about a typo (confirm typo suggestion) when skip Input Correction is set."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-500-translate-routes-low-risk-generation-through-the-configured-low-risk-model",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-500-translate-runs-the-typo-preflight-on-a-dictionary-miss-even-when-language-detection-is-confident",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
       "sourceLine": 500,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate"
+      ],
+      "title": "runs the typo preflight on a dictionary miss even when language detection is confident",
+      "rawTitle": "runs the typo preflight on a dictionary miss even when language detection is confident",
+      "name": "Core domain translate runs the typo preflight on a dictionary miss even when language detection is confident",
+      "value": "Protects the core domain translate behavior so runs the typo preflight on a dictionary miss even when language detection is confident.",
+      "description": "Protects the core domain translate behavior so runs the typo preflight on a dictionary miss even when language detection is confident."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-531-translate-skips-the-preflight-for-a-confidently-detected-word-that-exists-in-the-dictionary",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 531,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate"
+      ],
+      "title": "skips the preflight for a confidently detected word that exists in the dictionary",
+      "rawTitle": "skips the preflight for a confidently detected word that exists in the dictionary",
+      "name": "Core domain translate skips the preflight for a confidently detected word that exists in the dictionary",
+      "value": "Protects the core domain translate behavior: skips the preflight for a confidently detected word that exists in the dictionary.",
+      "description": "Protects the core domain translate behavior: skips the preflight for a confidently detected word that exists in the dictionary."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-539-translate-keeps-the-confidence-only-gate-when-no-dictionary-lookup-was-performed",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 539,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate"
+      ],
+      "title": "keeps the confidence-only gate when no dictionary lookup was performed",
+      "rawTitle": "keeps the confidence-only gate when no dictionary lookup was performed",
+      "name": "Core domain translate keeps the confidence only gate when no dictionary lookup was performed",
+      "value": "Protects the core domain translate behavior: keeps the confidence only gate when no dictionary lookup was performed.",
+      "description": "Protects the core domain translate behavior: keeps the confidence only gate when no dictionary lookup was performed."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-547-translate-routes-low-risk-generation-through-the-configured-low-risk-model",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 547,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27531,10 +27725,10 @@
       "description": "Protects the core domain translate behavior: routes low risk generation through the configured low risk model."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-532-translate-routes-high-risk-generation-and-judging-through-configured-models",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-579-translate-routes-high-risk-generation-and-judging-through-configured-models",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 532,
+      "sourceLine": 579,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27547,10 +27741,10 @@
       "description": "Protects the core domain translate behavior: routes high risk generation and judging through configured models."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-562-translate-returns-needs-clarification-for-an-ambiguous-numeric-date-before-calling-the-model",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-609-translate-returns-needs-clarification-for-an-ambiguous-numeric-date-before-calling-the-model",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 562,
+      "sourceLine": 609,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27563,10 +27757,10 @@
       "description": "Protects the core domain translate behavior: returns needs clarification for an ambiguous numeric date before calling the model."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-582-translate-does-not-hard-code-lexical-ambiguity-for-a-specific-sentence",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-629-translate-does-not-hard-code-lexical-ambiguity-for-a-specific-sentence",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 582,
+      "sourceLine": 629,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27579,10 +27773,10 @@
       "description": "Protects the core domain translate behavior: does not hard code lexical ambiguity for a specific sentence."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-623-translate-runs-the-semantic-judge-for-high-risk-sentence-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-670-translate-runs-the-semantic-judge-for-high-risk-sentence-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 623,
+      "sourceLine": 670,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27595,10 +27789,10 @@
       "description": "Protects the core domain translate behavior so runs the semantic judge for high risk sentence translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-663-translate-keeps-an-ordinary-unbacked-word-on-the-medium-risk-path-without-judge",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-710-translate-keeps-an-ordinary-unbacked-word-on-the-medium-risk-path-without-judge",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 663,
+      "sourceLine": 710,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27611,10 +27805,10 @@
       "description": "Protects the core domain translate behavior: keeps an ordinary unbacked word on the medium risk path without judge."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-677-translate-keeps-a-dictionary-backed-confident-word-on-the-low-risk-path-without-judge",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-724-translate-keeps-a-dictionary-backed-confident-word-on-the-low-risk-path-without-judge",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 677,
+      "sourceLine": 724,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27627,10 +27821,10 @@
       "description": "Protects the core domain translate behavior: keeps a dictionary backed confident word on the low risk path without judge."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-704-translate-runs-the-semantic-judge-for-phrase-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-751-translate-runs-the-semantic-judge-for-phrase-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 704,
+      "sourceLine": 751,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27643,10 +27837,10 @@
       "description": "Protects the core domain translate behavior so runs the semantic judge for phrase translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-727-translate-uses-translation-safe-generation-settings",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-774-translate-uses-translation-safe-generation-settings",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 727,
+      "sourceLine": 774,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27659,10 +27853,10 @@
       "description": "Protects the core domain translate behavior: uses translation safe generation settings."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-736-translate-handles-multi-language-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-783-translate-handles-multi-language-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 736,
+      "sourceLine": 783,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27675,10 +27869,10 @@
       "description": "Protects the core domain translate behavior: handles multi language translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-767-translate-preserves-source-usage-for-learning-language-source-words",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-814-translate-preserves-source-usage-for-learning-language-source-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 767,
+      "sourceLine": 814,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27691,10 +27885,10 @@
       "description": "Protects the core domain translate behavior: preserves source usage for learning language source words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-810-translate-retries-when-a-target-block-connotation-warning-is-written-in-the-target-language",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-857-translate-retries-when-a-target-block-connotation-warning-is-written-in-the-target-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 810,
+      "sourceLine": 857,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27707,10 +27901,10 @@
       "description": "Protects the core domain translate behavior so retries when a target block connotation warning is written in the target language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-852-translate-accepts-phase-out-examples-without-a-redundant-native-field-in-the-native-target-block",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-899-translate-accepts-phase-out-examples-without-a-redundant-native-field-in-the-native-target-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 852,
+      "sourceLine": 899,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27723,10 +27917,10 @@
       "description": "Protects the core domain translate behavior: accepts phase out examples without a redundant native field in the native target block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-923-translate-propagates-ai-adapter-errors",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-970-translate-propagates-ai-adapter-errors",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 923,
+      "sourceLine": 970,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27739,10 +27933,10 @@
       "description": "Protects the core domain translate behavior so propagates AI adapter errors."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-929-translate-sanitizes-non-emoji-string-in-emoji-field-to-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-976-translate-sanitizes-non-emoji-string-in-emoji-field-to-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 929,
+      "sourceLine": 976,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27755,10 +27949,10 @@
       "description": "Protects the core domain translate behavior so sanitizes non emoji string in emoji field to fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-943-translate-preserves-valid-emoji-from-ai-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-990-translate-preserves-valid-emoji-from-ai-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 943,
+      "sourceLine": 990,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27771,10 +27965,10 @@
       "description": "Protects the core domain translate behavior: preserves valid emoji from AI response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-953-translateone-calls-translate-with-single-element-targetlangs",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1000-translateone-calls-translate-with-single-element-targetlangs",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 953,
+      "sourceLine": 1000,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27787,10 +27981,10 @@
       "description": "Protects the core domain translate One behavior: calls translate() with single element target Langs."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-965-translateone-returns-the-languagetranslation-for-the-requested-language",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1012-translateone-returns-the-languagetranslation-for-the-requested-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 965,
+      "sourceLine": 1012,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27803,10 +27997,10 @@
       "description": "Protects the core domain translate One behavior: returns the Language Translation for the requested language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-978-translateone-propagates-errors-from-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1025-translateone-propagates-errors-from-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 978,
+      "sourceLine": 1025,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27819,10 +28013,10 @@
       "description": "Protects the core domain translate One behavior so propagates errors from translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-989-translateone-passes-topic-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1036-translateone-passes-topic-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 989,
+      "sourceLine": 1036,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27835,10 +28029,10 @@
       "description": "Protects the core domain translate One behavior so passes topic through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1009-translateone-passes-nativelang-and-inputtype-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1056-translateone-passes-nativelang-and-inputtype-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1009,
+      "sourceLine": 1056,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27851,10 +28045,10 @@
       "description": "Protects the core domain translate One behavior so passes native Lang and input Type through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1054-translateone-passes-userid-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1101-translateone-passes-userid-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1054,
+      "sourceLine": 1101,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27867,10 +28061,10 @@
       "description": "Protects the core domain translate One behavior so passes user Id through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1069-translateone-works-with-needsreview-results-validation-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1116-translateone-works-with-needsreview-results-validation-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1069,
+      "sourceLine": 1116,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27883,10 +28077,10 @@
       "description": "Protects the core domain translate One behavior so works with needs Review results (validation exhausted)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1102-translatebatch-translates-multiple-words",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1149-translatebatch-translates-multiple-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1102,
+      "sourceLine": 1149,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27899,10 +28093,10 @@
       "description": "Protects the core domain translate Batch behavior: translates multiple words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1137-translatebatch-returns-empty-array-for-empty-input",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1184-translatebatch-returns-empty-array-for-empty-input",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1137,
+      "sourceLine": 1184,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27915,10 +28109,10 @@
       "description": "Protects the core domain translate Batch behavior: returns empty array for empty input."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1146-translatebatch-calls-translate-sequentially-not-in-parallel",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1193-translatebatch-calls-translate-sequentially-not-in-parallel",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1146,
+      "sourceLine": 1193,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27931,10 +28125,10 @@
       "description": "Protects the core domain translate Batch behavior: calls translate sequentially, not in parallel."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1177-validation-logging-calls-logger-warn-on-each-failed-validation-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1224-validation-logging-calls-logger-warn-on-each-failed-validation-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1177,
+      "sourceLine": 1224,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27947,10 +28141,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger warn on each failed validation attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1204-validation-logging-calls-logger-error-after-all-retries-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1251-validation-logging-calls-logger-error-after-all-retries-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1204,
+      "sourceLine": 1251,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27963,10 +28157,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger error after all retries exhausted."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1229-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1276-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1229,
+      "sourceLine": 1276,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27979,10 +28173,10 @@
       "description": "Protects the core domain validation logging behavior: does not log when validation passes on first attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1238-validation-logging-logs-warn-but-not-error-when-repair-succeeds",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1285-validation-logging-logs-warn-but-not-error-when-repair-succeeds",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1238,
+      "sourceLine": 1285,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27995,10 +28189,10 @@
       "description": "Protects the core domain validation logging behavior: logs warn but not error when repair succeeds."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1276-validation-logging-includes-failreason-with-validation-error-details",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1323-validation-logging-includes-failreason-with-validation-error-details",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1276,
+      "sourceLine": 1323,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28011,10 +28205,10 @@
       "description": "Protects the core domain validation logging behavior: includes fail Reason with validation error details."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1306-parseresponse-parses-a-valid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1353-parseresponse-parses-a-valid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1306,
+      "sourceLine": 1353,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28027,10 +28221,10 @@
       "description": "Protects the core domain parse Response behavior: parses a valid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1314-parseresponse-throws-on-invalid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1361-parseresponse-throws-on-invalid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1314,
+      "sourceLine": 1361,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28043,10 +28237,10 @@
       "description": "Protects the core domain parse Response behavior: throws on invalid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1318-parseresponse-throws-on-missing-required-fields",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1365-parseresponse-throws-on-missing-required-fields",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1318,
+      "sourceLine": 1365,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28059,10 +28253,10 @@
       "description": "Protects the core domain parse Response behavior: throws on missing required fields."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1327-parseresponse-throws-on-empty-translations-record",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1374-parseresponse-throws-on-empty-translations-record",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1327,
+      "sourceLine": 1374,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28075,10 +28269,10 @@
       "description": "Protects the core domain parse Response behavior: throws on empty translations record."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1336-sanitizeemoji-passes-through-valid-single-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1383-sanitizeemoji-passes-through-valid-single-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1336,
+      "sourceLine": 1383,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28091,10 +28285,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through valid single emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1342-sanitizeemoji-passes-through-zwj-sequences",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1389-sanitizeemoji-passes-through-zwj-sequences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1342,
+      "sourceLine": 1389,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28107,10 +28301,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through ZWJ sequences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1346-sanitizeemoji-passes-through-flag-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1393-sanitizeemoji-passes-through-flag-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1346,
+      "sourceLine": 1393,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28123,10 +28317,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through flag emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1350-sanitizeemoji-replaces-plain-words-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1397-sanitizeemoji-replaces-plain-words-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1350,
+      "sourceLine": 1397,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28139,10 +28333,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so replaces plain words with fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1356-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1403-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1356,
+      "sourceLine": 1403,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28153,6 +28347,86 @@
       "name": "Core domain sanitize Emoji replaces empty looking strings with fallback",
       "value": "Protects the core domain sanitize Emoji behavior so replaces empty looking strings with fallback.",
       "description": "Protects the core domain sanitize Emoji behavior so replaces empty looking strings with fallback."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1434-unrecognized-word-guard-task-70-returns-an-unrecognized-word-clarification-not-a-card-with-the-correction-offered",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 1434,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "unrecognized-word guard (Task 70)"
+      ],
+      "title": "returns an unrecognized-word clarification (not a card) with the correction offered",
+      "rawTitle": "returns an unrecognized-word clarification (not a card) with the correction offered",
+      "name": "Core domain unrecognized word guard (Task 70) returns an unrecognized word clarification (not a card) with the correction offered",
+      "value": "Protects the core domain unrecognized word guard (Task 70) behavior: returns an unrecognized word clarification (not a card) with the correction offered.",
+      "description": "Protects the core domain unrecognized word guard (Task 70) behavior: returns an unrecognized word clarification (not a card) with the correction offered."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1449-unrecognized-word-guard-task-70-offers-only-translate-as-written-when-there-is-no-confident-correction",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 1449,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "unrecognized-word guard (Task 70)"
+      ],
+      "title": "offers only 'translate as written' when there is no confident correction",
+      "rawTitle": "offers only 'translate as written' when there is no confident correction",
+      "name": "Core domain unrecognized word guard (Task 70) offers only 'translate as written' when there is no confident correction",
+      "value": "Protects the core domain unrecognized word guard (Task 70) behavior so offers only 'translate as written' when there is no confident correction.",
+      "description": "Protects the core domain unrecognized word guard (Task 70) behavior so offers only 'translate as written' when there is no confident correction."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1460-unrecognized-word-guard-task-70-translates-as-written-and-flags-the-result-unverified-once-the-user-overrides",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 1460,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "unrecognized-word guard (Task 70)"
+      ],
+      "title": "translates as written and flags the result unverified once the user overrides",
+      "rawTitle": "translates as written and flags the result unverified once the user overrides",
+      "name": "Core domain unrecognized word guard (Task 70) translates as written and flags the result unverified once the user overrides",
+      "value": "Protects the core domain unrecognized word guard (Task 70) behavior: translates as written and flags the result unverified once the user overrides.",
+      "description": "Protects the core domain unrecognized word guard (Task 70) behavior: translates as written and flags the result unverified once the user overrides."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1469-unrecognized-word-guard-task-70-produces-a-normal-card-not-flagged-when-the-word-is-recognized",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 1469,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "unrecognized-word guard (Task 70)"
+      ],
+      "title": "produces a normal card (not flagged) when the word is recognized",
+      "rawTitle": "produces a normal card (not flagged) when the word is recognized",
+      "name": "Core domain unrecognized word guard (Task 70) produces a normal card (not flagged) when the word is recognized",
+      "value": "Protects the core domain unrecognized word guard (Task 70) behavior so produces a normal card (not flagged) when the word is recognized.",
+      "description": "Protects the core domain unrecognized word guard (Task 70) behavior so produces a normal card (not flagged) when the word is recognized."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1478-unrecognized-word-guard-task-70-does-not-gate-when-the-caller-opts-out-of-the-existence-assessment",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 1478,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "unrecognized-word guard (Task 70)"
+      ],
+      "title": "does not gate when the caller opts out of the existence assessment",
+      "rawTitle": "does not gate when the caller opts out of the existence assessment",
+      "name": "Core domain unrecognized word guard (Task 70) does not gate when the caller opts out of the existence assessment",
+      "value": "Protects the core domain unrecognized word guard (Task 70) behavior: does not gate when the caller opts out of the existence assessment.",
+      "description": "Protects the core domain unrecognized word guard (Task 70) behavior: does not gate when the caller opts out of the existence assessment."
     },
     {
       "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-24-validateexamples-expressiontype-parameter-accepts-expressiontype-literal-validates-normally",
@@ -28473,38 +28747,6 @@
       "name": "Core domain validate Examples includes field path with example index",
       "value": "Protects the core domain validate Examples behavior: includes field path with example index.",
       "description": "Protects the core domain validate Examples behavior: includes field path with example index."
-    },
-    {
-      "id": "packages-core-src-modules-validation-tests-language-validator-test-ts-8-validatelanguage-always-returns-valid-no-op-franc-min-removed-due-to-unreliability",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/validation/__tests__/language.validator.test.ts",
-      "sourceLine": 8,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "validateLanguage"
-      ],
-      "title": "always returns valid (no-op — franc-min removed due to unreliability)",
-      "rawTitle": "always returns valid (no-op — franc-min removed due to unreliability)",
-      "name": "Core domain validate Language always returns valid (no op — franc min removed due to unreliability)",
-      "value": "Protects the core domain validate Language behavior so always returns valid (no op — franc min removed due to unreliability).",
-      "description": "Protects the core domain validate Language behavior so always returns valid (no op — franc min removed due to unreliability)."
-    },
-    {
-      "id": "packages-core-src-modules-validation-tests-language-validator-test-ts-17-validatelanguage-returns-valid-for-any-language-input",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/validation/__tests__/language.validator.test.ts",
-      "sourceLine": 17,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "validateLanguage"
-      ],
-      "title": "returns valid for any language input",
-      "rawTitle": "returns valid for any language input",
-      "name": "Core domain validate Language returns valid for any language input",
-      "value": "Protects the core domain validate Language behavior: returns valid for any language input.",
-      "description": "Protects the core domain validate Language behavior: returns valid for any language input."
     },
     {
       "id": "packages-core-src-modules-validation-tests-schema-validator-test-ts-12-validateschema-returns-valid-for-conforming-data",

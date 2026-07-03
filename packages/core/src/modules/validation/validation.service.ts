@@ -4,7 +4,6 @@ import type { ExpressionType } from "./validators/example.validator.js";
 import { validateExamples } from "./validators/example.validator.js";
 import { validateNativeFields } from "./validators/field-language.validator.js";
 import { validateImmutableContent } from "./validators/immutable.validator.js";
-import { validateLanguage } from "./validators/language.validator.js";
 import { validateSchema } from "./validators/schema.validator.js";
 import { validateSemantic } from "./validators/semantic.validator.js";
 
@@ -106,15 +105,11 @@ export function validate(
       }
     }
 
-    if (translationText && !isMinimalNativeTarget) {
-      const languageResult = validateLanguage(translationText, lang);
-      for (const error of languageResult.errors) {
-        allErrors.push({
-          ...error,
-          field: `translations.${lang}.${error.field ?? "text"}`,
-        });
-      }
-    }
+    // NOTE: target-language detection was removed (Task 70) — the former
+    // validateLanguage() was a no-op after franc-min proved unreliable, so this
+    // stage no longer claims to check language. Language correctness is ensured
+    // by the AI prompt's target-language instructions and the Zod schema's
+    // required language keys; semantic/immutable checks catch the rest.
 
     const examples = langData.examples as
       | Array<{ context: string; target: string; native?: string | null }>

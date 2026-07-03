@@ -213,4 +213,14 @@ describe("toVocabularyInput", () => {
     expect(cs.connotationWarning).toBeUndefined();
     expect(cs.details.alternatives).toBeUndefined();
   });
+  // Task 70 — the unverified flag flows through to persistence input.
+  it("sets unverified=true when the output is flagged unverified", () => {
+    const result = toVocabularyInput({ ...sampleOutput, unverified: true }, 1, "word", langResolver);
+    expect(result.unverified).toBe(true);
+  });
+
+  it("defaults unverified to false for normal output", () => {
+    const result = toVocabularyInput(sampleOutput, 1, "word", langResolver);
+    expect(result.unverified).toBe(false);
+  });
 });
