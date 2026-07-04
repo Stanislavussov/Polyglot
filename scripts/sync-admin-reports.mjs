@@ -3,7 +3,9 @@ import { basename, join } from "node:path";
 import { buildTestCatalogReport } from "./test-catalog.mjs";
 
 const sourceDir = join(process.cwd(), "@docs/reports");
-const targetDir = join(process.cwd(), "apps/admin/public/reports");
+// Non-public dir: reports are served through the cookie-gated Astro endpoint
+// (src/pages/reports/[...file].ts), never as anonymous static assets (T09/S3).
+const targetDir = join(process.cwd(), "apps/admin/reports-data");
 
 const descriptions = {
   "architecture-overview": "High-level product and system architecture map for the Polyglot platform.",

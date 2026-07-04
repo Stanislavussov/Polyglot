@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T15:52:30.982Z",
+  "generatedAt": "2026-07-04T17:56:19.449Z",
   "summary": {
-    "total": 1976,
+    "total": 1981,
     "business": 0,
-    "technical": 1976,
+    "technical": 1981,
     "workspaces": [
       "apps",
       "packages"
@@ -420,6 +420,86 @@
       "name": "Admin UI admin API client updates user audience groups",
       "value": "Protects the admin UI admin API client behavior: updates user audience groups.",
       "description": "Protects the admin UI admin API client behavior: updates user audience groups."
+    },
+    {
+      "id": "apps-admin-src-middleware-test-ts-27-reports-auth-middleware-t09-lets-non-report-requests-through-without-touching-the-admin-api",
+      "kind": "technical",
+      "filePath": "apps/admin/src/middleware.test.ts",
+      "sourceLine": 27,
+      "workspace": "apps",
+      "packageName": "admin",
+      "suitePath": [
+        "reports auth middleware (T09)"
+      ],
+      "title": "lets non-report requests through without touching the admin API",
+      "rawTitle": "lets non-report requests through without touching the admin API",
+      "name": "Admin UI reports auth middleware (T09) lets non report requests through without touching the admin API",
+      "value": "Protects the admin UI reports auth middleware (T09) behavior so lets non report requests through without touching the admin API.",
+      "description": "Protects the admin UI reports auth middleware (T09) behavior so lets non report requests through without touching the admin API."
+    },
+    {
+      "id": "apps-admin-src-middleware-test-ts-35-reports-auth-middleware-t09-blocks-an-anonymous-report-request-with-401-no-cookie",
+      "kind": "technical",
+      "filePath": "apps/admin/src/middleware.test.ts",
+      "sourceLine": 35,
+      "workspace": "apps",
+      "packageName": "admin",
+      "suitePath": [
+        "reports auth middleware (T09)"
+      ],
+      "title": "blocks an anonymous report request with 401 (no cookie)",
+      "rawTitle": "blocks an anonymous report request with 401 (no cookie)",
+      "name": "Admin UI reports auth middleware (T09) blocks an anonymous report request with 401 (no cookie)",
+      "value": "Protects the admin UI reports auth middleware (T09) behavior so blocks an anonymous report request with 401 (no cookie).",
+      "description": "Protects the admin UI reports auth middleware (T09) behavior so blocks an anonymous report request with 401 (no cookie)."
+    },
+    {
+      "id": "apps-admin-src-middleware-test-ts-43-reports-auth-middleware-t09-blocks-a-report-request-whose-token-the-admin-api-rejects",
+      "kind": "technical",
+      "filePath": "apps/admin/src/middleware.test.ts",
+      "sourceLine": 43,
+      "workspace": "apps",
+      "packageName": "admin",
+      "suitePath": [
+        "reports auth middleware (T09)"
+      ],
+      "title": "blocks a report request whose token the admin API rejects",
+      "rawTitle": "blocks a report request whose token the admin API rejects",
+      "name": "Admin UI reports auth middleware (T09) blocks a report request whose token the admin API rejects",
+      "value": "Protects the admin UI reports auth middleware (T09) behavior so blocks a report request whose token the admin API rejects.",
+      "description": "Protects the admin UI reports auth middleware (T09) behavior so blocks a report request whose token the admin API rejects."
+    },
+    {
+      "id": "apps-admin-src-middleware-test-ts-53-reports-auth-middleware-t09-allows-a-report-request-with-a-valid-admin-token",
+      "kind": "technical",
+      "filePath": "apps/admin/src/middleware.test.ts",
+      "sourceLine": 53,
+      "workspace": "apps",
+      "packageName": "admin",
+      "suitePath": [
+        "reports auth middleware (T09)"
+      ],
+      "title": "allows a report request with a valid admin token",
+      "rawTitle": "allows a report request with a valid admin token",
+      "name": "Admin UI reports auth middleware (T09) allows a report request with a valid admin token",
+      "value": "Protects the admin UI reports auth middleware (T09) behavior: allows a report request with a valid admin token.",
+      "description": "Protects the admin UI reports auth middleware (T09) behavior: allows a report request with a valid admin token."
+    },
+    {
+      "id": "apps-admin-src-middleware-test-ts-65-reports-auth-middleware-t09-fails-closed-401-when-the-admin-api-is-unreachable",
+      "kind": "technical",
+      "filePath": "apps/admin/src/middleware.test.ts",
+      "sourceLine": 65,
+      "workspace": "apps",
+      "packageName": "admin",
+      "suitePath": [
+        "reports auth middleware (T09)"
+      ],
+      "title": "fails closed (401) when the admin API is unreachable",
+      "rawTitle": "fails closed (401) when the admin API is unreachable",
+      "name": "Admin UI reports auth middleware (T09) fails closed (401) when the admin API is unreachable",
+      "value": "Protects the admin UI reports auth middleware (T09) behavior so fails closed (401) when the admin API is unreachable.",
+      "description": "Protects the admin UI reports auth middleware (T09) behavior so fails closed (401) when the admin API is unreachable."
     },
     {
       "id": "apps-bot-src-tests-container-test-ts-120-createcontainer-creates-a-container-with-all-services",

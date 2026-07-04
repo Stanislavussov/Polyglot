@@ -64,6 +64,9 @@ services:
       - HOST=0.0.0.0
       - PORT=4321
       - PUBLIC_API_URL=${PUBLIC_API_URL:?PUBLIC_API_URL is required}
+      # Server-to-server URL used by the SSR reports middleware to verify the
+      # admin token via admin-api /api/auth/me (over the compose network).
+      - ADMIN_API_INTERNAL_URL=http://admin-api:3001
     ports:
       - "127.0.0.1:${ADMIN_PORT:-4321}:4321"
     mem_limit: 256m

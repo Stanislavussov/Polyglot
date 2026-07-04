@@ -22,6 +22,13 @@ function setToken(token: string): void {
     return;
   }
   localStorage.setItem("admin_token", token);
+  // Mirror the token into a same-origin cookie so the SSR /reports/* endpoint
+  // can authenticate direct/iframe report requests, which don't carry the
+  // Authorization header (T09). Same JS-readable exposure as localStorage.
+  if (typeof document !== "undefined") {
+    // biome-ignore lint/suspicious/noDocumentCookie: document.cookie is the universally-supported API; the async CookieStore is not available in all target browsers.
+    document.cookie = `admin_token=${token}; path=/; SameSite=Strict`;
+  }
 }
 
 function clearToken(): void {
@@ -29,6 +36,10 @@ function clearToken(): void {
     return;
   }
   localStorage.removeItem("admin_token");
+  if (typeof document !== "undefined") {
+    // biome-ignore lint/suspicious/noDocumentCookie: document.cookie is the universally-supported API; the async CookieStore is not available in all target browsers.
+    document.cookie = "admin_token=; path=/; Max-Age=0; SameSite=Strict";
+  }
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
