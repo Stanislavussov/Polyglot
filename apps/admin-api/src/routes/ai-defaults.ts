@@ -8,6 +8,8 @@ const defaultsSchema = z.object({
   temperature: z.number().min(0).max(2),
   frequencyPenalty: z.number().min(0).max(2),
   maxRetries: z.number().int().min(0).max(10),
+  // Capped below the bot's 20 s loader guard so the adapter aborts first.
+  requestTimeoutMs: z.number().int().min(1_000).max(20_000),
 });
 
 const DEFAULTS: AIGenerationDefaults = {
@@ -15,6 +17,7 @@ const DEFAULTS: AIGenerationDefaults = {
   temperature: 0.3,
   frequencyPenalty: 0.5,
   maxRetries: 2,
+  requestTimeoutMs: 15_000,
 };
 
 export async function aiDefaultRoutes(app: FastifyInstance) {

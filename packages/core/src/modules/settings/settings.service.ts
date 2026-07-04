@@ -121,6 +121,7 @@ const FALLBACK_AI_DEFAULTS: AIGenerationDefaults = {
   temperature: 0.3,
   frequencyPenalty: 0.5,
   maxRetries: 2,
+  requestTimeoutMs: 15_000,
 };
 
 const FALLBACK_SRS: SrsConfig = { minEaseFactor: 1.3, defaultEaseFactor: 2.5 };

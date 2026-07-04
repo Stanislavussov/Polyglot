@@ -64,6 +64,11 @@ export const aiDefaultsSchema = z.object({
     .min(0, "Frequency penalty cannot be negative")
     .max(2, "Frequency penalty cannot exceed 2"),
   maxRetries: z.coerce.number().int("Max retries must be an integer").min(0).max(10),
+  requestTimeoutMs: z.coerce
+    .number()
+    .int("Request timeout must be an integer")
+    .min(1000, "Request timeout must be at least 1000 ms")
+    .max(20000, "Request timeout cannot exceed 20000 ms"),
 });
 
 export const notificationSettingsSchema = z.object({

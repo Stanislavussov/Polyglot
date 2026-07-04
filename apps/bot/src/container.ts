@@ -12,6 +12,7 @@ import {
   generateText,
   getAvailableModels,
   setAIRequestMetricSink,
+  setAIRequestTimeoutProvider,
 } from "@polyglot/adapter-ai";
 // Re-export directly from adapters
 import {
@@ -61,6 +62,12 @@ export function createContainer(): ServiceContainer {
   );
 
   const settings = new SettingsService(settingsAdapter);
+
+  // The AI adapter aborts a call once it blows this budget. The value is
+  // admin-managed (DB `ai.defaults`), read through the cached settings service
+  // so a change in the admin panel takes effect without a redeploy.
+  setAIRequestTimeoutProvider(async () => (await settings.getAIGenerationDefaults()).requestTimeoutMs);
+
   const container = {
     userRepository,
     vocabularyRepository,

@@ -16,6 +16,12 @@ export interface AIGenerationDefaults {
   temperature: number;
   frequencyPenalty: number;
   maxRetries: number;
+  /**
+   * Wall-clock budget in ms for a single AI call (including retries) before it
+   * is aborted. Keep below the bot's 20 s loader guard so the adapter cancels
+   * first and the user still sees the "taking longer" fallback.
+   */
+  requestTimeoutMs: number;
 }
 
 export interface SrsConfig {

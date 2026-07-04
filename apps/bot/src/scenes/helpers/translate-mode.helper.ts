@@ -58,9 +58,9 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import {
+  isUserFacingTimeout,
   LONG_OP_TIMEOUT_MS,
   loadingKeyboard,
-  OperationTimeoutError,
   sendTypingIndicator,
   withTimeout,
 } from "../../utils/long-op.js";
@@ -752,7 +752,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       });
 
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("translationError", lang));
+    await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang));
   }
 }
 
@@ -916,7 +916,7 @@ async function showCardLoading(ctx: BotContext, lang: SupportedLang): Promise<vo
 }
 
 function longOpFailureText(err: unknown, lang: SupportedLang): string {
-  return err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("translationError", lang);
+  return isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang);
 }
 
 export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
@@ -1026,8 +1026,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
     }
     // A timeout is worth surfacing as such; any other regeneration failure on
     // the secondary "Other meaning" action reads better as "no more meanings".
-    const alertText =
-      err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("translationNoMoreMeanings", lang);
+    const alertText = isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationNoMoreMeanings", lang);
     await ctx.answerCallbackQuery({ text: alertText, show_alert: true });
     return;
   }
@@ -1548,7 +1547,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     translationCounter.inc({ status: "error" });
     logger.error({ err, word: pendingWord }, "Translation failed after mistype confirm");
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("translationError", lang));
+    await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang));
   }
 
   await ctx.answerCallbackQuery();

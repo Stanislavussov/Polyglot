@@ -109,6 +109,7 @@ vi.mock("@polyglot/adapter-ai", () => ({
   getAvailableModels: vi.fn().mockReturnValue([]),
   estimateCost: vi.fn().mockReturnValue(0),
   setAIRequestMetricSink: vi.fn(),
+  setAIRequestTimeoutProvider: vi.fn(),
 }));
 
 describe("createContainer", () => {

@@ -17,6 +17,22 @@ export class NotFoundError extends AppError {
   }
 }
 
+/**
+ * Thrown when an AI request exceeds its wall-clock time budget and is aborted.
+ * Distinct from a generic failure so callers can surface a "taking longer"
+ * message instead of a hard error, and so the underlying request is known to
+ * have been cancelled (socket + provider slot freed) rather than left hanging.
+ */
+export class AITimeoutError extends AppError {
+  public readonly timeoutMs: number;
+
+  constructor(timeoutMs: number) {
+    super("AI_TIMEOUT", `AI request timed out after ${timeoutMs}ms`);
+    this.name = "AITimeoutError";
+    this.timeoutMs = timeoutMs;
+  }
+}
+
 /** Thrown when input validation fails */
 export class ValidationFailedError extends AppError {
   public readonly details: string[];

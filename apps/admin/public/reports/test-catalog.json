@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-03T18:51:50.815Z",
+  "generatedAt": "2026-07-04T08:28:09.484Z",
   "summary": {
-    "total": 1945,
+    "total": 1951,
     "business": 0,
-    "technical": 1945,
+    "technical": 1951,
     "workspaces": [
       "apps",
       "packages"
@@ -9540,10 +9540,10 @@
       "description": "Protects the aI adapter client reset Client behavior so resets the singleton so next get Client creates a new one."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-31-generateobject-returns-the-parsed-object-from-ai-sdk",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-32-generateobject-returns-the-parsed-object-from-ai-sdk",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 31,
+      "sourceLine": 32,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9556,10 +9556,10 @@
       "description": "Protects the aI adapter generate Object behavior: returns the parsed object from AI SDK."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-41-generateobject-passes-model-schema-prompt-and-maxretries-to-ai-sdk",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-42-generateobject-passes-model-schema-prompt-and-maxretries-to-ai-sdk",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 41,
+      "sourceLine": 42,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9572,10 +9572,10 @@
       "description": "Protects the aI adapter generate Object behavior so passes model, schema, prompt, and max Retries to AI SDK."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-60-generateobject-uses-default-maxretries-of-2",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-62-generateobject-uses-default-maxretries-of-2",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 60,
+      "sourceLine": 62,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9588,10 +9588,10 @@
       "description": "Protects the aI adapter generate Object behavior: uses default max Retries of 2."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-71-generateobject-logs-successful-request",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-73-generateobject-logs-successful-request",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 71,
+      "sourceLine": 73,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9604,10 +9604,10 @@
       "description": "Protects the aI adapter generate Object behavior: logs successful request."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-88-generateobject-logs-failed-request-and-re-throws-error",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-90-generateobject-logs-failed-request-and-re-throws-error",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 88,
+      "sourceLine": 90,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9620,10 +9620,10 @@
       "description": "Protects the aI adapter generate Object behavior: logs failed request and re throws error."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-105-generateobject-handles-missing-usage-data-gracefully",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-107-generateobject-handles-missing-usage-data-gracefully",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 105,
+      "sourceLine": 107,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9636,10 +9636,10 @@
       "description": "Protects the aI adapter generate Object behavior: handles missing usage data gracefully."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-122-generateobject-threads-userid-through-to-logrequest-on-success",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-124-generateobject-threads-userid-through-to-logrequest-on-success",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 122,
+      "sourceLine": 124,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9652,10 +9652,10 @@
       "description": "Protects the aI adapter generate Object behavior so threads user Id through to log Request on success."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-138-generateobject-threads-userid-through-to-logrequest-on-failure",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-140-generateobject-threads-userid-through-to-logrequest-on-failure",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 138,
+      "sourceLine": 140,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9668,10 +9668,10 @@
       "description": "Protects the aI adapter generate Object behavior so threads user Id through to log Request on failure."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-151-generateobject-passes-undefined-userid-when-not-provided",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-153-generateobject-passes-undefined-userid-when-not-provided",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 151,
+      "sourceLine": 153,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9684,10 +9684,10 @@
       "description": "Protects the aI adapter generate Object behavior so passes undefined user Id when not provided."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-172-generatetext-returns-the-generated-text-from-ai-sdk",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-174-generatetext-returns-the-generated-text-from-ai-sdk",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 172,
+      "sourceLine": 174,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9700,10 +9700,10 @@
       "description": "Protects the aI adapter generate Text behavior: returns the generated text from AI SDK."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-182-generatetext-passes-model-prompt-and-maxretries-to-ai-sdk",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-184-generatetext-passes-model-prompt-and-maxretries-to-ai-sdk",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 182,
+      "sourceLine": 184,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9716,10 +9716,10 @@
       "description": "Protects the aI adapter generate Text behavior so passes model, prompt, and max Retries to AI SDK."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-197-generatetext-uses-default-maxretries-of-2",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-200-generatetext-uses-default-maxretries-of-2",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 197,
+      "sourceLine": 200,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9732,10 +9732,10 @@
       "description": "Protects the aI adapter generate Text behavior: uses default max Retries of 2."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-208-generatetext-logs-successful-request",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-211-generatetext-logs-successful-request",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 208,
+      "sourceLine": 211,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9748,10 +9748,10 @@
       "description": "Protects the aI adapter generate Text behavior: logs successful request."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-225-generatetext-logs-failed-request-and-re-throws-error",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-228-generatetext-logs-failed-request-and-re-throws-error",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 225,
+      "sourceLine": 228,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9764,10 +9764,10 @@
       "description": "Protects the aI adapter generate Text behavior: logs failed request and re throws error."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-239-generatetext-logs-duration-ms-for-every-request",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-242-generatetext-logs-duration-ms-for-every-request",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 239,
+      "sourceLine": 242,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9780,10 +9780,10 @@
       "description": "Protects the aI adapter generate Text behavior: logs duration ms for every request."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-256-generatetext-threads-userid-through-to-logrequest-on-success",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-259-generatetext-threads-userid-through-to-logrequest-on-success",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 256,
+      "sourceLine": 259,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9796,10 +9796,10 @@
       "description": "Protects the aI adapter generate Text behavior so threads user Id through to log Request on success."
     },
     {
-      "id": "packages-adapters-ai-src-tests-index-test-ts-272-generatetext-threads-userid-through-to-logrequest-on-failure",
+      "id": "packages-adapters-ai-src-tests-index-test-ts-275-generatetext-threads-userid-through-to-logrequest-on-failure",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
-      "sourceLine": 272,
+      "sourceLine": 275,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -9810,6 +9810,102 @@
       "name": "AI adapter generate Text threads user Id through to log Request on failure",
       "value": "Protects the aI adapter generate Text behavior so threads user Id through to log Request on failure.",
       "description": "Protects the aI adapter generate Text behavior so threads user Id through to log Request on failure."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-index-test-ts-307-request-timeout-abort-aborts-a-hung-generateobject-at-the-injected-budget-and-throws-aitimeouterror",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
+      "sourceLine": 307,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "request timeout / abort"
+      ],
+      "title": "aborts a hung generateObject at the injected budget and throws AITimeoutError",
+      "rawTitle": "aborts a hung generateObject at the injected budget and throws AITimeoutError",
+      "name": "AI adapter request timeout abort aborts a hung generate Object at the injected budget and throws AITimeout Error",
+      "value": "Protects the aI adapter request timeout abort behavior so aborts a hung generate Object at the injected budget and throws AITimeout Error.",
+      "description": "Protects the aI adapter request timeout abort behavior so aborts a hung generate Object at the injected budget and throws AITimeout Error."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-index-test-ts-314-request-timeout-abort-aborts-a-hung-generatetext-at-the-injected-budget-and-throws-aitimeouterror",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
+      "sourceLine": 314,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "request timeout / abort"
+      ],
+      "title": "aborts a hung generateText at the injected budget and throws AITimeoutError",
+      "rawTitle": "aborts a hung generateText at the injected budget and throws AITimeoutError",
+      "name": "AI adapter request timeout abort aborts a hung generate Text at the injected budget and throws AITimeout Error",
+      "value": "Protects the aI adapter request timeout abort behavior so aborts a hung generate Text at the injected budget and throws AITimeout Error.",
+      "description": "Protects the aI adapter request timeout abort behavior so aborts a hung generate Text at the injected budget and throws AITimeout Error."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-index-test-ts-321-request-timeout-abort-resolves-the-budget-from-an-async-db-backed-provider",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
+      "sourceLine": 321,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "request timeout / abort"
+      ],
+      "title": "resolves the budget from an async (DB-backed) provider",
+      "rawTitle": "resolves the budget from an async (DB-backed) provider",
+      "name": "AI adapter request timeout abort resolves the budget from an async (DB backed) provider",
+      "value": "Protects the aI adapter request timeout abort behavior: resolves the budget from an async (DB backed) provider.",
+      "description": "Protects the aI adapter request timeout abort behavior: resolves the budget from an async (DB backed) provider."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-index-test-ts-328-request-timeout-abort-logs-a-timed-out-request-as-a-failure",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
+      "sourceLine": 328,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "request timeout / abort"
+      ],
+      "title": "logs a timed-out request as a failure",
+      "rawTitle": "logs a timed-out request as a failure",
+      "name": "AI adapter request timeout abort logs a timed out request as a failure",
+      "value": "Protects the aI adapter request timeout abort behavior: logs a timed out request as a failure.",
+      "description": "Protects the aI adapter request timeout abort behavior: logs a timed out request as a failure."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-index-test-ts-342-request-timeout-abort-falls-back-to-the-default-budget-when-the-provider-yields-an-invalid-value",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
+      "sourceLine": 342,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "request timeout / abort"
+      ],
+      "title": "falls back to the default budget when the provider yields an invalid value",
+      "rawTitle": "falls back to the default budget when the provider yields an invalid value",
+      "name": "AI adapter request timeout abort falls back to the default budget when the provider yields an invalid value",
+      "value": "Protects the aI adapter request timeout abort behavior: falls back to the default budget when the provider yields an invalid value.",
+      "description": "Protects the aI adapter request timeout abort behavior: falls back to the default budget when the provider yields an invalid value."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-index-test-ts-351-request-timeout-abort-passes-through-a-non-timeout-rejection-unchanged",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/index.test.ts",
+      "sourceLine": 351,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "request timeout / abort"
+      ],
+      "title": "passes through a non-timeout rejection unchanged",
+      "rawTitle": "passes through a non-timeout rejection unchanged",
+      "name": "AI adapter request timeout abort passes through a non timeout rejection unchanged",
+      "value": "Protects the aI adapter request timeout abort behavior so passes through a non timeout rejection unchanged.",
+      "description": "Protects the aI adapter request timeout abort behavior so passes through a non timeout rejection unchanged."
     },
     {
       "id": "packages-adapters-ai-src-tests-logger-test-ts-34-logger-logs-successful-requests-with-info-level",

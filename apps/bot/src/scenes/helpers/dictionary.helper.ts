@@ -25,7 +25,7 @@ import {
 } from "../../renderers/dictionary.renderer.js";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
-import { LONG_OP_TIMEOUT_MS, OperationTimeoutError, withTimeout } from "../../utils/long-op.js";
+import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 
 const MAX_DICTIONARY_NAME_LENGTH = 32;
@@ -591,8 +591,7 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
     // Restore the card on error
     const text = renderDictionaryEntry(entry, getLangCodeById, lang, { nativeLangId });
     const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations: false });
-    const failureNote =
-      err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : `❌ ${t("videoProcessingFailed", lang)}`;
+    const failureNote = isUserFacingTimeout(err) ? t("loadingTimeout", lang) : `❌ ${t("videoProcessingFailed", lang)}`;
     try {
       await ctx.editMessageText(`${text}\n\n${failureNote}`, {
         parse_mode: "HTML",
