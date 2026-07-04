@@ -232,6 +232,11 @@ export async function aiModelRoutes(app: FastifyInstance) {
     if (!existing) {
       return reply.status(404).send({ error: "Model not found" });
     }
+    // A disabled model must not become the default — the bot would pick a model
+    // it is not allowed to call (same failure class as the :free freeze). D2.
+    if (!existing.isEnabled) {
+      return reply.status(409).send({ error: "Cannot set a disabled model as default. Enable it first." });
+    }
     const previousDefault = await aiModelRepository.findDefault();
     await aiModelRepository.setDefault(id);
     const model = await aiModelRepository.findByIdWithPlans(id);
@@ -246,6 +251,14 @@ export async function aiModelRoutes(app: FastifyInstance) {
   app.delete("/ai-models/:id", async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const existing = await aiModelRepository.findByIdWithPlans(id);
+    // Never delete the model the bot is currently using — deletion would fall
+    // back to a hardcoded model that may be unavailable (the 429/:free incident
+    // class). Require another model to be made default first. D2.
+    if (existing?.isDefault) {
+      return reply
+        .status(409)
+        .send({ error: "Cannot delete the default AI model. Set another model as default first." });
+    }
     await aiModelRepository.delete(id);
     if (existing) {
       logAiModelChange(request, "deleted", id, { before: existing, after: null });

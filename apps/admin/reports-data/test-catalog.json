@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T18:03:46.964Z",
+  "generatedAt": "2026-07-04T18:07:18.364Z",
   "summary": {
-    "total": 1985,
+    "total": 1990,
     "business": 0,
-    "technical": 1985,
+    "technical": 1990,
     "workspaces": [
       "apps",
       "packages"
@@ -52,6 +52,86 @@
       "name": "Admin API admin API CORS routes encoded slash model ids before auth checks",
       "value": "Protects the admin API admin API CORS behavior: routes encoded slash model ids before auth checks.",
       "description": "Protects the admin API admin API CORS behavior: routes encoded slash model ids before auth checks."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-53-ai-model-guards-t11-refuses-to-delete-the-current-default-model-with-409",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 53,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "refuses to delete the current default model with 409",
+      "rawTitle": "refuses to delete the current default model with 409",
+      "name": "Admin API AI model guards (T11) refuses to delete the current default model with 409",
+      "value": "Protects the admin API AI model guards (T11) behavior so refuses to delete the current default model with 409.",
+      "description": "Protects the admin API AI model guards (T11) behavior so refuses to delete the current default model with 409."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-62-ai-model-guards-t11-deletes-a-non-default-model-with-204",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 62,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "deletes a non-default model with 204",
+      "rawTitle": "deletes a non-default model with 204",
+      "name": "Admin API AI model guards (T11) deletes a non default model with 204",
+      "value": "Protects the admin API AI model guards (T11) behavior so deletes a non default model with 204.",
+      "description": "Protects the admin API AI model guards (T11) behavior so deletes a non default model with 204."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-71-ai-model-guards-t11-rejects-set-default-on-a-disabled-model-with-409-and-does-not-switch-the-default",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 71,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "rejects set-default on a disabled model with 409 and does not switch the default",
+      "rawTitle": "rejects set-default on a disabled model with 409 and does not switch the default",
+      "name": "Admin API AI model guards (T11) rejects set default on a disabled model with 409 and does not switch the default",
+      "value": "Protects the admin API AI model guards (T11) behavior: rejects set default on a disabled model with 409 and does not switch the default.",
+      "description": "Protects the admin API AI model guards (T11) behavior: rejects set default on a disabled model with 409 and does not switch the default."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-80-ai-model-guards-t11-rejects-set-default-on-a-missing-model-with-404",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 80,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "rejects set-default on a missing model with 404",
+      "rawTitle": "rejects set-default on a missing model with 404",
+      "name": "Admin API AI model guards (T11) rejects set default on a missing model with 404",
+      "value": "Protects the admin API AI model guards (T11) behavior: rejects set default on a missing model with 404.",
+      "description": "Protects the admin API AI model guards (T11) behavior: rejects set default on a missing model with 404."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-89-ai-model-guards-t11-sets-an-enabled-model-as-default",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 89,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "sets an enabled model as default",
+      "rawTitle": "sets an enabled model as default",
+      "name": "Admin API AI model guards (T11) sets an enabled model as default",
+      "value": "Protects the admin API AI model guards (T11) behavior so sets an enabled model as default.",
+      "description": "Protects the admin API AI model guards (T11) behavior so sets an enabled model as default."
     },
     {
       "id": "apps-admin-api-src-routes-ai-models-test-ts-28-ai-model-openrouter-routes-reports-openrouter-key-expiration-from-the-current-key-endpoint",
