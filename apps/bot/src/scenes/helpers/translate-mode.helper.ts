@@ -66,6 +66,7 @@ import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/mes
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
+import { setTranslationEntry } from "./translation-map.helper.js";
 
 /** Singleton lookup function — created once and reused. */
 const lookupContext = createContextLookup();
@@ -839,13 +840,12 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       // Cache inline grammar breakdown for detail button
       const inlineBreakdown = hasInlineGrammar ? collectGrammarBreakdown(output) : undefined;
 
-      ctx.session.translationMap = ctx.session.translationMap ?? {};
-      ctx.session.translationMap[String(cardMsg.message_id)] = {
+      setTranslationEntry(ctx.session, cardMsg.message_id, {
         output,
         inputType: classification.type,
         contextHint,
         grammarBreakdown: inlineBreakdown,
-      };
+      });
     }
   } catch (err) {
     translationCounter.inc({ status: "error" });
@@ -1656,12 +1656,11 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
 
       ctx.session.pendingCardMsgId = cardMsg.message_id;
 
-      ctx.session.translationMap = ctx.session.translationMap ?? {};
-      ctx.session.translationMap[String(cardMsg.message_id)] = {
+      setTranslationEntry(ctx.session, cardMsg.message_id, {
         output,
         inputType: classification.type,
         contextHint: pendingContextHint,
-      };
+      });
     }
   } catch (err) {
     translationCounter.inc({ status: "error" });

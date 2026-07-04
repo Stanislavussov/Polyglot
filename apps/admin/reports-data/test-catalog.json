@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T19:19:51.316Z",
+  "generatedAt": "2026-07-04T19:26:39.168Z",
   "summary": {
-    "total": 2024,
+    "total": 2031,
     "business": 0,
-    "technical": 2024,
+    "technical": 2031,
     "workspaces": [
       "apps",
       "packages"
@@ -8173,6 +8173,118 @@
       "name": "Bot handle Etymology Callback — loading feedback on the card restores the card and alerts the user when generation takes too long",
       "value": "Protects the bot handle Etymology Callback — loading feedback on the card behavior so restores the card and alerts the user when generation takes too long.",
       "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior so restores the card and alerts the user when generation takes too long."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-14-settranslationentry-creates-the-map-on-first-insert",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 14,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "setTranslationEntry"
+      ],
+      "title": "creates the map on first insert",
+      "rawTitle": "creates the map on first insert",
+      "name": "Bot set Translation Entry creates the map on first insert",
+      "value": "Protects the bot set Translation Entry behavior: creates the map on first insert.",
+      "description": "Protects the bot set Translation Entry behavior: creates the map on first insert."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-20-settranslationentry-keeps-entries-below-the-cap-without-eviction",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 20,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "setTranslationEntry"
+      ],
+      "title": "keeps entries below the cap without eviction",
+      "rawTitle": "keeps entries below the cap without eviction",
+      "name": "Bot set Translation Entry keeps entries below the cap without eviction",
+      "value": "Protects the bot set Translation Entry behavior: keeps entries below the cap without eviction.",
+      "description": "Protects the bot set Translation Entry behavior: keeps entries below the cap without eviction."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-28-settranslationentry-evicts-the-oldest-smallest-message-id-once-the-cap-is-exceeded",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 28,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "setTranslationEntry"
+      ],
+      "title": "evicts the oldest (smallest message id) once the cap is exceeded",
+      "rawTitle": "evicts the oldest (smallest message id) once the cap is exceeded",
+      "name": "Bot set Translation Entry evicts the oldest (smallest message id) once the cap is exceeded",
+      "value": "Protects the bot set Translation Entry behavior so evicts the oldest (smallest message id) once the cap is exceeded.",
+      "description": "Protects the bot set Translation Entry behavior so evicts the oldest (smallest message id) once the cap is exceeded."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-42-settranslationentry-bounds-the-map-to-n-keys-after-n-m-inserts-evicting-the-oldest-m",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 42,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "setTranslationEntry"
+      ],
+      "title": "bounds the map to N keys after N + M inserts, evicting the oldest M",
+      "rawTitle": "bounds the map to N keys after N + M inserts, evicting the oldest M",
+      "name": "Bot set Translation Entry bounds the map to N keys after N + M inserts, evicting the oldest M",
+      "value": "Protects the bot set Translation Entry behavior so bounds the map to N keys after N + M inserts, evicting the oldest M.",
+      "description": "Protects the bot set Translation Entry behavior so bounds the map to N keys after N + M inserts, evicting the oldest M."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-56-settranslationentry-evicts-by-numeric-id-not-lexicographic-order-id-9-is-older-than-id-10",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 56,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "setTranslationEntry"
+      ],
+      "title": "evicts by numeric id, not lexicographic order (id 9 is older than id 10)",
+      "rawTitle": "evicts by numeric id, not lexicographic order (id 9 is older than id 10)",
+      "name": "Bot set Translation Entry evicts by numeric id, not lexicographic order (id 9 is older than id 10)",
+      "value": "Protects the bot set Translation Entry behavior so evicts by numeric id, not lexicographic order (id 9 is older than id 10).",
+      "description": "Protects the bot set Translation Entry behavior so evicts by numeric id, not lexicographic order (id 9 is older than id 10)."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-66-settranslationentry-defaults-to-max-translation-map-entries-when-no-cap-is-supplied",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 66,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "setTranslationEntry"
+      ],
+      "title": "defaults to MAX_TRANSLATION_MAP_ENTRIES when no cap is supplied",
+      "rawTitle": "defaults to MAX_TRANSLATION_MAP_ENTRIES when no cap is supplied",
+      "name": "Bot set Translation Entry defaults to MAX TRANSLATION MAP ENTRIES when no cap is supplied",
+      "value": "Protects the bot set Translation Entry behavior: defaults to MAX TRANSLATION MAP ENTRIES when no cap is supplied.",
+      "description": "Protects the bot set Translation Entry behavior: defaults to MAX TRANSLATION MAP ENTRIES when no cap is supplied."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-74-settranslationentry-overwrites-an-existing-entry-without-growing-the-map",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 74,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "setTranslationEntry"
+      ],
+      "title": "overwrites an existing entry without growing the map",
+      "rawTitle": "overwrites an existing entry without growing the map",
+      "name": "Bot set Translation Entry overwrites an existing entry without growing the map",
+      "value": "Protects the bot set Translation Entry behavior so overwrites an existing entry without growing the map.",
+      "description": "Protects the bot set Translation Entry behavior so overwrites an existing entry without growing the map."
     },
     {
       "id": "apps-bot-src-scenes-mentor-scene-test-ts-47-handlementorcommand-sets-session-activemode-to-mentor",
