@@ -122,6 +122,8 @@ export {
 export { wordContextRepository } from "./repositories/word-context.repository.js";
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
+export type { RetentionResult } from "./retention.js";
+export { DEFAULT_RETENTION_DAYS, runTelemetryRetention } from "./retention.js";
 export type {
   IssueStatus,
   IssueType,

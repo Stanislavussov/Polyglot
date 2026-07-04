@@ -6,6 +6,7 @@ import { loadConfig } from "@polyglot/infra";
 import { createPolyglotBot, installBotCommands } from "./bot-factory.js";
 import { startMetricsServer } from "./metrics.js";
 import { wireNotificationScheduler } from "./notifications/notification.wiring.js";
+import { stopTelemetryRetention, wireTelemetryRetention } from "./retention.wiring.js";
 import { createPostgresSessionStorage } from "./session-storage.js";
 
 const config = loadConfig();
@@ -28,6 +29,7 @@ function setupGracefulShutdown(): void {
 
     logger.info({ signal }, "Received shutdown signal");
     stopScheduler();
+    stopTelemetryRetention();
     if (runner?.isRunning()) await runner.stop();
     await closeDb();
     logger.info("Bot stopped, scheduler stopped, and DB connection closed");
@@ -52,6 +54,7 @@ async function main(): Promise<void> {
   await installBotCommands(bot);
 
   await wireNotificationScheduler(bot.api);
+  wireTelemetryRetention();
   startMetricsServer();
 
   logger.info({ sessionStorage: "postgres", languageCacheReady: true, pollingMode: "long-polling" }, "Starting bot");

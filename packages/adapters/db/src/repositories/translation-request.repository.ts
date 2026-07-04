@@ -1,7 +1,7 @@
 import type { TranslationRequest } from "@polyglot/core";
-import { and, desc, eq, gte, inArray, sum } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, sql, sum } from "drizzle-orm";
 import { getDb } from "../connection.js";
-import { languages, translationRequests, translationRequestTargetLangs } from "../schema.js";
+import { languages, translationRequests, translationRequestTargetLangs, userDailyRequestCounts } from "../schema.js";
 
 export type { TranslationRequest };
 
@@ -59,6 +59,19 @@ export const translationRequestRepository = {
           await tx.insert(translationRequestTargetLangs).values(junctionValues);
         }
       }
+
+      // Bump the compact per-user/per-day counter (Fable T25/E5). This is the
+      // pre-aggregated source the admin per-day count reader uses instead of a
+      // GROUP BY over the unboundedly-growing ledger. The calendar day is taken
+      // in UTC so the bucket does not depend on the container/process timezone.
+      const utcDay = new Date().toISOString().slice(0, 10);
+      await tx
+        .insert(userDailyRequestCounts)
+        .values({ userId, day: utcDay, requestCount: 1 })
+        .onConflictDoUpdate({
+          target: [userDailyRequestCounts.userId, userDailyRequestCounts.day],
+          set: { requestCount: sql`${userDailyRequestCounts.requestCount} + 1` },
+        });
 
       return requestId;
     });

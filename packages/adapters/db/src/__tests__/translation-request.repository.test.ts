@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Configurable mock DB ────────────────────────────────────────
 
@@ -39,6 +39,9 @@ const mockDb = {
       insertCalls.push({ values: vals });
       return {
         returning: vi.fn(() => Promise.resolve(nextResult())),
+        // The per-user/per-day counter upsert (Fable T25/E5) resolves without a
+        // returning(), so it never consumes a queued queryResult.
+        onConflictDoUpdate: vi.fn(() => Promise.resolve()),
       };
     }),
   })),
@@ -65,6 +68,7 @@ beforeEach(() => {
       insertCalls.push({ values: vals });
       return {
         returning: vi.fn(() => Promise.resolve(nextResult())),
+        onConflictDoUpdate: vi.fn(() => Promise.resolve()),
       };
     }),
   }));
@@ -125,8 +129,8 @@ describe("translationRequestRepository", () => {
       const result = await translationRequestRepository.logTranslationRequest(1, "test", "en", []);
 
       expect(result).toBe(5);
-      // Only one insert (the request itself)
-      expect(insertCalls).toHaveLength(1);
+      // Two inserts: the request itself plus the per-user/per-day counter (T25).
+      expect(insertCalls).toHaveLength(2);
     });
 
     it("handles unknown source language code gracefully (resolves to null)", async () => {
@@ -153,8 +157,70 @@ describe("translationRequestRepository", () => {
       const result = await translationRequestRepository.logTranslationRequest(1, "test", null, ["zz"]);
 
       expect(result).toBe(9);
-      // Only one insert: the request
-      expect(insertCalls).toHaveLength(1);
+      // Only one insert: the request. The counter upsert does not push to
+      // insertCalls until it too runs (asserted below); here no targets means
+      // request(1) + counter(1) = 2 inserts total.
+      expect(insertCalls).toHaveLength(2);
+    });
+  });
+
+  // The compact per-user/per-day counter (Fable T25/E5) is the pre-aggregated
+  // source the admin dashboard reads instead of GROUP-BY-ing the ever-growing
+  // ledger. It is bumped inside the same request-logging transaction.
+  describe("logTranslationRequest — daily request counter (T25)", () => {
+    /** The counter upsert is the insert whose values carry a `requestCount`. */
+    function counterInsert(): { userId: number; day: string; requestCount: number } | undefined {
+      const call = insertCalls.find(
+        (c) => typeof c.values === "object" && c.values !== null && "requestCount" in c.values,
+      );
+      return call?.values as { userId: number; day: string; requestCount: number } | undefined;
+    }
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("upserts the counter with requestCount 1 for the logging user", async () => {
+      queryResults = [
+        [{ id: 10 }], // source lang id
+        [{ id: 42 }], // insert request → returning
+        [{ id: 20 }], // target lang ids
+        [], // junction insert returning
+      ];
+
+      await translationRequestRepository.logTranslationRequest(7, "hello", "en", ["ru"]);
+
+      const counter = counterInsert();
+      expect(counter).toBeDefined();
+      expect(counter?.userId).toBe(7);
+      expect(counter?.requestCount).toBe(1);
+    });
+
+    it("buckets the counter day in UTC regardless of process timezone", async () => {
+      // 23:30 UTC on 2025-06-15: in Asia/Tokyo (+9) the local wall-clock date is
+      // already 2025-06-16, and in America/New_York (-4) it is still 2025-06-15.
+      // A UTC bucket must resolve to 2025-06-15 under every process timezone.
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2025-06-15T23:30:00.000Z"));
+
+      const originalTz = process.env.TZ;
+      try {
+        for (const tz of ["UTC", "Asia/Tokyo", "America/New_York"]) {
+          process.env.TZ = tz;
+          insertCalls = [];
+          queryIndex = 0;
+          queryResults = [
+            [{ id: 3 }], // insert request → returning (no source lang)
+          ];
+
+          await translationRequestRepository.logTranslationRequest(1, "tz-test", null, []);
+
+          expect(counterInsert()?.day).toBe("2025-06-15");
+        }
+      } finally {
+        if (originalTz === undefined) delete process.env.TZ;
+        else process.env.TZ = originalTz;
+      }
     });
   });
 

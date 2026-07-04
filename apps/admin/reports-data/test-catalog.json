@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T22:51:12.758Z",
+  "generatedAt": "2026-07-04T23:17:19.834Z",
   "summary": {
-    "total": 2051,
+    "total": 2059,
     "business": 0,
-    "technical": 2051,
+    "technical": 2059,
     "workspaces": [
       "apps",
       "packages"
@@ -12787,6 +12787,70 @@
       "description": "Protects the database adapter request Timing Repository get Segment Summary By Model behavior: uses default parameters when not specified."
     },
     {
+      "id": "packages-adapters-db-src-tests-retention-test-ts-69-runtelemetryretention-prunes-every-telemetry-table-below-a-now-minus-horizon-cutoff",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/retention.test.ts",
+      "sourceLine": 69,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "runTelemetryRetention"
+      ],
+      "title": "prunes every telemetry table below a now-minus-horizon cutoff",
+      "rawTitle": "prunes every telemetry table below a now-minus-horizon cutoff",
+      "name": "Database adapter run Telemetry Retention prunes every telemetry table below a now minus horizon cutoff",
+      "value": "Protects the database adapter run Telemetry Retention behavior so prunes every telemetry table below a now minus horizon cutoff.",
+      "description": "Protects the database adapter run Telemetry Retention behavior so prunes every telemetry table below a now minus horizon cutoff."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-retention-test-ts-95-runtelemetryretention-keeps-rows-at-the-horizon-boundary-and-prunes-older-ones",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/retention.test.ts",
+      "sourceLine": 95,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "runTelemetryRetention"
+      ],
+      "title": "keeps rows at the horizon boundary and prunes older ones",
+      "rawTitle": "keeps rows at the horizon boundary and prunes older ones",
+      "name": "Database adapter run Telemetry Retention keeps rows at the horizon boundary and prunes older ones",
+      "value": "Protects the database adapter run Telemetry Retention behavior: keeps rows at the horizon boundary and prunes older ones.",
+      "description": "Protects the database adapter run Telemetry Retention behavior: keeps rows at the horizon boundary and prunes older ones."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-retention-test-ts-111-runtelemetryretention-honours-a-custom-shorter-horizon",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/retention.test.ts",
+      "sourceLine": 111,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "runTelemetryRetention"
+      ],
+      "title": "honours a custom shorter horizon",
+      "rawTitle": "honours a custom shorter horizon",
+      "name": "Database adapter run Telemetry Retention honours a custom shorter horizon",
+      "value": "Protects the database adapter run Telemetry Retention behavior so honours a custom shorter horizon.",
+      "description": "Protects the database adapter run Telemetry Retention behavior so honours a custom shorter horizon."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-retention-test-ts-118-runtelemetryretention-reports-the-number-of-rows-deleted-per-table",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/retention.test.ts",
+      "sourceLine": 118,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "runTelemetryRetention"
+      ],
+      "title": "reports the number of rows deleted per table",
+      "rawTitle": "reports the number of rows deleted per table",
+      "name": "Database adapter run Telemetry Retention reports the number of rows deleted per table",
+      "value": "Protects the database adapter run Telemetry Retention behavior: reports the number of rows deleted per table.",
+      "description": "Protects the database adapter run Telemetry Retention behavior: reports the number of rows deleted per table."
+    },
+    {
       "id": "packages-adapters-db-src-tests-topic-repository-test-ts-65-topicrepository-getcached-returns-a-cached-translation-when-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/topic.repository.test.ts",
@@ -12855,10 +12919,10 @@
       "description": "Protects the database adapter topic Repository mark Invalid behavior: marks a cached entry as invalid with reason."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-78-translationrequestrepository-logtranslationrequest-logs-a-request-with-source-and-target-languages-resolved",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-82-translationrequestrepository-logtranslationrequest-logs-a-request-with-source-and-target-languages-resolved",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 78,
+      "sourceLine": 82,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12872,10 +12936,10 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: logs a request with source and target languages resolved."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-98-translationrequestrepository-logtranslationrequest-handles-null-source-language-code",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-102-translationrequestrepository-logtranslationrequest-handles-null-source-language-code",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 98,
+      "sourceLine": 102,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12889,10 +12953,10 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: handles null source language code."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-116-translationrequestrepository-logtranslationrequest-handles-empty-target-languages-array",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-120-translationrequestrepository-logtranslationrequest-handles-empty-target-languages-array",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 116,
+      "sourceLine": 120,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12906,10 +12970,10 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: handles empty target languages array."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-132-translationrequestrepository-logtranslationrequest-handles-unknown-source-language-code-gracefully-resolves-to-null",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-136-translationrequestrepository-logtranslationrequest-handles-unknown-source-language-code-gracefully-resolves-to-null",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 132,
+      "sourceLine": 136,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12923,10 +12987,10 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: handles unknown source language code gracefully (resolves to null)."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-145-translationrequestrepository-logtranslationrequest-skips-junction-insert-when-no-target-languages-resolve",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-149-translationrequestrepository-logtranslationrequest-skips-junction-insert-when-no-target-languages-resolve",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 145,
+      "sourceLine": 149,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12940,10 +13004,44 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: skips junction insert when no target languages resolve."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-162-translationrequestrepository-getusercreditsinwindow-returns-credit-sum-since-window-start",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-183-translationrequestrepository-logtranslationrequest-daily-request-counter-t25-upserts-the-counter-with-requestcount-1-for-the-logging-user",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 162,
+      "sourceLine": 183,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "translationRequestRepository",
+        "logTranslationRequest — daily request counter (T25)"
+      ],
+      "title": "upserts the counter with requestCount 1 for the logging user",
+      "rawTitle": "upserts the counter with requestCount 1 for the logging user",
+      "name": "Database adapter translation Request Repository log Translation Request — daily request counter (T25) upserts the counter with request Count 1 for the logging user",
+      "value": "Protects the database adapter translation Request Repository log Translation Request — daily request counter (T25) behavior so upserts the counter with request Count 1 for the logging user.",
+      "description": "Protects the database adapter translation Request Repository log Translation Request — daily request counter (T25) behavior so upserts the counter with request Count 1 for the logging user."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-199-translationrequestrepository-logtranslationrequest-daily-request-counter-t25-buckets-the-counter-day-in-utc-regardless-of-process-timezone",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
+      "sourceLine": 199,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "translationRequestRepository",
+        "logTranslationRequest — daily request counter (T25)"
+      ],
+      "title": "buckets the counter day in UTC regardless of process timezone",
+      "rawTitle": "buckets the counter day in UTC regardless of process timezone",
+      "name": "Database adapter translation Request Repository log Translation Request — daily request counter (T25) buckets the counter day in UTC regardless of process timezone",
+      "value": "Protects the database adapter translation Request Repository log Translation Request — daily request counter (T25) behavior so buckets the counter day in UTC regardless of process timezone.",
+      "description": "Protects the database adapter translation Request Repository log Translation Request — daily request counter (T25) behavior so buckets the counter day in UTC regardless of process timezone."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-228-translationrequestrepository-getusercreditsinwindow-returns-credit-sum-since-window-start",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
+      "sourceLine": 228,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12957,10 +13055,10 @@
       "description": "Protects the database adapter translation Request Repository get User Credits In Window behavior: returns credit sum since window start."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-171-translationrequestrepository-getusercreditsinwindow-returns-0-when-no-requests-found",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-237-translationrequestrepository-getusercreditsinwindow-returns-0-when-no-requests-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 171,
+      "sourceLine": 237,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12974,10 +13072,10 @@
       "description": "Protects the database adapter translation Request Repository get User Credits In Window behavior: returns 0 when no requests found."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-179-translationrequestrepository-getusercreditsinwindow-returns-0-when-query-returns-empty-array",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-245-translationrequestrepository-getusercreditsinwindow-returns-0-when-query-returns-empty-array",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 179,
+      "sourceLine": 245,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12991,10 +13089,10 @@
       "description": "Protects the database adapter translation Request Repository get User Credits In Window behavior: returns 0 when query returns empty array."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-189-translationrequestrepository-getrecentrequests-returns-requests-with-resolved-language-codes",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-255-translationrequestrepository-getrecentrequests-returns-requests-with-resolved-language-codes",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 189,
+      "sourceLine": 255,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13008,10 +13106,10 @@
       "description": "Protects the database adapter translation Request Repository get Recent Requests behavior: returns requests with resolved language codes."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-243-translationrequestrepository-getrecentrequests-returns-empty-array-when-user-has-no-requests",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-309-translationrequestrepository-getrecentrequests-returns-empty-array-when-user-has-no-requests",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 243,
+      "sourceLine": 309,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13025,10 +13123,10 @@
       "description": "Protects the database adapter translation Request Repository get Recent Requests behavior: returns empty array when user has no requests."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-256-translationrequestrepository-getrecentrequests-returns-empty-targetlangcodes-when-request-has-no-targets",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-322-translationrequestrepository-getrecentrequests-returns-empty-targetlangcodes-when-request-has-no-targets",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 256,
+      "sourceLine": 322,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13210,6 +13308,38 @@
       "name": "Database adapter translation Template Repository delete By User Id subsequent get By User Id returns null after delete",
       "value": "Protects the database adapter translation Template Repository delete By User Id behavior so subsequent get By User Id returns null after delete.",
       "description": "Protects the database adapter translation Template Repository delete By User Id behavior so subsequent get By User Id returns null after delete."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-user-request-count-repository-test-ts-41-userrequestcountrepository-getuserrequestcountsbyday-returns-per-user-per-day-counts-sourced-from-the-compact-counter-t25",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/user-request-count.repository.test.ts",
+      "sourceLine": 41,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "userRequestCountRepository.getUserRequestCountsByDay"
+      ],
+      "title": "returns per-user/per-day counts sourced from the compact counter (T25)",
+      "rawTitle": "returns per-user/per-day counts sourced from the compact counter (T25)",
+      "name": "Database adapter user Request Count Repository get User Request Counts By Day returns per user per day counts sourced from the compact counter (T25)",
+      "value": "Protects the database adapter user Request Count Repository get User Request Counts By Day behavior: returns per user per day counts sourced from the compact counter (T25).",
+      "description": "Protects the database adapter user Request Count Repository get User Request Counts By Day behavior: returns per user per day counts sourced from the compact counter (T25)."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-user-request-count-repository-test-ts-74-userrequestcountrepository-getuserrequestcountsbyday-returns-an-empty-list-when-the-counter-has-no-rows-in-range",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/user-request-count.repository.test.ts",
+      "sourceLine": 74,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "userRequestCountRepository.getUserRequestCountsByDay"
+      ],
+      "title": "returns an empty list when the counter has no rows in range",
+      "rawTitle": "returns an empty list when the counter has no rows in range",
+      "name": "Database adapter user Request Count Repository get User Request Counts By Day returns an empty list when the counter has no rows in range",
+      "value": "Protects the database adapter user Request Count Repository get User Request Counts By Day behavior: returns an empty list when the counter has no rows in range.",
+      "description": "Protects the database adapter user Request Count Repository get User Request Counts By Day behavior: returns an empty list when the counter has no rows in range."
     },
     {
       "id": "packages-adapters-db-src-tests-user-repository-test-ts-119-userrepository-findbytelegramid-returns-user-when-found",
