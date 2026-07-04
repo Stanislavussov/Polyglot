@@ -29,6 +29,7 @@ export type I18nKey =
   | "loading"
   | "loadingTimeout"
   | "translationError"
+  | "staleSession"
   | "translationUnavailable"
   | "contextMarkerNeedsText"
   | "inputRejectedEmpty"

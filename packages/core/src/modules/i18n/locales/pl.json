@@ -23,6 +23,7 @@
   "enterWordToTranslate": "📝 Wpisz słowo lub wyrażenie do przetłumaczenia:",
   "translating": "⏳ Tłumaczę...",
   "translationError": "❌ Tłumaczenie nie powiodło się. Spróbuj ponownie później.",
+  "staleSession": "⚠️ Sesja wygasła. Wyślij słowo do tłumaczenia jeszcze raz.",
   "translationUnavailable": "⚠️ Tłumaczenie chwilowo niedostępne. Spróbuj ponownie.",
   "contextMarkerNeedsText": "Wpisz słowo lub wyrażenie przed znacznikiem kontekstu.",
   "inputRejectedEmpty": "Wyślij tekst do przetłumaczenia.",

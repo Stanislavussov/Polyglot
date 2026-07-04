@@ -52,6 +52,7 @@ const {
 }));
 
 vi.mock("@polyglot/adapter-db", () => ({
+  MAX_LEARNING_LANGS: 4,
   userRepository: mockUserRepository,
   vocabularyRepository: mockVocabularyRepository,
   createContextLookup: () => mockLookupContext,
@@ -134,6 +135,7 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
+import { MAX_LEARNING_LANGS } from "@polyglot/adapter-db";
 import {
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
@@ -156,7 +158,7 @@ import {
   isEtymologyEligible,
 } from "./translate-mode.helper.js";
 
-function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string): BotContext {
+function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, callbackMsgId = 1): BotContext {
   const session: SessionData = {
     activeMode: "translate",
     pendingTranslation: undefined,
@@ -179,10 +181,11 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string):
     from: { id: 123456789 },
     chat: { id: 123456789 },
     session,
-    callbackQuery: callbackData ? { data: callbackData } : undefined,
+    callbackQuery: callbackData ? { data: callbackData, message: { message_id: callbackMsgId } } : undefined,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
+    editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
@@ -938,7 +941,7 @@ describe("out-of-set add-and-translate (Phase 1)", () => {
   });
 
   it("tr:oos:add adds the language to the learning set and then translates", async () => {
-    const ctx = createMockCtx({ pendingOutOfSet: { lang: "pl", word: "przepraszam" } }, "tr:oos:add:pl");
+    const ctx = createMockCtx({ pendingOutOfSet: { "1": { lang: "pl", word: "przepraszam" } } }, "tr:oos:add:pl");
     await handleOutOfSetCallback(ctx);
 
     expect(mockUserRepository.updateLearningLangs).toHaveBeenCalledWith(1, ["cs", "de", "pl"]);
@@ -946,11 +949,11 @@ describe("out-of-set add-and-translate (Phase 1)", () => {
       expect.objectContaining({ word: "przepraszam", sourceLang: "pl", targetLangs: ["ru", "cs", "de"] }),
       expect.anything(),
     );
-    expect(ctx.session.pendingOutOfSet).toBeUndefined();
+    expect(ctx.session.pendingOutOfSet).toEqual({});
   });
 
   it("tr:oos:once translates without persisting the language", async () => {
-    const ctx = createMockCtx({ pendingOutOfSet: { lang: "pl", word: "przepraszam" } }, "tr:oos:once:pl");
+    const ctx = createMockCtx({ pendingOutOfSet: { "1": { lang: "pl", word: "przepraszam" } } }, "tr:oos:once:pl");
     await handleOutOfSetCallback(ctx);
 
     expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
@@ -961,12 +964,96 @@ describe("out-of-set add-and-translate (Phase 1)", () => {
   });
 
   it("tr:oos:cancel dismisses without translating", async () => {
-    const ctx = createMockCtx({ pendingOutOfSet: { lang: "pl", word: "przepraszam" } }, "tr:oos:cancel");
+    const ctx = createMockCtx({ pendingOutOfSet: { "1": { lang: "pl", word: "przepraszam" } } }, "tr:oos:cancel");
     await handleOutOfSetCallback(ctx);
 
     expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
     expect(translateWithContext).not.toHaveBeenCalled();
-    expect(ctx.session.pendingOutOfSet).toBeUndefined();
+    expect(ctx.session.pendingOutOfSet).toEqual({});
+  });
+
+  it("keeps two consecutive prompts from cross-wiring lang/word (single-slot race, T02)", async () => {
+    // Prompt 1 (Spanish "hola", msg 10), then prompt 2 (Polish "przepraszam", msg 20).
+    const pending = {
+      "10": { lang: "es", word: "hola" },
+      "20": { lang: "pl", word: "przepraszam" },
+    };
+
+    // Tap the OLDER Spanish button — must add es and translate "hola" (not "przepraszam").
+    const ctxEs = createMockCtx({ pendingOutOfSet: { ...pending } }, "tr:oos:once:es", 10);
+    await handleOutOfSetCallback(ctxEs);
+    expect(translateWithContext).toHaveBeenLastCalledWith(
+      expect.objectContaining({ word: "hola", sourceLang: "es" }),
+      expect.anything(),
+    );
+    // The Polish entry survives; only the tapped Spanish one is consumed.
+    expect(ctxEs.session.pendingOutOfSet).toEqual({ "20": { lang: "pl", word: "przepraszam" } });
+
+    // Tap the Polish button — must translate "przepraszam".
+    const ctxPl = createMockCtx({ pendingOutOfSet: { ...pending } }, "tr:oos:once:pl", 20);
+    await handleOutOfSetCallback(ctxPl);
+    expect(translateWithContext).toHaveBeenLastCalledWith(
+      expect.objectContaining({ word: "przepraszam", sourceLang: "pl" }),
+      expect.anything(),
+    );
+  });
+
+  it("rejects a stale button whose language no longer matches its stored entry", async () => {
+    // The prompt at msg 10 stored 'es', but the tapped button claims 'pl'.
+    const ctx = createMockCtx({ pendingOutOfSet: { "10": { lang: "es", word: "hola" } } }, "tr:oos:add:pl", 10);
+    await handleOutOfSetCallback(ctx);
+
+    expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ text: t("staleSession", "en") }));
+  });
+
+  it("shows a generic error (not 'max languages') when the DB write fails", async () => {
+    mockUserRepository.updateLearningLangs.mockRejectedValueOnce(new Error("connection reset"));
+    const ctx = createMockCtx({ pendingOutOfSet: { "1": { lang: "pl", word: "przepraszam" } } }, "tr:oos:add:pl");
+
+    await handleOutOfSetCallback(ctx);
+
+    expect(mockUserRepository.updateLearningLangs).toHaveBeenCalled();
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
+      expect.objectContaining({ text: t("translationError", "en") }),
+    );
+    // The generic DB error must NOT be reported as the language-limit message.
+    expect(ctx.answerCallbackQuery).not.toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringContaining("up to") }),
+    );
+  });
+
+  it("reports the language limit without calling the DB when already at MAX_LEARNING_LANGS", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de", "es", "it"], // already at the 4-language cap
+    });
+    const ctx = createMockCtx({ pendingOutOfSet: { "1": { lang: "pl", word: "przepraszam" } } }, "tr:oos:add:pl");
+
+    await handleOutOfSetCallback(ctx);
+
+    expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
+      expect.objectContaining({ text: t("maxLangsReached", "en", { max: MAX_LEARNING_LANGS }) }),
+    );
+  });
+
+  it("localizes the stale-session alert via t() (no hardcoded English)", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "ru",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de"],
+    });
+    // No pending entry for this message id → stale path.
+    const ctx = createMockCtx({ pendingOutOfSet: {} }, "tr:oos:once:pl", 99);
+    await handleOutOfSetCallback(ctx);
+
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ text: t("staleSession", "ru") }));
+    expect(t("staleSession", "ru")).not.toBe(t("staleSession", "en"));
   });
 
   it("gates the clarify source-language option: tapping an out-of-set language offers add-and-translate (incident: Kazakh)", async () => {
@@ -990,7 +1077,9 @@ describe("out-of-set add-and-translate (Phase 1)", () => {
     expect(translateOneWithContext).not.toHaveBeenCalled();
     const promptReply = vi.mocked(ctx.reply).mock.calls.at(-1)?.[0] as string;
     expect(promptReply).toContain("isn't in your studied languages");
-    expect(ctx.session.pendingOutOfSet).toEqual(expect.objectContaining({ lang: "kk", word: "Керемет мырзалар" }));
+    expect(ctx.session.pendingOutOfSet).toEqual({
+      "1": expect.objectContaining({ lang: "kk", word: "Керемет мырзалар" }),
+    });
   });
 });
 

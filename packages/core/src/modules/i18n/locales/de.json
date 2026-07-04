@@ -23,6 +23,7 @@
   "enterWordToTranslate": "📝 Gib ein Wort oder einen Satz zum Übersetzen ein:",
   "translating": "⏳ Übersetze...",
   "translationError": "❌ Übersetzung fehlgeschlagen. Bitte versuche es später noch einmal.",
+  "staleSession": "⚠️ Sitzung abgelaufen. Bitte sende das Wort erneut zum Übersetzen.",
   "translationUnavailable": "⚠️ Übersetzung vorübergehend nicht verfügbar. Versuche es noch einmal.",
   "contextMarkerNeedsText": "Gib ein Wort oder einen Satz vor der Kontextmarkierung ein.",
   "inputRejectedEmpty": "Sende Text zum Übersetzen.",

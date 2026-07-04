@@ -157,15 +157,21 @@ export interface SessionData {
     }>;
   };
   /**
-   * Pending out-of-set add-and-translate flow: the user typed text in a
-   * SUPPORTED language they don't study yet. Carries the word across the
-   * tr:oos:add / tr:oos:once / tr:oos:cancel callback tap.
+   * Pending out-of-set add-and-translate prompts, keyed by the prompt's
+   * Telegram message id (mirrors {@link SessionData.translationMap}). The user
+   * typed text in a SUPPORTED language they don't study yet; each entry carries
+   * its own word across the tr:oos:add / tr:oos:once / tr:oos:cancel callback
+   * tap. Keying by message id means two consecutive prompts cannot cross-wire
+   * language and word, and a used/stale button resolves to its own entry only.
    */
-  pendingOutOfSet?: {
-    lang: string;
-    word: string;
-    contextHint?: string;
-  };
+  pendingOutOfSet?: Record<
+    string,
+    {
+      lang: string;
+      word: string;
+      contextHint?: string;
+    }
+  >;
   /** True when the next text message should be used as translation context clarification. */
   awaitingTranslationClarificationContext?: boolean;
   /** Message ID of the translation card awaiting post-translation clarification context. */

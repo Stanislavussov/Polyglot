@@ -8,6 +8,7 @@ import {
   createContextLookup,
   createWordLanguageSweep,
   languageDetectionRepository,
+  MAX_LEARNING_LANGS,
   requestTimingRepository,
 } from "@polyglot/adapter-db";
 import {
@@ -277,8 +278,6 @@ async function showAddLanguagePrompt(
   word: string,
   contextHint: string | undefined,
 ): Promise<void> {
-  ctx.session.pendingOutOfSet = { lang: outOfSetLang, word, contextHint };
-
   languageDetectionRepository
     .record({ userId: ctx.user.id, eventType: "out_of_set", word, sourceLang: outOfSetLang })
     .catch((err: unknown) => {
@@ -293,7 +292,13 @@ async function showAddLanguagePrompt(
     .row()
     .text(t("mistypeCancel", lang), "tr:oos:cancel");
 
-  await ctx.reply(t("outOfSetPrompt", lang, { lang: langName }), { reply_markup: keyboard });
+  const promptMsg = await ctx.reply(t("outOfSetPrompt", lang, { lang: langName }), { reply_markup: keyboard });
+
+  // Key the pending word by the prompt's message id so a later prompt cannot
+  // overwrite this one's word (single-slot race, T02).
+  const store = ctx.session.pendingOutOfSet ?? {};
+  store[String(promptMsg.message_id)] = { lang: outOfSetLang, word, contextHint };
+  ctx.session.pendingOutOfSet = store;
 }
 
 /**
@@ -309,11 +314,28 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
   const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
-  const pending = ctx.session.pendingOutOfSet;
+
+  const store = ctx.session.pendingOutOfSet ?? {};
+  const promptMsgId = ctx.callbackQuery?.message?.message_id;
+  const key = promptMsgId != null ? String(promptMsgId) : undefined;
+  const pending = key ? store[key] : undefined;
+
+  // Drop this prompt's pending entry and visually retire its keyboard so an
+  // already-answered button can never fire again (T02).
+  const settle = (): void => {
+    if (key) delete store[key];
+    ctx.session.pendingOutOfSet = store;
+  };
+  const removeKeyboard = (): Promise<void> =>
+    ctx.editMessageReplyMarkup().then(
+      () => undefined,
+      () => undefined,
+    );
 
   if (data === "tr:oos:cancel") {
-    ctx.session.pendingOutOfSet = undefined;
+    settle();
     await ctx.answerCallbackQuery();
+    await removeKeyboard();
     const msg = await ctx.reply(t("translateModeHint", lang));
     trackTechnicalMessage(ctx, msg.message_id);
     return;
@@ -321,37 +343,37 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
 
   const isAdd = data.startsWith("tr:oos:add:");
   const isOnce = data.startsWith("tr:oos:once:");
-  if (!pending || (!isAdd && !isOnce)) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
-    return;
-  }
-
   const sourceLang = data.replace(/^tr:oos:(?:add|once):/, "");
-  if (!isSupportedLanguage(sourceLang)) {
-    ctx.session.pendingOutOfSet = undefined;
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+
+  // Stale/unknown button: no matching pending entry, wrong shape, or the button
+  // language no longer matches the entry stored for this message.
+  if (!pending || (!isAdd && !isOnce) || !isSupportedLanguage(sourceLang) || sourceLang !== pending.lang) {
+    settle();
+    await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true });
+    await removeKeyboard();
     return;
   }
 
-  // "Add" persists the language into the learning set (unless already present or capped).
+  // "Add" persists the language into the learning set (unless already present).
   let effectiveLearning = learningLangs;
-  if (isAdd && !getUserLanguageGroup(nativeLang, learningLangs).includes(sourceLang)) {
+  const alreadyStudied = getUserLanguageGroup(nativeLang, learningLangs).includes(sourceLang);
+  if (isAdd && !alreadyStudied) {
+    // Explicit limit pre-check so a genuine DB failure is not masked as
+    // "maximum languages reached" (the two are now distinct messages, T02).
+    if (learningLangs.length >= MAX_LEARNING_LANGS) {
+      await ctx.answerCallbackQuery({
+        text: t("maxLangsReached", lang, { max: MAX_LEARNING_LANGS }),
+        show_alert: true,
+      });
+      return;
+    }
     const nextLangs = [...learningLangs, sourceLang];
     try {
       await ctx.services.userRepository.updateLearningLangs(ctx.user.id, nextLangs);
       effectiveLearning = nextLangs;
     } catch (err) {
       logger.warn({ err, sourceLang }, "Failed to add out-of-set language");
-      await ctx.answerCallbackQuery({
-        text: "⚠️ You've reached the maximum number of languages. Remove one in /settings first.",
-        show_alert: true,
-      });
+      await ctx.answerCallbackQuery({ text: t("translationError", lang), show_alert: true });
       return;
     }
   }
@@ -370,12 +392,15 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
       logger.warn({ err }, "Failed to record language detection event");
     });
 
-  ctx.session.pendingOutOfSet = undefined;
+  const pendingWord = pending.word;
+  const pendingContextHint = pending.contextHint;
+  settle();
   ctx.session.pendingDetectedLang = undefined;
-  ctx.session.pendingWord = pending.word;
-  ctx.session.pendingContextHint = pending.contextHint;
+  ctx.session.pendingWord = pendingWord;
+  ctx.session.pendingContextHint = pendingContextHint;
   ctx.session.pendingDirection = { sourceLang, targetLangs };
   await ctx.answerCallbackQuery();
+  await removeKeyboard();
   await handleMistypeConfirmCallback(ctx);
 }
 
