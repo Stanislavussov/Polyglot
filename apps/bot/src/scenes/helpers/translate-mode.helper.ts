@@ -406,7 +406,6 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
  */
 export async function handleTranslateText(ctx: BotContext, word: string): Promise<void> {
   const totalStart = Date.now();
-  const telegramId = ctx.from!.id;
 
   // Instant feedback while the silent pre-phase (settings, quota, language
   // detection) runs — the "translating" loader appears only after it.
@@ -660,7 +659,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const classification = classifyInput(cleanWord);
   const isSentence = classification.type === "sentence";
   let preflightMs = 0;
-  let dbLookupMs = 0;
   const preflightStart = Date.now();
   const creditCost = await ensureAiQuota(ctx, subscriptionPlan, lang, "translate");
   if (creditCost === null) {
@@ -684,146 +682,24 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   // Show loading message
   const loadingMsg = await ctx.reply(t("translating", lang));
 
-  let model: string | undefined;
-  try {
-    model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
-
-    // Load user's template for template-aware output resolution (Task 32)
-    const dbLookupStart = Date.now();
-    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
-    const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-    const outputConfig = resolveOutputConfig(userTpl, classification.type, cleanWord.length);
-    const effectiveTemplate = resolveTemplate(userTpl);
-    dbLookupMs = Date.now() - dbLookupStart;
-
-    // For sentences, skip dictionary context lookup (no learnable word to enrich)
-    const lookupContextFn = isSentence ? async () => [] : lookupContext;
-
-    const stopTimer = translationDuration.startTimer();
-    const aiStart = Date.now();
-    const decision = await withTimeout(
-      translateWithContext(
-        {
-          word: cleanWord,
-          sourceLang,
-          targetLangs,
-          nativeLang,
-          model,
-          topic: contextHint,
-          userId: ctx.user.id,
-          interfaceLang: lang,
-          detectionConfidence: detection.confidence,
-          outputConfig,
-          inputType: classification.type,
-          // Task 70 — let the main call flag unrecognized/fabricated headwords.
-          assessSourceExistence: true,
-        },
-        {
-          lookupContext: lookupContextFn,
-          generateObjectFn: ctx.services.ai.generateObject,
-        },
-      ),
-      LONG_OP_TIMEOUT_MS,
-    );
-    const aiRequestMs = Date.now() - aiStart;
-    stopTimer();
-
-    if (decision.status === "needs_clarification") {
-      await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-      await showTranslationClarification(ctx, {
-        word: cleanWord,
-        contextHint,
-        sourceLang,
-        targetLangs,
-        nativeLang,
-        learningLangs,
-        detectionConfidence: detection.confidence,
-        inputType: classification.type,
-        ambiguity: decision.ambiguity,
-        lang,
-      });
-      return;
-    }
-
-    const output = decision.output;
-    const needsReview = decision.status === "needs_review";
-    const recordedModelId = decision.status === "accepted" ? decision.quality.modelId : model;
-    translationCounter.inc({ status: "success" });
-    if (output.correction) {
-      inputCorrectionCounter.inc({ outcome: "auto_corrected", input_type: classification.type });
-    }
-    await ctx.services.translationRequestRepository.logTranslationRequest(
-      ctx.user.id,
-      cleanWord,
-      sourceLang,
-      targetLangs,
-      creditCost,
-    );
-
-    const totalMs = Date.now() - totalStart;
-    requestTimingRepository
-      .record({
-        userId: ctx.user.id,
-        requestType: "translate",
-        preflightMs,
-        dbLookupMs,
-        aiRequestMs,
-        totalMs,
-        modelId: recordedModelId,
-        sourceLang,
-        targetLangs,
-        inputType: classification.type,
-        success: true,
-      })
-      .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record request timing");
-      });
-
-    // Delete loading message
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-
-    const isAlreadySaved = await resolveIsAlreadySaved(ctx, output, isSentence);
-
-    await sendTranslationCard(ctx, {
-      output,
-      lang,
-      nativeLang,
-      needsReview,
-      isSentence,
-      inputType: classification.type,
-      effectiveTemplate,
-      isAlreadySaved,
-      contextHint,
-      detectedLang,
-      withInlineGrammar: true,
-    });
-  } catch (err) {
-    translationCounter.inc({ status: "error" });
-    logger.error({ err, word: cleanWord, telegramId }, "Translation failed");
-
-    const totalMs = Date.now() - totalStart;
-    requestTimingRepository
-      .record({
-        userId: ctx.user.id,
-        requestType: "translate",
-        preflightMs,
-        dbLookupMs,
-        aiRequestMs: 0,
-        totalMs,
-        modelId: model,
-        sourceLang,
-        targetLangs,
-        inputType: classification.type,
-        success: false,
-        error: err instanceof Error ? err.message : String(err),
-      })
-      .catch((timingErr: unknown) => {
-        logger.warn({ err: timingErr }, "Failed to record request timing on error");
-      });
-
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang));
-  }
+  await runTranslationPipeline(ctx, {
+    word: cleanWord,
+    sourceLang,
+    targetLangs,
+    nativeLang,
+    lang,
+    subscriptionPlan,
+    creditCost,
+    classification,
+    isSentence,
+    loadingMsg,
+    learningLangs,
+    contextHint,
+    detectionConfidence: detection.confidence,
+    detectedLang,
+    withInlineGrammar: true,
+    timing: { preflightMs, totalStart },
+  });
 }
 
 /**
@@ -912,6 +788,212 @@ async function sendTranslationCard(
     contextHint: opts.contextHint,
     grammarBreakdown: inlineBreakdown,
   });
+}
+
+/**
+ * The single translation pipeline (Fable T22/B2). Both entry points — the main
+ * text flow (`handleTranslateText`) and the mistype-confirm flow
+ * (`handleMistypeConfirmCallback`) — run through this after they have resolved
+ * direction, quota, and shown the loading message. It resolves the model, loads
+ * the template, runs `translateWithContext`, handles the clarification branch,
+ * logs the request, records timing (main flow only), and renders the card.
+ *
+ * The two flows differ only in the options below; everything else is shared, so
+ * a pipeline change is made once. The pipeline never answers a callback query —
+ * the caller does that afterwards if it is a callback handler.
+ */
+async function runTranslationPipeline(
+  ctx: BotContext,
+  params: {
+    word: string;
+    sourceLang: string;
+    targetLangs: string[];
+    nativeLang: string;
+    lang: SupportedLang;
+    subscriptionPlan: string;
+    creditCost: number;
+    classification: ReturnType<typeof classifyInput>;
+    isSentence: boolean;
+    loadingMsg: { message_id: number };
+    learningLangs: string[];
+    contextHint?: string;
+    /** Main flow passes the detector's confidence; the mistype flow omits it. */
+    detectionConfidence?: number;
+    /** Mistype flow: the user already confirmed, so never re-question the input. */
+    skipInputCorrection?: boolean;
+    /** Main flow only: banner shown when the detected language differs from native. */
+    detectedLang?: string;
+    /** Main flow offers inline grammar for phrases; the mistype flow never does. */
+    withInlineGrammar: boolean;
+    /** Main flow records request-timing telemetry; the mistype flow does not. */
+    timing?: { preflightMs: number; totalStart: number };
+  },
+): Promise<void> {
+  const {
+    word,
+    sourceLang,
+    targetLangs,
+    nativeLang,
+    lang,
+    subscriptionPlan,
+    creditCost,
+    classification,
+    isSentence,
+    loadingMsg,
+    learningLangs,
+    contextHint,
+    detectionConfidence,
+    skipInputCorrection,
+    detectedLang,
+    withInlineGrammar,
+    timing,
+  } = params;
+
+  let model: string | undefined;
+  let dbLookupMs = 0;
+  let aiRequestMs = 0;
+  try {
+    model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
+
+    // Load user's template for template-aware output resolution (Task 32)
+    const dbLookupStart = Date.now();
+    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
+    const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
+    const outputConfig = resolveOutputConfig(userTpl, classification.type, word.length);
+    const effectiveTemplate = resolveTemplate(userTpl);
+    dbLookupMs = Date.now() - dbLookupStart;
+
+    // For sentences, skip dictionary context lookup (no learnable word to enrich)
+    const lookupContextFn = isSentence ? async () => [] : lookupContext;
+
+    const stopTimer = translationDuration.startTimer();
+    const aiStart = Date.now();
+    const decision = await withTimeout(
+      translateWithContext(
+        {
+          word,
+          sourceLang,
+          targetLangs,
+          nativeLang,
+          model,
+          topic: contextHint,
+          userId: ctx.user.id,
+          interfaceLang: lang,
+          ...(detectionConfidence !== undefined ? { detectionConfidence } : {}),
+          outputConfig,
+          inputType: classification.type,
+          ...(skipInputCorrection ? { skipInputCorrection: true } : {}),
+          // Task 70 — let the main call flag unrecognized/fabricated headwords.
+          assessSourceExistence: true,
+        },
+        {
+          lookupContext: lookupContextFn,
+          generateObjectFn: ctx.services.ai.generateObject,
+        },
+      ),
+      LONG_OP_TIMEOUT_MS,
+    );
+    aiRequestMs = Date.now() - aiStart;
+    stopTimer();
+
+    if (decision.status === "needs_clarification") {
+      await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+      await showTranslationClarification(ctx, {
+        word,
+        contextHint,
+        sourceLang,
+        targetLangs,
+        nativeLang,
+        learningLangs,
+        ...(detectionConfidence !== undefined ? { detectionConfidence } : {}),
+        inputType: classification.type,
+        ambiguity: decision.ambiguity,
+        lang,
+      });
+      return;
+    }
+
+    const output = decision.output;
+    const needsReview = decision.status === "needs_review";
+    const recordedModelId = decision.status === "accepted" ? decision.quality.modelId : model;
+    translationCounter.inc({ status: "success" });
+    if (output.correction) {
+      inputCorrectionCounter.inc({ outcome: "auto_corrected", input_type: classification.type });
+    }
+    await ctx.services.translationRequestRepository.logTranslationRequest(
+      ctx.user.id,
+      word,
+      sourceLang,
+      targetLangs,
+      creditCost,
+    );
+
+    if (timing) {
+      requestTimingRepository
+        .record({
+          userId: ctx.user.id,
+          requestType: "translate",
+          preflightMs: timing.preflightMs,
+          dbLookupMs,
+          aiRequestMs,
+          totalMs: Date.now() - timing.totalStart,
+          modelId: recordedModelId,
+          sourceLang,
+          targetLangs,
+          inputType: classification.type,
+          success: true,
+        })
+        .catch((err: unknown) => {
+          logger.warn({ err }, "Failed to record request timing");
+        });
+    }
+
+    // Delete loading message
+    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+
+    const isAlreadySaved = await resolveIsAlreadySaved(ctx, output, isSentence);
+
+    await sendTranslationCard(ctx, {
+      output,
+      lang,
+      nativeLang,
+      needsReview,
+      isSentence,
+      inputType: classification.type,
+      effectiveTemplate,
+      isAlreadySaved,
+      contextHint,
+      detectedLang,
+      withInlineGrammar,
+    });
+  } catch (err) {
+    translationCounter.inc({ status: "error" });
+    logger.error({ err, word }, "Translation failed");
+
+    if (timing) {
+      requestTimingRepository
+        .record({
+          userId: ctx.user.id,
+          requestType: "translate",
+          preflightMs: timing.preflightMs,
+          dbLookupMs,
+          aiRequestMs: 0,
+          totalMs: Date.now() - timing.totalStart,
+          modelId: model,
+          sourceLang,
+          targetLangs,
+          inputType: classification.type,
+          success: false,
+          error: err instanceof Error ? err.message : String(err),
+        })
+        .catch((timingErr: unknown) => {
+          logger.warn({ err: timingErr }, "Failed to record request timing on error");
+        });
+    }
+
+    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang));
+  }
 }
 
 /**
@@ -1586,97 +1668,24 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   // Show loading message
   const loadingMsg = await ctx.reply(t("translating", lang));
 
-  try {
-    const model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
-
-    // Load user's template
-    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
-    const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-    const outputConfig = resolveOutputConfig(userTpl, classification.type, pendingWord.length);
-    const effectiveTemplate = resolveTemplate(userTpl);
-
-    const lookupContextFn = isSentence ? async () => [] : lookupContext;
-
-    const stopTimer = translationDuration.startTimer();
-    const decision = await withTimeout(
-      translateWithContext(
-        {
-          word: pendingWord,
-          sourceLang,
-          targetLangs,
-          nativeLang,
-          model,
-          topic: pendingContextHint,
-          userId: ctx.user.id,
-          interfaceLang: lang,
-          outputConfig,
-          inputType: classification.type,
-          // The user already confirmed the language / chose a correction (or
-          // "translate as written") — never re-ask about the same input.
-          skipInputCorrection: true,
-          // Task 70 — still assess existence so an unrecognized word translated
-          // as written is flagged unverified with a caveat (no re-prompt).
-          assessSourceExistence: true,
-        },
-        {
-          lookupContext: lookupContextFn,
-          generateObjectFn: ctx.services.ai.generateObject,
-        },
-      ),
-      LONG_OP_TIMEOUT_MS,
-    );
-    stopTimer();
-
-    if (decision.status === "needs_clarification") {
-      await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-      await showTranslationClarification(ctx, {
-        word: pendingWord,
-        contextHint: pendingContextHint,
-        sourceLang,
-        targetLangs,
-        nativeLang,
-        learningLangs: normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []),
-        inputType: classification.type,
-        ambiguity: decision.ambiguity,
-        lang,
-      });
-      await ctx.answerCallbackQuery();
-      return;
-    }
-
-    const output = decision.output;
-    const needsReview = decision.status === "needs_review";
-    translationCounter.inc({ status: "success" });
-    await ctx.services.translationRequestRepository.logTranslationRequest(
-      ctx.user.id,
-      pendingWord,
-      sourceLang,
-      targetLangs,
-      creditCost,
-    );
-
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-
-    const isAlreadySaved = await resolveIsAlreadySaved(ctx, output, isSentence);
-
-    await sendTranslationCard(ctx, {
-      output,
-      lang,
-      nativeLang,
-      needsReview,
-      isSentence,
-      inputType: classification.type,
-      effectiveTemplate,
-      isAlreadySaved,
-      contextHint: pendingContextHint,
-      withInlineGrammar: false,
-    });
-  } catch (err) {
-    translationCounter.inc({ status: "error" });
-    logger.error({ err, word: pendingWord }, "Translation failed after mistype confirm");
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang));
-  }
+  await runTranslationPipeline(ctx, {
+    word: pendingWord,
+    sourceLang,
+    targetLangs,
+    nativeLang,
+    lang,
+    subscriptionPlan,
+    creditCost,
+    classification,
+    isSentence,
+    loadingMsg,
+    learningLangs: normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []),
+    contextHint: pendingContextHint,
+    // The user already confirmed the language / chose a correction (or "translate
+    // as written") — never re-ask, and never offer inline grammar on this path.
+    skipInputCorrection: true,
+    withInlineGrammar: false,
+  });
 
   await ctx.answerCallbackQuery();
 }
