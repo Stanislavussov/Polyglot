@@ -9,6 +9,7 @@ import {
   generateChat,
   generateObject,
   generateText,
+  setAIGenerationDefaultsProvider,
   setAIModelPriceProvider,
   setAIRequestMetricSink,
   setAIRequestTimeoutProvider,
@@ -66,6 +67,11 @@ export function createContainer(): ServiceContainer {
   // admin-managed (DB `ai.defaults`), read through the cached settings service
   // so a change in the admin panel takes effect without a redeploy.
   setAIRequestTimeoutProvider(async () => (await settings.getAIGenerationDefaults()).requestTimeoutMs);
+
+  // The model-tuning knobs (maxTokens/temperature/frequencyPenalty/maxRetries)
+  // also come from the admin-managed AI Defaults, not adapter literals (Fable
+  // T21/A4). Same cached settings read as the timeout above.
+  setAIGenerationDefaultsProvider(() => settings.getAIGenerationDefaults());
 
   // Model prices come from the single DB source (`ai_models`, admin-managed),
   // not a hardcoded registry — so a model added in the admin panel is costed

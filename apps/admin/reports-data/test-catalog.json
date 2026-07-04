@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T19:56:27.649Z",
+  "generatedAt": "2026-07-04T20:01:01.843Z",
   "summary": {
-    "total": 2029,
+    "total": 2034,
     "business": 0,
-    "technical": 2029,
+    "technical": 2034,
     "workspaces": [
       "apps",
       "packages"
@@ -870,10 +870,10 @@
       "description": "Protects the admin UI reports auth middleware (T09) behavior so fails closed (401) when the admin API is unreachable."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-119-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-120-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 119,
+      "sourceLine": 120,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -886,10 +886,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-135-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-136-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 135,
+      "sourceLine": 136,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -902,10 +902,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-145-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-146-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 145,
+      "sourceLine": 146,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -918,10 +918,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-153-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-154-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 153,
+      "sourceLine": 154,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10658,6 +10658,86 @@
       "name": "AI adapter client reset Client resets the singleton so next get Client creates a new one",
       "value": "Protects the aI adapter client reset Client behavior so resets the singleton so next get Client creates a new one.",
       "description": "Protects the aI adapter client reset Client behavior so resets the singleton so next get Client creates a new one."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-generation-defaults-test-ts-22-resolvegenerationparams-returns-the-built-in-baseline-when-no-provider-is-wired",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/generation-defaults.test.ts",
+      "sourceLine": 22,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "resolveGenerationParams"
+      ],
+      "title": "returns the built-in baseline when no provider is wired",
+      "rawTitle": "returns the built-in baseline when no provider is wired",
+      "name": "AI adapter resolve Generation Params returns the built in baseline when no provider is wired",
+      "value": "Protects the aI adapter resolve Generation Params behavior: returns the built in baseline when no provider is wired.",
+      "description": "Protects the aI adapter resolve Generation Params behavior: returns the built in baseline when no provider is wired."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-generation-defaults-test-ts-26-resolvegenerationparams-uses-the-admin-configured-knobs-from-the-provider",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/generation-defaults.test.ts",
+      "sourceLine": 26,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "resolveGenerationParams"
+      ],
+      "title": "uses the admin-configured knobs from the provider",
+      "rawTitle": "uses the admin-configured knobs from the provider",
+      "name": "AI adapter resolve Generation Params uses the admin configured knobs from the provider",
+      "value": "Protects the aI adapter resolve Generation Params behavior: uses the admin configured knobs from the provider.",
+      "description": "Protects the aI adapter resolve Generation Params behavior: uses the admin configured knobs from the provider."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-generation-defaults-test-ts-37-resolvegenerationparams-allows-temperature-0-deterministic-and-maxretries-0-no-retry",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/generation-defaults.test.ts",
+      "sourceLine": 37,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "resolveGenerationParams"
+      ],
+      "title": "allows temperature 0 (deterministic) and maxRetries 0 (no retry)",
+      "rawTitle": "allows temperature 0 (deterministic) and maxRetries 0 (no retry)",
+      "name": "AI adapter resolve Generation Params allows temperature 0 (deterministic) and max Retries 0 (no retry)",
+      "value": "Protects the aI adapter resolve Generation Params behavior: allows temperature 0 (deterministic) and max Retries 0 (no retry).",
+      "description": "Protects the aI adapter resolve Generation Params behavior: allows temperature 0 (deterministic) and max Retries 0 (no retry)."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-generation-defaults-test-ts-45-resolvegenerationparams-reverts-a-single-invalid-knob-to-its-baseline-keeping-the-valid-ones",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/generation-defaults.test.ts",
+      "sourceLine": 45,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "resolveGenerationParams"
+      ],
+      "title": "reverts a single invalid knob to its baseline, keeping the valid ones",
+      "rawTitle": "reverts a single invalid knob to its baseline, keeping the valid ones",
+      "name": "AI adapter resolve Generation Params reverts a single invalid knob to its baseline, keeping the valid ones",
+      "value": "Protects the aI adapter resolve Generation Params behavior so reverts a single invalid knob to its baseline, keeping the valid ones.",
+      "description": "Protects the aI adapter resolve Generation Params behavior so reverts a single invalid knob to its baseline, keeping the valid ones."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-generation-defaults-test-ts-59-resolvegenerationparams-falls-back-to-the-full-baseline-when-the-provider-throws",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/generation-defaults.test.ts",
+      "sourceLine": 59,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "resolveGenerationParams"
+      ],
+      "title": "falls back to the full baseline when the provider throws",
+      "rawTitle": "falls back to the full baseline when the provider throws",
+      "name": "AI adapter resolve Generation Params falls back to the full baseline when the provider throws",
+      "value": "Protects the aI adapter resolve Generation Params behavior: falls back to the full baseline when the provider throws.",
+      "description": "Protects the aI adapter resolve Generation Params behavior: falls back to the full baseline when the provider throws."
     },
     {
       "id": "packages-adapters-ai-src-tests-index-test-ts-32-generateobject-returns-the-parsed-object-from-ai-sdk",

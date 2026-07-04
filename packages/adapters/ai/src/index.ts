@@ -8,6 +8,10 @@
  * (metric sink, model price, request timeout).
  */
 
+export {
+  type AIGenerationDefaultsProvider,
+  setAIGenerationDefaultsProvider,
+} from "./generation-defaults.js";
 export { setAIRequestMetricSink } from "./logger.js";
 export {
   type AIModelPrice,
@@ -21,11 +25,10 @@ import { AITimeoutError, type ChatMessage, type ChatOptions, type GenerateOption
 import { generateObject as aiGenerateObject, generateText as aiGenerateText } from "ai";
 import type { ZodSchema } from "zod";
 import { getModel } from "./client.js";
+import { resolveGenerationParams } from "./generation-defaults.js";
 import { logRequest } from "./logger.js";
 import { resolveModelCost } from "./model-price.js";
 import { createRequestTimeout, resolveRequestTimeoutMs } from "./timeout.js";
-
-const DEFAULT_MAX_RETRIES = 2;
 
 /**
  * Generate a typed object from AI using a Zod schema.
@@ -42,7 +45,8 @@ export async function generateObject<T>(
   model: string,
   options?: GenerateOptions,
 ): Promise<T> {
-  const maxRetries = options?.maxRetries ?? DEFAULT_MAX_RETRIES;
+  const defaults = await resolveGenerationParams();
+  const maxRetries = options?.maxRetries ?? defaults.maxRetries;
   const budgetMs = await resolveRequestTimeoutMs();
   const timeout = createRequestTimeout(budgetMs);
   const start = Date.now();
@@ -53,9 +57,9 @@ export async function generateObject<T>(
       schema,
       prompt,
       maxRetries,
-      maxTokens: options?.maxTokens ?? 4096,
-      temperature: 0.3,
-      frequencyPenalty: options?.frequencyPenalty ?? 0.5,
+      maxTokens: options?.maxTokens ?? defaults.maxTokens,
+      temperature: defaults.temperature,
+      frequencyPenalty: options?.frequencyPenalty ?? defaults.frequencyPenalty,
       abortSignal: timeout.signal,
     });
 
@@ -105,7 +109,7 @@ export async function generateObject<T>(
  * @returns The generated text
  */
 export async function generateText(prompt: string, model: string, options?: GenerateOptions): Promise<string> {
-  const maxRetries = options?.maxRetries ?? DEFAULT_MAX_RETRIES;
+  const maxRetries = options?.maxRetries ?? (await resolveGenerationParams()).maxRetries;
   const budgetMs = await resolveRequestTimeoutMs();
   const timeout = createRequestTimeout(budgetMs);
   const start = Date.now();
@@ -168,7 +172,7 @@ export async function generateText(prompt: string, model: string, options?: Gene
  * @returns The generated text
  */
 export async function generateChat(messages: ChatMessage[], model: string, options?: ChatOptions): Promise<string> {
-  const maxRetries = options?.maxRetries ?? DEFAULT_MAX_RETRIES;
+  const maxRetries = options?.maxRetries ?? (await resolveGenerationParams()).maxRetries;
   const budgetMs = await resolveRequestTimeoutMs();
   const timeout = createRequestTimeout(budgetMs);
   const start = Date.now();
