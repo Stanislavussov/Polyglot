@@ -3,19 +3,11 @@
  * Pure core logic — no adapter imports. AI function is injected.
  */
 
-import type { ZodSchema } from "zod";
-import type { GenerateOptions } from "../../ports/ai.port.js";
+import type { GenerateObjectFn } from "../../ports/ai.port.js";
 import { buildExtractionPrompt } from "./extraction.prompt.js";
 import { extractionResultSchema } from "./extraction.schema.js";
 import { normalizePhrase } from "./normalize.js";
 import type { ExtractedPhrase, ExtractionResult } from "./types.js";
-
-type GenerateObjectFn = <T>(
-  prompt: string,
-  schema: ZodSchema<T>,
-  model: string,
-  options?: GenerateOptions,
-) => Promise<T>;
 
 /** Rough output-token budget per extracted phrase (phrase + translation + context + metadata). */
 const TOKENS_PER_PHRASE = 160;

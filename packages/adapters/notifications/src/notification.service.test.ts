@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { NotificationServiceDeps, VocabEntry } from "./types.js";
+import type { DictionaryWordPickerDeps, VocabEntry } from "./types.js";
 
 const { mockLogger, mockChild } = vi.hoisted(() => ({
   mockLogger: {
@@ -17,9 +17,12 @@ vi.mock("@polyglot/core", () => ({
     error: mockLogger.error,
     child: mockChild,
   })),
+  // A15 — prompt + schema now live in core; the picker delegates to them.
+  buildContextSentencePrompt: vi.fn((context: string, langs: string[]) => `PROMPT:${context}:${langs.join(",")}`),
+  contextualSentenceSchema: { schema: true },
 }));
 
-import { createNotificationService } from "./notification.service.js";
+import { createContextualWordPicker, createDictionaryWordPicker } from "./notification.service.js";
 
 describe("pickDictionaryWord", () => {
   beforeEach(() => {
@@ -62,7 +65,7 @@ describe("pickDictionaryWord", () => {
     return map[id];
   });
 
-  function buildDeps(overrides: Partial<NotificationServiceDeps> = {}): NotificationServiceDeps {
+  function buildDeps(overrides: Partial<DictionaryWordPickerDeps> = {}): DictionaryWordPickerDeps {
     return {
       getUserVocabulary: vi.fn().mockResolvedValue(mockVocabEntries),
       getLangCode: mockGetLangCode,
@@ -73,7 +76,7 @@ describe("pickDictionaryWord", () => {
   describe("happy path", () => {
     it("returns a random word from candidates", async () => {
       const deps = buildDeps();
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -82,7 +85,7 @@ describe("pickDictionaryWord", () => {
 
     it("includes translations resolved via getLangCode", async () => {
       const deps = buildDeps();
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -91,7 +94,7 @@ describe("pickDictionaryWord", () => {
 
     it("uses entry emoji when available", async () => {
       const deps = buildDeps();
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -109,7 +112,7 @@ describe("pickDictionaryWord", () => {
         },
       ];
       const deps = buildDeps({ getUserVocabulary: vi.fn().mockResolvedValue(singleEntry) });
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -118,7 +121,7 @@ describe("pickDictionaryWord", () => {
 
     it("includes source: 'srs' in the result", async () => {
       const deps = buildDeps();
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -139,7 +142,7 @@ describe("pickDictionaryWord", () => {
         },
       ];
       const deps = buildDeps({ getUserVocabulary: vi.fn().mockResolvedValue(entriesWithSynonyms) });
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -150,7 +153,7 @@ describe("pickDictionaryWord", () => {
 
     it("omits translationDetails when no synonyms exist", async () => {
       const deps = buildDeps();
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -161,7 +164,7 @@ describe("pickDictionaryWord", () => {
   describe("edge cases", () => {
     it("returns null when user has no vocabulary", async () => {
       const deps = buildDeps({ getUserVocabulary: vi.fn().mockResolvedValue([]) });
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -182,24 +185,11 @@ describe("pickDictionaryWord", () => {
         getUserVocabulary: vi.fn().mockResolvedValue(entryWithUnknownLang),
         getLangCode: vi.fn().mockReturnValue(undefined),
       });
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
       expect(result).toBeNull();
-    });
-
-    it("returns null when deps are missing", async () => {
-      const deps = buildDeps({ getUserVocabulary: undefined, getLangCode: undefined });
-      const service = createNotificationService(deps);
-
-      const result = await service.pickDictionaryWord(1);
-
-      expect(result).toBeNull();
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        expect.objectContaining({ userId: 1 }),
-        expect.stringContaining("missing deps"),
-      );
     });
 
     // Task 70 — never suggest entries translated as written for an unrecognized word.
@@ -222,7 +212,7 @@ describe("pickDictionaryWord", () => {
         },
       ];
       const deps = buildDeps({ getUserVocabulary: vi.fn().mockResolvedValue(entries) });
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       // Math.random is stubbed to 0 → index 0 would be the unverified entry if not filtered.
       const result = await service.pickDictionaryWord(1);
@@ -242,7 +232,7 @@ describe("pickDictionaryWord", () => {
         },
       ];
       const deps = buildDeps({ getUserVocabulary: vi.fn().mockResolvedValue(entries) });
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -255,7 +245,7 @@ describe("pickDictionaryWord", () => {
       const deps = buildDeps({
         getUserVocabulary: vi.fn().mockRejectedValue(new Error("DB error")),
       });
-      const service = createNotificationService(deps);
+      const service = createDictionaryWordPicker(deps);
 
       const result = await service.pickDictionaryWord(1);
 
@@ -265,5 +255,56 @@ describe("pickDictionaryWord", () => {
         expect.stringContaining("failed to get user vocabulary"),
       );
     });
+  });
+});
+
+describe("pickContextualWord", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const langs = { nativeLang: "ru", learningLangs: ["en"] };
+
+  it("delegates to the core prompt builder and returns a contextual word", async () => {
+    const generateObject = vi.fn().mockResolvedValue({
+      sentence: "Один кофе, пожалуйста.",
+      translations: { ru: "Один кофе, пожалуйста.", en: "One coffee, please." },
+    });
+    const service = createContextualWordPicker({ generateObject, contextualModel: "openai/gpt-4o" });
+
+    const result = await service.pickContextualWord(1, "ordering coffee", langs);
+
+    expect(generateObject).toHaveBeenCalledWith("PROMPT:ordering coffee:ru,en", expect.anything(), "openai/gpt-4o", {
+      userId: 1,
+    });
+    expect(result).toEqual({
+      original: "Один кофе, пожалуйста.",
+      emoji: "🎯",
+      translations: { ru: "Один кофе, пожалуйста.", en: "One coffee, please." },
+      source: "contextual",
+    });
+  });
+
+  it("returns null (and never calls AI) when no contextual model is configured", async () => {
+    const generateObject = vi.fn();
+    const service = createContextualWordPicker({ generateObject });
+
+    const result = await service.pickContextualWord(1, "ordering coffee", langs);
+
+    expect(result).toBeNull();
+    expect(generateObject).not.toHaveBeenCalled();
+  });
+
+  it("returns null when AI generation fails", async () => {
+    const generateObject = vi.fn().mockRejectedValue(new Error("AI down"));
+    const service = createContextualWordPicker({ generateObject, contextualModel: "openai/gpt-4o" });
+
+    const result = await service.pickContextualWord(1, "ordering coffee", langs);
+
+    expect(result).toBeNull();
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 1 }),
+      expect.stringContaining("AI generation failed"),
+    );
   });
 });

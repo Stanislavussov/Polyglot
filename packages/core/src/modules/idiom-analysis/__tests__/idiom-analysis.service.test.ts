@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
+import type { GenerateObjectFn } from "../../../ports/ai.port.js";
 import { getLanguageName } from "../../i18n/language-registry.js";
 import type { AnalyzeInput } from "../idiom-analysis.service.js";
 import { analyzeIdiom, analyzeIdiomBatch, needsIdiomReview } from "../idiom-analysis.service.js";
-import type { GenerateObjectFn, IdiomAnalysisResult } from "../types.js";
+import type { IdiomAnalysisResult } from "../types.js";
 
 describe("analyzeIdiom", () => {
   const mockInput: AnalyzeInput = {

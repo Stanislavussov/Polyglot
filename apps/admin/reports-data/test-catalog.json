@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T20:25:54.138Z",
+  "generatedAt": "2026-07-04T22:51:12.758Z",
   "summary": {
-    "total": 2039,
+    "total": 2051,
     "business": 0,
-    "technical": 2039,
+    "technical": 2051,
     "workspaces": [
       "apps",
       "packages"
@@ -870,10 +870,10 @@
       "description": "Protects the admin UI reports auth middleware (T09) behavior so fails closed (401) when the admin API is unreachable."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-120-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-121-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 120,
+      "sourceLine": 121,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -886,10 +886,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-136-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-137-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 136,
+      "sourceLine": 137,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -902,10 +902,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-146-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-147-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 146,
+      "sourceLine": 147,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -918,10 +918,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-154-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-155-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 154,
+      "sourceLine": 155,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10575,10 +10575,10 @@
       "description": "Protects the aI adapter generate Chat behavior: logs the request on failure and rethrows the error."
     },
     {
-      "id": "packages-adapters-ai-src-tests-client-test-ts-25-client-getclient-throws-when-openrouter-api-key-is-not-set",
+      "id": "packages-adapters-ai-src-tests-client-test-ts-26-client-getclient-throws-when-openrouter-api-key-is-not-set",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/client.test.ts",
-      "sourceLine": 25,
+      "sourceLine": 26,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10592,10 +10592,10 @@
       "description": "Protects the aI adapter client get Client behavior: throws when OPENROUTER API KEY is not set."
     },
     {
-      "id": "packages-adapters-ai-src-tests-client-test-ts-31-client-getclient-returns-a-client-when-api-key-is-set",
+      "id": "packages-adapters-ai-src-tests-client-test-ts-32-client-getclient-returns-a-client-when-api-key-is-set",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/client.test.ts",
-      "sourceLine": 31,
+      "sourceLine": 32,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10609,10 +10609,10 @@
       "description": "Protects the aI adapter client get Client behavior: returns a client when API key is set."
     },
     {
-      "id": "packages-adapters-ai-src-tests-client-test-ts-38-client-getclient-returns-the-same-client-on-subsequent-calls-singleton",
+      "id": "packages-adapters-ai-src-tests-client-test-ts-39-client-getclient-returns-the-same-client-on-subsequent-calls-singleton",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/client.test.ts",
-      "sourceLine": 38,
+      "sourceLine": 39,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10626,10 +10626,61 @@
       "description": "Protects the aI adapter client get Client behavior: returns the same client on subsequent calls (singleton)."
     },
     {
-      "id": "packages-adapters-ai-src-tests-client-test-ts-47-client-getmodel-returns-a-model-instance-for-a-given-model-id",
+      "id": "packages-adapters-ai-src-tests-client-test-ts-48-client-setaiapikey-composition-root-ownership-a17-uses-the-injected-key-even-when-no-env-var-is-set",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/client.test.ts",
-      "sourceLine": 47,
+      "sourceLine": 48,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "client",
+        "setAIApiKey (composition-root ownership — A17)"
+      ],
+      "title": "uses the injected key even when no env var is set",
+      "rawTitle": "uses the injected key even when no env var is set",
+      "name": "AI adapter client set AIApi Key (composition root ownership — A17) uses the injected key even when no env var is set",
+      "value": "Protects the aI adapter client set AIApi Key (composition root ownership — A17) behavior: uses the injected key even when no env var is set.",
+      "description": "Protects the aI adapter client set AIApi Key (composition root ownership — A17) behavior: uses the injected key even when no env var is set."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-client-test-ts-59-client-setaiapikey-composition-root-ownership-a17-the-injected-key-takes-precedence-over-the-env-var",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/client.test.ts",
+      "sourceLine": 59,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "client",
+        "setAIApiKey (composition-root ownership — A17)"
+      ],
+      "title": "the injected key takes precedence over the env var",
+      "rawTitle": "the injected key takes precedence over the env var",
+      "name": "AI adapter client set AIApi Key (composition root ownership — A17) the injected key takes precedence over the env var",
+      "value": "Protects the aI adapter client set AIApi Key (composition root ownership — A17) behavior so the injected key takes precedence over the env var.",
+      "description": "Protects the aI adapter client set AIApi Key (composition root ownership — A17) behavior so the injected key takes precedence over the env var."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-client-test-ts-69-client-setaiapikey-composition-root-ownership-a17-falls-back-to-the-env-var-when-no-key-is-injected",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/client.test.ts",
+      "sourceLine": 69,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "client",
+        "setAIApiKey (composition-root ownership — A17)"
+      ],
+      "title": "falls back to the env var when no key is injected",
+      "rawTitle": "falls back to the env var when no key is injected",
+      "name": "AI adapter client set AIApi Key (composition root ownership — A17) falls back to the env var when no key is injected",
+      "value": "Protects the aI adapter client set AIApi Key (composition root ownership — A17) behavior: falls back to the env var when no key is injected.",
+      "description": "Protects the aI adapter client set AIApi Key (composition root ownership — A17) behavior: falls back to the env var when no key is injected."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-client-test-ts-80-client-getmodel-returns-a-model-instance-for-a-given-model-id",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/client.test.ts",
+      "sourceLine": 80,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10643,10 +10694,10 @@
       "description": "Protects the aI adapter client get Model behavior: returns a model instance for a given model ID."
     },
     {
-      "id": "packages-adapters-ai-src-tests-client-test-ts-55-client-resetclient-resets-the-singleton-so-next-getclient-creates-a-new-one",
+      "id": "packages-adapters-ai-src-tests-client-test-ts-88-client-resetclient-resets-the-singleton-so-next-getclient-creates-a-new-one",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/client.test.ts",
-      "sourceLine": 55,
+      "sourceLine": 88,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15441,10 +15492,10 @@
       "description": "Protects the notification adapter log Notification Sent behavior: logs both 'suggested' and 'srs' types correctly."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-74-pickdictionaryword-happy-path-returns-a-random-word-from-candidates",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-77-pickdictionaryword-happy-path-returns-a-random-word-from-candidates",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 77,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15458,10 +15509,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: returns a random word from candidates."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-83-pickdictionaryword-happy-path-includes-translations-resolved-via-getlangcode",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-86-pickdictionaryword-happy-path-includes-translations-resolved-via-getlangcode",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 83,
+      "sourceLine": 86,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15475,10 +15526,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: includes translations resolved via get Lang Code."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-92-pickdictionaryword-happy-path-uses-entry-emoji-when-available",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-95-pickdictionaryword-happy-path-uses-entry-emoji-when-available",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 92,
+      "sourceLine": 95,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15492,10 +15543,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: uses entry emoji when available."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-101-pickdictionaryword-happy-path-falls-back-to-book-emoji-when-entry-has-no-emoji",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-104-pickdictionaryword-happy-path-falls-back-to-book-emoji-when-entry-has-no-emoji",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 101,
+      "sourceLine": 104,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15509,10 +15560,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: falls back to book emoji when entry has no emoji."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-119-pickdictionaryword-happy-path-includes-source-srs-in-the-result",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-122-pickdictionaryword-happy-path-includes-source-srs-in-the-result",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 119,
+      "sourceLine": 122,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15526,10 +15577,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: includes source: 'srs' in the result."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-128-pickdictionaryword-happy-path-includes-translationdetails-when-synonyms-are-present",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-131-pickdictionaryword-happy-path-includes-translationdetails-when-synonyms-are-present",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 128,
+      "sourceLine": 131,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15543,10 +15594,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: includes translation Details when synonyms are present."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-151-pickdictionaryword-happy-path-omits-translationdetails-when-no-synonyms-exist",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-154-pickdictionaryword-happy-path-omits-translationdetails-when-no-synonyms-exist",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 151,
+      "sourceLine": 154,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15560,10 +15611,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: omits translation Details when no synonyms exist."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-162-pickdictionaryword-edge-cases-returns-null-when-user-has-no-vocabulary",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-165-pickdictionaryword-edge-cases-returns-null-when-user-has-no-vocabulary",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 162,
+      "sourceLine": 165,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15577,10 +15628,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when user has no vocabulary."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-171-pickdictionaryword-edge-cases-returns-null-when-entry-has-no-resolvable-translations",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-174-pickdictionaryword-edge-cases-returns-null-when-entry-has-no-resolvable-translations",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 171,
+      "sourceLine": 174,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15594,27 +15645,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when entry has no resolvable translations."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-192-pickdictionaryword-edge-cases-returns-null-when-deps-are-missing",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-196-pickdictionaryword-edge-cases-never-selects-an-unverified-entry",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 192,
-      "workspace": "packages",
-      "packageName": "adapters/notifications",
-      "suitePath": [
-        "pickDictionaryWord",
-        "edge cases"
-      ],
-      "title": "returns null when deps are missing",
-      "rawTitle": "returns null when deps are missing",
-      "name": "Notification adapter pick Dictionary Word edge cases returns null when deps are missing",
-      "value": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when deps are missing.",
-      "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when deps are missing."
-    },
-    {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-206-pickdictionaryword-edge-cases-never-selects-an-unverified-entry",
-      "kind": "technical",
-      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 206,
+      "sourceLine": 196,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15628,10 +15662,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior so never selects an unverified entry."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-233-pickdictionaryword-edge-cases-returns-null-when-every-entry-is-unverified",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-223-pickdictionaryword-edge-cases-returns-null-when-every-entry-is-unverified",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 233,
+      "sourceLine": 223,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15645,10 +15679,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when every entry is unverified."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-254-pickdictionaryword-error-handling-returns-null-when-getuservocabulary-throws",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-244-pickdictionaryword-error-handling-returns-null-when-getuservocabulary-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 254,
+      "sourceLine": 244,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15660,6 +15694,54 @@
       "name": "Notification adapter pick Dictionary Word error handling returns null when get User Vocabulary throws",
       "value": "Protects the notification adapter pick Dictionary Word error handling behavior: returns null when get User Vocabulary throws.",
       "description": "Protects the notification adapter pick Dictionary Word error handling behavior: returns null when get User Vocabulary throws."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-268-pickcontextualword-delegates-to-the-core-prompt-builder-and-returns-a-contextual-word",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 268,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickContextualWord"
+      ],
+      "title": "delegates to the core prompt builder and returns a contextual word",
+      "rawTitle": "delegates to the core prompt builder and returns a contextual word",
+      "name": "Notification adapter pick Contextual Word delegates to the core prompt builder and returns a contextual word",
+      "value": "Protects the notification adapter pick Contextual Word behavior so delegates to the core prompt builder and returns a contextual word.",
+      "description": "Protects the notification adapter pick Contextual Word behavior so delegates to the core prompt builder and returns a contextual word."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-288-pickcontextualword-returns-null-and-never-calls-ai-when-no-contextual-model-is-configured",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 288,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickContextualWord"
+      ],
+      "title": "returns null (and never calls AI) when no contextual model is configured",
+      "rawTitle": "returns null (and never calls AI) when no contextual model is configured",
+      "name": "Notification adapter pick Contextual Word returns null (and never calls AI) when no contextual model is configured",
+      "value": "Protects the notification adapter pick Contextual Word behavior: returns null (and never calls AI) when no contextual model is configured.",
+      "description": "Protects the notification adapter pick Contextual Word behavior: returns null (and never calls AI) when no contextual model is configured."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-298-pickcontextualword-returns-null-when-ai-generation-fails",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 298,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickContextualWord"
+      ],
+      "title": "returns null when AI generation fails",
+      "rawTitle": "returns null when AI generation fails",
+      "name": "Notification adapter pick Contextual Word returns null when AI generation fails",
+      "value": "Protects the notification adapter pick Contextual Word behavior: returns null when AI generation fails.",
+      "description": "Protects the notification adapter pick Contextual Word behavior: returns null when AI generation fails."
     },
     {
       "id": "packages-adapters-notifications-src-scheduler-test-ts-116-buildnotificationpayload-builds-a-payload-with-user-s-preferred-time",
@@ -15920,10 +16002,44 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior so passes words sent in the last 24h to the dictionary picker for de dup."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-331-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-318-checkandsend-word-picking-strategy-routes-a-contextual-user-to-the-contextual-picker",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 331,
+      "sourceLine": 318,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "checkAndSend",
+        "word picking strategy"
+      ],
+      "title": "routes a contextual user to the contextual picker",
+      "rawTitle": "routes a contextual user to the contextual picker",
+      "name": "Notification adapter check And Send word picking strategy routes a contextual user to the contextual picker",
+      "value": "Protects the notification adapter check And Send word picking strategy behavior: routes a contextual user to the contextual picker.",
+      "description": "Protects the notification adapter check And Send word picking strategy behavior: routes a contextual user to the contextual picker."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-339-checkandsend-word-picking-strategy-falls-back-to-the-dictionary-picker-for-a-contextual-user-with-no-context",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 339,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "checkAndSend",
+        "word picking strategy"
+      ],
+      "title": "falls back to the dictionary picker for a contextual user with no context",
+      "rawTitle": "falls back to the dictionary picker for a contextual user with no context",
+      "name": "Notification adapter check And Send word picking strategy falls back to the dictionary picker for a contextual user with no context",
+      "value": "Protects the notification adapter check And Send word picking strategy behavior: falls back to the dictionary picker for a contextual user with no context.",
+      "description": "Protects the notification adapter check And Send word picking strategy behavior: falls back to the dictionary picker for a contextual user with no context."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-369-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 369,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15936,10 +16052,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: sends re engagement message and disables notifications."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-347-processinactiveusers-processes-multiple-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-385-processinactiveusers-processes-multiple-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 347,
+      "sourceLine": 385,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15952,10 +16068,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: processes multiple inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-366-processinactiveusers-returns-zero-when-no-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-404-processinactiveusers-returns-zero-when-no-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 366,
+      "sourceLine": 404,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15968,10 +16084,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns zero when no inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-374-processinactiveusers-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-412-processinactiveusers-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 374,
+      "sourceLine": 412,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15984,10 +16100,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-387-processinactiveusers-returns-error-when-getinactiveusers-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-425-processinactiveusers-returns-error-when-getinactiveusers-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 387,
+      "sourceLine": 425,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16000,10 +16116,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns error when get Inactive Users throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-398-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-436-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 398,
+      "sourceLine": 436,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16016,10 +16132,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: uses user interface language for re engagement message."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-431-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-469-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 431,
+      "sourceLine": 469,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16032,10 +16148,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so registers a cron job with hourly schedule."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-441-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-479-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 441,
+      "sourceLine": 479,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16048,10 +16164,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior: does not register duplicate cron jobs."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-454-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-492-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 454,
+      "sourceLine": 492,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16064,10 +16180,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler stops the cron task."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-466-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-504-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 466,
+      "sourceLine": 504,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20279,10 +20395,10 @@
       "description": "Protects the core domain idiom Analysis Result Schema behavior: rejects invalid expression type in result."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-31-analyzeidiom-calls-generateobjectfn-with-correct-prompt-and-schema",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-32-analyzeidiom-calls-generateobjectfn-with-correct-prompt-and-schema",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 31,
+      "sourceLine": 32,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -20295,10 +20411,10 @@
       "description": "Protects the core domain analyze Idiom behavior: calls generate Object Fn with correct prompt and schema."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-44-analyzeidiom-returns-ai-response-as-result",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-45-analyzeidiom-returns-ai-response-as-result",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 44,
+      "sourceLine": 45,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -20311,10 +20427,10 @@
       "description": "Protects the core domain analyze Idiom behavior: returns AI response as result."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-52-analyzeidiom-passes-correct-input-to-prompt-builder",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-53-analyzeidiom-passes-correct-input-to-prompt-builder",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 52,
+      "sourceLine": 53,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -20327,10 +20443,10 @@
       "description": "Protects the core domain analyze Idiom behavior so passes correct input to prompt builder."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-64-analyzeidiom-propagates-errors-from-generateobjectfn",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-65-analyzeidiom-propagates-errors-from-generateobjectfn",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 64,
+      "sourceLine": 65,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -20343,10 +20459,10 @@
       "description": "Protects the core domain analyze Idiom behavior so propagates errors from generate Object Fn."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-92-analyzeidiombatch-processes-multiple-inputs-sequentially",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-93-analyzeidiombatch-processes-multiple-inputs-sequentially",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 92,
+      "sourceLine": 93,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -20359,10 +20475,10 @@
       "description": "Protects the core domain analyze Idiom Batch behavior: processes multiple inputs sequentially."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-127-analyzeidiombatch-returns-empty-array-for-empty-input",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-128-analyzeidiombatch-returns-empty-array-for-empty-input",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 127,
+      "sourceLine": 128,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -20375,10 +20491,10 @@
       "description": "Protects the core domain analyze Idiom Batch behavior: returns empty array for empty input."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-136-analyzeidiombatch-propagates-first-error-in-batch",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-137-analyzeidiombatch-propagates-first-error-in-batch",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 136,
+      "sourceLine": 137,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -20391,10 +20507,10 @@
       "description": "Protects the core domain analyze Idiom Batch behavior so propagates first error in batch."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-155-needsidiomreview-returns-true-for-literal-but-unnatural-classification",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-156-needsidiomreview-returns-true-for-literal-but-unnatural-classification",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 155,
+      "sourceLine": 156,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -20407,10 +20523,10 @@
       "description": "Protects the core domain needs Idiom Review behavior: returns true for LITERAL BUT UNNATURAL classification."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-172-needsidiomreview-returns-true-for-incorrect-meaning-classification",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-173-needsidiomreview-returns-true-for-incorrect-meaning-classification",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 172,
+      "sourceLine": 173,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -20423,10 +20539,10 @@
       "description": "Protects the core domain needs Idiom Review behavior: returns true for INCORRECT MEANING classification."
     },
     {
-      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-189-needsidiomreview-returns-false-for-correct-idiomatic-translation-classification",
+      "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-service-test-ts-190-needsidiomreview-returns-false-for-correct-idiomatic-translation-classification",
       "kind": "technical",
       "filePath": "packages/core/src/modules/idiom-analysis/__tests__/idiom-analysis.service.test.ts",
-      "sourceLine": 189,
+      "sourceLine": 190,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23943,10 +24059,42 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: handles empty learning languages gracefully."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-45-max-mentor-history-is-a-positive-even-number-full-user-assistant-turns",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-43-buildmentorsystemprompt-stays-channel-neutral-by-default-no-hardcoded-frontend-name",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 45,
+      "sourceLine": 43,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildMentorSystemPrompt"
+      ],
+      "title": "stays channel-neutral by default (no hardcoded frontend name)",
+      "rawTitle": "stays channel-neutral by default (no hardcoded frontend name)",
+      "name": "Core domain build Mentor System Prompt stays channel neutral by default (no hardcoded frontend name)",
+      "value": "Protects the core domain build Mentor System Prompt behavior so stays channel neutral by default (no hardcoded frontend name).",
+      "description": "Protects the core domain build Mentor System Prompt behavior so stays channel neutral by default (no hardcoded frontend name)."
+    },
+    {
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-48-buildmentorsystemprompt-uses-the-provided-channelhint-in-the-prompt",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
+      "sourceLine": 48,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildMentorSystemPrompt"
+      ],
+      "title": "uses the provided channelHint in the prompt",
+      "rawTitle": "uses the provided channelHint in the prompt",
+      "name": "Core domain build Mentor System Prompt uses the provided channel Hint in the prompt",
+      "value": "Protects the core domain build Mentor System Prompt behavior: uses the provided channel Hint in the prompt.",
+      "description": "Protects the core domain build Mentor System Prompt behavior: uses the provided channel Hint in the prompt."
+    },
+    {
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-55-max-mentor-history-is-a-positive-even-number-full-user-assistant-turns",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
+      "sourceLine": 55,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -23957,6 +24105,54 @@
       "name": "Core domain MAX MENTOR HISTORY is a positive even number (full user+assistant turns)",
       "value": "Protects the core domain MAX MENTOR HISTORY behavior so is a positive even number (full user+assistant turns).",
       "description": "Protects the core domain MAX MENTOR HISTORY behavior so is a positive even number (full user+assistant turns)."
+    },
+    {
+      "id": "packages-core-src-modules-notifications-context-sentence-test-ts-6-buildcontextsentenceprompt-references-human-readable-language-names-not-raw-codes-when-the-registry-is-populated",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/notifications/context-sentence.test.ts",
+      "sourceLine": 6,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildContextSentencePrompt"
+      ],
+      "title": "references human-readable language names, not raw codes, when the registry is populated",
+      "rawTitle": "references human-readable language names, not raw codes, when the registry is populated",
+      "name": "Core domain build Context Sentence Prompt references human readable language names, not raw codes, when the registry is populated",
+      "value": "Protects the core domain build Context Sentence Prompt behavior so references human readable language names, not raw codes, when the registry is populated.",
+      "description": "Protects the core domain build Context Sentence Prompt behavior so references human readable language names, not raw codes, when the registry is populated."
+    },
+    {
+      "id": "packages-core-src-modules-notifications-context-sentence-test-ts-21-buildcontextsentenceprompt-keeps-the-requested-json-keyed-by-iso-code",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/notifications/context-sentence.test.ts",
+      "sourceLine": 21,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildContextSentencePrompt"
+      ],
+      "title": "keeps the requested JSON keyed by ISO code",
+      "rawTitle": "keeps the requested JSON keyed by ISO code",
+      "name": "Core domain build Context Sentence Prompt keeps the requested JSON keyed by ISO code",
+      "value": "Protects the core domain build Context Sentence Prompt behavior: keeps the requested JSON keyed by ISO code.",
+      "description": "Protects the core domain build Context Sentence Prompt behavior: keeps the requested JSON keyed by ISO code."
+    },
+    {
+      "id": "packages-core-src-modules-notifications-context-sentence-test-ts-30-buildcontextsentenceprompt-includes-the-user-s-context-verbatim",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/notifications/context-sentence.test.ts",
+      "sourceLine": 30,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildContextSentencePrompt"
+      ],
+      "title": "includes the user's context verbatim",
+      "rawTitle": "includes the user's context verbatim",
+      "name": "Core domain build Context Sentence Prompt includes the user's context verbatim",
+      "value": "Protects the core domain build Context Sentence Prompt behavior: includes the user's context verbatim.",
+      "description": "Protects the core domain build Context Sentence Prompt behavior: includes the user's context verbatim."
     },
     {
       "id": "packages-core-src-modules-rate-limit-rate-limit-test-ts-9-rate-limit-policy-blocks-finite-plans-when-requested-credits-exceed-remaining-credits",

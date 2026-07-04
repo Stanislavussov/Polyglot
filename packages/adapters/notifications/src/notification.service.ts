@@ -1,24 +1,27 @@
-import { getLogger } from "@polyglot/core";
-import { z } from "zod";
-import type { NotificationServiceDeps, SuggestedWord } from "./types.js";
+import {
+  buildContextSentencePrompt,
+  type ContextualSentence,
+  contextualSentenceSchema,
+  getLogger,
+} from "@polyglot/core";
+import type {
+  ContextualWordPickerDeps,
+  DictionaryWordPickerDeps,
+  NotificationServiceDeps,
+  SuggestedWord,
+} from "./types.js";
 
-const contextualSentenceSchema = z.object({
-  sentence: z.string().describe("A natural sentence in the target language"),
-  translations: z
-    .record(z.string(), z.string())
-    .describe("Translations of the sentence into other languages, keyed by language code"),
-});
-
-export function createNotificationService(deps: NotificationServiceDeps) {
+/**
+ * Dictionary word picker — selects a word from the user's saved vocabulary.
+ *
+ * All required lookups are non-optional deps (Fable T29/A16), so a half-wired
+ * service is a compile error rather than a silent no-op.
+ */
+export function createDictionaryWordPicker(deps: DictionaryWordPickerDeps) {
   const logger = getLogger();
 
   async function pickDictionaryWord(userId: number, recentWords: string[] = []): Promise<SuggestedWord | null> {
-    if (!deps.getUserVocabulary || !deps.getLangCode) {
-      logger.warn({ userId }, "pickDictionaryWord: missing deps (getUserVocabulary/getLangCode)");
-      return null;
-    }
-
-    let entries: Awaited<ReturnType<NonNullable<typeof deps.getUserVocabulary>>>;
+    let entries: Awaited<ReturnType<DictionaryWordPickerDeps["getUserVocabulary"]>>;
     try {
       entries = await deps.getUserVocabulary(userId);
     } catch (err) {
@@ -93,57 +96,39 @@ export function createNotificationService(deps: NotificationServiceDeps) {
     };
   }
 
+  return { pickDictionaryWord };
+}
+
+/**
+ * Contextual word picker — generates a natural sentence relevant to the user's
+ * chosen context via AI. `generateObject` is a required dep (Fable T29/A16); the
+ * prompt + schema are owned by core (Fable T29/A15).
+ */
+export function createContextualWordPicker(deps: ContextualWordPickerDeps) {
+  const logger = getLogger();
+
   async function pickContextualWord(
     userId: number,
     context: string,
     langs: { nativeLang: string; learningLangs: string[] },
     _recentWords: string[] = [],
   ): Promise<SuggestedWord | null> {
-    if (!deps.generateObject) {
-      logger.warn({ userId }, "pickContextualWord: missing generateObject dep");
-      return null;
-    }
-
     const allLangs = [langs.nativeLang, ...langs.learningLangs].filter(Boolean);
     if (allLangs.length === 0) {
       logger.warn({ userId }, "pickContextualWord: no languages configured");
       return null;
     }
 
-    const langList = allLangs.join(", ");
-    const primaryLang = allLangs[0]!;
+    const model = deps.contextualModel;
+    if (!model) {
+      logger.warn({ userId }, "pickContextualWord: no contextualModel configured");
+      return null;
+    }
 
-    const prompt = `You are a language learning assistant. Generate a useful, natural sentence relevant to this context: "${context}"
-
-Requirements:
-- The sentence should be 8-15 words
-- It should be practical and useful for everyday communication
-- Write the sentence in ${primaryLang}
-- Then translate it into these languages: ${langList}
-
-Return ONLY valid JSON with this structure:
-{
-  "sentence": "the sentence in ${primaryLang}",
-  "translations": {
-    "${primaryLang}": "the sentence in ${primaryLang}",
-    "lang_code": "translation"
-  }
-}
-
-Do NOT include any text outside the JSON.`;
+    const prompt = buildContextSentencePrompt(context, allLangs);
 
     try {
-      const model = deps.contextualModel;
-      if (!model) {
-        logger.warn({ userId }, "pickContextualWord: no contextualModel configured");
-        return null;
-      }
-      const result = await deps.generateObject<z.infer<typeof contextualSentenceSchema>>(
-        prompt,
-        contextualSentenceSchema,
-        model,
-        { userId },
-      );
+      const result = await deps.generateObject<ContextualSentence>(prompt, contextualSentenceSchema, model, { userId });
 
       const translations = result.translations;
       const sentence = result.sentence;
@@ -165,5 +150,16 @@ Do NOT include any text outside the JSON.`;
     }
   }
 
-  return { pickDictionaryWord, pickContextualWord };
+  return { pickContextualWord };
+}
+
+/**
+ * Composes the dictionary and contextual pickers into the full notification
+ * service. Requires both dep sets, so the composition root cannot forget one.
+ */
+export function createNotificationService(deps: NotificationServiceDeps) {
+  return {
+    ...createDictionaryWordPicker(deps),
+    ...createContextualWordPicker(deps),
+  };
 }

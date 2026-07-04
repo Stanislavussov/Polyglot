@@ -313,6 +313,44 @@ describe("checkAndSend", () => {
       expect(deps.getSentWordsSince).toHaveBeenCalledWith(1, expect.any(Date));
       expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, ["house", "car"]);
     });
+
+    // A19 — the type→picker registry routes each notification type without a switch.
+    it("routes a contextual user to the contextual picker", async () => {
+      const contextualUser: NotificationUser = {
+        ...mockUser,
+        notificationType: "contextual",
+        notificationContext: "travel",
+      };
+      const deps = buildSchedulerDeps({
+        getUsersForWindow: vi.fn().mockResolvedValue([contextualUser]),
+      });
+
+      await checkAndSend(mockSendFn, deps);
+
+      expect(deps.pickContextualWord).toHaveBeenCalledWith(
+        1,
+        "travel",
+        { nativeLang: "en", learningLangs: ["cs", "de"] },
+        [],
+      );
+      expect(deps.pickDictionaryWord).not.toHaveBeenCalled();
+    });
+
+    it("falls back to the dictionary picker for a contextual user with no context", async () => {
+      const contextualUser: NotificationUser = {
+        ...mockUser,
+        notificationType: "contextual",
+        notificationContext: null,
+      };
+      const deps = buildSchedulerDeps({
+        getUsersForWindow: vi.fn().mockResolvedValue([contextualUser]),
+      });
+
+      await checkAndSend(mockSendFn, deps);
+
+      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
+      expect(deps.pickContextualWord).not.toHaveBeenCalled();
+    });
   });
 });
 

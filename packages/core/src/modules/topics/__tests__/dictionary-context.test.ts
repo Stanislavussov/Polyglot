@@ -12,7 +12,7 @@
  * - DictionaryContext type shape is unchanged
  */
 import { describe, expect, it, vi } from "vitest";
-import { MINIMAL_OUTPUT } from "../../translation/translation-output.presets.js";
+import { MINIMAL_OUTPUT } from "../../../shared/translation-output.presets.js";
 import type { DictionaryContext, TranslateOutput } from "../../translation/types.js";
 import { createTopicService, getDataset } from "../topic.service.js";
 import type { CachedTranslation, LanguageTranslationEntry, TopicDeps } from "../types.js";

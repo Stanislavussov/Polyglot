@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { SENTENCE_OUTPUT } from "../../../shared/translation-output.presets.js";
 import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
-import { SENTENCE_OUTPUT } from "../translation-output.presets.js";
 import type { TranslationRequest } from "../types.js";
 
 describe("buildTranslationPrompt", () => {

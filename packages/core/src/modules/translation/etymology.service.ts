@@ -9,8 +9,8 @@
  */
 
 import { z } from "zod";
+import type { GenerateObjectFn } from "../../ports/ai.port.js";
 import { getLanguageName } from "../i18n/language-registry.js";
-import type { GenerateObjectFn } from "./translation.service.js";
 
 export interface EtymologyInput {
   /** Original term that was translated (source-language headword) */

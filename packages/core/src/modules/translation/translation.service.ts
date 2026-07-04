@@ -14,6 +14,7 @@
  */
 
 import { getLogger } from "../../logger.js";
+import type { GenerateObjectFn } from "../../ports/ai.port.js";
 import { isSupported, t } from "../i18n/i18n.js";
 import { getLanguageName } from "../i18n/language-registry.js";
 import type { SupportedLang } from "../i18n/types.js";
@@ -62,17 +63,6 @@ const COMMON_TRANSLATION_LANGS = new Set(["en", "cs", "ru", "de", "es", "fr", "i
 const RISKY_CONTEXT_PATTERN =
   /\b(idiom|slang|sarcasm|sarcastic|irony|ironic|profane|profanity|swear|swearing|offensive|vulgar|wordplay|pun|joke)\b/i;
 const HIGH_RISK_POS = new Set(["idiom", "phrase", "proverb", "interjection"]);
-
-/**
- * AI generation function signature — injected to avoid direct dependency
- * on the AI adapter package from core.
- */
-export type GenerateObjectFn = <T>(
-  prompt: string,
-  schema: import("zod").ZodSchema<T>,
-  model: string,
-  options?: { userId?: number; frequencyPenalty?: number },
-) => Promise<T>;
 
 /**
  * Translate a single word or phrase into multiple target languages.

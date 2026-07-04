@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Logger } from "../../../logger.js";
 import { setLogger } from "../../../logger.js";
+import { MINIMAL_OUTPUT, SENTENCE_OUTPUT } from "../../../shared/translation-output.presets.js";
 import { parseResponse, sanitizeEmoji, translate, translateBatch, translateOne } from "../translation.service.js";
-import { MINIMAL_OUTPUT, SENTENCE_OUTPUT } from "../translation-output.presets.js";
 import type { TranslateInput, TranslateOutput, TranslationDecision, TranslationResult } from "../types.js";
 
 function unwrap(d: TranslationDecision): TranslateOutput {

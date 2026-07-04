@@ -13,7 +13,7 @@
  * Core never calls the DB directly — lookup is injected.
  */
 
-import type { GenerateObjectFn } from "../translation/translation.service.js";
+import type { GenerateObjectFn } from "../../ports/ai.port.js";
 import type { DictionaryContext, TranslateInput } from "../translation/types.js";
 
 export type DictionaryContextMatchType = "exact_expression" | "known_form" | "lemma";
@@ -35,7 +35,7 @@ export type ContextLookupFn = (word: string, langCode: string) => Promise<Dictio
 
 /**
  * Dependencies injected into the context enrichment service.
- * Follows the same DI pattern as GenerateObjectFn in the translation service.
+ * Follows the same DI pattern as GenerateObjectFn from the AI port.
  */
 export interface ContextEnrichmentDeps {
   /** Function to look up dictionary context for a word */

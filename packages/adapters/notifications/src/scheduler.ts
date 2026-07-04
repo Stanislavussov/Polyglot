@@ -14,6 +14,7 @@ import cron from "node-cron";
 import { logNotificationSent } from "./log.js";
 import type {
   NotificationPayload,
+  NotificationType,
   NotificationUser,
   ReEngagementSendFn,
   SchedulerDeps,
@@ -80,23 +81,38 @@ async function sendWithRetry(
   }
 }
 
+/** Picks the suggested word for a user of a given notification type. */
+type WordPicker = (user: NotificationUser, deps: SchedulerDeps, recentWords: string[]) => Promise<SuggestedWord | null>;
+
+const pickFromDictionary: WordPicker = (user, deps, recentWords) => deps.pickDictionaryWord(user.userId, recentWords);
+
+/**
+ * Registry mapping each notification type to its word picker. Adding a new
+ * notification type is a matter of registering an entry here — the `Record`
+ * over the closed {@link NotificationType} union makes TypeScript flag a missing
+ * picker at compile time, so no `switch` needs editing (Fable T29/A19).
+ */
+const WORD_PICKERS: Record<NotificationType, WordPicker> = {
+  srs: pickFromDictionary,
+  suggested: pickFromDictionary,
+  contextual: (user, deps, recentWords) =>
+    user.notificationContext
+      ? deps.pickContextualWord(
+          user.userId,
+          user.notificationContext,
+          { nativeLang: user.nativeLang, learningLangs: user.learningLangs },
+          recentWords,
+        )
+      : deps.pickDictionaryWord(user.userId, recentWords),
+};
+
 async function pickWordForUser(
   user: NotificationUser,
   deps: SchedulerDeps,
   recentWords: string[],
 ): Promise<SuggestedWord | null> {
-  if (user.notificationType === "contextual" && user.notificationContext) {
-    return deps.pickContextualWord(
-      user.userId,
-      user.notificationContext,
-      {
-        nativeLang: user.nativeLang,
-        learningLangs: user.learningLangs,
-      },
-      recentWords,
-    );
-  }
-  return deps.pickDictionaryWord(user.userId, recentWords);
+  const picker = WORD_PICKERS[user.notificationType] ?? pickFromDictionary;
+  return picker(user, deps, recentWords);
 }
 
 /**

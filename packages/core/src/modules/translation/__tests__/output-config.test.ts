@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
-import { buildLanguageTranslationSchema, buildTranslationResultSchema } from "../schemas/translation.schema.js";
-import { translate } from "../translation.service.js";
 import {
   FULL_OUTPUT,
   MINIMAL_OUTPUT,
   NOTIFICATION_OUTPUT,
   RELIABLE_OUTPUT,
   SENTENCE_OUTPUT,
-} from "../translation-output.presets.js";
+} from "../../../shared/translation-output.presets.js";
+import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
+import { buildLanguageTranslationSchema, buildTranslationResultSchema } from "../schemas/translation.schema.js";
+import { translate } from "../translation.service.js";
 import type {
   TranslateInput,
   TranslateOutput,

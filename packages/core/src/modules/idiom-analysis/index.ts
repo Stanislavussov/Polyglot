@@ -17,7 +17,6 @@ export {
 } from "./schemas/idiom-analysis.schema.js";
 // Types
 export type {
-  GenerateObjectFn,
   IdiomAnalysisInput,
   IdiomAnalysisResult,
   IdiomClassification,

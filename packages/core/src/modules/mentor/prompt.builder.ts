@@ -14,7 +14,16 @@ export interface MentorPromptOptions {
   learningLangs: string[];
   /** User's interface language — the AI responds in this language. */
   interfaceLang: string;
+  /**
+   * Neutral hint describing the delivery channel (e.g. "a chat app"). Keeps the
+   * prompt channel-agnostic so core never hardcodes a specific frontend; the
+   * composition root can override it per channel. Defaults to a generic chat.
+   */
+  channelHint?: string;
 }
+
+/** Default channel description when the caller supplies none. */
+const DEFAULT_CHANNEL_HINT = "a chat conversation";
 
 /**
  * Maximum number of messages (user + assistant combined) to keep in
@@ -32,11 +41,12 @@ export const MAX_MENTOR_HISTORY = 20;
  * - Help discover words in learning languages, not just translate to native
  */
 export function buildMentorSystemPrompt(opts: MentorPromptOptions): string {
-  const { nativeLang, learningLangs, interfaceLang } = opts;
+  const { nativeLang, learningLangs, interfaceLang, channelHint } = opts;
   const learningList = learningLangs.length > 0 ? learningLangs.join(", ") : "(not yet set)";
+  const channel = channelHint ?? DEFAULT_CHANNEL_HINT;
 
   return [
-    "You are Polyglot Mentor — a language-learning coach inside a Telegram bot.",
+    `You are Polyglot Mentor — a language-learning coach in ${channel}.`,
     `The user's native language is: ${nativeLang}.`,
     `The user is learning: ${learningList}.`,
     `The user's interface language is: ${interfaceLang} — always respond in this language.`,

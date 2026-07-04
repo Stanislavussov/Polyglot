@@ -9,6 +9,7 @@ import {
   generateChat,
   generateObject,
   generateText,
+  setAIApiKey,
   setAIGenerationDefaultsProvider,
   setAIModelPriceProvider,
   setAIRequestMetricSink,
@@ -47,6 +48,11 @@ import { type ServiceContainer, SettingsService } from "@polyglot/core";
  * The resulting container is injected into the bot context.
  */
 export function createContainer(): ServiceContainer {
+  // The composition root owns the AI client's API key (Fable T29/A17): the
+  // adapter no longer reaches for the key on its own initiative. It still falls
+  // back to the OPENROUTER_API_KEY env var when nothing is injected.
+  setAIApiKey(process.env.OPENROUTER_API_KEY ?? null);
+
   setAIRequestMetricSink((log) =>
     aiRequestLatencyRepository.record({
       modelId: log.model,

@@ -7,7 +7,7 @@
  * or equivalent notes — to save tokens during bulk translation.
  */
 import { describe, expect, it, vi } from "vitest";
-import { MINIMAL_OUTPUT } from "../../translation/translation-output.presets.js";
+import { MINIMAL_OUTPUT } from "../../../shared/translation-output.presets.js";
 import type { TranslateOutput } from "../../translation/types.js";
 import { createTopicService, getDataset } from "../topic.service.js";
 import type { LanguageTranslationEntry, TopicDeps } from "../types.js";

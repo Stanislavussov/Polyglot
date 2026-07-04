@@ -18,4 +18,4 @@ export {
   normalizeToIso1,
 } from "./language-registry.js";
 // Types
-export type { I18nKey, I18nParams, Locale, LocaleMessages, SupportedLang } from "./types.js";
+export type { I18nKey, Locale, LocaleMessages, SupportedLang } from "./types.js";

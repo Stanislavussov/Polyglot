@@ -1,5 +1,6 @@
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getClient, getModel, resetClient } from "../client.js";
+import { getClient, getModel, resetClient, setAIApiKey } from "../client.js";
 
 // Mock the OpenRouter provider
 vi.mock("@openrouter/ai-sdk-provider", () => {
@@ -40,6 +41,38 @@ describe("client", () => {
       const a = getClient();
       const b = getClient();
       expect(a).toBe(b);
+    });
+  });
+
+  describe("setAIApiKey (composition-root ownership — A17)", () => {
+    it("uses the injected key even when no env var is set", () => {
+      vi.stubEnv("OPENROUTER_API_KEY", "");
+      delete process.env.OPENROUTER_API_KEY;
+
+      setAIApiKey("injected-key");
+      const client = getClient();
+
+      expect(client).toBeDefined();
+      expect(createOpenRouter).toHaveBeenCalledWith({ apiKey: "injected-key" });
+    });
+
+    it("the injected key takes precedence over the env var", () => {
+      vi.stubEnv("OPENROUTER_API_KEY", "env-key");
+      vi.mocked(createOpenRouter).mockClear();
+
+      setAIApiKey("injected-key");
+      getClient();
+
+      expect(createOpenRouter).toHaveBeenCalledWith({ apiKey: "injected-key" });
+    });
+
+    it("falls back to the env var when no key is injected", () => {
+      vi.stubEnv("OPENROUTER_API_KEY", "env-key");
+      vi.mocked(createOpenRouter).mockClear();
+
+      getClient();
+
+      expect(createOpenRouter).toHaveBeenCalledWith({ apiKey: "env-key" });
     });
   });
 
