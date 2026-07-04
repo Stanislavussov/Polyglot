@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T18:19:20.257Z",
+  "generatedAt": "2026-07-04T18:26:17.843Z",
   "summary": {
-    "total": 2000,
+    "total": 2004,
     "business": 0,
-    "technical": 2000,
+    "technical": 2004,
     "workspaces": [
       "apps",
       "packages"
@@ -102,6 +102,70 @@
       "description": "Protects the admin API install Error Handler behavior so passes through a safe 4xx status and message."
     },
     {
+      "id": "apps-admin-api-src-plugins-auth-test-ts-45-authplugin-runtime-revocation-t06-lets-an-active-admin-through",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plugins/auth.test.ts",
+      "sourceLine": 45,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "authPlugin runtime revocation (T06)"
+      ],
+      "title": "lets an active admin through",
+      "rawTitle": "lets an active admin through",
+      "name": "Admin API auth Plugin runtime revocation (T06) lets an active admin through",
+      "value": "Protects the admin API auth Plugin runtime revocation (T06) behavior so lets an active admin through.",
+      "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior so lets an active admin through."
+    },
+    {
+      "id": "apps-admin-api-src-plugins-auth-test-ts-56-authplugin-runtime-revocation-t06-revokes-a-deactivated-admin-once-the-cache-ttl-expires",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plugins/auth.test.ts",
+      "sourceLine": 56,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "authPlugin runtime revocation (T06)"
+      ],
+      "title": "revokes a deactivated admin once the cache TTL expires",
+      "rawTitle": "revokes a deactivated admin once the cache TTL expires",
+      "name": "Admin API auth Plugin runtime revocation (T06) revokes a deactivated admin once the cache TTL expires",
+      "value": "Protects the admin API auth Plugin runtime revocation (T06) behavior so revokes a deactivated admin once the cache TTL expires.",
+      "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior so revokes a deactivated admin once the cache TTL expires."
+    },
+    {
+      "id": "apps-admin-api-src-plugins-auth-test-ts-77-authplugin-runtime-revocation-t06-does-not-hit-the-db-on-every-request-within-the-ttl",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plugins/auth.test.ts",
+      "sourceLine": 77,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "authPlugin runtime revocation (T06)"
+      ],
+      "title": "does not hit the DB on every request within the TTL",
+      "rawTitle": "does not hit the DB on every request within the TTL",
+      "name": "Admin API auth Plugin runtime revocation (T06) does not hit the DB on every request within the TTL",
+      "value": "Protects the admin API auth Plugin runtime revocation (T06) behavior: does not hit the DB on every request within the TTL.",
+      "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior: does not hit the DB on every request within the TTL."
+    },
+    {
+      "id": "apps-admin-api-src-plugins-auth-test-ts-90-authplugin-runtime-revocation-t06-rejects-a-token-for-a-deleted-admin",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plugins/auth.test.ts",
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "authPlugin runtime revocation (T06)"
+      ],
+      "title": "rejects a token for a deleted admin",
+      "rawTitle": "rejects a token for a deleted admin",
+      "name": "Admin API auth Plugin runtime revocation (T06) rejects a token for a deleted admin",
+      "value": "Protects the admin API auth Plugin runtime revocation (T06) behavior: rejects a token for a deleted admin.",
+      "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior: rejects a token for a deleted admin."
+    },
+    {
       "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-53-ai-model-guards-t11-refuses-to-delete-the-current-default-model-with-409",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
@@ -182,10 +246,10 @@
       "description": "Protects the admin API AI model guards (T11) behavior so sets an enabled model as default."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-test-ts-28-ai-model-openrouter-routes-reports-openrouter-key-expiration-from-the-current-key-endpoint",
+      "id": "apps-admin-api-src-routes-ai-models-test-ts-42-ai-model-openrouter-routes-reports-openrouter-key-expiration-from-the-current-key-endpoint",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models.test.ts",
-      "sourceLine": 28,
+      "sourceLine": 42,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -198,10 +262,10 @@
       "description": "Protects the admin API AI model Open Router routes behavior: reports Open Router key expiration from the current key endpoint."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-test-ts-67-ai-model-openrouter-routes-does-not-call-openrouter-when-no-api-key-is-configured",
+      "id": "apps-admin-api-src-routes-ai-models-test-ts-81-ai-model-openrouter-routes-does-not-call-openrouter-when-no-api-key-is-configured",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models.test.ts",
-      "sourceLine": 67,
+      "sourceLine": 81,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [

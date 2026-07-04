@@ -1,6 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { buildAdminApiApp } from "../index.js";
 
+// The runtime revocation check (T06) makes jwtVerify consult adminUserRepository
+// on every authenticated request. Stub it to an active admin so this hermetic,
+// fake-timers test never reaches the real database.
+vi.mock("@polyglot/adapter-db", async (importActual) => {
+  const actual = await importActual<typeof import("@polyglot/adapter-db")>();
+  return {
+    ...actual,
+    adminUserRepository: {
+      ...actual.adminUserRepository,
+      findById: vi.fn().mockResolvedValue({ id: 1, isActive: true }),
+    },
+  };
+});
+
 const originalJwtSecret = process.env.JWT_SECRET;
 const originalOpenRouterApiKey = process.env.OPENROUTER_API_KEY;
 
