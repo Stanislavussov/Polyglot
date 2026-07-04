@@ -76,3 +76,52 @@ the matching step is handled. Surface it even when you cannot execute it.
   `gh secret set`, or CI/provisioning will run with stale values.
 - **Changed only app code / containers** → nothing here applies; the normal
   app-deploy pipeline (§1) covers it. Do not run Ansible for app-only changes.
+
+## 5. Deploy health gate & rollback (T13)
+
+The app-deploy pipeline (§1) does **not** blindly declare success:
+
+- **Health gate.** After `docker compose up -d`, the deploy script waits for each
+  container's `docker inspect … .State.Health.Status` to become `healthy`
+  (services without a healthcheck are skipped), then probes the bot's **`/readyz`**
+  (T12) to confirm the DB is reachable and long-polling is live. A crash-loop or a
+  failed readiness check makes the **workflow fail** (red) instead of silently
+  shipping a broken release. The gate runs **before** image pruning, so a failed
+  deploy leaves the previous image in place.
+- **Rollback.** Before pulling new images, the script records the currently
+  running image references to `/opt/polyglot/PREVIOUS_RELEASE`. Pruning uses
+  `docker image prune -af --filter "until=168h"` (not `-af`), so the previous
+  release image survives for at least a week.
+
+  **To roll back** (on the VPS):
+
+  ```bash
+  cd /opt/polyglot
+  # Overlay the previous image tags onto the running env and restart.
+  cat PREVIOUS_RELEASE >> .env
+  docker compose up -d --remove-orphans
+  ```
+
+  Rollback reverts **app containers only**. The database schema is not rolled
+  back — which is safe *only* if migrations followed the expand/contract rule
+  below (old code keeps working against the newer schema).
+
+## 6. Expand/contract migrations
+
+`db:migrate` runs in CI on merge to `master` (CLAUDE.md Hard Rule #3), **before**
+the new containers start. For the window between "schema migrated" and "new code
+live", the **old** code runs against the **new** schema — a destructive change
+(drop/rename column, tighten a constraint) is an instant incident there, and it
+also breaks rollback.
+
+Split every destructive schema change into backward-compatible steps across
+**separate releases**:
+
+1. **Expand** — add the new column/table/index; keep the old one. Deploy code
+   that writes both (or reads new, falls back to old). Backfill data.
+2. **Migrate reads** — once the new shape is populated, switch code to read it.
+3. **Contract** — only in a *later* release, after the expand code is fully
+   deployed and stable, drop the old column/constraint.
+
+A single migration must never drop or rename something the currently-deployed
+code still uses. Destructive migrations get an explicit compatibility review.

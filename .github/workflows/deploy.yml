@@ -155,9 +155,20 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -e
             cd /opt/polyglot
 
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+            # Rollback safety net (T13): record the currently-running images BEFORE
+            # we pull/replace them, so a bad release can be reverted. See
+            # @docs/agents/deployment.md for the rollback procedure.
+            {
+              echo "BOT_IMAGE_NAME=$(docker inspect --format '{{.Config.Image}}' polyglot_bot 2>/dev/null)"
+              echo "ADMIN_API_IMAGE_NAME=$(docker inspect --format '{{.Config.Image}}' polyglot_admin_api 2>/dev/null)"
+              echo "ADMIN_IMAGE_NAME=$(docker inspect --format '{{.Config.Image}}' polyglot_admin 2>/dev/null)"
+              echo "LANDING_IMAGE_NAME=$(docker inspect --format '{{.Config.Image}}' polyglot_landing 2>/dev/null)"
+            } > PREVIOUS_RELEASE 2>/dev/null || true
 
             docker compose pull
 
@@ -169,11 +180,51 @@ jobs:
 
             docker compose up -d --remove-orphans
 
+            # Health gate (T13): fail the deploy if any container does not become
+            # healthy, so a crash-loop turns the workflow RED instead of silently
+            # shipping a broken release. Runs before prune, so a failed gate keeps
+            # the previous image available for rollback.
+            gate_service() {
+              name="$1"
+              deadline=$((SECONDS + 180))
+              while true; do
+                status=$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$name" 2>/dev/null || echo missing)
+                case "$status" in
+                  healthy) echo "OK: $name healthy"; return 0 ;;
+                  none) echo "SKIP: $name has no healthcheck"; return 0 ;;
+                  missing) echo "FAIL: $name not found"; return 1 ;;
+                  unhealthy) echo "FAIL: $name unhealthy"; docker logs --tail=120 "$name" 2>&1 || true; return 1 ;;
+                esac
+                if [ "$SECONDS" -ge "$deadline" ]; then
+                  echo "FAIL: timed out waiting for $name (last status: $status)"
+                  docker logs --tail=120 "$name" 2>&1 || true
+                  return 1
+                fi
+                sleep 5
+              done
+            }
+
+            for svc in polyglot_bot polyglot_admin_api polyglot_admin polyglot_landing; do
+              gate_service "$svc" || { echo "Deploy health gate FAILED for $svc"; exit 1; }
+            done
+
+            # Readiness probe (T12 /readyz): confirms the DB is reachable and
+            # long-polling is live, not just that the process is up.
+            if ! curl -fsS --max-time 5 "http://127.0.0.1:${METRICS_PORT:-9090}/readyz"; then
+              echo "FAIL: bot /readyz not ready"
+              docker logs --tail=120 polyglot_bot 2>&1 || true
+              exit 1
+            fi
+            echo "OK: bot /readyz ready"
+
             if grep -q '^RELEASE_ANNOUNCEMENT_BASE64=.' .env; then
               docker compose run --rm --no-deps bot node apps/bot/dist/release-announcement.cli.js
             else
               echo "no announcement content"
             fi
 
-            docker image prune -af
+            # Keep the previous release image for fast rollback; only prune images
+            # older than a week so disk stays bounded (was `prune -af`, which
+            # deleted the previous release and made rollback impossible).
+            docker image prune -af --filter "until=168h"
             docker builder prune -af 2>/dev/null || true
