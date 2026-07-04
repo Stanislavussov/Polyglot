@@ -159,3 +159,30 @@ These are **provisioning** changes: they are dormant until `pnpm ansible` is
 re-run against the host (subject to the explicit-prod rule in §Rules). Verify
 after applying with `curl -I https://<domain>` (expect `Strict-Transport-Security`
 and the security headers; no `TLSv1.0/1.1`).
+
+## 8. Migration file hygiene (T26)
+
+**`meta/_journal.json` is the source of apply order — the numeric filename is
+not.** `drizzle-kit migrate` applies exactly the migrations listed in the
+journal, in journal order, and ignores any `drizzle/*.sql` file that has no
+journal entry. Consequences to keep in mind:
+
+- Duplicate or gapped numbers are harmless as long as the journal is correct —
+  `packages/adapters/db/drizzle/` legitimately has two `0017_*` tags (both in the
+  journal) and no `0018`. Do **not** "fix" numbering by renaming applied files.
+- A `.sql` file that is **not** in the journal is dead — it never applies. Such
+  files are landmines when someone later assumes filename = order (or squashes
+  history). The orphaned `0015_custom_notification_time.sql` (absent from the
+  journal, and updating the long-since-renamed `notification_time` column) was
+  removed under T26.
+- **Never squash/rebuild migration history without rewriting seed migrations from
+  the current `schema.ts`.** Old seeds reference columns valid only at their point
+  in history — e.g. `0002_languages_metadata` still inserts `iso3_code`, which is
+  correct only because `0007_drop_iso3_code` runs after it on a fresh DB. Replay
+  them out of that order and `drizzle-kit migrate` fails with `42703 column … does
+  not exist` (see CLAUDE.md Hard Rule #3).
+
+Run `pnpm db:check` (drift check, safe on any branch) after touching migrations —
+it compares `schema.ts` against the journal snapshots and must report
+"Everything's fine". On `develop` use only `db:generate` + `db:push`; a true
+from-scratch `db:migrate` replay is a CI-environment check, never a local one.
