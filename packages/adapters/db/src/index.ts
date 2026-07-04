@@ -3,7 +3,7 @@ import * as schema from "./schema.js";
 export type { CachedLanguage } from "@polyglot/core";
 // Database connection — extracted to connection.ts to avoid circular deps
 export type { Db } from "./connection.js";
-export { closeDb, getDb } from "./connection.js";
+export { closeDb, getDb, pingDatabase } from "./connection.js";
 export { createContextLookup } from "./context-lookup.js";
 // Language cache — loaded from DB, serves all language metadata
 export {

@@ -29,6 +29,10 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ROOT_URL=https://grafana.polyglot.monster
       - GF_SERVER_ENFORCE_DOMAIN=false
+      # Provisioned alert contact point (Fable T12). Empty by default; set these
+      # to deliver firing alerts to a Telegram channel.
+      - GRAFANA_ALERT_TELEGRAM_BOTTOKEN=${GRAFANA_ALERT_TELEGRAM_BOTTOKEN:-}
+      - GRAFANA_ALERT_TELEGRAM_CHATID=${GRAFANA_ALERT_TELEGRAM_CHATID:-}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards-provisioned:ro

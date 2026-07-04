@@ -3,8 +3,10 @@
  * and a health endpoint on :9090/healthz.
  */
 import { createServer } from "node:http";
+import { pingDatabase } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/core";
 import { Counter, collectDefaultMetrics, Histogram, register } from "prom-client";
+import { checkReadiness } from "./health.js";
 
 // ── Default Node.js metrics (CPU, memory, event-loop, GC) ───────────
 collectDefaultMetrics();
@@ -124,8 +126,16 @@ export function startMetricsServer(): void {
       res.setHeader("Content-Type", register.contentType);
       res.end(await register.metrics());
     } else if (req.url === "/healthz") {
+      // Liveness: the process is up. Kept always-ok so a quiet period never
+      // triggers a container restart — readiness is a separate signal.
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ status: "ok", uptime: process.uptime() }));
+    } else if (req.url === "/readyz") {
+      // Readiness (T12): non-ok when long-polling is stuck or the DB is down.
+      const result = await checkReadiness(pingDatabase);
+      res.statusCode = result.status === "ok" ? 200 : 503;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify(result));
     } else {
       res.statusCode = 404;
       res.end("Not Found");

@@ -1,5 +1,6 @@
 import { logger } from "@polyglot/core";
 import type { NextFunction } from "grammy";
+import { recordUpdateReceived } from "../health.js";
 import { telegramMessagesCounter, updateDeliveryLag, updateHandlingDuration } from "../metrics.js";
 import type { BotContext } from "../types.js";
 
@@ -26,6 +27,9 @@ function classifyUpdate(ctx: BotContext): "message" | "callback" | "other" {
  * Logs a warning when handling or delivery exceeds SLOW_UPDATE_MS.
  */
 export async function updateMetricsMiddleware(ctx: BotContext, next: NextFunction): Promise<void> {
+  // Readiness heartbeat: a delivered update proves long-polling is alive.
+  recordUpdateReceived();
+
   const updateType = classifyUpdate(ctx);
   telegramMessagesCounter.inc({ type: updateType });
 
