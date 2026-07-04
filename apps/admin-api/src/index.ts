@@ -31,12 +31,22 @@ function adminPanelOrigins(): string[] {
 }
 
 export async function buildAdminApiApp() {
-  const app = Fastify({ logger: true });
+  // trustProxy: the admin-API is only reachable through the nginx reverse proxy,
+  // so honour X-Forwarded-For to rate-limit by the real client IP, not nginx's.
+  const app = Fastify({ logger: true, trustProxy: true });
 
   await app.register(import("@fastify/cors"), {
     origin: [...new Set([...adminPanelOrigins(), "http://localhost:4321"])],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  });
+
+  // Soft global rate limit (per client IP). The public /login route tightens
+  // this to a hard anti-bruteforce limit via its own route config (see auth.ts).
+  await app.register(import("@fastify/rate-limit"), {
+    global: true,
+    max: 200,
+    timeWindow: "1 minute",
   });
 
   await app.register(authPlugin);

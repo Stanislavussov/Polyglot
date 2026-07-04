@@ -20,6 +20,7 @@
   "dependencies": {
     "@fastify/cors": "^11.0.0",
     "@fastify/jwt": "^9.0.0",
+    "@fastify/rate-limit": "^10.3.0",
     "@polyglot/adapter-db": "workspace:*",
     "@polyglot/core": "workspace:*",
     "@polyglot/infra": "workspace:*",

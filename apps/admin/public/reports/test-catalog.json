@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T15:45:55.712Z",
+  "generatedAt": "2026-07-04T15:52:30.982Z",
   "summary": {
-    "total": 1973,
+    "total": 1976,
     "business": 0,
-    "technical": 1973,
+    "technical": 1976,
     "workspaces": [
       "apps",
       "packages"
@@ -84,6 +84,54 @@
       "name": "Admin API AI model Open Router routes does not call Open Router when no API key is configured",
       "value": "Protects the admin API AI model Open Router routes behavior: does not call Open Router when no API key is configured.",
       "description": "Protects the admin API AI model Open Router routes behavior: does not call Open Router when no API key is configured."
+    },
+    {
+      "id": "apps-admin-api-src-routes-auth-test-ts-62-admin-login-rate-limiting-t05-returns-429-after-more-than-5-login-attempts-in-a-minute-from-one-ip",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/auth.test.ts",
+      "sourceLine": 62,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "admin login rate limiting (T05)"
+      ],
+      "title": "returns 429 after more than 5 login attempts in a minute from one IP",
+      "rawTitle": "returns 429 after more than 5 login attempts in a minute from one IP",
+      "name": "Admin API admin login rate limiting (T05) returns 429 after more than 5 login attempts in a minute from one IP",
+      "value": "Protects the admin API admin login rate limiting (T05) behavior: returns 429 after more than 5 login attempts in a minute from one IP.",
+      "description": "Protects the admin API admin login rate limiting (T05) behavior: returns 429 after more than 5 login attempts in a minute from one IP."
+    },
+    {
+      "id": "apps-admin-api-src-routes-auth-test-ts-76-admin-login-rate-limiting-t05-lets-a-legitimate-login-through-within-the-limit",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/auth.test.ts",
+      "sourceLine": 76,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "admin login rate limiting (T05)"
+      ],
+      "title": "lets a legitimate login through within the limit",
+      "rawTitle": "lets a legitimate login through within the limit",
+      "name": "Admin API admin login rate limiting (T05) lets a legitimate login through within the limit",
+      "value": "Protects the admin API admin login rate limiting (T05) behavior so lets a legitimate login through within the limit.",
+      "description": "Protects the admin API admin login rate limiting (T05) behavior so lets a legitimate login through within the limit."
+    },
+    {
+      "id": "apps-admin-api-src-routes-auth-test-ts-89-admin-login-rate-limiting-t05-logs-a-failed-attempt-with-the-email-but-never-the-password",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/auth.test.ts",
+      "sourceLine": 89,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "admin login rate limiting (T05)"
+      ],
+      "title": "logs a failed attempt with the email but never the password",
+      "rawTitle": "logs a failed attempt with the email but never the password",
+      "name": "Admin API admin login rate limiting (T05) logs a failed attempt with the email but never the password",
+      "value": "Protects the admin API admin login rate limiting (T05) behavior: logs a failed attempt with the email but never the password.",
+      "description": "Protects the admin API admin login rate limiting (T05) behavior: logs a failed attempt with the email but never the password."
     },
     {
       "id": "apps-admin-api-src-routes-reported-issues-test-ts-66-reportedissueroutes-lists-reported-issues",
