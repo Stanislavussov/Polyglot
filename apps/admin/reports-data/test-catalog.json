@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T20:06:54.614Z",
+  "generatedAt": "2026-07-04T20:25:54.138Z",
   "summary": {
-    "total": 2035,
+    "total": 2039,
     "business": 0,
-    "technical": 2035,
+    "technical": 2039,
     "workspaces": [
       "apps",
       "packages"
@@ -20053,6 +20053,70 @@
       "name": "Core domain is Known Language() returns false for unknown codes",
       "value": "Protects the core domain is Known Language() behavior: returns false for unknown codes.",
       "description": "Protects the core domain is Known Language() behavior: returns false for unknown codes."
+    },
+    {
+      "id": "packages-core-src-modules-i18n-language-registry-test-ts-16-language-registry-t21-a3-single-source-of-truth-normalizes-a-partial-entry-to-the-canonical-cachedlanguage-shape",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/i18n/language-registry.test.ts",
+      "sourceLine": 16,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "language registry (T21/A3 single source of truth)"
+      ],
+      "title": "normalizes a partial entry to the canonical CachedLanguage shape",
+      "rawTitle": "normalizes a partial entry to the canonical CachedLanguage shape",
+      "name": "Core domain language registry (T21 A3 single source of truth) normalizes a partial entry to the canonical Cached Language shape",
+      "value": "Protects the core domain language registry (T21 A3 single source of truth) behavior: normalizes a partial entry to the canonical Cached Language shape.",
+      "description": "Protects the core domain language registry (T21 A3 single source of truth) behavior: normalizes a partial entry to the canonical Cached Language shape."
+    },
+    {
+      "id": "packages-core-src-modules-i18n-language-registry-test-ts-32-language-registry-t21-a3-single-source-of-truth-keeps-the-db-id-when-supplied-used-as-fk-lang-id-by-the-bot",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/i18n/language-registry.test.ts",
+      "sourceLine": 32,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "language registry (T21/A3 single source of truth)"
+      ],
+      "title": "keeps the DB id when supplied (used as FK lang id by the bot)",
+      "rawTitle": "keeps the DB id when supplied (used as FK lang id by the bot)",
+      "name": "Core domain language registry (T21 A3 single source of truth) keeps the DB id when supplied (used as FK lang id by the bot)",
+      "value": "Protects the core domain language registry (T21 A3 single source of truth) behavior: keeps the DB id when supplied (used as FK lang id by the bot).",
+      "description": "Protects the core domain language registry (T21 A3 single source of truth) behavior: keeps the DB id when supplied (used as FK lang id by the bot)."
+    },
+    {
+      "id": "packages-core-src-modules-i18n-language-registry-test-ts-37-language-registry-t21-a3-single-source-of-truth-reports-initialized-and-exposes-all-entries",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/i18n/language-registry.test.ts",
+      "sourceLine": 37,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "language registry (T21/A3 single source of truth)"
+      ],
+      "title": "reports initialized and exposes all entries",
+      "rawTitle": "reports initialized and exposes all entries",
+      "name": "Core domain language registry (T21 A3 single source of truth) reports initialized and exposes all entries",
+      "value": "Protects the core domain language registry (T21 A3 single source of truth) behavior: reports initialized and exposes all entries.",
+      "description": "Protects the core domain language registry (T21 A3 single source of truth) behavior: reports initialized and exposes all entries."
+    },
+    {
+      "id": "packages-core-src-modules-i18n-language-registry-test-ts-52-language-registry-t21-a3-single-source-of-truth-localizes-names-builds-display-strings-and-normalizes-identifiers",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/i18n/language-registry.test.ts",
+      "sourceLine": 52,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "language registry (T21/A3 single source of truth)"
+      ],
+      "title": "localizes names, builds display strings, and normalizes identifiers",
+      "rawTitle": "localizes names, builds display strings, and normalizes identifiers",
+      "name": "Core domain language registry (T21 A3 single source of truth) localizes names, builds display strings, and normalizes identifiers",
+      "value": "Protects the core domain language registry (T21 A3 single source of truth) behavior so localizes names, builds display strings, and normalizes identifiers.",
+      "description": "Protects the core domain language registry (T21 A3 single source of truth) behavior so localizes names, builds display strings, and normalizes identifiers."
     },
     {
       "id": "packages-core-src-modules-idiom-analysis-tests-idiom-analysis-schema-test-ts-9-idiomclassificationschema-accepts-valid-classification-values",

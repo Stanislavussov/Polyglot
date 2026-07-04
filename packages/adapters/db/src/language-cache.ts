@@ -1,33 +1,41 @@
 /**
- * Language Cache — loads all languages from DB at startup, serves from memory.
+ * Language Cache — the DB loader for the core language registry.
  *
- * The `languages` table is the single source of truth for all language metadata.
- * This cache loads the table once and provides typed getters.
+ * The `languages` table is the single source of truth. This module reads it once
+ * at startup and hands the rows to core's `initLanguageRegistry`, which is the
+ * single in-memory store (Fable T21/A3). Every getter below delegates to that
+ * registry — there is no second cache Map or duplicated normalization logic here.
  *
- * Works exclusively with ISO 639-1 codes.
- * ISO 639-3 codes are a private implementation detail of detect-language.ts in core.
+ * Works exclusively with ISO 639-1 codes. ISO 639-3 codes are a private
+ * implementation detail of detect-language.ts in core.
  *
  * Must call `loadLanguageCache()` at app startup (after DB is connected).
  */
 import type { CachedLanguage } from "@polyglot/core";
+import {
+  getAllLanguageEntries,
+  getLanguageEntry,
+  getLanguageName,
+  getLanguageNativeName,
+  getSupportedLanguages,
+  initLanguageRegistry,
+  isKnownLanguage,
+  isRegistryInitialized,
+  getLangDisplay as registryGetLangDisplay,
+  getLangFlag as registryGetLangFlag,
+  normalizeToIso1 as registryNormalizeToIso1,
+} from "@polyglot/core";
 import { getDb } from "./connection.js";
 import { languages } from "./schema.js";
 
 export type { CachedLanguage };
 
 /* ------------------------------------------------------------------ */
-/*  Cache state                                                        */
-/* ------------------------------------------------------------------ */
-
-const byCode = new Map<string, CachedLanguage>();
-let loaded = false;
-
-/* ------------------------------------------------------------------ */
 /*  Initialization                                                     */
 /* ------------------------------------------------------------------ */
 
 /**
- * Load all languages from the DB into memory.
+ * Load all languages from the DB into the core registry.
  * Call once at app startup after DB connection is established.
  * Safe to call multiple times (reloads).
  */
@@ -35,10 +43,8 @@ export async function loadLanguageCache(): Promise<void> {
   const db = getDb();
   const rows = await db.select().from(languages);
 
-  byCode.clear();
-
-  for (const row of rows) {
-    const entry: CachedLanguage = {
+  initLanguageRegistry(
+    rows.map((row) => ({
       id: row.id,
       code: row.code,
       name: row.name,
@@ -46,100 +52,60 @@ export async function loadLanguageCache(): Promise<void> {
       flag: row.flag,
       isSupported: row.isSupported,
       localizedNames: row.localizedNames as Record<string, string> | null,
-    };
-    byCode.set(entry.code, entry);
-  }
-
-  loaded = true;
+    })),
+  );
 }
 
-/**
- * Check if the cache has been loaded.
- */
+/** Check if the registry has been loaded. */
 export function isLanguageCacheLoaded(): boolean {
-  return loaded;
+  return isRegistryInitialized();
 }
 
 /* ------------------------------------------------------------------ */
-/*  Getters                                                            */
+/*  Getters — thin delegates to the core registry                      */
 /* ------------------------------------------------------------------ */
 
 /** Get a language by ISO 639-1 code. */
 export function getLang(code: string): CachedLanguage | undefined {
-  return byCode.get(code);
+  return getLanguageEntry(code);
 }
 
 /** Get all loaded languages. */
 export function getAllLangs(): CachedLanguage[] {
-  return [...byCode.values()];
+  return getAllLanguageEntries();
 }
 
 /** Get languages marked as supported (available in bot UI). */
 export function getSupportedLangs(): CachedLanguage[] {
-  return [...byCode.values()].filter((l) => l.isSupported);
+  return getSupportedLanguages();
 }
 
-/**
- * Get English name for a language code.
- * Falls back to code if not found.
- */
+/** Get the name for a language code, optionally localized into `displayLang`. */
 export function getLangName(code: string, displayLang?: string): string {
-  const entry = byCode.get(code);
-  if (!entry) return code;
-
-  // Localized name in requested display language
-  if (displayLang && displayLang !== "en" && entry.localizedNames?.[displayLang]) {
-    return entry.localizedNames[displayLang];
-  }
-
-  return entry.name;
+  return getLanguageName(code, displayLang);
 }
 
-/**
- * Get native/autonym name for a language code.
- * Falls back to English name, then code.
- */
+/** Get native/autonym name for a language code. */
 export function getLangNativeName(code: string): string {
-  const entry = byCode.get(code);
-  if (!entry) return code;
-  return entry.nativeName ?? entry.name;
+  return getLanguageNativeName(code);
 }
 
 /** Get emoji flag for a language code. */
 export function getLangFlag(code: string): string | undefined {
-  return byCode.get(code)?.flag ?? undefined;
+  return registryGetLangFlag(code);
 }
 
-/**
- * Get display string for a language: "🇷🇺 Русский".
- * Falls back to code if not found.
- */
+/** Get display string for a language: "🇷🇺 Русский". */
 export function getLangDisplay(code: string): string {
-  const entry = byCode.get(code);
-  if (!entry) return code;
-  const label = entry.nativeName ?? entry.name;
-  return entry.flag ? `${entry.flag} ${label}` : label;
+  return registryGetLangDisplay(code);
 }
 
 /** Check if a language code is known. */
 export function isKnownLang(code: string): boolean {
-  return byCode.has(code);
+  return isKnownLanguage(code);
 }
 
-/**
- * Normalize any recognized language identifier to ISO 639-1.
- * Accepts ISO 639-1 (passthrough) or English names (case-insensitive).
- */
+/** Normalize any recognized language identifier to ISO 639-1. */
 export function normalizeToIso1(lang: string): string | undefined {
-  const lower = lang.toLowerCase();
-
-  // Already ISO 639-1
-  if (byCode.has(lower)) return lower;
-
-  // English name (case-insensitive search)
-  for (const entry of byCode.values()) {
-    if (entry.name.toLowerCase() === lower) return entry.code;
-  }
-
-  return undefined;
+  return registryNormalizeToIso1(lang);
 }

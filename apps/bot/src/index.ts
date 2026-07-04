@@ -1,7 +1,7 @@
 import { type RunnerHandle, run } from "@grammyjs/runner";
 import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
 import { stopScheduler } from "@polyglot/adapter-notifications";
-import { initLanguageRegistry, logger, setLogger } from "@polyglot/core";
+import { logger, setLogger } from "@polyglot/core";
 import { loadConfig } from "@polyglot/infra";
 import { createPolyglotBot, installBotCommands } from "./bot-factory.js";
 import { startMetricsServer } from "./metrics.js";
@@ -44,10 +44,10 @@ function setupGracefulShutdown(): void {
 async function main(): Promise<void> {
   setupGracefulShutdown();
 
+  // Loads the `languages` table straight into the core registry (the single
+  // source of truth); the getters delegate to it (Fable T21/A3).
   await loadLanguageCache();
-  const allLangs = getAllLangs();
-  initLanguageRegistry(allLangs);
-  logger.info({ count: allLangs.length }, "Language registry loaded from DB");
+  logger.info({ count: getAllLangs().length }, "Language registry loaded from DB");
 
   await installBotCommands(bot);
 
