@@ -13,7 +13,7 @@ import type {
   VocabularySource,
   VocabularyTranslation,
 } from "@polyglot/core";
-import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or, type SQL, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations } from "../schema.js";
 
@@ -82,6 +82,15 @@ export const vocabularyRepository = {
   /**
    * Create a vocabulary entry with all its translations.
    * Uses a transaction to ensure atomicity.
+   *
+   * Saving the same (userId, original, sourceLangId) that was previously
+   * soft-deleted **reactivates** the existing row instead of failing on the
+   * unique index: the entry (and each conflicting translation) is updated in
+   * place with the new content and flipped back to active. This is done with a
+   * race-safe `ON CONFLICT DO UPDATE` on the existing unique keys — no
+   * check-then-insert window — so a re-save after delete never raises 23505
+   * (C2/E1). Translation SRS columns are intentionally left untouched so the
+   * card's review history survives reactivation.
    */
   async create(userId: number, input: CreateVocabularyInput): Promise<VocabularyEntryWithTranslations> {
     const db = getDb();
@@ -98,6 +107,19 @@ export const vocabularyRepository = {
           sourceUsage: input.sourceUsage,
           source: input.source ?? null,
           unverified: input.unverified ?? false,
+        })
+        .onConflictDoUpdate({
+          target: [vocabularyEntries.userId, vocabularyEntries.original, vocabularyEntries.sourceLangId],
+          set: {
+            inputType: input.inputType,
+            emoji: input.emoji ?? null,
+            nativeMeaning: input.nativeMeaning ?? null,
+            sourceUsage: input.sourceUsage ?? null,
+            source: input.source ?? null,
+            unverified: input.unverified ?? false,
+            isActive: true,
+            updatedAt: new Date(),
+          },
         })
         .returning();
 
@@ -118,6 +140,22 @@ export const vocabularyRepository = {
               srsDueDate: tomorrow(),
             })),
           )
+          .onConflictDoUpdate({
+            target: [vocabularyTranslations.entryId, vocabularyTranslations.targetLangId],
+            set: {
+              // Refresh the content from the row we tried to insert (per-row
+              // values via EXCLUDED), reactivate, but keep the SRS columns so
+              // review progress is preserved across a delete + re-save.
+              text: sql`excluded.text`,
+              expressionType: sql`excluded.expression_type`,
+              equivalentNote: sql`excluded.equivalent_note`,
+              usageNote: sql`excluded.usage_note`,
+              connotationWarning: sql`excluded.connotation_warning`,
+              details: sql`excluded.details`,
+              isActive: true,
+              updatedAt: new Date(),
+            },
+          })
           .returning();
       }
 

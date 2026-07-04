@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T15:39:24.533Z",
+  "generatedAt": "2026-07-04T15:45:55.712Z",
   "summary": {
-    "total": 1971,
+    "total": 1973,
     "business": 0,
-    "technical": 1971,
+    "technical": 1973,
     "workspaces": [
       "apps",
       "packages"
@@ -13433,10 +13433,10 @@
       "description": "Protects the database adapter vocabulary Repository — pagination & hard Delete hard Delete behavior so is a no op when entry does not exist."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-175-vocabularyrepository-create-inserts-parent-entry-translation-rows-and-returns-full-entry",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-185-vocabularyrepository-create-inserts-parent-entry-translation-rows-and-returns-full-entry",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 175,
+      "sourceLine": 185,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13450,10 +13450,44 @@
       "description": "Protects the database adapter vocabulary Repository create behavior so inserts parent entry + translation rows and returns full entry."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-190-vocabularyrepository-create-inserts-entry-only-when-translations-array-is-empty",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-200-vocabularyrepository-create-reactivates-via-on-conflict-do-update-instead-of-failing-when-re-saving-a-soft-deleted-word-c2-e1",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 190,
+      "sourceLine": 200,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "vocabularyRepository",
+        "create"
+      ],
+      "title": "reactivates via ON CONFLICT DO UPDATE instead of failing when re-saving a soft-deleted word (C2/E1)",
+      "rawTitle": "reactivates via ON CONFLICT DO UPDATE instead of failing when re-saving a soft-deleted word (C2/E1)",
+      "name": "Database adapter vocabulary Repository create reactivates via ON CONFLICT DO UPDATE instead of failing when re saving a soft deleted word (C2 E1)",
+      "value": "Protects the database adapter vocabulary Repository create behavior so reactivates via ON CONFLICT DO UPDATE instead of failing when re saving a soft deleted word (C2 E1).",
+      "description": "Protects the database adapter vocabulary Repository create behavior so reactivates via ON CONFLICT DO UPDATE instead of failing when re saving a soft deleted word (C2 E1)."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-223-vocabularyrepository-create-targets-the-existing-unique-keys-for-the-conflict-clause",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
+      "sourceLine": 223,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "vocabularyRepository",
+        "create"
+      ],
+      "title": "targets the existing unique keys for the conflict clause",
+      "rawTitle": "targets the existing unique keys for the conflict clause",
+      "name": "Database adapter vocabulary Repository create targets the existing unique keys for the conflict clause",
+      "value": "Protects the database adapter vocabulary Repository create behavior so targets the existing unique keys for the conflict clause.",
+      "description": "Protects the database adapter vocabulary Repository create behavior so targets the existing unique keys for the conflict clause."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-237-vocabularyrepository-create-inserts-entry-only-when-translations-array-is-empty",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
+      "sourceLine": 237,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13467,10 +13501,10 @@
       "description": "Protects the database adapter vocabulary Repository create behavior so inserts entry only when translations array is empty."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-201-vocabularyrepository-create-passes-correct-values-for-parent-insert",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-248-vocabularyrepository-create-passes-correct-values-for-parent-insert",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 201,
+      "sourceLine": 248,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13484,10 +13518,10 @@
       "description": "Protects the database adapter vocabulary Repository create behavior so passes correct values for parent insert."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-223-vocabularyrepository-create-passes-correct-values-for-translation-insert",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-270-vocabularyrepository-create-passes-correct-values-for-translation-insert",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 223,
+      "sourceLine": 270,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13501,10 +13535,10 @@
       "description": "Protects the database adapter vocabulary Repository create behavior so passes correct values for translation insert."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-240-vocabularyrepository-create-handles-multiple-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-287-vocabularyrepository-create-handles-multiple-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 287,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13518,10 +13552,10 @@
       "description": "Protects the database adapter vocabulary Repository create behavior: handles multiple translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-260-vocabularyrepository-findbyoriginalandsource-preserves-source-usage-from-the-parent-entry",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-307-vocabularyrepository-findbyoriginalandsource-preserves-source-usage-from-the-parent-entry",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 260,
+      "sourceLine": 307,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13535,10 +13569,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Original And Source behavior: preserves source usage from the parent entry."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-274-vocabularyrepository-findbyoriginalandsource-returns-entry-with-translations-when-match-exists",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-321-vocabularyrepository-findbyoriginalandsource-returns-entry-with-translations-when-match-exists",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 274,
+      "sourceLine": 321,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13552,10 +13586,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Original And Source behavior: returns entry with translations when match exists."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-288-vocabularyrepository-findbyoriginalandsource-returns-null-when-no-match-found",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-335-vocabularyrepository-findbyoriginalandsource-returns-null-when-no-match-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 288,
+      "sourceLine": 335,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13569,10 +13603,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Original And Source behavior: returns null when no match found."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-298-vocabularyrepository-findbyuser-returns-entries-with-translations-ordered-by-createdat-desc",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-345-vocabularyrepository-findbyuser-returns-entries-with-translations-ordered-by-createdat-desc",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 298,
+      "sourceLine": 345,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13586,10 +13620,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User behavior: returns entries with translations ordered by created At DESC."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-313-vocabularyrepository-findbyuser-returns-empty-array-when-user-has-no-entries",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-360-vocabularyrepository-findbyuser-returns-empty-array-when-user-has-no-entries",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 313,
+      "sourceLine": 360,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13603,10 +13637,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User behavior: returns empty array when user has no entries."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-323-vocabularyrepository-findbyid-returns-entry-with-translations-when-found",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-370-vocabularyrepository-findbyid-returns-entry-with-translations-when-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 323,
+      "sourceLine": 370,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13620,10 +13654,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Id behavior: returns entry with translations when found."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-335-vocabularyrepository-findbyid-returns-null-when-not-found",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-382-vocabularyrepository-findbyid-returns-null-when-not-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 335,
+      "sourceLine": 382,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13637,10 +13671,10 @@
       "description": "Protects the database adapter vocabulary Repository find By Id behavior: returns null when not found."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-345-vocabularyrepository-search-returns-matching-entries-with-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-392-vocabularyrepository-search-returns-matching-entries-with-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 345,
+      "sourceLine": 392,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13654,10 +13688,10 @@
       "description": "Protects the database adapter vocabulary Repository search behavior: returns matching entries with translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-356-vocabularyrepository-search-returns-empty-array-when-nothing-matches",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-403-vocabularyrepository-search-returns-empty-array-when-nothing-matches",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 356,
+      "sourceLine": 403,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13671,10 +13705,10 @@
       "description": "Protects the database adapter vocabulary Repository search behavior: returns empty array when nothing matches."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-366-vocabularyrepository-findbyuserandlang-returns-entries-with-only-matching-target-language-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-413-vocabularyrepository-findbyuserandlang-returns-entries-with-only-matching-target-language-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 366,
+      "sourceLine": 413,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13688,10 +13722,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User And Lang behavior: returns entries with only matching target language translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-378-vocabularyrepository-findbyuserandlang-returns-empty-array-when-no-translations-for-target-language",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-425-vocabularyrepository-findbyuserandlang-returns-empty-array-when-no-translations-for-target-language",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 378,
+      "sourceLine": 425,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13705,10 +13739,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User And Lang behavior: returns empty array when no translations for target language."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-388-vocabularyrepository-updatetranslation-updates-only-the-specified-language-row",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-435-vocabularyrepository-updatetranslation-updates-only-the-specified-language-row",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 388,
+      "sourceLine": 435,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13722,10 +13756,10 @@
       "description": "Protects the database adapter vocabulary Repository update Translation behavior: updates only the specified language row."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-400-vocabularyrepository-updatetranslation-sets-updatedat-on-update",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-447-vocabularyrepository-updatetranslation-sets-updatedat-on-update",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 400,
+      "sourceLine": 447,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13739,10 +13773,10 @@
       "description": "Protects the database adapter vocabulary Repository update Translation behavior so sets updated At on update."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-414-vocabularyrepository-updatetranslation-upserts-inserts-when-no-existing-row-for-entry-lang",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-461-vocabularyrepository-updatetranslation-upserts-inserts-when-no-existing-row-for-entry-lang",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 414,
+      "sourceLine": 461,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13756,10 +13790,10 @@
       "description": "Protects the database adapter vocabulary Repository update Translation behavior so upserts (inserts) when no existing row for entry+lang."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-432-vocabularyrepository-updatealltranslations-deletes-old-and-inserts-new-translations-in-a-transaction",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-479-vocabularyrepository-updatealltranslations-deletes-old-and-inserts-new-translations-in-a-transaction",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 432,
+      "sourceLine": 479,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13773,10 +13807,10 @@
       "description": "Protects the database adapter vocabulary Repository update All Translations behavior so deletes old and inserts new translations in a transaction."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-448-vocabularyrepository-updatealltranslations-returns-empty-array-when-translations-list-is-empty",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-495-vocabularyrepository-updatealltranslations-returns-empty-array-when-translations-list-is-empty",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 448,
+      "sourceLine": 495,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13790,10 +13824,10 @@
       "description": "Protects the database adapter vocabulary Repository update All Translations behavior: returns empty array when translations list is empty."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-459-vocabularyrepository-delete-soft-deletes-parent-and-all-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-506-vocabularyrepository-delete-soft-deletes-parent-and-all-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 459,
+      "sourceLine": 506,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13807,10 +13841,10 @@
       "description": "Protects the database adapter vocabulary Repository delete behavior so soft deletes parent and all translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-472-vocabularyrepository-findbyuserwithsourcelang-resolves-sourcelangid-to-code-using-langresolver",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-519-vocabularyrepository-findbyuserwithsourcelang-resolves-sourcelangid-to-code-using-langresolver",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 472,
+      "sourceLine": 519,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13824,10 +13858,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User With Source Lang behavior: resolves source Lang Id to code using lang Resolver."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-485-vocabularyrepository-findbyuserwithsourcelang-filters-out-entries-with-unresolvable-sourcelangid",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-532-vocabularyrepository-findbyuserwithsourcelang-filters-out-entries-with-unresolvable-sourcelangid",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 485,
+      "sourceLine": 532,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
