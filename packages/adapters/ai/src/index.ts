@@ -4,11 +4,16 @@
  * The only module that knows about OpenRouter and Vercel AI SDK.
  * All other modules receive AI responses through this adapter exclusively.
  *
- * Exports: generateObject, generateText, getAvailableModels, estimateCost
+ * Exports: generateObject, generateText, generateChat, and the provider setters
+ * (metric sink, model price, request timeout).
  */
 
 export { setAIRequestMetricSink } from "./logger.js";
-export { estimateCost, getAvailableModels } from "./models.js";
+export {
+  type AIModelPrice,
+  type AIModelPriceProvider,
+  setAIModelPriceProvider,
+} from "./model-price.js";
 export { type AIRequestTimeoutProvider, setAIRequestTimeoutProvider } from "./timeout.js";
 export type { AIModel, AIRequestLog, AIRequestMetricSink, GenerateOptions } from "./types.js";
 
@@ -17,7 +22,7 @@ import { generateObject as aiGenerateObject, generateText as aiGenerateText } fr
 import type { ZodSchema } from "zod";
 import { getModel } from "./client.js";
 import { logRequest } from "./logger.js";
-import { calculateCost } from "./models.js";
+import { resolveModelCost } from "./model-price.js";
 import { createRequestTimeout, resolveRequestTimeoutMs } from "./timeout.js";
 
 const DEFAULT_MAX_RETRIES = 2;
@@ -57,7 +62,7 @@ export async function generateObject<T>(
     const duration_ms = Date.now() - start;
     const inputTokens = result.usage?.inputTokens ?? 0;
     const outputTokens = result.usage?.outputTokens ?? 0;
-    const cost_usd = calculateCost(inputTokens, outputTokens, model);
+    const cost_usd = await resolveModelCost(inputTokens, outputTokens, model);
 
     logRequest({
       model,
@@ -116,7 +121,7 @@ export async function generateText(prompt: string, model: string, options?: Gene
     const duration_ms = Date.now() - start;
     const inputTokens = result.usage?.inputTokens ?? 0;
     const outputTokens = result.usage?.outputTokens ?? 0;
-    const cost_usd = calculateCost(inputTokens, outputTokens, model);
+    const cost_usd = await resolveModelCost(inputTokens, outputTokens, model);
 
     logRequest({
       model,
@@ -180,7 +185,7 @@ export async function generateChat(messages: ChatMessage[], model: string, optio
     const duration_ms = Date.now() - start;
     const inputTokens = result.usage?.inputTokens ?? 0;
     const outputTokens = result.usage?.outputTokens ?? 0;
-    const cost_usd = calculateCost(inputTokens, outputTokens, model);
+    const cost_usd = await resolveModelCost(inputTokens, outputTokens, model);
 
     logRequest({
       model,

@@ -36,6 +36,4 @@ export interface AIPort {
   generateObject<T>(prompt: string, schema: ZodSchema<T>, model: string, options?: GenerateOptions): Promise<T>;
   generateText(prompt: string, model: string, options?: GenerateOptions): Promise<string>;
   generateChat(messages: ChatMessage[], model: string, options?: ChatOptions): Promise<string>;
-  getAvailableModels(): AIModel[];
-  estimateCost(inputTokens: number, outputTokens: number, modelId: string): number;
 }

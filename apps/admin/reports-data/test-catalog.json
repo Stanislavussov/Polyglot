@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T19:49:02.517Z",
+  "generatedAt": "2026-07-04T19:56:27.649Z",
   "summary": {
-    "total": 2035,
+    "total": 2029,
     "business": 0,
-    "technical": 2035,
+    "technical": 2029,
     "workspaces": [
       "apps",
       "packages"
@@ -870,10 +870,10 @@
       "description": "Protects the admin UI reports auth middleware (T09) behavior so fails closed (401) when the admin API is unreachable."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-120-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-119-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 120,
+      "sourceLine": 119,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -886,10 +886,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-136-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-135-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 136,
+      "sourceLine": 135,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -902,10 +902,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-146-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-145-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 146,
+      "sourceLine": 145,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -918,10 +918,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-156-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-153-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 156,
+      "sourceLine": 153,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10479,10 +10479,10 @@
       "description": "Protects the translation benchmark DETECTION BENCHMARK CASES behavior so covers both clarification and direct translation decisions."
     },
     {
-      "id": "packages-adapters-ai-src-tests-chat-test-ts-31-generatechat-calls-vercel-ai-sdk-generatetext-with-messages-array-and-maxtokens",
+      "id": "packages-adapters-ai-src-tests-chat-test-ts-29-generatechat-calls-vercel-ai-sdk-generatetext-with-messages-array-and-maxtokens",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/chat.test.ts",
-      "sourceLine": 31,
+      "sourceLine": 29,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10495,10 +10495,10 @@
       "description": "Protects the aI adapter generate Chat behavior: calls Vercel AI SDK generate Text with messages array and max Tokens."
     },
     {
-      "id": "packages-adapters-ai-src-tests-chat-test-ts-57-generatechat-defaults-maxretries-to-2-when-not-specified",
+      "id": "packages-adapters-ai-src-tests-chat-test-ts-55-generatechat-defaults-maxretries-to-2-when-not-specified",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/chat.test.ts",
-      "sourceLine": 57,
+      "sourceLine": 55,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10511,10 +10511,10 @@
       "description": "Protects the aI adapter generate Chat behavior: defaults max Retries to 2 when not specified."
     },
     {
-      "id": "packages-adapters-ai-src-tests-chat-test-ts-68-generatechat-passes-maxtokens-through-to-the-sdk-when-provided",
+      "id": "packages-adapters-ai-src-tests-chat-test-ts-66-generatechat-passes-maxtokens-through-to-the-sdk-when-provided",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/chat.test.ts",
-      "sourceLine": 68,
+      "sourceLine": 66,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10527,10 +10527,10 @@
       "description": "Protects the aI adapter generate Chat behavior so passes max Tokens through to the SDK when provided."
     },
     {
-      "id": "packages-adapters-ai-src-tests-chat-test-ts-81-generatechat-omits-maxtokens-from-sdk-call-when-not-provided",
+      "id": "packages-adapters-ai-src-tests-chat-test-ts-79-generatechat-omits-maxtokens-from-sdk-call-when-not-provided",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/chat.test.ts",
-      "sourceLine": 81,
+      "sourceLine": 79,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10543,10 +10543,10 @@
       "description": "Protects the aI adapter generate Chat behavior: omits max Tokens from SDK call when not provided."
     },
     {
-      "id": "packages-adapters-ai-src-tests-chat-test-ts-93-generatechat-logs-the-request-on-success-with-requestkind-chat",
+      "id": "packages-adapters-ai-src-tests-chat-test-ts-91-generatechat-logs-the-request-on-success-with-requestkind-chat",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/chat.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 91,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10559,10 +10559,10 @@
       "description": "Protects the aI adapter generate Chat behavior: logs the request on success with request Kind 'chat'."
     },
     {
-      "id": "packages-adapters-ai-src-tests-chat-test-ts-111-generatechat-logs-the-request-on-failure-and-rethrows-the-error",
+      "id": "packages-adapters-ai-src-tests-chat-test-ts-109-generatechat-logs-the-request-on-failure-and-rethrows-the-error",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/chat.test.ts",
-      "sourceLine": 111,
+      "sourceLine": 109,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -11188,208 +11188,100 @@
       "description": "Protects the aI adapter logger behavior: logs a warning when the metric sink fails."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-6-models-getavailablemodels-returns-a-non-empty-array-of-models",
+      "id": "packages-adapters-ai-src-tests-model-price-test-ts-9-resolvemodelcost-prices-a-call-from-the-injected-provider-s-per-1k-rates",
       "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 6,
+      "filePath": "packages/adapters/ai/src/__tests__/model-price.test.ts",
+      "sourceLine": 9,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
-        "models",
-        "getAvailableModels"
+        "resolveModelCost"
       ],
-      "title": "returns a non-empty array of models",
-      "rawTitle": "returns a non-empty array of models",
-      "name": "AI adapter models get Available Models returns a non empty array of models",
-      "value": "Protects the aI adapter models get Available Models behavior: returns a non empty array of models.",
-      "description": "Protects the aI adapter models get Available Models behavior: returns a non empty array of models."
+      "title": "prices a call from the injected provider's per-1k rates",
+      "rawTitle": "prices a call from the injected provider's per-1k rates",
+      "name": "AI adapter resolve Model Cost prices a call from the injected provider's per 1k rates",
+      "value": "Protects the aI adapter resolve Model Cost behavior so prices a call from the injected provider's per 1k rates.",
+      "description": "Protects the aI adapter resolve Model Cost behavior so prices a call from the injected provider's per 1k rates."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-11-models-getavailablemodels-each-model-has-required-fields",
+      "id": "packages-adapters-ai-src-tests-model-price-test-ts-18-resolvemodelcost-uses-the-db-price-for-a-model-the-old-hardcoded-registry-never-knew-a8-regression",
       "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 11,
+      "filePath": "packages/adapters/ai/src/__tests__/model-price.test.ts",
+      "sourceLine": 18,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
-        "models",
-        "getAvailableModels"
+        "resolveModelCost"
       ],
-      "title": "each model has required fields",
-      "rawTitle": "each model has required fields",
-      "name": "AI adapter models get Available Models each model has required fields",
-      "value": "Protects the aI adapter models get Available Models behavior so each model has required fields.",
-      "description": "Protects the aI adapter models get Available Models behavior so each model has required fields."
+      "title": "uses the DB price for a model the old hardcoded registry never knew (A8 regression)",
+      "rawTitle": "uses the DB price for a model the old hardcoded registry never knew (A8 regression)",
+      "name": "AI adapter resolve Model Cost uses the DB price for a model the old hardcoded registry never knew (A8 regression)",
+      "value": "Protects the aI adapter resolve Model Cost behavior: uses the DB price for a model the old hardcoded registry never knew (A8 regression).",
+      "description": "Protects the aI adapter resolve Model Cost behavior: uses the DB price for a model the old hardcoded registry never knew (A8 regression)."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-23-models-getavailablemodels-returns-a-copy-not-mutable-reference",
+      "id": "packages-adapters-ai-src-tests-model-price-test-ts-28-resolvemodelcost-falls-back-to-the-flat-default-when-no-provider-is-wired",
       "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 23,
+      "filePath": "packages/adapters/ai/src/__tests__/model-price.test.ts",
+      "sourceLine": 28,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
-        "models",
-        "getAvailableModels"
+        "resolveModelCost"
       ],
-      "title": "returns a copy (not mutable reference)",
-      "rawTitle": "returns a copy (not mutable reference)",
-      "name": "AI adapter models get Available Models returns a copy (not mutable reference)",
-      "value": "Protects the aI adapter models get Available Models behavior: returns a copy (not mutable reference).",
-      "description": "Protects the aI adapter models get Available Models behavior: returns a copy (not mutable reference)."
+      "title": "falls back to the flat default when no provider is wired",
+      "rawTitle": "falls back to the flat default when no provider is wired",
+      "name": "AI adapter resolve Model Cost falls back to the flat default when no provider is wired",
+      "value": "Protects the aI adapter resolve Model Cost behavior: falls back to the flat default when no provider is wired.",
+      "description": "Protects the aI adapter resolve Model Cost behavior: falls back to the flat default when no provider is wired."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-32-models-findmodel-finds-known-model-by-id",
+      "id": "packages-adapters-ai-src-tests-model-price-test-ts-32-resolvemodelcost-falls-back-to-the-flat-default-when-the-provider-does-not-know-the-model",
       "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
+      "filePath": "packages/adapters/ai/src/__tests__/model-price.test.ts",
       "sourceLine": 32,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
-        "models",
-        "findModel"
+        "resolveModelCost"
       ],
-      "title": "finds known model by ID",
-      "rawTitle": "finds known model by ID",
-      "name": "AI adapter models find Model finds known model by ID",
-      "value": "Protects the aI adapter models find Model behavior: finds known model by ID.",
-      "description": "Protects the aI adapter models find Model behavior: finds known model by ID."
+      "title": "falls back to the flat default when the provider does not know the model",
+      "rawTitle": "falls back to the flat default when the provider does not know the model",
+      "name": "AI adapter resolve Model Cost falls back to the flat default when the provider does not know the model",
+      "value": "Protects the aI adapter resolve Model Cost behavior: falls back to the flat default when the provider does not know the model.",
+      "description": "Protects the aI adapter resolve Model Cost behavior: falls back to the flat default when the provider does not know the model."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-38-models-findmodel-returns-undefined-for-unknown-model",
+      "id": "packages-adapters-ai-src-tests-model-price-test-ts-38-resolvemodelcost-falls-back-to-the-flat-default-when-the-provider-throws",
       "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
+      "filePath": "packages/adapters/ai/src/__tests__/model-price.test.ts",
       "sourceLine": 38,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
-        "models",
-        "findModel"
+        "resolveModelCost"
       ],
-      "title": "returns undefined for unknown model",
-      "rawTitle": "returns undefined for unknown model",
-      "name": "AI adapter models find Model returns undefined for unknown model",
-      "value": "Protects the aI adapter models find Model behavior: returns undefined for unknown model.",
-      "description": "Protects the aI adapter models find Model behavior: returns undefined for unknown model."
+      "title": "falls back to the flat default when the provider throws",
+      "rawTitle": "falls back to the flat default when the provider throws",
+      "name": "AI adapter resolve Model Cost falls back to the flat default when the provider throws",
+      "value": "Protects the aI adapter resolve Model Cost behavior: falls back to the flat default when the provider throws.",
+      "description": "Protects the aI adapter resolve Model Cost behavior: falls back to the flat default when the provider throws."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-45-models-estimatecost-computes-the-cost-by-the-actual-model-not-the-default-fallback-price",
+      "id": "packages-adapters-ai-src-tests-model-price-test-ts-46-resolvemodelcost-returns-zero-for-a-zero-token-call",
       "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 45,
+      "filePath": "packages/adapters/ai/src/__tests__/model-price.test.ts",
+      "sourceLine": 46,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
-        "models",
-        "estimateCost"
+        "resolveModelCost"
       ],
-      "title": "computes the cost by the actual model — not the default fallback price",
-      "rawTitle": "computes the cost by the actual model — not the default fallback price",
-      "name": "AI adapter models estimate Cost computes the cost by the actual model — not the default fallback price",
-      "value": "Protects the aI adapter models estimate Cost behavior so computes the cost by the actual model — not the default fallback price.",
-      "description": "Protects the aI adapter models estimate Cost behavior so computes the cost by the actual model — not the default fallback price."
-    },
-    {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-54-models-estimatecost-uses-the-default-cost-only-for-an-unknown-model",
-      "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 54,
-      "workspace": "packages",
-      "packageName": "adapters/ai",
-      "suitePath": [
-        "models",
-        "estimateCost"
-      ],
-      "title": "uses the default cost only for an unknown model",
-      "rawTitle": "uses the default cost only for an unknown model",
-      "name": "AI adapter models estimate Cost uses the default cost only for an unknown model",
-      "value": "Protects the aI adapter models estimate Cost behavior: uses the default cost only for an unknown model.",
-      "description": "Protects the aI adapter models estimate Cost behavior: uses the default cost only for an unknown model."
-    },
-    {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-59-models-estimatecost-returns-0-for-0-tokens",
-      "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 59,
-      "workspace": "packages",
-      "packageName": "adapters/ai",
-      "suitePath": [
-        "models",
-        "estimateCost"
-      ],
-      "title": "returns 0 for 0 tokens",
-      "rawTitle": "returns 0 for 0 tokens",
-      "name": "AI adapter models estimate Cost returns 0 for 0 tokens",
-      "value": "Protects the aI adapter models estimate Cost behavior: returns 0 for 0 tokens.",
-      "description": "Protects the aI adapter models estimate Cost behavior: returns 0 for 0 tokens."
-    },
-    {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-63-models-estimatecost-matches-calculatecost-for-the-same-inputs",
-      "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 63,
-      "workspace": "packages",
-      "packageName": "adapters/ai",
-      "suitePath": [
-        "models",
-        "estimateCost"
-      ],
-      "title": "matches calculateCost for the same inputs",
-      "rawTitle": "matches calculateCost for the same inputs",
-      "name": "AI adapter models estimate Cost matches calculate Cost for the same inputs",
-      "value": "Protects the aI adapter models estimate Cost behavior so matches calculate Cost for the same inputs.",
-      "description": "Protects the aI adapter models estimate Cost behavior so matches calculate Cost for the same inputs."
-    },
-    {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-71-models-calculatecost-calculates-cost-for-known-model-with-input-output-split",
-      "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 71,
-      "workspace": "packages",
-      "packageName": "adapters/ai",
-      "suitePath": [
-        "models",
-        "calculateCost"
-      ],
-      "title": "calculates cost for known model with input/output split",
-      "rawTitle": "calculates cost for known model with input/output split",
-      "name": "AI adapter models calculate Cost calculates cost for known model with input output split",
-      "value": "Protects the aI adapter models calculate Cost behavior: calculates cost for known model with input output split.",
-      "description": "Protects the aI adapter models calculate Cost behavior: calculates cost for known model with input output split."
-    },
-    {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-78-models-calculatecost-uses-default-cost-for-unknown-model",
-      "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 78,
-      "workspace": "packages",
-      "packageName": "adapters/ai",
-      "suitePath": [
-        "models",
-        "calculateCost"
-      ],
-      "title": "uses default cost for unknown model",
-      "rawTitle": "uses default cost for unknown model",
-      "name": "AI adapter models calculate Cost uses default cost for unknown model",
-      "value": "Protects the aI adapter models calculate Cost behavior: uses default cost for unknown model.",
-      "description": "Protects the aI adapter models calculate Cost behavior: uses default cost for unknown model."
-    },
-    {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-83-models-calculatecost-returns-0-for-0-tokens",
-      "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 83,
-      "workspace": "packages",
-      "packageName": "adapters/ai",
-      "suitePath": [
-        "models",
-        "calculateCost"
-      ],
-      "title": "returns 0 for 0 tokens",
-      "rawTitle": "returns 0 for 0 tokens",
-      "name": "AI adapter models calculate Cost returns 0 for 0 tokens",
-      "value": "Protects the aI adapter models calculate Cost behavior: returns 0 for 0 tokens.",
-      "description": "Protects the aI adapter models calculate Cost behavior: returns 0 for 0 tokens."
+      "title": "returns zero for a zero-token call",
+      "rawTitle": "returns zero for a zero-token call",
+      "name": "AI adapter resolve Model Cost returns zero for a zero token call",
+      "value": "Protects the aI adapter resolve Model Cost behavior: returns zero for a zero token call.",
+      "description": "Protects the aI adapter resolve Model Cost behavior: returns zero for a zero token call."
     },
     {
       "id": "packages-adapters-ai-src-tests-types-test-ts-5-types-aimodel-interface-is-structurally-correct",

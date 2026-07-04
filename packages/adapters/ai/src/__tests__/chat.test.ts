@@ -13,10 +13,8 @@ vi.mock("../client.js", () => ({
   getModel: vi.fn().mockReturnValue("test-model"),
 }));
 
-vi.mock("../models.js", () => ({
-  calculateCost: vi.fn().mockReturnValue(0.001),
-  getAvailableModels: vi.fn().mockReturnValue([]),
-  estimateCost: vi.fn().mockReturnValue(0.001),
+vi.mock("../model-price.js", () => ({
+  resolveModelCost: vi.fn().mockResolvedValue(0.001),
 }));
 
 import { generateText as aiGenerateText } from "ai";

@@ -6,11 +6,10 @@
  */
 
 import {
-  estimateCost,
   generateChat,
   generateObject,
   generateText,
-  getAvailableModels,
+  setAIModelPriceProvider,
   setAIRequestMetricSink,
   setAIRequestTimeoutProvider,
 } from "@polyglot/adapter-ai";
@@ -68,6 +67,15 @@ export function createContainer(): ServiceContainer {
   // so a change in the admin panel takes effect without a redeploy.
   setAIRequestTimeoutProvider(async () => (await settings.getAIGenerationDefaults()).requestTimeoutMs);
 
+  // Model prices come from the single DB source (`ai_models`, admin-managed),
+  // not a hardcoded registry — so a model added in the admin panel is costed
+  // correctly instead of falling back to a flat default (Fable T21/A8). Read
+  // through the cached settings service, same DI pattern as the timeout above.
+  setAIModelPriceProvider(async (modelId) => {
+    const model = (await settings.getAIModels()).find((m) => m.id === modelId);
+    return model ? { costPer1kInput: model.costPer1kInput, costPer1kOutput: model.costPer1kOutput } : null;
+  });
+
   const container: ServiceContainer = {
     userRepository,
     vocabularyRepository,
@@ -93,8 +101,6 @@ export function createContainer(): ServiceContainer {
       generateObject,
       generateText,
       generateChat,
-      getAvailableModels,
-      estimateCost,
     },
     settings,
     videoVocabularyRepository,
