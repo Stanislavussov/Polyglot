@@ -206,12 +206,13 @@
       loop:
         - dest: /etc/nginx/conf.d/polyglot-tls.conf
           content: |
-            # TLS hardening — Mozilla "intermediate" (Fable T20, F5). http context,
-            # so every ssl server (admin, grafana, landing) inherits it without
-            # per-server duplication or duplicate shared-zone definitions.
-            ssl_protocols TLSv1.2 TLSv1.3;
-            ssl_prefer_server_ciphers off;
-            ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+            # TLS session cache — http context, so the shared memory zone is
+            # defined exactly once (Fable T20, F5). Protocol/cipher hardening is
+            # NOT here: Ubuntu's stock nginx.conf already sets ssl_protocols and
+            # ssl_prefer_server_ciphers in the http context, so repeating them
+            # here is a duplicate-directive error (`nginx -t` emerg). They live in
+            # the per-server snippet instead, where server context cleanly
+            # overrides the stock http defaults.
             ssl_session_timeout 1d;
             ssl_session_cache shared:PolyglotSSL:10m;
             ssl_session_tickets off;
@@ -222,8 +223,14 @@
             limit_req_zone $binary_remote_addr zone=polyglot_login:10m rate=5r/m;
         - dest: /etc/nginx/snippets/polyglot-hardening.conf
           content: |
-            # Security response headers + request/proxy limits (Fable T20, F5).
-            # Included per TLS server block (HSTS must not be emitted over plain HTTP).
+            # TLS protocol/cipher hardening + security headers + request/proxy
+            # limits (Fable T20, F5). Included per TLS server block: server context
+            # overrides the stock nginx.conf http-level ssl_protocols /
+            # ssl_prefer_server_ciphers without a duplicate-directive error, and
+            # HSTS is only emitted over TLS (never plain HTTP).
+            ssl_protocols TLSv1.2 TLSv1.3;
+            ssl_prefer_server_ciphers off;
+            ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
             add_header Strict-Transport-Security "max-age=63072000" always;
             add_header X-Content-Type-Options "nosniff" always;
             add_header X-Frame-Options "SAMEORIGIN" always;

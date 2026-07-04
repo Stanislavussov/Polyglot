@@ -137,14 +137,22 @@ then update the tag in one commit.
 
 **nginx is hardened** via provisioned includes (written by `site.yml`):
 
-- `/etc/nginx/conf.d/polyglot-tls.conf` — Mozilla "intermediate" TLS
-  (`TLSv1.2`/`TLSv1.3`, modern ciphers, session cache), http-context so every
-  TLS vhost inherits it.
-- `/etc/nginx/snippets/polyglot-hardening.conf` — HSTS + `X-Content-Type-Options`,
-  `X-Frame-Options`, `Referrer-Policy`, `client_max_body_size`, proxy timeouts;
-  `include`d per TLS `server` block (HSTS must not be emitted over plain HTTP). A
-  full CSP is intentionally **not** set — a restrictive policy would break the
-  Astro admin SPA and Grafana; `X-Frame-Options: SAMEORIGIN` covers clickjacking.
+- `/etc/nginx/conf.d/polyglot-tls.conf` — **only** the TLS session cache
+  (`ssl_session_cache shared:PolyglotSSL:10m`, timeout, tickets off), in the
+  http context so the named shared-memory zone is defined exactly once. The
+  protocol/cipher directives are deliberately **not** here: Ubuntu's stock
+  `nginx.conf` already sets `ssl_protocols` and `ssl_prefer_server_ciphers` in
+  the http context, so repeating them there is a duplicate-directive error
+  (`nginx -t` emerg). They live in the per-server snippet below instead.
+- `/etc/nginx/snippets/polyglot-hardening.conf` — Mozilla "intermediate" TLS
+  (`TLSv1.2`/`TLSv1.3`, modern `ssl_ciphers`, `ssl_prefer_server_ciphers off`) +
+  HSTS + `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `client_max_body_size`, proxy timeouts; `include`d per TLS `server` block.
+  Server context **overrides** the stock http-level `ssl_protocols` /
+  `ssl_prefer_server_ciphers` cleanly (no duplicate), and HSTS must not be
+  emitted over plain HTTP. A full CSP is intentionally **not** set — a
+  restrictive policy would break the Astro admin SPA and Grafana;
+  `X-Frame-Options: SAMEORIGIN` covers clickjacking.
 - `/etc/nginx/conf.d/polyglot-limits.conf` — `limit_req_zone` applied to
   `/api/auth/login` (5 r/min per IP), edge-level defense-in-depth in front of the
   app's own limiter (T05).
