@@ -125,3 +125,37 @@ Split every destructive schema change into backward-compatible steps across
 
 A single migration must never drop or rename something the currently-deployed
 code still uses. Destructive migrations get an explicit compatibility review.
+
+## 7. Monitoring image pins & nginx edge hardening (T20)
+
+**Monitoring images are pinned** by patch tag in
+`deploy/monitoring/docker-compose.monitoring.yml` (Grafana, Loki, promtail,
+Prometheus, node-exporter, cadvisor). `docker compose pull` must never drag in a
+new **major** — Loki changes its on-disk storage schema between majors and
+Grafana changes provisioning. Bump a pin deliberately: read the release notes,
+then update the tag in one commit.
+
+**nginx is hardened** via provisioned includes (written by `site.yml`):
+
+- `/etc/nginx/conf.d/polyglot-tls.conf` — Mozilla "intermediate" TLS
+  (`TLSv1.2`/`TLSv1.3`, modern ciphers, session cache), http-context so every
+  TLS vhost inherits it.
+- `/etc/nginx/snippets/polyglot-hardening.conf` — HSTS + `X-Content-Type-Options`,
+  `X-Frame-Options`, `Referrer-Policy`, `client_max_body_size`, proxy timeouts;
+  `include`d per TLS `server` block (HSTS must not be emitted over plain HTTP). A
+  full CSP is intentionally **not** set — a restrictive policy would break the
+  Astro admin SPA and Grafana; `X-Frame-Options: SAMEORIGIN` covers clickjacking.
+- `/etc/nginx/conf.d/polyglot-limits.conf` — `limit_req_zone` applied to
+  `/api/auth/login` (5 r/min per IP), edge-level defense-in-depth in front of the
+  app's own limiter (T05).
+
+**Pre-TLS bootstrap (S10):** before a certificate exists, the admin panel, admin
+API and Grafana vhosts return **503** on port 80 instead of proxying their login
+UIs over plain HTTP. `certbot --nginx` layers the ACME HTTP-01 challenge on top,
+then the TLS `server` blocks take over on the next provisioning pass. (The public
+landing site has no login and keeps proxying during bootstrap.)
+
+These are **provisioning** changes: they are dormant until `pnpm ansible` is
+re-run against the host (subject to the explicit-prod rule in §Rules). Verify
+after applying with `curl -I https://<domain>` (expect `Strict-Transport-Security`
+and the security headers; no `TLSv1.0/1.1`).
