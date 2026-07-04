@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T18:36:28.013Z",
+  "generatedAt": "2026-07-04T18:54:25.531Z",
   "summary": {
-    "total": 2008,
+    "total": 2013,
     "business": 0,
-    "technical": 2008,
+    "technical": 2013,
     "workspaces": [
       "apps",
       "packages"
@@ -4701,6 +4701,70 @@
       "name": "Bot start Command does nothing when user is not in context",
       "value": "Protects the bot start Command behavior: does nothing when user is not in context.",
       "description": "Protects the bot start Command behavior: does nothing when user is not in context."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-8-bot-readiness-t12-is-ok-when-an-update-was-processed-recently-and-the-db-responds",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 8,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot readiness (T12)"
+      ],
+      "title": "is ok when an update was processed recently and the DB responds",
+      "rawTitle": "is ok when an update was processed recently and the DB responds",
+      "name": "Bot bot readiness (T12) is ok when an update was processed recently and the DB responds",
+      "value": "Protects the bot bot readiness (T12) behavior so is ok when an update was processed recently and the DB responds.",
+      "description": "Protects the bot bot readiness (T12) behavior so is ok when an update was processed recently and the DB responds."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-19-bot-readiness-t12-is-not-ok-when-long-polling-looks-stuck-last-update-too-old",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 19,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot readiness (T12)"
+      ],
+      "title": "is not ok when long-polling looks stuck (last update too old)",
+      "rawTitle": "is not ok when long-polling looks stuck (last update too old)",
+      "name": "Bot bot readiness (T12) is not ok when long polling looks stuck (last update too old)",
+      "value": "Protects the bot bot readiness (T12) behavior so is not ok when long polling looks stuck (last update too old).",
+      "description": "Protects the bot bot readiness (T12) behavior so is not ok when long polling looks stuck (last update too old)."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-30-bot-readiness-t12-is-not-ok-when-the-database-ping-fails",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 30,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot readiness (T12)"
+      ],
+      "title": "is not ok when the database ping fails",
+      "rawTitle": "is not ok when the database ping fails",
+      "name": "Bot bot readiness (T12) is not ok when the database ping fails",
+      "value": "Protects the bot bot readiness (T12) behavior so is not ok when the database ping fails.",
+      "description": "Protects the bot bot readiness (T12) behavior so is not ok when the database ping fails."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-41-bot-readiness-t12-records-the-heartbeat-timestamp",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 41,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot readiness (T12)"
+      ],
+      "title": "records the heartbeat timestamp",
+      "rawTitle": "records the heartbeat timestamp",
+      "name": "Bot bot readiness (T12) records the heartbeat timestamp",
+      "value": "Protects the bot bot readiness (T12) behavior: records the heartbeat timestamp.",
+      "description": "Protects the bot bot readiness (T12) behavior: records the heartbeat timestamp."
     },
     {
       "id": "apps-bot-src-middlewares-auth-test-ts-73-authmiddleware-calls-next-when-no-from-id-e-g-channel-post",
@@ -15450,10 +15514,26 @@
       "description": "Protects the notification adapter check And Send behavior so succeeds on retry when transient error resolves."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-257-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-257-checkandsend-disables-notifications-for-a-user-who-blocked-the-bot-403-without-retrying",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
       "sourceLine": 257,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "checkAndSend"
+      ],
+      "title": "disables notifications for a user who blocked the bot (403), without retrying",
+      "rawTitle": "disables notifications for a user who blocked the bot (403), without retrying",
+      "name": "Notification adapter check And Send disables notifications for a user who blocked the bot (403), without retrying",
+      "value": "Protects the notification adapter check And Send behavior so disables notifications for a user who blocked the bot (403), without retrying.",
+      "description": "Protects the notification adapter check And Send behavior so disables notifications for a user who blocked the bot (403), without retrying."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-274-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 274,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15466,10 +15546,10 @@
       "description": "Protects the notification adapter check And Send behavior: sends empty dictionary prompt when no word could be picked."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-269-checkandsend-returns-error-when-getusersforwindow-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-286-checkandsend-returns-error-when-getusersforwindow-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 269,
+      "sourceLine": 286,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15482,10 +15562,10 @@
       "description": "Protects the notification adapter check And Send behavior: returns error when get Users For Window throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-281-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-298-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 281,
+      "sourceLine": 298,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15499,10 +15579,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: uses pick Dictionary Word for all users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-289-checkandsend-word-picking-strategy-passes-words-sent-in-the-last-24h-to-the-dictionary-picker-for-de-dup",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-306-checkandsend-word-picking-strategy-passes-words-sent-in-the-last-24h-to-the-dictionary-picker-for-de-dup",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 289,
+      "sourceLine": 306,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15516,10 +15596,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior so passes words sent in the last 24h to the dictionary picker for de dup."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-314-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-331-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 314,
+      "sourceLine": 331,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15532,10 +15612,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: sends re engagement message and disables notifications."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-330-processinactiveusers-processes-multiple-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-347-processinactiveusers-processes-multiple-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 330,
+      "sourceLine": 347,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15548,10 +15628,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: processes multiple inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-349-processinactiveusers-returns-zero-when-no-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-366-processinactiveusers-returns-zero-when-no-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 349,
+      "sourceLine": 366,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15564,10 +15644,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns zero when no inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-357-processinactiveusers-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-374-processinactiveusers-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 357,
+      "sourceLine": 374,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15580,10 +15660,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-370-processinactiveusers-returns-error-when-getinactiveusers-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-387-processinactiveusers-returns-error-when-getinactiveusers-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 370,
+      "sourceLine": 387,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15596,10 +15676,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns error when get Inactive Users throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-381-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-398-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 381,
+      "sourceLine": 398,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15612,10 +15692,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: uses user interface language for re engagement message."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-414-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-431-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 414,
+      "sourceLine": 431,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15628,10 +15708,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so registers a cron job with hourly schedule."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-424-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-441-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 424,
+      "sourceLine": 441,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15644,10 +15724,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior: does not register duplicate cron jobs."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-437-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-454-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 437,
+      "sourceLine": 454,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -15660,10 +15740,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler stops the cron task."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-449-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-466-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 449,
+      "sourceLine": 466,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [

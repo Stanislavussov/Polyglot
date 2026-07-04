@@ -254,6 +254,23 @@ describe("checkAndSend", () => {
     expect(result.errors).toBe(0);
   });
 
+  it("disables notifications for a user who blocked the bot (403), without retrying", async () => {
+    const blockedError = new Error("Forbidden: bot was blocked by the user");
+    const failSend = vi.fn().mockRejectedValue(blockedError);
+    const deps = buildSchedulerDeps({
+      isUserBlocked: (err) => err === blockedError,
+    });
+
+    const result = await checkAndSend(failSend, deps);
+
+    // A permanent 403 must not be retried...
+    expect(failSend).toHaveBeenCalledTimes(1);
+    // ...and the user is removed from the mailing list instead.
+    expect(deps.disableNotifications).toHaveBeenCalledWith(1);
+    expect(result.errors).toBe(1);
+    expect(result.sent).toBe(0);
+  });
+
   it("sends empty dictionary prompt when no word could be picked", async () => {
     const deps = buildSchedulerDeps({
       pickDictionaryWord: vi.fn().mockResolvedValue(null),

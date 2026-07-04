@@ -1,5 +1,7 @@
+import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { sequentialize } from "@grammyjs/runner";
+import { apiThrottler } from "@grammyjs/transformer-throttler";
 import { logger } from "@polyglot/core";
 import { Bot, type NextFunction, type StorageAdapter, session } from "grammy";
 import { changesCommand } from "./commands/changes.js";
@@ -182,6 +184,14 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   const bot = new Bot<BotContext>(options.token, {
     client: options.apiRoot ? { apiRoot: options.apiRoot } : undefined,
   });
+
+  // Telegram resilience (Fable T14). auto-retry backs off and retries on 429
+  // flood-limits (so no update/send is lost); the throttler paces all outgoing
+  // API calls under Telegram's global/per-chat limits so batch notification
+  // sends (which share this Api instance) never hit the flood limit. Applied to
+  // bot.api, which is also the Api passed to the notification scheduler.
+  bot.api.config.use(autoRetry());
+  bot.api.config.use(apiThrottler());
 
   bot.use(updateMetricsMiddleware);
 

@@ -139,4 +139,12 @@ export interface SchedulerDeps {
 
   /** Get i18n text. */
   t: (key: string, lang: string, params?: Record<string, string>) => string;
+
+  /**
+   * Classify a send error as a permanent "user blocked the bot" failure
+   * (Telegram 403). When it returns true the scheduler stops retrying and
+   * disables that user's notifications instead of retrying forever. Optional;
+   * defaults to treating every error as transient (retryable). Fable T14.
+   */
+  isUserBlocked?: (err: unknown) => boolean;
 }

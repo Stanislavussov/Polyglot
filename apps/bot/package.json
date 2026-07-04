@@ -18,8 +18,10 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
+    "@grammyjs/auto-retry": "^2.0.2",
     "@grammyjs/conversations": "^2.1.1",
     "@grammyjs/runner": "^2.0.3",
+    "@grammyjs/transformer-throttler": "^1.2.1",
     "@polyglot/adapter-ai": "workspace:*",
     "@polyglot/adapter-db": "workspace:*",
     "@polyglot/adapter-notifications": "workspace:*",

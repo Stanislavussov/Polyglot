@@ -15,7 +15,7 @@ import {
   stopScheduler,
 } from "@polyglot/adapter-notifications";
 import { type GenerateObjectFn, isSupported, logger, SettingsService, type SupportedLang, t } from "@polyglot/core";
-import type { Api, RawApi } from "grammy";
+import { type Api, GrammyError, type RawApi } from "grammy";
 import { z } from "zod";
 import { resolveDefaultAIModel } from "../utils/ai-model.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
@@ -120,6 +120,9 @@ Return translations as JSON array.`;
     getUsersForWindow: (hour: number, minute = 0) => notificationRepository.getUsersForWindow(hour, minute),
     getInactiveUsers: () => notificationRepository.getInactiveUsers(),
     disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
+    // Telegram 403 = the user blocked the bot: a permanent failure, so the
+    // scheduler stops retrying and disables their notifications (T14).
+    isUserBlocked: (err: unknown) => err instanceof GrammyError && err.error_code === 403,
     getSentWordsSince: (userId: number, since: Date) => notificationRepository.getSentWordsSince(userId, since),
     recordSentWord: (userId: number, original: string, source: string) =>
       notificationRepository.recordSentWord(userId, original, source),

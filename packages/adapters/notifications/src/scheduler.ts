@@ -53,13 +53,23 @@ async function retryWithBackoff<T>(
   throw lastErr;
 }
 
-async function sendWithRetry(sendFn: SendFn, telegramId: number, payload: NotificationPayload): Promise<void> {
+async function sendWithRetry(
+  sendFn: SendFn,
+  telegramId: number,
+  payload: NotificationPayload,
+  isPermanent?: (err: unknown) => boolean,
+): Promise<void> {
   const logger = getLogger();
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
       await sendFn(telegramId, payload);
       return;
     } catch (err) {
+      // A permanent failure (e.g. the user blocked the bot, Telegram 403) will
+      // never succeed — stop immediately instead of burning retries on it.
+      if (isPermanent?.(err)) {
+        throw err;
+      }
       if (attempt < MAX_RETRIES - 1) {
         logger.warn({ err, telegramId, attempt: attempt + 1 }, "Send failed — retrying after delay");
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
@@ -202,7 +212,7 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
 
       logger.info({ userId: user.userId, word: word.original }, "Word picked, sending notification");
       const payload = buildNotificationPayload(user, word, deps.t);
-      await sendWithRetry(sendFn, user.telegramId, payload);
+      await sendWithRetry(sendFn, user.telegramId, payload, deps.isUserBlocked);
 
       await retryWithBackoff(
         () => deps.recordSentWord(user.userId, word.original, word.source ?? "suggested"),
@@ -217,11 +227,25 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
 
       sent++;
     } catch (err) {
-      // Rule: log and continue — never stop the scheduler
-      logger.error(
-        { err, userId: user.userId, telegramId: user.telegramId },
-        "Failed to send notification — continuing",
-      );
+      // The user blocked the bot (403): stop mailing them forever — disable
+      // their notifications instead of logging an error every batch (T14).
+      if (deps.isUserBlocked?.(err)) {
+        logger.warn(
+          { userId: user.userId, telegramId: user.telegramId },
+          "User blocked the bot — disabling notifications",
+        );
+        try {
+          await deps.disableNotifications(user.userId);
+        } catch (disableErr) {
+          logger.error({ err: disableErr, userId: user.userId }, "Failed to disable notifications for blocked user");
+        }
+      } else {
+        // Rule: log and continue — never stop the scheduler
+        logger.error(
+          { err, userId: user.userId, telegramId: user.telegramId },
+          "Failed to send notification — continuing",
+        );
+      }
       errors++;
     }
   }
