@@ -5,12 +5,22 @@ import {
   languageDetectionRepository,
   requestTimingRepository,
   translationRequests,
+  userLanguageSettings,
   userRequestCountRepository,
   users,
 } from "@polyglot/adapter-db";
 import { gte, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
+
+const daysQuerySchema = z.object({
+  // Non-numeric `days` is rejected (400); out-of-range values are clamped to 1..90.
+  days: z.coerce
+    .number()
+    .int()
+    .transform((n) => Math.min(90, Math.max(1, n)))
+    .default(7),
+});
 
 export async function statsRoutes(app: FastifyInstance) {
   app.addHook("onRequest", async (request) => {
@@ -23,10 +33,12 @@ export async function statsRoutes(app: FastifyInstance) {
     const totalUsersResult = await db.select({ count: sql<number>`count(*)` }).from(users);
     const totalUsers = totalUsersResult[0]?.count ?? 0;
 
+    // "Active today" = users who interacted in the last 24h, tracked on
+    // user_language_settings.last_interaction_at — not registration date.
     const activeTodayResult = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users)
-      .where(gte(users.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000)));
+      .select({ count: sql<number>`count(*)::int` })
+      .from(userLanguageSettings)
+      .where(gte(userLanguageSettings.lastInteractionAt, new Date(Date.now() - 24 * 60 * 60 * 1000)));
     const activeToday = activeTodayResult[0]?.count ?? 0;
 
     const todayStart = new Date();
@@ -54,16 +66,14 @@ export async function statsRoutes(app: FastifyInstance) {
   });
 
   app.get("/stats/request-timings", async (request) => {
-    const query = request.query as { days?: string };
-    const days = query.days ? parseInt(query.days, 10) : 7;
+    const { days } = daysQuerySchema.parse(request.query);
     const byDay = await requestTimingRepository.getSegmentSummaryByDay(days);
     const byModel = await requestTimingRepository.getSegmentSummaryByModel(days);
     return { byDay, byModel };
   });
 
   app.get("/stats/language-detection", async (request) => {
-    const query = request.query as { days?: string };
-    const days = query.days ? parseInt(query.days, 10) : 7;
+    const { days } = daysQuerySchema.parse(request.query);
     const byDay = await languageDetectionRepository.getSummaryByDay(days);
     const outcome = await languageDetectionRepository.getSummaryByOutcome(days);
     return { byDay, outcome };

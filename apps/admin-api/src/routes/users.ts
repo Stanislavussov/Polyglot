@@ -10,6 +10,22 @@ import { eq, ilike, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 
+const listUsersQuerySchema = z.object({
+  // Non-numeric input is rejected (400 via the global handler); out-of-range
+  // values are clamped so `?limit=100000` can never dump the whole table.
+  page: z.coerce
+    .number()
+    .int()
+    .transform((n) => Math.max(1, n))
+    .default(1),
+  limit: z.coerce
+    .number()
+    .int()
+    .transform((n) => Math.min(100, Math.max(1, n)))
+    .default(20),
+  search: z.string().max(200).optional(),
+});
+
 const updatePlanSchema = z.object({
   plan: z.string().min(1).max(50),
 });
@@ -24,23 +40,16 @@ export async function userRoutes(app: FastifyInstance) {
   });
 
   app.get("/users", async (request: FastifyRequest) => {
-    const {
-      page = "1",
-      limit = "20",
-      search = "",
-    } = request.query as {
-      page?: string;
-      limit?: string;
-      search?: string;
-    };
-
-    const pageNum = Number.parseInt(page, 10);
-    const limitNum = Number.parseInt(limit, 10);
-    const offset = (pageNum - 1) * limitNum;
+    const { page, limit, search } = listUsersQuerySchema.parse(request.query);
+    const offset = (page - 1) * limit;
 
     const db = getDb();
 
-    let query = db
+    // Same filter drives both the page selection and the total count, so
+    // pagination stays consistent when a search term is applied.
+    const searchFilter = search ? ilike(users.username, `%${search}%`) : undefined;
+
+    const usersList = await db
       .select({
         id: users.id,
         telegramId: users.telegramId,
@@ -55,21 +64,15 @@ export async function userRoutes(app: FastifyInstance) {
       })
       .from(users)
       .leftJoin(userLanguageSettings, eq(users.id, userLanguageSettings.userId))
-      .limit(limitNum)
+      .where(searchFilter)
+      .limit(limit)
       .offset(offset);
 
-    if (search) {
-      const searchPattern = `%${search}%`;
-      query = query.where(ilike(users.username, searchPattern)) as typeof query;
-    }
-
-    const usersList = await query;
-
-    const countResult = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const countResult = await db.select({ count: sql<number>`count(*)::int` }).from(users).where(searchFilter);
 
     const total = countResult[0]?.count ?? 0;
 
-    return { users: usersList, total, page: pageNum, limit: limitNum };
+    return { users: usersList, total, page, limit };
   });
 
   app.put("/users/:id/plan", async (request: FastifyRequest, reply: FastifyReply) => {

@@ -6,6 +6,7 @@ import Fastify from "fastify";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenvConfig({ path: resolve(__dirname, "../../../.env") });
 
+import { installErrorHandler } from "./error-handler.js";
 import { authPlugin } from "./plugins/auth.js";
 import { aiDefaultRoutes } from "./routes/ai-defaults.js";
 import { aiModelRoutes } from "./routes/ai-models.js";
@@ -50,6 +51,8 @@ export async function buildAdminApiApp() {
   });
 
   await app.register(authPlugin);
+
+  installErrorHandler(app);
 
   app.get("/healthz", async () => ({ status: "ok" }));
 

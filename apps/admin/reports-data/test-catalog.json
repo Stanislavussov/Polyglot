@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T18:07:18.364Z",
+  "generatedAt": "2026-07-04T18:19:20.257Z",
   "summary": {
-    "total": 1990,
+    "total": 2000,
     "business": 0,
-    "technical": 1990,
+    "technical": 2000,
     "workspaces": [
       "apps",
       "packages"
@@ -52,6 +52,54 @@
       "name": "Admin API admin API CORS routes encoded slash model ids before auth checks",
       "value": "Protects the admin API admin API CORS behavior: routes encoded slash model ids before auth checks.",
       "description": "Protects the admin API admin API CORS behavior: routes encoded slash model ids before auth checks."
+    },
+    {
+      "id": "apps-admin-api-src-error-handler-test-ts-30-installerrorhandler-maps-a-thrown-zoderror-to-400-with-a-body-free-of-zoderror-internals",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/error-handler.test.ts",
+      "sourceLine": 30,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "installErrorHandler"
+      ],
+      "title": "maps a thrown ZodError to 400 with a body free of ZodError internals",
+      "rawTitle": "maps a thrown ZodError to 400 with a body free of ZodError internals",
+      "name": "Admin API install Error Handler maps a thrown Zod Error to 400 with a body free of Zod Error internals",
+      "value": "Protects the admin API install Error Handler behavior: maps a thrown Zod Error to 400 with a body free of Zod Error internals.",
+      "description": "Protects the admin API install Error Handler behavior: maps a thrown Zod Error to 400 with a body free of Zod Error internals."
+    },
+    {
+      "id": "apps-admin-api-src-error-handler-test-ts-43-installerrorhandler-hides-5xx-internals-behind-a-generic-message",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/error-handler.test.ts",
+      "sourceLine": 43,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "installErrorHandler"
+      ],
+      "title": "hides 5xx internals behind a generic message",
+      "rawTitle": "hides 5xx internals behind a generic message",
+      "name": "Admin API install Error Handler hides 5xx internals behind a generic message",
+      "value": "Protects the admin API install Error Handler behavior: hides 5xx internals behind a generic message.",
+      "description": "Protects the admin API install Error Handler behavior: hides 5xx internals behind a generic message."
+    },
+    {
+      "id": "apps-admin-api-src-error-handler-test-ts-54-installerrorhandler-passes-through-a-safe-4xx-status-and-message",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/error-handler.test.ts",
+      "sourceLine": 54,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "installErrorHandler"
+      ],
+      "title": "passes through a safe 4xx status and message",
+      "rawTitle": "passes through a safe 4xx status and message",
+      "name": "Admin API install Error Handler passes through a safe 4xx status and message",
+      "value": "Protects the admin API install Error Handler behavior so passes through a safe 4xx status and message.",
+      "description": "Protects the admin API install Error Handler behavior so passes through a safe 4xx status and message."
     },
     {
       "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-53-ai-model-guards-t11-refuses-to-delete-the-current-default-model-with-409",
@@ -278,10 +326,10 @@
       "description": "Protects the admin API reported Issue Routes behavior: returns 400 for invalid status values."
     },
     {
-      "id": "apps-admin-api-src-routes-stats-test-ts-90-statsroutes-returns-user-request-counts-with-the-contract-shape",
+      "id": "apps-admin-api-src-routes-stats-test-ts-113-statsroutes-returns-user-request-counts-with-the-contract-shape",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/stats.test.ts",
-      "sourceLine": 90,
+      "sourceLine": 113,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -294,10 +342,10 @@
       "description": "Protects the admin API stats Routes behavior: returns user request counts with the contract shape."
     },
     {
-      "id": "apps-admin-api-src-routes-stats-test-ts-114-statsroutes-respects-the-days-query-parameter",
+      "id": "apps-admin-api-src-routes-stats-test-ts-137-statsroutes-respects-the-days-query-parameter",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/stats.test.ts",
-      "sourceLine": 114,
+      "sourceLine": 137,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -310,10 +358,10 @@
       "description": "Protects the admin API stats Routes behavior: respects the days query parameter."
     },
     {
-      "id": "apps-admin-api-src-routes-stats-test-ts-128-statsroutes-defaults-to-30-days-when-days-is-omitted",
+      "id": "apps-admin-api-src-routes-stats-test-ts-151-statsroutes-defaults-to-30-days-when-days-is-omitted",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/stats.test.ts",
-      "sourceLine": 128,
+      "sourceLine": 151,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -326,10 +374,10 @@
       "description": "Protects the admin API stats Routes behavior: defaults to 30 days when days is omitted."
     },
     {
-      "id": "apps-admin-api-src-routes-stats-test-ts-141-statsroutes-returns-dictionary-lookup-logs-with-summary",
+      "id": "apps-admin-api-src-routes-stats-test-ts-164-statsroutes-returns-dictionary-lookup-logs-with-summary",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/stats.test.ts",
-      "sourceLine": 141,
+      "sourceLine": 164,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -342,10 +390,10 @@
       "description": "Protects the admin API stats Routes behavior: returns dictionary lookup logs with summary."
     },
     {
-      "id": "apps-admin-api-src-routes-stats-test-ts-182-statsroutes-does-not-include-rows-from-the-calendar-day-before-the-visible-window",
+      "id": "apps-admin-api-src-routes-stats-test-ts-205-statsroutes-does-not-include-rows-from-the-calendar-day-before-the-visible-window",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/stats.test.ts",
-      "sourceLine": 182,
+      "sourceLine": 205,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -358,10 +406,58 @@
       "description": "Protects the admin API stats Routes behavior: does not include rows from the calendar day before the visible window."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-105-userroutes-includes-audiencegroup-in-the-users-list",
+      "id": "apps-admin-api-src-routes-stats-test-ts-247-statsroutes-clamps-an-oversized-days-window-on-request-timings",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/stats.test.ts",
+      "sourceLine": 247,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "statsRoutes"
+      ],
+      "title": "clamps an oversized days window on request-timings",
+      "rawTitle": "clamps an oversized days window on request-timings",
+      "name": "Admin API stats Routes clamps an oversized days window on request timings",
+      "value": "Protects the admin API stats Routes behavior so clamps an oversized days window on request timings.",
+      "description": "Protects the admin API stats Routes behavior so clamps an oversized days window on request timings."
+    },
+    {
+      "id": "apps-admin-api-src-routes-stats-test-ts-258-statsroutes-rejects-a-non-numeric-days-window-with-400-not-500",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/stats.test.ts",
+      "sourceLine": 258,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "statsRoutes"
+      ],
+      "title": "rejects a non-numeric days window with 400 (not 500)",
+      "rawTitle": "rejects a non-numeric days window with 400 (not 500)",
+      "name": "Admin API stats Routes rejects a non numeric days window with 400 (not 500)",
+      "value": "Protects the admin API stats Routes behavior: rejects a non numeric days window with 400 (not 500).",
+      "description": "Protects the admin API stats Routes behavior: rejects a non numeric days window with 400 (not 500)."
+    },
+    {
+      "id": "apps-admin-api-src-routes-stats-test-ts-269-statsroutes-defaults-the-language-detection-window-to-7-days",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/stats.test.ts",
+      "sourceLine": 269,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "statsRoutes"
+      ],
+      "title": "defaults the language-detection window to 7 days",
+      "rawTitle": "defaults the language-detection window to 7 days",
+      "name": "Admin API stats Routes defaults the language detection window to 7 days",
+      "value": "Protects the admin API stats Routes behavior: defaults the language detection window to 7 days.",
+      "description": "Protects the admin API stats Routes behavior: defaults the language detection window to 7 days."
+    },
+    {
+      "id": "apps-admin-api-src-routes-users-test-ts-112-userroutes-includes-audiencegroup-in-the-users-list",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 105,
+      "sourceLine": 112,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -374,10 +470,10 @@
       "description": "Protects the admin API user Routes behavior: includes audience Group in the users list."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-120-userroutes-updates-a-user-audience-group",
+      "id": "apps-admin-api-src-routes-users-test-ts-127-userroutes-updates-a-user-audience-group",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 120,
+      "sourceLine": 127,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -390,10 +486,10 @@
       "description": "Protects the admin API user Routes behavior: updates a user audience group."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-134-userroutes-returns-400-for-invalid-audience-group-values",
+      "id": "apps-admin-api-src-routes-users-test-ts-141-userroutes-returns-400-for-invalid-audience-group-values",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 134,
+      "sourceLine": 141,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -404,6 +500,70 @@
       "name": "Admin API user Routes returns 400 for invalid audience group values",
       "value": "Protects the admin API user Routes behavior: returns 400 for invalid audience group values.",
       "description": "Protects the admin API user Routes behavior: returns 400 for invalid audience group values."
+    },
+    {
+      "id": "apps-admin-api-src-routes-users-test-ts-155-userroutes-rejects-a-non-numeric-limit-with-400-not-500-and-a-safe-body",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/users.test.ts",
+      "sourceLine": 155,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "userRoutes"
+      ],
+      "title": "rejects a non-numeric limit with 400 (not 500) and a safe body",
+      "rawTitle": "rejects a non-numeric limit with 400 (not 500) and a safe body",
+      "name": "Admin API user Routes rejects a non numeric limit with 400 (not 500) and a safe body",
+      "value": "Protects the admin API user Routes behavior: rejects a non numeric limit with 400 (not 500) and a safe body.",
+      "description": "Protects the admin API user Routes behavior: rejects a non numeric limit with 400 (not 500) and a safe body."
+    },
+    {
+      "id": "apps-admin-api-src-routes-users-test-ts-166-userroutes-clamps-an-oversized-limit-instead-of-dumping-the-whole-table",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/users.test.ts",
+      "sourceLine": 166,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "userRoutes"
+      ],
+      "title": "clamps an oversized limit instead of dumping the whole table",
+      "rawTitle": "clamps an oversized limit instead of dumping the whole table",
+      "name": "Admin API user Routes clamps an oversized limit instead of dumping the whole table",
+      "value": "Protects the admin API user Routes behavior so clamps an oversized limit instead of dumping the whole table.",
+      "description": "Protects the admin API user Routes behavior so clamps an oversized limit instead of dumping the whole table."
+    },
+    {
+      "id": "apps-admin-api-src-routes-users-test-ts-177-userroutes-counts-with-the-same-search-filter-so-total-stays-consistent-with-the-page",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/users.test.ts",
+      "sourceLine": 177,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "userRoutes"
+      ],
+      "title": "counts with the same search filter so total stays consistent with the page",
+      "rawTitle": "counts with the same search filter so total stays consistent with the page",
+      "name": "Admin API user Routes counts with the same search filter so total stays consistent with the page",
+      "value": "Protects the admin API user Routes behavior so counts with the same search filter so total stays consistent with the page.",
+      "description": "Protects the admin API user Routes behavior so counts with the same search filter so total stays consistent with the page."
+    },
+    {
+      "id": "apps-admin-api-src-routes-users-test-ts-191-userroutes-reports-the-full-total-when-no-search-filter-is-applied",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/users.test.ts",
+      "sourceLine": 191,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "userRoutes"
+      ],
+      "title": "reports the full total when no search filter is applied",
+      "rawTitle": "reports the full total when no search filter is applied",
+      "name": "Admin API user Routes reports the full total when no search filter is applied",
+      "value": "Protects the admin API user Routes behavior: reports the full total when no search filter is applied.",
+      "description": "Protects the admin API user Routes behavior: reports the full total when no search filter is applied."
     },
     {
       "id": "apps-admin-src-lib-api-test-ts-19-admin-api-client-does-not-send-json-content-type-for-bodyless-delete-requests",
