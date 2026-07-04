@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T18:26:17.843Z",
+  "generatedAt": "2026-07-04T18:36:28.013Z",
   "summary": {
-    "total": 2004,
+    "total": 2008,
     "business": 0,
-    "technical": 2004,
+    "technical": 2008,
     "workspaces": [
       "apps",
       "packages"
@@ -102,10 +102,10 @@
       "description": "Protects the admin API install Error Handler behavior so passes through a safe 4xx status and message."
     },
     {
-      "id": "apps-admin-api-src-plugins-auth-test-ts-45-authplugin-runtime-revocation-t06-lets-an-active-admin-through",
+      "id": "apps-admin-api-src-plugins-auth-test-ts-38-authplugin-runtime-revocation-t06-lets-an-active-admin-through",
       "kind": "technical",
       "filePath": "apps/admin-api/src/plugins/auth.test.ts",
-      "sourceLine": 45,
+      "sourceLine": 38,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -118,10 +118,26 @@
       "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior so lets an active admin through."
     },
     {
-      "id": "apps-admin-api-src-plugins-auth-test-ts-56-authplugin-runtime-revocation-t06-revokes-a-deactivated-admin-once-the-cache-ttl-expires",
+      "id": "apps-admin-api-src-plugins-auth-test-ts-49-authplugin-runtime-revocation-t06-rejects-a-protected-route-when-no-token-is-presented",
       "kind": "technical",
       "filePath": "apps/admin-api/src/plugins/auth.test.ts",
-      "sourceLine": 56,
+      "sourceLine": 49,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "authPlugin runtime revocation (T06)"
+      ],
+      "title": "rejects a protected route when no token is presented",
+      "rawTitle": "rejects a protected route when no token is presented",
+      "name": "Admin API auth Plugin runtime revocation (T06) rejects a protected route when no token is presented",
+      "value": "Protects the admin API auth Plugin runtime revocation (T06) behavior: rejects a protected route when no token is presented.",
+      "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior: rejects a protected route when no token is presented."
+    },
+    {
+      "id": "apps-admin-api-src-plugins-auth-test-ts-59-authplugin-runtime-revocation-t06-revokes-a-deactivated-admin-once-the-cache-ttl-expires",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plugins/auth.test.ts",
+      "sourceLine": 59,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -134,10 +150,10 @@
       "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior so revokes a deactivated admin once the cache TTL expires."
     },
     {
-      "id": "apps-admin-api-src-plugins-auth-test-ts-77-authplugin-runtime-revocation-t06-does-not-hit-the-db-on-every-request-within-the-ttl",
+      "id": "apps-admin-api-src-plugins-auth-test-ts-80-authplugin-runtime-revocation-t06-does-not-hit-the-db-on-every-request-within-the-ttl",
       "kind": "technical",
       "filePath": "apps/admin-api/src/plugins/auth.test.ts",
-      "sourceLine": 77,
+      "sourceLine": 80,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -150,10 +166,10 @@
       "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior: does not hit the DB on every request within the TTL."
     },
     {
-      "id": "apps-admin-api-src-plugins-auth-test-ts-90-authplugin-runtime-revocation-t06-rejects-a-token-for-a-deleted-admin",
+      "id": "apps-admin-api-src-plugins-auth-test-ts-93-authplugin-runtime-revocation-t06-rejects-a-token-for-a-deleted-admin",
       "kind": "technical",
       "filePath": "apps/admin-api/src/plugins/auth.test.ts",
-      "sourceLine": 90,
+      "sourceLine": 93,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -166,10 +182,10 @@
       "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior: rejects a token for a deleted admin."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-53-ai-model-guards-t11-refuses-to-delete-the-current-default-model-with-409",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-56-ai-model-guards-t11-refuses-to-delete-the-current-default-model-with-409",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 53,
+      "sourceLine": 56,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -182,10 +198,10 @@
       "description": "Protects the admin API AI model guards (T11) behavior so refuses to delete the current default model with 409."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-62-ai-model-guards-t11-deletes-a-non-default-model-with-204",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-65-ai-model-guards-t11-deletes-a-non-default-model-with-204",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 62,
+      "sourceLine": 65,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -198,10 +214,10 @@
       "description": "Protects the admin API AI model guards (T11) behavior so deletes a non default model with 204."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-71-ai-model-guards-t11-rejects-set-default-on-a-disabled-model-with-409-and-does-not-switch-the-default",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-74-ai-model-guards-t11-rejects-set-default-on-a-disabled-model-with-409-and-does-not-switch-the-default",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 71,
+      "sourceLine": 74,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -214,10 +230,10 @@
       "description": "Protects the admin API AI model guards (T11) behavior: rejects set default on a disabled model with 409 and does not switch the default."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-80-ai-model-guards-t11-rejects-set-default-on-a-missing-model-with-404",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-83-ai-model-guards-t11-rejects-set-default-on-a-missing-model-with-404",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 80,
+      "sourceLine": 83,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -230,10 +246,10 @@
       "description": "Protects the admin API AI model guards (T11) behavior: rejects set default on a missing model with 404."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-89-ai-model-guards-t11-sets-an-enabled-model-as-default",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-92-ai-model-guards-t11-sets-an-enabled-model-as-default",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 89,
+      "sourceLine": 92,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -244,6 +260,38 @@
       "name": "Admin API AI model guards (T11) sets an enabled model as default",
       "value": "Protects the admin API AI model guards (T11) behavior so sets an enabled model as default.",
       "description": "Protects the admin API AI model guards (T11) behavior so sets an enabled model as default."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-102-ai-model-guards-t11-forbids-a-non-superadmin-from-deleting-a-model-with-403-rbac-t07",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 102,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "forbids a non-superadmin from deleting a model with 403 (RBAC, T07)",
+      "rawTitle": "forbids a non-superadmin from deleting a model with 403 (RBAC, T07)",
+      "name": "Admin API AI model guards (T11) forbids a non superadmin from deleting a model with 403 (RBAC, T07)",
+      "value": "Protects the admin API AI model guards (T11) behavior so forbids a non superadmin from deleting a model with 403 (RBAC, T07).",
+      "description": "Protects the admin API AI model guards (T11) behavior so forbids a non superadmin from deleting a model with 403 (RBAC, T07)."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-112-ai-model-guards-t11-forbids-a-non-superadmin-from-changing-the-default-model-with-403",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 112,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "forbids a non-superadmin from changing the default model with 403",
+      "rawTitle": "forbids a non-superadmin from changing the default model with 403",
+      "name": "Admin API AI model guards (T11) forbids a non superadmin from changing the default model with 403",
+      "value": "Protects the admin API AI model guards (T11) behavior so forbids a non superadmin from changing the default model with 403.",
+      "description": "Protects the admin API AI model guards (T11) behavior so forbids a non superadmin from changing the default model with 403."
     },
     {
       "id": "apps-admin-api-src-routes-ai-models-test-ts-42-ai-model-openrouter-routes-reports-openrouter-key-expiration-from-the-current-key-endpoint",
@@ -518,10 +566,10 @@
       "description": "Protects the admin API stats Routes behavior: defaults the language detection window to 7 days."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-112-userroutes-includes-audiencegroup-in-the-users-list",
+      "id": "apps-admin-api-src-routes-users-test-ts-116-userroutes-includes-audiencegroup-in-the-users-list",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 112,
+      "sourceLine": 116,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -534,10 +582,10 @@
       "description": "Protects the admin API user Routes behavior: includes audience Group in the users list."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-127-userroutes-updates-a-user-audience-group",
+      "id": "apps-admin-api-src-routes-users-test-ts-131-userroutes-updates-a-user-audience-group",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 127,
+      "sourceLine": 131,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -550,10 +598,10 @@
       "description": "Protects the admin API user Routes behavior: updates a user audience group."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-141-userroutes-returns-400-for-invalid-audience-group-values",
+      "id": "apps-admin-api-src-routes-users-test-ts-145-userroutes-returns-400-for-invalid-audience-group-values",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 141,
+      "sourceLine": 145,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -566,10 +614,10 @@
       "description": "Protects the admin API user Routes behavior: returns 400 for invalid audience group values."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-155-userroutes-rejects-a-non-numeric-limit-with-400-not-500-and-a-safe-body",
+      "id": "apps-admin-api-src-routes-users-test-ts-159-userroutes-rejects-a-non-numeric-limit-with-400-not-500-and-a-safe-body",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 155,
+      "sourceLine": 159,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -582,10 +630,10 @@
       "description": "Protects the admin API user Routes behavior: rejects a non numeric limit with 400 (not 500) and a safe body."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-166-userroutes-clamps-an-oversized-limit-instead-of-dumping-the-whole-table",
+      "id": "apps-admin-api-src-routes-users-test-ts-170-userroutes-clamps-an-oversized-limit-instead-of-dumping-the-whole-table",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 166,
+      "sourceLine": 170,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -598,10 +646,10 @@
       "description": "Protects the admin API user Routes behavior so clamps an oversized limit instead of dumping the whole table."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-177-userroutes-counts-with-the-same-search-filter-so-total-stays-consistent-with-the-page",
+      "id": "apps-admin-api-src-routes-users-test-ts-181-userroutes-counts-with-the-same-search-filter-so-total-stays-consistent-with-the-page",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 177,
+      "sourceLine": 181,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -614,10 +662,10 @@
       "description": "Protects the admin API user Routes behavior so counts with the same search filter so total stays consistent with the page."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-191-userroutes-reports-the-full-total-when-no-search-filter-is-applied",
+      "id": "apps-admin-api-src-routes-users-test-ts-195-userroutes-reports-the-full-total-when-no-search-filter-is-applied",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 191,
+      "sourceLine": 195,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -628,6 +676,22 @@
       "name": "Admin API user Routes reports the full total when no search filter is applied",
       "value": "Protects the admin API user Routes behavior: reports the full total when no search filter is applied.",
       "description": "Protects the admin API user Routes behavior: reports the full total when no search filter is applied."
+    },
+    {
+      "id": "apps-admin-api-src-routes-users-test-ts-205-userroutes-forbids-a-non-superadmin-from-changing-a-user-s-audience-group-with-403",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/users.test.ts",
+      "sourceLine": 205,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "userRoutes"
+      ],
+      "title": "forbids a non-superadmin from changing a user's audience group with 403",
+      "rawTitle": "forbids a non-superadmin from changing a user's audience group with 403",
+      "name": "Admin API user Routes forbids a non superadmin from changing a user's audience group with 403",
+      "value": "Protects the admin API user Routes behavior so forbids a non superadmin from changing a user's audience group with 403.",
+      "description": "Protects the admin API user Routes behavior so forbids a non superadmin from changing a user's audience group with 403."
     },
     {
       "id": "apps-admin-src-lib-api-test-ts-19-admin-api-client-does-not-send-json-content-type-for-bodyless-delete-requests",

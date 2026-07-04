@@ -1,6 +1,7 @@
 import { rateLimitPlanRepository } from "@polyglot/adapter-db";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
+import { requireRole } from "../plugins/auth.js";
 
 const planSchema = z.object({
   name: z.string().min(1).max(50),
@@ -13,22 +14,22 @@ const planSchema = z.object({
 });
 
 export async function rateLimitRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
+  // Auth is applied globally by the unified hook; mutating tariff plans is a
+  // superadmin-only, destructive operation (Fable T07).
+  const superadminOnly = { preHandler: requireRole("superadmin") };
 
   app.get("/rate-limits", async () => {
     const plans = await rateLimitPlanRepository.findAll();
     return plans;
   });
 
-  app.put("/rate-limits", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/rate-limits", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const body = planSchema.parse(request.body);
     const plan = await rateLimitPlanRepository.upsert(body);
     return reply.status(200).send(plan);
   });
 
-  app.delete("/rate-limits/:name", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.delete("/rate-limits/:name", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { name } = request.params as { name: string };
     try {
       const result = await rateLimitPlanRepository.delete(name);

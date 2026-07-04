@@ -41,6 +41,22 @@ async function isAdminActive(adminId: number): Promise<boolean> {
   return isActive;
 }
 
+/** Routes reachable without a valid admin token. Everything else requires auth. */
+const PUBLIC_ROUTES = new Set(["/healthz", "/api/auth/login"]);
+
+/**
+ * A per-route `preHandler` that enforces a minimum role (Fable T07, finding S8).
+ * Runs after the unified auth hook has populated `request.adminUser`, so a role
+ * mismatch is answered with 403.
+ */
+export function requireRole(role: string) {
+  return async function enforceRole(request: FastifyRequest, reply: FastifyReply) {
+    if (request.adminUser?.role !== role) {
+      return reply.status(403).send({ error: "Forbidden" });
+    }
+  };
+}
+
 export const authPlugin = fp(async (app: FastifyInstance) => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -61,16 +77,21 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
     },
   });
 
-  app.decorate("authenticate", async (request: FastifyRequest, reply: FastifyReply) => {
+  // Single unified auth hook (Fable T07): every non-public route verifies the
+  // JWT (which also runs the isActive revocation check above) and populates
+  // request.adminUser in ONE place, replacing the 11 copied per-route hooks.
+  app.addHook("onRequest", async (request: FastifyRequest, reply: FastifyReply) => {
+    if (request.method === "OPTIONS") {
+      return; // CORS preflight carries no credentials.
+    }
+    const path = request.url.split("?")[0];
+    if (PUBLIC_ROUTES.has(path)) {
+      return;
+    }
     try {
-      const user = await request.jwtVerify<{
-        adminId: number;
-        email: string;
-        role: string;
-      }>();
-      request.adminUser = user;
+      request.adminUser = await request.jwtVerify<{ adminId: number; email: string; role: string }>();
     } catch {
-      reply.status(401).send({ error: "Unauthorized" });
+      return reply.status(401).send({ error: "Unauthorized" });
     }
   });
 });

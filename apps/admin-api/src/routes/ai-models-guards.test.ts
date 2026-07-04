@@ -29,17 +29,20 @@ function model(overrides: Record<string, unknown> = {}) {
   };
 }
 
-async function buildApp() {
+async function buildApp(role = "superadmin") {
   const app = Fastify();
-  await app.register(import("@fastify/jwt"), { secret: "test-secret" });
+  // The unified auth hook (jwtVerify + isActive) runs globally in the real app;
+  // here we stand in an admin of the given role to exercise the RBAC preHandler.
+  app.addHook("onRequest", async (request) => {
+    request.adminUser = { adminId: 1, email: "admin@example.com", role };
+  });
   await app.register(aiModelRoutes, { prefix: "/api/settings" });
   return app;
 }
 
-async function authedInject(method: "DELETE" | "PUT", url: string) {
-  const app = await buildApp();
-  const token = app.jwt.sign({ adminId: 1, email: "admin@example.com", role: "superadmin" });
-  return app.inject({ method, url, headers: { authorization: `Bearer ${token}` } });
+async function authedInject(method: "DELETE" | "PUT", url: string, role = "superadmin") {
+  const app = await buildApp(role);
+  return app.inject({ method, url });
 }
 
 describe("AI model guards (T11)", () => {
@@ -94,5 +97,24 @@ describe("AI model guards (T11)", () => {
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ success: true });
     expect(repo.setDefault).toHaveBeenCalledWith("openai/gpt-5-nano");
+  });
+
+  it("forbids a non-superadmin from deleting a model with 403 (RBAC, T07)", async () => {
+    repo.findByIdWithPlans.mockResolvedValue(model({ isDefault: false }));
+
+    const res = await authedInject("DELETE", "/api/settings/ai-models/openai%2Fgpt-5-nano", "admin");
+
+    expect(res.statusCode).toBe(403);
+    expect(repo.findByIdWithPlans).not.toHaveBeenCalled();
+    expect(repo.delete).not.toHaveBeenCalled();
+  });
+
+  it("forbids a non-superadmin from changing the default model with 403", async () => {
+    repo.findByIdWithPlans.mockResolvedValue(model({ isEnabled: true, isDefault: false }));
+
+    const res = await authedInject("PUT", "/api/settings/ai-models/openai%2Fgpt-5-nano/set-default", "admin");
+
+    expect(res.statusCode).toBe(403);
+    expect(repo.setDefault).not.toHaveBeenCalled();
   });
 });

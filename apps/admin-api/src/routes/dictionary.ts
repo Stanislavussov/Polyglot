@@ -16,10 +16,6 @@ const DEFAULTS: DictionaryConfig = {
 };
 
 export async function dictionaryRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
-
   app.get("/dictionary", async () => {
     const value = await systemSettingsRepository.get<DictionaryConfig>("dictionary");
     return value ?? DEFAULTS;

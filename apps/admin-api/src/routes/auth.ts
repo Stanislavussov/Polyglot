@@ -46,8 +46,9 @@ export async function authRoutes(app: FastifyInstance) {
   );
 
   app.get("/me", async (request: FastifyRequest, reply: FastifyReply) => {
-    const user = await request.jwtVerify<{ adminId: number; email: string; role: string }>();
-    const admin = await adminUserRepository.findById(user.adminId);
+    // Auth is enforced globally by the unified hook (plugins/auth.ts), which has
+    // already verified the token and populated request.adminUser.
+    const admin = await adminUserRepository.findById(request.adminUser.adminId);
     if (!admin) {
       return reply.status(404).send({ error: "Admin not found" });
     }

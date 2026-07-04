@@ -83,8 +83,12 @@ const { userRoutes } = await import("./users.js");
 
 async function buildApp() {
   const app = Fastify();
-  app.decorateRequest("jwtVerify", async () => undefined);
   installErrorHandler(app);
+  // The unified auth hook runs in the real app; here we stand in a superadmin so
+  // the RBAC-gated routes (plan / audience-group) are reachable.
+  app.addHook("onRequest", async (request) => {
+    request.adminUser = { adminId: 1, email: "admin@example.com", role: "superadmin" };
+  });
   await app.register(userRoutes);
   return app;
 }
@@ -195,6 +199,25 @@ describe("userRoutes", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json().total).toBe(mocks.userRows.length);
+    await app.close();
+  });
+
+  it("forbids a non-superadmin from changing a user's audience group with 403", async () => {
+    const app = Fastify();
+    installErrorHandler(app);
+    app.addHook("onRequest", async (request) => {
+      request.adminUser = { adminId: 2, email: "admin@example.com", role: "admin" };
+    });
+    await app.register(userRoutes);
+
+    const response = await app.inject({
+      method: "PUT",
+      url: "/users/1/audience-group",
+      payload: { audienceGroup: "admin" },
+    });
+
+    expect(response.statusCode).toBe(403);
+    expect(mocks.updateAudienceGroup).not.toHaveBeenCalled();
     await app.close();
   });
 });

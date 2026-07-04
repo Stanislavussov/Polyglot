@@ -23,10 +23,6 @@ const DEFAULTS: VideoVocabularyConfig = {
 };
 
 export async function videoVocabularyRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
-
   app.get("/video-vocabulary", async () => {
     const value = await systemSettingsRepository.get<VideoVocabularyConfig>("videoVocabulary");
     return value ?? DEFAULTS;

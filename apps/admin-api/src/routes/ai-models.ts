@@ -1,6 +1,7 @@
 import { type AIModelWithPlans, aiModelRepository } from "@polyglot/adapter-db";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
+import { requireRole } from "../plugins/auth.js";
 
 const modelSchema = z.object({
   id: z.string().min(1).max(255),
@@ -47,12 +48,6 @@ const openRouterCurrentKeyResponseSchema = z.object({
     expires_at: z.string().datetime().nullable().optional(),
   }),
 });
-
-interface AdminActor {
-  adminId: number;
-  email: string;
-  role: string;
-}
 
 type AIModelChangeAction = "created" | "updated" | "default_changed" | "deleted";
 type OpenRouterKeyExpirationStatus = "active" | "expiring_soon" | "expired" | "unknown" | "not_configured";
@@ -142,9 +137,9 @@ function expirationStatus(expiresAt: string | null): {
 }
 
 export async function aiModelRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    request.adminUser = await request.jwtVerify<AdminActor>();
-  });
+  // Auth (jwtVerify + isActive) is applied globally by the unified hook in
+  // plugins/auth.ts; mutating routes additionally require the superadmin role.
+  const superadminOnly = { preHandler: requireRole("superadmin") };
 
   app.get("/ai-models/openrouter", async () => {
     const headers: Record<string, string> = {};
@@ -206,7 +201,7 @@ export async function aiModelRoutes(app: FastifyInstance) {
     return models;
   });
 
-  app.post("/ai-models", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post("/ai-models", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const body = modelSchema.parse(request.body);
     const before = await aiModelRepository.findByIdWithPlans(body.id);
     const model = await aiModelRepository.upsert(body);
@@ -214,7 +209,7 @@ export async function aiModelRoutes(app: FastifyInstance) {
     return reply.status(201).send(model);
   });
 
-  app.put("/ai-models/:id", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/ai-models/:id", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const body = updateModelSchema.parse(request.body);
     const existing = await aiModelRepository.findByIdWithPlans(id);
@@ -226,7 +221,7 @@ export async function aiModelRoutes(app: FastifyInstance) {
     return model;
   });
 
-  app.put("/ai-models/:id/set-default", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/ai-models/:id/set-default", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const existing = await aiModelRepository.findByIdWithPlans(id);
     if (!existing) {
@@ -248,7 +243,7 @@ export async function aiModelRoutes(app: FastifyInstance) {
     return { success: true };
   });
 
-  app.delete("/ai-models/:id", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.delete("/ai-models/:id", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const existing = await aiModelRepository.findByIdWithPlans(id);
     // Never delete the model the bot is currently using — deletion would fall

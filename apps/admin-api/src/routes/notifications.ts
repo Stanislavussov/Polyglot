@@ -18,10 +18,6 @@ const DEFAULTS: NotificationDefaults = {
 };
 
 export async function notificationRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
-
   app.get("/notifications", async () => {
     const value = await systemSettingsRepository.get<NotificationDefaults>("notifications");
     return value ?? DEFAULTS;

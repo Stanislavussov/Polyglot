@@ -23,10 +23,6 @@ const daysQuerySchema = z.object({
 });
 
 export async function statsRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
-
   app.get("/stats", async () => {
     const db = getDb();
 

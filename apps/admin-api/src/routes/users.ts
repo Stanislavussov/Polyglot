@@ -9,6 +9,7 @@ import {
 import { eq, ilike, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
+import { requireRole } from "../plugins/auth.js";
 
 const listUsersQuerySchema = z.object({
   // Non-numeric input is rejected (400 via the global handler); out-of-range
@@ -35,9 +36,9 @@ const updateAudienceGroupSchema = z.object({
 });
 
 export async function userRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
+  // Auth is applied globally by the unified hook; changing a user's plan or
+  // audience group is a superadmin-only operation (Fable T07).
+  const superadminOnly = { preHandler: requireRole("superadmin") };
 
   app.get("/users", async (request: FastifyRequest) => {
     const { page, limit, search } = listUsersQuerySchema.parse(request.query);
@@ -75,7 +76,7 @@ export async function userRoutes(app: FastifyInstance) {
     return { users: usersList, total, page, limit };
   });
 
-  app.put("/users/:id/plan", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/users/:id/plan", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const body = updatePlanSchema.parse(request.body);
     const plan = await rateLimitPlanRepository.findByName(body.plan);
@@ -100,7 +101,7 @@ export async function userRoutes(app: FastifyInstance) {
     return { success: true };
   });
 
-  app.put("/users/:id/audience-group", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/users/:id/audience-group", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const parsed = updateAudienceGroupSchema.safeParse(request.body);
     if (!parsed.success) {

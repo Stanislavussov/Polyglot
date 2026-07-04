@@ -14,10 +14,6 @@ const DEFAULTS: SrsConfig = {
 };
 
 export async function srsRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
-
   app.get("/srs", async () => {
     const value = await systemSettingsRepository.get<SrsConfig>("srs");
     return value ?? DEFAULTS;

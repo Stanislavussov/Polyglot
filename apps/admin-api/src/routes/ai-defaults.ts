@@ -21,10 +21,6 @@ const DEFAULTS: AIGenerationDefaults = {
 };
 
 export async function aiDefaultRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
-
   app.get("/ai-defaults", async () => {
     const value = await systemSettingsRepository.get<AIGenerationDefaults>("ai.defaults");
     return value ?? DEFAULTS;

@@ -24,10 +24,6 @@ const updatePresetSchema = z.object({
 });
 
 export async function presetRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
-
   app.get("/presets", async () => {
     const presets = await translationPresetRepository.findAll();
     return presets;

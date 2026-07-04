@@ -11,17 +11,10 @@ const { authPlugin, clearAdminActiveCache, ADMIN_ACTIVE_CACHE_TTL_MS } = await i
 
 async function buildApp() {
   const app = Fastify();
+  // authPlugin installs the unified auth hook globally, so this route needs no
+  // per-route auth wiring — exactly the T07 consolidation under test.
   await app.register(authPlugin);
-  // A protected route mirroring the real per-route auth hook.
-  app.get(
-    "/protected",
-    {
-      onRequest: async (request) => {
-        await request.jwtVerify();
-      },
-    },
-    async () => ({ ok: true }),
-  );
+  app.get("/protected", async () => ({ ok: true }));
   await app.ready();
   return app;
 }
@@ -50,6 +43,16 @@ describe("authPlugin runtime revocation (T06)", () => {
     const res = await callProtected(app, token);
 
     expect(res.statusCode).toBe(200);
+    await app.close();
+  });
+
+  it("rejects a protected route when no token is presented", async () => {
+    repo.findById.mockResolvedValue({ id: 1, isActive: true });
+    const app = await buildApp();
+
+    const res = await app.inject({ method: "GET", url: "/protected" });
+
+    expect(res.statusCode).toBe(401);
     await app.close();
   });
 
