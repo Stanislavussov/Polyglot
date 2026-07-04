@@ -23,6 +23,7 @@
   "enterWordToTranslate": "📝 Enter a word or phrase to translate:",
   "translating": "⏳ Translating...",
   "translationError": "❌ Translation failed. Please try again later.",
+  "genericError": "⚠️ Something went wrong. Please try again.",
   "staleSession": "⚠️ Session expired. Please translate the word again.",
   "translationUnavailable": "⚠️ Translation temporarily unavailable. Try again.",
   "contextMarkerNeedsText": "Enter a word or phrase before the context marker.",

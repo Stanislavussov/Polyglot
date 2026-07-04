@@ -23,6 +23,7 @@
   "enterWordToTranslate": "📝 Zadejte slovo nebo frázi k překladu:",
   "translating": "⏳ Překládám...",
   "translationError": "❌ Překlad selhal. Zkuste to prosím později.",
+  "genericError": "⚠️ Něco se pokazilo. Zkuste to prosím znovu.",
   "staleSession": "⚠️ Relace vypršela. Zadejte prosím slovo k překladu znovu.",
   "translationUnavailable": "⚠️ Překlad je dočasně nedostupný. Zkuste to znovu.",
   "contextMarkerNeedsText": "Před kontextovou značku zadejte slovo nebo frázi.",

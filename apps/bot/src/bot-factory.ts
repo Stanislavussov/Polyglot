@@ -2,8 +2,8 @@ import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { logger } from "@polyglot/core";
 import { Bot, type NextFunction, type StorageAdapter, session } from "grammy";
+import { handleBotError } from "./bot-error-handler.js";
 import { changesCommand } from "./commands/changes.js";
 import { setBotCommands } from "./commands/commands.js";
 import { startCommand } from "./commands/start.js";
@@ -327,23 +327,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   bot.use(modeRouterMiddleware);
 
-  bot.catch((err) => {
-    const ctx = err.ctx;
-    const userId = ctx.from?.id;
-    const command = ctx.message?.text?.split(" ")[0] ?? "unknown";
-    const callbackData = ctx.callbackQuery?.data;
-    logger.error(
-      {
-        error: err.error instanceof Error ? err.error.message : String(err.error),
-        userId,
-        command,
-        callbackFamily: callbackData?.split(":")[0],
-        sessionVersion: 1,
-        activeMode: ctx.session.activeMode,
-      },
-      "Bot error",
-    );
-  });
+  bot.catch(handleBotError);
 
   return bot;
 }

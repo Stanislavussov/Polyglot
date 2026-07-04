@@ -23,6 +23,7 @@
   "enterWordToTranslate": "📝 Escribe una palabra o frase para traducir:",
   "translating": "⏳ Traduciendo...",
   "translationError": "❌ La traducción falló. Inténtalo de nuevo más tarde.",
+  "genericError": "⚠️ Algo salió mal. Inténtalo de nuevo.",
   "staleSession": "⚠️ La sesión ha expirado. Envía de nuevo la palabra para traducir.",
   "translationUnavailable": "⚠️ Traducción no disponible temporalmente. Inténtalo de nuevo.",
   "contextMarkerNeedsText": "Escribe una palabra o frase antes del marcador de contexto.",

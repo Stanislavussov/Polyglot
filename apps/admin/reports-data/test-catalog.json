@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T18:54:25.531Z",
+  "generatedAt": "2026-07-04T18:59:19.797Z",
   "summary": {
-    "total": 2013,
+    "total": 2017,
     "business": 0,
-    "technical": 2013,
+    "technical": 2017,
     "workspaces": [
       "apps",
       "packages"
@@ -4461,6 +4461,70 @@
       "name": "Bot input correction annotations (Task 69) shows the corrected sentence and error explanation on a sentence card",
       "value": "Protects the bot input correction annotations (Task 69) behavior: shows the corrected sentence and error explanation on a sentence card.",
       "description": "Protects the bot input correction annotations (Task 69) behavior: shows the corrected sentence and error explanation on a sentence card."
+    },
+    {
+      "id": "apps-bot-src-bot-error-handler-test-ts-38-handleboterror-t15-does-not-throw-when-the-error-happened-before-the-session-middleware-ran",
+      "kind": "technical",
+      "filePath": "apps/bot/src/bot-error-handler.test.ts",
+      "sourceLine": 38,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleBotError (T15)"
+      ],
+      "title": "does not throw when the error happened before the session middleware ran",
+      "rawTitle": "does not throw when the error happened before the session middleware ran",
+      "name": "Bot handle Bot Error (T15) does not throw when the error happened before the session middleware ran",
+      "value": "Protects the bot handle Bot Error (T15) behavior: does not throw when the error happened before the session middleware ran.",
+      "description": "Protects the bot handle Bot Error (T15) behavior: does not throw when the error happened before the session middleware ran."
+    },
+    {
+      "id": "apps-bot-src-bot-error-handler-test-ts-46-handleboterror-t15-replies-to-the-user-and-clears-the-button-spinner-on-an-application-error",
+      "kind": "technical",
+      "filePath": "apps/bot/src/bot-error-handler.test.ts",
+      "sourceLine": 46,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleBotError (T15)"
+      ],
+      "title": "replies to the user and clears the button spinner on an application error",
+      "rawTitle": "replies to the user and clears the button spinner on an application error",
+      "name": "Bot handle Bot Error (T15) replies to the user and clears the button spinner on an application error",
+      "value": "Protects the bot handle Bot Error (T15) behavior so replies to the user and clears the button spinner on an application error.",
+      "description": "Protects the bot handle Bot Error (T15) behavior so replies to the user and clears the button spinner on an application error."
+    },
+    {
+      "id": "apps-bot-src-bot-error-handler-test-ts-59-handleboterror-t15-does-not-reply-on-a-telegram-api-error-the-reply-would-just-fail-again",
+      "kind": "technical",
+      "filePath": "apps/bot/src/bot-error-handler.test.ts",
+      "sourceLine": 59,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleBotError (T15)"
+      ],
+      "title": "does not reply on a Telegram API error (the reply would just fail again)",
+      "rawTitle": "does not reply on a Telegram API error (the reply would just fail again)",
+      "name": "Bot handle Bot Error (T15) does not reply on a Telegram API error (the reply would just fail again)",
+      "value": "Protects the bot handle Bot Error (T15) behavior: does not reply on a Telegram API error (the reply would just fail again).",
+      "description": "Protects the bot handle Bot Error (T15) behavior: does not reply on a Telegram API error (the reply would just fail again)."
+    },
+    {
+      "id": "apps-bot-src-bot-error-handler-test-ts-69-handleboterror-t15-never-throws-even-if-the-best-effort-reply-itself-fails",
+      "kind": "technical",
+      "filePath": "apps/bot/src/bot-error-handler.test.ts",
+      "sourceLine": 69,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleBotError (T15)"
+      ],
+      "title": "never throws even if the best-effort reply itself fails",
+      "rawTitle": "never throws even if the best-effort reply itself fails",
+      "name": "Bot handle Bot Error (T15) never throws even if the best effort reply itself fails",
+      "value": "Protects the bot handle Bot Error (T15) behavior so never throws even if the best effort reply itself fails.",
+      "description": "Protects the bot handle Bot Error (T15) behavior so never throws even if the best effort reply itself fails."
     },
     {
       "id": "apps-bot-src-callbacks-contracts-test-ts-10-callback-restart-safety-contracts-documents-all-required-callback-families",
