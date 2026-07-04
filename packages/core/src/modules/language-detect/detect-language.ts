@@ -1,6 +1,6 @@
 import { franc, francAll } from "franc";
 import type { DictionaryContextCandidate } from "../context-enrichment/types.js";
-import { findLettersOutsideAlphabet } from "./alphabets.js";
+import { findLettersOutsideAlphabet, getAlphabet, getAlphabetLanguages } from "./alphabets.js";
 import type { DetectionEvidence, DetectionResult, FindWordLanguagesFn } from "./types.js";
 
 /**
@@ -230,6 +230,50 @@ export function detectOutOfSetLanguage(text: string, candidates: string[]): stri
   );
 
   return 1 - bestInSet >= OUT_OF_SET_MARGIN ? topIso1 : undefined;
+}
+
+/**
+ * Detects an out-of-set language from EXCLUSIVE-LETTER evidence, independent of
+ * word count and confidence.
+ *
+ * Returns a language L (not among `candidates`) when the input contains letters
+ * that NO candidate alphabet can produce and exactly one alphabet-known language
+ * can produce ALL of them — e.g. "niño" → es (ñ), "değil" → tr (ğ), a Kazakh
+ * word with "ә" → kk. Ambiguous ownership (e.g. "і" belongs to both uk and kk)
+ * yields undefined, deferring to a weaker signal (dictionary / AI) that can
+ * disambiguate. Conservative by design: a diacritic shared by several languages
+ * never fires, protecting legitimate loanwords ("naïve", "café") and proper
+ * nouns ("Zürich"). Bails out entirely if any candidate lacks alphabet data, so
+ * a letter can never be wrongly counted as excluded.
+ *
+ * Unlike the franc-based {@link detectOutOfSetLanguage}, this needs no minimum
+ * word count — the same rule works for a single word and a phrase.
+ */
+export function detectOutOfSetByAlphabet(text: string, candidates: string[]): string | undefined {
+  const candidateSet = new Set(candidates);
+
+  // Letters outside EVERY candidate alphabet. An unknown candidate excludes
+  // nothing (findLettersOutsideAlphabet → []), so bail to stay conservative.
+  let excluded: Set<string> | undefined;
+  for (const candidate of candidates) {
+    if (!getAlphabet(candidate)) return undefined;
+    const outside = new Set(findLettersOutsideAlphabet(text, candidate));
+    excluded = excluded === undefined ? outside : new Set([...excluded].filter((c) => outside.has(c)));
+    if (excluded.size === 0) return undefined;
+  }
+  if (!excluded || excluded.size === 0) return undefined;
+
+  const owners = getAlphabetLanguages().filter((lang) => {
+    if (candidateSet.has(lang)) return false;
+    const alphabet = getAlphabet(lang);
+    if (!alphabet) return false;
+    for (const letter of excluded) {
+      if (!alphabet.has(letter)) return false;
+    }
+    return true;
+  });
+
+  return owners.length === 1 ? owners[0] : undefined;
 }
 
 /**

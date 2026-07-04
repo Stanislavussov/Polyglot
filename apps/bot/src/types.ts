@@ -148,6 +148,16 @@ export interface SessionData {
       correctedText?: string;
     }>;
   };
+  /**
+   * Pending out-of-set add-and-translate flow: the user typed text in a
+   * SUPPORTED language they don't study yet. Carries the word across the
+   * tr:oos:add / tr:oos:once / tr:oos:cancel callback tap.
+   */
+  pendingOutOfSet?: {
+    lang: string;
+    word: string;
+    contextHint?: string;
+  };
   /** True when the next text message should be used as translation context clarification. */
   awaitingTranslationClarificationContext?: boolean;
   /** Message ID of the translation card awaiting post-translation clarification context. */

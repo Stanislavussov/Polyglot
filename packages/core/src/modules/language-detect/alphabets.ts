@@ -55,6 +55,11 @@ export function getAlphabet(lang: string): ReadonlySet<string> | undefined {
   return ALPHABETS[lang];
 }
 
+/** ISO 639-1 codes that carry alphabet data (usable for exclusion/detection). */
+export function getAlphabetLanguages(): string[] {
+  return Object.keys(ALPHABETS);
+}
+
 /**
  * Unique letters of `text` that do not belong to `lang`'s alphabet.
  *

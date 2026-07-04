@@ -16,6 +16,7 @@ import {
   defaultFeatureAccess,
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
+  detectOutOfSetByAlphabet,
   detectOutOfSetLanguage,
   evaluatePlanRateLimit,
   evaluateRateLimit,
@@ -28,6 +29,7 @@ import {
   getLanguageName,
   type InputType,
   isSupported,
+  isSupportedLanguage,
   logger,
   needsDictionaryVerification,
   resolveDirectionFromSource,
@@ -262,6 +264,121 @@ async function runClarifiedTranslation(
   await handleMistypeConfirmCallback(ctx);
 }
 
+/**
+ * Offer the "add and translate" choice when the input is confidently in a
+ * SUPPORTED language the user doesn't study yet. Replaces the old hard block —
+ * the user can add the language (and translate) or translate just this once.
+ * Stores the word on the session so the tr:oos:* callback can complete it.
+ */
+async function showAddLanguagePrompt(
+  ctx: BotContext,
+  lang: SupportedLang,
+  outOfSetLang: string,
+  word: string,
+  contextHint: string | undefined,
+): Promise<void> {
+  ctx.session.pendingOutOfSet = { lang: outOfSetLang, word, contextHint };
+
+  languageDetectionRepository
+    .record({ userId: ctx.user.id, eventType: "out_of_set", word, sourceLang: outOfSetLang })
+    .catch((err: unknown) => {
+      logger.warn({ err }, "Failed to record language detection event");
+    });
+
+  const langName = getLanguageName(outOfSetLang, lang);
+  const keyboard = new InlineKeyboard()
+    .text(t("outOfSetAddButton", lang, { lang: langName }), `tr:oos:add:${outOfSetLang}`)
+    .row()
+    .text(t("outOfSetTranslateOnce", lang), `tr:oos:once:${outOfSetLang}`)
+    .row()
+    .text(t("mistypeCancel", lang), "tr:oos:cancel");
+
+  await ctx.reply(t("outOfSetPrompt", lang, { lang: langName }), { reply_markup: keyboard });
+}
+
+/**
+ * Handles the out-of-set add-and-translate choice:
+ *   tr:oos:add:<lang>  — add the language to the user's learning set, then translate
+ *   tr:oos:once:<lang> — translate this once without persisting the language
+ *   tr:oos:cancel      — dismiss
+ */
+export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
+  const data = ctx.callbackQuery?.data ?? "";
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
+  const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
+  const pending = ctx.session.pendingOutOfSet;
+
+  if (data === "tr:oos:cancel") {
+    ctx.session.pendingOutOfSet = undefined;
+    await ctx.answerCallbackQuery();
+    const msg = await ctx.reply(t("translateModeHint", lang));
+    trackTechnicalMessage(ctx, msg.message_id);
+    return;
+  }
+
+  const isAdd = data.startsWith("tr:oos:add:");
+  const isOnce = data.startsWith("tr:oos:once:");
+  if (!pending || (!isAdd && !isOnce)) {
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
+    return;
+  }
+
+  const sourceLang = data.replace(/^tr:oos:(?:add|once):/, "");
+  if (!isSupportedLanguage(sourceLang)) {
+    ctx.session.pendingOutOfSet = undefined;
+    await ctx.answerCallbackQuery({
+      text: "⚠️ Session expired. Please translate the word again.",
+      show_alert: true,
+    });
+    return;
+  }
+
+  // "Add" persists the language into the learning set (unless already present or capped).
+  let effectiveLearning = learningLangs;
+  if (isAdd && !getUserLanguageGroup(nativeLang, learningLangs).includes(sourceLang)) {
+    const nextLangs = [...learningLangs, sourceLang];
+    try {
+      await ctx.services.userRepository.updateLearningLangs(ctx.user.id, nextLangs);
+      effectiveLearning = nextLangs;
+    } catch (err) {
+      logger.warn({ err, sourceLang }, "Failed to add out-of-set language");
+      await ctx.answerCallbackQuery({
+        text: "⚠️ You've reached the maximum number of languages. Remove one in /settings first.",
+        show_alert: true,
+      });
+      return;
+    }
+  }
+
+  const targetLangs = getUserLanguageGroup(nativeLang, effectiveLearning).filter((code) => code !== sourceLang);
+
+  languageDetectionRepository
+    .record({
+      userId: ctx.user.id,
+      eventType: isAdd ? "confirmed" : "detected",
+      word: pending.word,
+      sourceLang,
+      targetLangs,
+    })
+    .catch((err: unknown) => {
+      logger.warn({ err }, "Failed to record language detection event");
+    });
+
+  ctx.session.pendingOutOfSet = undefined;
+  ctx.session.pendingDetectedLang = undefined;
+  ctx.session.pendingWord = pending.word;
+  ctx.session.pendingContextHint = pending.contextHint;
+  ctx.session.pendingDirection = { sourceLang, targetLangs };
+  await ctx.answerCallbackQuery();
+  await handleMistypeConfirmCallback(ctx);
+}
+
 async function ensureTranslationQuota(
   ctx: BotContext,
   plan: SubscriptionPlan,
@@ -383,10 +500,20 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   // Out-of-set guard: input is confidently in a language the user hasn't configured.
   // The closed-set detector would otherwise coerce it to the nearest candidate (e.g. German
   // → English), so tell the user it isn't selected instead of mistranslating.
-  // Single-word signal (dictionary sweep / AI) takes precedence; the franc-based
-  // check still covers inputs of 3+ words.
-  const outOfSetLang = detection.outOfSetLanguages?.[0] ?? detectOutOfSetLanguage(cleanWord, candidatesWithEnglish);
+  // Signal precedence: dictionary sweep / AI (populated on detection) → cheap,
+  // word-count-independent alphabet exclusion (letters only one out-of-set
+  // language can produce, e.g. ñ→es, ә→kk) → franc-based check for 3+ words.
+  const outOfSetLang =
+    detection.outOfSetLanguages?.[0] ??
+    detectOutOfSetByAlphabet(cleanWord, candidatesWithEnglish) ??
+    detectOutOfSetLanguage(cleanWord, candidatesWithEnglish);
   if (outOfSetLang) {
+    // Supported but not-studied → offer "add and translate". Unsupported languages
+    // can't be added, so fall back to the plain informational block.
+    if (isSupportedLanguage(outOfSetLang)) {
+      await showAddLanguagePrompt(ctx, lang, outOfSetLang, cleanWord, contextHint);
+      return;
+    }
     languageDetectionRepository
       .record({
         userId: ctx.user.id,
@@ -1703,6 +1830,15 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
 
   if (data.startsWith("tr:clarify:lang:")) {
     const selectedSource = data.replace("tr:clarify:lang:", "");
+    // Out-of-set source (supported but not studied) → add-and-translate, not a silent translation.
+    if (
+      !getUserLanguageGroup(nativeLang, learningLangs).includes(selectedSource) &&
+      isSupportedLanguage(selectedSource)
+    ) {
+      await ctx.answerCallbackQuery();
+      await showAddLanguagePrompt(ctx, lang, selectedSource, pending.word, pending.contextHint);
+      return;
+    }
     const targetLangs = resolveTargetsForClarifiedSource(
       selectedSource,
       nativeLang,
@@ -1725,6 +1861,15 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
       return;
     }
     if (option.kind === "source_language" && option.langCode) {
+      // Out-of-set source (supported but not studied) → add-and-translate, not a silent translation.
+      if (
+        !getUserLanguageGroup(nativeLang, learningLangs).includes(option.langCode) &&
+        isSupportedLanguage(option.langCode)
+      ) {
+        await ctx.answerCallbackQuery();
+        await showAddLanguagePrompt(ctx, lang, option.langCode, pending.word, pending.contextHint);
+        return;
+      }
       const targetLangs = resolveTargetsForClarifiedSource(
         option.langCode,
         nativeLang,

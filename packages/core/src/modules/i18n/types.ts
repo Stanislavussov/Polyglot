@@ -68,6 +68,9 @@ export type I18nKey =
   | "dictionaryContext"
   | "detectedLang"
   | "languageNotSelected"
+  | "outOfSetPrompt"
+  | "outOfSetAddButton"
+  | "outOfSetTranslateOnce"
   | "nextTranslationFrom"
   | "nextSourceSet"
   | "sentenceTranslation"
@@ -343,6 +346,8 @@ export interface I18nParams {
   expressionDetected: { expression: string };
   detectedLang: { lang: string };
   languageNotSelected: { lang: string };
+  outOfSetPrompt: { lang: string };
+  outOfSetAddButton: { lang: string };
   nextSourceSet: { lang: string };
   connotationWarning: { warning: string };
   templateCurrent: { name: string };

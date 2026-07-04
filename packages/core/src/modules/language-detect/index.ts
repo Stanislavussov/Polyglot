@@ -13,6 +13,7 @@ export {
   detectLanguageAsync,
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
+  detectOutOfSetByAlphabet,
   detectOutOfSetLanguage,
   FrancStrategy,
   ISO1_TO_ISO3,

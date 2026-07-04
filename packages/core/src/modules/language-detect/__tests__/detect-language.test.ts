@@ -4,6 +4,7 @@ import {
   DiacriticsStrategy,
   detectLanguage,
   detectLanguageAsync,
+  detectOutOfSetByAlphabet,
   FrancStrategy,
   ISO1_TO_ISO3,
   ScriptStrategy,
@@ -371,5 +372,46 @@ describe("ISO1_TO_ISO3 mapping", () => {
 
   it("maps Czech correctly", () => {
     expect(ISO1_TO_ISO3.cs).toBe("ces");
+  });
+});
+
+describe("detectOutOfSetByAlphabet", () => {
+  // Incident user: native ru + learning cs/de, plus the always-added en.
+  const candidates = ["en", "ru", "cs", "de"];
+
+  it("flags a single word by a letter unique to one out-of-set language", () => {
+    expect(detectOutOfSetByAlphabet("niño", candidates)).toBe("es"); // ñ → es
+    // German ß when the user does NOT study German.
+    expect(detectOutOfSetByAlphabet("Straße", ["en", "ru", "cs"])).toBe("de");
+  });
+
+  it("works on multi-word input without any word-count threshold", () => {
+    // Kazakh phrase with a Kazakh-only letter (ә) — franc-based detection needs 3+ words.
+    expect(detectOutOfSetByAlphabet("сәлем достар", candidates)).toBe("kk");
+  });
+
+  it("detects Turkish via ğ / dotless ı", () => {
+    expect(detectOutOfSetByAlphabet("değil", candidates)).toBe("tr");
+  });
+
+  it("returns undefined when the exclusive letter is ambiguous across languages", () => {
+    // "і" belongs to both uk and kk → cannot decide from letters alone.
+    expect(detectOutOfSetByAlphabet("привіт", candidates)).toBeUndefined();
+  });
+
+  it("does not fire on legitimate in-set words or shared diacritics", () => {
+    expect(detectOutOfSetByAlphabet("Strohá", candidates)).toBeUndefined(); // á is a Czech letter
+    expect(detectOutOfSetByAlphabet("hello", candidates)).toBeUndefined(); // plain ASCII
+    expect(detectOutOfSetByAlphabet("naïve", candidates)).toBeUndefined(); // ï shared by fr/nl → ambiguous
+  });
+
+  it("never returns a candidate language", () => {
+    // German "über" for a user who studies de — ü is a de letter, de is a candidate.
+    expect(detectOutOfSetByAlphabet("über", candidates)).toBeUndefined();
+  });
+
+  it("bails out when a candidate has no alphabet data (stays conservative)", () => {
+    // "ja" (Japanese) has no Latin/Cyrillic alphabet entry.
+    expect(detectOutOfSetByAlphabet("niño", ["en", "ja"])).toBeUndefined();
   });
 });

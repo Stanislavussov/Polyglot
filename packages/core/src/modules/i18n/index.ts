@@ -12,6 +12,7 @@ export {
   initLanguageRegistry,
   isKnownLanguage,
   isRegistryInitialized,
+  isSupportedLanguage,
   normalizeToIso1,
 } from "./language-registry.js";
 // Types

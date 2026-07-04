@@ -26,6 +26,7 @@ const {
   mockLanguageDetectionRecord: vi.fn().mockResolvedValue(undefined),
   mockUserRepository: {
     getSettings: vi.fn(),
+    updateLearningLangs: vi.fn().mockResolvedValue(undefined),
   },
   mockVocabularyRepository: {
     create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
@@ -138,6 +139,7 @@ import {
   detectLanguageWithConfidenceAsync,
   generateEtymology,
   getLangFlag,
+  initLanguageRegistry,
   t,
   translateOneWithContext,
   translateWithContext,
@@ -146,6 +148,7 @@ import { inputCorrectionCounter } from "../../metrics.js";
 import type { BotContext, SessionData } from "../../types.js";
 import {
   handleEtymologyCallback,
+  handleOutOfSetCallback,
   handleRegenCallback,
   handleTranslateText,
   handleTranslationClarificationCallback,
@@ -794,6 +797,17 @@ describe("handleTranslateText — context enrichment", () => {
 describe("handleTranslateText — out-of-set language detection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // A supported-for-study registry so isSupportedLanguage() gates correctly.
+    initLanguageRegistry([
+      { code: "en", name: "English", isSupported: true },
+      { code: "ru", name: "Russian", isSupported: true },
+      { code: "cs", name: "Czech", isSupported: true },
+      { code: "de", name: "German", isSupported: true },
+      { code: "pl", name: "Polish", isSupported: true },
+      { code: "kk", name: "Kazakh", isSupported: true },
+      { code: "es", name: "Spanish", isSupported: true },
+      { code: "tr", name: "Turkish", isSupported: true },
+    ]);
     mockUserRepository.getSettings.mockResolvedValue({
       interfaceLang: "en",
       nativeLang: "ru",
@@ -802,7 +816,7 @@ describe("handleTranslateText — out-of-set language detection", () => {
     mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
   });
 
-  it("replies languageNotSelected and skips translation when async detection is out-of-set", async () => {
+  it("offers add-and-translate (not a silent translation) for a supported out-of-set language", async () => {
     vi.mocked(detectLanguageWithConfidence).mockReturnValueOnce({ confidence: 0, evidence: [] });
     vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce({
       confidence: 0,
@@ -814,11 +828,48 @@ describe("handleTranslateText — out-of-set language detection", () => {
     await handleTranslateText(ctx, "przepraszam");
 
     expect(ctx.reply).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your selected languages");
+    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your studied languages");
+    // Add / translate-once / cancel buttons are offered.
+    const markup = vi.mocked(ctx.reply).mock.calls[0][1]?.reply_markup as {
+      inline_keyboard: { text: string; callback_data: string }[][];
+    };
+    const data = markup.inline_keyboard.flat().map((b) => b.callback_data);
+    expect(data).toEqual(expect.arrayContaining(["tr:oos:add:pl", "tr:oos:once:pl", "tr:oos:cancel"]));
     expect(translateWithContext).not.toHaveBeenCalled();
     expect(mockLanguageDetectionRecord).toHaveBeenCalledWith(
       expect.objectContaining({ eventType: "out_of_set", word: "przepraszam", sourceLang: "pl" }),
     );
+  });
+
+  it("catches a letter-marked out-of-set word via alphabet exclusion (no async signal needed)", async () => {
+    // Sync mock coerces "niño" to the first candidate (ru); async returns nothing.
+    // The word-count-independent alphabet check must still spot Spanish (ñ).
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce({ confidence: 0, evidence: [] });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "niño");
+
+    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your studied languages");
+    const markup = vi.mocked(ctx.reply).mock.calls[0][1]?.reply_markup as {
+      inline_keyboard: { callback_data: string }[][];
+    };
+    expect(markup.inline_keyboard.flat().map((b) => b.callback_data)).toContain("tr:oos:add:es");
+    expect(translateWithContext).not.toHaveBeenCalled();
+  });
+
+  it("keeps the plain block for an UNSUPPORTED out-of-set language (can't be added)", async () => {
+    vi.mocked(detectLanguageWithConfidence).mockReturnValueOnce({ confidence: 0, evidence: [] });
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce({
+      confidence: 0,
+      evidence: [],
+      outOfSetLanguages: ["la"], // Latin — not in the study registry
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "cogito");
+
+    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your selected languages");
+    expect(translateWithContext).not.toHaveBeenCalled();
   });
 
   it("re-verifies a confident heuristic-only diacritic detection via the async path", async () => {
@@ -832,7 +883,7 @@ describe("handleTranslateText — out-of-set language detection", () => {
     vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce({
       confidence: 0,
       evidence: [],
-      outOfSetLanguages: ["cs"],
+      outOfSetLanguages: ["pl"],
     });
 
     const ctx = createMockCtx();
@@ -844,7 +895,7 @@ describe("handleTranslateText — out-of-set language detection", () => {
       expect.objectContaining({ findWordLanguages: mockSweepWordLanguages }),
     );
     expect(translateWithContext).not.toHaveBeenCalled();
-    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your selected languages");
+    expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your studied languages");
   });
 
   it("does not re-verify confident ASCII detections", async () => {
@@ -862,6 +913,84 @@ describe("handleTranslateText — out-of-set language detection", () => {
     expect(mockLanguageDetectionRecord).toHaveBeenCalledWith(
       expect.objectContaining({ eventType: "detected", word: "hello", sourceLang: "ru" }),
     );
+  });
+});
+
+describe("out-of-set add-and-translate (Phase 1)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    initLanguageRegistry([
+      { code: "en", name: "English", isSupported: true },
+      { code: "ru", name: "Russian", isSupported: true },
+      { code: "cs", name: "Czech", isSupported: true },
+      { code: "de", name: "German", isSupported: true },
+      { code: "pl", name: "Polish", isSupported: true },
+      { code: "kk", name: "Kazakh", isSupported: true },
+      { code: "es", name: "Spanish", isSupported: true },
+      { code: "tr", name: "Turkish", isSupported: true },
+    ]);
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de"],
+    });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
+  });
+
+  it("tr:oos:add adds the language to the learning set and then translates", async () => {
+    const ctx = createMockCtx({ pendingOutOfSet: { lang: "pl", word: "przepraszam" } }, "tr:oos:add:pl");
+    await handleOutOfSetCallback(ctx);
+
+    expect(mockUserRepository.updateLearningLangs).toHaveBeenCalledWith(1, ["cs", "de", "pl"]);
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({ word: "przepraszam", sourceLang: "pl", targetLangs: ["ru", "cs", "de"] }),
+      expect.anything(),
+    );
+    expect(ctx.session.pendingOutOfSet).toBeUndefined();
+  });
+
+  it("tr:oos:once translates without persisting the language", async () => {
+    const ctx = createMockCtx({ pendingOutOfSet: { lang: "pl", word: "przepraszam" } }, "tr:oos:once:pl");
+    await handleOutOfSetCallback(ctx);
+
+    expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({ word: "przepraszam", sourceLang: "pl", targetLangs: ["ru", "cs", "de"] }),
+      expect.anything(),
+    );
+  });
+
+  it("tr:oos:cancel dismisses without translating", async () => {
+    const ctx = createMockCtx({ pendingOutOfSet: { lang: "pl", word: "przepraszam" } }, "tr:oos:cancel");
+    await handleOutOfSetCallback(ctx);
+
+    expect(mockUserRepository.updateLearningLangs).not.toHaveBeenCalled();
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(ctx.session.pendingOutOfSet).toBeUndefined();
+  });
+
+  it("gates the clarify source-language option: tapping an out-of-set language offers add-and-translate (incident: Kazakh)", async () => {
+    const ctx = createMockCtx(
+      {
+        pendingClarification: {
+          word: "Керемет мырзалар",
+          sourceLang: "ru",
+          targetLangs: ["cs", "de"],
+          inputType: "phrase",
+          reason: "source_language",
+          options: [{ label: "Керемет", value: "Керемет", kind: "source_language", langCode: "kk" }],
+        },
+      },
+      "tr:clarify:option:0",
+    );
+
+    await handleTranslationClarificationCallback(ctx);
+
+    expect(translateWithContext).not.toHaveBeenCalled();
+    expect(translateOneWithContext).not.toHaveBeenCalled();
+    const promptReply = vi.mocked(ctx.reply).mock.calls.at(-1)?.[0] as string;
+    expect(promptReply).toContain("isn't in your studied languages");
+    expect(ctx.session.pendingOutOfSet).toEqual(expect.objectContaining({ lang: "kk", word: "Керемет мырзалар" }));
   });
 });
 
