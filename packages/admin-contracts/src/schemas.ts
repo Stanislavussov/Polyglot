@@ -1,0 +1,162 @@
+import { z } from "zod";
+
+/**
+ * Shared admin ↔ admin-api contracts (Fable T27, finding D4).
+ *
+ * These zod schemas are the SINGLE source of truth for the admin panel forms
+ * (`apps/admin`) and the admin-api route handlers (`apps/admin-api`). Numeric
+ * fields use `z.coerce.number()` so the same schema validates both HTML form
+ * strings (frontend) and JSON numbers (backend) without drift.
+ */
+
+// ── Auth ────────────────────────────────────────────────────────────────────
+
+export const loginSchema = z.object({
+  email: z.string().email("Enter a valid email"),
+  password: z.string().min(1, "Password is required"),
+});
+
+// ── Users ───────────────────────────────────────────────────────────────────
+
+export const subscriptionPlanSchema = z.string().min(1, "Choose a plan").max(50, "Plan name is too long");
+export const audienceGroupSchema = z.enum(["admin", "tester", "product"]);
+
+// ── Rate-limit plans ──────────────────────────────────────────────────────────
+
+export const rateLimitPlanSchema = z.object({
+  name: z.string().min(1, "Name is required").max(50, "Name is too long"),
+  label: z.string().min(1, "Label is required").max(100, "Label is too long"),
+  creditsPerDay: z.coerce.number().int("Credits must be an integer").min(0, "Credits cannot be negative").nullable(),
+  windowMs: z.coerce
+    .number()
+    .int("Window must be an integer")
+    .min(1, "Window must be at least 1 ms")
+    .default(86_400_000),
+  creditCost: z.coerce
+    .number()
+    .int("Credit cost must be an integer")
+    .min(1, "Credit cost must be at least 1")
+    .default(1),
+  isActive: z.boolean().default(true),
+  isDefault: z.boolean().default(false),
+});
+
+// ── Translation presets ───────────────────────────────────────────────────────
+
+export const presetConfigSchema = z.object({
+  synonyms: z.boolean(),
+  examples: z.boolean(),
+  alternatives: z.boolean(),
+  equivalentNote: z.boolean(),
+  connotationWarning: z.boolean(),
+});
+
+export const presetCreateSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100, "Name is too long"),
+  label: z.string().min(1, "Label is required").max(255, "Label is too long"),
+  config: presetConfigSchema,
+  isActive: z.boolean().default(true),
+});
+
+export const presetUpdateSchema = z.object({
+  label: z.string().min(1, "Label is required").max(255, "Label is too long").optional(),
+  config: presetConfigSchema.optional(),
+  isActive: z.boolean().optional(),
+});
+
+// ── AI models ─────────────────────────────────────────────────────────────────
+
+export const aiModelCreateSchema = z.object({
+  id: z.string().min(1, "Model ID is required").max(255, "Model ID is too long"),
+  name: z.string().min(1, "Display name is required").max(255, "Display name is too long"),
+  provider: z.string().min(1, "Provider is required").max(100, "Provider is too long"),
+  maxTokens: z.coerce.number().int("Max tokens must be an integer").min(1, "Max tokens must be at least 1"),
+  costPer1kInput: z.coerce.number().min(0, "Input cost cannot be negative"),
+  costPer1kOutput: z.coerce.number().min(0, "Output cost cannot be negative"),
+  isEnabled: z.boolean().default(true),
+  isDefault: z.boolean().default(false),
+  allowedPlans: z.array(z.string().min(1).max(50)).min(1, "Choose at least one subscription plan"),
+});
+
+export const aiModelUpdateSchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  provider: z.string().min(1).max(100).optional(),
+  maxTokens: z.coerce.number().int().min(1).optional(),
+  costPer1kInput: z.coerce.number().min(0).optional(),
+  costPer1kOutput: z.coerce.number().min(0).optional(),
+  isEnabled: z.boolean().optional(),
+  isDefault: z.boolean().optional(),
+  allowedPlans: z.array(z.string().min(1).max(50)).optional(),
+});
+
+export const aiModelSelectSchema = z.object({
+  id: z.string().min(1, "Choose a model"),
+});
+
+// ── Settings: AI generation defaults ──────────────────────────────────────────
+
+export const aiDefaultsSchema = z.object({
+  maxTokens: z.coerce.number().int("Max tokens must be an integer").min(1, "Max tokens must be at least 1"),
+  temperature: z.coerce.number().min(0, "Temperature cannot be negative").max(2, "Temperature cannot exceed 2"),
+  frequencyPenalty: z.coerce
+    .number()
+    .min(0, "Frequency penalty cannot be negative")
+    .max(2, "Frequency penalty cannot exceed 2"),
+  maxRetries: z.coerce.number().int("Max retries must be an integer").min(0).max(10),
+  // Capped below the bot's 20 s loader guard so the adapter aborts first.
+  requestTimeoutMs: z.coerce
+    .number()
+    .int("Request timeout must be an integer")
+    .min(1_000, "Request timeout must be at least 1000 ms")
+    .max(20_000, "Request timeout cannot exceed 20000 ms"),
+});
+
+// ── Settings: notifications ────────────────────────────────────────────────────
+
+export const notificationSettingsSchema = z.object({
+  defaultTime: z.string().regex(/^\d{2}:\d{2}$/, "Use HH:MM format"),
+  defaultType: z.enum(["suggested", "srs", "contextual"]),
+  inactivityDays: z.coerce.number().int("Inactivity days must be an integer").min(1),
+  notificationTimesLimit: z.coerce
+    .number()
+    .int("Notification times limit must be an integer")
+    .min(1)
+    .max(48)
+    .default(12),
+});
+
+// ── Settings: SRS ──────────────────────────────────────────────────────────────
+
+export const srsSettingsSchema = z.object({
+  minEaseFactor: z.coerce.number().min(1, "Minimum ease factor must be at least 1").max(3),
+  defaultEaseFactor: z.coerce.number().min(1, "Default ease factor must be at least 1").max(5),
+});
+
+// ── Settings: dictionary ───────────────────────────────────────────────────────
+
+export const dictionarySettingsSchema = z.object({
+  flashcardLimit: z.coerce.number().int("Flashcard limit must be an integer").min(1),
+  notificationDictLimit: z.coerce.number().int("Notification dictionary limit must be an integer").min(1),
+  wordOfDayLimit: z.coerce.number().int("Word of day limit must be an integer").min(1),
+});
+
+// ── Settings: video vocabulary ─────────────────────────────────────────────────
+
+export const videoVocabularySettingsSchema = z
+  .object({
+    monthlyLimit: z.coerce.number().int("Monthly limit must be an integer").min(1),
+    minPhrases: z.coerce.number().int("Minimum phrases must be an integer").min(1),
+    maxPhrases: z.coerce.number().int("Maximum phrases must be an integer").min(1),
+    extractionModelId: z.string().min(1, "Extraction model is required"),
+  })
+  .refine((c) => c.maxPhrases >= c.minPhrases, {
+    message: "maxPhrases must be greater than or equal to minPhrases",
+    path: ["maxPhrases"],
+  });
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+/** Flatten a ZodError into a single user-facing string for form error display. */
+export function zodErrorMessage(error: z.ZodError): string {
+  return error.issues.map((issue) => issue.message).join("; ");
+}

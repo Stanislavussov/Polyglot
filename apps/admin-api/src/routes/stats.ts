@@ -1,15 +1,11 @@
 import {
   aiRequestLatencyRepository,
   dictionaryLookupLogRepository,
-  getDb,
   languageDetectionRepository,
   requestTimingRepository,
-  translationRequests,
-  userLanguageSettings,
+  statsRepository,
   userRequestCountRepository,
-  users,
 } from "@polyglot/adapter-db";
-import { gte, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 
@@ -24,37 +20,7 @@ const daysQuerySchema = z.object({
 
 export async function statsRoutes(app: FastifyInstance) {
   app.get("/stats", async () => {
-    const db = getDb();
-
-    const totalUsersResult = await db.select({ count: sql<number>`count(*)` }).from(users);
-    const totalUsers = totalUsersResult[0]?.count ?? 0;
-
-    // "Active today" = users who interacted in the last 24h, tracked on
-    // user_language_settings.last_interaction_at — not registration date.
-    const activeTodayResult = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(userLanguageSettings)
-      .where(gte(userLanguageSettings.lastInteractionAt, new Date(Date.now() - 24 * 60 * 60 * 1000)));
-    const activeToday = activeTodayResult[0]?.count ?? 0;
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    const translationsTodayResult = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(translationRequests)
-      .where(gte(translationRequests.createdAt, todayStart));
-    const translationsToday = translationsTodayResult[0]?.count ?? 0;
-
-    const totalTranslationsResult = await db.select({ count: sql<number>`count(*)` }).from(translationRequests);
-    const totalTranslations = totalTranslationsResult[0]?.count ?? 0;
-
-    return {
-      totalUsers,
-      activeToday,
-      translationsToday,
-      totalTranslations,
-    };
+    return statsRepository.getOverview();
   });
 
   app.get("/stats/ai-latency", async () => {

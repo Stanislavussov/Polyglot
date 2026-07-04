@@ -108,7 +108,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { type AudienceGroup, type PlanLimitConfig, type User, rateLimits, users } from "../lib/api";
-import { audienceGroupSchema, subscriptionPlanSchema, zodErrorMessage } from "../lib/validation";
+import { audienceGroupSchema, subscriptionPlanSchema, zodErrorMessage } from "@polyglot/admin-contracts";
 import AlertMessage from "./ui/AlertMessage.vue";
 import AppButton from "./ui/AppButton.vue";
 import AppModal from "./ui/AppModal.vue";

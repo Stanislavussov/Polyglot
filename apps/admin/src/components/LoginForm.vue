@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { auth } from "../lib/api";
-import { loginSchema, zodErrorMessage } from "../lib/validation";
+import { loginSchema, zodErrorMessage } from "@polyglot/admin-contracts";
 import AlertMessage from "./ui/AlertMessage.vue";
 import AppButton from "./ui/AppButton.vue";
 import FormField from "./ui/FormField.vue";

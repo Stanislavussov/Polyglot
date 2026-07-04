@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { type PlanLimitConfig, rateLimits } from "../lib/api";
-import { rateLimitPlanSchema, zodErrorMessage } from "../lib/validation";
+import { rateLimitPlanSchema, zodErrorMessage } from "@polyglot/admin-contracts";
 import DataTable, { type Column, type TableCellValue, type TableRow } from "./DataTable.vue";
 import AlertMessage from "./ui/AlertMessage.vue";
 import AppButton from "./ui/AppButton.vue";

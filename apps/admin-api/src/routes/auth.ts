@@ -1,12 +1,7 @@
 import { adminUserRepository } from "@polyglot/adapter-db";
+import { loginSchema } from "@polyglot/admin-contracts";
 import bcrypt from "bcryptjs";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { z } from "zod";
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
 
 export async function authRoutes(app: FastifyInstance) {
   app.post(

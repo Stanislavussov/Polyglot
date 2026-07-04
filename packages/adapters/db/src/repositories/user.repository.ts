@@ -6,7 +6,7 @@ import type {
   UserLanguageSettings,
   UserLearningLanguage,
 } from "@polyglot/core";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, ilike, inArray, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { releaseAnnouncementDeliveries, userLanguageSettings, userLearningLanguages, users } from "../schema.js";
 
@@ -212,6 +212,53 @@ export const userRepository = {
     const db = getDb();
     const rows = await db.update(users).set({ audienceGroup }).where(eq(users.id, userId)).returning();
     return rows[0] ?? null;
+  },
+
+  /**
+   * Paginated user list for the admin panel with an optional username search.
+   * The same filter drives both the page selection and the total count, so the
+   * total stays consistent with the returned page when a search term is applied
+   * (Fable T08/T27).
+   */
+  async listAdmin(params: { page: number; limit: number; search?: string }) {
+    const db = getDb();
+    const offset = (params.page - 1) * params.limit;
+    const searchFilter = params.search ? ilike(users.username, `%${params.search}%`) : undefined;
+
+    const usersList = await db
+      .select({
+        id: users.id,
+        telegramId: users.telegramId,
+        username: users.username,
+        audienceGroup: users.audienceGroup,
+        subscriptionPlan: users.subscriptionPlan,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+        interfaceLang: userLanguageSettings.interfaceLang,
+        nativeLang: userLanguageSettings.nativeLang,
+        learningLangs: userLanguageSettings.learningLangs,
+      })
+      .from(users)
+      .leftJoin(userLanguageSettings, eq(users.id, userLanguageSettings.userId))
+      .where(searchFilter)
+      .limit(params.limit)
+      .offset(offset);
+
+    const countResult = await db.select({ count: sql<number>`count(*)::int` }).from(users).where(searchFilter);
+    const total = countResult[0]?.count ?? 0;
+
+    return { users: usersList, total };
+  },
+
+  /** Change a bot user's subscription plan. Returns false if no such user. */
+  async updatePlan(userId: number, plan: string): Promise<boolean> {
+    const db = getDb();
+    const updated = await db
+      .update(users)
+      .set({ subscriptionPlan: plan })
+      .where(eq(users.id, userId))
+      .returning({ id: users.id });
+    return updated.length > 0;
   },
 
   /** Check if a release announcement was already delivered to one user/group. */

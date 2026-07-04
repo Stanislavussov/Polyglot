@@ -109,7 +109,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
 import { type Preset, presets } from "../lib/api";
-import { presetCreateSchema, presetUpdateSchema, zodErrorMessage } from "../lib/validation";
+import { presetCreateSchema, presetUpdateSchema, zodErrorMessage } from "@polyglot/admin-contracts";
 import AlertMessage from "./ui/AlertMessage.vue";
 import AppButton from "./ui/AppButton.vue";
 import AppModal from "./ui/AppModal.vue";

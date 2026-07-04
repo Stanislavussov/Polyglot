@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T23:17:19.834Z",
+  "generatedAt": "2026-07-04T23:44:10.960Z",
   "summary": {
-    "total": 2059,
+    "total": 2068,
     "business": 0,
-    "technical": 2059,
+    "technical": 2068,
     "workspaces": [
       "apps",
       "packages"
@@ -374,6 +374,70 @@
       "description": "Protects the admin API admin login rate limiting (T05) behavior: logs a failed attempt with the email but never the password."
     },
     {
+      "id": "apps-admin-api-src-routes-crud-factory-test-ts-25-registercrudroutes-query-validation-t27-t08-clamps-an-oversized-limit-identically-across-factory-built-resources",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/crud-factory.test.ts",
+      "sourceLine": 25,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "registerCrudRoutes query validation (T27/T08)"
+      ],
+      "title": "clamps an oversized limit identically across factory-built resources",
+      "rawTitle": "clamps an oversized limit identically across factory-built resources",
+      "name": "Admin API register Crud Routes query validation (T27 T08) clamps an oversized limit identically across factory built resources",
+      "value": "Protects the admin API register Crud Routes query validation (T27 T08) behavior so clamps an oversized limit identically across factory built resources.",
+      "description": "Protects the admin API register Crud Routes query validation (T27 T08) behavior so clamps an oversized limit identically across factory built resources."
+    },
+    {
+      "id": "apps-admin-api-src-routes-crud-factory-test-ts-37-registercrudroutes-query-validation-t27-t08-rejects-a-non-numeric-limit-with-a-safe-400-across-resources",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/crud-factory.test.ts",
+      "sourceLine": 37,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "registerCrudRoutes query validation (T27/T08)"
+      ],
+      "title": "rejects a non-numeric limit with a safe 400 across resources",
+      "rawTitle": "rejects a non-numeric limit with a safe 400 across resources",
+      "name": "Admin API register Crud Routes query validation (T27 T08) rejects a non numeric limit with a safe 400 across resources",
+      "value": "Protects the admin API register Crud Routes query validation (T27 T08) behavior: rejects a non numeric limit with a safe 400 across resources.",
+      "description": "Protects the admin API register Crud Routes query validation (T27 T08) behavior: rejects a non numeric limit with a safe 400 across resources."
+    },
+    {
+      "id": "apps-admin-api-src-routes-crud-factory-test-ts-49-registercrudroutes-query-validation-t27-t08-applies-the-same-defaults-when-query-params-are-omitted",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/crud-factory.test.ts",
+      "sourceLine": 49,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "registerCrudRoutes query validation (T27/T08)"
+      ],
+      "title": "applies the same defaults when query params are omitted",
+      "rawTitle": "applies the same defaults when query params are omitted",
+      "name": "Admin API register Crud Routes query validation (T27 T08) applies the same defaults when query params are omitted",
+      "value": "Protects the admin API register Crud Routes query validation (T27 T08) behavior: applies the same defaults when query params are omitted.",
+      "description": "Protects the admin API register Crud Routes query validation (T27 T08) behavior: applies the same defaults when query params are omitted."
+    },
+    {
+      "id": "apps-admin-api-src-routes-crud-factory-test-ts-61-registercrudroutes-query-validation-t27-t08-wires-create-201-and-delete-204-with-consistent-status-codes",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/crud-factory.test.ts",
+      "sourceLine": 61,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "registerCrudRoutes query validation (T27/T08)"
+      ],
+      "title": "wires create (201) and delete (204) with consistent status codes",
+      "rawTitle": "wires create (201) and delete (204) with consistent status codes",
+      "name": "Admin API register Crud Routes query validation (T27 T08) wires create (201) and delete (204) with consistent status codes",
+      "value": "Protects the admin API register Crud Routes query validation (T27 T08) behavior so wires create (201) and delete (204) with consistent status codes.",
+      "description": "Protects the admin API register Crud Routes query validation (T27 T08) behavior so wires create (201) and delete (204) with consistent status codes."
+    },
+    {
       "id": "apps-admin-api-src-routes-reported-issues-test-ts-66-reportedissueroutes-lists-reported-issues",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/reported-issues.test.ts",
@@ -566,10 +630,10 @@
       "description": "Protects the admin API stats Routes behavior: defaults the language detection window to 7 days."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-116-userroutes-includes-audiencegroup-in-the-users-list",
+      "id": "apps-admin-api-src-routes-users-test-ts-73-userroutes-includes-audiencegroup-in-the-users-list",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 116,
+      "sourceLine": 73,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -582,10 +646,10 @@
       "description": "Protects the admin API user Routes behavior: includes audience Group in the users list."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-131-userroutes-updates-a-user-audience-group",
+      "id": "apps-admin-api-src-routes-users-test-ts-88-userroutes-updates-a-user-audience-group",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 88,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -598,10 +662,10 @@
       "description": "Protects the admin API user Routes behavior: updates a user audience group."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-145-userroutes-returns-400-for-invalid-audience-group-values",
+      "id": "apps-admin-api-src-routes-users-test-ts-102-userroutes-returns-400-for-invalid-audience-group-values",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 145,
+      "sourceLine": 102,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -614,10 +678,10 @@
       "description": "Protects the admin API user Routes behavior: returns 400 for invalid audience group values."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-159-userroutes-rejects-a-non-numeric-limit-with-400-not-500-and-a-safe-body",
+      "id": "apps-admin-api-src-routes-users-test-ts-116-userroutes-rejects-a-non-numeric-limit-with-400-not-500-and-a-safe-body",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 159,
+      "sourceLine": 116,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -630,10 +694,10 @@
       "description": "Protects the admin API user Routes behavior: rejects a non numeric limit with 400 (not 500) and a safe body."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-170-userroutes-clamps-an-oversized-limit-instead-of-dumping-the-whole-table",
+      "id": "apps-admin-api-src-routes-users-test-ts-128-userroutes-clamps-an-oversized-limit-instead-of-dumping-the-whole-table",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 128,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -646,26 +710,26 @@
       "description": "Protects the admin API user Routes behavior so clamps an oversized limit instead of dumping the whole table."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-181-userroutes-counts-with-the-same-search-filter-so-total-stays-consistent-with-the-page",
+      "id": "apps-admin-api-src-routes-users-test-ts-140-userroutes-forwards-the-search-filter-and-returns-the-repo-s-consistent-total",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 181,
+      "sourceLine": 140,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
         "userRoutes"
       ],
-      "title": "counts with the same search filter so total stays consistent with the page",
-      "rawTitle": "counts with the same search filter so total stays consistent with the page",
-      "name": "Admin API user Routes counts with the same search filter so total stays consistent with the page",
-      "value": "Protects the admin API user Routes behavior so counts with the same search filter so total stays consistent with the page.",
-      "description": "Protects the admin API user Routes behavior so counts with the same search filter so total stays consistent with the page."
+      "title": "forwards the search filter and returns the repo's consistent total",
+      "rawTitle": "forwards the search filter and returns the repo's consistent total",
+      "name": "Admin API user Routes forwards the search filter and returns the repo's consistent total",
+      "value": "Protects the admin API user Routes behavior so forwards the search filter and returns the repo's consistent total.",
+      "description": "Protects the admin API user Routes behavior so forwards the search filter and returns the repo's consistent total."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-195-userroutes-reports-the-full-total-when-no-search-filter-is-applied",
+      "id": "apps-admin-api-src-routes-users-test-ts-156-userroutes-reports-the-full-total-when-no-search-filter-is-applied",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 195,
+      "sourceLine": 156,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -678,10 +742,10 @@
       "description": "Protects the admin API user Routes behavior: reports the full total when no search filter is applied."
     },
     {
-      "id": "apps-admin-api-src-routes-users-test-ts-205-userroutes-forbids-a-non-superadmin-from-changing-a-user-s-audience-group-with-403",
+      "id": "apps-admin-api-src-routes-users-test-ts-166-userroutes-forbids-a-non-superadmin-from-changing-a-user-s-audience-group-with-403",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/users.test.ts",
-      "sourceLine": 205,
+      "sourceLine": 166,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -692,6 +756,86 @@
       "name": "Admin API user Routes forbids a non superadmin from changing a user's audience group with 403",
       "value": "Protects the admin API user Routes behavior so forbids a non superadmin from changing a user's audience group with 403.",
       "description": "Protects the admin API user Routes behavior so forbids a non superadmin from changing a user's audience group with 403."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-43-aimodelservice-invariants-t11-t27-refuses-to-delete-the-current-default-model-and-never-touches-the-repository",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 43,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "refuses to delete the current default model and never touches the repository",
+      "rawTitle": "refuses to delete the current default model and never touches the repository",
+      "name": "Admin API ai Model Service invariants (T11 T27) refuses to delete the current default model and never touches the repository",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so refuses to delete the current default model and never touches the repository.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so refuses to delete the current default model and never touches the repository."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-50-aimodelservice-invariants-t11-t27-deletes-a-non-default-model",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 50,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "deletes a non-default model",
+      "rawTitle": "deletes a non-default model",
+      "name": "Admin API ai Model Service invariants (T11 T27) deletes a non default model",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so deletes a non default model.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so deletes a non default model."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-57-aimodelservice-invariants-t11-t27-rejects-set-default-on-a-disabled-model-and-does-not-switch-the-default",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 57,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "rejects set-default on a disabled model and does not switch the default",
+      "rawTitle": "rejects set-default on a disabled model and does not switch the default",
+      "name": "Admin API ai Model Service invariants (T11 T27) rejects set default on a disabled model and does not switch the default",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects set default on a disabled model and does not switch the default.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects set default on a disabled model and does not switch the default."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-66-aimodelservice-invariants-t11-t27-rejects-set-default-on-a-missing-model-with-404",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 66,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "rejects set-default on a missing model with 404",
+      "rawTitle": "rejects set-default on a missing model with 404",
+      "name": "Admin API ai Model Service invariants (T11 T27) rejects set default on a missing model with 404",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects set default on a missing model with 404.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects set default on a missing model with 404."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-73-aimodelservice-invariants-t11-t27-sets-an-enabled-model-as-default",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 73,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "sets an enabled model as default",
+      "rawTitle": "sets an enabled model as default",
+      "name": "Admin API ai Model Service invariants (T11 T27) sets an enabled model as default",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so sets an enabled model as default.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so sets an enabled model as default."
     },
     {
       "id": "apps-admin-src-lib-api-test-ts-19-admin-api-client-does-not-send-json-content-type-for-bodyless-delete-requests",

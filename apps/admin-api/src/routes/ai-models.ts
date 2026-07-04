@@ -1,30 +1,8 @@
-import { type AIModelWithPlans, aiModelRepository } from "@polyglot/adapter-db";
+import { aiModelCreateSchema, aiModelUpdateSchema } from "@polyglot/admin-contracts";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { requireRole } from "../plugins/auth.js";
-
-const modelSchema = z.object({
-  id: z.string().min(1).max(255),
-  name: z.string().min(1).max(255),
-  provider: z.string().min(1).max(100),
-  maxTokens: z.number().int().min(1),
-  costPer1kInput: z.number().min(0),
-  costPer1kOutput: z.number().min(0),
-  isEnabled: z.boolean().default(true),
-  isDefault: z.boolean().default(false),
-  allowedPlans: z.array(z.string().min(1).max(50)).default([]),
-});
-
-const updateModelSchema = z.object({
-  name: z.string().min(1).max(255).optional(),
-  provider: z.string().min(1).max(100).optional(),
-  maxTokens: z.number().int().min(1).optional(),
-  costPer1kInput: z.number().min(0).optional(),
-  costPer1kOutput: z.number().min(0).optional(),
-  isEnabled: z.boolean().optional(),
-  isDefault: z.boolean().optional(),
-  allowedPlans: z.array(z.string().min(1).max(50)).optional(),
-});
+import { aiModelService } from "../services/ai-model.service.js";
 
 const openRouterModelSchema = z.object({
   id: z.string(),
@@ -49,29 +27,7 @@ const openRouterCurrentKeyResponseSchema = z.object({
   }),
 });
 
-type AIModelChangeAction = "created" | "updated" | "default_changed" | "deleted";
 type OpenRouterKeyExpirationStatus = "active" | "expiring_soon" | "expired" | "unknown" | "not_configured";
-
-function logAiModelChange(
-  request: FastifyRequest,
-  action: AIModelChangeAction,
-  modelId: string,
-  details: {
-    before?: AIModelWithPlans | null;
-    after?: AIModelWithPlans | null;
-    previousDefaultId?: string | null;
-  } = {},
-): void {
-  request.log.info(
-    {
-      event: `ai_model.${action}`,
-      actor: request.adminUser,
-      modelId,
-      ...details,
-    },
-    `AI model ${action}`,
-  );
-}
 
 function providerFromModelId(id: string): string {
   return id.split("/")[0] ?? "unknown";
@@ -197,67 +153,30 @@ export async function aiModelRoutes(app: FastifyInstance) {
   });
 
   app.get("/ai-models", async () => {
-    const models = await aiModelRepository.findAll();
-    return models;
+    return aiModelService.list();
   });
 
   app.post("/ai-models", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = modelSchema.parse(request.body);
-    const before = await aiModelRepository.findByIdWithPlans(body.id);
-    const model = await aiModelRepository.upsert(body);
-    logAiModelChange(request, before ? "updated" : "created", model.id, { before, after: model });
+    const body = aiModelCreateSchema.parse(request.body);
+    const model = await aiModelService.create(body, request.log, request.adminUser);
     return reply.status(201).send(model);
   });
 
-  app.put("/ai-models/:id", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/ai-models/:id", superadminOnly, async (request: FastifyRequest) => {
     const { id } = request.params as { id: string };
-    const body = updateModelSchema.parse(request.body);
-    const existing = await aiModelRepository.findByIdWithPlans(id);
-    if (!existing) {
-      return reply.status(404).send({ error: "Model not found" });
-    }
-    const model = await aiModelRepository.upsert({ ...existing, ...body });
-    logAiModelChange(request, "updated", id, { before: existing, after: model });
-    return model;
+    const body = aiModelUpdateSchema.parse(request.body);
+    return aiModelService.update(id, body, request.log, request.adminUser);
   });
 
-  app.put("/ai-models/:id/set-default", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/ai-models/:id/set-default", superadminOnly, async (request: FastifyRequest) => {
     const { id } = request.params as { id: string };
-    const existing = await aiModelRepository.findByIdWithPlans(id);
-    if (!existing) {
-      return reply.status(404).send({ error: "Model not found" });
-    }
-    // A disabled model must not become the default — the bot would pick a model
-    // it is not allowed to call (same failure class as the :free freeze). D2.
-    if (!existing.isEnabled) {
-      return reply.status(409).send({ error: "Cannot set a disabled model as default. Enable it first." });
-    }
-    const previousDefault = await aiModelRepository.findDefault();
-    await aiModelRepository.setDefault(id);
-    const model = await aiModelRepository.findByIdWithPlans(id);
-    logAiModelChange(request, "default_changed", id, {
-      before: existing,
-      after: model,
-      previousDefaultId: previousDefault?.id ?? null,
-    });
+    await aiModelService.setDefault(id, request.log, request.adminUser);
     return { success: true };
   });
 
   app.delete("/ai-models/:id", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
-    const existing = await aiModelRepository.findByIdWithPlans(id);
-    // Never delete the model the bot is currently using — deletion would fall
-    // back to a hardcoded model that may be unavailable (the 429/:free incident
-    // class). Require another model to be made default first. D2.
-    if (existing?.isDefault) {
-      return reply
-        .status(409)
-        .send({ error: "Cannot delete the default AI model. Set another model as default first." });
-    }
-    await aiModelRepository.delete(id);
-    if (existing) {
-      logAiModelChange(request, "deleted", id, { before: existing, after: null });
-    }
+    await aiModelService.remove(id, request.log, request.adminUser);
     return reply.status(204).send();
   });
 }

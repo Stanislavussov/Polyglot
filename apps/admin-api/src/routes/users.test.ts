@@ -18,76 +18,33 @@ const mocks = vi.hoisted(() => {
     },
   ];
 
-  const updateAudienceGroup = vi.fn();
-  const findByName = vi.fn();
-
-  // Rows returned once a search filter is applied. Defaults to all rows (a filter
-  // that matches everything); a test can shrink it to prove the count query honours
-  // the same filter as the page selection.
-  const state = { searchRows: userRows as typeof userRows };
-
-  const select = vi.fn((selection?: { count?: unknown }) => {
-    const isCount = selection?.count !== undefined;
-    let filtered = false;
-    const builder = {
-      from: () => builder,
-      leftJoin: () => builder,
-      where: (filter?: unknown) => {
-        filtered = filter !== undefined;
-        return builder;
-      },
-      limit: () => builder,
-      offset: () => builder,
-      then: (resolve: (value: unknown) => unknown, reject?: (reason: unknown) => unknown) => {
-        const rows = filtered ? state.searchRows : userRows;
-        const value = isCount ? [{ count: rows.length }] : rows;
-        return Promise.resolve(value).then(resolve, reject);
-      },
-    };
-    return builder;
-  });
-
   return {
-    findByName,
-    getDb: vi.fn(() => ({ select })),
-    select,
-    state,
-    updateAudienceGroup,
     userRows,
+    listAdmin: vi.fn(),
+    updatePlan: vi.fn(),
+    updateAudienceGroup: vi.fn(),
+    findByName: vi.fn(),
   };
 });
 
 vi.mock("@polyglot/adapter-db", () => ({
-  AUDIENCE_GROUPS: ["admin", "tester", "product"],
-  getDb: mocks.getDb,
   rateLimitPlanRepository: { findByName: mocks.findByName },
-  userLanguageSettings: {
-    interfaceLang: "interfaceLang",
-    learningLangs: "learningLangs",
-    nativeLang: "nativeLang",
-    userId: "userId",
-  },
-  userRepository: { updateAudienceGroup: mocks.updateAudienceGroup },
-  users: {
-    audienceGroup: "audienceGroup",
-    createdAt: "createdAt",
-    id: "id",
-    isActive: "isActive",
-    subscriptionPlan: "subscriptionPlan",
-    telegramId: "telegramId",
-    username: "username",
+  userRepository: {
+    listAdmin: mocks.listAdmin,
+    updatePlan: mocks.updatePlan,
+    updateAudienceGroup: mocks.updateAudienceGroup,
   },
 }));
 
 const { userRoutes } = await import("./users.js");
 
-async function buildApp() {
+async function buildApp(role = "superadmin") {
   const app = Fastify();
   installErrorHandler(app);
-  // The unified auth hook runs in the real app; here we stand in a superadmin so
-  // the RBAC-gated routes (plan / audience-group) are reachable.
+  // The unified auth hook runs in the real app; here we stand in an admin of the
+  // given role so the RBAC-gated routes (plan / audience-group) are reachable.
   app.addHook("onRequest", async (request) => {
-    request.adminUser = { adminId: 1, email: "admin@example.com", role: "superadmin" };
+    request.adminUser = { adminId: 1, email: "admin@example.com", role };
   });
   await app.register(userRoutes);
   return app;
@@ -95,7 +52,7 @@ async function buildApp() {
 
 describe("userRoutes", () => {
   beforeEach(() => {
-    mocks.state.searchRows = mocks.userRows;
+    mocks.listAdmin.mockResolvedValue({ users: mocks.userRows, total: mocks.userRows.length });
     mocks.updateAudienceGroup.mockResolvedValue({
       id: 1,
       telegramId: 123456,
@@ -164,6 +121,7 @@ describe("userRoutes", () => {
     expect(response.statusCode).toBe(400);
     // No ZodError internals (issues, schema paths) leak to the client.
     expect(response.json()).toEqual({ error: "Invalid request parameters" });
+    expect(mocks.listAdmin).not.toHaveBeenCalled();
     await app.close();
   });
 
@@ -175,18 +133,21 @@ describe("userRoutes", () => {
     // limit above the 100 ceiling is clamped down, never returning everything.
     expect(response.statusCode).toBe(200);
     expect(response.json().limit).toBe(100);
+    expect(mocks.listAdmin).toHaveBeenCalledWith({ page: 1, limit: 100, search: undefined });
     await app.close();
   });
 
-  it("counts with the same search filter so total stays consistent with the page", async () => {
-    mocks.state.searchRows = [];
+  it("forwards the search filter and returns the repo's consistent total", async () => {
+    // The repository counts with the same filter as the page selection, so the
+    // total stays consistent with the returned page (Fable T08).
+    mocks.listAdmin.mockResolvedValueOnce({ users: [], total: 0 });
     const app = await buildApp();
 
     const response = await app.inject({ method: "GET", url: "/users?search=nobody&page=1&limit=20" });
 
     expect(response.statusCode).toBe(200);
     const json = response.json();
-    // Pre-fix the count ignored the filter and reported the full table size.
+    expect(mocks.listAdmin).toHaveBeenCalledWith({ page: 1, limit: 20, search: "nobody" });
     expect(json.total).toBe(json.users.length);
     expect(json.total).toBe(0);
     await app.close();
@@ -203,12 +164,7 @@ describe("userRoutes", () => {
   });
 
   it("forbids a non-superadmin from changing a user's audience group with 403", async () => {
-    const app = Fastify();
-    installErrorHandler(app);
-    app.addHook("onRequest", async (request) => {
-      request.adminUser = { adminId: 2, email: "admin@example.com", role: "admin" };
-    });
-    await app.register(userRoutes);
+    const app = await buildApp("admin");
 
     const response = await app.inject({
       method: "PUT",
