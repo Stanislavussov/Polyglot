@@ -18,6 +18,7 @@
   "dependencies": {
     "@openrouter/ai-sdk-provider": "^2.3.1",
     "@polyglot/core": "workspace:*",
-    "ai": "^6.0.116"
+    "ai": "^6.0.116",
+    "zod": "^4.3.6"
   }
 }

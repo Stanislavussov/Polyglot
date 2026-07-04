@@ -230,6 +230,9 @@ importers:
       ai:
         specifier: ^6.0.116
         version: 6.0.116(zod@4.3.6)
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
 
   packages/adapters/db:
     dependencies:
@@ -274,6 +277,9 @@ importers:
       pino:
         specifier: ^10.3.1
         version: 10.3.1
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
 
   packages/infra:
     dependencies:
