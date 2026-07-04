@@ -9,12 +9,13 @@ import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "../../constants.js";
 import type { BotContext } from "../../types.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
+import { resolvePlanLimit } from "../../utils/plan-limit.js";
 import {
   buildNotifSubKeyboard,
   buildNotifSubText,
   buildSettingsKeyboard,
   buildSettingsText,
-  formatPlanUsage,
+  formatPlanUsageFromConfig,
 } from "../settings.scene.js";
 
 /** Resolve interface language from user settings */
@@ -36,7 +37,8 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
     ctx.user.id,
     getDailyWindowStart(),
   );
-  const planUsage = formatPlanUsage(ctx.user.subscriptionPlan ?? "free", usedCredits, lang);
+  const planLimit = await resolvePlanLimit(ctx.services.settings, ctx.user.subscriptionPlan ?? "free");
+  const planUsage = formatPlanUsageFromConfig(planLimit, usedCredits, lang);
 
   const text = buildSettingsText(
     settings?.nativeLang ?? "en",

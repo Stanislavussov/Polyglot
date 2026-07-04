@@ -194,6 +194,18 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
     user: { id: 1, telegramId: 123456789 },
     services: {
       userRepository: mockUserRepository,
+      settings: {
+        getPlanLimit: () =>
+          Promise.resolve({
+            name: "free",
+            label: "Free",
+            creditsPerDay: 50,
+            windowMs: 86_400_000,
+            creditCost: 1,
+            isActive: true,
+            isDefault: true,
+          }),
+      },
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
       translationRequestRepository: mockTranslationRequestRepository,

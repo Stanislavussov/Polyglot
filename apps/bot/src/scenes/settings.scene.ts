@@ -7,19 +7,17 @@
 import { formatNotificationTime, getLangDisplay, parseNotificationMinutes, userRepository } from "@polyglot/adapter-db";
 import {
   evaluatePlanRateLimit,
-  evaluateRateLimit,
   getDailyWindowReset,
   getDailyWindowStart,
-  getPlanLimit,
   isSupported,
   type PlanLimitConfig,
-  type SubscriptionPlan,
   type SupportedLang,
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../types.js";
 import { trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { resolvePlanLimit } from "../utils/plan-limit.js";
 
 /** Format a list of "HH:MM" times as a sorted, normalized, comma-separated string ("—" when empty). */
 export function formatNotificationTimes(times: string[]): string {
@@ -144,10 +142,8 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
     ctx.user.id,
     getDailyWindowStart(),
   );
-  const planLimit = (await ctx.services.settings?.getPlanLimit(plan)) ?? null;
-  const planUsage = planLimit
-    ? formatPlanUsageFromConfig(planLimit, usedCredits, lang)
-    : formatPlanUsage(plan, usedCredits, lang);
+  const planLimit = await resolvePlanLimit(ctx.services.settings, plan);
+  const planUsage = formatPlanUsageFromConfig(planLimit, usedCredits, lang);
 
   const text = buildSettingsText(
     nativeLang,
@@ -163,19 +159,6 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
 
   const msg = await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
   trackTechnicalMessage(ctx, msg.message_id);
-}
-
-export function formatPlanUsage(plan: SubscriptionPlan, usedCredits: number, lang: SupportedLang): string {
-  const limit = getPlanLimit(plan);
-  const status = evaluateRateLimit(plan, usedCredits, 0, getDailyWindowReset());
-  if (limit.creditsPerDay === null) {
-    return t("settingsPlanUnlimited", lang, { plan: limit.label });
-  }
-  return t("settingsPlan", lang, {
-    plan: limit.label,
-    remaining: status.remainingCredits ?? 0,
-    limit: limit.creditsPerDay,
-  });
 }
 
 export function formatPlanUsageFromConfig(plan: PlanLimitConfig, usedCredits: number, lang: SupportedLang): string {

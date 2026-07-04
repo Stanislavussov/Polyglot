@@ -1,7 +1,5 @@
 import {
-  calculateTranslationCreditCost,
   evaluatePlanRateLimit,
-  evaluateRateLimit,
   getDailyWindowReset,
   getDailyWindowStart,
   type SubscriptionPlan,
@@ -9,6 +7,7 @@ import {
   t,
 } from "@polyglot/core";
 import type { BotContext } from "../types.js";
+import { resolvePlanLimit } from "./plan-limit.js";
 
 /**
  * Credit weight per paid AI call type (Fable T16). Every paid AI call goes
@@ -41,20 +40,17 @@ export async function ensureAiQuota(
   const weight = AI_CALL_WEIGHTS[callType];
   const windowStart = getDailyWindowStart();
   const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(ctx.user.id, windowStart);
-  const planLimit = (await ctx.services.settings?.getPlanLimit(plan)) ?? null;
-  // A plan may set its own per-request base cost; multiply by the call weight so
+  const planLimit = await resolvePlanLimit(ctx.services.settings, plan);
+  // A plan sets its own per-request base cost; multiply by the call weight so
   // heavier calls still cost proportionally more under any plan.
-  const baseCost = planLimit?.creditCost ?? calculateTranslationCreditCost();
-  const requestedCredits = baseCost * weight;
+  const requestedCredits = planLimit.creditCost * weight;
 
-  const status = planLimit
-    ? evaluatePlanRateLimit(
-        { plan: planLimit.name, label: planLimit.label, creditsPerDay: planLimit.creditsPerDay },
-        usedCredits,
-        requestedCredits,
-        getDailyWindowReset(),
-      )
-    : evaluateRateLimit(plan, usedCredits, requestedCredits, getDailyWindowReset());
+  const status = evaluatePlanRateLimit(
+    { plan: planLimit.name, label: planLimit.label, creditsPerDay: planLimit.creditsPerDay },
+    usedCredits,
+    requestedCredits,
+    getDailyWindowReset(),
+  );
 
   if (!status.allowed) {
     await ctx.reply(t("rateLimitExceeded", lang));

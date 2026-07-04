@@ -121,6 +121,18 @@ function createMockCtx(callbackData?: string) {
       languageCache: mockLanguageCache,
       notificationRepository: mockNotificationRepository,
       translationRequestRepository: mockTranslationRequestRepository,
+      settings: {
+        getPlanLimit: () =>
+          Promise.resolve({
+            name: "free",
+            label: "Free",
+            creditsPerDay: 50,
+            windowMs: 86_400_000,
+            creditCost: 1,
+            isActive: true,
+            isDefault: true,
+          }),
+      },
     },
     callbackQuery: callbackData ? { data: callbackData, message: { message_id: 100 } } : undefined,
     reply: vi.fn().mockResolvedValue({ message_id: 200 }),

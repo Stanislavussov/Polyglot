@@ -11,7 +11,17 @@ function createCtx(usedCredits: number) {
     reply,
     services: {
       translationRequestRepository: { getUserCreditsInWindow, logTranslationRequest },
-      settings: { getPlanLimit: vi.fn().mockResolvedValue(null) },
+      settings: {
+        getPlanLimit: vi.fn().mockResolvedValue({
+          name: "free",
+          label: "Free",
+          creditsPerDay: 50,
+          windowMs: 86_400_000,
+          creditCost: 1,
+          isActive: true,
+          isDefault: true,
+        }),
+      },
     },
   } as unknown as BotContext;
   return { ctx, getUserCreditsInWindow, logTranslationRequest, reply };

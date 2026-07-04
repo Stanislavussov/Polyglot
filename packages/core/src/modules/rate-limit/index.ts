@@ -15,23 +15,7 @@ export interface RateLimitStatus {
   resetsAt: Date;
 }
 
-export const PLAN_LIMITS: Record<SubscriptionPlan, PlanLimit> = {
-  free: { plan: "free", label: "Free", creditsPerDay: 50 },
-  plus: { plan: "plus", label: "Plus", creditsPerDay: 300 },
-  pro: { plan: "pro", label: "Pro", creditsPerDay: 1500 },
-  unlimited: { plan: "unlimited", label: "Unlimited", creditsPerDay: null },
-};
-
 const DAY_MS = 24 * 60 * 60 * 1000;
-const TRANSLATION_REQUEST_CREDIT_COST = 1;
-
-export function getPlanLimit(plan: SubscriptionPlan): PlanLimit {
-  return PLAN_LIMITS[plan] ?? PLAN_LIMITS.free;
-}
-
-export function calculateTranslationCreditCost(): number {
-  return TRANSLATION_REQUEST_CREDIT_COST;
-}
 
 export function getDailyWindowStart(now = new Date()): Date {
   return new Date(now.getTime() - DAY_MS);
@@ -41,16 +25,12 @@ export function getDailyWindowReset(now = new Date()): Date {
   return new Date(now.getTime() + DAY_MS);
 }
 
-export function evaluateRateLimit(
-  plan: SubscriptionPlan,
-  usedCredits: number,
-  requestedCredits: number,
-  resetsAt: Date,
-): RateLimitStatus {
-  const planLimit = PLAN_LIMITS[plan] ?? PLAN_LIMITS.free;
-  return evaluatePlanRateLimit(planLimit, usedCredits, requestedCredits, resetsAt);
-}
-
+/**
+ * Pure rate-limit policy. The plan limit is always supplied by the caller from
+ * the DB-backed settings source (`SettingsPort`) — there is deliberately no
+ * hardcoded plan table or `SubscriptionPlan`-keyed variant here (Fable T21/A7),
+ * so a tariff change in the admin panel takes effect without a release.
+ */
 export function evaluatePlanRateLimit(
   planLimit: PlanLimit,
   usedCredits: number,

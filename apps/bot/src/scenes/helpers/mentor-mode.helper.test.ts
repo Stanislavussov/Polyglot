@@ -14,7 +14,15 @@ const { mockUserRepository, mockAi, mockSettings, mockTranslationRequestReposito
   mockSettings: {
     getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-4o"),
     getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-4o"),
-    getPlanLimit: vi.fn().mockResolvedValue(null),
+    getPlanLimit: vi.fn().mockResolvedValue({
+      name: "free",
+      label: "Free",
+      creditsPerDay: 50,
+      windowMs: 86_400_000,
+      creditCost: 1,
+      isActive: true,
+      isDefault: true,
+    }),
   },
   mockTranslationRequestRepository: {
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),

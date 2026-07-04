@@ -171,6 +171,18 @@ function createMockCtx(): BotContext {
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
       translationRequestRepository: mockTranslationRequestRepository,
+      settings: {
+        getPlanLimit: () =>
+          Promise.resolve({
+            name: "free",
+            label: "Free",
+            creditsPerDay: 50,
+            windowMs: 86_400_000,
+            creditCost: 1,
+            isActive: true,
+            isDefault: true,
+          }),
+      },
       languageCache: mockLanguageCache,
       ai: mockAi,
     },
