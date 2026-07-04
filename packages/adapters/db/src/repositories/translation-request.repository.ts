@@ -20,43 +20,48 @@ export const translationRequestRepository = {
   ): Promise<number> {
     const db = getDb();
 
-    // Resolve source language code to ID
-    let sourceLangId: number | null = null;
-    if (sourceLangCode) {
-      const rows = await db
-        .select({ id: languages.id })
-        .from(languages)
-        .where(eq(languages.code, sourceLangCode))
-        .limit(1);
-      sourceLangId = rows[0]?.id ?? null;
-    }
-
-    // Insert the request
-    const [request] = await db
-      .insert(translationRequests)
-      .values({ userId, original, sourceLangId, creditCost })
-      .returning({ id: translationRequests.id });
-
-    const requestId = request!.id;
-
-    // Resolve target language codes to IDs and insert junction rows
-    if (targetLangCodes.length > 0) {
-      const targetLangs = await db
-        .select({ id: languages.id })
-        .from(languages)
-        .where(inArray(languages.code, targetLangCodes));
-
-      const junctionValues = targetLangs.map((lang) => ({
-        requestId,
-        languageId: lang.id,
-      }));
-
-      if (junctionValues.length > 0) {
-        await db.insert(translationRequestTargetLangs).values(junctionValues);
+    // Write the ledger entry and its target-language rows atomically (E9/T18):
+    // the request and its junction rows must never be split by a mid-write
+    // failure, which would corrupt credit accounting.
+    return db.transaction(async (tx) => {
+      // Resolve source language code to ID
+      let sourceLangId: number | null = null;
+      if (sourceLangCode) {
+        const rows = await tx
+          .select({ id: languages.id })
+          .from(languages)
+          .where(eq(languages.code, sourceLangCode))
+          .limit(1);
+        sourceLangId = rows[0]?.id ?? null;
       }
-    }
 
-    return requestId;
+      // Insert the request
+      const [request] = await tx
+        .insert(translationRequests)
+        .values({ userId, original, sourceLangId, creditCost })
+        .returning({ id: translationRequests.id });
+
+      const requestId = request!.id;
+
+      // Resolve target language codes to IDs and insert junction rows
+      if (targetLangCodes.length > 0) {
+        const targetLangs = await tx
+          .select({ id: languages.id })
+          .from(languages)
+          .where(inArray(languages.code, targetLangCodes));
+
+        const junctionValues = targetLangs.map((lang) => ({
+          requestId,
+          languageId: lang.id,
+        }));
+
+        if (junctionValues.length > 0) {
+          await tx.insert(translationRequestTargetLangs).values(junctionValues);
+        }
+      }
+
+      return requestId;
+    });
   },
 
   /**

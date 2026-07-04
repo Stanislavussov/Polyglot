@@ -13,7 +13,7 @@ import type {
   VocabularySource,
   VocabularyTranslation,
 } from "@polyglot/core";
-import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or, type SQL, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, notInArray, or, type SQL, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations } from "../schema.js";
 
@@ -378,8 +378,13 @@ export const vocabularyRepository = {
   },
 
   /**
-   * Upsert all translations for an entry (for full regen).
-   * Uses a transaction. Deletes old translations and inserts fresh ones.
+   * Replace all translations for an entry (for full card regen).
+   *
+   * Uses an upsert keyed on (entry_id, target_lang_id) that updates only the
+   * content columns and leaves every SRS column untouched — so regenerating a
+   * card no longer wipes the user's review progress (E8/T18). Translations for
+   * languages no longer present are removed; their SRS state is moot. A newly
+   * added language row starts fresh (srsDueDate = tomorrow).
    */
   async updateAllTranslations(
     entryId: number,
@@ -395,12 +400,20 @@ export const vocabularyRepository = {
   ): Promise<VocabularyTranslation[]> {
     const db = getDb();
     return db.transaction(async (tx) => {
-      // Delete existing translations for this entry
-      await tx.delete(vocabularyTranslations).where(eq(vocabularyTranslations.entryId, entryId));
+      if (translations.length === 0) {
+        await tx.delete(vocabularyTranslations).where(eq(vocabularyTranslations.entryId, entryId));
+        return [];
+      }
 
-      if (translations.length === 0) return [];
+      const langIds = translations.map((t) => t.targetLangId);
+      // Drop translations for languages that are no longer part of the card.
+      await tx
+        .delete(vocabularyTranslations)
+        .where(
+          and(eq(vocabularyTranslations.entryId, entryId), notInArray(vocabularyTranslations.targetLangId, langIds)),
+        );
 
-      // Insert fresh translations
+      // Upsert the current set, preserving SRS columns on conflict.
       return tx
         .insert(vocabularyTranslations)
         .values(
@@ -413,9 +426,21 @@ export const vocabularyRepository = {
             usageNote: t.usageNote,
             connotationWarning: t.connotationWarning,
             details: t.details,
-            srsDueDate: tomorrow(),
+            srsDueDate: tomorrow(), // used only for brand-new rows
           })),
         )
+        .onConflictDoUpdate({
+          target: [vocabularyTranslations.entryId, vocabularyTranslations.targetLangId],
+          set: {
+            text: sql`excluded.text`,
+            expressionType: sql`excluded.expression_type`,
+            equivalentNote: sql`excluded.equivalent_note`,
+            usageNote: sql`excluded.usage_note`,
+            connotationWarning: sql`excluded.connotation_warning`,
+            details: sql`excluded.details`,
+            updatedAt: new Date(),
+          },
+        })
         .returning();
     });
   },

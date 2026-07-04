@@ -7,7 +7,14 @@ let lastInsertValues: unknown = null;
 let lastUpdateSet: unknown = null;
 
 const returningFn = vi.fn(() => Promise.resolve([...mockRows]));
-const onConflictDoNothingFn = vi.fn(() => Promise.resolve([]));
+// Idempotent create (E4/T18) does `.onConflictDoNothing().returning()`, while
+// other callers await `.onConflictDoNothing()` directly — so it must be both
+// thenable and expose `.returning()`.
+const onConflictDoNothingFn = vi.fn(() => {
+  const result = Promise.resolve([...mockRows]) as Promise<unknown[]> & { returning: typeof returningFn };
+  result.returning = returningFn;
+  return result;
+});
 
 const onConflictDoUpdateFn = vi.fn(() => ({ returning: returningFn }));
 

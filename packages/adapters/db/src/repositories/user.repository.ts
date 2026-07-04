@@ -40,8 +40,15 @@ export const userRepository = {
   /** Create a new user. */
   async create(data: NewUser): Promise<User> {
     const db = getDb();
-    const rows = await db.insert(users).values(data).returning();
-    return rows[0]!;
+    // Idempotent get-or-create (E4/T18): Telegram fans out a new user's first
+    // messages/callbacks concurrently, so two parallel creates must not 23505 on
+    // the unique telegram_id. On conflict, re-select the row the winner inserted.
+    const inserted = await db.insert(users).values(data).onConflictDoNothing({ target: users.telegramId }).returning();
+    if (inserted[0]) {
+      return inserted[0];
+    }
+    const existing = await db.select().from(users).where(eq(users.telegramId, data.telegramId)).limit(1);
+    return existing[0]!;
   },
 
   /** Update user language settings (upsert). Throws if learningLangs exceeds MAX_LEARNING_LANGS.

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T19:08:18.066Z",
+  "generatedAt": "2026-07-04T19:19:51.316Z",
   "summary": {
     "total": 2024,
     "business": 0,
@@ -12656,10 +12656,10 @@
       "description": "Protects the database adapter topic Repository mark Invalid behavior: marks a cached entry as invalid with reason."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-74-translationrequestrepository-logtranslationrequest-logs-a-request-with-source-and-target-languages-resolved",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-78-translationrequestrepository-logtranslationrequest-logs-a-request-with-source-and-target-languages-resolved",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 78,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12673,10 +12673,10 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: logs a request with source and target languages resolved."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-94-translationrequestrepository-logtranslationrequest-handles-null-source-language-code",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-98-translationrequestrepository-logtranslationrequest-handles-null-source-language-code",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 94,
+      "sourceLine": 98,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12690,10 +12690,10 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: handles null source language code."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-112-translationrequestrepository-logtranslationrequest-handles-empty-target-languages-array",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-116-translationrequestrepository-logtranslationrequest-handles-empty-target-languages-array",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 112,
+      "sourceLine": 116,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12707,10 +12707,10 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: handles empty target languages array."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-128-translationrequestrepository-logtranslationrequest-handles-unknown-source-language-code-gracefully-resolves-to-null",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-132-translationrequestrepository-logtranslationrequest-handles-unknown-source-language-code-gracefully-resolves-to-null",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 128,
+      "sourceLine": 132,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12724,10 +12724,10 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: handles unknown source language code gracefully (resolves to null)."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-141-translationrequestrepository-logtranslationrequest-skips-junction-insert-when-no-target-languages-resolve",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-145-translationrequestrepository-logtranslationrequest-skips-junction-insert-when-no-target-languages-resolve",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 141,
+      "sourceLine": 145,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12741,10 +12741,10 @@
       "description": "Protects the database adapter translation Request Repository log Translation Request behavior: skips junction insert when no target languages resolve."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-158-translationrequestrepository-getusercreditsinwindow-returns-credit-sum-since-window-start",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-162-translationrequestrepository-getusercreditsinwindow-returns-credit-sum-since-window-start",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 158,
+      "sourceLine": 162,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12758,10 +12758,10 @@
       "description": "Protects the database adapter translation Request Repository get User Credits In Window behavior: returns credit sum since window start."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-167-translationrequestrepository-getusercreditsinwindow-returns-0-when-no-requests-found",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-171-translationrequestrepository-getusercreditsinwindow-returns-0-when-no-requests-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 167,
+      "sourceLine": 171,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12775,10 +12775,10 @@
       "description": "Protects the database adapter translation Request Repository get User Credits In Window behavior: returns 0 when no requests found."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-175-translationrequestrepository-getusercreditsinwindow-returns-0-when-query-returns-empty-array",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-179-translationrequestrepository-getusercreditsinwindow-returns-0-when-query-returns-empty-array",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 175,
+      "sourceLine": 179,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12792,10 +12792,10 @@
       "description": "Protects the database adapter translation Request Repository get User Credits In Window behavior: returns 0 when query returns empty array."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-185-translationrequestrepository-getrecentrequests-returns-requests-with-resolved-language-codes",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-189-translationrequestrepository-getrecentrequests-returns-requests-with-resolved-language-codes",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 185,
+      "sourceLine": 189,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12809,10 +12809,10 @@
       "description": "Protects the database adapter translation Request Repository get Recent Requests behavior: returns requests with resolved language codes."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-239-translationrequestrepository-getrecentrequests-returns-empty-array-when-user-has-no-requests",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-243-translationrequestrepository-getrecentrequests-returns-empty-array-when-user-has-no-requests",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 239,
+      "sourceLine": 243,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -12826,10 +12826,10 @@
       "description": "Protects the database adapter translation Request Repository get Recent Requests behavior: returns empty array when user has no requests."
     },
     {
-      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-252-translationrequestrepository-getrecentrequests-returns-empty-targetlangcodes-when-request-has-no-targets",
+      "id": "packages-adapters-db-src-tests-translation-request-repository-test-ts-256-translationrequestrepository-getrecentrequests-returns-empty-targetlangcodes-when-request-has-no-targets",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/translation-request.repository.test.ts",
-      "sourceLine": 252,
+      "sourceLine": 256,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13013,10 +13013,10 @@
       "description": "Protects the database adapter translation Template Repository delete By User Id behavior so subsequent get By User Id returns null after delete."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-112-userrepository-findbytelegramid-returns-user-when-found",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-119-userrepository-findbytelegramid-returns-user-when-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 112,
+      "sourceLine": 119,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13030,10 +13030,10 @@
       "description": "Protects the database adapter user Repository find By Telegram Id behavior: returns user when found."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-123-userrepository-findbytelegramid-returns-null-when-not-found",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-130-userrepository-findbytelegramid-returns-null-when-not-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 123,
+      "sourceLine": 130,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13047,10 +13047,10 @@
       "description": "Protects the database adapter user Repository find By Telegram Id behavior: returns null when not found."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-131-userrepository-create-inserts-a-new-user-and-returns-it",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-138-userrepository-create-inserts-a-new-user-and-returns-it",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 138,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13064,10 +13064,10 @@
       "description": "Protects the database adapter user Repository create behavior so inserts a new user and returns it."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-152-userrepository-updatesettings-upserts-language-settings-with-activemode",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-159-userrepository-updatesettings-upserts-language-settings-with-activemode",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 152,
+      "sourceLine": 159,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13081,10 +13081,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior so upserts language settings with active Mode."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-175-userrepository-updatesettings-includes-activemode-in-the-conflict-update-set",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-182-userrepository-updatesettings-includes-activemode-in-the-conflict-update-set",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 175,
+      "sourceLine": 182,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13098,10 +13098,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior: includes active Mode in the conflict update set."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-195-userrepository-updatesettings-defaults-activemode-to-undefined-when-not-provided",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-202-userrepository-updatesettings-defaults-activemode-to-undefined-when-not-provided",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 195,
+      "sourceLine": 202,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13115,10 +13115,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior: defaults active Mode to undefined when not provided."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-212-userrepository-updatesettings-allows-exactly-max-learning-langs-4-languages",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-219-userrepository-updatesettings-allows-exactly-max-learning-langs-4-languages",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 212,
+      "sourceLine": 219,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13132,10 +13132,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior: allows exactly MAX LEARNING LANGS (4) languages."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-228-userrepository-updatesettings-throws-when-learninglangs-exceeds-max-learning-langs-bug-09",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-235-userrepository-updatesettings-throws-when-learninglangs-exceeds-max-learning-langs-bug-09",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 228,
+      "sourceLine": 235,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13149,10 +13149,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior: throws when learning Langs exceeds MAX LEARNING LANGS (BUG 09)."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-241-userrepository-updatesettings-allows-settings-update-when-learninglangs-is-not-provided",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-248-userrepository-updatesettings-allows-settings-update-when-learninglangs-is-not-provided",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 241,
+      "sourceLine": 248,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13166,10 +13166,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior: allows settings update when learning Langs is not provided."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-254-userrepository-updatesettings-allows-empty-learninglangs-array",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-261-userrepository-updatesettings-allows-empty-learninglangs-array",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 254,
+      "sourceLine": 261,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13183,10 +13183,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior: allows empty learning Langs array."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-267-userrepository-updatesettings-does-not-include-lastsourcelang-in-conflict-set-when-not-provided",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-274-userrepository-updatesettings-does-not-include-lastsourcelang-in-conflict-set-when-not-provided",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 267,
+      "sourceLine": 274,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13200,10 +13200,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior: does NOT include last Source Lang in conflict set when not provided."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-282-userrepository-updatesettings-includes-lastsourcelang-in-conflict-set-when-explicitly-provided",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-289-userrepository-updatesettings-includes-lastsourcelang-in-conflict-set-when-explicitly-provided",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 282,
+      "sourceLine": 289,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13217,10 +13217,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior: includes last Source Lang in conflict set when explicitly provided."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-298-userrepository-updatesettings-includes-lastsourcelang-null-in-conflict-set-when-explicitly-set-to-null",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-305-userrepository-updatesettings-includes-lastsourcelang-null-in-conflict-set-when-explicitly-set-to-null",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 298,
+      "sourceLine": 305,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13234,10 +13234,10 @@
       "description": "Protects the database adapter user Repository update Settings behavior: includes last Source Lang=null in conflict set when explicitly set to null."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-316-userrepository-getsettings-returns-settings-when-found",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-323-userrepository-getsettings-returns-settings-when-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 316,
+      "sourceLine": 323,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13251,10 +13251,10 @@
       "description": "Protects the database adapter user Repository get Settings behavior: returns settings when found."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-326-userrepository-getsettings-returns-null-when-no-settings-exist",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-333-userrepository-getsettings-returns-null-when-no-settings-exist",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 326,
+      "sourceLine": 333,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13268,10 +13268,10 @@
       "description": "Protects the database adapter user Repository get Settings behavior: returns null when no settings exist."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-334-userrepository-updateactivemode-updates-activemode-and-returns-settings",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-341-userrepository-updateactivemode-updates-activemode-and-returns-settings",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 334,
+      "sourceLine": 341,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13285,10 +13285,10 @@
       "description": "Protects the database adapter user Repository update Active Mode behavior: updates active Mode and returns settings."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-346-userrepository-updateactivemode-sets-updatedat-timestamp",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-353-userrepository-updateactivemode-sets-updatedat-timestamp",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 346,
+      "sourceLine": 353,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13302,10 +13302,10 @@
       "description": "Protects the database adapter user Repository update Active Mode behavior so sets updated At timestamp."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-360-userrepository-updateactivemode-returns-null-when-user-has-no-settings-row",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-367-userrepository-updateactivemode-returns-null-when-user-has-no-settings-row",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 360,
+      "sourceLine": 367,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13319,10 +13319,10 @@
       "description": "Protects the database adapter user Repository update Active Mode behavior: returns null when user has no settings row."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-368-userrepository-updateactivemode-only-sets-activemode-and-updatedat-no-other-fields",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-375-userrepository-updateactivemode-only-sets-activemode-and-updatedat-no-other-fields",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 368,
+      "sourceLine": 375,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13336,10 +13336,10 @@
       "description": "Protects the database adapter user Repository update Active Mode behavior so only sets active Mode and updated At — no other fields."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-382-userrepository-updateonboardingstep-updates-the-onboarding-step",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-389-userrepository-updateonboardingstep-updates-the-onboarding-step",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 382,
+      "sourceLine": 389,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13353,10 +13353,10 @@
       "description": "Protects the database adapter user Repository update Onboarding Step behavior: updates the onboarding step."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-394-userrepository-markonboarded-sets-onboarded-to-true-and-step-to-3-brd-5-3-step-onboarding",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-401-userrepository-markonboarded-sets-onboarded-to-true-and-step-to-3-brd-5-3-step-onboarding",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 394,
+      "sourceLine": 401,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13370,10 +13370,10 @@
       "description": "Protects the database adapter user Repository mark Onboarded behavior so sets onboarded to true and step to 3 (BRD §5 — 3 step onboarding)."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-409-userrepository-updatelastsourcelang-persists-a-source-language-code",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-416-userrepository-updatelastsourcelang-persists-a-source-language-code",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 409,
+      "sourceLine": 416,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13387,10 +13387,10 @@
       "description": "Protects the database adapter user Repository update Last Source Lang behavior: persists a source language code."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-417-userrepository-updatelastsourcelang-clears-lastsourcelang-when-called-with-null",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-424-userrepository-updatelastsourcelang-clears-lastsourcelang-when-called-with-null",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 417,
+      "sourceLine": 424,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13404,10 +13404,10 @@
       "description": "Protects the database adapter user Repository update Last Source Lang behavior so clears last Source Lang when called with null."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-425-userrepository-updatelastsourcelang-returns-void-no-returning-clause",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-432-userrepository-updatelastsourcelang-returns-void-no-returning-clause",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 425,
+      "sourceLine": 432,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13421,10 +13421,10 @@
       "description": "Protects the database adapter user Repository update Last Source Lang behavior: returns void (no returning clause)."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-431-userrepository-updatelastsourcelang-only-sets-lastsourcelang-and-updatedat-no-other-fields",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-438-userrepository-updatelastsourcelang-only-sets-lastsourcelang-and-updatedat-no-other-fields",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 431,
+      "sourceLine": 438,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13438,10 +13438,10 @@
       "description": "Protects the database adapter user Repository update Last Source Lang behavior so only sets last Source Lang and updated At — no other fields."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-440-userrepository-updatelastsourcelang-sets-updatedat-to-current-timestamp",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-447-userrepository-updatelastsourcelang-sets-updatedat-to-current-timestamp",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 440,
+      "sourceLine": 447,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13455,10 +13455,10 @@
       "description": "Protects the database adapter user Repository update Last Source Lang behavior so sets updated At to current timestamp."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-454-userrepository-updatenativelang-updates-nativelang-and-returns-settings",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-461-userrepository-updatenativelang-updates-nativelang-and-returns-settings",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 454,
+      "sourceLine": 461,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13472,10 +13472,10 @@
       "description": "Protects the database adapter user Repository update Native Lang behavior: updates native Lang and returns settings."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-466-userrepository-updatenativelang-returns-null-when-user-has-no-settings-row",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-473-userrepository-updatenativelang-returns-null-when-user-has-no-settings-row",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 466,
+      "sourceLine": 473,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13489,10 +13489,10 @@
       "description": "Protects the database adapter user Repository update Native Lang behavior: returns null when user has no settings row."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-474-userrepository-updatenativelang-only-sets-nativelang-and-updatedat-no-other-fields",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-481-userrepository-updatenativelang-only-sets-nativelang-and-updatedat-no-other-fields",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 474,
+      "sourceLine": 481,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13506,10 +13506,10 @@
       "description": "Protects the database adapter user Repository update Native Lang behavior so only sets native Lang and updated At — no other fields."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-488-userrepository-updatelearninglangs-updates-learninglangs-and-returns-settings",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-495-userrepository-updatelearninglangs-updates-learninglangs-and-returns-settings",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 488,
+      "sourceLine": 495,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13523,10 +13523,10 @@
       "description": "Protects the database adapter user Repository update Learning Langs behavior: updates learning Langs and returns settings."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-500-userrepository-updatelearninglangs-allows-exactly-max-learning-langs-4-languages",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-507-userrepository-updatelearninglangs-allows-exactly-max-learning-langs-4-languages",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 500,
+      "sourceLine": 507,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13540,10 +13540,10 @@
       "description": "Protects the database adapter user Repository update Learning Langs behavior: allows exactly MAX LEARNING LANGS (4) languages."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-509-userrepository-updatelearninglangs-throws-when-exceeding-max-learning-langs",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-516-userrepository-updatelearninglangs-throws-when-exceeding-max-learning-langs",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 509,
+      "sourceLine": 516,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13557,10 +13557,10 @@
       "description": "Protects the database adapter user Repository update Learning Langs behavior: throws when exceeding MAX LEARNING LANGS."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-517-userrepository-updatelearninglangs-returns-null-when-user-has-no-settings-row",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-524-userrepository-updatelearninglangs-returns-null-when-user-has-no-settings-row",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 517,
+      "sourceLine": 524,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13574,10 +13574,10 @@
       "description": "Protects the database adapter user Repository update Learning Langs behavior: returns null when user has no settings row."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-525-userrepository-updatelearninglangs-only-sets-learninglangs-and-updatedat-no-other-fields",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-532-userrepository-updatelearninglangs-only-sets-learninglangs-and-updatedat-no-other-fields",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 525,
+      "sourceLine": 532,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13591,10 +13591,10 @@
       "description": "Protects the database adapter user Repository update Learning Langs behavior so only sets learning Langs and updated At — no other fields."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-539-userrepository-updateinterfacelang-updates-interfacelang-and-returns-settings",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-546-userrepository-updateinterfacelang-updates-interfacelang-and-returns-settings",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 539,
+      "sourceLine": 546,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13608,10 +13608,10 @@
       "description": "Protects the database adapter user Repository update Interface Lang behavior: updates interface Lang and returns settings."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-551-userrepository-updateinterfacelang-returns-null-when-user-has-no-settings-row",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-558-userrepository-updateinterfacelang-returns-null-when-user-has-no-settings-row",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 551,
+      "sourceLine": 558,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13625,10 +13625,10 @@
       "description": "Protects the database adapter user Repository update Interface Lang behavior: returns null when user has no settings row."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-559-userrepository-updateinterfacelang-only-sets-interfacelang-and-updatedat-no-other-fields",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-566-userrepository-updateinterfacelang-only-sets-interfacelang-and-updatedat-no-other-fields",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 559,
+      "sourceLine": 566,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13642,10 +13642,10 @@
       "description": "Protects the database adapter user Repository update Interface Lang behavior so only sets interface Lang and updated At — no other fields."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-573-userrepository-updatenotificationprefs-updates-all-notification-preferences-and-returns-settings",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-580-userrepository-updatenotificationprefs-updates-all-notification-preferences-and-returns-settings",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 573,
+      "sourceLine": 580,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13659,10 +13659,10 @@
       "description": "Protects the database adapter user Repository update Notification Prefs behavior: updates all notification preferences and returns settings."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-595-userrepository-updatenotificationprefs-updates-only-provided-preferences",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-602-userrepository-updatenotificationprefs-updates-only-provided-preferences",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 595,
+      "sourceLine": 602,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13676,10 +13676,10 @@
       "description": "Protects the database adapter user Repository update Notification Prefs behavior: updates only provided preferences."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-610-userrepository-updatenotificationprefs-returns-null-when-user-has-no-settings-row",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-617-userrepository-updatenotificationprefs-returns-null-when-user-has-no-settings-row",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 610,
+      "sourceLine": 617,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13693,10 +13693,10 @@
       "description": "Protects the database adapter user Repository update Notification Prefs behavior: returns null when user has no settings row."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-620-userrepository-updatenotificationprefs-always-sets-updatedat-timestamp",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-627-userrepository-updatenotificationprefs-always-sets-updatedat-timestamp",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 620,
+      "sourceLine": 627,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13710,10 +13710,10 @@
       "description": "Protects the database adapter user Repository update Notification Prefs behavior so always sets updated At timestamp."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-638-userrepository-updatelastinteraction-sets-lastinteractionat-to-current-timestamp",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-645-userrepository-updatelastinteraction-sets-lastinteractionat-to-current-timestamp",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 638,
+      "sourceLine": 645,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13727,10 +13727,10 @@
       "description": "Protects the database adapter user Repository update Last Interaction behavior so sets last Interaction At to current timestamp."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-651-userrepository-updatelastinteraction-also-sets-updatedat",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-658-userrepository-updatelastinteraction-also-sets-updatedat",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 651,
+      "sourceLine": 658,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13744,10 +13744,10 @@
       "description": "Protects the database adapter user Repository update Last Interaction behavior so also sets updated At."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-657-userrepository-updatelastinteraction-returns-void",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-664-userrepository-updatelastinteraction-returns-void",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 657,
+      "sourceLine": 664,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13761,10 +13761,10 @@
       "description": "Protects the database adapter user Repository update Last Interaction behavior: returns void."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-663-userrepository-updatelastinteraction-only-sets-lastinteractionat-and-updatedat",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-670-userrepository-updatelastinteraction-only-sets-lastinteractionat-and-updatedat",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 663,
+      "sourceLine": 670,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13778,10 +13778,10 @@
       "description": "Protects the database adapter user Repository update Last Interaction behavior so only sets last Interaction At and updated At."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-674-userrepository-audience-groups-lists-active-users-by-audience-groups",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-681-userrepository-audience-groups-lists-active-users-by-audience-groups",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 674,
+      "sourceLine": 681,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13795,10 +13795,10 @@
       "description": "Protects the database adapter user Repository audience groups behavior so lists active users by audience groups."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-686-userrepository-audience-groups-returns-an-empty-list-without-querying-when-no-audience-groups-are-requested",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-693-userrepository-audience-groups-returns-an-empty-list-without-querying-when-no-audience-groups-are-requested",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 686,
+      "sourceLine": 693,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13812,10 +13812,10 @@
       "description": "Protects the database adapter user Repository audience groups behavior: returns an empty list without querying when no audience groups are requested."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-693-userrepository-audience-groups-updates-a-user-audience-group",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-700-userrepository-audience-groups-updates-a-user-audience-group",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 693,
+      "sourceLine": 700,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13829,10 +13829,10 @@
       "description": "Protects the database adapter user Repository audience groups behavior: updates a user audience group."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-704-userrepository-audience-groups-rejects-an-invalid-audience-group",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-711-userrepository-audience-groups-rejects-an-invalid-audience-group",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 704,
+      "sourceLine": 711,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13846,10 +13846,10 @@
       "description": "Protects the database adapter user Repository audience groups behavior: rejects an invalid audience group."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-717-userrepository-release-announcement-deliveries-detects-an-existing-delivery-for-a-release-group-and-user",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-724-userrepository-release-announcement-deliveries-detects-an-existing-delivery-for-a-release-group-and-user",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 717,
+      "sourceLine": 724,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13863,10 +13863,10 @@
       "description": "Protects the database adapter user Repository release announcement deliveries behavior: detects an existing delivery for a release, group, and user."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-726-userrepository-release-announcement-deliveries-returns-false-when-no-delivery-was-recorded",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-733-userrepository-release-announcement-deliveries-returns-false-when-no-delivery-was-recorded",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 726,
+      "sourceLine": 733,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13880,10 +13880,10 @@
       "description": "Protects the database adapter user Repository release announcement deliveries behavior: returns false when no delivery was recorded."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-732-userrepository-release-announcement-deliveries-records-a-delivery-with-conflict-dedupe",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-739-userrepository-release-announcement-deliveries-records-a-delivery-with-conflict-dedupe",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 732,
+      "sourceLine": 739,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13897,10 +13897,10 @@
       "description": "Protects the database adapter user Repository release announcement deliveries behavior: records a delivery with conflict dedupe."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-745-userrepository-getsettings-returns-lastsourcelang-returns-lastsourcelang-when-present-in-settings",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-752-userrepository-getsettings-returns-lastsourcelang-returns-lastsourcelang-when-present-in-settings",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 745,
+      "sourceLine": 752,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -13914,10 +13914,10 @@
       "description": "Protects the database adapter user Repository get Settings returns last Source Lang behavior: returns last Source Lang when present in settings."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-755-userrepository-getsettings-returns-lastsourcelang-returns-lastsourcelang-as-null-when-not-set",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-762-userrepository-getsettings-returns-lastsourcelang-returns-lastsourcelang-as-null-when-not-set",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
-      "sourceLine": 755,
+      "sourceLine": 762,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -14526,7 +14526,7 @@
       "description": "Protects the database adapter vocabulary Repository update Translation behavior so upserts (inserts) when no existing row for entry+lang."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-479-vocabularyrepository-updatealltranslations-deletes-old-and-inserts-new-translations-in-a-transaction",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-479-vocabularyrepository-updatealltranslations-upserts-translations-preserving-srs-progress-on-regen-e8-t18",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
       "sourceLine": 479,
@@ -14536,17 +14536,17 @@
         "vocabularyRepository",
         "updateAllTranslations"
       ],
-      "title": "deletes old and inserts new translations in a transaction",
-      "rawTitle": "deletes old and inserts new translations in a transaction",
-      "name": "Database adapter vocabulary Repository update All Translations deletes old and inserts new translations in a transaction",
-      "value": "Protects the database adapter vocabulary Repository update All Translations behavior so deletes old and inserts new translations in a transaction.",
-      "description": "Protects the database adapter vocabulary Repository update All Translations behavior so deletes old and inserts new translations in a transaction."
+      "title": "upserts translations, preserving SRS progress on regen (E8/T18)",
+      "rawTitle": "upserts translations, preserving SRS progress on regen (E8/T18)",
+      "name": "Database adapter vocabulary Repository update All Translations upserts translations, preserving SRS progress on regen (E8 T18)",
+      "value": "Protects the database adapter vocabulary Repository update All Translations behavior so upserts translations, preserving SRS progress on regen (E8 T18).",
+      "description": "Protects the database adapter vocabulary Repository update All Translations behavior so upserts translations, preserving SRS progress on regen (E8 T18)."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-495-vocabularyrepository-updatealltranslations-returns-empty-array-when-translations-list-is-empty",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-506-vocabularyrepository-updatealltranslations-returns-empty-array-when-translations-list-is-empty",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 495,
+      "sourceLine": 506,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -14560,10 +14560,10 @@
       "description": "Protects the database adapter vocabulary Repository update All Translations behavior: returns empty array when translations list is empty."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-506-vocabularyrepository-delete-soft-deletes-parent-and-all-translations",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-517-vocabularyrepository-delete-soft-deletes-parent-and-all-translations",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 506,
+      "sourceLine": 517,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -14577,10 +14577,10 @@
       "description": "Protects the database adapter vocabulary Repository delete behavior so soft deletes parent and all translations."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-519-vocabularyrepository-findbyuserwithsourcelang-resolves-sourcelangid-to-code-using-langresolver",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-530-vocabularyrepository-findbyuserwithsourcelang-resolves-sourcelangid-to-code-using-langresolver",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 519,
+      "sourceLine": 530,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -14594,10 +14594,10 @@
       "description": "Protects the database adapter vocabulary Repository find By User With Source Lang behavior: resolves source Lang Id to code using lang Resolver."
     },
     {
-      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-532-vocabularyrepository-findbyuserwithsourcelang-filters-out-entries-with-unresolvable-sourcelangid",
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-test-ts-543-vocabularyrepository-findbyuserwithsourcelang-filters-out-entries-with-unresolvable-sourcelangid",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary.repository.test.ts",
-      "sourceLine": 532,
+      "sourceLine": 543,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [

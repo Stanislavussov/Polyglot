@@ -42,6 +42,9 @@ const mockDb = {
       };
     }),
   })),
+  // logTranslationRequest runs its writes in a transaction (E9/T18); the tx uses
+  // the same query surface as the outer db so result ordering is unchanged.
+  transaction: vi.fn((cb: (tx: unknown) => unknown) => cb(mockDb)),
 };
 
 vi.mock("../connection.js", () => ({
@@ -65,6 +68,7 @@ beforeEach(() => {
       };
     }),
   }));
+  mockDb.transaction.mockImplementation((cb: (tx: unknown) => unknown) => cb(mockDb));
 });
 
 // ── Tests ────────────────────────────────────────────────────────

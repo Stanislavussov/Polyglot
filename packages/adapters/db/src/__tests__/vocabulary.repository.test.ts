@@ -476,10 +476,11 @@ describe("vocabularyRepository", () => {
   });
 
   describe("updateAllTranslations", () => {
-    it("deletes old and inserts new translations in a transaction", async () => {
+    it("upserts translations, preserving SRS progress on regen (E8/T18)", async () => {
       const t1 = makeTranslation({ id: 20, text: "ahoj" });
       const t2 = makeTranslation({ id: 21, text: "hallo", targetLangId: 7 });
       insertResultQueue.push([t1, t2]);
+      onConflictSets.length = 0;
 
       const result = await vocabularyRepository.updateAllTranslations(1, [
         { text: "ahoj", details: makeDetails() },
@@ -487,9 +488,19 @@ describe("vocabularyRepository", () => {
       ]);
 
       expect(transactionFn).toHaveBeenCalledOnce();
+      // Stale-language rows are pruned; the current set is upserted (not wiped).
       expect(deleteFn).toHaveBeenCalledOnce();
       expect(insertFn).toHaveBeenCalledOnce();
       expect(result).toHaveLength(2);
+
+      // The ON CONFLICT set updates content but leaves every SRS column alone,
+      // so regenerating a card no longer resets review progress.
+      const set = onConflictSets.at(-1) as Record<string, unknown>;
+      expect(set).toHaveProperty("text");
+      expect(set).not.toHaveProperty("srsDueDate");
+      expect(set).not.toHaveProperty("srsInterval");
+      expect(set).not.toHaveProperty("srsEaseFactor");
+      expect(set).not.toHaveProperty("srsReviewCount");
     });
 
     it("returns empty array when translations list is empty", async () => {
