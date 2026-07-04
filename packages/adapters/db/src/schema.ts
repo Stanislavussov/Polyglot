@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
@@ -61,6 +62,14 @@ export const wordContext = pgTable(
   (t) => [
     index("word_context_word_lang_idx").on(t.word, t.languageId),
     index("word_context_lang_idx").on(t.languageId),
+    // Hot preflight path (Fable T17): case-insensitive exact lookup done via
+    // `lower(word) = lower($1)` instead of ILIKE (which can't use a btree),
+    // backed by this functional index — turns a seq scan on every translation
+    // into an index lookup.
+    index("word_context_lower_word_idx").on(sql`lower(${t.word})`),
+    // GIN index for `arrayContains(forms, [word])` — the known-form lookup on
+    // the same hot path; a plain btree cannot serve array containment.
+    index("word_context_forms_gin_idx").using("gin", t.forms),
   ],
 );
 

@@ -32,7 +32,10 @@ export const wordContextRepository = {
       .from(wordContext)
       .innerJoin(languages, eq(wordContext.languageId, languages.id))
       .where(
-        and(or(ilike(wordContext.word, word), arrayContains(wordContext.forms, [word])), eq(languages.code, langCode)),
+        and(
+          or(sql`lower(${wordContext.word}) = lower(${word})`, arrayContains(wordContext.forms, [word])),
+          eq(languages.code, langCode),
+        ),
       );
   },
 
@@ -49,7 +52,7 @@ export const wordContextRepository = {
       .innerJoin(languages, eq(wordContext.languageId, languages.id))
       .where(
         and(
-          or(ilike(wordContext.word, word), arrayContains(wordContext.forms, [word])),
+          or(sql`lower(${wordContext.word}) = lower(${word})`, arrayContains(wordContext.forms, [word])),
           eq(languages.isSupported, true),
         ),
       )
