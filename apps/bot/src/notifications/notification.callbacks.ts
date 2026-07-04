@@ -9,7 +9,7 @@ import { getAllLangs, userRepository, vocabularyRepository } from "@polyglot/ada
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import { renderDictionaryEntry } from "../renderers/dictionary.renderer.js";
 import type { BotContext } from "../types.js";
-import { LONG_OP_TIMEOUT_MS, loadingKeyboard, OperationTimeoutError, withTimeout } from "../utils/long-op.js";
+import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../utils/long-op.js";
 import { buildNotificationKeyboard, buildNotificationRevealedKeyboard } from "./notification.formatter.js";
 
 function getLangCodeById(id: number): string | undefined {
@@ -45,7 +45,7 @@ async function showLoadingKeyboard(ctx: BotContext): Promise<void> {
 }
 
 function failureAlertText(err: unknown, lang: SupportedLang): string {
-  return err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("translationError", lang);
+  return isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang);
 }
 
 /**

@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { AITimeoutError } from "@polyglot/core";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 // Mock dependencies
@@ -19,7 +20,7 @@ vi.mock("ai", () => ({
   generateText: (...args: unknown[]) => mockAiGenerateText(...args),
 }));
 
-import { generateObject, generateText } from "../index.js";
+import { generateObject, generateText, setAIRequestTimeoutProvider } from "../index.js";
 
 describe("generateObject", () => {
   const schema = z.object({ text: z.string() });
@@ -54,6 +55,7 @@ describe("generateObject", () => {
       maxTokens: 4096,
       temperature: 0.3,
       frequencyPenalty: 0,
+      abortSignal: expect.any(AbortSignal),
     });
   });
 
@@ -191,6 +193,7 @@ describe("generateText", () => {
       model: mockModelInstance,
       prompt: "test prompt",
       maxRetries: 3,
+      abortSignal: expect.any(AbortSignal),
     });
   });
 
@@ -280,5 +283,76 @@ describe("generateText", () => {
         success: false,
       }),
     );
+  });
+});
+
+describe("request timeout / abort", () => {
+  const schema = z.object({ text: z.string() });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    setAIRequestTimeoutProvider(null);
+  });
+
+  /** Mock that honours the abort signal like the real SDK: rejects once aborted. */
+  function rejectOnAbort(opts: { abortSignal?: AbortSignal }): Promise<never> {
+    return new Promise((_, reject) => {
+      opts.abortSignal?.addEventListener("abort", () => reject(new Error("The operation was aborted")));
+    });
+  }
+
+  it("aborts a hung generateObject at the injected budget and throws AITimeoutError", async () => {
+    setAIRequestTimeoutProvider(() => 20);
+    mockAiGenerateObject.mockImplementationOnce(rejectOnAbort);
+
+    await expect(generateObject("test", schema, "openai/gpt-4o")).rejects.toBeInstanceOf(AITimeoutError);
+  });
+
+  it("aborts a hung generateText at the injected budget and throws AITimeoutError", async () => {
+    setAIRequestTimeoutProvider(() => 20);
+    mockAiGenerateText.mockImplementationOnce(rejectOnAbort);
+
+    await expect(generateText("test", "openai/gpt-4o")).rejects.toBeInstanceOf(AITimeoutError);
+  });
+
+  it("resolves the budget from an async (DB-backed) provider", async () => {
+    setAIRequestTimeoutProvider(async () => 20);
+    mockAiGenerateObject.mockImplementationOnce(rejectOnAbort);
+
+    await expect(generateObject("test", schema, "openai/gpt-4o")).rejects.toBeInstanceOf(AITimeoutError);
+  });
+
+  it("logs a timed-out request as a failure", async () => {
+    setAIRequestTimeoutProvider(() => 20);
+    mockAiGenerateObject.mockImplementationOnce(rejectOnAbort);
+
+    await expect(generateObject("test", schema, "openai/gpt-4o")).rejects.toBeInstanceOf(AITimeoutError);
+
+    expect(mockLogRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: "AI request timed out after 20ms",
+      }),
+    );
+  });
+
+  it("falls back to the default budget when the provider yields an invalid value", async () => {
+    setAIRequestTimeoutProvider(() => 0);
+    const original = new Error("provider 500");
+    mockAiGenerateObject.mockRejectedValueOnce(original);
+
+    // Budget falls back to 15 s (won't fire in-test); the original error passes through.
+    await expect(generateObject("test", schema, "openai/gpt-4o")).rejects.toBe(original);
+  });
+
+  it("passes through a non-timeout rejection unchanged", async () => {
+    setAIRequestTimeoutProvider(() => 10_000);
+    const original = new Error("provider 500");
+    mockAiGenerateObject.mockRejectedValueOnce(original);
+
+    await expect(generateObject("test", schema, "openai/gpt-4o")).rejects.toBe(original);
   });
 });

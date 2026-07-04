@@ -3,7 +3,7 @@
  * bound them with a timeout so the user never stares at an endless loader,
  * and show a typing indicator during silent pre-phases.
  */
-import { type SupportedLang, t } from "@polyglot/core";
+import { AITimeoutError, type SupportedLang, t } from "@polyglot/core";
 import type { InlineKeyboardMarkup } from "grammy/types";
 import type { BotContext } from "../types.js";
 
@@ -46,6 +46,16 @@ export async function withTimeout<T>(work: Promise<T>, timeoutMs: number): Promi
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * True when `err` should surface the friendly "taking longer, try again"
+ * fallback rather than a hard error — either the op-level guard fired
+ * (OperationTimeoutError) or the AI adapter aborted a call that blew its time
+ * budget (AITimeoutError, thrown before this guard since its budget is lower).
+ */
+export function isUserFacingTimeout(err: unknown): boolean {
+  return err instanceof OperationTimeoutError || err instanceof AITimeoutError;
 }
 
 /**

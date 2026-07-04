@@ -102,6 +102,17 @@ export function isKnownLanguage(code: string): boolean {
   return byCode.has(code);
 }
 
+/**
+ * Whether a language is offered for study (its `isSupported` DB flag is set).
+ *
+ * This is the correct gate for "can the user add this as a learning language",
+ * distinct from the i18n `isSupported` which only covers UI locales. An unknown
+ * or study-disabled code returns false.
+ */
+export function isSupportedLanguage(code: string): boolean {
+  return byCode.get(code)?.isSupported === true;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Normalization                                                      */
 /* ------------------------------------------------------------------ */

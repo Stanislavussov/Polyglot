@@ -89,6 +89,7 @@ import {
   handleLangSelectCallback,
   handleMistypeCancelCallback,
   handleMistypeConfirmCallback,
+  handleOutOfSetCallback,
   handleRegenCallback,
   handleSaveCallback,
   handleSkipCallback,
@@ -262,6 +263,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);
   bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
   bot.callbackQuery(/^tr:langselect:/, handleLangSelectCallback);
+  bot.callbackQuery(/^tr:oos:/, handleOutOfSetCallback);
   bot.callbackQuery(/^tr:clarify:/, handleTranslationClarificationCallback);
 
   bot.callbackQuery("fc:start", handleFcStart);

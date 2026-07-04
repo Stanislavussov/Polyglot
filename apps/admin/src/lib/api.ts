@@ -320,6 +320,7 @@ export interface AIDefaults {
   temperature: number;
   frequencyPenalty: number;
   maxRetries: number;
+  requestTimeoutMs: number;
 }
 
 export interface NotificationSettings {

@@ -18,7 +18,7 @@ import {
 import { mentorCounter, mentorDuration } from "../../metrics.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
-import { LONG_OP_TIMEOUT_MS, OperationTimeoutError, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
+import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
 
 /** Maximum output tokens for mentor responses — keeps replies short. */
 const MENTOR_MAX_TOKENS = 300;
@@ -101,6 +101,6 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
 
     // Delete loading indicator and show error
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(err instanceof OperationTimeoutError ? t("loadingTimeout", lang) : t("mentorError", lang));
+    await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("mentorError", lang));
   }
 }

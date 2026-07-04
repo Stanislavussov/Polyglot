@@ -9,14 +9,16 @@
 
 export { setAIRequestMetricSink } from "./logger.js";
 export { estimateCost, getAvailableModels } from "./models.js";
+export { type AIRequestTimeoutProvider, setAIRequestTimeoutProvider } from "./timeout.js";
 export type { AIModel, AIRequestLog, AIRequestMetricSink, GenerateOptions } from "./types.js";
 
-import type { ChatMessage, ChatOptions, GenerateOptions } from "@polyglot/core";
+import { AITimeoutError, type ChatMessage, type ChatOptions, type GenerateOptions } from "@polyglot/core";
 import { generateObject as aiGenerateObject, generateText as aiGenerateText } from "ai";
 import type { ZodSchema } from "zod";
 import { getModel } from "./client.js";
 import { logRequest } from "./logger.js";
 import { calculateCost } from "./models.js";
+import { createRequestTimeout, resolveRequestTimeoutMs } from "./timeout.js";
 
 const DEFAULT_MAX_RETRIES = 2;
 
@@ -36,6 +38,8 @@ export async function generateObject<T>(
   options?: GenerateOptions,
 ): Promise<T> {
   const maxRetries = options?.maxRetries ?? DEFAULT_MAX_RETRIES;
+  const budgetMs = await resolveRequestTimeoutMs();
+  const timeout = createRequestTimeout(budgetMs);
   const start = Date.now();
 
   try {
@@ -47,6 +51,7 @@ export async function generateObject<T>(
       maxTokens: options?.maxTokens ?? 4096,
       temperature: 0.3,
       frequencyPenalty: options?.frequencyPenalty ?? 0.5,
+      abortSignal: timeout.signal,
     });
 
     const duration_ms = Date.now() - start;
@@ -67,6 +72,7 @@ export async function generateObject<T>(
     return result.object;
   } catch (error) {
     const duration_ms = Date.now() - start;
+    const normalizedError = timeout.timedOut() ? new AITimeoutError(budgetMs) : error;
 
     logRequest({
       model,
@@ -76,10 +82,12 @@ export async function generateObject<T>(
       duration_ms,
       success: false,
       userId: options?.userId,
-      error: error instanceof Error ? error.message : String(error),
+      error: normalizedError instanceof Error ? normalizedError.message : String(normalizedError),
     });
 
-    throw error;
+    throw normalizedError;
+  } finally {
+    timeout.clear();
   }
 }
 
@@ -93,6 +101,8 @@ export async function generateObject<T>(
  */
 export async function generateText(prompt: string, model: string, options?: GenerateOptions): Promise<string> {
   const maxRetries = options?.maxRetries ?? DEFAULT_MAX_RETRIES;
+  const budgetMs = await resolveRequestTimeoutMs();
+  const timeout = createRequestTimeout(budgetMs);
   const start = Date.now();
 
   try {
@@ -100,6 +110,7 @@ export async function generateText(prompt: string, model: string, options?: Gene
       model: getModel(model),
       prompt,
       maxRetries,
+      abortSignal: timeout.signal,
     });
 
     const duration_ms = Date.now() - start;
@@ -120,6 +131,7 @@ export async function generateText(prompt: string, model: string, options?: Gene
     return result.text;
   } catch (error) {
     const duration_ms = Date.now() - start;
+    const normalizedError = timeout.timedOut() ? new AITimeoutError(budgetMs) : error;
 
     logRequest({
       model,
@@ -129,10 +141,12 @@ export async function generateText(prompt: string, model: string, options?: Gene
       duration_ms,
       success: false,
       userId: options?.userId,
-      error: error instanceof Error ? error.message : String(error),
+      error: normalizedError instanceof Error ? normalizedError.message : String(normalizedError),
     });
 
-    throw error;
+    throw normalizedError;
+  } finally {
+    timeout.clear();
   }
 }
 
@@ -150,6 +164,8 @@ export async function generateText(prompt: string, model: string, options?: Gene
  */
 export async function generateChat(messages: ChatMessage[], model: string, options?: ChatOptions): Promise<string> {
   const maxRetries = options?.maxRetries ?? DEFAULT_MAX_RETRIES;
+  const budgetMs = await resolveRequestTimeoutMs();
+  const timeout = createRequestTimeout(budgetMs);
   const start = Date.now();
 
   try {
@@ -157,6 +173,7 @@ export async function generateChat(messages: ChatMessage[], model: string, optio
       model: getModel(model),
       messages,
       maxRetries,
+      abortSignal: timeout.signal,
       ...(options?.maxTokens !== undefined ? { maxTokens: options.maxTokens } : {}),
     });
 
@@ -178,6 +195,7 @@ export async function generateChat(messages: ChatMessage[], model: string, optio
     return result.text;
   } catch (error) {
     const duration_ms = Date.now() - start;
+    const normalizedError = timeout.timedOut() ? new AITimeoutError(budgetMs) : error;
 
     logRequest({
       model,
@@ -187,9 +205,11 @@ export async function generateChat(messages: ChatMessage[], model: string, optio
       duration_ms,
       success: false,
       userId: options?.userId,
-      error: error instanceof Error ? error.message : String(error),
+      error: normalizedError instanceof Error ? normalizedError.message : String(normalizedError),
     });
 
-    throw error;
+    throw normalizedError;
+  } finally {
+    timeout.clear();
   }
 }

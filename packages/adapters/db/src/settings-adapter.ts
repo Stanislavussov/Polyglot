@@ -21,7 +21,7 @@ const DEFAULTS: {
   dictionary: DictionaryConfig;
   videoVocabulary: VideoVocabularyConfig;
 } = {
-  ai: { maxTokens: 4096, temperature: 0.3, frequencyPenalty: 0.5, maxRetries: 2 },
+  ai: { maxTokens: 4096, temperature: 0.3, frequencyPenalty: 0.5, maxRetries: 2, requestTimeoutMs: 15_000 },
   srs: { minEaseFactor: 1.3, defaultEaseFactor: 2.5 },
   notifications: { defaultTime: "08:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 },
   dictionary: { flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 },
