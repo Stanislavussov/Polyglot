@@ -45,6 +45,7 @@ import type {
   TranslateOutput,
   TranslationAmbiguity,
   TranslationDecision,
+  TranslationModelRoutingPolicy,
   TranslationOutputConfig,
   TranslationRequest,
   TranslationResult,
@@ -903,7 +904,7 @@ async function judgeTranslation(
   generationModel: string,
 ): Promise<{ judgeResult?: SemanticJudgeResult; issues: QualityIssue[]; attemptCount: number }> {
   try {
-    const judgeModel = selectJudgeModel(generationModel, input.modelRouting?.judgeModel);
+    const judgeModel = selectJudgeModel(generationModel, input.modelRouting);
     const judgePrompt = buildJudgePrompt(request, result);
     const judgeResult = (await generateObjectFn(judgePrompt, semanticJudgeSchema, judgeModel, {
       ...(input.userId !== undefined ? { userId: input.userId } : {}),
@@ -931,16 +932,34 @@ async function judgeTranslation(
   }
 }
 
-function selectJudgeModel(generatorModel: string, configuredJudgeModel?: string): string {
-  if (configuredJudgeModel !== undefined) {
-    return configuredJudgeModel;
+/**
+ * Chooses the semantic-judge model. A judge from a different provider family
+ * than the generator avoids a model grading its own house style, but the
+ * concrete model ids must come from configuration (DB-backed `SettingsPort` via
+ * `modelRouting`), never hardcoded in core (Fable T21/A2 — "model lives in the
+ * DB"). Resolution order:
+ *   1. an explicitly configured `judgeModel`;
+ *   2. otherwise a configured risk model from a *different* family than the
+ *      generator (the "judge ≠ generator family" rule, applied to config values);
+ *   3. otherwise the generator model itself — a safe last resort with no baked-in
+ *      model id. Configure `judgeModel` to get cross-family judging.
+ */
+function selectJudgeModel(generatorModel: string, routing?: TranslationModelRoutingPolicy): string {
+  if (routing?.judgeModel !== undefined) {
+    return routing.judgeModel;
   }
 
-  if (generatorModel.startsWith("openai/")) {
-    return "google/gemini-2.5-flash";
-  }
+  const generatorFamily = modelFamily(generatorModel);
+  const differentFamily = [routing?.highRiskModel, routing?.mediumRiskModel, routing?.lowRiskModel]
+    .filter((m): m is string => typeof m === "string")
+    .find((m) => modelFamily(m) !== generatorFamily);
 
-  return "openai/gpt-4o-mini";
+  return differentFamily ?? generatorModel;
+}
+
+/** Provider family of a model id, e.g. "openai" from "openai/gpt-4o". */
+function modelFamily(model: string): string {
+  return model.split("/")[0] ?? model;
 }
 
 function buildJudgePrompt(request: TranslationRequest, result: TranslationResult): string {

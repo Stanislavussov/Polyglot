@@ -606,6 +606,29 @@ describe("translate", () => {
     }
   });
 
+  it("judges with a cross-family routing model when no judgeModel is configured (T21/A2)", async () => {
+    const mockGenerate = createTranslateMock(makeValidResult(), { issues: [], summary: "ok" });
+
+    const result = await translate(
+      {
+        ...defaultInput,
+        word: "break a leg",
+        inputType: "phrase",
+        model: "openai/gpt-4o",
+        // High-risk phrase generates with the base model (no highRiskModel set →
+        // openai/gpt-4o). No judgeModel, but a different-family model is configured
+        // for another tier → core picks it as the judge (rule in core, id from config).
+        modelRouting: { lowRiskModel: "anthropic/claude-sonnet-4-20250514" },
+      },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    expect(mockGenerate.mock.calls[0]?.[2]).toBe("openai/gpt-4o");
+    expect(mockGenerate.mock.calls[2]?.[2]).toBe("anthropic/claude-sonnet-4-20250514");
+  });
+
   it("returns needs_clarification for an ambiguous numeric date before calling the model", async () => {
     const mockGenerate = vi.fn();
 
@@ -703,7 +726,9 @@ describe("translate", () => {
     expect(result.status).toBe("accepted");
     // 2 parallel + 1 judge = 3 calls
     expect(mockGenerate).toHaveBeenCalledTimes(3);
-    expect(mockGenerate.mock.calls[2]?.[2]).toBe("google/gemini-2.5-flash");
+    // No judgeModel configured and no cross-family routing model → judge with the
+    // generator itself (core no longer hardcodes a judge model id — Fable T21/A2).
+    expect(mockGenerate.mock.calls[2]?.[2]).toBe("openai/gpt-4o");
     expect(mockGenerate.mock.calls[2]?.[0]).toContain("acceptable stylistic variants");
   });
 
@@ -768,7 +793,9 @@ describe("translate", () => {
     }
     // 2 parallel + 1 judge = 3 calls
     expect(mockGenerate).toHaveBeenCalledTimes(3);
-    expect(mockGenerate.mock.calls[2]?.[2]).toBe("google/gemini-2.5-flash");
+    // No judgeModel configured and no cross-family routing model → judge with the
+    // generator itself (core no longer hardcodes a judge model id — Fable T21/A2).
+    expect(mockGenerate.mock.calls[2]?.[2]).toBe("openai/gpt-4o");
   });
 
   it("uses translation-safe generation settings", async () => {
