@@ -50,21 +50,21 @@ export interface UserRepository {
   create(data: NewUser): Promise<User>;
   getSettings(userId: number): Promise<UserLanguageSettings | null>;
   updateSettings(userId: number, settings: Partial<UserLanguageSettings>): Promise<UserLanguageSettings>;
-  updateNativeLang(userId: number, lang: string): Promise<void>;
-  updateLearningLangs(userId: number, langs: string[]): Promise<void>;
-  updateInterfaceLang(userId: number, lang: string): Promise<void>;
-  updateActiveMode(userId: number, mode: string): Promise<void>;
+  updateNativeLang(userId: number, lang: string): Promise<UserLanguageSettings | null>;
+  updateLearningLangs(userId: number, langs: string[]): Promise<UserLanguageSettings | null>;
+  updateInterfaceLang(userId: number, lang: string): Promise<UserLanguageSettings | null>;
+  updateActiveMode(userId: number, mode: string): Promise<UserLanguageSettings | null>;
   updateLastSourceLang(userId: number, lang: string | null): Promise<void>;
   updateNotificationPrefs(
     userId: number,
     prefs: { notificationEnabled?: boolean; notificationTimes?: string[]; notificationType?: string },
-  ): Promise<void>;
+  ): Promise<UserLanguageSettings | null>;
   updateLastInteraction(userId: number): Promise<void>;
   listActiveByAudienceGroups(audienceGroups: AudienceGroup[]): Promise<User[]>;
   updateAudienceGroup(userId: number, audienceGroup: AudienceGroup): Promise<User | null>;
   hasReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<boolean>;
   recordReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<void>;
-  markOnboarded(userId: number): Promise<void>;
+  markOnboarded(userId: number): Promise<User>;
   getLanguageLevels(userId: number): Promise<UserLearningLanguage[]>;
   setLanguageLevel(userId: number, languageCode: string, proficiencyLevel: string): Promise<void>;
 }

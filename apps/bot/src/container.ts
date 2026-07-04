@@ -68,7 +68,7 @@ export function createContainer(): ServiceContainer {
   // so a change in the admin panel takes effect without a redeploy.
   setAIRequestTimeoutProvider(async () => (await settings.getAIGenerationDefaults()).requestTimeoutMs);
 
-  const container = {
+  const container: ServiceContainer = {
     userRepository,
     vocabularyRepository,
     vocabularyDictionaryRepository,
@@ -98,6 +98,6 @@ export function createContainer(): ServiceContainer {
     },
     settings,
     videoVocabularyRepository,
-  } as unknown as ServiceContainer;
+  };
   return container;
 }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T15:29:51.474Z",
+  "generatedAt": "2026-07-04T15:39:24.533Z",
   "summary": {
     "total": 1971,
     "business": 0,
@@ -10361,44 +10361,44 @@
       "description": "Protects the aI adapter models find Model behavior: returns undefined for unknown model."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-44-models-estimatecost-estimates-cost-for-a-known-model",
+      "id": "packages-adapters-ai-src-tests-models-test-ts-45-models-estimatecost-computes-the-cost-by-the-actual-model-not-the-default-fallback-price",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 44,
+      "sourceLine": 45,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
         "models",
         "estimateCost"
       ],
-      "title": "estimates cost for a known model",
-      "rawTitle": "estimates cost for a known model",
-      "name": "AI adapter models estimate Cost estimates cost for a known model",
-      "value": "Protects the aI adapter models estimate Cost behavior so estimates cost for a known model.",
-      "description": "Protects the aI adapter models estimate Cost behavior so estimates cost for a known model."
+      "title": "computes the cost by the actual model — not the default fallback price",
+      "rawTitle": "computes the cost by the actual model — not the default fallback price",
+      "name": "AI adapter models estimate Cost computes the cost by the actual model — not the default fallback price",
+      "value": "Protects the aI adapter models estimate Cost behavior so computes the cost by the actual model — not the default fallback price.",
+      "description": "Protects the aI adapter models estimate Cost behavior so computes the cost by the actual model — not the default fallback price."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-49-models-estimatecost-uses-default-cost-for-unknown-model",
-      "kind": "technical",
-      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 49,
-      "workspace": "packages",
-      "packageName": "adapters/ai",
-      "suitePath": [
-        "models",
-        "estimateCost"
-      ],
-      "title": "uses default cost for unknown model",
-      "rawTitle": "uses default cost for unknown model",
-      "name": "AI adapter models estimate Cost uses default cost for unknown model",
-      "value": "Protects the aI adapter models estimate Cost behavior: uses default cost for unknown model.",
-      "description": "Protects the aI adapter models estimate Cost behavior: uses default cost for unknown model."
-    },
-    {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-54-models-estimatecost-returns-0-for-0-tokens",
+      "id": "packages-adapters-ai-src-tests-models-test-ts-54-models-estimatecost-uses-the-default-cost-only-for-an-unknown-model",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
       "sourceLine": 54,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "models",
+        "estimateCost"
+      ],
+      "title": "uses the default cost only for an unknown model",
+      "rawTitle": "uses the default cost only for an unknown model",
+      "name": "AI adapter models estimate Cost uses the default cost only for an unknown model",
+      "value": "Protects the aI adapter models estimate Cost behavior: uses the default cost only for an unknown model.",
+      "description": "Protects the aI adapter models estimate Cost behavior: uses the default cost only for an unknown model."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-models-test-ts-59-models-estimatecost-returns-0-for-0-tokens",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
+      "sourceLine": 59,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10412,27 +10412,27 @@
       "description": "Protects the aI adapter models estimate Cost behavior: returns 0 for 0 tokens."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-58-models-estimatecost-scales-linearly-with-token-count",
+      "id": "packages-adapters-ai-src-tests-models-test-ts-63-models-estimatecost-matches-calculatecost-for-the-same-inputs",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 58,
+      "sourceLine": 63,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
         "models",
         "estimateCost"
       ],
-      "title": "scales linearly with token count",
-      "rawTitle": "scales linearly with token count",
-      "name": "AI adapter models estimate Cost scales linearly with token count",
-      "value": "Protects the aI adapter models estimate Cost behavior so scales linearly with token count.",
-      "description": "Protects the aI adapter models estimate Cost behavior so scales linearly with token count."
+      "title": "matches calculateCost for the same inputs",
+      "rawTitle": "matches calculateCost for the same inputs",
+      "name": "AI adapter models estimate Cost matches calculate Cost for the same inputs",
+      "value": "Protects the aI adapter models estimate Cost behavior so matches calculate Cost for the same inputs.",
+      "description": "Protects the aI adapter models estimate Cost behavior so matches calculate Cost for the same inputs."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-66-models-calculatecost-calculates-cost-for-known-model-with-input-output-split",
+      "id": "packages-adapters-ai-src-tests-models-test-ts-71-models-calculatecost-calculates-cost-for-known-model-with-input-output-split",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 66,
+      "sourceLine": 71,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10446,10 +10446,10 @@
       "description": "Protects the aI adapter models calculate Cost behavior: calculates cost for known model with input output split."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-73-models-calculatecost-uses-default-cost-for-unknown-model",
+      "id": "packages-adapters-ai-src-tests-models-test-ts-78-models-calculatecost-uses-default-cost-for-unknown-model",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 73,
+      "sourceLine": 78,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -10463,10 +10463,10 @@
       "description": "Protects the aI adapter models calculate Cost behavior: uses default cost for unknown model."
     },
     {
-      "id": "packages-adapters-ai-src-tests-models-test-ts-78-models-calculatecost-returns-0-for-0-tokens",
+      "id": "packages-adapters-ai-src-tests-models-test-ts-83-models-calculatecost-returns-0-for-0-tokens",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/models.test.ts",
-      "sourceLine": 78,
+      "sourceLine": 83,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [

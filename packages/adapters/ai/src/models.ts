@@ -91,22 +91,8 @@ export function findModel(modelId: string): AIModel | undefined {
 }
 
 /**
- * Estimate cost in USD for a given number of tokens and model.
- * Uses average of input/output cost if direction is unknown.
- * Falls back to a default cost if the model is not in registry.
- */
-export function estimateCost(tokens: number, model: string): number {
-  const entry = findModel(model);
-  if (!entry) {
-    return (tokens / 1000) * DEFAULT_COST_PER_1K;
-  }
-  // Use average of input and output costs
-  const avgCost = (entry.costPer1kInput + entry.costPer1kOutput) / 2;
-  return (tokens / 1000) * avgCost;
-}
-
-/**
- * Calculate actual cost from known input and output token counts.
+ * Calculate actual cost in USD from known input and output token counts.
+ * Falls back to a default cost if the model is not in the registry.
  */
 export function calculateCost(inputTokens: number, outputTokens: number, model: string): number {
   const entry = findModel(model);
@@ -114,4 +100,15 @@ export function calculateCost(inputTokens: number, outputTokens: number, model: 
     return ((inputTokens + outputTokens) / 1000) * DEFAULT_COST_PER_1K;
   }
   return (inputTokens / 1000) * entry.costPer1kInput + (outputTokens / 1000) * entry.costPer1kOutput;
+}
+
+/**
+ * Estimate cost in USD for a call, matching the {@link AIPort.estimateCost}
+ * contract `(inputTokens, outputTokens, modelId)`. Delegates to
+ * {@link calculateCost} — the two were previously separate functions with
+ * mismatched signatures, which let a caller pass the output-token count where
+ * the model id was expected and silently fall back to the default price (C3).
+ */
+export function estimateCost(inputTokens: number, outputTokens: number, modelId: string): number {
+  return calculateCost(inputTokens, outputTokens, modelId);
 }

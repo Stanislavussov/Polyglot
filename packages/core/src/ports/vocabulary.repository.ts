@@ -160,7 +160,7 @@ export interface VocabularyRepository {
       source?: VocabularySource | null;
     },
   ): Promise<void>;
-  updateTranslation(entryId: number, targetLangId: number, data: UpdateTranslationData): Promise<void>;
+  updateTranslation(entryId: number, targetLangId: number, data: UpdateTranslationData): Promise<VocabularyTranslation>;
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
   updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
   search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;

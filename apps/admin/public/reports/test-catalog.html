@@ -175,7 +175,7 @@
   </head>
   <body>
     <header>
-      <p class="generated">Generated 2026-07-04T15:29:51.474Z</p>
+      <p class="generated">Generated 2026-07-04T15:39:24.533Z</p>
       <h1>Polyglot Test Catalog</h1>
       <p class="summary">
         Business-readable inventory of automated scenarios. Open a scenario to see the suite, source file, and the behavior it protects.
@@ -4062,13 +4062,13 @@
           <td><code>packages/adapters/ai/src/__tests__/models.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-645">AI adapter models estimate Cost estimates cost for a known model</a></td>
+          <td><a href="#scenario-645">AI adapter models estimate Cost computes the cost by the actual model — not the default fallback price</a></td>
           <td>technical</td>
           <td>models &gt; estimateCost</td>
           <td><code>packages/adapters/ai/src/__tests__/models.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-646">AI adapter models estimate Cost uses default cost for unknown model</a></td>
+          <td><a href="#scenario-646">AI adapter models estimate Cost uses the default cost only for an unknown model</a></td>
           <td>technical</td>
           <td>models &gt; estimateCost</td>
           <td><code>packages/adapters/ai/src/__tests__/models.test.ts</code></td>
@@ -4080,7 +4080,7 @@
           <td><code>packages/adapters/ai/src/__tests__/models.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-648">AI adapter models estimate Cost scales linearly with token count</a></td>
+          <td><a href="#scenario-648">AI adapter models estimate Cost matches calculate Cost for the same inputs</a></td>
           <td>technical</td>
           <td>models &gt; estimateCost</td>
           <td><code>packages/adapters/ai/src/__tests__/models.test.ts</code></td>
@@ -17834,8 +17834,8 @@
                     <code>packages/adapters/ai/src/__tests__/models.test.ts</code>
                     <span>models &gt; estimateCost</span>
                   </div>
-                  <h3>AI adapter models estimate Cost estimates cost for a known model</h3>
-                  <p>Protects the aI adapter models estimate Cost behavior so estimates cost for a known model.</p>
+                  <h3>AI adapter models estimate Cost computes the cost by the actual model — not the default fallback price</h3>
+                  <p>Protects the aI adapter models estimate Cost behavior so computes the cost by the actual model — not the default fallback price.</p>
                 </article>
                 <article id="scenario-646" class="scenario">
                   <div class="scenario-meta">
@@ -17843,8 +17843,8 @@
                     <code>packages/adapters/ai/src/__tests__/models.test.ts</code>
                     <span>models &gt; estimateCost</span>
                   </div>
-                  <h3>AI adapter models estimate Cost uses default cost for unknown model</h3>
-                  <p>Protects the aI adapter models estimate Cost behavior: uses default cost for unknown model.</p>
+                  <h3>AI adapter models estimate Cost uses the default cost only for an unknown model</h3>
+                  <p>Protects the aI adapter models estimate Cost behavior: uses the default cost only for an unknown model.</p>
                 </article>
                 <article id="scenario-647" class="scenario">
                   <div class="scenario-meta">
@@ -17861,8 +17861,8 @@
                     <code>packages/adapters/ai/src/__tests__/models.test.ts</code>
                     <span>models &gt; estimateCost</span>
                   </div>
-                  <h3>AI adapter models estimate Cost scales linearly with token count</h3>
-                  <p>Protects the aI adapter models estimate Cost behavior so scales linearly with token count.</p>
+                  <h3>AI adapter models estimate Cost matches calculate Cost for the same inputs</h3>
+                  <p>Protects the aI adapter models estimate Cost behavior so matches calculate Cost for the same inputs.</p>
                 </article>
                 <article id="scenario-649" class="scenario">
                   <div class="scenario-meta">
