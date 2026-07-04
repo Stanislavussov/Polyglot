@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T18:59:19.797Z",
+  "generatedAt": "2026-07-04T19:08:18.066Z",
   "summary": {
-    "total": 2017,
+    "total": 2024,
     "business": 0,
-    "technical": 2017,
+    "technical": 2024,
     "workspaces": [
       "apps",
       "packages"
@@ -6959,10 +6959,10 @@
       "description": "Protects the bot handle Skip Callback — source lang menu behavior so answers callback query after skip."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-67-handlementortext-calls-generatechat-with-system-prompt-history-and-user-message",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-73-handlementortext-calls-generatechat-with-system-prompt-history-and-user-message",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 67,
+      "sourceLine": 73,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6975,10 +6975,10 @@
       "description": "Protects the bot handle Mentor Text behavior: calls generate Chat with system prompt, history, and user message."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-84-handlementortext-passes-maxtokens-to-limit-response-length",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-90-handlementortext-passes-maxtokens-to-limit-response-length",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 84,
+      "sourceLine": 90,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6991,10 +6991,10 @@
       "description": "Protects the bot handle Mentor Text behavior so passes max Tokens to limit response length."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-93-handlementortext-replies-with-the-ai-response-text",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-99-handlementortext-replies-with-the-ai-response-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 99,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7007,10 +7007,10 @@
       "description": "Protects the bot handle Mentor Text behavior so replies with the AI response text."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-103-handlementortext-deletes-the-loading-indicator-after-success",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-109-handlementortext-deletes-the-loading-indicator-after-success",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 103,
+      "sourceLine": 109,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7023,10 +7023,10 @@
       "description": "Protects the bot handle Mentor Text behavior so deletes the loading indicator after success."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-110-handlementortext-stores-user-and-assistant-messages-in-session-history",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-116-handlementortext-stores-user-and-assistant-messages-in-session-history",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 110,
+      "sourceLine": 116,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7039,10 +7039,10 @@
       "description": "Protects the bot handle Mentor Text behavior: stores user and assistant messages in session history."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-120-handlementortext-includes-previous-history-in-the-messages-array",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-126-handlementortext-includes-previous-history-in-the-messages-array",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 120,
+      "sourceLine": 126,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7055,10 +7055,10 @@
       "description": "Protects the bot handle Mentor Text behavior: includes previous history in the messages array."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-139-handlementortext-trims-history-to-max-mentor-history-entries",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-145-handlementortext-trims-history-to-max-mentor-history-entries",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 139,
+      "sourceLine": 145,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7071,10 +7071,10 @@
       "description": "Protects the bot handle Mentor Text behavior so trims history to MAX MENTOR HISTORY entries."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-156-handlementortext-increments-mentorcounter-with-success-status-on-success",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-162-handlementortext-increments-mentorcounter-with-success-status-on-success",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 156,
+      "sourceLine": 162,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7087,10 +7087,10 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with success status on success."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-163-handlementortext-replies-with-an-error-message-when-ai-call-fails",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-169-handlementortext-replies-with-an-error-message-when-ai-call-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 163,
+      "sourceLine": 169,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7103,10 +7103,10 @@
       "description": "Protects the bot handle Mentor Text behavior so replies with an error message when AI call fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-174-handlementortext-increments-mentorcounter-with-error-status-on-failure",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-180-handlementortext-increments-mentorcounter-with-error-status-on-failure",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 180,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7119,10 +7119,10 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with error status on failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-182-handlementortext-rejects-input-longer-than-the-max-character-limit",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-188-handlementortext-rejects-input-longer-than-the-max-character-limit",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 182,
+      "sourceLine": 188,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7133,6 +7133,38 @@
       "name": "Bot handle Mentor Text rejects input longer than the max character limit",
       "value": "Protects the bot handle Mentor Text behavior: rejects input longer than the max character limit.",
       "description": "Protects the bot handle Mentor Text behavior: rejects input longer than the max character limit."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-201-handlementortext-refuses-the-mentor-call-when-the-daily-credit-quota-is-exhausted-t16",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
+      "sourceLine": 201,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText"
+      ],
+      "title": "refuses the mentor call when the daily credit quota is exhausted (T16)",
+      "rawTitle": "refuses the mentor call when the daily credit quota is exhausted (T16)",
+      "name": "Bot handle Mentor Text refuses the mentor call when the daily credit quota is exhausted (T16)",
+      "value": "Protects the bot handle Mentor Text behavior so refuses the mentor call when the daily credit quota is exhausted (T16).",
+      "description": "Protects the bot handle Mentor Text behavior so refuses the mentor call when the daily credit quota is exhausted (T16)."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-213-handlementortext-bills-a-mentor-turn-against-the-shared-credit-ledger-on-success-t16",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
+      "sourceLine": 213,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText"
+      ],
+      "title": "bills a mentor turn against the shared credit ledger on success (T16)",
+      "rawTitle": "bills a mentor turn against the shared credit ledger on success (T16)",
+      "name": "Bot handle Mentor Text bills a mentor turn against the shared credit ledger on success (T16)",
+      "value": "Protects the bot handle Mentor Text behavior so bills a mentor turn against the shared credit ledger on success (T16).",
+      "description": "Protects the bot handle Mentor Text behavior so bills a mentor turn against the shared credit ledger on success (T16)."
     },
     {
       "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-125-handleregenloop-saves-to-dictionary-on-tr-save-with-normalized-vocabulary-input",
@@ -8429,6 +8461,86 @@
       "name": "Bot create Postgres Session Storage records the latency of every storage round trip so DB slowness is visible in Prometheus",
       "value": "Protects the bot create Postgres Session Storage behavior: records the latency of every storage round trip so DB slowness is visible in Prometheus.",
       "description": "Protects the bot create Postgres Session Storage behavior: records the latency of every storage round trip so DB slowness is visible in Prometheus."
+    },
+    {
+      "id": "apps-bot-src-utils-ai-quota-test-ts-21-ensureaiquota-t16-charges-the-per-call-type-weight-for-an-allowed-call",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/ai-quota.test.ts",
+      "sourceLine": 21,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "ensureAiQuota (T16)"
+      ],
+      "title": "charges the per-call-type weight for an allowed call",
+      "rawTitle": "charges the per-call-type weight for an allowed call",
+      "name": "Bot ensure Ai Quota (T16) charges the per call type weight for an allowed call",
+      "value": "Protects the bot ensure Ai Quota (T16) behavior so charges the per call type weight for an allowed call.",
+      "description": "Protects the bot ensure Ai Quota (T16) behavior so charges the per call type weight for an allowed call."
+    },
+    {
+      "id": "apps-bot-src-utils-ai-quota-test-ts-29-ensureaiquota-t16-weights-are-ordered-so-heavier-calls-cost-more",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/ai-quota.test.ts",
+      "sourceLine": 29,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "ensureAiQuota (T16)"
+      ],
+      "title": "weights are ordered so heavier calls cost more",
+      "rawTitle": "weights are ordered so heavier calls cost more",
+      "name": "Bot ensure Ai Quota (T16) weights are ordered so heavier calls cost more",
+      "value": "Protects the bot ensure Ai Quota (T16) behavior so weights are ordered so heavier calls cost more.",
+      "description": "Protects the bot ensure Ai Quota (T16) behavior so weights are ordered so heavier calls cost more."
+    },
+    {
+      "id": "apps-bot-src-utils-ai-quota-test-ts-34-ensureaiquota-t16-refuses-and-replies-when-the-daily-quota-is-exhausted",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/ai-quota.test.ts",
+      "sourceLine": 34,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "ensureAiQuota (T16)"
+      ],
+      "title": "refuses and replies when the daily quota is exhausted",
+      "rawTitle": "refuses and replies when the daily quota is exhausted",
+      "name": "Bot ensure Ai Quota (T16) refuses and replies when the daily quota is exhausted",
+      "value": "Protects the bot ensure Ai Quota (T16) behavior so refuses and replies when the daily quota is exhausted.",
+      "description": "Protects the bot ensure Ai Quota (T16) behavior so refuses and replies when the daily quota is exhausted."
+    },
+    {
+      "id": "apps-bot-src-utils-ai-quota-test-ts-44-ensureaiquota-t16-still-allows-a-call-that-exactly-reaches-the-limit",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/ai-quota.test.ts",
+      "sourceLine": 44,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "ensureAiQuota (T16)"
+      ],
+      "title": "still allows a call that exactly reaches the limit",
+      "rawTitle": "still allows a call that exactly reaches the limit",
+      "name": "Bot ensure Ai Quota (T16) still allows a call that exactly reaches the limit",
+      "value": "Protects the bot ensure Ai Quota (T16) behavior so still allows a call that exactly reaches the limit.",
+      "description": "Protects the bot ensure Ai Quota (T16) behavior so still allows a call that exactly reaches the limit."
+    },
+    {
+      "id": "apps-bot-src-utils-ai-quota-test-ts-56-recordaiusage-t16-bills-the-given-cost-against-the-shared-ledger-tagged-by-call-type",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/ai-quota.test.ts",
+      "sourceLine": 56,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "recordAiUsage (T16)"
+      ],
+      "title": "bills the given cost against the shared ledger, tagged by call type",
+      "rawTitle": "bills the given cost against the shared ledger, tagged by call type",
+      "name": "Bot record Ai Usage (T16) bills the given cost against the shared ledger, tagged by call type",
+      "value": "Protects the bot record Ai Usage (T16) behavior so bills the given cost against the shared ledger, tagged by call type.",
+      "description": "Protects the bot record Ai Usage (T16) behavior so bills the given cost against the shared ledger, tagged by call type."
     },
     {
       "id": "apps-bot-src-utils-classify-input-test-ts-5-classifyinput-classifies-a-single-word-as-word",

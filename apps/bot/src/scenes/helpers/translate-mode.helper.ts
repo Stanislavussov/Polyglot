@@ -12,20 +12,15 @@ import {
   requestTimingRepository,
 } from "@polyglot/adapter-db";
 import {
-  calculateTranslationCreditCost,
   type DetectionResult,
   defaultFeatureAccess,
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
   detectOutOfSetByAlphabet,
   detectOutOfSetLanguage,
-  evaluatePlanRateLimit,
-  evaluateRateLimit,
   generateEtymology,
   generateGrammarBreakdown,
   generateGrammarDetail,
-  getDailyWindowReset,
-  getDailyWindowStart,
   getLangFlag,
   getLanguageName,
   type InputType,
@@ -37,7 +32,6 @@ import {
   resolveOutputConfig,
   resolveTemplate,
   resolveTranslationDirection,
-  type SubscriptionPlan,
   type SupportedLang,
   type TranslateOutput,
   type TranslationAmbiguity,
@@ -59,6 +53,7 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { ensureAiQuota } from "../../utils/ai-quota.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import {
   isUserFacingTimeout,
@@ -404,33 +399,6 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
   await handleMistypeConfirmCallback(ctx);
 }
 
-async function ensureTranslationQuota(
-  ctx: BotContext,
-  plan: SubscriptionPlan,
-  lang: SupportedLang,
-): Promise<number | null> {
-  const creditCost = calculateTranslationCreditCost();
-  const windowStart = getDailyWindowStart();
-  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(ctx.user.id, windowStart);
-  const planLimit = (await ctx.services.settings?.getPlanLimit(plan)) ?? null;
-  const requestedCredits = planLimit?.creditCost ?? creditCost;
-  const status = planLimit
-    ? evaluatePlanRateLimit(
-        { plan: planLimit.name, label: planLimit.label, creditsPerDay: planLimit.creditsPerDay },
-        usedCredits,
-        requestedCredits,
-        getDailyWindowReset(),
-      )
-    : evaluateRateLimit(plan, usedCredits, creditCost, getDailyWindowReset());
-
-  if (!status.allowed) {
-    await ctx.reply(t("rateLimitExceeded", lang));
-    return null;
-  }
-
-  return requestedCredits;
-}
-
 /**
  * Handles a text message in translate mode.
  * Translates the text and shows the result with Save/Skip buttons.
@@ -693,7 +661,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   let preflightMs = 0;
   let dbLookupMs = 0;
   const preflightStart = Date.now();
-  const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
+  const creditCost = await ensureAiQuota(ctx, subscriptionPlan, lang, "translate");
   if (creditCost === null) {
     return;
   }
@@ -1571,7 +1539,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   // Classify input type
   const classification = classifyInput(pendingWord);
   const isSentence = classification.type === "sentence";
-  const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
+  const creditCost = await ensureAiQuota(ctx, subscriptionPlan, lang, "translate");
   if (creditCost === null) {
     await ctx.answerCallbackQuery();
     return;

@@ -31,6 +31,7 @@ import {
 } from "../../renderers/video-vocabulary.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 
@@ -293,6 +294,15 @@ export async function handleVideoConfirmCallback(ctx: BotContext): Promise<void>
 
   const process = await videoVocabularyRepository.findProcessById(processId);
   if (!process || process.userId !== userId) return;
+
+  // Meter credits before the expensive extraction (Fable T16): a video pass runs
+  // a long-transcript prompt, so it is the heaviest paid call and is billed
+  // upfront on confirm (the extraction runs fire-and-forget).
+  const creditCost = await ensureAiQuota(ctx, ctx.user.subscriptionPlan, lang, "video");
+  if (creditCost === null) {
+    return;
+  }
+  await recordAiUsage(ctx, "video", creditCost);
 
   videoProcessingCounter.inc({ status: "initiated" });
 

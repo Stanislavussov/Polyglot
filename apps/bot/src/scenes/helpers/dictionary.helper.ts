@@ -25,6 +25,7 @@ import {
 } from "../../renderers/dictionary.renderer.js";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
+import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 
@@ -484,6 +485,12 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
 
   await ctx.answerCallbackQuery();
 
+  // Meter credits before the paid re-translation (Fable T16).
+  const creditCost = await ensureAiQuota(ctx, ctx.user.subscriptionPlan, lang, "dictionaryTranslate");
+  if (creditCost === null) {
+    return;
+  }
+
   // Show loading state in the message itself (persists until translation completes)
   const nativeLangId = await resolveNativeLangId(ctx);
   const loadingText = renderDictionaryEntry(entry, getLangCodeById, lang, { nativeLangId });
@@ -535,6 +542,9 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
       ),
       LONG_OP_TIMEOUT_MS,
     );
+
+    // The paid AI call has been made — bill it against the shared ledger (T16).
+    await recordAiUsage(ctx, "dictionaryTranslate", creditCost, sourceLangObj.code, targetLangs);
 
     if (decision.status === "needs_clarification") {
       logger.warn({ entryId, userId, status: decision.status }, "Dict translate: needs clarification");
