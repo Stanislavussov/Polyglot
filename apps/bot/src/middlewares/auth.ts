@@ -1,10 +1,10 @@
 import { userRepository } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/core";
 import type { NextFunction } from "grammy";
-import type { BotContext, UserMode } from "../types.js";
+import { type BotContext, USER_MODES, type UserMode } from "../types.js";
 
-/** Modes that are valid for the session (matches UserMode type). */
-const VALID_MODES = new Set<string>(["idle", "translate", "mentor"]);
+/** Derived from the single source of truth so it can never drift from UserMode. */
+const VALID_MODES = new Set<UserMode>(USER_MODES);
 
 /**
  * Auth middleware: resolves the Telegram user from the database.
@@ -37,7 +37,7 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
     const settings = await userRepository.getSettings(user.id);
     if (settings?.activeMode) {
       const dbMode = settings.activeMode;
-      ctx.session.activeMode = VALID_MODES.has(dbMode) ? (dbMode as UserMode) : "translate";
+      ctx.session.activeMode = VALID_MODES.has(dbMode as UserMode) ? (dbMode as UserMode) : "translate";
       logger.debug({ userId: user.id, activeMode: ctx.session.activeMode }, "Hydrated activeMode from DB");
     }
 

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T13:28:12.481Z",
+  "generatedAt": "2026-07-04T15:18:24.025Z",
   "summary": {
-    "total": 1964,
+    "total": 1966,
     "business": 0,
-    "technical": 1964,
+    "technical": 1966,
     "workspaces": [
       "apps",
       "packages"
@@ -7599,10 +7599,10 @@
       "description": "Protects the bot is Valid Session Data behavior: accepts current session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-77-isvalidsessiondata-rejects-corrupt-session-payloads",
+      "id": "apps-bot-src-session-storage-test-ts-83-isvalidsessiondata-rejects-corrupt-session-payloads",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 77,
+      "sourceLine": 83,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7615,10 +7615,10 @@
       "description": "Protects the bot is Valid Session Data behavior: rejects corrupt session payloads."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-85-createpostgressessionstorage-reads-valid-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-91-createpostgressessionstorage-reads-valid-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 85,
+      "sourceLine": 91,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7631,26 +7631,58 @@
       "description": "Protects the bot create Postgres Session Storage behavior so reads valid session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-92-createpostgressessionstorage-returns-undefined-and-deletes-corrupt-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-98-createpostgressessionstorage-returns-undefined-and-deletes-unrecoverable-non-object-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 92,
+      "sourceLine": 98,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "createPostgresSessionStorage"
       ],
-      "title": "returns undefined and deletes corrupt session data",
-      "rawTitle": "returns undefined and deletes corrupt session data",
-      "name": "Bot create Postgres Session Storage returns undefined and deletes corrupt session data",
-      "value": "Protects the bot create Postgres Session Storage behavior: returns undefined and deletes corrupt session data.",
-      "description": "Protects the bot create Postgres Session Storage behavior: returns undefined and deletes corrupt session data."
+      "title": "returns undefined and deletes unrecoverable (non-object) session data",
+      "rawTitle": "returns undefined and deletes unrecoverable (non-object) session data",
+      "name": "Bot create Postgres Session Storage returns undefined and deletes unrecoverable (non object) session data",
+      "value": "Protects the bot create Postgres Session Storage behavior: returns undefined and deletes unrecoverable (non object) session data.",
+      "description": "Protects the bot create Postgres Session Storage behavior: returns undefined and deletes unrecoverable (non object) session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-100-createpostgressessionstorage-upserts-session-data-on-write",
+      "id": "apps-bot-src-session-storage-test-ts-108-createpostgressessionstorage-repairs-an-invalid-activemode-without-discarding-other-session-state",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 100,
+      "sourceLine": 108,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "createPostgresSessionStorage"
+      ],
+      "title": "repairs an invalid activeMode without discarding other session state",
+      "rawTitle": "repairs an invalid activeMode without discarding other session state",
+      "name": "Bot create Postgres Session Storage repairs an invalid active Mode without discarding other session state",
+      "value": "Protects the bot create Postgres Session Storage behavior so repairs an invalid active Mode without discarding other session state.",
+      "description": "Protects the bot create Postgres Session Storage behavior so repairs an invalid active Mode without discarding other session state."
+    },
+    {
+      "id": "apps-bot-src-session-storage-test-ts-126-createpostgressessionstorage-does-not-wipe-a-mentor-session-on-read",
+      "kind": "technical",
+      "filePath": "apps/bot/src/session-storage.test.ts",
+      "sourceLine": 126,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "createPostgresSessionStorage"
+      ],
+      "title": "does not wipe a mentor session on read",
+      "rawTitle": "does not wipe a mentor session on read",
+      "name": "Bot create Postgres Session Storage does not wipe a mentor session on read",
+      "value": "Protects the bot create Postgres Session Storage behavior: does not wipe a mentor session on read.",
+      "description": "Protects the bot create Postgres Session Storage behavior: does not wipe a mentor session on read."
+    },
+    {
+      "id": "apps-bot-src-session-storage-test-ts-137-createpostgressessionstorage-upserts-session-data-on-write",
+      "kind": "technical",
+      "filePath": "apps/bot/src/session-storage.test.ts",
+      "sourceLine": 137,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7663,10 +7695,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior so upserts session data on write."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-108-createpostgressessionstorage-deletes-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-145-createpostgressessionstorage-deletes-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 145,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7679,10 +7711,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior so deletes session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-114-createpostgressessionstorage-records-the-latency-of-every-storage-round-trip-so-db-slowness-is-visible-in-prometheus",
+      "id": "apps-bot-src-session-storage-test-ts-151-createpostgressessionstorage-records-the-latency-of-every-storage-round-trip-so-db-slowness-is-visible-in-prometheus",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 114,
+      "sourceLine": 151,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
