@@ -782,71 +782,21 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     // Delete loading message
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 
-    const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
-    const existing =
-      sourceLangEntry && !isSentence
-        ? await ctx.services.vocabularyRepository.findByOriginalAndSource(
-            ctx.user.id,
-            output.original,
-            sourceLangEntry.id,
-          )
-        : null;
-    const isAlreadySaved = existing
-      ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
-      : false;
+    const isAlreadySaved = await resolveIsAlreadySaved(ctx, output, isSentence);
 
-    {
-      ctx.session.pendingTranslation = output;
-
-      const card = isSentence
-        ? (() => {
-            let c = `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`;
-            if (detectedLang && detectedLang !== nativeLang) {
-              const displayName = getLanguageName(detectedLang, lang);
-              c = `${t("detectedLang", lang, { lang: displayName })}\n${c}`;
-            }
-            return c;
-          })()
-        : (() => {
-            let c = renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
-            if (detectedLang && detectedLang !== nativeLang) {
-              const displayName = getLanguageName(detectedLang, lang);
-              c = `${t("detectedLang", lang, { lang: displayName })}\n${c}`;
-            }
-            return c;
-          })();
-
-      const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
-      const showGrammarButton =
-        classification.type !== "word" &&
-        (classification.type === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
-      const hasInlineGrammar =
-        classification.type === "phrase" &&
-        effectiveTemplate.fields.grammarBreakdown &&
-        hasGrammarBreakdownData(output);
-      const showEtymologyButton = isEtymologyEligible(classification.type, output.sourceLang, nativeLang);
-      const keyboard = buildTranslationKeyboard(
-        lang,
-        cardMsg.message_id,
-        isAlreadySaved,
-        showGrammarButton,
-        hasInlineGrammar,
-        showEtymologyButton,
-      );
-      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
-
-      ctx.session.pendingCardMsgId = cardMsg.message_id;
-
-      // Cache inline grammar breakdown for detail button
-      const inlineBreakdown = hasInlineGrammar ? collectGrammarBreakdown(output) : undefined;
-
-      setTranslationEntry(ctx.session, cardMsg.message_id, {
-        output,
-        inputType: classification.type,
-        contextHint,
-        grammarBreakdown: inlineBreakdown,
-      });
-    }
+    await sendTranslationCard(ctx, {
+      output,
+      lang,
+      nativeLang,
+      needsReview,
+      isSentence,
+      inputType: classification.type,
+      effectiveTemplate,
+      isAlreadySaved,
+      contextHint,
+      detectedLang,
+      withInlineGrammar: true,
+    });
   } catch (err) {
     translationCounter.inc({ status: "error" });
     logger.error({ err, word: cleanWord, telegramId }, "Translation failed");
@@ -874,6 +824,94 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
     await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang));
   }
+}
+
+/**
+ * Whether the translated headword already exists in the user's default
+ * dictionary. Shared by both translation entry points (T22/B2) — identical FK
+ * resolution + duplicate lookup that was previously copied per handler.
+ */
+async function resolveIsAlreadySaved(ctx: BotContext, output: TranslateOutput, isSentence: boolean): Promise<boolean> {
+  const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
+  const existing =
+    sourceLangEntry && !isSentence
+      ? await ctx.services.vocabularyRepository.findByOriginalAndSource(
+          ctx.user.id,
+          output.original,
+          sourceLangEntry.id,
+        )
+      : null;
+  return existing
+    ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
+    : false;
+}
+
+/**
+ * Renders a completed translation into a card, attaches the inline keyboard, and
+ * stores the per-message translation entry. Shared by the main translate flow
+ * and the mistype-confirm flow (T22/B2) — the two differ only in the optional
+ * detected-language banner and whether inline grammar is offered, both passed in
+ * so behavior is unchanged for each caller.
+ */
+async function sendTranslationCard(
+  ctx: BotContext,
+  opts: {
+    output: TranslateOutput;
+    lang: SupportedLang;
+    nativeLang: string;
+    needsReview: boolean;
+    isSentence: boolean;
+    inputType: InputType;
+    effectiveTemplate: ReturnType<typeof resolveTemplate>;
+    isAlreadySaved: boolean;
+    contextHint?: string;
+    /** Main flow only: prefixes a "detected language" banner when it differs from native. */
+    detectedLang?: string;
+    /** Main flow offers inline grammar for phrases; the mistype flow never does. */
+    withInlineGrammar: boolean;
+  },
+): Promise<void> {
+  const { output, lang, nativeLang, needsReview, isSentence, inputType, effectiveTemplate, isAlreadySaved } = opts;
+
+  ctx.session.pendingTranslation = output;
+
+  const body = isSentence
+    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`
+    : renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
+  const card =
+    opts.detectedLang && opts.detectedLang !== nativeLang
+      ? `${t("detectedLang", lang, { lang: getLanguageName(opts.detectedLang, lang) })}\n${body}`
+      : body;
+
+  const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
+
+  const showGrammarButton =
+    inputType !== "word" && (inputType === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
+  const hasInlineGrammar =
+    opts.withInlineGrammar &&
+    inputType === "phrase" &&
+    effectiveTemplate.fields.grammarBreakdown &&
+    hasGrammarBreakdownData(output);
+  const showEtymologyButton = isEtymologyEligible(inputType, output.sourceLang, nativeLang);
+  const keyboard = buildTranslationKeyboard(
+    lang,
+    cardMsg.message_id,
+    isAlreadySaved,
+    showGrammarButton,
+    hasInlineGrammar,
+    showEtymologyButton,
+  );
+  await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
+
+  ctx.session.pendingCardMsgId = cardMsg.message_id;
+
+  const inlineBreakdown = hasInlineGrammar ? collectGrammarBreakdown(output) : undefined;
+  setTranslationEntry(ctx.session, cardMsg.message_id, {
+    output,
+    inputType,
+    contextHint: opts.contextHint,
+    grammarBreakdown: inlineBreakdown,
+  });
 }
 
 /**
@@ -1619,49 +1657,20 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
 
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 
-    const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
-    const existing =
-      sourceLangEntry && !isSentence
-        ? await ctx.services.vocabularyRepository.findByOriginalAndSource(
-            ctx.user.id,
-            output.original,
-            sourceLangEntry.id,
-          )
-        : null;
-    const isAlreadySaved = existing
-      ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
-      : false;
+    const isAlreadySaved = await resolveIsAlreadySaved(ctx, output, isSentence);
 
-    {
-      ctx.session.pendingTranslation = output;
-
-      const card = isSentence
-        ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`
-        : renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
-
-      const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
-      const showGrammarButton =
-        classification.type !== "word" &&
-        (classification.type === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
-      const showEtymologyButton = isEtymologyEligible(classification.type, output.sourceLang, nativeLang);
-      const keyboard = buildTranslationKeyboard(
-        lang,
-        cardMsg.message_id,
-        isAlreadySaved,
-        showGrammarButton,
-        undefined,
-        showEtymologyButton,
-      );
-      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
-
-      ctx.session.pendingCardMsgId = cardMsg.message_id;
-
-      setTranslationEntry(ctx.session, cardMsg.message_id, {
-        output,
-        inputType: classification.type,
-        contextHint: pendingContextHint,
-      });
-    }
+    await sendTranslationCard(ctx, {
+      output,
+      lang,
+      nativeLang,
+      needsReview,
+      isSentence,
+      inputType: classification.type,
+      effectiveTemplate,
+      isAlreadySaved,
+      contextHint: pendingContextHint,
+      withInlineGrammar: false,
+    });
   } catch (err) {
     translationCounter.inc({ status: "error" });
     logger.error({ err, word: pendingWord }, "Translation failed after mistype confirm");
