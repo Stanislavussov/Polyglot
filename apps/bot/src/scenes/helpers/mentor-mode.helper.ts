@@ -97,7 +97,7 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
   } catch (err) {
     stopTimer();
     mentorCounter.inc({ status: "error" });
-    logger.error({ err, userId: ctx.user.id, text: text.slice(0, 50) }, "Mentor chat failed");
+    logger.error({ err, userId: ctx.user.id, textLength: text.length }, "Mentor chat failed");
 
     // Delete loading indicator and show error
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});

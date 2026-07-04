@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-04T17:56:19.449Z",
+  "generatedAt": "2026-07-04T18:03:46.964Z",
   "summary": {
-    "total": 1981,
+    "total": 1985,
     "business": 0,
-    "technical": 1981,
+    "technical": 1985,
     "workspaces": [
       "apps",
       "packages"
@@ -15610,6 +15610,70 @@
       "name": "YouTube adapter extract Video Id handles IDs with hyphens and underscores",
       "value": "Protects the youTube adapter extract Video Id behavior: handles IDs with hyphens and underscores.",
       "description": "Protects the youTube adapter extract Video Id behavior: handles IDs with hyphens and underscores."
+    },
+    {
+      "id": "packages-core-src-tests-logger-test-ts-20-logger-pii-redaction-t10-redacts-user-message-text-and-username-at-info-level-shipped-to-betterstack",
+      "kind": "technical",
+      "filePath": "packages/core/src/__tests__/logger.test.ts",
+      "sourceLine": 20,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "logger PII redaction (T10)"
+      ],
+      "title": "redacts user message text and username at info level (shipped to Betterstack)",
+      "rawTitle": "redacts user message text and username at info level (shipped to Betterstack)",
+      "name": "Core domain logger PII redaction (T10) redacts user message text and username at info level (shipped to Betterstack)",
+      "value": "Protects the core domain logger PII redaction (T10) behavior so redacts user message text and username at info level (shipped to Betterstack).",
+      "description": "Protects the core domain logger PII redaction (T10) behavior so redacts user message text and username at info level (shipped to Betterstack)."
+    },
+    {
+      "id": "packages-core-src-tests-logger-test-ts-32-logger-pii-redaction-t10-redacts-nested-text-username-paths",
+      "kind": "technical",
+      "filePath": "packages/core/src/__tests__/logger.test.ts",
+      "sourceLine": 32,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "logger PII redaction (T10)"
+      ],
+      "title": "redacts nested text/username paths",
+      "rawTitle": "redacts nested text/username paths",
+      "name": "Core domain logger PII redaction (T10) redacts nested text username paths",
+      "value": "Protects the core domain logger PII redaction (T10) behavior so redacts nested text username paths.",
+      "description": "Protects the core domain logger PII redaction (T10) behavior so redacts nested text username paths."
+    },
+    {
+      "id": "packages-core-src-tests-logger-test-ts-42-logger-pii-redaction-t10-keeps-diagnostic-surrogates-textlength-textpreview-so-diagnostic-value-is-preserved",
+      "kind": "technical",
+      "filePath": "packages/core/src/__tests__/logger.test.ts",
+      "sourceLine": 42,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "logger PII redaction (T10)"
+      ],
+      "title": "keeps diagnostic surrogates (textLength, textPreview) so diagnostic value is preserved",
+      "rawTitle": "keeps diagnostic surrogates (textLength, textPreview) so diagnostic value is preserved",
+      "name": "Core domain logger PII redaction (T10) keeps diagnostic surrogates (text Length, text Preview) so diagnostic value is preserved",
+      "value": "Protects the core domain logger PII redaction (T10) behavior: keeps diagnostic surrogates (text Length, text Preview) so diagnostic value is preserved.",
+      "description": "Protects the core domain logger PII redaction (T10) behavior: keeps diagnostic surrogates (text Length, text Preview) so diagnostic value is preserved."
+    },
+    {
+      "id": "packages-core-src-tests-logger-test-ts-52-logger-pii-redaction-t10-redacts-a-password-field-as-defense-in-depth",
+      "kind": "technical",
+      "filePath": "packages/core/src/__tests__/logger.test.ts",
+      "sourceLine": 52,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "logger PII redaction (T10)"
+      ],
+      "title": "redacts a password field as defense-in-depth",
+      "rawTitle": "redacts a password field as defense-in-depth",
+      "name": "Core domain logger PII redaction (T10) redacts a password field as defense in depth",
+      "value": "Protects the core domain logger PII redaction (T10) behavior so redacts a password field as defense in depth.",
+      "description": "Protects the core domain logger PII redaction (T10) behavior so redacts a password field as defense in depth."
     },
     {
       "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-135-translatewithcontext-calls-lookupcontext-with-word-and-sourcelang",

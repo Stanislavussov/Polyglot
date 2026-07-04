@@ -13,7 +13,20 @@
  */
 import pino from "pino";
 
-const coreLogger = pino({ level: "info" }, pino.destination(1));
+/**
+ * PII / secret field paths redacted from every log record (T10/S7). Logs are
+ * shipped to Betterstack/Loki — a third party — so user message text and
+ * usernames (PII) and any password field are replaced with `[Redacted]`.
+ * Diagnostic surrogates are deliberately NOT listed and stay visible:
+ * `textLength` (a length category) and `textPreview` (debug-only, never shipped
+ * because prod runs at level `info`), plus ids like `userId`/`telegramId`.
+ */
+export const LOG_REDACT_PATHS = ["text", "*.text", "username", "*.username", "password", "*.password"];
+
+const coreLogger = pino(
+  { level: "info", redact: { paths: LOG_REDACT_PATHS, censor: "[Redacted]" } },
+  pino.destination(1),
+);
 
 export { coreLogger as logger };
 export default coreLogger;

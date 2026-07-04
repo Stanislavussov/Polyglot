@@ -57,7 +57,8 @@ async function main(): Promise<void> {
   logger.info({ sessionStorage: "postgres", languageCacheReady: true, pollingMode: "long-polling" }, "Starting bot");
   await bot.init();
   runner = run(bot);
-  logger.info({ username: bot.botInfo.username, id: bot.botInfo.id }, "Bot started (concurrent runner)");
+  // botUsername (not the redacted `username` PII path): this is the bot's own handle.
+  logger.info({ botUsername: bot.botInfo.username, id: bot.botInfo.id }, "Bot started (concurrent runner)");
 }
 
 main().catch((err) => {

@@ -67,7 +67,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   // Emoji-only messages — cannot be translated
   if (isEmojiOnly(text)) {
     if (ctx.user?.onboarded) {
-      logger.debug({ text, userId: ctx.from?.id }, "Emoji-only message received");
+      logger.debug({ textPreview: text, userId: ctx.from?.id }, "Emoji-only message received");
       const lang = await resolveInterfaceLang(ctx);
       const msg = await ctx.reply(t("emojiNotSupported", lang));
       trackTechnicalMessage(ctx, msg.message_id);
@@ -109,7 +109,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   const mode = ctx.session.activeMode;
   const userId = ctx.from?.id;
 
-  logger.debug({ mode, text: text.slice(0, 30), userId }, "Mode router: routing message");
+  logger.debug({ mode, textPreview: text.slice(0, 30), userId }, "Mode router: routing message");
 
   switch (mode) {
     case "translate":
