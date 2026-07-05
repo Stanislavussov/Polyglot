@@ -121,6 +121,30 @@ describe("sendReleaseAnnouncement", () => {
     expect(repository.recordReleaseAnnouncementDelivery).toHaveBeenCalledWith("release-1", "tester", 2);
   });
 
+  it("truncates an oversized message to Telegram's 4096-char limit without cutting an HTML entity", async () => {
+    const tester = makeUser({ id: 1, audienceGroup: "tester" });
+    const repository = makeRepository([tester], [], { 1: "111" });
+    const messenger = makeMessenger();
+    // A body made of "&" chars: every char escapes to the 5-char entity "&amp;",
+    // so a naive slice at the char budget is very likely to land inside one.
+    const oversized = "&".repeat(5000);
+
+    const result = await sendReleaseAnnouncement(
+      { RELEASE_ID: "release-1", RELEASE_ANNOUNCEMENT_BASE64: encode(oversized) },
+      messenger,
+      repository,
+    );
+
+    expect(result).toEqual({ skipped: false, attempted: 1, delivered: 1, failed: 0 });
+    const sentText = vi.mocked(messenger.sendMessage).mock.calls[0]?.[1] ?? "";
+    expect(sentText.length).toBeLessThanOrEqual(4096);
+    expect(sentText.endsWith("…")).toBe(true);
+    // No dangling partial entity: the content right before the ellipsis must not
+    // end with a bare "&amp"/"&am"/"&" (an entity missing its closing ";").
+    const beforeEllipsis = sentText.slice(0, -1);
+    expect(beforeEllipsis).not.toMatch(/&[a-z]*$/);
+  });
+
   it("continues when one Telegram send fails", async () => {
     const admin = makeUser({ id: 1, audienceGroup: "admin" });
     const tester = makeUser({ id: 2, audienceGroup: "tester" });

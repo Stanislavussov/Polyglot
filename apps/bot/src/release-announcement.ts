@@ -75,8 +75,26 @@ function escapeHtml(value: string): string {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
+/** Telegram rejects any single message longer than this many characters. */
+const TELEGRAM_MAX_MESSAGE_CHARS = 4096;
+const ANNOUNCEMENT_PREFIX = "<b>Polyglot update</b>\n\n";
+
 function formatAnnouncementHtml(message: string): string {
-  return `<b>Polyglot update</b>\n\n${escapeHtml(message)}`;
+  // Defence in depth: the deploy step already bounds the announcement, but a
+  // message that still exceeds Telegram's hard limit would make every send throw.
+  // Truncate the escaped body to fit, and never cut inside an HTML entity
+  // (e.g. `&amp;`) — a dangling `&amp` would corrupt the HTML parse.
+  const budget = TELEGRAM_MAX_MESSAGE_CHARS - ANNOUNCEMENT_PREFIX.length;
+  let body = escapeHtml(message);
+  if (body.length > budget) {
+    body = body.slice(0, budget - 1);
+    const lastAmp = body.lastIndexOf("&");
+    if (lastAmp !== -1 && !body.slice(lastAmp).includes(";")) {
+      body = body.slice(0, lastAmp);
+    }
+    body = `${body.trimEnd()}…`;
+  }
+  return `${ANNOUNCEMENT_PREFIX}${body}`;
 }
 
 export async function sendReleaseAnnouncement(
