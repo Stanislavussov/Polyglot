@@ -37,7 +37,7 @@ export const preflightOptionSchema = z.object({
   correctedText: z.string().min(1).optional(),
 });
 
-/** Cap on the preflight explanation so it fits a Telegram annotation line. */
+/** Cap on the preflight explanation so it fits a single annotation line. */
 export const PREFLIGHT_EXPLANATION_MAX = 240;
 
 export const preflightResultSchema = z

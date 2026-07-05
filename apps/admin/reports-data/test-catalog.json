@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-05T07:34:52.614Z",
+  "generatedAt": "2026-07-05T08:04:43.649Z",
   "summary": {
-    "total": 2076,
+    "total": 2082,
     "business": 0,
-    "technical": 2076,
+    "technical": 2082,
     "workspaces": [
       "apps",
       "packages"
@@ -1015,10 +1015,10 @@
       "description": "Protects the admin UI reports auth middleware (T09) behavior so fails closed (401) when the admin API is unreachable."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-132-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-137-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 132,
+      "sourceLine": 137,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1031,10 +1031,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-153-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-158-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 153,
+      "sourceLine": 158,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1047,10 +1047,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-163-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-168-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 163,
+      "sourceLine": 168,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1063,10 +1063,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-171-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-176-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 171,
+      "sourceLine": 176,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1895,10 +1895,10 @@
       "description": "Protects the bot handle Set Notif Tz Select Callback behavior: rejects invalid timezone."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-147-onboarding-forward-only-flow-completes-all-4-steps-and-marks-user-as-onboarded",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-156-onboarding-forward-only-flow-completes-all-4-steps-and-marks-user-as-onboarded",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 147,
+      "sourceLine": 156,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1912,10 +1912,10 @@
       "description": "Protects the bot onboarding forward only flow behavior so completes all 4 steps and marks user as onboarded."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-169-onboarding-forward-only-flow-sets-activemode-to-translate-after-completion",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-178-onboarding-forward-only-flow-sets-activemode-to-translate-after-completion",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 169,
+      "sourceLine": 178,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1929,10 +1929,10 @@
       "description": "Protects the bot onboarding forward only flow behavior so sets active Mode to 'translate' after completion."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-183-onboarding-forward-only-flow-persists-activemode-to-db-after-completion",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-192-onboarding-forward-only-flow-persists-activemode-to-db-after-completion",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 183,
+      "sourceLine": 192,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1946,10 +1946,10 @@
       "description": "Protects the bot onboarding forward only flow behavior: persists active Mode to DB after completion."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-197-onboarding-forward-only-flow-demo-step-shows-result-immediately-without-save-skip-prompt",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-206-onboarding-forward-only-flow-demo-step-shows-result-immediately-without-save-skip-prompt",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 197,
+      "sourceLine": 206,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1963,10 +1963,10 @@
       "description": "Protects the bot onboarding forward only flow behavior so demo step shows result immediately without Save Skip prompt."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-225-onboarding-interface-language-inference-infers-interface-language-from-native-language",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-234-onboarding-interface-language-inference-infers-interface-language-from-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 225,
+      "sourceLine": 234,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1980,10 +1980,10 @@
       "description": "Protects the bot onboarding interface language inference behavior so infers interface language from native language."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-244-onboarding-interface-language-inference-uses-native-language-over-telegram-locale",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-253-onboarding-interface-language-inference-uses-native-language-over-telegram-locale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 244,
+      "sourceLine": 253,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1997,10 +1997,10 @@
       "description": "Protects the bot onboarding interface language inference behavior: uses native language over Telegram locale."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-271-onboarding-user-not-found-replies-with-error-and-does-not-proceed",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-280-onboarding-user-not-found-replies-with-error-and-does-not-proceed",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 271,
+      "sourceLine": 280,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2014,10 +2014,10 @@
       "description": "Protects the bot onboarding user not found behavior so replies with error and does not proceed."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-285-onboarding-back-navigation-back-from-step-2-returns-to-step-1-and-completes-with-new-choice",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-294-onboarding-back-navigation-back-from-step-2-returns-to-step-1-and-completes-with-new-choice",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 294,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2031,10 +2031,10 @@
       "description": "Protects the bot onboarding back navigation behavior so back from step 2 returns to step 1 and completes with new choice."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-307-onboarding-back-navigation-back-from-step-3-returns-to-step-2-and-completes-with-new-choice",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-316-onboarding-back-navigation-back-from-step-3-returns-to-step-2-and-completes-with-new-choice",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 307,
+      "sourceLine": 316,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2048,10 +2048,10 @@
       "description": "Protects the bot onboarding back navigation behavior so back from step 3 returns to step 2 and completes with new choice."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-331-onboarding-back-navigation-supports-multiple-consecutive-backs-3-2-1-and-completes",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-340-onboarding-back-navigation-supports-multiple-consecutive-backs-3-2-1-and-completes",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 331,
+      "sourceLine": 340,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2065,10 +2065,10 @@
       "description": "Protects the bot onboarding back navigation behavior so supports multiple consecutive backs (3 → 2 → 1) and completes."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-356-onboarding-back-navigation-back-from-step-2-resets-learning-language-selection",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-365-onboarding-back-navigation-back-from-step-2-resets-learning-language-selection",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 356,
+      "sourceLine": 365,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2082,10 +2082,10 @@
       "description": "Protects the bot onboarding back navigation behavior so back from step 2 resets learning language selection."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-383-onboarding-db-calls-during-back-navigation-does-not-call-updateonboardingstep-when-going-back",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-392-onboarding-db-calls-during-back-navigation-does-not-call-updateonboardingstep-when-going-back",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 383,
+      "sourceLine": 392,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2099,10 +2099,10 @@
       "description": "Protects the bot onboarding DB calls during back navigation behavior: does not call update Onboarding Step when going back."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-404-onboarding-db-calls-during-back-navigation-calls-updatesettings-again-after-back-from-step-2-5-and-re-completing-step-2",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-413-onboarding-db-calls-during-back-navigation-calls-updatesettings-again-after-back-from-step-2-5-and-re-completing-step-2",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 404,
+      "sourceLine": 413,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2116,10 +2116,10 @@
       "description": "Protects the bot onboarding DB calls during back navigation behavior: calls update Settings again after back from step 2 5 and re completing step 2."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-433-onboarding-db-calls-during-back-navigation-calls-markonboarded-exactly-once-at-the-end",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-442-onboarding-db-calls-during-back-navigation-calls-markonboarded-exactly-once-at-the-end",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 433,
+      "sourceLine": 442,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2133,10 +2133,10 @@
       "description": "Protects the bot onboarding DB calls during back navigation behavior: calls mark Onboarded exactly once at the end."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-463-onboarding-back-button-presence-in-keyboards-step-1-keyboard-does-not-have-a-back-button",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-472-onboarding-back-button-presence-in-keyboards-step-1-keyboard-does-not-have-a-back-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 463,
+      "sourceLine": 472,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2150,10 +2150,10 @@
       "description": "Protects the bot onboarding back button presence in keyboards behavior so step 1 keyboard does NOT have a back button."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-471-onboarding-back-button-presence-in-keyboards-step-2-keyboard-has-a-back-button",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-480-onboarding-back-button-presence-in-keyboards-step-2-keyboard-has-a-back-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 471,
+      "sourceLine": 480,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2167,10 +2167,10 @@
       "description": "Protects the bot onboarding back button presence in keyboards behavior so step 2 keyboard HAS a back button."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-478-onboarding-back-button-presence-in-keyboards-step-4-enter-word-prompt-has-a-back-button",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-487-onboarding-back-button-presence-in-keyboards-step-4-enter-word-prompt-has-a-back-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 478,
+      "sourceLine": 487,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2184,10 +2184,10 @@
       "description": "Protects the bot onboarding back button presence in keyboards behavior so step 4 (enter word) prompt HAS a back button."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-485-onboarding-back-button-presence-in-keyboards-step-4-demo-result-does-not-have-save-skip-buttons",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-494-onboarding-back-button-presence-in-keyboards-step-4-demo-result-does-not-have-save-skip-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 485,
+      "sourceLine": 494,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4976,10 +4976,10 @@
       "description": "Protects the bot bot readiness (T12) behavior: records the heartbeat timestamp."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-72-authmiddleware-calls-next-when-no-from-id-e-g-channel-post",
+      "id": "apps-bot-src-middlewares-auth-test-ts-84-authmiddleware-calls-next-when-no-from-id-e-g-channel-post",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 72,
+      "sourceLine": 84,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4992,42 +4992,42 @@
       "description": "Protects the bot auth Middleware behavior: calls next() when no from id (e g channel post)."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-83-authmiddleware-loads-existing-user-and-attaches-to-ctx-user",
+      "id": "apps-bot-src-middlewares-auth-test-ts-95-authmiddleware-loads-existing-user-via-identity-resolution-and-attaches-to-ctx-user",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 83,
+      "sourceLine": 95,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "authMiddleware"
       ],
-      "title": "loads existing user and attaches to ctx.user",
-      "rawTitle": "loads existing user and attaches to ctx.user",
-      "name": "Bot auth Middleware loads existing user and attaches to ctx user",
-      "value": "Protects the bot auth Middleware behavior: loads existing user and attaches to ctx user.",
-      "description": "Protects the bot auth Middleware behavior: loads existing user and attaches to ctx user."
+      "title": "loads existing user via identity resolution and attaches to ctx.user",
+      "rawTitle": "loads existing user via identity resolution and attaches to ctx.user",
+      "name": "Bot auth Middleware loads existing user via identity resolution and attaches to ctx user",
+      "value": "Protects the bot auth Middleware behavior: loads existing user via identity resolution and attaches to ctx user.",
+      "description": "Protects the bot auth Middleware behavior: loads existing user via identity resolution and attaches to ctx user."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-96-authmiddleware-creates-new-user-when-not-found",
+      "id": "apps-bot-src-middlewares-auth-test-ts-109-authmiddleware-creates-new-user-and-links-identity-when-unresolved",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 96,
+      "sourceLine": 109,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "authMiddleware"
       ],
-      "title": "creates new user when not found",
-      "rawTitle": "creates new user when not found",
-      "name": "Bot auth Middleware creates new user when not found",
-      "value": "Protects the bot auth Middleware behavior: creates new user when not found.",
-      "description": "Protects the bot auth Middleware behavior: creates new user when not found."
+      "title": "creates new user and links identity when unresolved",
+      "rawTitle": "creates new user and links identity when unresolved",
+      "name": "Bot auth Middleware creates new user and links identity when unresolved",
+      "value": "Protects the bot auth Middleware behavior: creates new user and links identity when unresolved.",
+      "description": "Protects the bot auth Middleware behavior: creates new user and links identity when unresolved."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-113-authmiddleware-hydrates-session-activemode-from-db-for-onboarded-users",
+      "id": "apps-bot-src-middlewares-auth-test-ts-127-authmiddleware-hydrates-session-activemode-from-db-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 113,
+      "sourceLine": 127,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5040,10 +5040,10 @@
       "description": "Protects the bot auth Middleware behavior so hydrates session active Mode from DB for onboarded users."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-131-authmiddleware-falls-back-to-translate-for-unknown-db-mode-values",
+      "id": "apps-bot-src-middlewares-auth-test-ts-145-authmiddleware-falls-back-to-translate-for-unknown-db-mode-values",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 145,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5056,10 +5056,10 @@
       "description": "Protects the bot auth Middleware behavior: falls back to 'translate' for unknown DB mode values."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-148-authmiddleware-hydrates-mentor-mode-from-db-without-falling-back",
+      "id": "apps-bot-src-middlewares-auth-test-ts-162-authmiddleware-hydrates-mentor-mode-from-db-without-falling-back",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 148,
+      "sourceLine": 162,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5072,10 +5072,10 @@
       "description": "Protects the bot auth Middleware behavior so hydrates mentor mode from DB without falling back."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-165-authmiddleware-does-not-hydrate-activemode-for-non-onboarded-users",
+      "id": "apps-bot-src-middlewares-auth-test-ts-179-authmiddleware-does-not-hydrate-activemode-for-non-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 165,
+      "sourceLine": 179,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5088,10 +5088,10 @@
       "description": "Protects the bot auth Middleware behavior: does not hydrate active Mode for non onboarded users."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-180-authmiddleware-keeps-session-default-when-onboarded-user-has-no-settings-row",
+      "id": "apps-bot-src-middlewares-auth-test-ts-194-authmiddleware-keeps-session-default-when-onboarded-user-has-no-settings-row",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 180,
+      "sourceLine": 194,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5104,10 +5104,10 @@
       "description": "Protects the bot auth Middleware behavior: keeps session default when onboarded user has no settings row."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-194-authmiddleware-calls-updatelastinteraction-fire-and-forget-for-onboarded-users",
+      "id": "apps-bot-src-middlewares-auth-test-ts-208-authmiddleware-calls-updatelastinteraction-fire-and-forget-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 194,
+      "sourceLine": 208,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5120,10 +5120,10 @@
       "description": "Protects the bot auth Middleware behavior: calls update Last Interaction fire and forget for onboarded users."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-205-authmiddleware-does-not-call-updatelastinteraction-for-non-onboarded-users",
+      "id": "apps-bot-src-middlewares-auth-test-ts-219-authmiddleware-does-not-call-updatelastinteraction-for-non-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 205,
+      "sourceLine": 219,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5136,10 +5136,10 @@
       "description": "Protects the bot auth Middleware behavior: does not call update Last Interaction for non onboarded users."
     },
     {
-      "id": "apps-bot-src-middlewares-auth-test-ts-216-authmiddleware-does-not-block-request-when-updatelastinteraction-fails",
+      "id": "apps-bot-src-middlewares-auth-test-ts-230-authmiddleware-does-not-block-request-when-updatelastinteraction-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/auth.test.ts",
-      "sourceLine": 216,
+      "sourceLine": 230,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5600,10 +5600,10 @@
       "description": "Protects the bot build Notification Revealed Keyboard behavior: creates keyboard with only Learned button."
     },
     {
-      "id": "apps-bot-src-release-announcement-test-ts-53-sendreleaseannouncement-skips-empty-changelog-messages",
+      "id": "apps-bot-src-release-announcement-test-ts-63-sendreleaseannouncement-skips-empty-changelog-messages",
       "kind": "technical",
       "filePath": "apps/bot/src/release-announcement.test.ts",
-      "sourceLine": 53,
+      "sourceLine": 63,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5616,10 +5616,10 @@
       "description": "Protects the bot send Release Announcement behavior: skips empty changelog messages."
     },
     {
-      "id": "apps-bot-src-release-announcement-test-ts-68-sendreleaseannouncement-sends-only-active-admin-and-tester-users-from-the-configured-groups",
+      "id": "apps-bot-src-release-announcement-test-ts-78-sendreleaseannouncement-sends-only-active-admin-and-tester-users-from-the-configured-groups",
       "kind": "technical",
       "filePath": "apps/bot/src/release-announcement.test.ts",
-      "sourceLine": 68,
+      "sourceLine": 78,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5632,10 +5632,10 @@
       "description": "Protects the bot send Release Announcement behavior: sends only active admin and tester users from the configured groups."
     },
     {
-      "id": "apps-bot-src-release-announcement-test-ts-96-sendreleaseannouncement-does-not-resend-already-recorded-deliveries",
+      "id": "apps-bot-src-release-announcement-test-ts-106-sendreleaseannouncement-does-not-resend-already-recorded-deliveries",
       "kind": "technical",
       "filePath": "apps/bot/src/release-announcement.test.ts",
-      "sourceLine": 96,
+      "sourceLine": 106,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5648,10 +5648,10 @@
       "description": "Protects the bot send Release Announcement behavior: does not resend already recorded deliveries."
     },
     {
-      "id": "apps-bot-src-release-announcement-test-ts-114-sendreleaseannouncement-continues-when-one-telegram-send-fails",
+      "id": "apps-bot-src-release-announcement-test-ts-124-sendreleaseannouncement-continues-when-one-telegram-send-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/release-announcement.test.ts",
-      "sourceLine": 114,
+      "sourceLine": 124,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11960,6 +11960,104 @@
       "description": "Protects the database adapter get Db behavior so should throw if DATABASE URL is not set."
     },
     {
+      "id": "packages-adapters-db-src-tests-identity-repository-test-ts-69-identityrepository-round-trip-resolves-the-userid-a-linked-identity-was-created-with",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/identity.repository.test.ts",
+      "sourceLine": 69,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "identityRepository round-trip"
+      ],
+      "title": "resolves the userId a linked identity was created with",
+      "rawTitle": "resolves the userId a linked identity was created with",
+      "name": "Database adapter identity Repository round trip resolves the user Id a linked identity was created with",
+      "value": "Protects the database adapter identity Repository round trip behavior: resolves the user Id a linked identity was created with.",
+      "description": "Protects the database adapter identity Repository round trip behavior: resolves the user Id a linked identity was created with."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-identity-repository-test-ts-77-identityrepository-round-trip-returns-null-for-an-unknown-identity",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/identity.repository.test.ts",
+      "sourceLine": 77,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "identityRepository round-trip"
+      ],
+      "title": "returns null for an unknown identity",
+      "rawTitle": "returns null for an unknown identity",
+      "name": "Database adapter identity Repository round trip returns null for an unknown identity",
+      "value": "Protects the database adapter identity Repository round trip behavior: returns null for an unknown identity.",
+      "description": "Protects the database adapter identity Repository round trip behavior: returns null for an unknown identity."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-identity-repository-test-ts-83-identityrepository-round-trip-is-idempotent-re-linking-the-same-identity-does-not-duplicate-the-row",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/identity.repository.test.ts",
+      "sourceLine": 83,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "identityRepository round-trip"
+      ],
+      "title": "is idempotent — re-linking the same identity does not duplicate the row",
+      "rawTitle": "is idempotent — re-linking the same identity does not duplicate the row",
+      "name": "Database adapter identity Repository round trip is idempotent — re linking the same identity does not duplicate the row",
+      "value": "Protects the database adapter identity Repository round trip behavior so is idempotent — re linking the same identity does not duplicate the row.",
+      "description": "Protects the database adapter identity Repository round trip behavior so is idempotent — re linking the same identity does not duplicate the row."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-identity-repository-test-ts-91-identityrepository-round-trip-links-idempotently-via-on-conflict-do-nothing-on-the-channel-externalid-unique",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/identity.repository.test.ts",
+      "sourceLine": 91,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "identityRepository round-trip"
+      ],
+      "title": "links idempotently via ON CONFLICT DO NOTHING on the (channel, externalId) unique",
+      "rawTitle": "links idempotently via ON CONFLICT DO NOTHING on the (channel, externalId) unique",
+      "name": "Database adapter identity Repository round trip links idempotently via ON CONFLICT DO NOTHING on the (channel, external Id) unique",
+      "value": "Protects the database adapter identity Repository round trip behavior so links idempotently via ON CONFLICT DO NOTHING on the (channel, external Id) unique.",
+      "description": "Protects the database adapter identity Repository round trip behavior so links idempotently via ON CONFLICT DO NOTHING on the (channel, external Id) unique."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-identity-repository-test-ts-102-identityrepository-round-trip-notification-send-resolution-userid-externalid-resolves-the-channel-externalid-a-notification-send-should-deliver-to",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/identity.repository.test.ts",
+      "sourceLine": 102,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "identityRepository round-trip",
+        "notification send resolution (userId → externalId)"
+      ],
+      "title": "resolves the channel externalId a notification send should deliver to",
+      "rawTitle": "resolves the channel externalId a notification send should deliver to",
+      "name": "Database adapter identity Repository round trip notification send resolution (user Id → external Id) resolves the channel external Id a notification send should deliver to",
+      "value": "Protects the database adapter identity Repository round trip notification send resolution (user Id → external Id) behavior: resolves the channel external Id a notification send should deliver to.",
+      "description": "Protects the database adapter identity Repository round trip notification send resolution (user Id → external Id) behavior: resolves the channel external Id a notification send should deliver to."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-identity-repository-test-ts-110-identityrepository-round-trip-notification-send-resolution-userid-externalid-returns-null-when-the-user-has-no-identity-for-the-channel",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/identity.repository.test.ts",
+      "sourceLine": 110,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "identityRepository round-trip",
+        "notification send resolution (userId → externalId)"
+      ],
+      "title": "returns null when the user has no identity for the channel",
+      "rawTitle": "returns null when the user has no identity for the channel",
+      "name": "Database adapter identity Repository round trip notification send resolution (user Id → external Id) returns null when the user has no identity for the channel",
+      "value": "Protects the database adapter identity Repository round trip notification send resolution (user Id → external Id) behavior: returns null when the user has no identity for the channel.",
+      "description": "Protects the database adapter identity Repository round trip notification send resolution (user Id → external Id) behavior: returns null when the user has no identity for the channel."
+    },
+    {
       "id": "packages-adapters-db-src-tests-language-repository-test-ts-63-languagerepository-findbycode-returns-a-language-when-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/language.repository.test.ts",
@@ -13503,7 +13601,7 @@
       "description": "Protects the database adapter user Request Count Repository get User Request Counts By Day behavior: returns an empty list when the counter has no rows in range."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-119-userrepository-findbytelegramid-returns-user-when-found",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-119-userrepository-findbyid-returns-user-when-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
       "sourceLine": 119,
@@ -13511,16 +13609,16 @@
       "packageName": "adapters/db",
       "suitePath": [
         "userRepository",
-        "findByTelegramId"
+        "findById"
       ],
       "title": "returns user when found",
       "rawTitle": "returns user when found",
-      "name": "Database adapter user Repository find By Telegram Id returns user when found",
-      "value": "Protects the database adapter user Repository find By Telegram Id behavior: returns user when found.",
-      "description": "Protects the database adapter user Repository find By Telegram Id behavior: returns user when found."
+      "name": "Database adapter user Repository find By Id returns user when found",
+      "value": "Protects the database adapter user Repository find By Id behavior: returns user when found.",
+      "description": "Protects the database adapter user Repository find By Id behavior: returns user when found."
     },
     {
-      "id": "packages-adapters-db-src-tests-user-repository-test-ts-130-userrepository-findbytelegramid-returns-null-when-not-found",
+      "id": "packages-adapters-db-src-tests-user-repository-test-ts-130-userrepository-findbyid-returns-null-when-not-found",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/user.repository.test.ts",
       "sourceLine": 130,
@@ -13528,13 +13626,13 @@
       "packageName": "adapters/db",
       "suitePath": [
         "userRepository",
-        "findByTelegramId"
+        "findById"
       ],
       "title": "returns null when not found",
       "rawTitle": "returns null when not found",
-      "name": "Database adapter user Repository find By Telegram Id returns null when not found",
-      "value": "Protects the database adapter user Repository find By Telegram Id behavior: returns null when not found.",
-      "description": "Protects the database adapter user Repository find By Telegram Id behavior: returns null when not found."
+      "name": "Database adapter user Repository find By Id returns null when not found",
+      "value": "Protects the database adapter user Repository find By Id behavior: returns null when not found.",
+      "description": "Protects the database adapter user Repository find By Id behavior: returns null when not found."
     },
     {
       "id": "packages-adapters-db-src-tests-user-repository-test-ts-138-userrepository-create-inserts-a-new-user-and-returns-it",
@@ -16035,10 +16133,10 @@
       "description": "Protects the notification adapter pick Contextual Word behavior: returns null when AI generation fails."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-116-buildnotificationpayload-builds-a-payload-with-user-s-preferred-time",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-115-buildnotificationpayload-builds-a-payload-with-user-s-preferred-time",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 116,
+      "sourceLine": 115,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16051,10 +16149,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: builds a payload with user's preferred time."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-128-buildnotificationpayload-derives-the-hour-from-the-current-local-time",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-127-buildnotificationpayload-derives-the-hour-from-the-current-local-time",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 128,
+      "sourceLine": 127,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16067,10 +16165,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior so derives the hour from the current local time."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-137-buildnotificationpayload-defaults-to-hour-8-when-the-timezone-is-invalid",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-136-buildnotificationpayload-defaults-to-hour-8-when-the-timezone-is-invalid",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 137,
+      "sourceLine": 136,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16083,10 +16181,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: defaults to hour 8 when the timezone is invalid."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-144-buildnotificationpayload-uses-user-s-interface-language-for-i18n",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-143-buildnotificationpayload-uses-user-s-interface-language-for-i18n",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 144,
+      "sourceLine": 143,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16099,10 +16197,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: uses user's interface language for i18n."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-151-buildnotificationpayload-uses-notifwordfromdict-label-for-srs-source",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-150-buildnotificationpayload-uses-notifwordfromdict-label-for-srs-source",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 151,
+      "sourceLine": 150,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16115,10 +16213,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: uses notif Word From Dict label for srs source."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-170-checkandsend-sends-notifications-to-eligible-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-169-checkandsend-sends-notifications-to-eligible-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 169,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16131,10 +16229,10 @@
       "description": "Protects the notification adapter check And Send behavior: sends notifications to eligible users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-180-checkandsend-handles-multiple-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-179-checkandsend-handles-multiple-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 180,
+      "sourceLine": 179,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16147,10 +16245,10 @@
       "description": "Protects the notification adapter check And Send behavior: handles multiple users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-198-checkandsend-returns-zero-sent-when-no-users-are-eligible",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-196-checkandsend-returns-zero-sent-when-no-users-are-eligible",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 198,
+      "sourceLine": 196,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16163,10 +16261,10 @@
       "description": "Protects the notification adapter check And Send behavior: returns zero sent when no users are eligible."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-209-checkandsend-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-207-checkandsend-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 209,
+      "sourceLine": 207,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16179,10 +16277,10 @@
       "description": "Protects the notification adapter check And Send behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-230-checkandsend-retries-failed-sends-up-to-3-times-before-giving-up",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-227-checkandsend-retries-failed-sends-up-to-3-times-before-giving-up",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 230,
+      "sourceLine": 227,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16195,10 +16293,10 @@
       "description": "Protects the notification adapter check And Send behavior so retries failed sends up to 3 times before giving up."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-240-checkandsend-succeeds-on-retry-when-transient-error-resolves",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-237-checkandsend-succeeds-on-retry-when-transient-error-resolves",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 237,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16211,10 +16309,10 @@
       "description": "Protects the notification adapter check And Send behavior so succeeds on retry when transient error resolves."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-257-checkandsend-disables-notifications-for-a-user-who-blocked-the-bot-403-without-retrying",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-254-checkandsend-disables-notifications-for-a-user-who-blocked-the-bot-403-without-retrying",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 257,
+      "sourceLine": 254,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16227,10 +16325,10 @@
       "description": "Protects the notification adapter check And Send behavior so disables notifications for a user who blocked the bot (403), without retrying."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-274-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-271-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 274,
+      "sourceLine": 271,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16243,10 +16341,10 @@
       "description": "Protects the notification adapter check And Send behavior: sends empty dictionary prompt when no word could be picked."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-286-checkandsend-returns-error-when-getusersforwindow-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-283-checkandsend-returns-error-when-getusersforwindow-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 286,
+      "sourceLine": 283,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16259,10 +16357,10 @@
       "description": "Protects the notification adapter check And Send behavior: returns error when get Users For Window throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-298-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-295-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 298,
+      "sourceLine": 295,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16276,10 +16374,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: uses pick Dictionary Word for all users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-306-checkandsend-word-picking-strategy-passes-words-sent-in-the-last-24h-to-the-dictionary-picker-for-de-dup",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-303-checkandsend-word-picking-strategy-passes-words-sent-in-the-last-24h-to-the-dictionary-picker-for-de-dup",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 306,
+      "sourceLine": 303,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16293,10 +16391,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior so passes words sent in the last 24h to the dictionary picker for de dup."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-318-checkandsend-word-picking-strategy-routes-a-contextual-user-to-the-contextual-picker",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-315-checkandsend-word-picking-strategy-routes-a-contextual-user-to-the-contextual-picker",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 318,
+      "sourceLine": 315,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16310,10 +16408,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: routes a contextual user to the contextual picker."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-339-checkandsend-word-picking-strategy-falls-back-to-the-dictionary-picker-for-a-contextual-user-with-no-context",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-336-checkandsend-word-picking-strategy-falls-back-to-the-dictionary-picker-for-a-contextual-user-with-no-context",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 339,
+      "sourceLine": 336,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16327,10 +16425,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: falls back to the dictionary picker for a contextual user with no context."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-369-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-366-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 369,
+      "sourceLine": 366,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16343,10 +16441,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: sends re engagement message and disables notifications."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-385-processinactiveusers-processes-multiple-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-379-processinactiveusers-processes-multiple-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 385,
+      "sourceLine": 379,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16359,10 +16457,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: processes multiple inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-404-processinactiveusers-returns-zero-when-no-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-397-processinactiveusers-returns-zero-when-no-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 404,
+      "sourceLine": 397,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16375,10 +16473,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns zero when no inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-412-processinactiveusers-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-405-processinactiveusers-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 412,
+      "sourceLine": 405,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16391,10 +16489,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-425-processinactiveusers-returns-error-when-getinactiveusers-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-418-processinactiveusers-returns-error-when-getinactiveusers-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 425,
+      "sourceLine": 418,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16407,10 +16505,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns error when get Inactive Users throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-436-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-429-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 436,
+      "sourceLine": 429,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16423,10 +16521,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: uses user interface language for re engagement message."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-469-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-461-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 469,
+      "sourceLine": 461,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16439,10 +16537,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so registers a cron job with hourly schedule."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-479-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-471-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 479,
+      "sourceLine": 471,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16455,10 +16553,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior: does not register duplicate cron jobs."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-492-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-484-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 492,
+      "sourceLine": 484,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -16471,10 +16569,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler stops the cron task."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-504-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-496-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 504,
+      "sourceLine": 496,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [

@@ -63,7 +63,6 @@ import {
 
 const mockUser: NotificationUser = {
   userId: 1,
-  telegramId: 12345,
   interfaceLang: "en",
   nativeLang: "en",
   learningLangs: ["cs", "de"],
@@ -172,7 +171,7 @@ describe("checkAndSend", () => {
     const result = await checkAndSend(mockSendFn, deps);
 
     expect(mockSendFn).toHaveBeenCalledOnce();
-    expect(mockSendFn).toHaveBeenCalledWith(12345, expect.objectContaining({ hour: 8 }));
+    expect(mockSendFn).toHaveBeenCalledWith(1, expect.objectContaining({ hour: 8 }));
     expect(result.sent).toBe(1);
     expect(result.errors).toBe(0);
   });
@@ -181,7 +180,6 @@ describe("checkAndSend", () => {
     const user2: NotificationUser = {
       ...mockUser,
       userId: 2,
-      telegramId: 67890,
       interfaceLang: "ru",
       notificationTimes: ["20:00"],
       notificationContext: null,
@@ -211,7 +209,6 @@ describe("checkAndSend", () => {
     const user2: NotificationUser = {
       ...mockUser,
       userId: 2,
-      telegramId: 67890,
       interfaceLang: "ru",
       notificationTimes: ["20:00"],
       notificationContext: null,
@@ -279,7 +276,7 @@ describe("checkAndSend", () => {
     const result = await checkAndSend(mockSendFn, deps);
 
     expect(mockSendFn).not.toHaveBeenCalled();
-    expect(deps.sendDictionaryEmptyPrompt).toHaveBeenCalledWith(12345, "en");
+    expect(deps.sendDictionaryEmptyPrompt).toHaveBeenCalledWith(1, "en");
     expect(result.sent).toBe(0);
   });
 
@@ -373,10 +370,7 @@ describe("processInactiveUsers", () => {
 
     const result = await processInactiveUsers(mockReEngagementSend, deps);
 
-    expect(mockReEngagementSend).toHaveBeenCalledWith(
-      12345,
-      "We paused your notifications. Use /settings to re-enable.",
-    );
+    expect(mockReEngagementSend).toHaveBeenCalledWith(1, "We paused your notifications. Use /settings to re-enable.");
     expect(deps.disableNotifications).toHaveBeenCalledWith(1);
     expect(result.processed).toBe(1);
     expect(result.errors).toBe(0);
@@ -386,7 +380,6 @@ describe("processInactiveUsers", () => {
     const user2: NotificationUser = {
       ...mockUser,
       userId: 2,
-      telegramId: 67890,
       interfaceLang: "ru",
       notificationContext: null,
     };
@@ -437,7 +430,6 @@ describe("processInactiveUsers", () => {
     const ruUser: NotificationUser = {
       ...mockUser,
       userId: 2,
-      telegramId: 67890,
       interfaceLang: "ru",
       notificationContext: null,
     };

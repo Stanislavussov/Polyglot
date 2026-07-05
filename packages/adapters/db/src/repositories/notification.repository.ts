@@ -8,7 +8,7 @@ import {
 } from "@polyglot/core";
 import { and, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
 import { getDb } from "../connection.js";
-import { notificationHistory, userLanguageSettings, users } from "../schema.js";
+import { notificationHistory, userLanguageSettings } from "../schema.js";
 
 // Re-exported so existing adapter-db consumers (e.g. admin) are unaffected —
 // these are pure notification-time helpers, now defined once in @polyglot/core
@@ -59,7 +59,6 @@ function isWithinCurrentNotificationSlot(localMinutes: number, targetMinutes: nu
 
 const notificationUserSelect = {
   userId: userLanguageSettings.userId,
-  telegramId: users.telegramId,
   interfaceLang: userLanguageSettings.interfaceLang,
   nativeLang: userLanguageSettings.nativeLang,
   learningLangs: userLanguageSettings.learningLangs,
@@ -83,7 +82,6 @@ export const notificationRepository = {
     const rows = await db
       .select(notificationUserSelect)
       .from(userLanguageSettings)
-      .innerJoin(users, eq(users.id, userLanguageSettings.userId))
       .where(
         and(
           eq(userLanguageSettings.notificationEnabled, true),
@@ -115,7 +113,6 @@ export const notificationRepository = {
     return db
       .select(notificationUserSelect)
       .from(userLanguageSettings)
-      .innerJoin(users, eq(users.id, userLanguageSettings.userId))
       .where(
         and(
           eq(userLanguageSettings.notificationEnabled, true),

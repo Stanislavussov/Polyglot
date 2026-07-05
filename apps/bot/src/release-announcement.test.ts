@@ -13,7 +13,6 @@ function encode(value: string): string {
 function makeUser(overrides: Partial<User>): User {
   return {
     id: 1,
-    telegramId: 123456,
     username: "tester",
     audienceGroup: "tester",
     subscriptionPlan: "free",
@@ -25,7 +24,15 @@ function makeUser(overrides: Partial<User>): User {
   };
 }
 
-function makeRepository(users: User[], deliveredUserIds: readonly number[] = []): ReleaseAnnouncementRepository {
+/**
+ * @param externalIds map of userId → Telegram chat id string (identity resolution).
+ * Users without an entry resolve to `null` and are skipped by the announcement.
+ */
+function makeRepository(
+  users: User[],
+  deliveredUserIds: readonly number[] = [],
+  externalIds: Record<number, string> = {},
+): ReleaseAnnouncementRepository {
   return {
     listActiveByAudienceGroups: vi.fn<ReleaseAnnouncementRepository["listActiveByAudienceGroups"]>((audienceGroups) =>
       Promise.resolve(users.filter((user) => audienceGroups.includes(user.audienceGroup))),
@@ -35,6 +42,9 @@ function makeRepository(users: User[], deliveredUserIds: readonly number[] = [])
     ),
     recordReleaseAnnouncementDelivery: vi.fn<ReleaseAnnouncementRepository["recordReleaseAnnouncementDelivery"]>(() =>
       Promise.resolve(),
+    ),
+    findExternalId: vi.fn<ReleaseAnnouncementRepository["findExternalId"]>((userId) =>
+      Promise.resolve(externalIds[userId] ?? null),
     ),
   };
 }
@@ -66,10 +76,10 @@ describe("sendReleaseAnnouncement", () => {
   });
 
   it("sends only active admin and tester users from the configured groups", async () => {
-    const admin = makeUser({ id: 1, telegramId: 111, audienceGroup: "admin" });
-    const tester = makeUser({ id: 2, telegramId: 222, audienceGroup: "tester" });
-    const product = makeUser({ id: 3, telegramId: 333, audienceGroup: "product" });
-    const repository = makeRepository([admin, tester, product]);
+    const admin = makeUser({ id: 1, audienceGroup: "admin" });
+    const tester = makeUser({ id: 2, audienceGroup: "tester" });
+    const product = makeUser({ id: 3, audienceGroup: "product" });
+    const repository = makeRepository([admin, tester, product], [], { 1: "111", 2: "222", 3: "333" });
     const messenger = makeMessenger();
 
     const result = await sendReleaseAnnouncement(
@@ -94,9 +104,9 @@ describe("sendReleaseAnnouncement", () => {
   });
 
   it("does not resend already recorded deliveries", async () => {
-    const admin = makeUser({ id: 1, telegramId: 111, audienceGroup: "admin" });
-    const tester = makeUser({ id: 2, telegramId: 222, audienceGroup: "tester" });
-    const repository = makeRepository([admin, tester], [1]);
+    const admin = makeUser({ id: 1, audienceGroup: "admin" });
+    const tester = makeUser({ id: 2, audienceGroup: "tester" });
+    const repository = makeRepository([admin, tester], [1], { 1: "111", 2: "222" });
     const messenger = makeMessenger();
 
     const result = await sendReleaseAnnouncement(
@@ -112,9 +122,9 @@ describe("sendReleaseAnnouncement", () => {
   });
 
   it("continues when one Telegram send fails", async () => {
-    const admin = makeUser({ id: 1, telegramId: 111, audienceGroup: "admin" });
-    const tester = makeUser({ id: 2, telegramId: 222, audienceGroup: "tester" });
-    const repository = makeRepository([admin, tester]);
+    const admin = makeUser({ id: 1, audienceGroup: "admin" });
+    const tester = makeUser({ id: 2, audienceGroup: "tester" });
+    const repository = makeRepository([admin, tester], [], { 1: "111", 2: "222" });
     const messenger = makeMessenger();
     vi.mocked(messenger.sendMessage).mockRejectedValueOnce(new Error("telegram failed"));
 

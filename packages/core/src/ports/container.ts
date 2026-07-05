@@ -5,6 +5,7 @@ import type { ContextLookupFn } from "../modules/context-enrichment/types.js";
 import type { FindWordLanguagesFn } from "../modules/language-detect/types.js";
 import type { AIPort } from "./ai.port.js";
 import type { FeatureAccessPort } from "./feature-access.port.js";
+import type { IdentityRepository } from "./identity.repository.js";
 import type { LanguageCachePort } from "./language-cache.port.js";
 import type { LanguageDetectionRepository } from "./language-detection.repository.js";
 import type { NotificationRepository } from "./notification.repository.js";
@@ -25,6 +26,8 @@ import type { WordReviewRepository } from "./word-review.repository.js";
  */
 export interface ServiceContainer {
   userRepository: UserRepository;
+  /** Channel identity resolution (userId ↔ channel externalId), Fable T24/A1. */
+  identityRepository: IdentityRepository;
   vocabularyRepository: VocabularyRepository;
   vocabularyDictionaryRepository: VocabularyDictionaryRepository;
   translationTemplateRepository: TranslationTemplateRepository;

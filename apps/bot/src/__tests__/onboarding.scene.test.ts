@@ -10,12 +10,18 @@ vi.mock("@polyglot/infra", () => ({
 }));
 
 const repo = {
-  findByTelegramId: vi.fn(),
+  findById: vi.fn(),
   updateOnboardingStep: vi.fn(),
   updateSettings: vi.fn(),
   markOnboarded: vi.fn(),
   updateActiveMode: vi.fn().mockResolvedValue({}),
   setLanguageLevel: vi.fn().mockResolvedValue(undefined),
+};
+
+const identityRepo = {
+  resolveUserId: vi.fn(),
+  findExternalId: vi.fn(),
+  linkIdentity: vi.fn().mockResolvedValue(undefined),
 };
 
 const mockGetSupportedLangs = () => [
@@ -76,7 +82,9 @@ const FAKE_USER = {
 function setup(actions: UserAction[], user: typeof FAKE_USER | null = FAKE_USER, telegramLocale?: string) {
   let idx = 0;
 
-  repo.findByTelegramId.mockResolvedValue(user);
+  // Identity resolution replaces the old findByTelegramId lookup (Fable T24/A1).
+  identityRepo.resolveUserId.mockResolvedValue(user ? user.id : null);
+  repo.findById.mockResolvedValue(user);
   repo.updateOnboardingStep.mockResolvedValue(FAKE_USER as any);
   repo.updateSettings.mockResolvedValue({} as any);
   repo.markOnboarded.mockResolvedValue(FAKE_USER as any);
@@ -113,6 +121,7 @@ function setup(actions: UserAction[], user: typeof FAKE_USER | null = FAKE_USER,
     },
     services: createServicesStub({
       userRepository: repo as unknown as ServiceContainer["userRepository"],
+      identityRepository: identityRepo as unknown as ServiceContainer["identityRepository"],
       languageCache: {
         getSupportedLangs: mockGetSupportedLangs,
         getLangDisplay: mockGetLangDisplay,

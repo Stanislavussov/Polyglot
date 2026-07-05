@@ -40,7 +40,9 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
   const telegramId = ctx.from!.id;
   const telegramLocale = ctx.from?.language_code;
   const user = await conversation.external(async () => {
-    return ctx.services.userRepository.findByTelegramId(telegramId);
+    // Resolve via the channel identity (Fable T24/A1) — the user was linked by authMiddleware.
+    const userId = await ctx.services.identityRepository.resolveUserId("telegram", String(telegramId));
+    return userId !== null ? ctx.services.userRepository.findById(userId) : null;
   });
 
   if (!user) {

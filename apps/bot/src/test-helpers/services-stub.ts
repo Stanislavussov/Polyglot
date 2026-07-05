@@ -75,6 +75,7 @@ function createSettingsStub(): ServiceContainer["settings"] {
 export function createServicesStub(overrides: Partial<ServiceContainer> = {}): ServiceContainer {
   const base: ServiceContainer = {
     userRepository: autoMockObject<ServiceContainer["userRepository"]>(),
+    identityRepository: autoMockObject<ServiceContainer["identityRepository"]>(),
     vocabularyRepository: autoMockObject<ServiceContainer["vocabularyRepository"]>(),
     vocabularyDictionaryRepository: autoMockObject<ServiceContainer["vocabularyDictionaryRepository"]>(),
     translationTemplateRepository: autoMockObject<ServiceContainer["translationTemplateRepository"]>(),

@@ -8,9 +8,14 @@ import { createContainer } from "../container.js";
 // Mock adapters
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: {
-    findByTelegramId: vi.fn().mockResolvedValue({ id: 1, telegramId: 123 }),
-    create: vi.fn().mockResolvedValue({ id: 1, telegramId: 123 }),
+    findById: vi.fn().mockResolvedValue({ id: 1 }),
+    create: vi.fn().mockResolvedValue({ id: 1 }),
     getSettings: vi.fn().mockResolvedValue({ userId: 1, interfaceLang: "en" }),
+  },
+  identityRepository: {
+    resolveUserId: vi.fn().mockResolvedValue(1),
+    findExternalId: vi.fn().mockResolvedValue("123"),
+    linkIdentity: vi.fn().mockResolvedValue(undefined),
   },
   vocabularyRepository: {
     findByUser: vi.fn().mockResolvedValue([]),
@@ -172,7 +177,7 @@ describe("createContainer", () => {
     const container = createContainer();
 
     // Test that services can be called without throwing
-    const result = await container.userRepository.findByTelegramId(123);
+    const result = await container.userRepository.findById(1);
     expect(result).toBeDefined();
   });
 });

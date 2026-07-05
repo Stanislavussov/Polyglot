@@ -122,6 +122,29 @@ export const users = pgTable("users", {
 export type AudienceGroup = (typeof audienceGroupEnum.enumValues)[number];
 
 // ─────────────────────────────────────────────
+// Channel identities (multichannel foundation, Fable T24/A1)
+// Maps the neutral domain `userId` to a per-channel external id. The domain
+// operates on `userId`; each delivery channel (telegram, …) resolves its own
+// `externalId` here instead of the domain depending on `users.telegram_id`.
+// ─────────────────────────────────────────────
+export const identities = pgTable(
+  "identities",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    channel: text("channel").notNull(),
+    externalId: text("external_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("identities_channel_external_id_idx").on(t.channel, t.externalId),
+    index("identities_user_id_idx").on(t.userId),
+  ],
+);
+
+// ─────────────────────────────────────────────
 // User language settings (1-to-1 with users)
 // ─────────────────────────────────────────────
 export const userLanguageSettings = pgTable("user_language_settings", {

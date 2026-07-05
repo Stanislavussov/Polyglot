@@ -12,6 +12,7 @@ export type {
 export type { ServiceContainer } from "./ports/container.js";
 export type { FeatureAccessPort, FeatureAccessResult } from "./ports/feature-access.port.js";
 export { defaultFeatureAccess } from "./ports/feature-access.port.js";
+export type { IdentityRepository } from "./ports/identity.repository.js";
 export type { CachedLanguage, LanguageCachePort } from "./ports/language-cache.port.js";
 export type {
   LanguageDetectionRepository,

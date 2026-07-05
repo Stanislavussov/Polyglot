@@ -30,10 +30,10 @@ function assertAudienceGroup(value: AudienceGroup): void {
 }
 
 export const userRepository = {
-  /** Find a user by their Telegram ID. */
-  async findByTelegramId(telegramId: number): Promise<User | null> {
+  /** Find a user by their neutral domain user ID (Fable T24/A1). */
+  async findById(userId: number): Promise<User | null> {
     const db = getDb();
-    const rows = await db.select().from(users).where(eq(users.telegramId, telegramId)).limit(1);
+    const rows = await db.select().from(users).where(eq(users.id, userId)).limit(1);
     return rows[0] ?? null;
   },
 

@@ -18,14 +18,23 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
     return next();
   }
 
-  let user = await ctx.services.userRepository.findByTelegramId(telegramId);
+  // Resolve the neutral userId from the channel identity (Fable T24/A1). The bot
+  // is the Telegram channel adapter, so it owns the telegram → userId mapping.
+  const externalId = String(telegramId);
+  const userId = await ctx.services.identityRepository.resolveUserId("telegram", externalId);
+  let user = userId !== null ? await ctx.services.userRepository.findById(userId) : null;
 
   if (!user) {
+    // Either a brand-new user or an existing telegram-only user without an
+    // identity row yet. `create` is an idempotent get-or-create on telegram_id,
+    // so both paths converge on the right user; linking then self-heals the
+    // legacy user into an identity row on this first post-migration message.
     user = await ctx.services.userRepository.create({
       telegramId,
       username: ctx.from?.username ?? null,
     });
-    logger.info({ telegramId, userId: user.id }, "New user created");
+    await ctx.services.identityRepository.linkIdentity(user.id, "telegram", externalId);
+    logger.info({ telegramId, userId: user.id }, "User resolved and identity linked");
   }
 
   ctx.user = user;

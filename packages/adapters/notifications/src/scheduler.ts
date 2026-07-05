@@ -56,14 +56,14 @@ async function retryWithBackoff<T>(
 
 async function sendWithRetry(
   sendFn: SendFn,
-  telegramId: number,
+  userId: number,
   payload: NotificationPayload,
   isPermanent?: (err: unknown) => boolean,
 ): Promise<void> {
   const logger = getLogger();
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      await sendFn(telegramId, payload);
+      await sendFn(userId, payload);
       return;
     } catch (err) {
       // A permanent failure (e.g. the user blocked the bot, Telegram 403) will
@@ -72,7 +72,7 @@ async function sendWithRetry(
         throw err;
       }
       if (attempt < MAX_RETRIES - 1) {
-        logger.warn({ err, telegramId, attempt: attempt + 1 }, "Send failed — retrying after delay");
+        logger.warn({ err, userId, attempt: attempt + 1 }, "Send failed — retrying after delay");
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
       } else {
         throw err;
@@ -187,7 +187,6 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
         logger.info(
           {
             userId: u.userId,
-            telegramId: u.telegramId,
             timezone: u.timezone,
             notificationTimes: u.notificationTimes,
             notificationEnabled: u.notificationEnabled,
@@ -222,13 +221,13 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
       const word = await pickWordForUser(user, deps, recentWords);
       if (!word) {
         logger.info({ userId: user.userId }, "No word picked — sending empty dictionary prompt");
-        await deps.sendDictionaryEmptyPrompt(user.telegramId, user.interfaceLang);
+        await deps.sendDictionaryEmptyPrompt(user.userId, user.interfaceLang);
         continue;
       }
 
       logger.info({ userId: user.userId, word: word.original }, "Word picked, sending notification");
       const payload = buildNotificationPayload(user, word, deps.t);
-      await sendWithRetry(sendFn, user.telegramId, payload, deps.isUserBlocked);
+      await sendWithRetry(sendFn, user.userId, payload, deps.isUserBlocked);
 
       await retryWithBackoff(
         () => deps.recordSentWord(user.userId, word.original, word.source ?? "suggested"),
@@ -246,10 +245,7 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
       // The user blocked the bot (403): stop mailing them forever — disable
       // their notifications instead of logging an error every batch (T14).
       if (deps.isUserBlocked?.(err)) {
-        logger.warn(
-          { userId: user.userId, telegramId: user.telegramId },
-          "User blocked the bot — disabling notifications",
-        );
+        logger.warn({ userId: user.userId }, "User blocked the bot — disabling notifications");
         try {
           await deps.disableNotifications(user.userId);
         } catch (disableErr) {
@@ -257,10 +253,7 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
         }
       } else {
         // Rule: log and continue — never stop the scheduler
-        logger.error(
-          { err, userId: user.userId, telegramId: user.telegramId },
-          "Failed to send notification — continuing",
-        );
+        logger.error({ err, userId: user.userId }, "Failed to send notification — continuing");
       }
       errors++;
     }
@@ -298,7 +291,7 @@ export async function processInactiveUsers(
   for (const user of inactiveUsers) {
     try {
       const message = deps.t("notifPaused", user.interfaceLang);
-      await reEngagementSendFn(user.telegramId, message);
+      await reEngagementSendFn(user.userId, message);
       await deps.disableNotifications(user.userId);
       processed++;
       logger.info({ userId: user.userId }, "Sent re-engagement message and disabled notifications");

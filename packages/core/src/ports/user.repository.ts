@@ -6,7 +6,6 @@ export type AudienceGroup = "admin" | "tester" | "product";
  */
 export interface User {
   id: number;
-  telegramId: number;
   username: string | null;
   audienceGroup: AudienceGroup;
   subscriptionPlan: SubscriptionPlan;
@@ -16,6 +15,12 @@ export interface User {
   createdAt: Date;
 }
 
+/**
+ * Channel-adapter creation DTO. `telegramId` remains here (unlike the domain
+ * `User` read model, which no longer carries it) because provisioning a user row
+ * is a channel concern and the retained `users.telegram_id` column is NOT NULL —
+ * the Telegram channel adapter supplies it at creation, then links an identity.
+ */
 export interface NewUser {
   telegramId: number;
   username?: string | null;
@@ -46,7 +51,7 @@ export interface UserLearningLanguage {
 }
 
 export interface UserRepository {
-  findByTelegramId(telegramId: number): Promise<User | null>;
+  findById(userId: number): Promise<User | null>;
   create(data: NewUser): Promise<User>;
   getSettings(userId: number): Promise<UserLanguageSettings | null>;
   updateSettings(userId: number, settings: Partial<UserLanguageSettings>): Promise<UserLanguageSettings>;

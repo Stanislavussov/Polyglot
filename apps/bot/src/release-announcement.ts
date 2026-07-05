@@ -1,4 +1,4 @@
-import { AUDIENCE_GROUPS, isAudienceGroup, userRepository } from "@polyglot/adapter-db";
+import { AUDIENCE_GROUPS, identityRepository, isAudienceGroup, userRepository } from "@polyglot/adapter-db";
 import type { AudienceGroup, User } from "@polyglot/core";
 import { logger } from "@polyglot/core";
 
@@ -23,7 +23,23 @@ export interface ReleaseAnnouncementRepository {
   listActiveByAudienceGroups(audienceGroups: AudienceGroup[]): Promise<User[]>;
   hasReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<boolean>;
   recordReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<void>;
+  /** Resolve the channel external id (Telegram chat id) for a neutral userId (Fable T24/A1). */
+  findExternalId(userId: number, channel: string): Promise<string | null>;
 }
+
+/**
+ * Default repository composing user provisioning (userRepository) with channel
+ * identity resolution (identityRepository) — the domain `User` no longer carries
+ * a telegramId, so the Telegram chat id is resolved through the identity port.
+ */
+const defaultRepository: ReleaseAnnouncementRepository = {
+  listActiveByAudienceGroups: (audienceGroups) => userRepository.listActiveByAudienceGroups(audienceGroups),
+  hasReleaseAnnouncementDelivery: (releaseId, audienceGroup, userId) =>
+    userRepository.hasReleaseAnnouncementDelivery(releaseId, audienceGroup, userId),
+  recordReleaseAnnouncementDelivery: (releaseId, audienceGroup, userId) =>
+    userRepository.recordReleaseAnnouncementDelivery(releaseId, audienceGroup, userId),
+  findExternalId: (userId, channel) => identityRepository.findExternalId(userId, channel),
+};
 
 export interface ReleaseAnnouncementResult {
   skipped: boolean;
@@ -66,7 +82,7 @@ function formatAnnouncementHtml(message: string): string {
 export async function sendReleaseAnnouncement(
   env: ReleaseAnnouncementEnv,
   messenger: TelegramMessenger,
-  repository: ReleaseAnnouncementRepository = userRepository,
+  repository: ReleaseAnnouncementRepository = defaultRepository,
 ): Promise<ReleaseAnnouncementResult> {
   const releaseId = env.RELEASE_ID?.trim();
   if (!releaseId) {
@@ -100,9 +116,15 @@ export async function sendReleaseAnnouncement(
       continue;
     }
 
+    const externalId = await repository.findExternalId(user.id, "telegram");
+    if (!externalId) {
+      logger.warn({ releaseId, userId: user.id }, "No telegram identity for user — skipping announcement");
+      continue;
+    }
+
     attempted += 1;
     try {
-      await messenger.sendMessage(user.telegramId, formatAnnouncementHtml(message), {
+      await messenger.sendMessage(Number(externalId), formatAnnouncementHtml(message), {
         parse_mode: "HTML",
         disable_web_page_preview: true,
       });

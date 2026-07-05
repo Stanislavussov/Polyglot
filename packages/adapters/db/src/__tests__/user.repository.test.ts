@@ -115,12 +115,12 @@ function makeSettings(overrides: Record<string, unknown> = {}) {
 // ── Tests ────────────────────────────────────────────────────────
 
 describe("userRepository", () => {
-  describe("findByTelegramId", () => {
+  describe("findById", () => {
     it("returns user when found", async () => {
       const user = makeUser();
       mockRows.push(user);
 
-      const result = await userRepository.findByTelegramId(123456);
+      const result = await userRepository.findById(1);
 
       expect(result).toEqual(user);
       expect(selectFn).toHaveBeenCalledOnce();
@@ -128,7 +128,7 @@ describe("userRepository", () => {
     });
 
     it("returns null when not found", async () => {
-      const result = await userRepository.findByTelegramId(999999);
+      const result = await userRepository.findById(999999);
 
       expect(result).toBeNull();
     });

@@ -5,7 +5,6 @@ export type NotificationType = "srs" | "suggested" | "contextual";
 
 export interface NotificationUser {
   userId: number;
-  telegramId: number;
   interfaceLang: string;
   nativeLang: string;
   learningLangs: string[];

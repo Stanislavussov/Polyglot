@@ -38,6 +38,7 @@ export type {
   RecordDictionaryLookupLogInput,
 } from "./repositories/dictionary-lookup-log.repository.js";
 export { dictionaryLookupLogRepository } from "./repositories/dictionary-lookup-log.repository.js";
+export { identityRepository } from "./repositories/identity.repository.js";
 export type {
   Language,
   NewLanguage,

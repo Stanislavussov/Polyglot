@@ -2,6 +2,7 @@ import { generateObject } from "@polyglot/adapter-ai";
 import {
   getAllLangs,
   getLang,
+  identityRepository,
   notificationRepository,
   settingsAdapter,
   userRepository,
@@ -94,14 +95,25 @@ Return translations as JSON array.`;
     },
   });
 
-  const sendFn = async (telegramId: number, payload: NotificationPayload): Promise<void> => {
-    const user = await userRepository.findByTelegramId(telegramId);
+  // The scheduler now hands us the neutral userId (Fable T24/A1); this channel
+  // adapter resolves the Telegram chat id via the identity port before sending.
+  const resolveTelegramId = async (userId: number): Promise<number | null> => {
+    const externalId = await identityRepository.findExternalId(userId, "telegram");
+    if (!externalId) {
+      logger.warn({ userId }, "No telegram identity for user — skipping notification send");
+      return null;
+    }
+    return Number(externalId);
+  };
+
+  const sendFn = async (userId: number, payload: NotificationPayload): Promise<void> => {
+    const telegramId = await resolveTelegramId(userId);
+    if (telegramId === null) return;
+
     let lang: SupportedLang = "en";
-    if (user) {
-      const settings = await userRepository.getSettings(user.id);
-      if (settings?.interfaceLang && isSupported(settings.interfaceLang)) {
-        lang = settings.interfaceLang as SupportedLang;
-      }
+    const settings = await userRepository.getSettings(userId);
+    if (settings?.interfaceLang && isSupported(settings.interfaceLang)) {
+      lang = settings.interfaceLang as SupportedLang;
     }
 
     const kb = buildNotificationKeyboard(lang, payload.word.entryId);
@@ -112,7 +124,9 @@ Return translations as JSON array.`;
     });
   };
 
-  const reEngagementSendFn = async (telegramId: number, message: string): Promise<void> => {
+  const reEngagementSendFn = async (userId: number, message: string): Promise<void> => {
+    const telegramId = await resolveTelegramId(userId);
+    if (telegramId === null) return;
     await api.sendMessage(telegramId, message, { parse_mode: "HTML" });
   };
 
@@ -129,7 +143,9 @@ Return translations as JSON array.`;
     pickDictionaryWord: (userId: number, recentWords) => notifService.pickDictionaryWord(userId, recentWords),
     pickContextualWord: (userId: number, context: string, langs, recentWords) =>
       notifService.pickContextualWord(userId, context, langs, recentWords),
-    sendDictionaryEmptyPrompt: async (telegramId: number, lang: string) => {
+    sendDictionaryEmptyPrompt: async (userId: number, lang: string) => {
+      const telegramId = await resolveTelegramId(userId);
+      if (telegramId === null) return;
       await api.sendMessage(
         telegramId,
         t("notifNoDictionary" as never, (isSupported(lang) ? lang : "en") as SupportedLang),

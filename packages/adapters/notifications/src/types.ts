@@ -8,8 +8,12 @@ import type { DictionaryContext, GenerateObjectFn, NotificationType, Notificatio
 
 export type { NotificationType, NotificationUser };
 
-/** Injected send function — the notifications module never imports the bot. */
-export type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
+/**
+ * Injected send function — the notifications module never imports the bot.
+ * Takes the neutral `userId` (Fable T24/A1); the channel adapter resolves the
+ * external delivery id via the identity port before hitting the channel API.
+ */
+export type SendFn = (userId: number, payload: NotificationPayload) => Promise<void>;
 
 /** Notification payload sent to the user. */
 export interface NotificationPayload {
@@ -68,8 +72,8 @@ export interface VocabEntry {
 // Scheduler types
 // ─────────────────────────────────────────────
 
-/** Send function for re-engagement messages (plain text). */
-export type ReEngagementSendFn = (telegramId: number, message: string) => Promise<void>;
+/** Send function for re-engagement messages (plain text). Takes the neutral `userId`. */
+export type ReEngagementSendFn = (userId: number, message: string) => Promise<void>;
 
 // ─────────────────────────────────────────────
 // Dependency injection
@@ -153,8 +157,8 @@ export interface SchedulerDeps {
     recentWords?: string[],
   ) => Promise<SuggestedWord | null>;
 
-  /** Send a prompt when user has no dictionary words at notification time. */
-  sendDictionaryEmptyPrompt: (telegramId: number, lang: string) => Promise<void>;
+  /** Send a prompt when user has no dictionary words at notification time. Takes the neutral `userId`. */
+  sendDictionaryEmptyPrompt: (userId: number, lang: string) => Promise<void>;
 
   /** Get i18n text. */
   t: (key: string, lang: string, params?: Record<string, string>) => string;

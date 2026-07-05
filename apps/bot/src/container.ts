@@ -27,6 +27,7 @@ import {
   getLangName,
   getLangNativeName,
   getSupportedLangs,
+  identityRepository,
   isKnownLang,
   isLanguageCacheLoaded,
   languageDetectionRepository,
@@ -95,6 +96,7 @@ export function createContainer(): ServiceContainer {
 
   const container: ServiceContainer = {
     userRepository,
+    identityRepository,
     vocabularyRepository,
     vocabularyDictionaryRepository,
     translationTemplateRepository,
