@@ -12,6 +12,7 @@ COPY apps/admin-api/package.json apps/admin-api/
 COPY apps/admin/package.json apps/admin/
 COPY apps/translation-benchmark/package.json apps/translation-benchmark/
 COPY packages/@types/package.json packages/@types/
+COPY packages/admin-contracts/package.json packages/admin-contracts/
 COPY packages/core/package.json packages/core/
 COPY packages/infra/package.json packages/infra/
 COPY packages/adapters/ai/package.json packages/adapters/ai/
@@ -28,8 +29,11 @@ ARG PUBLIC_API_URL=http://localhost:3001
 ENV PUBLIC_API_URL=$PUBLIC_API_URL
 
 COPY tsconfig.json ./
+COPY packages/admin-contracts/ packages/admin-contracts/
 COPY apps/admin/ apps/admin/
 
+# admin imports @polyglot/admin-contracts (workspace dep); build its dist first
+RUN pnpm --filter @polyglot/admin-contracts run build
 RUN pnpm --filter @polyglot/admin exec astro build
 
 # ── Stage 4: production ──────────────────────────────────────────────
@@ -43,6 +47,7 @@ COPY apps/admin-api/package.json apps/admin-api/
 COPY apps/admin/package.json apps/admin/
 COPY apps/translation-benchmark/package.json apps/translation-benchmark/
 COPY packages/@types/package.json packages/@types/
+COPY packages/admin-contracts/package.json packages/admin-contracts/
 COPY packages/core/package.json packages/core/
 COPY packages/infra/package.json packages/infra/
 COPY packages/adapters/ai/package.json packages/adapters/ai/
@@ -52,6 +57,8 @@ COPY packages/adapters/youtube/package.json packages/adapters/youtube/
 
 RUN pnpm install --frozen-lockfile --prod
 
+# admin-contracts is externalized in the SSR bundle; ship its built dist for runtime resolution
+COPY --from=build /app/packages/admin-contracts/dist ./packages/admin-contracts/dist
 COPY --from=build /app/apps/admin/dist ./apps/admin/dist
 COPY --from=build /app/apps/admin/package.json ./apps/admin/
 COPY --from=build /app/apps/admin/astro.config.mjs ./apps/admin/
