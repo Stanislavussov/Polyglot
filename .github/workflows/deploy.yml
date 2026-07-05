@@ -15,15 +15,9 @@ permissions:
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
-    # Explicit pass-through (not `secrets: inherit`) for auditability — repo
-    # secrets do NOT flow through workflow_call automatically. Without the Neon
-    # pass-through the integration job would receive an empty NEON_API_KEY on the
-    # master deploy path and break every deploy (Task 71).
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
-      NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
 
   push:
     needs: ci
@@ -38,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 26 # prod parity: .nvmrc=26, deploy/Dockerfile* use node:26-alpine
+          node-version: 24
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
