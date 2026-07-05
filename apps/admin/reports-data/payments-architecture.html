@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Polyglot — Payment Integration Architecture</title>
+<style>
+:root{
+  --bg:#F6F7F9; --surface:#FFFFFF; --surface2:#EEF0F4; --line:#D8DCE4; --line-soft:#E6E9EF;
+  --ink:#1D2433; --ink2:#4A5468; --ink3:#7A8398;
+  --star:#B07C10; --star-bg:#F7EFDC; --star-line:#E2CE9C;
+  --fiat:#2B6CB8; --fiat-bg:#E4EDF8; --fiat-line:#B9CFE8;
+  --good:#2E7D4F; --good-bg:#E2F0E8;
+  --bad:#B3372E; --bad-bg:#F6E4E2;
+  --warn:#A05A1F; --warn-bg:#F5E9DC;
+  --code-bg:#EDEFF3;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#131720; --surface:#1B2130; --surface2:#222939; --line:#333C50; --line-soft:#2A3244;
+    --ink:#E7EAF1; --ink2:#AEB6C6; --ink3:#7E879A;
+    --star:#E0B24A; --star-bg:#2E2817; --star-line:#57491F;
+    --fiat:#6FA8E8; --fiat-bg:#1B2739; --fiat-line:#2F4B70;
+    --good:#6FBE8F; --good-bg:#1A2C22;
+    --bad:#E08A80; --bad-bg:#33201D;
+    --warn:#D9A05C; --warn-bg:#302517;
+    --code-bg:#242B3B;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131720; --surface:#1B2130; --surface2:#222939; --line:#333C50; --line-soft:#2A3244;
+  --ink:#E7EAF1; --ink2:#AEB6C6; --ink3:#7E879A;
+  --star:#E0B24A; --star-bg:#2E2817; --star-line:#57491F;
+  --fiat:#6FA8E8; --fiat-bg:#1B2739; --fiat-line:#2F4B70;
+  --good:#6FBE8F; --good-bg:#1A2C22;
+  --bad:#E08A80; --bad-bg:#33201D;
+  --warn:#D9A05C; --warn-bg:#302517;
+  --code-bg:#242B3B;
+}
+:root[data-theme="light"]{
+  --bg:#F6F7F9; --surface:#FFFFFF; --surface2:#EEF0F4; --line:#D8DCE4; --line-soft:#E6E9EF;
+  --ink:#1D2433; --ink2:#4A5468; --ink3:#7A8398;
+  --star:#B07C10; --star-bg:#F7EFDC; --star-line:#E2CE9C;
+  --fiat:#2B6CB8; --fiat-bg:#E4EDF8; --fiat-line:#B9CFE8;
+  --good:#2E7D4F; --good-bg:#E2F0E8;
+  --bad:#B3372E; --bad-bg:#F6E4E2;
+  --warn:#A05A1F; --warn-bg:#F5E9DC;
+  --code-bg:#EDEFF3;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1060px; margin:0 auto; padding:48px 28px 96px; display:flex; flex-direction:column; gap:56px}
+h1,h2,h3{font-family:"Avenir Next",Seravek,"Segoe UI",system-ui,sans-serif; text-wrap:balance; margin:0}
+h1{font-size:2.1rem; line-height:1.15; font-weight:600; letter-spacing:-.01em}
+h2{font-size:1.35rem; font-weight:600; letter-spacing:-.005em}
+h3{font-size:1.02rem; font-weight:600}
+p{margin:0}
+a{color:var(--fiat)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.86em; background:var(--code-bg); padding:.1em .35em; border-radius:4px}
+.eyebrow{font-size:.72rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3)}
+section{display:flex; flex-direction:column; gap:18px}
+.section-head{display:flex; flex-direction:column; gap:4px}
+.section-head p{color:var(--ink2); max-width:68ch}
+.meta{display:flex; flex-wrap:wrap; gap:10px 22px; color:var(--ink2); font-size:.88rem}
+.meta b{color:var(--ink); font-weight:600}
+
+.chip{display:inline-flex; align-items:center; gap:6px; font-size:.72rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; padding:2px 9px; border-radius:99px; border:1px solid; white-space:nowrap}
+.chip.star{color:var(--star); background:var(--star-bg); border-color:var(--star-line)}
+.chip.fiat{color:var(--fiat); background:var(--fiat-bg); border-color:var(--fiat-line)}
+.chip.good{color:var(--good); background:var(--good-bg); border-color:transparent}
+.chip.bad{color:var(--bad); background:var(--bad-bg); border-color:transparent}
+.chip.warn{color:var(--warn); background:var(--warn-bg); border-color:transparent}
+.chip.plain{color:var(--ink2); background:var(--surface2); border-color:transparent}
+
+.callout{border:1px solid var(--bad); border-left-width:5px; background:var(--surface); border-radius:10px; padding:22px 24px; display:flex; flex-direction:column; gap:10px}
+.callout h2{color:var(--bad)}
+.callout p{max-width:75ch}
+.callout .rules{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-top:6px}
+.callout .rules div{background:var(--surface2); border-radius:8px; padding:12px 14px; font-size:.92rem; color:var(--ink2)}
+.callout .rules b{color:var(--ink); display:block; margin-bottom:2px}
+
+table{border-collapse:collapse; width:100%; font-size:.92rem; background:var(--surface); border-radius:10px; overflow:hidden}
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px}
+th,td{padding:11px 14px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line-soft)}
+tbody tr:last-child td{border-bottom:none}
+th{font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink3); background:var(--surface2); font-weight:600; white-space:nowrap}
+td:first-child{color:var(--ink3); font-size:.82rem; text-transform:uppercase; letter-spacing:.06em; white-space:nowrap}
+td .num{font-variant-numeric:tabular-nums}
+col.hl-star{background:color-mix(in srgb, var(--star-bg) 45%, transparent)}
+
+.arch{display:flex; flex-direction:column; gap:0; overflow-x:auto}
+.arch-inner{min-width:720px; display:flex; flex-direction:column}
+.layer{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px 18px}
+.layer .eyebrow{margin-bottom:8px; display:block}
+.layer-core{border-color:var(--line)}
+.boxes{display:grid; gap:10px}
+.boxes.cols2{grid-template-columns:1fr 1fr}
+.boxes.cols3{grid-template-columns:1fr 1fr 1fr}
+.box{background:var(--surface2); border-radius:8px; padding:10px 13px; font-size:.9rem; color:var(--ink2)}
+.box b{color:var(--ink); display:block; font-size:.93rem; margin-bottom:2px}
+.box.star{background:var(--star-bg); border:1px solid var(--star-line)}
+.box.star b{color:var(--star)}
+.box.fiat{background:var(--fiat-bg); border:1px solid var(--fiat-line)}
+.box.fiat b{color:var(--fiat)}
+.connector{display:flex; justify-content:center; gap:180px; color:var(--ink3)}
+.connector span{width:2px; height:26px; background:var(--line); position:relative}
+.connector span::after{content:""; position:absolute; bottom:-1px; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--line)}
+.arch-note{font-size:.85rem; color:var(--ink3); margin-top:10px}
+
+.sm{overflow-x:auto}
+.sm-inner{min-width:760px; display:flex; align-items:stretch; gap:0; padding:8px 0}
+.state{flex:1; border-radius:10px; border:1px solid var(--line); background:var(--surface); padding:14px 16px; display:flex; flex-direction:column; gap:6px}
+.state b{font-size:1rem}
+.state .cond{font-size:.82rem; color:var(--ink2)}
+.state.active{border-color:var(--good); border-width:2px}
+.state.active b{color:var(--good)}
+.state.pastdue{border-color:var(--warn); border-width:2px}
+.state.pastdue b{color:var(--warn)}
+.state.expired{border-color:var(--bad); border-width:2px}
+.state.expired b{color:var(--bad)}
+.arrow{align-self:center; padding:0 6px; color:var(--ink3); display:flex; flex-direction:column; align-items:center; min-width:120px; text-align:center}
+.arrow .lbl{font-size:.75rem; color:var(--ink2); line-height:1.35; padding-bottom:4px}
+.arrow .shaft{width:100%; height:2px; background:var(--line); position:relative}
+.arrow .shaft::after{content:""; position:absolute; right:-1px; top:50%; transform:translateY(-50%); border:5px solid transparent; border-left-color:var(--line)}
+.sm-notes{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px}
+.sm-notes .box{font-size:.88rem}
+
+.flow{border:1px solid var(--line); border-radius:10px; background:var(--surface); overflow:hidden}
+.flow summary{cursor:pointer; padding:14px 18px; font-weight:600; display:flex; align-items:center; gap:10px; list-style:none}
+.flow summary::-webkit-details-marker{display:none}
+.flow summary::after{content:"+"; margin-left:auto; color:var(--ink3); font-size:1.1rem; font-weight:400}
+.flow[open] summary::after{content:"–"}
+.flow .steps{padding:2px 18px 16px; display:flex; flex-direction:column; gap:0}
+.step{display:grid; grid-template-columns:26px 1fr; gap:12px; padding:7px 0; font-size:.93rem; color:var(--ink2)}
+.step .n{width:22px; height:22px; border-radius:50%; background:var(--surface2); color:var(--ink2); font-size:.75rem; font-weight:600; display:flex; align-items:center; justify-content:center; margin-top:2px}
+.step b{color:var(--ink)}
+
+.pit-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px}
+.pit{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:8px; border-top-width:4px}
+.pit.sev-high{border-top-color:var(--bad)}
+.pit.sev-med{border-top-color:var(--warn)}
+.pit .tags{display:flex; gap:6px; flex-wrap:wrap}
+.pit h3{font-size:.97rem; line-height:1.35}
+.pit .bite{font-size:.88rem; color:var(--ink2)}
+.pit .fix{font-size:.88rem; border-top:1px dashed var(--line-soft); padding-top:8px; color:var(--ink2)}
+.pit .fix b{color:var(--good); font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:2px}
+
+.phases{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px}
+.phase{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px 18px; display:flex; flex-direction:column; gap:8px}
+.phase .pn{font-size:.72rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3)}
+.phase ul{margin:0; padding-left:18px; font-size:.89rem; color:var(--ink2); display:flex; flex-direction:column; gap:5px}
+.phase.p1{border-top:4px solid var(--star)}
+.phase.p0{border-top:4px solid var(--line)}
+.phase.p2{border-top:4px solid var(--good)}
+.phase.p3{border-top:4px solid var(--fiat)}
+
+.decisions{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+.decisions .box{font-size:.9rem}
+footer{color:var(--ink3); font-size:.85rem; border-top:1px solid var(--line-soft); padding-top:18px; line-height:1.8}
+@media (max-width:640px){ .boxes.cols2,.boxes.cols3{grid-template-columns:1fr} h1{font-size:1.6rem} }
+</style>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <span class="eyebrow">Polyglot · Architecture plan · 2026-07-05</span>
+  <h1>Payment integration for the bot,<br>designed around recurring billing</h1>
+  <p style="color:var(--ink2);max-width:72ch">Replaces the mock <code>PaymentPort</code> behind the Plus/Pro tiers with real money. Two channels, one billing core: <span class="chip star">⭐ Telegram Stars</span> in-bot (mandatory, Phase 1) and <span class="chip fiat">€ Mollie / fiat</span> from the landing page (optional, Phase 3). Full text: <code>@docs/tech-reqs/16-payments-architecture.md</code></p>
+  <div class="meta">
+    <span>Status <b>Proposed</b></span>
+    <span>Branch <b>feature/plans</b></span>
+    <span>Pitfalls catalogued <b class="num">24</b></span>
+    <span>Phases <b class="num">0–3</b></span>
+  </div>
+</header>
+
+<section class="callout">
+  <h2>The constraint that decides everything</h2>
+  <p><b>Telegram’s Bot Developer ToS: digital goods sold inside a bot must be paid exclusively in Telegram Stars.</b> Third-party providers via BotFather are physical-goods-only and cannot recur. Linking out from the bot to any external checkout for a digital service is a ToS violation — enforcement goes up to removal from the Bot Platform.</p>
+  <div class="rules">
+    <div><b>In-bot purchases → Stars only.</b> Native subscriptions, fixed 30-day period, ≤ 10,000 Stars/month.</div>
+    <div><b>Mollie ≠ alternative, Mollie = second channel.</b> Legal only for purchases originating on our own website, never funneled from the bot.</div>
+    <div><b>Core stays provider-agnostic.</b> Both adapters feed the same subscription ledger and entitlements resolver.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Provider comparison</h2>
+    <p>Stars ships first. The fiat channel is deferred; when it matters, the choice is Mollie (cheap, VAT is ours) vs Paddle (merchant of record, VAT is theirs).</p>
+  </div>
+  <div class="tablewrap"><table>
+    <colgroup><col><col class="hl-star"><col><col></colgroup>
+    <thead><tr><th></th><th>⭐ Telegram Stars · Phase 1</th><th>Mollie · Phase 3 option</th><th>Paddle · Phase 3 option</th></tr></thead>
+    <tbody>
+      <tr><td>Role</td><td><b>Only compliant in-bot channel</b></td><td>EU fiat via landing page</td><td>Merchant of record via landing page</td></tr>
+      <tr><td>Recurring</td><td>Native subs, 30-day period only (<code>2592000s</code>)</td><td>Mandates: cards / SEPA DD / PayPal; we charge on our own schedule</td><td>Full subscription engine</td></tr>
+      <tr><td>Renewal signal</td><td>Push: repeated <code>successful_payment</code>. <b>No failure/expiry event — our cron infers it</b></td><td>Webhook per payment (ID-only, re-fetch to verify)</td><td>Signed webhooks</td></tr>
+      <tr><td>Fees / net</td><td class="num">≈ $0.013/Star net · 21-day hold · ~30% lost on mobile top-ups</td><td class="num">1.80% + €0.25 cards · €0.35 flat SEPA DD</td><td class="num">≈ 5% + $0.50</td></tr>
+      <tr><td>Tax</td><td>Handled inside Telegram ecosystem</td><td><b>We are MoR → EU VAT OSS is ours</b></td><td>Paddle is MoR → no VAT burden</td></tr>
+      <tr><td>Card data</td><td>None</td><td>Hosted checkout → SAQ-A</td><td>Hosted → none</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Target architecture</h2>
+    <p>The existing seams survive: <code>PaymentPort</code> grows into v2, the entitlements resolver is untouched, the renewal cron is upgraded rather than replaced.</p>
+  </div>
+  <div class="arch"><div class="arch-inner">
+    <div class="layer layer-core">
+      <span class="eyebrow">packages/core — billing core (provider-agnostic)</span>
+      <div class="boxes cols3">
+        <div class="box"><b>Subscription state machine</b>active · past_due (grace) · expired; <code>cancelAtPeriodEnd</code> as a flag</div>
+        <div class="box"><b>Billing service</b>idempotent grant / extend / expire / cancel / refund; injected clock</div>
+        <div class="box"><b>PaymentPort v2</b>checkout · cancelAtPeriodEnd · refund; entitlements resolver unchanged</div>
+      </div>
+    </div>
+    <div class="connector"><span></span><span></span></div>
+    <div class="boxes cols2">
+      <div class="box star"><b>⭐ Stars adapter — apps/bot (Phase 1)</b><code>createInvoiceLink</code> · <code>pre_checkout_query</code> ≤ 10 s · <code>successful_payment</code> · <code>editUserStarSubscription</code> · <code>refundStarPayment</code> · <code>getStarTransactions</code></div>
+      <div class="box fiat"><b>€ Mollie adapter (Phase 3, optional)</b>hosted checkout · mandates · recurring charges on our schedule · webhook ingress on admin-api Fastify (bot is long-polling)</div>
+    </div>
+    <div class="connector"><span></span><span></span></div>
+    <div class="layer">
+      <span class="eyebrow">Database — shared ledger, both channels write through it</span>
+      <div class="boxes cols2">
+        <div class="box"><b>subscriptions (extend)</b>+ <code>cancelAtPeriodEnd</code>, <code>graceUntil</code>, <code>priceVersion</code>, <code>anchorAt</code>; partial unique index: one active sub per user</div>
+        <div class="box"><b>payments — NEW</b>one row per charge; <code>providerChargeId UNIQUE</code> = the exactly-once anchor; charge ids persisted forever</div>
+        <div class="box"><b>payment_events — NEW</b>inbox pattern: raw provider events, dedup id, processed flag, replay-safe</div>
+        <div class="box"><b>plan_prices — NEW</b>immutable price versions; subscription pins its version at purchase — repricing never leaks to existing subscribers</div>
+      </div>
+    </div>
+    <div class="connector"><span></span><span></span></div>
+    <div class="boxes cols3">
+      <div class="box"><b>Renewal &amp; grace sweep</b>existing cron, v2: inferred expiry, grace, dunning DMs; heartbeat-alerted</div>
+      <div class="box"><b>Reconciliation (daily)</b>diff <code>getStarTransactions</code> / Mollie refetch vs ledger; drift alerts; the master safety net</div>
+      <div class="box"><b>Admin surfaces</b>subscription + payment ledger, refund button, manual comp, price versions</div>
+    </div>
+    <p class="arch-note">Observability in Grafana: renewal success rate, grace-recovery rate, drift count (target 0), stuck past_due gauge, cron heartbeat.</p>
+  </div></div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Subscription lifecycle</h2>
+    <p>Stars inverts the usual problem: Telegram initiates renewals, we never charge. The hard part is that nothing tells us a renewal failed — absence of a payment is the signal.</p>
+  </div>
+  <div class="sm"><div class="sm-inner">
+    <div class="state active"><b>active</b><span class="cond">renewal <code>successful_payment</code> every 30 d re-extends · <code>cancelAtPeriodEnd</code> is a flag here, not a state</span></div>
+    <div class="arrow"><span class="lbl">period end + skew buffer,<br>no renewal arrived</span><span class="shaft"></span></div>
+    <div class="state pastdue"><b>past_due · grace</b><span class="cond">access retained (~48 h) · dunning DM “top up Stars” · late renewal → back to active</span></div>
+    <div class="arrow"><span class="lbl">grace deadline passes</span><span class="shaft"></span></div>
+    <div class="state expired"><b>expired</b><span class="cond">downgrade to free · win-back DM · reactivation = <b>new</b> subscription row, never resurrection</span></div>
+  </div></div>
+  <div class="sm-notes">
+    <div class="box"><b>Purchase</b>invoice payload = user + plan + priceVersion + nonce → pre-checkout validates payer &amp; duplicates in ≤ 10 s → grant keyed on unique charge id, extension = <code>max(periodEnd, now) + 30d</code></div>
+    <div class="box"><b>Upgrade Plus → Pro</b>charge-first: Pro paid → bot-cancels old Plus sub → unused Plus days credited onto Pro at price ratio (our own day-math; Stars has no proration)</div>
+    <div class="box"><b>Cancel</b>in-bot → <code>editUserStarSubscription</code>, access to period end. Via Telegram settings → <b>no event</b>; caught by the expiry path</div>
+    <div class="box"><b>Refund</b><code>/paysupport</code> → admin-approved <code>refundStarPayment</code> → payment flip + entitlement revocation in one transaction; <code>CHARGE_ALREADY_REFUNDED</code> treated as possibly-success (known API bug)</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Pitfalls register — 24 researched failure modes, each with its answer</h2>
+    <p>Compiled from Telegram API docs and issue trackers, Mollie docs, and recurring-billing engineering postmortems (Airbnb, Stripe, Lago, Hookdeck et al.). Severity = how badly it bites if unhandled.</p>
+  </div>
+  <div class="pit-grid">
+
+    <div class="pit sev-high"><div class="tags"><span class="chip star">Stars</span><span class="chip bad">high</span></div>
+      <h3>No failed-renewal or expiry event; no subscription-list API</h3>
+      <p class="bite">Telegram pushes renewals as payments but never tells the bot a subscription lapsed or was cancelled. Naive designs keep entitlements alive forever.</p>
+      <p class="fix"><b>Our answer</b>Own cron infers expiry from stored <code>subscription_expiration_date</code>; state machine with grace; daily reconciliation via <code>getStarTransactions</code>.</p></div>
+
+    <div class="pit sev-high"><div class="tags"><span class="chip plain">both</span><span class="chip bad">high</span></div>
+      <h3>Duplicate event delivery → double grant</h3>
+      <p class="bite">Payment updates and webhooks arrive zero-or-more times, never exactly once. Processing twice grants +60 days for one charge.</p>
+      <p class="fix"><b>Our answer</b><code>payments.providerChargeId UNIQUE</code> + grant in the same DB transaction (inbox pattern); extension formula <code>max(periodEnd, now)+30d</code> is replay-safe by construction.</p></div>
+
+    <div class="pit sev-high"><div class="tags"><span class="chip star">Stars</span><span class="chip bad">high</span></div>
+      <h3>Invoice links are forwardable and payable multiple times, by anyone</h3>
+      <p class="bite">A paid link stays valid; a forwarded link can be paid by a different user than intended — money lands with no matching entitlement.</p>
+      <p class="fix"><b>Our answer</b>Payload carries intended user id + nonce; <code>pre_checkout_query</code> rejects mismatched payer or an already-active sub.</p></div>
+
+    <div class="pit sev-high"><div class="tags"><span class="chip star">Stars</span><span class="chip bad">high</span></div>
+      <h3>Telegram allows concurrent duplicate subscriptions per user</h3>
+      <p class="bite">Official API text: any number of concurrent subs from the same user. Double Plus, or Plus + Pro simultaneously, is Telegram-legal.</p>
+      <p class="fix"><b>Our answer</b>Reject at pre-checkout; DB partial unique index as backstop; if one slips through paid — auto-refund flow.</p></div>
+
+    <div class="pit sev-high"><div class="tags"><span class="chip plain">both</span><span class="chip bad">high</span></div>
+      <h3>Provider ↔ local DB status drift</h3>
+      <p class="bite">Missed events silently desync entitlements: the classic “downgraded customer keeps premium forever”.</p>
+      <p class="fix"><b>Our answer</b>Local DB is the entitlement source of truth; daily reconciliation job diffs provider truth vs ledger and repairs; drift metric alerted at &gt; 0.</p></div>
+
+    <div class="pit sev-high"><div class="tags"><span class="chip plain">both</span><span class="chip bad">high</span></div>
+      <h3>Refund or chargeback without entitlement revocation</h3>
+      <p class="bite">Money returned, access kept. With SEPA (Mollie) the payer can charge back no-questions for 8 weeks — and always wins.</p>
+      <p class="fix"><b>Our answer</b>Refund handler flips payment status and entitlement atomically; SEPA revenue treated as provisional for 8 weeks; revoke on <code>charged_back</code>.</p></div>
+
+    <div class="pit sev-high"><div class="tags"><span class="chip plain">both</span><span class="chip bad">high</span></div>
+      <h3>Silently dead renewal cron</h3>
+      <p class="bite">A cron that stops firing equals missed webhooks: no expiry processing, no dunning, discovered weeks later.</p>
+      <p class="fix"><b>Our answer</b>Sweep is query-driven and idempotent (re-runnable), row-locked per subscription; writes a heartbeat metric with a Grafana dead-man alert.</p></div>
+
+    <div class="pit sev-high"><div class="tags"><span class="chip plain">both</span><span class="chip bad">high</span></div>
+      <h3>Race: two concurrent purchases both pass validation</h3>
+      <p class="bite">Both requests read “no active sub”, both proceed — double charge, duplicate rows (the classic distributed double-payment case).</p>
+      <p class="fix"><b>Our answer</b>Row-lock per user in the billing service; partial unique index as the last line of defense.</p></div>
+
+    <div class="pit sev-high"><div class="tags"><span class="chip fiat">Mollie</span><span class="chip bad">high</span></div>
+      <h3>Mollie classic webhooks: ID-only, unsigned</h3>
+      <p class="bite">The webhook body is just <code>id=tr_xxx</code> — no status, no signature. Trusting it, or processing slowly, invites spoofing and retry storms.</p>
+      <p class="fix"><b>Our answer</b>Verify-by-refetch over the authenticated API; unguessable endpoint URL on admin-api; persist → enqueue → 200 fast; idempotent processing.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip star">Stars</span><span class="chip warn">medium</span></div>
+      <h3>10-second <code>pre_checkout_query</code> deadline</h3>
+      <p class="bite">Answer late and the purchase fails at the last step — money UX ruined at the worst moment.</p>
+      <p class="fix"><b>Our answer</b>Handler does index-backed reads only — no AI calls, no external HTTP; answer latency monitored.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip star">Stars</span><span class="chip warn">medium</span></div>
+      <h3>User cancels via Telegram settings — bot hears nothing</h3>
+      <p class="bite">No update is delivered on user-side cancel; the bot learns only when the renewal never arrives. Client “My subscriptions” UI also lags, confusing users.</p>
+      <p class="fix"><b>Our answer</b>By design no special handling needed — the inferred-expiry path covers it; support docs note the client UI lag.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip star">Stars</span><span class="chip warn">medium</span></div>
+      <h3><code>refundStarPayment</code> lies on recurring charges</h3>
+      <p class="bite">Known bug: refunding a subscription charge can return <code>400 CHARGE_ALREADY_REFUNDED</code> while the refund actually succeeded (tdlib #690).</p>
+      <p class="fix"><b>Our answer</b>Treat that error as possibly-success; verify via <code>getStarTransactions</code>; never blind-retry a refund.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip star">Stars</span><span class="chip warn">medium</span></div>
+      <h3>No test Stars, renewals can’t be time-compressed</h3>
+      <p class="bite">The test server has no Star faucet; a real renewal takes 30 days. Untested renewal paths are where billing bugs live.</p>
+      <p class="fix"><b>Our answer</b>Clock-injected billing core; integration tests replay <code>successful_payment</code> fixtures duplicated and out of order; one real-money smoke test with self-refund.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip star">Stars</span><span class="chip warn">medium</span></div>
+      <h3>Stars economics: ~32% leakage and a 21-day hold</h3>
+      <p class="bite">Users buying Stars on iOS/Android embed the 30% store cut; withdrawal nets ≈ $0.013/Star after a 21-day hold — pricing off the sticker price overstates revenue by a third.</p>
+      <p class="fix"><b>Our answer</b>Price plans off the $0.013/Star withdrawal rate; cash-flow lag documented in the finance notes.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip plain">both</span><span class="chip warn">medium</span></div>
+      <h3>Out-of-order events</h3>
+      <p class="bite">Providers guarantee delivery, not order — a cancellation can arrive before the creation it cancels.</p>
+      <p class="fix"><b>Our answer</b>Handlers converge to the same state in any arrival order; on webhooks, always re-fetch current object state — the event is a doorbell, not the truth.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip plain">both</span><span class="chip warn">medium</span></div>
+      <h3>Upgrade paid but plan not flipped — or flipped but not paid</h3>
+      <p class="bite">Half-applied upgrades either give Pro for free or take money without upgrading.</p>
+      <p class="fix"><b>Our answer</b>Charge-first ordering: entitlement changes happen only inside the payment-success transaction.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip plain">both</span><span class="chip warn">medium</span></div>
+      <h3>Price change reprices existing subscribers</h3>
+      <p class="bite">Editing the plan row silently changes what active subscribers pay — churn spike and support fires.</p>
+      <p class="fix"><b>Our answer</b>Immutable <code>plan_prices</code> versions; each subscription pins its version at purchase; new prices affect new purchases only.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip plain">both</span><span class="chip warn">medium</span></div>
+      <h3>Cancellation semantics confusion</h3>
+      <p class="bite">Immediate cancel with no refund breeds chargebacks; users expect access until what they paid for runs out.</p>
+      <p class="fix"><b>Our answer</b>Default <code>cancelAtPeriodEnd</code> (undoable, access retained); immediate revocation reserved for refund/fraud; post-expiry return = fresh subscription.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip plain">both</span><span class="chip warn">medium</span></div>
+      <h3>Calendar math: Jan 31 + 1 month, DST, epoch drift</h3>
+      <p class="bite">Naive <code>+30 days</code> drifts billing days forever; month-end anchors and DST produce double or missed charges.</p>
+      <p class="fix"><b>Our answer</b>Stars fixes the period at 30 days (Telegram computes it); our math is only <code>max()+30d</code> and day-credits; any future fiat cycle uses calendar-aware arithmetic, explicit anchor, UTC storage.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip plain">both</span><span class="chip warn">medium</span></div>
+      <h3>Involuntary churn — renewals fail from empty balance, not intent</h3>
+      <p class="bite">20–40% of subscription churn is failed payments the user never noticed (empty Star balance here; expired cards on fiat).</p>
+      <p class="fix"><b>Our answer</b>Bot DMs are the dunning channel: T-3 “expires soon” reminder, past_due notice with top-up deep link, win-back after expiry. Telegram’s own low-balance nag helps.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip fiat">Mollie</span><span class="chip warn">medium</span></div>
+      <h3>Card mandates die silently</h3>
+      <p class="bite">One chargeback or an expired card invalidates a Mollie card mandate; no account-updater exists — renewals just stop.</p>
+      <p class="fix"><b>Our answer</b>Monitor mandate status, prompt re-checkout DM/email; prefer SEPA DD for EU (€0.35 flat, mandates never expire); charge on our own schedule so state stays in our DB.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip fiat">Mollie</span><span class="chip warn">medium</span></div>
+      <h3>Mollie auto-cancels subscriptions after failed retries — without an event</h3>
+      <p class="bite">The Subscriptions engine retries SEPA up to 5×, then cancels; there is no <code>subscription.canceled</code> webhook — you find out from silence.</p>
+      <p class="fix"><b>Our answer</b>Skip Mollie’s engine entirely: charge via Payments API on our own cron; our state machine owns retries, grace, and cancellation.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip fiat">Mollie</span><span class="chip warn">medium</span></div>
+      <h3>EU VAT on digital services</h3>
+      <p class="bite">B2C digital services are taxed at the customer’s country; as merchant of record with Mollie, OSS registration and quarterly filings are ours. Ignoring VAT is an existential finance bug.</p>
+      <p class="fix"><b>Our answer</b>Decision gate before Phase 3: Mollie + OSS self-filing vs Paddle as merchant of record (~3pp dearer, zero tax burden). Stars phase carries no such burden.</p></div>
+
+    <div class="pit sev-med"><div class="tags"><span class="chip plain">both</span><span class="chip warn">medium</span></div>
+      <h3>Trial abuse (if trials are ever added)</h3>
+      <p class="bite">Multi-accounting for repeated trials burns real AI-token costs and poisons conversion metrics.</p>
+      <p class="fix"><b>Our answer</b>One trial per Telegram user id, recorded permanently; trials are out of scope until Stars billing is stable.</p></div>
+
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Roadmap</h2>
+    <p>Phase 0 is deliberately provider-free: every safety mechanism is built and tested against the mock before real money flows.</p>
+  </div>
+  <div class="phases">
+    <div class="phase p0"><span class="pn">Phase 0 · Billing core hardening</span>
+      <ul><li>New tables + migrations: <code>payments</code>, <code>payment_events</code>, <code>plan_prices</code>; extend <code>subscriptions</code></li><li>State machine + idempotent billing service in <code>packages/core</code></li><li>Injected clock; <code>PaymentPort</code> v2</li><li>Spec-first tests: replayed, duplicated, out-of-order fixtures</li></ul></div>
+    <div class="phase p1"><span class="pn">Phase 1 · ⭐ Stars go-live</span>
+      <ul><li>Stars adapter: invoice, pre-checkout, successful-payment handlers</li><li>Renewal sweep v2: inferred expiry + grace</li><li>Cancel &amp; upgrade flows</li><li><code>/paysupport</code> + refund path</li><li>Real-money smoke test, self-refunded</li></ul></div>
+    <div class="phase p2"><span class="pn">Phase 2 · Resilience &amp; ops</span>
+      <ul><li>Daily reconciliation + drift alerts</li><li>Dunning / reminder DMs</li><li>Grafana dashboard: renewal rate, drift, heartbeat</li><li>Admin: ledger view, refunds, manual comp, price versions</li></ul></div>
+    <div class="phase p3"><span class="pn">Phase 3 · € Web fiat channel (optional)</span>
+      <ul><li>Mollie vs Paddle decision (VAT appetite)</li><li>Landing-page checkout; never reachable from the bot</li><li>Webhook ingress on admin-api</li><li>Mandate lifecycle + SEPA dunning</li></ul></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>Open decisions</h2></div>
+  <div class="decisions">
+    <div class="box"><b>Stars price points</b>Derive Plus/Pro monthly Star amounts from the $0.013/Star net rate, not the user-facing sticker price.</div>
+    <div class="box"><b>Grace length</b>Proposal: 48 h skew buffer + grace with access retained; tune after observing real renewal timing.</div>
+    <div class="box"><b>Upgrade credit formula</b>Unused Plus days × price ratio added to Pro period end — confirm the rounding rule.</div>
+    <div class="box"><b>Phase 3 provider</b>Mollie (1.8% + €0.25 / €0.35 SEPA, VAT ours) vs Paddle (≈5% + $0.50, VAT theirs). Decide only when the web channel is real.</div>
+  </div>
+</section>
+
+<footer>
+  Sources: Telegram Bot API &amp; Bot Developer ToS (core.telegram.org, telegram.org/tos) · Mollie docs (docs.mollie.com) · Airbnb “Avoiding double payments” · Stripe Billing docs · Hookdeck / Lago / Baremetrics / Paddle engineering write-ups · tdlib/telegram-bot-api#690 · tdesktop#28657, #30037.<br>
+  Full plan with per-claim source links: <code>@docs/tech-reqs/16-payments-architecture.md</code> · Polyglot · feature/plans · 2026-07-05
+</footer>
+
+</div>
+
+</body>
+</html>

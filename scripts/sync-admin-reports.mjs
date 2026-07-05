@@ -13,6 +13,8 @@ const descriptions = {
   observability: "Operational observability report covering metrics, dashboards, logging, and runtime monitoring.",
   "translation-quality-report": "Translation quality evaluation report with benchmark results and quality findings.",
   "translation-quality-roadmap": "Roadmap for improving translation quality, validation, benchmarking, and model routing.",
+  "payments-architecture":
+    "Architecture plan for integrating recurring payments (Telegram Stars first, Mollie/fiat as an optional web channel), with a subscription state machine, ledger design, and a 24-item pitfalls register.",
 };
 
 rmSync(targetDir, { recursive: true, force: true });

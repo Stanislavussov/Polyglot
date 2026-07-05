@@ -19,6 +19,12 @@
       "href": "/reports/observability.html"
     },
     {
+      "slug": "payments-architecture",
+      "title": "Polyglot — Payment Integration Architecture",
+      "description": "Architecture plan for integrating recurring payments (Telegram Stars first, Mollie/fiat as an optional web channel), with a subscription state machine, ledger design, and a 24-item pitfalls register.",
+      "href": "/reports/payments-architecture.html"
+    },
+    {
       "slug": "translation-quality-report",
       "title": "Polyglot — Отчёт по качеству перевода",
       "description": "Translation quality evaluation report with benchmark results and quality findings.",
