@@ -86,6 +86,32 @@
         - { key: 'MaxAuthTries', value: '3' }
       notify: Restart ssh
 
+    # fail2ban is installed above but ships with no enabled jail on Ubuntu, so
+    # the sshd jail only ever worked by accident (Fable T30, F10). Pin an
+    # explicit sshd jail using the systemd journal backend so brute-force SSH
+    # attempts are actually banned. Idempotent: the file content is fixed.
+    - name: Configure fail2ban sshd jail
+      ansible.builtin.copy:
+        dest: /etc/fail2ban/jail.local
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [sshd]
+          enabled = true
+          port = ssh
+          backend = systemd
+          maxretry = 5
+          findtime = 10m
+          bantime = 1h
+      notify: Restart fail2ban
+
+    - name: Enable and start fail2ban
+      ansible.builtin.systemd:
+        name: fail2ban
+        enabled: true
+        state: started
+
     - name: Add Docker GPG key
       ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
@@ -174,6 +200,11 @@
         - { path: /opt/monitoring/data/prometheus, owner: "65534", group: "65534" }
         - { path: /opt/monitoring/data/grafana, owner: "472", group: "472" }
         - { path: /opt/monitoring/data/loki, owner: "10001", group: "10001" }
+        # Promtail read-position storage (Fable T30, F8): persists the log-read
+        # cursor across container restarts so logs are not re-shipped (moved out
+        # of the container's ephemeral /tmp). Promtail runs as root, so the
+        # deploy_user-owned dir is writable by the container.
+        - { path: /opt/monitoring/data/promtail }
 
     - name: Install public routing packages
       ansible.builtin.apt:
@@ -194,6 +225,21 @@
         name: nginx
         state: present
         update_cache: true
+      when: configure_public_routing | bool or configure_landing_routing | bool
+
+    # Webroot for certbot HTTP-01 challenges (Fable T30, F6). Certs are issued
+    # with `certbot certonly --webroot` instead of the `--nginx` plugin, so
+    # certbot only writes challenge files here and never edits the
+    # Ansible-managed nginx vhosts (which it would otherwise rewrite, fighting
+    # this playbook on every run and at renewal). The port-80 server blocks
+    # below serve `^~ /.well-known/acme-challenge/` from this directory.
+    - name: Create certbot webroot directory
+      ansible.builtin.file:
+        path: /var/www/certbot
+        owner: root
+        group: root
+        mode: '0755'
+        state: directory
       when: configure_public_routing | bool or configure_landing_routing | bool
 
     - name: Deploy nginx hardening includes (TLS, security headers, login rate limit)
@@ -266,6 +312,10 @@
               listen 80;
               server_name {{ admin_panel_domain }} {{ admin_api_domain }};
 
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
+
               location / {
                   return 301 https://$host$request_uri;
               }
@@ -275,6 +325,10 @@
           server {
               listen 80;
               server_name {{ grafana_domain }};
+
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
 
               location / {
                   return 301 https://$host$request_uri;
@@ -287,7 +341,12 @@
               server_name {{ grafana_domain }};
 
               # Pre-TLS bootstrap: never expose the Grafana login over plain HTTP
-              # (S10). certbot --nginx layers the ACME HTTP-01 challenge on top.
+              # (S10). certbot certonly --webroot serves the ACME HTTP-01
+              # challenge from the acme-challenge location below.
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
+
               location / {
                   return 503;
               }
@@ -372,11 +431,16 @@
           {% else %}
           # Pre-TLS bootstrap: the admin panel, admin API and Grafana all serve
           # login UIs and must never be exposed over plain HTTP (S10). Return 503
-          # until certbot issues the certificate; certbot --nginx layers the ACME
-          # HTTP-01 challenge on top, after which the TLS server blocks above serve.
+          # until certbot issues the certificate; certbot certonly --webroot
+          # serves the ACME HTTP-01 challenge from the acme-challenge location,
+          # after which the TLS server blocks above serve.
           server {
               listen 80;
               server_name {{ admin_panel_domain }} {{ admin_api_domain }}{% if grafana_domain | length > 0 %} {{ grafana_domain }}{% endif %};
+
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
 
               location / {
                   return 503;
@@ -416,7 +480,7 @@
     - name: Issue TLS certificates
       ansible.builtin.command:
         cmd: >-
-          certbot --nginx --non-interactive --agree-tos
+          certbot certonly --webroot -w /var/www/certbot --non-interactive --agree-tos
           --email {{ acme_email }}
           -d {{ admin_panel_domain }}
           -d {{ admin_api_domain }}
@@ -428,7 +492,7 @@
     - name: Issue Grafana TLS certificate
       ansible.builtin.command:
         cmd: >-
-          certbot --nginx --non-interactive --agree-tos
+          certbot certonly --webroot -w /var/www/certbot --non-interactive --agree-tos
           --email {{ acme_email }}
           -d {{ grafana_domain }}
         creates: "/etc/letsencrypt/live/{{ grafana_domain }}/fullchain.pem"
@@ -465,6 +529,10 @@
           server {
               listen 80;
               server_name {{ landing_domain }}{% if landing_www_domain | length > 0 %} {{ landing_www_domain }}{% endif %};
+
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
 
               location / {
                   return 301 https://{{ landing_domain }}$request_uri;
@@ -508,6 +576,10 @@
               listen 80;
               server_name {{ landing_domain }}{% if landing_www_domain | length > 0 %} {{ landing_www_domain }}{% endif %};
 
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
+
               location / {
                   proxy_pass http://localhost:{{ landing_port }};
                   proxy_http_version 1.1;
@@ -544,7 +616,7 @@
     - name: Issue landing TLS certificate
       ansible.builtin.command:
         cmd: >-
-          certbot --nginx --non-interactive --agree-tos
+          certbot certonly --webroot -w /var/www/certbot --non-interactive --agree-tos
           --email {{ acme_email }}
           -d {{ landing_domain }}
           {% if landing_www_domain | length > 0 %}-d {{ landing_www_domain }}{% endif %}
@@ -563,3 +635,8 @@
       ansible.builtin.systemd:
         name: nginx
         state: reloaded
+
+    - name: Restart fail2ban
+      ansible.builtin.systemd:
+        name: fail2ban
+        state: restarted

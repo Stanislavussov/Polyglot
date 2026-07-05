@@ -139,7 +139,10 @@ jobs:
           echo "RELEASE_ANNOUNCEMENT_BASE64=${RELEASE_ANNOUNCEMENT_BASE64}" >> .env
 
       - name: Copy Compose and Env to VPS
-        uses: appleboy/scp-action@v1.0.0
+        # Pinned to the commit SHA of v1.0.0 (Fable T30, F8): this third-party
+        # action carries the prod SSH key, so a mutable tag must not be able to
+        # ship new code under it.
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -149,7 +152,9 @@ jobs:
           overwrite: true
 
       - name: Deploy and Restart on VPS
-        uses: appleboy/ssh-action@v1.0.3
+        # Pinned to the commit SHA of v1.0.3 (Fable T30, F8): third-party action
+        # holding the prod SSH key — mutable tag pinning is a supply-chain risk.
+        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -157,6 +162,11 @@ jobs:
           script: |
             set -e
             cd /opt/polyglot
+
+            # Restrict the freshly-scp'd secrets file (Fable T30, F7): it holds
+            # every runtime secret (DB URL, JWT secret, bot/OpenRouter tokens) and
+            # must not be world/group-readable on the host.
+            chmod 600 .env
 
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 

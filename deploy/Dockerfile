@@ -81,4 +81,10 @@ FROM build AS migrate
 
 ENV NODE_ENV=production
 
+# Run migrations as the unprivileged built-in `node` user (Fable T30, F9) rather
+# than root. Migrations only read the compiled schema and talk to the DB over the
+# network; nothing is written to the image filesystem, and all build artifacts are
+# world-readable, so the non-root user has everything it needs.
+USER node
+
 CMD ["pnpm", "--filter", "@polyglot/adapter-db", "run", "db:migrate"]

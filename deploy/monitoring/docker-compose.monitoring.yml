@@ -15,6 +15,7 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /opt/monitoring/data/prometheus:/prometheus
     mem_limit: 256m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:
@@ -42,6 +43,7 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards-provisioned:ro
       - /opt/monitoring/data/grafana:/var/lib/grafana
     mem_limit: 384m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:
@@ -58,6 +60,7 @@ services:
       - ./loki/loki.yml:/etc/loki/loki.yml:ro
       - /opt/monitoring/data/loki:/loki
     mem_limit: 256m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:
@@ -72,8 +75,14 @@ services:
     volumes:
       - ./promtail/promtail.yml:/etc/promtail/promtail.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # docker.sock is read-only and used solely for docker_sd container
+      # discovery in promtail.yml.
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Persist the read-position cursor across restarts (Fable T30, F8) so logs
+      # are not re-shipped/duplicated after a container restart (was in /tmp).
+      - /opt/monitoring/data/promtail:/var/lib/promtail
     mem_limit: 128m
+    cpus: 0.25
     logging:
       driver: "json-file"
       options:
@@ -89,6 +98,7 @@ services:
     volumes:
       - /:/host:ro,rslave
     mem_limit: 64m
+    cpus: 0.15
     logging:
       driver: "json-file"
       options:
@@ -99,13 +109,19 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: polyglot_cadvisor
     restart: unless-stopped
-    privileged: true
+    # De-privileged (Fable T30, F8): cAdvisor does not need full host privilege.
+    # It runs with read-only host mounts plus the single kernel-message device it
+    # uses for the machine-info collector. If a specific host needs more, prefer
+    # narrow cap_add over restoring `privileged: true`.
+    devices:
+      - /dev/kmsg:/dev/kmsg
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
     mem_limit: 512m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:
