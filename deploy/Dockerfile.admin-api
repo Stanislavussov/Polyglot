@@ -11,6 +11,7 @@ COPY apps/bot/package.json apps/bot/
 COPY apps/admin-api/package.json apps/admin-api/
 COPY apps/admin/package.json apps/admin/
 COPY apps/translation-benchmark/package.json apps/translation-benchmark/
+COPY packages/admin-contracts/package.json packages/admin-contracts/
 COPY packages/@types/package.json packages/@types/
 COPY packages/core/package.json packages/core/
 COPY packages/infra/package.json packages/infra/
@@ -40,6 +41,7 @@ COPY apps/bot/package.json apps/bot/
 COPY apps/admin-api/package.json apps/admin-api/
 COPY apps/admin/package.json apps/admin/
 COPY apps/translation-benchmark/package.json apps/translation-benchmark/
+COPY packages/admin-contracts/package.json packages/admin-contracts/
 COPY packages/@types/package.json packages/@types/
 COPY packages/core/package.json packages/core/
 COPY packages/infra/package.json packages/infra/
@@ -51,6 +53,8 @@ COPY packages/adapters/youtube/package.json packages/adapters/youtube/
 RUN pnpm install --frozen-lockfile --prod
 
 COPY --from=build /app/apps/admin-api/dist apps/admin-api/dist
+# admin-api routes import @polyglot/admin-contracts (workspace dep); ship its built dist for runtime resolution
+COPY --from=build /app/packages/admin-contracts/dist packages/admin-contracts/dist
 COPY --from=build /app/packages/core/dist packages/core/dist
 COPY --from=build /app/packages/infra/dist packages/infra/dist
 COPY --from=build /app/packages/adapters/db/dist packages/adapters/db/dist
