@@ -15,9 +15,15 @@ permissions:
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
+    # Explicit pass-through (not `secrets: inherit`) for auditability — repo
+    # secrets do NOT flow through workflow_call automatically. Without the Neon
+    # pass-through the integration job would receive an empty NEON_API_KEY on the
+    # master deploy path and break every deploy (Task 71).
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
 
   push:
     needs: ci
@@ -32,7 +38,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26 # prod parity: .nvmrc=26, deploy/Dockerfile* use node:26-alpine
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -103,6 +109,15 @@ jobs:
           from pathlib import Path
           import base64
 
+          # A single environment variable string cannot exceed the kernel's
+          # MAX_ARG_STRLEN (~128 KB); a value larger than that makes every exec in
+          # the bot container (including its healthcheck) fail with E2BIG
+          # ("argument list too long"). The announcement is also delivered as one
+          # Telegram message, which is hard-capped at 4096 characters. So bound the
+          # extracted changelog well under both limits — a growing Unreleased
+          # section must never be able to break the deploy.
+          MAX_CHARS = 3500
+
           text = Path("CHANGELOG.md").read_text(encoding="utf-8")
           lines = text.splitlines()
           in_unreleased = False
@@ -117,6 +132,12 @@ jobs:
                   collected.append(line)
 
           message = "\n".join(collected).strip()
+          if len(message) > MAX_CHARS:
+              truncated = message[:MAX_CHARS]
+              boundary = truncated.rfind("\n")
+              if boundary > 0:
+                  truncated = truncated[:boundary]
+              message = truncated.rstrip() + "\n\n…\n(See the full changelog for all changes.)"
           if message:
               print(base64.b64encode(message.encode("utf-8")).decode("ascii"))
           PY
