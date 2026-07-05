@@ -2,7 +2,7 @@ import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { Bot, type NextFunction, type StorageAdapter, session } from "grammy";
+import { Bot, type Middleware, type NextFunction, type StorageAdapter, session } from "grammy";
 import { handleBotError } from "./bot-error-handler.js";
 import { changesCommand } from "./commands/changes.js";
 import { setBotCommands } from "./commands/commands.js";
@@ -112,7 +112,7 @@ import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleReviewCommand } from "./scenes/srs.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
-import type { BotContext, SessionData } from "./types.js";
+import type { BotContext, ConversationContext, SessionData } from "./types.js";
 import { NOOP_CALLBACK } from "./utils/long-op.js";
 
 export interface CreatePolyglotBotOptions {
@@ -213,8 +213,23 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   });
 
   bot.use(authMiddleware);
-  bot.use(createConversation(onboarding));
-  bot.use(createConversation(handleReportIssue, { plugins: [conversationAuthPlugin()] }));
+
+  // Conversations run in a replayed context that the outer service-injection
+  // middleware above never touches, so ctx.services is undefined inside them.
+  // Re-inject the singleton container as a conversation plugin — it is a stable
+  // reference, so re-setting it on every replay is deterministic. Without this,
+  // the report conversation's auth/hydration plugin dereferences
+  // ctx.services.identityRepository and crashes (Fable T24 regression).
+  const injectServicesPlugin: Middleware<ConversationContext> = (ctx, next) => {
+    ctx.services = services;
+    return next();
+  };
+  bot.use(createConversation(onboarding, { plugins: [injectServicesPlugin] }));
+  bot.use(
+    createConversation(handleReportIssue, {
+      plugins: [injectServicesPlugin, conversationAuthPlugin()],
+    }),
+  );
   bot.use(exitActiveConversations);
 
   bot.command("start", startCommand);

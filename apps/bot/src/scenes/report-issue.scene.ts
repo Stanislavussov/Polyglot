@@ -133,7 +133,9 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
     return;
   }
   const userId = ctx.user.id;
-  const settings = await ctx.services.userRepository.getSettings(userId);
+  // Read through conversation.external so it runs once against the live context
+  // rather than re-executing on every conversation replay.
+  const settings = await conversation.external(() => ctx.services.userRepository.getSettings(userId));
   const lang: SupportedLang = (settings?.interfaceLang ?? "en") as SupportedLang;
 
   const type = await stepChooseType(conversation, ctx, lang);
