@@ -4,13 +4,6 @@
  * FEAT-30: save path uses FK resolution, dedup detection, and content sanitization.
  */
 import type { Conversation } from "@grammyjs/conversations";
-import { generateObject } from "@polyglot/adapter-ai";
-import {
-  getLang,
-  translationTemplateRepository,
-  vocabularyDictionaryRepository,
-  vocabularyRepository,
-} from "@polyglot/adapter-db";
 import {
   type InputType,
   logger,
@@ -30,6 +23,7 @@ import {
 import type { BotContext, ConversationContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
+import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 type TranslateConversation = Conversation<BotContext, ConversationContext>;
 
@@ -49,7 +43,9 @@ export async function handleRegenLoop(
   const langCodes = Object.keys(current.translations);
 
   // Load user's template for template-aware output resolution (Task 32)
-  const savedTpl = await conversation.external(async () => translationTemplateRepository.getByUserId(userId));
+  const savedTpl = await conversation.external(async () =>
+    ctx.services.translationTemplateRepository.getByUserId(userId),
+  );
   const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
   const outputConfig = resolveOutputConfig(
@@ -83,7 +79,7 @@ export async function handleRegenLoop(
 
     if (data === "tr:save") {
       // FEAT-30: FK resolution + dedup detection + sanitize
-      const sourceLangEntry = getLang(current.sourceLang);
+      const sourceLangEntry = ctx.services.languageCache.getLang(current.sourceLang);
       const sourceLangId = sourceLangEntry?.id;
 
       if (!sourceLangId) {
@@ -93,20 +89,20 @@ export async function handleRegenLoop(
 
       // Duplicate detection
       const existing = await conversation.external(async () =>
-        vocabularyRepository.findByOriginalAndSource(userId, current.original, sourceLangId),
+        ctx.services.vocabularyRepository.findByOriginalAndSource(userId, current.original, sourceLangId),
       );
 
       if (existing) {
         const belongsToDefault = await conversation.external(async () =>
-          vocabularyDictionaryRepository.entryBelongsToDefault(userId, existing.id),
+          ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(userId, existing.id),
         );
         if (!belongsToDefault) {
           await conversation.external(async () => {
-            await vocabularyDictionaryRepository.addEntryToDefault(userId, existing.id);
+            await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(userId, existing.id);
           });
           const saved = `${renderCard(current, lang)}\n\n${t("savedToDict", lang)}`;
           const postSaveKb = new InlineKeyboard();
-          await resp.editMessageText(saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
+          await editMessageTextOrReply(resp, saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
           return;
         }
         const alreadySavedMsg = t("alreadySaved", lang);
@@ -119,22 +115,22 @@ export async function handleRegenLoop(
         current,
         sourceLangId,
         inputType ?? "word",
-        (code) => getLang(code)?.id ?? null,
+        (code) => ctx.services.languageCache.getLang(code)?.id ?? null,
       );
       await conversation.external(async () => {
-        const newEntry = await vocabularyRepository.create(userId, vocabInput);
-        await vocabularyDictionaryRepository.addEntryToDefault(userId, newEntry.id);
+        const newEntry = await ctx.services.vocabularyRepository.create(userId, vocabInput);
+        await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(userId, newEntry.id);
       });
 
       // Post-save card with regen-only keyboard
       const saved = `${renderCard(current, lang)}\n\n${t("savedToDict", lang)}`;
       const postSaveKb = new InlineKeyboard();
-      await resp.editMessageText(saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
+      await editMessageTextOrReply(resp, saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
       return;
     }
 
     if (data === "tr:skip") {
-      await resp.editMessageText(renderCard(current, lang), {
+      await editMessageTextOrReply(resp, renderCard(current, lang), {
         parse_mode: "HTML",
       });
       return;
@@ -144,7 +140,7 @@ export async function handleRegenLoop(
     const regenLang = data.replace("tr:regen:", "");
 
     // Show loading state
-    await resp.editMessageText(`${card}\n\n${t("regenerating", lang, { lang: regenLang.toUpperCase() })}`, {
+    await editMessageTextOrReply(resp, `${card}\n\n${t("regenerating", lang, { lang: regenLang.toUpperCase() })}`, {
       parse_mode: "HTML",
     });
 
@@ -162,7 +158,7 @@ export async function handleRegenLoop(
             outputConfig,
             inputType,
           },
-          generateObject,
+          ctx.services.ai.generateObject,
         );
       });
 

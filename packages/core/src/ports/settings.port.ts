@@ -1,12 +1,18 @@
 import type { AIModel } from "./ai.port.js";
 import type { SubscriptionPlan } from "./user.repository.js";
 
+/** How a plan's video allowance is counted. `none` = video feature unavailable. */
+export type VideoWindow = "none" | "lifetime" | "monthly";
+
 export interface PlanLimitConfig {
   name: string;
   label: string;
-  creditsPerDay: number | null;
-  windowMs: number;
+  /** Max top-level translations per calendar month (UTC). null = unlimited */
+  translationLimit: number | null;
   creditCost: number;
+  /** Max video analyses within `videoWindow`. null = unlimited */
+  videoLimit: number | null;
+  videoWindow: VideoWindow;
   isActive: boolean;
   isDefault: boolean;
 }

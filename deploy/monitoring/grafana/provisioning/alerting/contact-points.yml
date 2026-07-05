@@ -1,0 +1,15 @@
+apiVersion: 1
+
+# Where firing alerts are delivered. Configured via env so no secret is
+# committed: set GRAFANA_ALERT_TELEGRAM_BOTTOKEN and GRAFANA_ALERT_TELEGRAM_CHATID
+# in the monitoring stack's environment (documented in .env.example).
+contactPoints:
+  - orgId: 1
+    name: polyglot-telegram
+    receivers:
+      - uid: polyglot_telegram
+        type: telegram
+        disableResolveMessage: false
+        settings:
+          bottoken: $__env{GRAFANA_ALERT_TELEGRAM_BOTTOKEN}
+          chatid: $__env{GRAFANA_ALERT_TELEGRAM_CHATID}

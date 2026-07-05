@@ -13,8 +13,9 @@ import type {
   VocabularySource,
   VocabularyTranslation,
 } from "@polyglot/core";
-import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, notInArray, or, type SQL, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
+import { escapeLikePattern } from "../like-escape.js";
 import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations } from "../schema.js";
 
 export type {
@@ -66,7 +67,7 @@ function tomorrow(): Date {
 function originalSearchFilter(search?: string): SQL | undefined {
   const trimmed = search?.trim();
   if (!trimmed) return undefined;
-  return ilike(vocabularyEntries.original, `%${trimmed}%`);
+  return ilike(vocabularyEntries.original, `%${escapeLikePattern(trimmed)}%`);
 }
 
 /** Resolve the ORDER BY clause for the dictionary browse list. */
@@ -82,6 +83,15 @@ export const vocabularyRepository = {
   /**
    * Create a vocabulary entry with all its translations.
    * Uses a transaction to ensure atomicity.
+   *
+   * Saving the same (userId, original, sourceLangId) that was previously
+   * soft-deleted **reactivates** the existing row instead of failing on the
+   * unique index: the entry (and each conflicting translation) is updated in
+   * place with the new content and flipped back to active. This is done with a
+   * race-safe `ON CONFLICT DO UPDATE` on the existing unique keys — no
+   * check-then-insert window — so a re-save after delete never raises 23505
+   * (C2/E1). Translation SRS columns are intentionally left untouched so the
+   * card's review history survives reactivation.
    */
   async create(userId: number, input: CreateVocabularyInput): Promise<VocabularyEntryWithTranslations> {
     const db = getDb();
@@ -98,6 +108,19 @@ export const vocabularyRepository = {
           sourceUsage: input.sourceUsage,
           source: input.source ?? null,
           unverified: input.unverified ?? false,
+        })
+        .onConflictDoUpdate({
+          target: [vocabularyEntries.userId, vocabularyEntries.original, vocabularyEntries.sourceLangId],
+          set: {
+            inputType: input.inputType,
+            emoji: input.emoji ?? null,
+            nativeMeaning: input.nativeMeaning ?? null,
+            sourceUsage: input.sourceUsage ?? null,
+            source: input.source ?? null,
+            unverified: input.unverified ?? false,
+            isActive: true,
+            updatedAt: new Date(),
+          },
         })
         .returning();
 
@@ -118,6 +141,22 @@ export const vocabularyRepository = {
               srsDueDate: tomorrow(),
             })),
           )
+          .onConflictDoUpdate({
+            target: [vocabularyTranslations.entryId, vocabularyTranslations.targetLangId],
+            set: {
+              // Refresh the content from the row we tried to insert (per-row
+              // values via EXCLUDED), reactivate, but keep the SRS columns so
+              // review progress is preserved across a delete + re-save.
+              text: sql`excluded.text`,
+              expressionType: sql`excluded.expression_type`,
+              equivalentNote: sql`excluded.equivalent_note`,
+              usageNote: sql`excluded.usage_note`,
+              connotationWarning: sql`excluded.connotation_warning`,
+              details: sql`excluded.details`,
+              isActive: true,
+              updatedAt: new Date(),
+            },
+          })
           .returning();
       }
 
@@ -232,7 +271,7 @@ export const vocabularyRepository = {
         and(
           eq(vocabularyEntries.userId, userId),
           eq(vocabularyEntries.isActive, true),
-          ilike(vocabularyEntries.original, `%${query}%`),
+          ilike(vocabularyEntries.original, `%${escapeLikePattern(query)}%`),
         ),
       )
       .orderBy(desc(vocabularyEntries.createdAt));
@@ -340,8 +379,13 @@ export const vocabularyRepository = {
   },
 
   /**
-   * Upsert all translations for an entry (for full regen).
-   * Uses a transaction. Deletes old translations and inserts fresh ones.
+   * Replace all translations for an entry (for full card regen).
+   *
+   * Uses an upsert keyed on (entry_id, target_lang_id) that updates only the
+   * content columns and leaves every SRS column untouched — so regenerating a
+   * card no longer wipes the user's review progress (E8/T18). Translations for
+   * languages no longer present are removed; their SRS state is moot. A newly
+   * added language row starts fresh (srsDueDate = tomorrow).
    */
   async updateAllTranslations(
     entryId: number,
@@ -357,12 +401,20 @@ export const vocabularyRepository = {
   ): Promise<VocabularyTranslation[]> {
     const db = getDb();
     return db.transaction(async (tx) => {
-      // Delete existing translations for this entry
-      await tx.delete(vocabularyTranslations).where(eq(vocabularyTranslations.entryId, entryId));
+      if (translations.length === 0) {
+        await tx.delete(vocabularyTranslations).where(eq(vocabularyTranslations.entryId, entryId));
+        return [];
+      }
 
-      if (translations.length === 0) return [];
+      const langIds = translations.map((t) => t.targetLangId);
+      // Drop translations for languages that are no longer part of the card.
+      await tx
+        .delete(vocabularyTranslations)
+        .where(
+          and(eq(vocabularyTranslations.entryId, entryId), notInArray(vocabularyTranslations.targetLangId, langIds)),
+        );
 
-      // Insert fresh translations
+      // Upsert the current set, preserving SRS columns on conflict.
       return tx
         .insert(vocabularyTranslations)
         .values(
@@ -375,9 +427,21 @@ export const vocabularyRepository = {
             usageNote: t.usageNote,
             connotationWarning: t.connotationWarning,
             details: t.details,
-            srsDueDate: tomorrow(),
+            srsDueDate: tomorrow(), // used only for brand-new rows
           })),
         )
+        .onConflictDoUpdate({
+          target: [vocabularyTranslations.entryId, vocabularyTranslations.targetLangId],
+          set: {
+            text: sql`excluded.text`,
+            expressionType: sql`excluded.expression_type`,
+            equivalentNote: sql`excluded.equivalent_note`,
+            usageNote: sql`excluded.usage_note`,
+            connotationWarning: sql`excluded.connotation_warning`,
+            details: sql`excluded.details`,
+            updatedAt: new Date(),
+          },
+        })
         .returning();
     });
   },

@@ -7,28 +7,6 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
 }));
 
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
-    getSettings: vi.fn().mockResolvedValue({
-      interfaceLang: "en",
-      nativeLang: "ru",
-      learningLangs: ["cs", "en"],
-    }),
-    updateActiveMode: vi.fn().mockResolvedValue({}),
-  },
-  getLangDisplay: vi.fn((code: string) => code.toUpperCase()),
-  createContextLookup: () => vi.fn().mockResolvedValue([]),
-  getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
-  translationTemplateRepository: {
-    getByUserId: vi.fn().mockResolvedValue(null),
-  },
-  vocabularyRepository: {
-    create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
-    findByOriginalAndSource: vi.fn().mockResolvedValue(null),
-    updateTranslation: vi.fn().mockResolvedValue({}),
-  },
-}));
-
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   actual.initLanguageRegistry([
@@ -53,11 +31,19 @@ vi.mock("@polyglot/infra", () => ({
   },
 }));
 
-import { userRepository } from "@polyglot/adapter-db";
+import type { ServiceContainer } from "@polyglot/core";
+import { createServicesStub } from "../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../types.js";
 import { handleTranslateCommand } from "./translate.scene.js";
 
-const repo = vi.mocked(userRepository);
+const repo = {
+  getSettings: vi.fn().mockResolvedValue({
+    interfaceLang: "en",
+    nativeLang: "ru",
+    learningLangs: ["cs", "en"],
+  }),
+  updateActiveMode: vi.fn().mockResolvedValue({}),
+};
 
 function createMockCtx(): BotContext {
   const session: SessionData = {
@@ -82,6 +68,12 @@ function createMockCtx(): BotContext {
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     user: { id: 1, telegramId: 123456, onboarded: true },
+    services: createServicesStub({
+      userRepository: repo as unknown as ServiceContainer["userRepository"],
+      languageCache: {
+        getLangDisplay: (code: string) => code.toUpperCase(),
+      } as unknown as ServiceContainer["languageCache"],
+    }),
   } as unknown as BotContext;
 }
 

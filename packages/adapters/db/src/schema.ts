@@ -1,6 +1,8 @@
+import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -35,7 +37,7 @@ export const languages = pgTable(
     isSupported: boolean("is_supported").default(false).notNull(),
     /** Localized names: {"ru": "Английский", "cs": "Angličtina"} */
     localizedNames: jsonb("localized_names").$type<Record<string, string>>(),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (t) => [uniqueIndex("languages_code_idx").on(t.code)],
 );
@@ -56,11 +58,19 @@ export const wordContext = pgTable(
     forms: text("forms").array().default([]),
     formTags: text("form_tags").array().default([]),
     glosses: text("glosses").array().default([]),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (t) => [
     index("word_context_word_lang_idx").on(t.word, t.languageId),
     index("word_context_lang_idx").on(t.languageId),
+    // Hot preflight path (Fable T17): case-insensitive exact lookup done via
+    // `lower(word) = lower($1)` instead of ILIKE (which can't use a btree),
+    // backed by this functional index — turns a seq scan on every translation
+    // into an index lookup.
+    index("word_context_lower_word_idx").on(sql`lower(${t.word})`),
+    // GIN index for `arrayContains(forms, [word])` — the known-form lookup on
+    // the same hot path; a plain btree cannot serve array containment.
+    index("word_context_forms_gin_idx").using("gin", t.forms),
   ],
 );
 
@@ -81,7 +91,7 @@ export const dictionaryLookupLogs = pgTable(
     matchedPos: text("matched_pos"),
     matchedGlosses: text("matched_glosses").array().default([]),
     error: text("error"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("dictionary_lookup_logs_created_at_idx").on(t.createdAt),
@@ -106,10 +116,33 @@ export const users = pgTable("users", {
   onboardingStep: integer("onboarding_step").default(0).notNull(),
   onboarded: boolean("onboarded").default(false).notNull(),
   isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type AudienceGroup = (typeof audienceGroupEnum.enumValues)[number];
+
+// ─────────────────────────────────────────────
+// Channel identities (multichannel foundation, Fable T24/A1)
+// Maps the neutral domain `userId` to a per-channel external id. The domain
+// operates on `userId`; each delivery channel (telegram, …) resolves its own
+// `externalId` here instead of the domain depending on `users.telegram_id`.
+// ─────────────────────────────────────────────
+export const identities = pgTable(
+  "identities",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    channel: text("channel").notNull(),
+    externalId: text("external_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("identities_channel_external_id_idx").on(t.channel, t.externalId),
+    index("identities_user_id_idx").on(t.userId),
+  ],
+);
 
 // ─────────────────────────────────────────────
 // User language settings (1-to-1 with users)
@@ -138,9 +171,9 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   /** User-provided context for AI-generated contextual notifications (e.g., "preparing for job interview") */
   notificationContext: text("notification_context"),
   /** Last bot interaction timestamp — used for 14-day inactivity pause */
-  lastInteractionAt: timestamp("last_interaction_at"),
+  lastInteractionAt: timestamp("last_interaction_at", { withTimezone: true }),
   isActive: boolean("is_active").default(true).notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 // ─────────────────────────────────────────────
@@ -170,8 +203,8 @@ export const vocabularyEntries = pgTable(
      */
     unverified: boolean("unverified").default(false).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("ve_user_id_idx").on(t.userId),
@@ -191,8 +224,8 @@ export const vocabularyDictionaries = pgTable(
       .notNull(),
     name: text("name").notNull(),
     isDefault: boolean("is_default").default(false).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("vd_user_id_idx").on(t.userId), uniqueIndex("vd_user_name_idx").on(t.userId, t.name)],
 );
@@ -206,7 +239,7 @@ export const vocabularyDictionaryEntries = pgTable(
     entryId: integer("entry_id")
       .references(() => vocabularyEntries.id, { onDelete: "cascade" })
       .notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [primaryKey({ columns: [t.dictionaryId, t.entryId] }), index("vde_entry_id_idx").on(t.entryId)],
 );
@@ -235,12 +268,12 @@ export const vocabularyTranslations = pgTable(
     /** Current SM-2 interval in days. 0 means the card has not been reviewed yet. */
     srsInterval: integer("srs_interval").default(0).notNull(),
     /** Next scheduled review date. NULL means unscheduled legacy row and is treated as due. */
-    srsDueDate: timestamp("srs_due_date"),
+    srsDueDate: timestamp("srs_due_date", { withTimezone: true }),
     /** Number of SRS reviews completed for this translation row. */
     srsReviewCount: integer("srs_review_count").default(0).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("vt_entry_id_idx").on(t.entryId),
@@ -267,7 +300,7 @@ export const wordReviewLog = pgTable(
       .notNull(),
     /** What triggered this review: 'flashcard' | 'notification' | 'quiz' | 'srs' */
     sessionType: text("session_type").notNull(),
-    reviewedAt: timestamp("reviewed_at").defaultNow().notNull(),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("word_review_log_entry_idx").on(t.entryId),
@@ -288,7 +321,7 @@ export const translationRequests = pgTable(
     original: text("original").notNull(),
     sourceLangId: integer("source_lang_id").references(() => languages.id),
     creditCost: integer("credit_cost").default(1).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("translation_requests_user_idx").on(t.userId),
@@ -318,6 +351,28 @@ export const translationRequestTargetLangs = pgTable(
 );
 
 // ─────────────────────────────────────────────
+// User daily request counts — compact per-user/per-day aggregate (Fable T25/E5)
+// Pre-aggregated counter so analytics/count readers never GROUP BY over the
+// unboundedly-growing translation_requests ledger. Upserted whenever a request
+// is logged; retention-pruned like the other telemetry tables.
+// ─────────────────────────────────────────────
+export const userDailyRequestCounts = pgTable(
+  "user_daily_request_counts",
+  {
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /** Calendar day in UTC ("YYYY-MM-DD"). */
+    day: date("day", { mode: "string" }).notNull(),
+    /** Number of translation/AI requests logged for this user on this day. */
+    requestCount: integer("request_count").default(0).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.day] }), index("udrc_day_idx").on(t.day)],
+);
+
+export type UserDailyRequestCount = typeof userDailyRequestCounts.$inferSelect;
+
+// ─────────────────────────────────────────────
 // Topic translation cache — shared across users
 // Caches AI translations for topic dataset words
 // per (topicId, original, sourceLang, targetLang)
@@ -333,8 +388,8 @@ export const topicTranslationCache = pgTable(
     content: jsonb("content").notNull(),
     isValid: boolean("is_valid").default(true).notNull(),
     invalidReason: text("invalid_reason"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     uniqueIndex("topic_cache_unique_idx").on(t.topicId, t.original, t.sourceLang, t.targetLang),
@@ -368,8 +423,8 @@ export const userTranslationTemplates = pgTable(
     connotationWarning: boolean("connotation_warning").notNull().default(true),
     /** Constructional grammar breakdown for phrases/sentences toggle */
     grammarBreakdown: boolean("grammar_breakdown").notNull().default(false),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [uniqueIndex("user_translation_templates_user_id_idx").on(t.userId)],
 );
@@ -391,8 +446,8 @@ export const reportedIssues = pgTable(
     type: text("type").$type<IssueType>().notNull(),
     description: text("description").notNull(),
     status: text("status").$type<IssueStatus>().default("open").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("ri_user_id_idx").on(t.userId), index("ri_status_idx").on(t.status)],
 );
@@ -412,7 +467,7 @@ export const notificationHistory = pgTable(
       .notNull(),
     original: text("original").notNull(),
     source: text("source").notNull(), // 'srs' | 'suggested'
-    sentAt: timestamp("sent_at").defaultNow().notNull(),
+    sentAt: timestamp("sent_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("notif_hist_user_sent_idx").on(t.userId, t.sentAt)],
 );
@@ -430,7 +485,7 @@ export const releaseAnnouncementDeliveries = pgTable(
     userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    deliveredAt: timestamp("delivered_at").defaultNow().notNull(),
+    deliveredAt: timestamp("delivered_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     primaryKey({ columns: [t.releaseId, t.audienceGroup, t.userId] }),
@@ -450,8 +505,8 @@ export const botSessions = pgTable(
     key: text("key").primaryKey(),
     data: jsonb("data").$type<unknown>().notNull(),
     version: integer("version").default(1).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("bot_sessions_updated_at_idx").on(t.updatedAt)],
 );
@@ -475,9 +530,9 @@ export const adminUsers = pgTable(
     passwordHash: varchar("password_hash", { length: 255 }).notNull(),
     role: adminRoleEnum("role").default("admin").notNull(),
     isActive: boolean("is_active").default(true).notNull(),
-    lastLoginAt: timestamp("last_login_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [uniqueIndex("admin_users_email_idx").on(t.email)],
 );
@@ -493,28 +548,33 @@ export const systemSettings = pgTable("system_settings", {
   key: varchar("key", { length: 255 }).primaryKey(),
   value: jsonb("value").notNull(),
   description: text("description"),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type SystemSetting = typeof systemSettings.$inferSelect;
 
 // ─────────────────────────────────────────────
-// Rate limit plans — admin-configurable credit limits
+// Rate limit plans — admin-configurable per-plan limits
 // ─────────────────────────────────────────────
+/** How a plan's video allowance is counted. `none` = video feature not available. */
+export const videoWindowEnum = pgEnum("video_window", ["none", "lifetime", "monthly"]);
+
 export const rateLimitPlans = pgTable("rate_limit_plans", {
   /** Plan name: "free", "plus", "pro", "unlimited" */
   name: varchar("name", { length: 50 }).primaryKey(),
   label: varchar("label", { length: 100 }).notNull(),
-  /** Credits per daily window. null = unlimited */
-  creditsPerDay: integer("credits_per_day"),
-  /** Window size in ms (default 24h) */
-  windowMs: integer("window_ms").default(86_400_000).notNull(),
+  /** Max top-level translations per calendar month (UTC). null = unlimited */
+  translationLimit: integer("translation_limit"),
   /** Cost per single translation request */
   creditCost: integer("credit_cost").default(1).notNull(),
+  /** Max video analyses allowed within `videoWindow`. null = unlimited */
+  videoLimit: integer("video_limit"),
+  /** Window the video allowance is measured over. `none` = feature disabled for this plan. */
+  videoWindow: videoWindowEnum("video_window").default("none").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   /** Users are reassigned here when another plan is deleted. Exactly one default is expected. */
   isDefault: boolean("is_default").default(false).notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type RateLimitPlan = typeof rateLimitPlans.$inferSelect;
@@ -537,7 +597,7 @@ export const aiRequestLatencies = pgTable(
     success: boolean("success").notNull(),
     userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
     error: text("error"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("ai_req_latency_model_date_idx").on(t.modelId, t.createdAt),
@@ -578,7 +638,7 @@ export const translationRequestTimings = pgTable(
     success: boolean("success").notNull(),
     /** Error message on failure */
     error: text("error"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("trt_user_id_idx").on(t.userId),
@@ -606,7 +666,7 @@ export const languageDetectionEvents = pgTable(
     sourceLang: text("source_lang"),
     /** Fallback target languages */
     targetLangs: text("target_langs").array(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("lde_user_id_idx").on(t.userId),
@@ -631,7 +691,7 @@ export const aiModels = pgTable("ai_models", {
   isEnabled: boolean("is_enabled").default(true).notNull(),
   /** Default cost fallback for unknown models */
   isDefault: boolean("is_default").default(false).notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type AIModelRow = typeof aiModels.$inferSelect;
@@ -655,6 +715,27 @@ export const aiModelPlanAccess = pgTable(
 export type AIModelPlanAccess = typeof aiModelPlanAccess.$inferSelect;
 
 // ─────────────────────────────────────────────
+// Plan feature access — which premium features each plan unlocks
+// Mirrors aiModelPlanAccess: a junction gating feature keys per plan.
+// ─────────────────────────────────────────────
+export const planFeatureAccess = pgTable(
+  "plan_feature_access",
+  {
+    planName: varchar("plan_name", { length: 50 })
+      .notNull()
+      .references(() => rateLimitPlans.name, { onDelete: "cascade" }),
+    /** Feature key, e.g. "grammarBreakdown", "etymology", "grammarDetail" */
+    featureKey: varchar("feature_key", { length: 100 }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.planName, t.featureKey] }),
+    index("plan_feature_access_feature_idx").on(t.featureKey),
+  ],
+);
+
+export type PlanFeatureAccess = typeof planFeatureAccess.$inferSelect;
+
+// ─────────────────────────────────────────────
 // Translation output presets — admin-configurable
 // ─────────────────────────────────────────────
 export const translationPresets = pgTable("translation_presets", {
@@ -670,7 +751,7 @@ export const translationPresets = pgTable("translation_presets", {
     }>()
     .notNull(),
   isActive: boolean("is_active").default(true).notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type TranslationPreset = typeof translationPresets.$inferSelect;
@@ -689,8 +770,8 @@ export const userLearningLanguages = pgTable(
     languageCode: text("language_code").notNull(),
     /** CEFR proficiency level: A1, A2, B1, B2, C1, C2 */
     proficiencyLevel: text("proficiency_level").default("B1").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [uniqueIndex("ull_user_lang_idx").on(t.userId, t.languageCode), index("ull_user_id_idx").on(t.userId)],
 );
@@ -719,8 +800,8 @@ export const videoProcesses = pgTable(
     /** 'pending' | 'processing' | 'completed' | 'failed' */
     status: text("status").$type<"pending" | "processing" | "completed" | "failed">().default("pending").notNull(),
     errorMessage: text("error_message"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("vp_user_id_idx").on(t.userId),
@@ -759,7 +840,7 @@ export const videoPhrases = pgTable(
     sortOrder: integer("sort_order").notNull(),
     /** Set when user saves phrase to vocabulary dictionary */
     savedEntryId: integer("saved_entry_id").references(() => vocabularyEntries.id, { onDelete: "set null" }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("vph_process_sort_idx").on(t.videoProcessId, t.sortOrder)],
 );
@@ -779,7 +860,44 @@ export const videoTranscriptCache = pgTable(
     transcript: text("transcript").notNull(),
     /** 'manual' | 'auto-generated' */
     transcriptType: text("transcript_type"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [uniqueIndex("vtc_video_lang_idx").on(t.videoId, t.language)],
 );
+
+export type VideoTranscriptCache = typeof videoTranscriptCache.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Subscriptions — recurring paid plan state (source of truth for lifecycle)
+// users.subscriptionPlan stays the fast pointer read by the entitlements resolver.
+// ─────────────────────────────────────────────
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /** Plan the subscription grants: "plus" | "pro" (references rate_limit_plans.name) */
+    plan: varchar("plan", { length: 50 })
+      .notNull()
+      .references(() => rateLimitPlans.name),
+    /** 'active' | 'past_due' | 'canceled' | 'expired' */
+    status: text("status").$type<"active" | "past_due" | "canceled" | "expired">().default("active").notNull(),
+    /** Payment provider: "mock" now, "mollie" later */
+    provider: varchar("provider", { length: 50 }).default("mock").notNull(),
+    /** Provider-side subscription id (null for mock) */
+    externalId: text("external_id"),
+    /** When the currently-paid period ends; cron sweeps rows past this. */
+    currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("subscriptions_user_idx").on(t.userId),
+    index("subscriptions_status_period_idx").on(t.status, t.currentPeriodEnd),
+  ],
+);
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type SubscriptionStatus = "active" | "past_due" | "canceled" | "expired";

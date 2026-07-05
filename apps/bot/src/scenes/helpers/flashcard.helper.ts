@@ -15,6 +15,7 @@ import {
 } from "../../renderers/flashcard.renderer.js";
 import type { BotContext } from "../../types.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
+import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 /* ── Language resolution ───────────────────────────────────────── */
 
@@ -104,11 +105,7 @@ export async function handleFcStart(ctx: BotContext): Promise<void> {
   const text = renderFlashCardFront(word, 1, fc.deck.length, lang);
   const kb = buildFlashCardFrontKeyboard(lang);
 
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch {
-    /* message not modified */
-  }
+  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   await ctx.answerCallbackQuery();
 }
 
@@ -124,11 +121,7 @@ export async function handleFcReveal(ctx: BotContext): Promise<void> {
   const text = renderFlashCardBack(word, fc.currentIndex + 1, fc.deck.length, lang);
   const kb = buildFlashCardBackKeyboard(isLast, lang);
 
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch {
-    /* ignore */
-  }
+  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   await ctx.answerCallbackQuery();
 }
 
@@ -147,11 +140,7 @@ export async function handleFcNext(ctx: BotContext): Promise<void> {
   const text = renderFlashCardFront(word, fc.currentIndex + 1, fc.deck.length, lang);
   const kb = buildFlashCardFrontKeyboard(lang);
 
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch {
-    /* ignore */
-  }
+  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   await ctx.answerCallbackQuery();
 }
 
@@ -168,11 +157,7 @@ export async function handleFcDone(ctx: BotContext): Promise<void> {
   const text = t("flashcardDone", lang, { count: String(fc.deck.length) });
   const kb = buildFlashCardDoneKeyboard(lang);
 
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch {
-    /* ignore */
-  }
+  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   ctx.session.flashcard = undefined;
   await cleanupTechnicalMessages(ctx);
   await ctx.answerCallbackQuery();
@@ -186,11 +171,7 @@ export async function handleFcRestart(ctx: BotContext): Promise<void> {
   const result = await pipeline.run(ctx.user.id, FLASHCARD_CONFIG);
 
   if (result.words.length === 0) {
-    try {
-      await ctx.editMessageText(t("flashcardEmpty", lang));
-    } catch {
-      /* ignore */
-    }
+    await editMessageTextOrReply(ctx, t("flashcardEmpty", lang));
     ctx.session.flashcard = undefined;
     await ctx.answerCallbackQuery();
     return;
@@ -206,11 +187,7 @@ export async function handleFcRestart(ctx: BotContext): Promise<void> {
   const text = renderFlashCardFront(word, 1, result.words.length, lang);
   const kb = buildFlashCardFrontKeyboard(lang);
 
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch {
-    /* ignore */
-  }
+  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   if (ctx.callbackQuery?.message) {
     ctx.session.flashcard.cardMsgId = ctx.callbackQuery.message.message_id;
   }
@@ -230,11 +207,7 @@ export async function handleFcQuit(ctx: BotContext): Promise<void> {
 
   ctx.session.flashcard = undefined;
   await cleanupTechnicalMessages(ctx);
-  try {
-    await ctx.editMessageText(t("flashcardQuit", lang));
-  } catch {
-    /* ignore */
-  }
+  await editMessageTextOrReply(ctx, t("flashcardQuit", lang));
   await ctx.answerCallbackQuery();
 }
 

@@ -8,9 +8,14 @@ import { createContainer } from "../container.js";
 // Mock adapters
 vi.mock("@polyglot/adapter-db", () => ({
   userRepository: {
-    findByTelegramId: vi.fn().mockResolvedValue({ id: 1, telegramId: 123 }),
-    create: vi.fn().mockResolvedValue({ id: 1, telegramId: 123 }),
+    findById: vi.fn().mockResolvedValue({ id: 1 }),
+    create: vi.fn().mockResolvedValue({ id: 1 }),
     getSettings: vi.fn().mockResolvedValue({ userId: 1, interfaceLang: "en" }),
+  },
+  identityRepository: {
+    resolveUserId: vi.fn().mockResolvedValue(1),
+    findExternalId: vi.fn().mockResolvedValue("123"),
+    linkIdentity: vi.fn().mockResolvedValue(undefined),
   },
   vocabularyRepository: {
     findByUser: vi.fn().mockResolvedValue([]),
@@ -37,6 +42,28 @@ vi.mock("@polyglot/adapter-db", () => ({
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
     getRecentRequests: vi.fn().mockResolvedValue([]),
   },
+  languageDetectionRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+  },
+  requestTimingRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+  },
+  reportedIssueRepository: {
+    create: vi.fn().mockResolvedValue({ id: 1 }),
+  },
+  planFeatureAccessRepository: {
+    findFeaturesForPlan: vi.fn().mockResolvedValue([]),
+    setFeaturesForPlan: vi.fn().mockResolvedValue(undefined),
+  },
+  subscriptionRepository: {
+    create: vi.fn().mockResolvedValue({ id: 1 }),
+    findActiveByUser: vi.fn().mockResolvedValue(null),
+    findExpired: vi.fn().mockResolvedValue([]),
+    extend: vi.fn().mockResolvedValue(undefined),
+    updateStatus: vi.fn().mockResolvedValue(undefined),
+  },
+  createContextLookup: vi.fn(() => vi.fn().mockResolvedValue([])),
+  createWordLanguageSweep: vi.fn(() => vi.fn().mockResolvedValue([])),
   aiRequestLatencyRepository: {
     record: vi.fn().mockResolvedValue(undefined),
     getModelLatencySummary: vi.fn().mockResolvedValue([]),
@@ -106,8 +133,9 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn().mockResolvedValue({}),
   generateText: vi.fn().mockResolvedValue("test"),
   generateChat: vi.fn().mockResolvedValue("test"),
-  getAvailableModels: vi.fn().mockReturnValue([]),
-  estimateCost: vi.fn().mockReturnValue(0),
+  setAIApiKey: vi.fn(),
+  setAIGenerationDefaultsProvider: vi.fn(),
+  setAIModelPriceProvider: vi.fn(),
   setAIRequestMetricSink: vi.fn(),
   setAIRequestTimeoutProvider: vi.fn(),
 }));
@@ -128,6 +156,11 @@ describe("createContainer", () => {
     expect(container.wordReviewRepository).toBeDefined();
     expect(container.notificationRepository).toBeDefined();
     expect(container.translationRequestRepository).toBeDefined();
+    expect(container.languageDetectionRepository).toBeDefined();
+    expect(container.requestTimingRepository).toBeDefined();
+    expect(container.reportedIssueRepository).toBeDefined();
+    expect(typeof container.contextLookup).toBe("function");
+    expect(typeof container.wordLanguageSweep).toBe("function");
     expect(container.languageCache).toBeDefined();
     expect(container.ai).toBeDefined();
     expect(container.settings).toBeDefined();
@@ -149,15 +182,13 @@ describe("createContainer", () => {
     expect(typeof container.ai.generateObject).toBe("function");
     expect(typeof container.ai.generateText).toBe("function");
     expect(typeof container.ai.generateChat).toBe("function");
-    expect(typeof container.ai.getAvailableModels).toBe("function");
-    expect(typeof container.ai.estimateCost).toBe("function");
   });
 
   it("container services are callable", async () => {
     const container = createContainer();
 
     // Test that services can be called without throwing
-    const result = await container.userRepository.findByTelegramId(123);
+    const result = await container.userRepository.findById(1);
     expect(result).toBeDefined();
   });
 });

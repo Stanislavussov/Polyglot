@@ -1,5 +1,13 @@
 // Translation service — public API
 
+// Output presets
+export {
+  FULL_OUTPUT,
+  MINIMAL_OUTPUT,
+  NOTIFICATION_OUTPUT,
+  RELIABLE_OUTPUT,
+  SENTENCE_OUTPUT,
+} from "../../shared/translation-output.presets.js";
 // Etymology
 export type { EtymologyInput } from "./etymology.service.js";
 export { generateEtymology } from "./etymology.service.js";
@@ -37,7 +45,6 @@ export {
   translationResultSchema,
   translationVariantSchema,
 } from "./schemas/translation.schema.js";
-export type { GenerateObjectFn } from "./translation.service.js";
 export {
   buildPrompt,
   parseResponse,
@@ -45,14 +52,6 @@ export {
   translateBatch,
   translateOne,
 } from "./translation.service.js";
-// Output presets
-export {
-  FULL_OUTPUT,
-  MINIMAL_OUTPUT,
-  NOTIFICATION_OUTPUT,
-  RELIABLE_OUTPUT,
-  SENTENCE_OUTPUT,
-} from "./translation-output.presets.js";
 // Types
 export type {
   DictionaryContext,

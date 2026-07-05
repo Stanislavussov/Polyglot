@@ -3,21 +3,28 @@ services:
     image: ${BOT_IMAGE_NAME:?BOT_IMAGE_NAME is required}
     container_name: polyglot_bot
     restart: unless-stopped
-    env_file:
-      - path: .env
-        required: false
+    # Secrets are scoped per service (Fable T30, F7): the bot no longer loads the
+    # whole shared `.env` (which also carries the admin-api JWT_SECRET, admin
+    # URLs, etc.). It receives only the variables it actually reads, so a bot
+    # compromise cannot leak another service's secrets. Values interpolate from
+    # the compose-directory `.env`.
     environment:
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL is required}
       - METRICS_PORT=9090
+      - BOT_TOKEN=${BOT_TOKEN:?BOT_TOKEN is required}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required}
+      # Consumed by the release-announcement CLI (`docker compose run bot …`) on
+      # deploy; empty when a release has no changelog notes.
+      - RELEASE_ID=${RELEASE_ID:-}
+      - RELEASE_AUDIENCE_GROUPS=${RELEASE_AUDIENCE_GROUPS:-}
+      - RELEASE_ANNOUNCEMENT_BASE64=${RELEASE_ANNOUNCEMENT_BASE64:-}
     ports:
       - "127.0.0.1:${METRICS_PORT:-9090}:9090"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/healthz || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
+    # Healthcheck is baked into the image (deploy/Dockerfile HEALTHCHECK), single
+    # source of truth (Fable T30, F10) — matches admin/admin-api which also rely
+    # on the image-level healthcheck.
     mem_limit: 512m
+    cpus: 0.75
     logging:
       driver: "json-file"
       options:
@@ -33,6 +40,7 @@ services:
       - DATABASE_URL=${DATABASE_URL:?DATABASE_URL is required}
     restart: "no"
     mem_limit: 256m
+    cpus: 0.5
 
   admin-api:
     image: ${ADMIN_API_IMAGE_NAME:?ADMIN_API_IMAGE_NAME is required}
@@ -47,6 +55,7 @@ services:
     ports:
       - "127.0.0.1:${ADMIN_API_PORT:-3001}:3001"
     mem_limit: 256m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:
@@ -64,9 +73,13 @@ services:
       - HOST=0.0.0.0
       - PORT=4321
       - PUBLIC_API_URL=${PUBLIC_API_URL:?PUBLIC_API_URL is required}
+      # Server-to-server URL used by the SSR reports middleware to verify the
+      # admin token via admin-api /api/auth/me (over the compose network).
+      - ADMIN_API_INTERNAL_URL=http://admin-api:3001
     ports:
       - "127.0.0.1:${ADMIN_PORT:-4321}:4321"
     mem_limit: 256m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:
@@ -79,13 +92,10 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:${LANDING_PORT:-8080}:80"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:80/ || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    # Healthcheck is baked into the image (deploy/Dockerfile.landing HEALTHCHECK),
+    # single source of truth (Fable T30, F10).
     mem_limit: 128m
+    cpus: 0.25
     logging:
       driver: "json-file"
       options:

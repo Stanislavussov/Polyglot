@@ -3,7 +3,7 @@ import * as schema from "./schema.js";
 export type { CachedLanguage } from "@polyglot/core";
 // Database connection — extracted to connection.ts to avoid circular deps
 export type { Db } from "./connection.js";
-export { closeDb, getDb } from "./connection.js";
+export { closeDb, getDb, pingDatabase } from "./connection.js";
 export { createContextLookup } from "./context-lookup.js";
 // Language cache — loaded from DB, serves all language metadata
 export {
@@ -38,6 +38,7 @@ export type {
   RecordDictionaryLookupLogInput,
 } from "./repositories/dictionary-lookup-log.repository.js";
 export { dictionaryLookupLogRepository } from "./repositories/dictionary-lookup-log.repository.js";
+export { identityRepository } from "./repositories/identity.repository.js";
 export type {
   Language,
   NewLanguage,
@@ -59,6 +60,7 @@ export {
   notificationRepository,
   parseNotificationMinutes,
 } from "./repositories/notification.repository.js";
+export { planFeatureAccessRepository } from "./repositories/plan-feature-access.repository.js";
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 export { reportedIssueRepository } from "./repositories/reported-issue.repository.js";
@@ -68,6 +70,14 @@ export type {
   RequestTimingSegmentSummary,
 } from "./repositories/request-timing.repository.js";
 export { requestTimingRepository } from "./repositories/request-timing.repository.js";
+export type { AdminOverviewStats } from "./repositories/stats.repository.js";
+export { statsRepository } from "./repositories/stats.repository.js";
+export type {
+  CreateSubscriptionInput,
+  Subscription,
+  SubscriptionStatus,
+} from "./repositories/subscription.repository.js";
+export { subscriptionRepository } from "./repositories/subscription.repository.js";
 export { systemSettingsRepository } from "./repositories/system-settings.repository.js";
 export type {
   NewTopicTranslation,
@@ -122,6 +132,8 @@ export {
 export { wordContextRepository } from "./repositories/word-context.repository.js";
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
+export type { RetentionResult } from "./retention.js";
+export { DEFAULT_RETENTION_DAYS, runTelemetryRetention } from "./retention.js";
 export type {
   IssueStatus,
   IssueType,

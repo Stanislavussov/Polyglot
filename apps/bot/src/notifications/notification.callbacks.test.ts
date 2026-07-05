@@ -7,21 +7,6 @@ vi.mock("@polyglot/infra", () => ({
   logger: { debug: vi.fn(), error: vi.fn(), info: vi.fn(), warn: vi.fn() },
 }));
 
-vi.mock("@polyglot/adapter-db", () => ({
-  getAllLangs: () => [
-    { id: 1, code: "en" },
-    { id: 2, code: "cs" },
-    { id: 3, code: "ru" },
-  ],
-  vocabularyRepository: {
-    findById: vi.fn(),
-    delete: vi.fn().mockResolvedValue(undefined),
-  },
-  userRepository: {
-    getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
-  },
-}));
-
 vi.mock("../renderers/dictionary.renderer.js", () => ({
   renderDictionaryEntry: vi.fn().mockReturnValue("<b>apple</b>\n🇷🇺 RU: <b>яблоко</b>"),
 }));
@@ -35,14 +20,33 @@ vi.mock("./notification.formatter.js", () => ({
   }),
 }));
 
-import { vocabularyRepository } from "@polyglot/adapter-db";
+import type { ServiceContainer } from "@polyglot/core";
+import { createServicesStub } from "../test-helpers/services-stub.js";
 import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notification.callbacks.js";
+
+const vocabularyRepository = {
+  findById: vi.fn(),
+  delete: vi.fn().mockResolvedValue(undefined),
+};
 
 function createMockCtx(callbackData: string) {
   return {
     user: { id: 1 },
     from: { id: 12345 },
     callbackQuery: { data: callbackData, message: { message_id: 100 } },
+    services: createServicesStub({
+      vocabularyRepository: vocabularyRepository as unknown as ServiceContainer["vocabularyRepository"],
+      userRepository: {
+        getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
+      } as unknown as ServiceContainer["userRepository"],
+      languageCache: {
+        getAllLangs: () => [
+          { id: 1, code: "en" },
+          { id: 2, code: "cs" },
+          { id: 3, code: "ru" },
+        ],
+      } as unknown as ServiceContainer["languageCache"],
+    }),
     editMessageText: vi.fn().mockResolvedValue({}),
     editMessageReplyMarkup: vi.fn().mockResolvedValue({}),
     answerCallbackQuery: vi.fn().mockResolvedValue({}),
@@ -144,7 +148,7 @@ describe("handleNotifLearnedCallback", () => {
 
     await handleNotifLearnedCallback(ctx);
 
-    expect(vocabularyRepository.delete).toHaveBeenCalledWith(42);
+    expect(vocabularyRepository.delete).toHaveBeenCalledWith(42, 1);
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
   });

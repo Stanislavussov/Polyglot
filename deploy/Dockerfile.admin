@@ -55,6 +55,9 @@ RUN pnpm install --frozen-lockfile --prod
 COPY --from=build /app/apps/admin/dist ./apps/admin/dist
 COPY --from=build /app/apps/admin/package.json ./apps/admin/
 COPY --from=build /app/apps/admin/astro.config.mjs ./apps/admin/
+# Reports are served (auth-gated) by the SSR endpoint from this non-public dir.
+COPY --from=build /app/apps/admin/reports-data ./apps/admin/reports-data
+ENV REPORTS_DIR=/app/apps/admin/reports-data
 
 USER node
 

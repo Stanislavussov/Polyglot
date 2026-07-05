@@ -2,9 +2,11 @@
  * Lightweight HTTP server exposing Prometheus metrics on :9090/metrics
  * and a health endpoint on :9090/healthz.
  */
-import { createServer } from "node:http";
+import { createServer, type Server } from "node:http";
+import { pingDatabase } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/core";
 import { Counter, collectDefaultMetrics, Histogram, register } from "prom-client";
+import { checkReadiness } from "./health.js";
 
 // ── Default Node.js metrics (CPU, memory, event-loop, GC) ───────────
 collectDefaultMetrics();
@@ -118,14 +120,27 @@ export const sessionStorageDuration = new Histogram({
 
 const METRICS_PORT = Number(process.env.METRICS_PORT) || 9090;
 
-export function startMetricsServer(): void {
+/**
+ * Starts the metrics/health HTTP server and returns the handle so graceful
+ * shutdown can close it (B12) — otherwise the open listener keeps the process
+ * alive until SIGKILL.
+ */
+export function startMetricsServer(): Server {
   const server = createServer(async (req, res) => {
     if (req.url === "/metrics") {
       res.setHeader("Content-Type", register.contentType);
       res.end(await register.metrics());
     } else if (req.url === "/healthz") {
+      // Liveness: the process is up. Kept always-ok so a quiet period never
+      // triggers a container restart — readiness is a separate signal.
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ status: "ok", uptime: process.uptime() }));
+    } else if (req.url === "/readyz") {
+      // Readiness (T12): non-ok when long-polling is stuck or the DB is down.
+      const result = await checkReadiness(pingDatabase);
+      res.statusCode = result.status === "ok" ? 200 : 503;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify(result));
     } else {
       res.statusCode = 404;
       res.end("Not Found");
@@ -134,5 +149,19 @@ export function startMetricsServer(): void {
 
   server.listen(METRICS_PORT, () => {
     logger.info({ port: METRICS_PORT }, "Metrics server started");
+  });
+
+  return server;
+}
+
+/**
+ * Closes the metrics server on shutdown (B12). Resolves once the listener stops
+ * accepting connections so the process can exit cleanly; a null handle (server
+ * never started) resolves immediately.
+ */
+export function closeMetricsServer(server: Server | null): Promise<void> {
+  if (!server) return Promise.resolve();
+  return new Promise((resolve) => {
+    server.close(() => resolve());
   });
 }

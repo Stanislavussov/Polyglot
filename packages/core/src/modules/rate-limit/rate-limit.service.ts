@@ -1,0 +1,64 @@
+import type { SubscriptionPlan } from "../../ports/user.repository.js";
+
+export interface PlanLimit {
+  plan: SubscriptionPlan;
+  label: string;
+  creditsPerDay: number | null;
+}
+
+export interface RateLimitStatus {
+  allowed: boolean;
+  plan: PlanLimit;
+  usedCredits: number;
+  requestedCredits: number;
+  remainingCredits: number | null;
+  resetsAt: Date;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+export function getDailyWindowStart(now = new Date()): Date {
+  return new Date(now.getTime() - DAY_MS);
+}
+
+export function getDailyWindowReset(now = new Date()): Date {
+  return new Date(now.getTime() + DAY_MS);
+}
+
+/**
+ * Start of the current calendar month in UTC. The translation quota uses a
+ * monthly window (Free = N translations per calendar month), distinct from the
+ * daily credit meter that governs the other paid AI calls.
+ */
+export function getMonthlyWindowStart(now = new Date()): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+}
+
+/** Start of the next calendar month in UTC — when the monthly quota resets. */
+export function getMonthlyWindowReset(now = new Date()): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+}
+
+/**
+ * Pure rate-limit policy. The plan limit is always supplied by the caller from
+ * the DB-backed settings source (`SettingsPort`) — there is deliberately no
+ * hardcoded plan table or `SubscriptionPlan`-keyed variant here (Fable T21/A7),
+ * so a tariff change in the admin panel takes effect without a release.
+ */
+export function evaluatePlanRateLimit(
+  planLimit: PlanLimit,
+  usedCredits: number,
+  requestedCredits: number,
+  resetsAt: Date,
+): RateLimitStatus {
+  const remainingCredits = planLimit.creditsPerDay === null ? null : Math.max(0, planLimit.creditsPerDay - usedCredits);
+
+  return {
+    allowed: planLimit.creditsPerDay === null || usedCredits + requestedCredits <= planLimit.creditsPerDay,
+    plan: planLimit,
+    usedCredits,
+    requestedCredits,
+    remainingCredits,
+    resetsAt,
+  };
+}

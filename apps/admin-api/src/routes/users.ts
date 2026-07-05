@@ -1,78 +1,26 @@
-import {
-  AUDIENCE_GROUPS,
-  getDb,
-  rateLimitPlanRepository,
-  userLanguageSettings,
-  userRepository,
-  users,
-} from "@polyglot/adapter-db";
-import { eq, ilike, sql } from "drizzle-orm";
+import { rateLimitPlanRepository, userRepository } from "@polyglot/adapter-db";
+import { audienceGroupSchema, subscriptionPlanSchema } from "@polyglot/admin-contracts";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
+import { requireRole } from "../plugins/auth.js";
+import { paginationQuerySchema } from "./crud-factory.js";
 
-const updatePlanSchema = z.object({
-  plan: z.string().min(1).max(50),
-});
-
-const updateAudienceGroupSchema = z.object({
-  audienceGroup: z.enum(AUDIENCE_GROUPS),
-});
+const listUsersQuerySchema = paginationQuerySchema();
+const updatePlanSchema = z.object({ plan: subscriptionPlanSchema });
+const updateAudienceGroupSchema = z.object({ audienceGroup: audienceGroupSchema });
 
 export async function userRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
+  // Auth is applied globally by the unified hook; changing a user's plan or
+  // audience group is a superadmin-only operation (Fable T07).
+  const superadminOnly = { preHandler: requireRole("superadmin") };
 
   app.get("/users", async (request: FastifyRequest) => {
-    const {
-      page = "1",
-      limit = "20",
-      search = "",
-    } = request.query as {
-      page?: string;
-      limit?: string;
-      search?: string;
-    };
-
-    const pageNum = Number.parseInt(page, 10);
-    const limitNum = Number.parseInt(limit, 10);
-    const offset = (pageNum - 1) * limitNum;
-
-    const db = getDb();
-
-    let query = db
-      .select({
-        id: users.id,
-        telegramId: users.telegramId,
-        username: users.username,
-        audienceGroup: users.audienceGroup,
-        subscriptionPlan: users.subscriptionPlan,
-        isActive: users.isActive,
-        createdAt: users.createdAt,
-        interfaceLang: userLanguageSettings.interfaceLang,
-        nativeLang: userLanguageSettings.nativeLang,
-        learningLangs: userLanguageSettings.learningLangs,
-      })
-      .from(users)
-      .leftJoin(userLanguageSettings, eq(users.id, userLanguageSettings.userId))
-      .limit(limitNum)
-      .offset(offset);
-
-    if (search) {
-      const searchPattern = `%${search}%`;
-      query = query.where(ilike(users.username, searchPattern)) as typeof query;
-    }
-
-    const usersList = await query;
-
-    const countResult = await db.select({ count: sql<number>`count(*)` }).from(users);
-
-    const total = countResult[0]?.count ?? 0;
-
-    return { users: usersList, total, page: pageNum, limit: limitNum };
+    const { page, limit, search } = listUsersQuerySchema.parse(request.query);
+    const { users, total } = await userRepository.listAdmin({ page, limit, search });
+    return { users, total, page, limit };
   });
 
-  app.put("/users/:id/plan", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/users/:id/plan", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const body = updatePlanSchema.parse(request.body);
     const plan = await rateLimitPlanRepository.findByName(body.plan);
@@ -85,19 +33,15 @@ export async function userRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: "Invalid user id" });
     }
 
-    const db = getDb();
-    const updated = await db.update(users).set({ subscriptionPlan: body.plan }).where(eq(users.id, userId)).returning({
-      id: users.id,
-    });
-
-    if (updated.length === 0) {
+    const updated = await userRepository.updateSubscriptionPlan(userId, body.plan);
+    if (!updated) {
       return reply.status(404).send({ error: "User not found" });
     }
 
     return { success: true };
   });
 
-  app.put("/users/:id/audience-group", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/users/:id/audience-group", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const parsed = updateAudienceGroupSchema.safeParse(request.body);
     if (!parsed.success) {

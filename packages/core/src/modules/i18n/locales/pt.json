@@ -23,6 +23,8 @@
   "enterWordToTranslate": "📝 Escreve uma palavra ou frase para traduzir:",
   "translating": "⏳ A traduzir...",
   "translationError": "❌ A tradução falhou. Tenta novamente mais tarde.",
+  "genericError": "⚠️ Algo deu errado. Tente novamente.",
+  "staleSession": "⚠️ Sessão expirada. Envia novamente a palavra para traduzir.",
   "translationUnavailable": "⚠️ Tradução temporariamente indisponível. Tenta de novo.",
   "contextMarkerNeedsText": "Escreve uma palavra ou frase antes do marcador de contexto.",
   "inputRejectedEmpty": "Envia texto para traduzir.",
@@ -252,7 +254,7 @@
   "translationClarifyLanguageHint": "Escolha um idioma abaixo (bandeira + código) ou envie um esclarecimento.",
   "correctionNotice": "✏️ Corrigido: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Corrigido: {corrected}\n{explanation}",
-  "rateLimitExceeded": "⚠️ Limite diário de traduções atingido. Abre /settings para veres o teu plano.",
+  "rateLimitExceeded": "⚠️ Limite mensal de traduções atingido. Obtenha Plus para traduções ilimitadas.",
   "mentorModeOn": "🧑‍🏫 Modo mentor ativo! Pergunta-me sobre qualquer palavra e eu ajudo-te a aprendê-la — não me limito a traduzir, oriento-te.",
   "mentorThinking": "🧠 A pensar...",
   "mentorError": "❌ A conversa com o mentor falhou. Tenta novamente mais tarde.",
@@ -303,5 +305,11 @@
   "translationClarifyReasonUnrecognized": "\"{word}\" não parece uma palavra padrão em {lang}.",
   "translationTranslateAsWritten": "➡️ Traduzir como está",
   "translationAsWrittenCaveat": "⚠️ Não encontrada em dicionários padrão — traduzida literalmente.",
-  "translationNoMoreMeanings": "ℹ️ Nenhum outro significado disponível."
+  "translationNoMoreMeanings": "ℹ️ Nenhum outro significado disponível.",
+  "upgradeCta": "⭐ Obter Plus ou Pro",
+  "upgradePlus": "⭐ Plus",
+  "upgradePro": "💎 Pro",
+  "subscriptionActivated": "✅ {plan} está ativo até {date}",
+  "checkoutFailed": "⚠️ Não foi possível iniciar o pagamento. Tente novamente mais tarde.",
+  "upgradePrompt": "⭐ <b>Faça upgrade do seu plano</b>\n\n<b>Free</b>: 20 traduções/mês · 3 vídeos no total\n<b>Plus</b>: traduções ilimitadas · 10 vídeos/mês\n<b>Pro</b>: traduções ilimitadas · vídeos ilimitados\n\nEscolha um plano abaixo. Preços em breve."
 }

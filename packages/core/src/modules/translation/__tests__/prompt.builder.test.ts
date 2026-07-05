@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildStrictPrompt, buildTranslationPrompt } from "../prompt.builder.js";
-import { SENTENCE_OUTPUT } from "../translation-output.presets.js";
+import { SENTENCE_OUTPUT } from "../../../shared/translation-output.presets.js";
+import {
+  buildMetadataPrompt,
+  buildStrictPrompt,
+  buildTranslationPrompt,
+  USER_INPUT_INJECTION_GUARD,
+} from "../prompt.builder.js";
 import type { TranslationRequest } from "../types.js";
 
 describe("buildTranslationPrompt", () => {
@@ -13,6 +18,18 @@ describe("buildTranslationPrompt", () => {
   it("includes the word to translate", () => {
     const prompt = buildTranslationPrompt(baseRequest);
     expect(prompt).toContain('"hello"');
+  });
+
+  it("prefixes the prompt with the prompt-injection guard (S6)", () => {
+    const prompt = buildTranslationPrompt(baseRequest);
+    expect(prompt).toContain(USER_INPUT_INJECTION_GUARD);
+    // The guard must precede the interpolated user text so the model reads it first.
+    expect(prompt.indexOf(USER_INPUT_INJECTION_GUARD)).toBeLessThan(prompt.indexOf('"hello"'));
+  });
+
+  it("guards the metadata prompt against injection too (S6)", () => {
+    const prompt = buildMetadataPrompt(baseRequest);
+    expect(prompt).toContain(USER_INPUT_INJECTION_GUARD);
   });
 
   it("includes the source language as full name", () => {

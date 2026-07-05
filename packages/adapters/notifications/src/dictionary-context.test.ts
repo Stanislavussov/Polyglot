@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { NotificationServiceDeps, VocabEntry } from "./types.js";
+import type { DictionaryWordPickerDeps, VocabEntry } from "./types.js";
 
 const { mockLogger, mockChild } = vi.hoisted(() => ({
   mockLogger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -15,7 +15,7 @@ vi.mock("@polyglot/core", () => ({
   })),
 }));
 
-import { createNotificationService } from "./notification.service.js";
+import { createDictionaryWordPicker } from "./notification.service.js";
 
 const mockEntry: VocabEntry = {
   id: 1,
@@ -25,7 +25,7 @@ const mockEntry: VocabEntry = {
   translations: [{ targetLangId: 1, text: "ahoj" }],
 };
 
-function buildDeps(): NotificationServiceDeps {
+function buildDeps(): DictionaryWordPickerDeps {
   return {
     getUserVocabulary: vi.fn().mockResolvedValue([mockEntry]),
     getLangCode: vi.fn().mockReturnValue("cs"),
@@ -39,7 +39,7 @@ describe("createNotificationService — dictionary only", () => {
   });
 
   it("returns a dictionary word with source: srs", async () => {
-    const service = createNotificationService(buildDeps());
+    const service = createDictionaryWordPicker(buildDeps());
     const result = await service.pickDictionaryWord(1);
 
     expect(result).toEqual({
@@ -52,12 +52,12 @@ describe("createNotificationService — dictionary only", () => {
   });
 
   it("has no pickSuggestedWord method", () => {
-    const service = createNotificationService(buildDeps());
+    const service = createDictionaryWordPicker(buildDeps());
     expect("pickSuggestedWord" in service).toBe(false);
   });
 
   it("SuggestedWord has no dictionaryContext", async () => {
-    const service = createNotificationService(buildDeps());
+    const service = createDictionaryWordPicker(buildDeps());
     const result = await service.pickDictionaryWord(1);
 
     expect(result).not.toBeNull();

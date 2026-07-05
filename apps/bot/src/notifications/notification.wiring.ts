@@ -2,8 +2,10 @@ import { generateObject } from "@polyglot/adapter-ai";
 import {
   getAllLangs,
   getLang,
+  identityRepository,
   notificationRepository,
   settingsAdapter,
+  subscriptionRepository,
   userRepository,
   vocabularyRepository,
 } from "@polyglot/adapter-db";
@@ -14,9 +16,19 @@ import {
   startScheduler,
   stopScheduler,
 } from "@polyglot/adapter-notifications";
-import { type GenerateObjectFn, isSupported, logger, SettingsService, type SupportedLang, t } from "@polyglot/core";
-import type { Api, RawApi } from "grammy";
+import {
+  createSubscriptionService,
+  type GenerateObjectFn,
+  isSupported,
+  logger,
+  type ServiceContainer,
+  SettingsService,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
+import { type Api, GrammyError, type RawApi } from "grammy";
 import { z } from "zod";
+import { mockPaymentAdapter } from "../payment.js";
 import { resolveDefaultAIModel } from "../utils/ai-model.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
 
@@ -28,6 +40,39 @@ const jitTranslationSchema = z.object({
     }),
   ),
 });
+
+/**
+ * Resolve the Telegram chat id for a neutral userId on the outbound path
+ * (Fable T24/A1, hardened after T24 review).
+ *
+ * The identity port is the source of truth, but migration `0044` creates the
+ * `identities` table without a backfill, so at deploy every existing user — and
+ * the entire dormant re-engagement cohort, which sends no inbound message to
+ * self-heal — has no identity row. Resolving *exclusively* through identities
+ * would silently skip their scheduled notifications. So on a miss we fall back
+ * to the retained legacy `users.telegram_id` column and opportunistically link
+ * an identity (idempotent `onConflictDoNothing`), self-healing the row on this
+ * send. Only when BOTH the identity and the legacy column are absent do we skip.
+ */
+export async function resolveTelegramChatId(
+  userId: number,
+  services: Pick<ServiceContainer, "identityRepository" | "userRepository">,
+): Promise<number | null> {
+  const externalId = await services.identityRepository.findExternalId(userId, "telegram");
+  if (externalId) {
+    return Number(externalId);
+  }
+
+  const legacyTelegramId = await services.userRepository.getTelegramIdById(userId);
+  if (legacyTelegramId === null) {
+    logger.warn({ userId }, "No telegram identity or legacy telegram_id for user — skipping notification send");
+    return null;
+  }
+
+  // Self-heal the identity row so the next send resolves through the port.
+  await services.identityRepository.linkIdentity(userId, "telegram", String(legacyTelegramId));
+  return legacyTelegramId;
+}
 
 export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void> {
   const settings = new SettingsService(settingsAdapter);
@@ -94,14 +139,20 @@ Return translations as JSON array.`;
     },
   });
 
-  const sendFn = async (telegramId: number, payload: NotificationPayload): Promise<void> => {
-    const user = await userRepository.findByTelegramId(telegramId);
+  // The scheduler now hands us the neutral userId (Fable T24/A1); this channel
+  // adapter resolves the Telegram chat id via the identity port (with a legacy
+  // telegram_id fallback) before sending — see resolveTelegramChatId.
+  const resolveTelegramId = (userId: number): Promise<number | null> =>
+    resolveTelegramChatId(userId, { identityRepository, userRepository });
+
+  const sendFn = async (userId: number, payload: NotificationPayload): Promise<void> => {
+    const telegramId = await resolveTelegramId(userId);
+    if (telegramId === null) return;
+
     let lang: SupportedLang = "en";
-    if (user) {
-      const settings = await userRepository.getSettings(user.id);
-      if (settings?.interfaceLang && isSupported(settings.interfaceLang)) {
-        lang = settings.interfaceLang as SupportedLang;
-      }
+    const settings = await userRepository.getSettings(userId);
+    if (settings?.interfaceLang && isSupported(settings.interfaceLang)) {
+      lang = settings.interfaceLang as SupportedLang;
     }
 
     const kb = buildNotificationKeyboard(lang, payload.word.entryId);
@@ -112,7 +163,9 @@ Return translations as JSON array.`;
     });
   };
 
-  const reEngagementSendFn = async (telegramId: number, message: string): Promise<void> => {
+  const reEngagementSendFn = async (userId: number, message: string): Promise<void> => {
+    const telegramId = await resolveTelegramId(userId);
+    if (telegramId === null) return;
     await api.sendMessage(telegramId, message, { parse_mode: "HTML" });
   };
 
@@ -120,13 +173,18 @@ Return translations as JSON array.`;
     getUsersForWindow: (hour: number, minute = 0) => notificationRepository.getUsersForWindow(hour, minute),
     getInactiveUsers: () => notificationRepository.getInactiveUsers(),
     disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
+    // Telegram 403 = the user blocked the bot: a permanent failure, so the
+    // scheduler stops retrying and disables their notifications (T14).
+    isUserBlocked: (err: unknown) => err instanceof GrammyError && err.error_code === 403,
     getSentWordsSince: (userId: number, since: Date) => notificationRepository.getSentWordsSince(userId, since),
     recordSentWord: (userId: number, original: string, source: string) =>
       notificationRepository.recordSentWord(userId, original, source),
     pickDictionaryWord: (userId: number, recentWords) => notifService.pickDictionaryWord(userId, recentWords),
     pickContextualWord: (userId: number, context: string, langs, recentWords) =>
       notifService.pickContextualWord(userId, context, langs, recentWords),
-    sendDictionaryEmptyPrompt: async (telegramId: number, lang: string) => {
+    sendDictionaryEmptyPrompt: async (userId: number, lang: string) => {
+      const telegramId = await resolveTelegramId(userId);
+      if (telegramId === null) return;
       await api.sendMessage(
         telegramId,
         t("notifNoDictionary" as never, (isSupported(lang) ? lang : "en") as SupportedLang),
@@ -134,6 +192,12 @@ Return translations as JSON array.`;
     },
     t: (key: string, lang: string, params?: Record<string, string>) =>
       t(key as never, (isSupported(lang) ? lang : "en") as SupportedLang, params),
+    processSubscriptionRenewals: () =>
+      createSubscriptionService({
+        payment: mockPaymentAdapter,
+        subscriptions: subscriptionRepository,
+        users: userRepository,
+      }).processRenewals(),
   };
 
   startScheduler(sendFn, reEngagementSendFn, schedulerDeps);

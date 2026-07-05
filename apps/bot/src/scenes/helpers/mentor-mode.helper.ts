@@ -18,6 +18,7 @@ import {
 import { mentorCounter, mentorDuration } from "../../metrics.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
 
 /** Maximum output tokens for mentor responses — keeps replies short. */
@@ -45,8 +46,16 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
     return;
   }
 
-  // Resolve AI model
+  // Meter credits before the paid call (Fable T16): a mentor turn is a paid AI
+  // call like any other, so an exhausted free user is refused here instead of
+  // running the coach for free on the owner's key.
   const plan = ctx.user.subscriptionPlan;
+  const creditCost = await ensureAiQuota(ctx, plan, lang, "mentor");
+  if (creditCost === null) {
+    return;
+  }
+
+  // Resolve AI model
   const model = await resolveDefaultAIModel(ctx.services.settings, plan);
 
   // Build system prompt from user's language settings
@@ -80,6 +89,9 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
     stopTimer();
     mentorCounter.inc({ status: "success" });
 
+    // Bill the successful call against the shared credit ledger (T16).
+    await recordAiUsage(ctx, "mentor", creditCost);
+
     // Delete loading indicator (ignore errors if already deleted)
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 
@@ -97,7 +109,7 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
   } catch (err) {
     stopTimer();
     mentorCounter.inc({ status: "error" });
-    logger.error({ err, userId: ctx.user.id, text: text.slice(0, 50) }, "Mentor chat failed");
+    logger.error({ err, userId: ctx.user.id, textLength: text.length }, "Mentor chat failed");
 
     // Delete loading indicator and show error
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});

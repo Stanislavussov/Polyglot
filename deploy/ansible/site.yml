@@ -86,6 +86,32 @@
         - { key: 'MaxAuthTries', value: '3' }
       notify: Restart ssh
 
+    # fail2ban is installed above but ships with no enabled jail on Ubuntu, so
+    # the sshd jail only ever worked by accident (Fable T30, F10). Pin an
+    # explicit sshd jail using the systemd journal backend so brute-force SSH
+    # attempts are actually banned. Idempotent: the file content is fixed.
+    - name: Configure fail2ban sshd jail
+      ansible.builtin.copy:
+        dest: /etc/fail2ban/jail.local
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [sshd]
+          enabled = true
+          port = ssh
+          backend = systemd
+          maxretry = 5
+          findtime = 10m
+          bantime = 1h
+      notify: Restart fail2ban
+
+    - name: Enable and start fail2ban
+      ansible.builtin.systemd:
+        name: fail2ban
+        enabled: true
+        state: started
+
     - name: Add Docker GPG key
       ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
@@ -174,6 +200,11 @@
         - { path: /opt/monitoring/data/prometheus, owner: "65534", group: "65534" }
         - { path: /opt/monitoring/data/grafana, owner: "472", group: "472" }
         - { path: /opt/monitoring/data/loki, owner: "10001", group: "10001" }
+        # Promtail read-position storage (Fable T30, F8): persists the log-read
+        # cursor across container restarts so logs are not re-shipped (moved out
+        # of the container's ephemeral /tmp). Promtail runs as root, so the
+        # deploy_user-owned dir is writable by the container.
+        - { path: /opt/monitoring/data/promtail }
 
     - name: Install public routing packages
       ansible.builtin.apt:
@@ -184,6 +215,78 @@
         state: present
         update_cache: true
       when: configure_public_routing | bool
+
+    # ── Edge hardening (Fable T20, findings F5/S10) ──
+    # nginx must be present before writing the shared snippet/conf.d files so
+    # `nginx -t` (which reads them via the http-context includes) passes. Landing
+    # installs nginx later in the play, so ensure it here for landing-only hosts.
+    - name: Ensure nginx present for edge hardening
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+      when: configure_public_routing | bool or configure_landing_routing | bool
+
+    # Webroot for certbot HTTP-01 challenges (Fable T30, F6). Certs are issued
+    # with `certbot certonly --webroot` instead of the `--nginx` plugin, so
+    # certbot only writes challenge files here and never edits the
+    # Ansible-managed nginx vhosts (which it would otherwise rewrite, fighting
+    # this playbook on every run and at renewal). The port-80 server blocks
+    # below serve `^~ /.well-known/acme-challenge/` from this directory.
+    - name: Create certbot webroot directory
+      ansible.builtin.file:
+        path: /var/www/certbot
+        owner: root
+        group: root
+        mode: '0755'
+        state: directory
+      when: configure_public_routing | bool or configure_landing_routing | bool
+
+    - name: Deploy nginx hardening includes (TLS, security headers, login rate limit)
+      ansible.builtin.copy:
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: '0644'
+        content: "{{ item.content }}"
+      loop:
+        - dest: /etc/nginx/conf.d/polyglot-tls.conf
+          content: |
+            # TLS session cache — http context, so the shared memory zone is
+            # defined exactly once (Fable T20, F5). Protocol/cipher hardening is
+            # NOT here: Ubuntu's stock nginx.conf already sets ssl_protocols and
+            # ssl_prefer_server_ciphers in the http context, so repeating them
+            # here is a duplicate-directive error (`nginx -t` emerg). They live in
+            # the per-server snippet instead, where server context cleanly
+            # overrides the stock http defaults.
+            ssl_session_timeout 1d;
+            ssl_session_cache shared:PolyglotSSL:10m;
+            ssl_session_tickets off;
+        - dest: /etc/nginx/conf.d/polyglot-limits.conf
+          content: |
+            # Login rate-limit zone (Fable T20/T05) — 5 req/min per client IP,
+            # edge-level defense-in-depth in front of the app's own limiter.
+            limit_req_zone $binary_remote_addr zone=polyglot_login:10m rate=5r/m;
+        - dest: /etc/nginx/snippets/polyglot-hardening.conf
+          content: |
+            # TLS protocol/cipher hardening + security headers + request/proxy
+            # limits (Fable T20, F5). Included per TLS server block: server context
+            # overrides the stock nginx.conf http-level ssl_protocols /
+            # ssl_prefer_server_ciphers without a duplicate-directive error, and
+            # HSTS is only emitted over TLS (never plain HTTP).
+            ssl_protocols TLSv1.2 TLSv1.3;
+            ssl_prefer_server_ciphers off;
+            ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+            add_header Strict-Transport-Security "max-age=63072000" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+            client_max_body_size 10m;
+            proxy_connect_timeout 10s;
+            proxy_send_timeout 60s;
+            proxy_read_timeout 60s;
+      when: configure_public_routing | bool or configure_landing_routing | bool
+      notify: Reload nginx
 
     - name: Check admin TLS certificate
       ansible.builtin.stat:
@@ -209,6 +312,10 @@
               listen 80;
               server_name {{ admin_panel_domain }} {{ admin_api_domain }};
 
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
+
               location / {
                   return 301 https://$host$request_uri;
               }
@@ -218,6 +325,10 @@
           server {
               listen 80;
               server_name {{ grafana_domain }};
+
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
 
               location / {
                   return 301 https://$host$request_uri;
@@ -229,15 +340,15 @@
               listen 80;
               server_name {{ grafana_domain }};
 
+              # Pre-TLS bootstrap: never expose the Grafana login over plain HTTP
+              # (S10). certbot certonly --webroot serves the ACME HTTP-01
+              # challenge from the acme-challenge location below.
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
+
               location / {
-                  proxy_pass http://localhost:3000;
-                  proxy_http_version 1.1;
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $scheme;
-                  proxy_set_header Upgrade $http_upgrade;
-                  proxy_set_header Connection "upgrade";
+                  return 503;
               }
           }
           {% endif %}
@@ -248,6 +359,8 @@
 
               ssl_certificate /etc/letsencrypt/live/{{ admin_panel_domain }}/fullchain.pem;
               ssl_certificate_key /etc/letsencrypt/live/{{ admin_panel_domain }}/privkey.pem;
+
+              include /etc/nginx/snippets/polyglot-hardening.conf;
 
               location / {
                   proxy_pass http://localhost:4321;
@@ -267,6 +380,19 @@
 
               ssl_certificate /etc/letsencrypt/live/{{ admin_panel_domain }}/fullchain.pem;
               ssl_certificate_key /etc/letsencrypt/live/{{ admin_panel_domain }}/privkey.pem;
+
+              include /etc/nginx/snippets/polyglot-hardening.conf;
+
+              # Edge rate-limit on the admin login endpoint (T20/T05).
+              location = /api/auth/login {
+                  limit_req zone=polyglot_login burst=5 nodelay;
+                  proxy_pass http://localhost:3001;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
 
               location / {
                   proxy_pass http://localhost:3001;
@@ -288,6 +414,8 @@
               ssl_certificate /etc/letsencrypt/live/{{ grafana_domain }}/fullchain.pem;
               ssl_certificate_key /etc/letsencrypt/live/{{ grafana_domain }}/privkey.pem;
 
+              include /etc/nginx/snippets/polyglot-hardening.conf;
+
               location / {
                   proxy_pass http://localhost:3000;
                   proxy_http_version 1.1;
@@ -301,55 +429,23 @@
           }
           {% endif %}
           {% else %}
+          # Pre-TLS bootstrap: the admin panel, admin API and Grafana all serve
+          # login UIs and must never be exposed over plain HTTP (S10). Return 503
+          # until certbot issues the certificate; certbot certonly --webroot
+          # serves the ACME HTTP-01 challenge from the acme-challenge location,
+          # after which the TLS server blocks above serve.
           server {
               listen 80;
-              server_name {{ admin_panel_domain }};
+              server_name {{ admin_panel_domain }} {{ admin_api_domain }}{% if grafana_domain | length > 0 %} {{ grafana_domain }}{% endif %};
+
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
 
               location / {
-                  proxy_pass http://localhost:4321;
-                  proxy_http_version 1.1;
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $scheme;
-                  proxy_set_header Upgrade $http_upgrade;
-                  proxy_set_header Connection "upgrade";
+                  return 503;
               }
           }
-
-          server {
-              listen 80;
-              server_name {{ admin_api_domain }};
-
-              location / {
-                  proxy_pass http://localhost:3001;
-                  proxy_http_version 1.1;
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $scheme;
-                  proxy_set_header Upgrade $http_upgrade;
-                  proxy_set_header Connection "upgrade";
-              }
-          }
-          {% if grafana_domain | length > 0 %}
-
-          server {
-              listen 80;
-              server_name {{ grafana_domain }};
-
-              location / {
-                  proxy_pass http://localhost:3000;
-                  proxy_http_version 1.1;
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $scheme;
-                  proxy_set_header Upgrade $http_upgrade;
-                  proxy_set_header Connection "upgrade";
-              }
-          }
-          {% endif %}
           {% endif %}
       when: configure_public_routing | bool
       notify: Reload nginx
@@ -381,10 +477,17 @@
         state: started
       when: configure_public_routing | bool
 
+    # Reload nginx NOW (not at play end) so the acme-challenge webroot location
+    # is live before certbot runs. Without this, a first issuance / renewal via
+    # `certonly --webroot` would fail HTTP-01 because the running nginx still
+    # serves the old config (Fable T30, F6).
+    - name: Flush handlers so nginx serves the ACME challenge before certbot
+      ansible.builtin.meta: flush_handlers
+
     - name: Issue TLS certificates
       ansible.builtin.command:
         cmd: >-
-          certbot --nginx --non-interactive --agree-tos
+          certbot certonly --webroot -w /var/www/certbot --non-interactive --agree-tos
           --email {{ acme_email }}
           -d {{ admin_panel_domain }}
           -d {{ admin_api_domain }}
@@ -396,7 +499,7 @@
     - name: Issue Grafana TLS certificate
       ansible.builtin.command:
         cmd: >-
-          certbot --nginx --non-interactive --agree-tos
+          certbot certonly --webroot -w /var/www/certbot --non-interactive --agree-tos
           --email {{ acme_email }}
           -d {{ grafana_domain }}
         creates: "/etc/letsencrypt/live/{{ grafana_domain }}/fullchain.pem"
@@ -434,6 +537,10 @@
               listen 80;
               server_name {{ landing_domain }}{% if landing_www_domain | length > 0 %} {{ landing_www_domain }}{% endif %};
 
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
+
               location / {
                   return 301 https://{{ landing_domain }}$request_uri;
               }
@@ -459,6 +566,8 @@
               ssl_certificate /etc/letsencrypt/live/{{ landing_domain }}/fullchain.pem;
               ssl_certificate_key /etc/letsencrypt/live/{{ landing_domain }}/privkey.pem;
 
+              include /etc/nginx/snippets/polyglot-hardening.conf;
+
               location / {
                   proxy_pass http://localhost:{{ landing_port }};
                   proxy_http_version 1.1;
@@ -473,6 +582,10 @@
           server {
               listen 80;
               server_name {{ landing_domain }}{% if landing_www_domain | length > 0 %} {{ landing_www_domain }}{% endif %};
+
+              location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+              }
 
               location / {
                   proxy_pass http://localhost:{{ landing_port }};
@@ -507,10 +620,15 @@
         state: started
       when: configure_landing_routing | bool
 
+    # Same reason as the public-routing block: reload nginx now so the landing
+    # acme-challenge webroot is served before certbot issues/renews (Fable T30, F6).
+    - name: Flush handlers so nginx serves the landing ACME challenge before certbot
+      ansible.builtin.meta: flush_handlers
+
     - name: Issue landing TLS certificate
       ansible.builtin.command:
         cmd: >-
-          certbot --nginx --non-interactive --agree-tos
+          certbot certonly --webroot -w /var/www/certbot --non-interactive --agree-tos
           --email {{ acme_email }}
           -d {{ landing_domain }}
           {% if landing_www_domain | length > 0 %}-d {{ landing_www_domain }}{% endif %}
@@ -529,3 +647,8 @@
       ansible.builtin.systemd:
         name: nginx
         state: reloaded
+
+    - name: Restart fail2ban
+      ansible.builtin.systemd:
+        name: fail2ban
+        state: restarted

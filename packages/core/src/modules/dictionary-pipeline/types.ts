@@ -98,7 +98,7 @@ export interface WordDisplayTranslation {
   usageNote?: string;
 }
 
-/** Normalized word data ready for any renderer (Telegram, export, quiz, etc.) */
+/** Normalized word data ready for any renderer (chat, export, quiz, etc.) */
 export interface WordDisplayData {
   /** DB primary key — used to log reviews, link to saved entry */
   id: number;

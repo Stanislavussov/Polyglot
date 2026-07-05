@@ -1,54 +1,57 @@
+import type { ServiceContainer } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { onboarding } from "../scenes/onboarding.scene.js";
+import { createServicesStub } from "../test-helpers/services-stub.js";
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
-
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
-    findByTelegramId: vi.fn(),
-    updateOnboardingStep: vi.fn(),
-    updateSettings: vi.fn(),
-    markOnboarded: vi.fn(),
-    updateActiveMode: vi.fn().mockResolvedValue({}),
-    setLanguageLevel: vi.fn().mockResolvedValue(undefined),
-  },
-  getSupportedLangs: () => [
-    { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", isSupported: true },
-    { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", isSupported: true },
-    { code: "cs", name: "Czech", nativeName: "Čeština", flag: "🇨🇿", isSupported: true },
-    { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪", isSupported: true },
-    { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷", isSupported: true },
-    { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸", isSupported: true },
-    { code: "it", name: "Italian", nativeName: "Italiano", flag: "🇮🇹", isSupported: true },
-    { code: "pt", name: "Portuguese", nativeName: "Português", flag: "🇵🇹", isSupported: true },
-    { code: "uk", name: "Ukrainian", nativeName: "Українська", flag: "🇺🇦", isSupported: true },
-    { code: "pl", name: "Polish", nativeName: "Polski", flag: "🇵🇱", isSupported: true },
-  ],
-  getLangDisplay: (code: string) => {
-    const map: Record<string, string> = {
-      ru: "🇷🇺 Русский",
-      en: "🇬🇧 English",
-      cs: "🇨🇿 Čeština",
-      de: "🇩🇪 Deutsch",
-      fr: "🇫🇷 Français",
-      es: "🇪🇸 Español",
-      it: "🇮🇹 Italiano",
-      pt: "🇵🇹 Português",
-      uk: "🇺🇦 Українська",
-      pl: "🇵🇱 Polski",
-    };
-    return map[code] ?? code;
-  },
-}));
 
 vi.mock("@polyglot/infra", () => ({
   logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 
-// Import after mock so we get the mocked version
-import { userRepository } from "@polyglot/adapter-db";
+const repo = {
+  findById: vi.fn(),
+  updateOnboardingStep: vi.fn(),
+  updateSettings: vi.fn(),
+  markOnboarded: vi.fn(),
+  updateActiveMode: vi.fn().mockResolvedValue({}),
+  setLanguageLevel: vi.fn().mockResolvedValue(undefined),
+};
 
-const repo = vi.mocked(userRepository);
+const identityRepo = {
+  resolveUserId: vi.fn(),
+  findExternalId: vi.fn(),
+  linkIdentity: vi.fn().mockResolvedValue(undefined),
+};
+
+const mockGetSupportedLangs = () => [
+  { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺", isSupported: true },
+  { code: "en", name: "English", nativeName: "English", flag: "🇬🇧", isSupported: true },
+  { code: "cs", name: "Czech", nativeName: "Čeština", flag: "🇨🇿", isSupported: true },
+  { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪", isSupported: true },
+  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷", isSupported: true },
+  { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸", isSupported: true },
+  { code: "it", name: "Italian", nativeName: "Italiano", flag: "🇮🇹", isSupported: true },
+  { code: "pt", name: "Portuguese", nativeName: "Português", flag: "🇵🇹", isSupported: true },
+  { code: "uk", name: "Ukrainian", nativeName: "Українська", flag: "🇺🇦", isSupported: true },
+  { code: "pl", name: "Polish", nativeName: "Polski", flag: "🇵🇱", isSupported: true },
+];
+
+const mockGetLangDisplay = (code: string) => {
+  const map: Record<string, string> = {
+    ru: "🇷🇺 Русский",
+    en: "🇬🇧 English",
+    cs: "🇨🇿 Čeština",
+    de: "🇩🇪 Deutsch",
+    fr: "🇫🇷 Français",
+    es: "🇪🇸 Español",
+    it: "🇮🇹 Italiano",
+    pt: "🇵🇹 Português",
+    uk: "🇺🇦 Українська",
+    pl: "🇵🇱 Polski",
+  };
+  return map[code] ?? code;
+};
 
 // ── Test helpers ─────────────────────────────────────────────────────────────
 
@@ -79,7 +82,9 @@ const FAKE_USER = {
 function setup(actions: UserAction[], user: typeof FAKE_USER | null = FAKE_USER, telegramLocale?: string) {
   let idx = 0;
 
-  repo.findByTelegramId.mockResolvedValue(user);
+  // Identity resolution replaces the old findByTelegramId lookup (Fable T24/A1).
+  identityRepo.resolveUserId.mockResolvedValue(user ? user.id : null);
+  repo.findById.mockResolvedValue(user);
   repo.updateOnboardingStep.mockResolvedValue(FAKE_USER as any);
   repo.updateSettings.mockResolvedValue({} as any);
   repo.markOnboarded.mockResolvedValue(FAKE_USER as any);
@@ -114,6 +119,14 @@ function setup(actions: UserAction[], user: typeof FAKE_USER | null = FAKE_USER,
       pendingCardMsgId: undefined,
       nextSourceLang: null,
     },
+    services: createServicesStub({
+      userRepository: repo as unknown as ServiceContainer["userRepository"],
+      identityRepository: identityRepo as unknown as ServiceContainer["identityRepository"],
+      languageCache: {
+        getSupportedLangs: mockGetSupportedLangs,
+        getLangDisplay: mockGetLangDisplay,
+      } as unknown as ServiceContainer["languageCache"],
+    }),
   } as any;
 
   return { conversation, ctx };

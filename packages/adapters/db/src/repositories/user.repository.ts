@@ -6,8 +6,9 @@ import type {
   UserLanguageSettings,
   UserLearningLanguage,
 } from "@polyglot/core";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, ilike, inArray, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
+import { escapeLikePattern } from "../like-escape.js";
 import { releaseAnnouncementDeliveries, userLanguageSettings, userLearningLanguages, users } from "../schema.js";
 
 export type { AudienceGroup, NewUser, SubscriptionPlan, User, UserLanguageSettings };
@@ -30,18 +31,32 @@ function assertAudienceGroup(value: AudienceGroup): void {
 }
 
 export const userRepository = {
-  /** Find a user by their Telegram ID. */
-  async findByTelegramId(telegramId: number): Promise<User | null> {
+  /** Find a user by their neutral domain user ID (Fable T24/A1). */
+  async findById(userId: number): Promise<User | null> {
     const db = getDb();
-    const rows = await db.select().from(users).where(eq(users.telegramId, telegramId)).limit(1);
+    const rows = await db.select().from(users).where(eq(users.id, userId)).limit(1);
     return rows[0] ?? null;
+  },
+
+  /** Read the retained legacy `users.telegram_id` chat id for a user (Fable T24 outbound fallback). */
+  async getTelegramIdById(userId: number): Promise<number | null> {
+    const db = getDb();
+    const rows = await db.select({ telegramId: users.telegramId }).from(users).where(eq(users.id, userId)).limit(1);
+    return rows[0]?.telegramId ?? null;
   },
 
   /** Create a new user. */
   async create(data: NewUser): Promise<User> {
     const db = getDb();
-    const rows = await db.insert(users).values(data).returning();
-    return rows[0]!;
+    // Idempotent get-or-create (E4/T18): Telegram fans out a new user's first
+    // messages/callbacks concurrently, so two parallel creates must not 23505 on
+    // the unique telegram_id. On conflict, re-select the row the winner inserted.
+    const inserted = await db.insert(users).values(data).onConflictDoNothing({ target: users.telegramId }).returning();
+    if (inserted[0]) {
+      return inserted[0];
+    }
+    const existing = await db.select().from(users).where(eq(users.telegramId, data.telegramId)).limit(1);
+    return existing[0]!;
   },
 
   /** Update user language settings (upsert). Throws if learningLangs exceeds MAX_LEARNING_LANGS.
@@ -204,6 +219,49 @@ export const userRepository = {
     assertAudienceGroup(audienceGroup);
     const db = getDb();
     const rows = await db.update(users).set({ audienceGroup }).where(eq(users.id, userId)).returning();
+    return rows[0] ?? null;
+  },
+
+  /**
+   * Paginated user list for the admin panel with an optional username search.
+   * The same filter drives both the page selection and the total count, so the
+   * total stays consistent with the returned page when a search term is applied
+   * (Fable T08/T27).
+   */
+  async listAdmin(params: { page: number; limit: number; search?: string }) {
+    const db = getDb();
+    const offset = (params.page - 1) * params.limit;
+    const searchFilter = params.search ? ilike(users.username, `%${escapeLikePattern(params.search)}%`) : undefined;
+
+    const usersList = await db
+      .select({
+        id: users.id,
+        telegramId: users.telegramId,
+        username: users.username,
+        audienceGroup: users.audienceGroup,
+        subscriptionPlan: users.subscriptionPlan,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+        interfaceLang: userLanguageSettings.interfaceLang,
+        nativeLang: userLanguageSettings.nativeLang,
+        learningLangs: userLanguageSettings.learningLangs,
+      })
+      .from(users)
+      .leftJoin(userLanguageSettings, eq(users.id, userLanguageSettings.userId))
+      .where(searchFilter)
+      .limit(params.limit)
+      .offset(offset);
+
+    const countResult = await db.select({ count: sql<number>`count(*)::int` }).from(users).where(searchFilter);
+    const total = countResult[0]?.count ?? 0;
+
+    return { users: usersList, total };
+  },
+
+  /** Update a user's subscription plan pointer (manual grant, mock upgrade, cron downgrade). */
+  async updateSubscriptionPlan(userId: number, plan: string): Promise<User | null> {
+    const db = getDb();
+    const rows = await db.update(users).set({ subscriptionPlan: plan }).where(eq(users.id, userId)).returning();
     return rows[0] ?? null;
   },
 

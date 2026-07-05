@@ -1,6 +1,10 @@
 services:
+  # Monitoring images are pinned to a concrete patch tag (Fable T20, finding F4).
+  # `docker compose pull` on deploy must never drag in a new MAJOR: Loki changes
+  # its on-disk storage schema between majors and Grafana changes provisioning.
+  # Bump these deliberately (read the release notes), never implicitly.
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.1.0
     container_name: polyglot_prometheus
     restart: unless-stopped
     command:
@@ -11,6 +15,7 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /opt/monitoring/data/prometheus:/prometheus
     mem_limit: 256m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:
@@ -18,7 +23,7 @@ services:
         max-file: "3"
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.4.0
     container_name: polyglot_grafana
     restart: unless-stopped
     user: "472"
@@ -29,11 +34,16 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ROOT_URL=https://grafana.polyglot.monster
       - GF_SERVER_ENFORCE_DOMAIN=false
+      # Provisioned alert contact point (Fable T12). Empty by default; set these
+      # to deliver firing alerts to a Telegram channel.
+      - GRAFANA_ALERT_TELEGRAM_BOTTOKEN=${GRAFANA_ALERT_TELEGRAM_BOTTOKEN:-}
+      - GRAFANA_ALERT_TELEGRAM_CHATID=${GRAFANA_ALERT_TELEGRAM_CHATID:-}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards-provisioned:ro
       - /opt/monitoring/data/grafana:/var/lib/grafana
     mem_limit: 384m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:
@@ -41,7 +51,7 @@ services:
         max-file: "3"
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.3.2
     container_name: polyglot_loki
     restart: unless-stopped
     user: "10001"
@@ -50,6 +60,7 @@ services:
       - ./loki/loki.yml:/etc/loki/loki.yml:ro
       - /opt/monitoring/data/loki:/loki
     mem_limit: 256m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:
@@ -57,15 +68,21 @@ services:
         max-file: "3"
 
   promtail:
-    image: grafana/promtail:latest
+    image: grafana/promtail:3.3.2
     container_name: polyglot_promtail
     restart: unless-stopped
     command: -config.file=/etc/promtail/promtail.yml
     volumes:
       - ./promtail/promtail.yml:/etc/promtail/promtail.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # docker.sock is read-only and used solely for docker_sd container
+      # discovery in promtail.yml.
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Persist the read-position cursor across restarts (Fable T30, F8) so logs
+      # are not re-shipped/duplicated after a container restart (was in /tmp).
+      - /opt/monitoring/data/promtail:/var/lib/promtail
     mem_limit: 128m
+    cpus: 0.25
     logging:
       driver: "json-file"
       options:
@@ -73,7 +90,7 @@ services:
         max-file: "3"
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.8.2
     container_name: polyglot_node_exporter
     restart: unless-stopped
     pid: host
@@ -81,6 +98,7 @@ services:
     volumes:
       - /:/host:ro,rslave
     mem_limit: 64m
+    cpus: 0.15
     logging:
       driver: "json-file"
       options:
@@ -88,16 +106,22 @@ services:
         max-file: "3"
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: polyglot_cadvisor
     restart: unless-stopped
-    privileged: true
+    # De-privileged (Fable T30, F8): cAdvisor does not need full host privilege.
+    # It runs with read-only host mounts plus the single kernel-message device it
+    # uses for the machine-info collector. If a specific host needs more, prefer
+    # narrow cap_add over restoring `privileged: true`.
+    devices:
+      - /dev/kmsg:/dev/kmsg
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
     mem_limit: 512m
+    cpus: 0.5
     logging:
       driver: "json-file"
       options:

@@ -1,0 +1,100 @@
+apiVersion: 1
+
+# Provisioned alert rules (Fable T12). The metrics already exist — these rules
+# turn them into notifications so a silent freeze (like the 429 incident) is
+# noticed. All route to the polyglot-telegram contact point.
+groups:
+  - orgId: 1
+    name: polyglot-bot
+    folder: Polyglot Alerts
+    interval: 1m
+    rules:
+      # 1. The bot's Prometheus target is down (process crashed / unreachable).
+      - uid: polyglot_bot_down
+        title: Bot is down
+        condition: C
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: The bot's metrics endpoint has been unreachable for 2m.
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: up{job="bot"}
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
+
+      # 2. No Telegram updates processed for 10m — long-polling likely stuck.
+      - uid: polyglot_bot_update_silence
+        title: No Telegram updates for 10m
+        condition: C
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: The bot has not processed any Telegram update in the last 10m (long-polling may be stuck).
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum(increase(bot_telegram_messages_total[10m]))
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
+
+      # 3. Translation error rate is elevated (AI provider failing, e.g. 429).
+      - uid: polyglot_bot_translation_errors
+        title: Elevated translation error rate
+        condition: C
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Translation requests are erroring at more than 0.05/s over 5m (AI provider may be failing).
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum(rate(bot_translations_total{status="error"}[5m]))
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.05]

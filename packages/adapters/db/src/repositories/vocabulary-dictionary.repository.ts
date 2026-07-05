@@ -69,10 +69,27 @@ export const vocabularyDictionaryRepository = {
       return existing[0];
     }
 
-    const [created] = await db
+    // Race-safe create (E8/T18): a parallel first interaction must not insert a
+    // second default dictionary. onConflictDoNothing on the unique (user_id,
+    // name) index makes the insert idempotent; if a concurrent caller won, the
+    // re-select below picks up their row.
+    const inserted = await db
       .insert(vocabularyDictionaries)
       .values({ userId, name: DEFAULT_DICTIONARY_NAME, isDefault: true })
+      .onConflictDoNothing({ target: [vocabularyDictionaries.userId, vocabularyDictionaries.name] })
       .returning();
+
+    const created =
+      inserted[0] ??
+      (
+        await db
+          .select()
+          .from(vocabularyDictionaries)
+          .where(
+            and(eq(vocabularyDictionaries.userId, userId), eq(vocabularyDictionaries.name, DEFAULT_DICTIONARY_NAME)),
+          )
+          .limit(1)
+      )[0];
 
     await attachMissingActiveEntries(userId, created!.id);
     return created!;

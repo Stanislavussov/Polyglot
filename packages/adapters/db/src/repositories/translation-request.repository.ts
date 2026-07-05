@@ -1,7 +1,7 @@
 import type { TranslationRequest } from "@polyglot/core";
-import { and, desc, eq, gte, inArray, sum } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, sql, sum } from "drizzle-orm";
 import { getDb } from "../connection.js";
-import { languages, translationRequests, translationRequestTargetLangs } from "../schema.js";
+import { languages, translationRequests, translationRequestTargetLangs, userDailyRequestCounts } from "../schema.js";
 
 export type { TranslationRequest };
 
@@ -20,43 +20,61 @@ export const translationRequestRepository = {
   ): Promise<number> {
     const db = getDb();
 
-    // Resolve source language code to ID
-    let sourceLangId: number | null = null;
-    if (sourceLangCode) {
-      const rows = await db
-        .select({ id: languages.id })
-        .from(languages)
-        .where(eq(languages.code, sourceLangCode))
-        .limit(1);
-      sourceLangId = rows[0]?.id ?? null;
-    }
-
-    // Insert the request
-    const [request] = await db
-      .insert(translationRequests)
-      .values({ userId, original, sourceLangId, creditCost })
-      .returning({ id: translationRequests.id });
-
-    const requestId = request!.id;
-
-    // Resolve target language codes to IDs and insert junction rows
-    if (targetLangCodes.length > 0) {
-      const targetLangs = await db
-        .select({ id: languages.id })
-        .from(languages)
-        .where(inArray(languages.code, targetLangCodes));
-
-      const junctionValues = targetLangs.map((lang) => ({
-        requestId,
-        languageId: lang.id,
-      }));
-
-      if (junctionValues.length > 0) {
-        await db.insert(translationRequestTargetLangs).values(junctionValues);
+    // Write the ledger entry and its target-language rows atomically (E9/T18):
+    // the request and its junction rows must never be split by a mid-write
+    // failure, which would corrupt credit accounting.
+    return db.transaction(async (tx) => {
+      // Resolve source language code to ID
+      let sourceLangId: number | null = null;
+      if (sourceLangCode) {
+        const rows = await tx
+          .select({ id: languages.id })
+          .from(languages)
+          .where(eq(languages.code, sourceLangCode))
+          .limit(1);
+        sourceLangId = rows[0]?.id ?? null;
       }
-    }
 
-    return requestId;
+      // Insert the request
+      const [request] = await tx
+        .insert(translationRequests)
+        .values({ userId, original, sourceLangId, creditCost })
+        .returning({ id: translationRequests.id });
+
+      const requestId = request!.id;
+
+      // Resolve target language codes to IDs and insert junction rows
+      if (targetLangCodes.length > 0) {
+        const targetLangs = await tx
+          .select({ id: languages.id })
+          .from(languages)
+          .where(inArray(languages.code, targetLangCodes));
+
+        const junctionValues = targetLangs.map((lang) => ({
+          requestId,
+          languageId: lang.id,
+        }));
+
+        if (junctionValues.length > 0) {
+          await tx.insert(translationRequestTargetLangs).values(junctionValues);
+        }
+      }
+
+      // Bump the compact per-user/per-day counter (Fable T25/E5). This is the
+      // pre-aggregated source the admin per-day count reader uses instead of a
+      // GROUP BY over the unboundedly-growing ledger. The calendar day is taken
+      // in UTC so the bucket does not depend on the container/process timezone.
+      const utcDay = new Date().toISOString().slice(0, 10);
+      await tx
+        .insert(userDailyRequestCounts)
+        .values({ userId, day: utcDay, requestCount: 1 })
+        .onConflictDoUpdate({
+          target: [userDailyRequestCounts.userId, userDailyRequestCounts.day],
+          set: { requestCount: sql`${userDailyRequestCounts.requestCount} + 1` },
+        });
+
+      return requestId;
+    });
   },
 
   /**

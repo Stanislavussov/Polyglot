@@ -36,6 +36,11 @@ export interface AIPort {
   generateObject<T>(prompt: string, schema: ZodSchema<T>, model: string, options?: GenerateOptions): Promise<T>;
   generateText(prompt: string, model: string, options?: GenerateOptions): Promise<string>;
   generateChat(messages: ChatMessage[], model: string, options?: ChatOptions): Promise<string>;
-  getAvailableModels(): AIModel[];
-  estimateCost(inputTokens: number, outputTokens: number, modelId: string): number;
 }
+
+/**
+ * Canonical signature of the AI "generate typed object" function, injected into
+ * core modules so they never import the AI adapter directly. This is the single
+ * source of truth — modules import it from here rather than redeclaring it.
+ */
+export type GenerateObjectFn = AIPort["generateObject"];

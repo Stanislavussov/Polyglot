@@ -23,6 +23,8 @@
   "enterWordToTranslate": "📝 Аудару үшін сөз немесе тіркес енгізіңіз:",
   "translating": "⏳ Аударылуда...",
   "translationError": "❌ Аудару сәтсіз аяқталды. Кейінірек қайталап көріңіз.",
+  "genericError": "⚠️ Бірдеңе дұрыс болмады. Қайталап көріңіз.",
+  "staleSession": "⚠️ Сессия аяқталды. Аударатын сөзді қайта жіберіңіз.",
   "translationUnavailable": "⚠️ Аударма уақытша қолжетімсіз. Қайталап көріңіз.",
   "contextMarkerNeedsText": "Контекст белгісінің алдына сөз немесе тіркес енгізіңіз.",
   "inputRejectedEmpty": "Аудару үшін мәтін жіберіңіз.",
@@ -252,7 +254,7 @@
   "translationClarifyLanguageHint": "Төменнен тілді таңдаңыз (жалауша + код) немесе нақтылау жіберіңіз.",
   "correctionNotice": "✏️ Түзетілді: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Түзетілді: {corrected}\n{explanation}",
-  "rateLimitExceeded": "⚠️ Күнделікті аударма шегіне жеттіңіз. Жоспарыңызды тексеру үшін /settings ашыңыз.",
+  "rateLimitExceeded": "⚠️ Айлық аударма лимиті бітті. Шексіз аударма үшін Plus қосыңыз.",
   "mentorModeOn": "🧑‍🏫 Тәлімгер режимі қосулы! Кез келген сөз туралы сұраңыз, мен оны үйренуге көмектесемін — жай аударып қана қоймай, бағыт беремін.",
   "mentorThinking": "🧠 Ойланудамын...",
   "mentorError": "❌ Тәлімгермен сөйлесу сәтсіз аяқталды. Кейінірек қайталап көріңіз.",
@@ -303,5 +305,11 @@
   "translationClarifyReasonUnrecognized": "«{word}» {lang} тіліндегі қалыпты сөзге ұқсамайды.",
   "translationTranslateAsWritten": "➡️ Жазылған күйінде аудару",
   "translationAsWrittenCaveat": "⚠️ Стандартты сөздіктерден табылмады — сөзбе-сөз аударылды.",
-  "translationNoMoreMeanings": "ℹ️ Басқа мағыналар жоқ."
+  "translationNoMoreMeanings": "ℹ️ Басқа мағыналар жоқ.",
+  "upgradeCta": "⭐ Plus немесе Pro қосу",
+  "upgradePlus": "⭐ Plus",
+  "upgradePro": "💎 Pro",
+  "subscriptionActivated": "✅ {plan} {date} дейін белсенді",
+  "checkoutFailed": "⚠️ Төлемді бастау мүмкін болмады. Кейінірек қайталап көріңіз.",
+  "upgradePrompt": "⭐ <b>Тарифіңізді жақсартыңыз</b>\n\n<b>Free</b>: айына 20 аударма · барлығы 3 бейне\n<b>Plus</b>: шексіз аударма · айына 10 бейне\n<b>Pro</b>: шексіз аударма · шексіз бейне\n\nТөменнен тариф таңдаңыз. Бағалар жақында."
 }

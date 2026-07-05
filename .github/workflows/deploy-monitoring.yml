@@ -20,7 +20,16 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          # Pin the host key (Fable T30, F8) instead of trust-on-first-use
+          # ssh-keyscan, which would accept whatever key answers on the network.
+          # Set the VPS_SSH_KNOWN_HOSTS secret to the VPS's known_hosts line
+          # (`ssh-keyscan -H <host>`). Falls back to TOFU only when unset.
+          if [ -n "${{ secrets.VPS_SSH_KNOWN_HOSTS }}" ]; then
+            echo "${{ secrets.VPS_SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          else
+            echo "WARNING: VPS_SSH_KNOWN_HOSTS not set — falling back to TOFU ssh-keyscan"
+            ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          fi
           tar -czf /tmp/monitoring.tar.gz -C deploy/monitoring .
           scp -i ~/.ssh/deploy_key /tmp/monitoring.tar.gz \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/monitoring.tar.gz
@@ -30,7 +39,9 @@ jobs:
           rm -f ~/.ssh/deploy_key
 
       - name: Start monitoring stack
-        uses: appleboy/ssh-action@v1.0.3
+        # Pinned to the commit SHA of v1.0.3 (Fable T30, F8): third-party action
+        # holding the prod SSH key — mutable tag pinning is a supply-chain risk.
+        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}

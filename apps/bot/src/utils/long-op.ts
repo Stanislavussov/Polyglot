@@ -10,6 +10,26 @@ import type { BotContext } from "../types.js";
 /** How long a user-facing operation may run before we give up and say so. */
 export const LONG_OP_TIMEOUT_MS = 20_000;
 
+/**
+ * Safety margin between the AI request budget and the outer op guard (B8). The
+ * AI adapter's per-request budget is admin-managed (DB `ai.defaults`), so it can
+ * be raised above {@link LONG_OP_TIMEOUT_MS}. If it were, the outer `withTimeout`
+ * guard would abandon the await while the AI call kept spending — a leaked,
+ * still-billing request. {@link clampAiBudgetToOpGuard} bounds the budget this
+ * many ms below the outer guard so the adapter always aborts first, freeing the
+ * socket and provider slot before the user-facing guard fires.
+ */
+export const AI_BUDGET_SAFETY_MARGIN_MS = 2_000;
+
+/**
+ * Bounds an admin-configured AI request budget strictly below the outer op guard
+ * so the AI adapter cancels first (B8). Invariant: the returned value is always
+ * `<= LONG_OP_TIMEOUT_MS - AI_BUDGET_SAFETY_MARGIN_MS < LONG_OP_TIMEOUT_MS`.
+ */
+export function clampAiBudgetToOpGuard(budgetMs: number): number {
+  return Math.min(budgetMs, LONG_OP_TIMEOUT_MS - AI_BUDGET_SAFETY_MARGIN_MS);
+}
+
 /** Callback data for the inert loading button; answered with an empty ack. */
 export const NOOP_CALLBACK = "noop";
 

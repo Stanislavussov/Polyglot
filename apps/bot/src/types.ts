@@ -13,11 +13,19 @@ import type {
 import { Context, SessionFlavor } from "grammy";
 
 /**
+ * Canonical list of bot modes — the single source of truth.
+ * Both the {@link UserMode} union and every runtime `VALID_MODES` set are
+ * derived from this array, so a newly added mode cannot be silently omitted
+ * from session validation (adding one here updates the type and all guards).
+ */
+export const USER_MODES = ["idle", "translate", "mentor"] as const;
+
+/**
  * Active mode for the bot — determines how plain text messages are routed.
  * Persisted in DB (userLanguageSettings.activeMode) to survive bot restarts.
- * Extensible: add "mentor" | "quiz" when those features land.
+ * Derived from {@link USER_MODES}; add new modes there.
  */
-export type UserMode = "idle" | "translate" | "mentor";
+export type UserMode = (typeof USER_MODES)[number];
 
 /**
  * Session data stored per-user.
@@ -55,6 +63,14 @@ export interface SessionData {
       grammarBreakdown?: Record<string, string[]>;
       /** Cached on-demand etymology prose for the original term */
       etymology?: string;
+      /**
+       * Monotonic insertion stamp used for recency-based eviction. Set by
+       * {@link setTranslationEntry}; Telegram message ids are not a safe proxy
+       * for recency (a chat or a different bot sharing this session key can
+       * restart ids at low numbers). Older/legacy entries lacking this field
+       * are treated as oldest and evicted first.
+       */
+      addedAt?: number;
     }
   >;
   /**
@@ -141,7 +157,9 @@ export interface SessionData {
     reason: string;
     options?: Array<{
       id?: string;
-      label: string;
+      // Optional: core omits the label for options the channel labels from
+      // `kind` (e.g. translate_as_written) — Fable T23/A13.
+      label?: string;
       value: string;
       kind?: string;
       langCode?: string;
@@ -149,15 +167,21 @@ export interface SessionData {
     }>;
   };
   /**
-   * Pending out-of-set add-and-translate flow: the user typed text in a
-   * SUPPORTED language they don't study yet. Carries the word across the
-   * tr:oos:add / tr:oos:once / tr:oos:cancel callback tap.
+   * Pending out-of-set add-and-translate prompts, keyed by the prompt's
+   * Telegram message id (mirrors {@link SessionData.translationMap}). The user
+   * typed text in a SUPPORTED language they don't study yet; each entry carries
+   * its own word across the tr:oos:add / tr:oos:once / tr:oos:cancel callback
+   * tap. Keying by message id means two consecutive prompts cannot cross-wire
+   * language and word, and a used/stale button resolves to its own entry only.
    */
-  pendingOutOfSet?: {
-    lang: string;
-    word: string;
-    contextHint?: string;
-  };
+  pendingOutOfSet?: Record<
+    string,
+    {
+      lang: string;
+      word: string;
+      contextHint?: string;
+    }
+  >;
   /** True when the next text message should be used as translation context clarification. */
   awaitingTranslationClarificationContext?: boolean;
   /** Message ID of the translation card awaiting post-translation clarification context. */

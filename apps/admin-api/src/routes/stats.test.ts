@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { installErrorHandler } from "../error-handler.js";
 
 const mocks = vi.hoisted(() => {
   const getUserRequestCountsByDay = vi.fn(() =>
@@ -54,7 +55,20 @@ const mocks = vi.hoisted(() => {
     }),
   );
 
-  return { getUserRequestCountsByDay, getDictionaryLookupSummary, listRecentDictionaryLookups };
+  const getSegmentSummaryByDay = vi.fn(() => Promise.resolve([]));
+  const getSegmentSummaryByModel = vi.fn(() => Promise.resolve([]));
+  const getLanguageDetectionByDay = vi.fn(() => Promise.resolve([]));
+  const getLanguageDetectionByOutcome = vi.fn(() => Promise.resolve([]));
+
+  return {
+    getUserRequestCountsByDay,
+    getDictionaryLookupSummary,
+    listRecentDictionaryLookups,
+    getSegmentSummaryByDay,
+    getSegmentSummaryByModel,
+    getLanguageDetectionByDay,
+    getLanguageDetectionByOutcome,
+  };
 });
 
 vi.mock("@polyglot/adapter-db", () => ({
@@ -65,6 +79,14 @@ vi.mock("@polyglot/adapter-db", () => ({
   userRequestCountRepository: {
     getUserRequestCountsByDay: mocks.getUserRequestCountsByDay,
   },
+  requestTimingRepository: {
+    getSegmentSummaryByDay: mocks.getSegmentSummaryByDay,
+    getSegmentSummaryByModel: mocks.getSegmentSummaryByModel,
+  },
+  languageDetectionRepository: {
+    getSummaryByDay: mocks.getLanguageDetectionByDay,
+    getSummaryByOutcome: mocks.getLanguageDetectionByOutcome,
+  },
 }));
 
 const { statsRoutes } = await import("./stats.js");
@@ -72,6 +94,7 @@ const { statsRoutes } = await import("./stats.js");
 async function buildApp() {
   const app = Fastify();
   app.decorateRequest("jwtVerify", async () => undefined);
+  installErrorHandler(app);
   await app.register(statsRoutes);
   return app;
 }
@@ -218,6 +241,38 @@ describe("statsRoutes", () => {
     expect(json.days).toEqual(["2026-06-25", "2026-06-24"]);
     expect(json.users[0].total).toBe(5);
     expect(json.users[0].counts).toEqual({ "2026-06-25": 2, "2026-06-24": 3 });
+    await app.close();
+  });
+
+  it("clamps an oversized days window on request-timings", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: "/stats/request-timings?days=999" });
+
+    expect(response.statusCode).toBe(200);
+    expect(mocks.getSegmentSummaryByDay).toHaveBeenCalledWith(90);
+    expect(mocks.getSegmentSummaryByModel).toHaveBeenCalledWith(90);
+    await app.close();
+  });
+
+  it("rejects a non-numeric days window with 400 (not 500)", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: "/stats/request-timings?days=abc" });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ error: "Invalid request parameters" });
+    expect(mocks.getSegmentSummaryByDay).not.toHaveBeenCalled();
+    await app.close();
+  });
+
+  it("defaults the language-detection window to 7 days", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: "/stats/language-detection" });
+
+    expect(response.statusCode).toBe(200);
+    expect(mocks.getLanguageDetectionByDay).toHaveBeenCalledWith(7);
     await app.close();
   });
 });

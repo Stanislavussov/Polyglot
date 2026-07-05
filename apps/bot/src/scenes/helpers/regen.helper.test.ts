@@ -1,24 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock external modules before imports
-vi.mock("@polyglot/adapter-ai", () => ({
-  generateObject: vi.fn(),
-}));
-
-vi.mock("@polyglot/adapter-db", () => ({
-  vocabularyRepository: {
-    create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
-    findByOriginalAndSource: vi.fn().mockResolvedValue(null),
-  },
-  vocabularyDictionaryRepository: {
-    addEntryToDefault: vi.fn().mockResolvedValue({ id: 1, name: "My Words" }),
-    entryBelongsToDefault: vi.fn().mockResolvedValue(true),
-  },
-  getLang: vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" }),
-  translationTemplateRepository: {
-    getByUserId: vi.fn().mockResolvedValue(null),
-  },
-}));
+// regen.helper routes AI through ctx.services.ai.generateObject (auto-mocked by
+// createServicesStub), so no adapter-ai module mock is needed here.
+const mockVocabularyRepository = {
+  create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
+  findByOriginalAndSource: vi.fn().mockResolvedValue(null),
+};
+const mockVocabularyDictionaryRepository = {
+  addEntryToDefault: vi.fn().mockResolvedValue({ id: 1, name: "My Words" }),
+  entryBelongsToDefault: vi.fn().mockResolvedValue(true),
+};
+const mockGetLang = vi.fn().mockReturnValue({ id: 1, code: "en", name: "English" });
+const mockTranslationTemplateRepository = {
+  getByUserId: vi.fn().mockResolvedValue(null),
+};
 
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
@@ -53,9 +48,9 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-import { getLang, vocabularyRepository } from "@polyglot/adapter-db";
-import type { SupportedLang, TranslateOutput } from "@polyglot/core";
+import type { ServiceContainer, SupportedLang, TranslateOutput } from "@polyglot/core";
 import { translateOne } from "@polyglot/core";
+import { createServicesStub } from "../../test-helpers/services-stub.js";
 import { handleRegenLoop } from "./regen.helper.js";
 
 const sampleOutput: TranslateOutput = {
@@ -114,6 +109,14 @@ function createMockCtx() {
       editMessageText: vi.fn(),
     },
     reply: vi.fn(),
+    services: createServicesStub({
+      vocabularyRepository: mockVocabularyRepository as unknown as ServiceContainer["vocabularyRepository"],
+      vocabularyDictionaryRepository:
+        mockVocabularyDictionaryRepository as unknown as ServiceContainer["vocabularyDictionaryRepository"],
+      translationTemplateRepository:
+        mockTranslationTemplateRepository as unknown as ServiceContainer["translationTemplateRepository"],
+      languageCache: { getLang: mockGetLang } as unknown as ServiceContainer["languageCache"],
+    }),
   };
 }
 
@@ -128,7 +131,7 @@ describe("handleRegenLoop", () => {
 
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
-    expect(vocabularyRepository.create).toHaveBeenCalledWith(
+    expect(mockVocabularyRepository.create).toHaveBeenCalledWith(
       1,
       expect.objectContaining({
         original: "hello",
@@ -163,7 +166,7 @@ describe("handleRegenLoop", () => {
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(editMessageText).toHaveBeenCalledTimes(1);
-    expect(vocabularyRepository.create).not.toHaveBeenCalled();
+    expect(mockVocabularyRepository.create).not.toHaveBeenCalled();
   });
 
   it("calls translateOne on regen and re-renders card", async () => {
@@ -179,6 +182,8 @@ describe("handleRegenLoop", () => {
       sourceLang: "en",
       targetLang: "cs",
     });
+    // AI is injected via the ctx.services DI seam, not an adapter import.
+    expect(call[1]).toBe(ctx.services.ai.generateObject);
 
     // Should re-render the card via ctx.api.editMessageText
     expect(ctx.api.editMessageText).toHaveBeenCalled();
@@ -221,7 +226,7 @@ describe("handleRegenLoop", () => {
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     // The saved input should have the regenerated CS translation
-    const savedInput = vi.mocked(vocabularyRepository.create).mock.calls[0]![1]!;
+    const savedInput = vi.mocked(mockVocabularyRepository.create).mock.calls[0]![1]!;
     const csTranslation = savedInput.translations.find((t: any) => t.text === "regenerated");
     expect(csTranslation).toBeDefined();
     // DE should remain unchanged
@@ -249,7 +254,7 @@ describe("handleRegenLoop", () => {
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
     expect(translateOne).toHaveBeenCalledTimes(2);
-    expect(vocabularyRepository.create).toHaveBeenCalledTimes(1);
+    expect(mockVocabularyRepository.create).toHaveBeenCalledTimes(1);
   });
 
   it("answers callback query for each interaction", async () => {
@@ -262,7 +267,7 @@ describe("handleRegenLoop", () => {
   });
 
   it("detects duplicates and shows alreadySaved toast", async () => {
-    vi.mocked(vocabularyRepository.findByOriginalAndSource).mockResolvedValueOnce({ id: 99 } as any);
+    vi.mocked(mockVocabularyRepository.findByOriginalAndSource).mockResolvedValueOnce({ id: 99 } as any);
     const { conversation, answerCallbackQuery } = createMockConversation(["tr:save", "tr:skip"]);
     const ctx = createMockCtx();
 
@@ -273,7 +278,7 @@ describe("handleRegenLoop", () => {
       expect.objectContaining({ text: expect.stringContaining("already"), show_alert: true }),
     );
     // No new entry should be created
-    expect(vocabularyRepository.create).not.toHaveBeenCalled();
+    expect(mockVocabularyRepository.create).not.toHaveBeenCalled();
   });
 
   it("resolves sourceLangId via getLang for save", async () => {
@@ -282,8 +287,8 @@ describe("handleRegenLoop", () => {
 
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42);
 
-    expect(getLang).toHaveBeenCalledWith("en");
-    expect(vocabularyRepository.create).toHaveBeenCalledWith(
+    expect(mockGetLang).toHaveBeenCalledWith("en");
+    expect(mockVocabularyRepository.create).toHaveBeenCalledWith(
       1,
       expect.objectContaining({
         sourceLangId: 1,
@@ -291,13 +296,13 @@ describe("handleRegenLoop", () => {
     );
   });
 
-  it("passes inputType to vocabularyRepository.create", async () => {
+  it("passes inputType to mockVocabularyRepository.create", async () => {
     const { conversation } = createMockConversation(["tr:save"]);
     const ctx = createMockCtx();
 
     await handleRegenLoop(conversation as any, ctx as any, sampleOutput, "en" as SupportedLang, 1, 42, "phrase");
 
-    expect(vocabularyRepository.create).toHaveBeenCalledWith(
+    expect(mockVocabularyRepository.create).toHaveBeenCalledWith(
       1,
       expect.objectContaining({
         inputType: "phrase",

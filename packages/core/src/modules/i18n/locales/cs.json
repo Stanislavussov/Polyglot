@@ -23,6 +23,8 @@
   "enterWordToTranslate": "📝 Zadejte slovo nebo frázi k překladu:",
   "translating": "⏳ Překládám...",
   "translationError": "❌ Překlad selhal. Zkuste to prosím později.",
+  "genericError": "⚠️ Něco se pokazilo. Zkuste to prosím znovu.",
+  "staleSession": "⚠️ Relace vypršela. Zadejte prosím slovo k překladu znovu.",
   "translationUnavailable": "⚠️ Překlad je dočasně nedostupný. Zkuste to znovu.",
   "contextMarkerNeedsText": "Před kontextovou značku zadejte slovo nebo frázi.",
   "inputRejectedEmpty": "Pošlete text k překladu.",
@@ -252,7 +254,7 @@
   "translationClarifyLanguageHint": "Vyberte jazyk níže (vlajka + kód) nebo pošlete upřesnění.",
   "correctionNotice": "✏️ Opraveno: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Opraveno: {corrected}\n{explanation}",
-  "rateLimitExceeded": "⚠️ Denní limit překladů byl vyčerpán. Otevřete /settings a zkontrolujte svůj tarif.",
+  "rateLimitExceeded": "⚠️ Měsíční limit překladů vyčerpán. Přejděte na Plus pro neomezené překlady.",
   "mentorModeOn": "🧑‍🏫 Režim mentora aktivní! Zeptejte se mě na jakékoli slovo a pomůžu vám se ho naučit — nepřeložím ho jen tak, budu vás provázet.",
   "mentorThinking": "🧠 Přemýšlím...",
   "mentorError": "❌ Chat s mentorem selhal. Zkuste to prosím později.",
@@ -303,5 +305,11 @@
   "translationClarifyReasonUnrecognized": "„{word}“ nevypadá jako běžné slovo v jazyce {lang}.",
   "translationTranslateAsWritten": "➡️ Přeložit tak, jak je",
   "translationAsWrittenCaveat": "⚠️ Nenalezeno ve standardních slovnících — přeloženo doslovně.",
-  "translationNoMoreMeanings": "ℹ️ Žádné další významy nejsou k dispozici."
+  "translationNoMoreMeanings": "ℹ️ Žádné další významy nejsou k dispozici.",
+  "upgradeCta": "⭐ Získat Plus nebo Pro",
+  "upgradePlus": "⭐ Plus",
+  "upgradePro": "💎 Pro",
+  "subscriptionActivated": "✅ {plan} je aktivní do {date}",
+  "checkoutFailed": "⚠️ Platbu se nepodařilo zahájit. Zkuste to prosím později.",
+  "upgradePrompt": "⭐ <b>Vylepšete svůj tarif</b>\n\n<b>Free</b>: 20 překladů/měsíc · 3 videa celkem\n<b>Plus</b>: neomezené překlady · 10 videí/měsíc\n<b>Pro</b>: neomezené překlady · neomezená videa\n\nVyberte tarif níže. Ceny brzy."
 }

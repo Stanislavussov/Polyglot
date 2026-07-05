@@ -5,7 +5,6 @@
  * All DB access through repositories. All text via i18n.
  */
 
-import { userRepository, vocabularyDictionaryRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import type { SupportedLang } from "@polyglot/core";
 import { isSupported } from "@polyglot/core";
 import {
@@ -18,7 +17,7 @@ import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 
 /** Resolve user's interface language. */
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const lang = settings?.interfaceLang;
   return lang && isSupported(lang) ? lang : "en";
 }
@@ -26,10 +25,15 @@ async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
 /** /dictionary command — show the user's personal dictionary. */
 export async function handleDictionaryCommand(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
-  const dictionary = await vocabularyDictionaryRepository.getOrCreateDefault(ctx.user.id);
-  const total = await vocabularyRepository.countByUser(ctx.user.id, dictionary.id);
+  const dictionary = await ctx.services.vocabularyDictionaryRepository.getOrCreateDefault(ctx.user.id);
+  const total = await ctx.services.vocabularyRepository.countByUser(ctx.user.id, dictionary.id);
 
-  const entries = await vocabularyRepository.findByUserPaginated(ctx.user.id, 0, DICTIONARY_PAGE_SIZE, dictionary.id);
+  const entries = await ctx.services.vocabularyRepository.findByUserPaginated(
+    ctx.user.id,
+    0,
+    DICTIONARY_PAGE_SIZE,
+    dictionary.id,
+  );
   const totalPages = Math.max(1, Math.ceil(total / DICTIONARY_PAGE_SIZE));
 
   const text = renderDictionaryList(entries, 1, totalPages, total, lang, dictionary.name);

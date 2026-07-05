@@ -3,7 +3,6 @@
  * Sets active mode to "translate" and confirms to user.
  * Persists mode to DB so it survives bot restarts.
  */
-import { getLangDisplay, userRepository } from "@polyglot/adapter-db";
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
 
@@ -15,18 +14,18 @@ import type { BotContext } from "../types.js";
 export async function handleTranslateCommand(ctx: BotContext): Promise<void> {
   // Set active mode to translate (session + DB)
   ctx.session.activeMode = "translate";
-  await userRepository.updateActiveMode(ctx.user.id, "translate");
+  await ctx.services.userRepository.updateActiveMode(ctx.user.id, "translate");
 
   // Get user's settings
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
   const learningLangs = settings?.learningLangs ?? [];
 
   // Build language display strings
-  const fromLang = getLangDisplay(nativeLang);
-  const toLangs = learningLangs.map(getLangDisplay).join(", ") || "—";
+  const fromLang = ctx.services.languageCache.getLangDisplay(nativeLang);
+  const toLangs = learningLangs.map((code) => ctx.services.languageCache.getLangDisplay(code)).join(", ") || "—";
 
   // Send confirmation message with language direction
   await ctx.reply(t("translateModeOn", lang, { fromLang, toLangs }));

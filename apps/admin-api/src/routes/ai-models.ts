@@ -1,29 +1,8 @@
-import { type AIModelWithPlans, aiModelRepository } from "@polyglot/adapter-db";
+import { aiModelCreateSchema, aiModelUpdateSchema } from "@polyglot/admin-contracts";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
-
-const modelSchema = z.object({
-  id: z.string().min(1).max(255),
-  name: z.string().min(1).max(255),
-  provider: z.string().min(1).max(100),
-  maxTokens: z.number().int().min(1),
-  costPer1kInput: z.number().min(0),
-  costPer1kOutput: z.number().min(0),
-  isEnabled: z.boolean().default(true),
-  isDefault: z.boolean().default(false),
-  allowedPlans: z.array(z.string().min(1).max(50)).default([]),
-});
-
-const updateModelSchema = z.object({
-  name: z.string().min(1).max(255).optional(),
-  provider: z.string().min(1).max(100).optional(),
-  maxTokens: z.number().int().min(1).optional(),
-  costPer1kInput: z.number().min(0).optional(),
-  costPer1kOutput: z.number().min(0).optional(),
-  isEnabled: z.boolean().optional(),
-  isDefault: z.boolean().optional(),
-  allowedPlans: z.array(z.string().min(1).max(50)).optional(),
-});
+import { requireRole } from "../plugins/auth.js";
+import { aiModelService } from "../services/ai-model.service.js";
 
 const openRouterModelSchema = z.object({
   id: z.string(),
@@ -48,35 +27,14 @@ const openRouterCurrentKeyResponseSchema = z.object({
   }),
 });
 
-interface AdminActor {
-  adminId: number;
-  email: string;
-  role: string;
-}
-
-type AIModelChangeAction = "created" | "updated" | "default_changed" | "deleted";
 type OpenRouterKeyExpirationStatus = "active" | "expiring_soon" | "expired" | "unknown" | "not_configured";
 
-function logAiModelChange(
-  request: FastifyRequest,
-  action: AIModelChangeAction,
-  modelId: string,
-  details: {
-    before?: AIModelWithPlans | null;
-    after?: AIModelWithPlans | null;
-    previousDefaultId?: string | null;
-  } = {},
-): void {
-  request.log.info(
-    {
-      event: `ai_model.${action}`,
-      actor: request.adminUser,
-      modelId,
-      ...details,
-    },
-    `AI model ${action}`,
-  );
-}
+/**
+ * Wall-clock cap for outbound OpenRouter requests (D6). Without it a hung
+ * upstream would hold the admin-API request open indefinitely; the AbortSignal
+ * aborts the fetch so the route fails fast with a clear error instead.
+ */
+const OPENROUTER_FETCH_TIMEOUT_MS = 10_000;
 
 function providerFromModelId(id: string): string {
   return id.split("/")[0] ?? "unknown";
@@ -142,9 +100,9 @@ function expirationStatus(expiresAt: string | null): {
 }
 
 export async function aiModelRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    request.adminUser = await request.jwtVerify<AdminActor>();
-  });
+  // Auth (jwtVerify + isActive) is applied globally by the unified hook in
+  // plugins/auth.ts; mutating routes additionally require the superadmin role.
+  const superadminOnly = { preHandler: requireRole("superadmin") };
 
   app.get("/ai-models/openrouter", async () => {
     const headers: Record<string, string> = {};
@@ -152,7 +110,10 @@ export async function aiModelRoutes(app: FastifyInstance) {
       headers.Authorization = `Bearer ${process.env.OPENROUTER_API_KEY}`;
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/models", { headers });
+    const response = await fetch("https://openrouter.ai/api/v1/models", {
+      headers,
+      signal: AbortSignal.timeout(OPENROUTER_FETCH_TIMEOUT_MS),
+    });
     if (!response.ok) {
       throw new Error(`OpenRouter models request failed: ${response.status} ${response.statusText}`);
     }
@@ -183,6 +144,7 @@ export async function aiModelRoutes(app: FastifyInstance) {
 
     const response = await fetch("https://openrouter.ai/api/v1/key", {
       headers: { Authorization: `Bearer ${apiKey}` },
+      signal: AbortSignal.timeout(OPENROUTER_FETCH_TIMEOUT_MS),
     });
     if (!response.ok) {
       throw new Error(`OpenRouter key request failed: ${response.status} ${response.statusText}`);
@@ -202,54 +164,30 @@ export async function aiModelRoutes(app: FastifyInstance) {
   });
 
   app.get("/ai-models", async () => {
-    const models = await aiModelRepository.findAll();
-    return models;
+    return aiModelService.list();
   });
 
-  app.post("/ai-models", async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = modelSchema.parse(request.body);
-    const before = await aiModelRepository.findByIdWithPlans(body.id);
-    const model = await aiModelRepository.upsert(body);
-    logAiModelChange(request, before ? "updated" : "created", model.id, { before, after: model });
+  app.post("/ai-models", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
+    const body = aiModelCreateSchema.parse(request.body);
+    const model = await aiModelService.create(body, request.log, request.adminUser);
     return reply.status(201).send(model);
   });
 
-  app.put("/ai-models/:id", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/ai-models/:id", superadminOnly, async (request: FastifyRequest) => {
     const { id } = request.params as { id: string };
-    const body = updateModelSchema.parse(request.body);
-    const existing = await aiModelRepository.findByIdWithPlans(id);
-    if (!existing) {
-      return reply.status(404).send({ error: "Model not found" });
-    }
-    const model = await aiModelRepository.upsert({ ...existing, ...body });
-    logAiModelChange(request, "updated", id, { before: existing, after: model });
-    return model;
+    const body = aiModelUpdateSchema.parse(request.body);
+    return aiModelService.update(id, body, request.log, request.adminUser);
   });
 
-  app.put("/ai-models/:id/set-default", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.put("/ai-models/:id/set-default", superadminOnly, async (request: FastifyRequest) => {
     const { id } = request.params as { id: string };
-    const existing = await aiModelRepository.findByIdWithPlans(id);
-    if (!existing) {
-      return reply.status(404).send({ error: "Model not found" });
-    }
-    const previousDefault = await aiModelRepository.findDefault();
-    await aiModelRepository.setDefault(id);
-    const model = await aiModelRepository.findByIdWithPlans(id);
-    logAiModelChange(request, "default_changed", id, {
-      before: existing,
-      after: model,
-      previousDefaultId: previousDefault?.id ?? null,
-    });
+    await aiModelService.setDefault(id, request.log, request.adminUser);
     return { success: true };
   });
 
-  app.delete("/ai-models/:id", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.delete("/ai-models/:id", superadminOnly, async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
-    const existing = await aiModelRepository.findByIdWithPlans(id);
-    await aiModelRepository.delete(id);
-    if (existing) {
-      logAiModelChange(request, "deleted", id, { before: existing, after: null });
-    }
+    await aiModelService.remove(id, request.log, request.adminUser);
     return reply.status(204).send();
   });
 }

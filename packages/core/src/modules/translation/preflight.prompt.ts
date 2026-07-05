@@ -75,5 +75,5 @@ Option requirements:
 - Option labels must be in the user's native language (${input.nativeLang ?? "en"}).
 - For source_language options, set langCode to the candidate source language and DO NOT put any language name in the label — the app adds a flag from langCode. Use the word/sense itself as the label.
 - For typo_correction options, set correctedText to the corrected text and set langCode when the corrected word's source language is clear.
-- Always make options concrete enough that a Telegram button label is useful.`;
+- Always make options concrete enough that a selectable option label is useful.`;
 }

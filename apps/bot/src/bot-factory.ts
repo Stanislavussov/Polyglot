@@ -1,7 +1,9 @@
+import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { sequentialize } from "@grammyjs/runner";
-import { logger } from "@polyglot/core";
-import { Bot, type NextFunction, type StorageAdapter, session } from "grammy";
+import { apiThrottler } from "@grammyjs/transformer-throttler";
+import { Bot, type Middleware, type NextFunction, type StorageAdapter, session } from "grammy";
+import { handleBotError } from "./bot-error-handler.js";
 import { changesCommand } from "./commands/changes.js";
 import { setBotCommands } from "./commands/commands.js";
 import { startCommand } from "./commands/start.js";
@@ -13,6 +15,17 @@ import { updateMetricsMiddleware } from "./middlewares/update-metrics.js";
 import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notifications/notification.callbacks.js";
 import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
 import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
+import {
+  handleAltMeaningCallback,
+  handleEtymologyCallback,
+  handleGrammarBreakdownCallback,
+  handleGrammarDetailCallback,
+  handleGrammarLangSelectCallback,
+  handleRegenCallback,
+  handleSaveCallback,
+  handleSkipCallback,
+} from "./scenes/helpers/card-actions.js";
+import { handleClarifyPostCallback, handleTranslationClarificationCallback } from "./scenes/helpers/clarification.js";
 import {
   handleDictAdd,
   handleDictAddMenu,
@@ -41,6 +54,7 @@ import {
   handleFcReveal,
   handleFcStart,
 } from "./scenes/helpers/flashcard.helper.js";
+import { handleLangSelectCallback, handleOutOfSetCallback } from "./scenes/helpers/out-of-set.js";
 import {
   handleSetBackCallback,
   handleSetCloseCallback,
@@ -70,6 +84,7 @@ import {
   handleSrsRestart,
   handleSrsReveal,
 } from "./scenes/helpers/srs.helper.js";
+import { handleBuyPlanCallback, handleUpgradePromptCallback } from "./scenes/helpers/subscription.helper.js";
 import {
   handleBackCallback,
   handleCancelCallback,
@@ -79,22 +94,7 @@ import {
   handleSaveTemplateCallback,
   handleToggleCallback,
 } from "./scenes/helpers/template.helper.js";
-import {
-  handleAltMeaningCallback,
-  handleClarifyPostCallback,
-  handleEtymologyCallback,
-  handleGrammarBreakdownCallback,
-  handleGrammarDetailCallback,
-  handleGrammarLangSelectCallback,
-  handleLangSelectCallback,
-  handleMistypeCancelCallback,
-  handleMistypeConfirmCallback,
-  handleOutOfSetCallback,
-  handleRegenCallback,
-  handleSaveCallback,
-  handleSkipCallback,
-  handleTranslationClarificationCallback,
-} from "./scenes/helpers/translate-mode.helper.js";
+import { handleMistypeCancelCallback, handleMistypeConfirmCallback } from "./scenes/helpers/translate-flow.js";
 import {
   handleVideoBrowseCallback,
   handleVideoCancelCallback,
@@ -113,7 +113,7 @@ import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleReviewCommand } from "./scenes/srs.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
-import type { BotContext, SessionData } from "./types.js";
+import type { BotContext, ConversationContext, SessionData } from "./types.js";
 import { NOOP_CALLBACK } from "./utils/long-op.js";
 
 export interface CreatePolyglotBotOptions {
@@ -183,6 +183,14 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
     client: options.apiRoot ? { apiRoot: options.apiRoot } : undefined,
   });
 
+  // Telegram resilience (Fable T14). auto-retry backs off and retries on 429
+  // flood-limits (so no update/send is lost); the throttler paces all outgoing
+  // API calls under Telegram's global/per-chat limits so batch notification
+  // sends (which share this Api instance) never hit the flood limit. Applied to
+  // bot.api, which is also the Api passed to the notification scheduler.
+  bot.api.config.use(autoRetry());
+  bot.api.config.use(apiThrottler());
+
   bot.use(updateMetricsMiddleware);
 
   // Updates are processed concurrently by @grammyjs/runner; sequentialize
@@ -206,8 +214,23 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   });
 
   bot.use(authMiddleware);
-  bot.use(createConversation(onboarding));
-  bot.use(createConversation(handleReportIssue, { plugins: [conversationAuthPlugin()] }));
+
+  // Conversations run in a replayed context that the outer service-injection
+  // middleware above never touches, so ctx.services is undefined inside them.
+  // Re-inject the singleton container as a conversation plugin — it is a stable
+  // reference, so re-setting it on every replay is deterministic. Without this,
+  // the report conversation's auth/hydration plugin dereferences
+  // ctx.services.identityRepository and crashes (Fable T24 regression).
+  const injectServicesPlugin: Middleware<ConversationContext> = (ctx, next) => {
+    ctx.services = services;
+    return next();
+  };
+  bot.use(createConversation(onboarding, { plugins: [injectServicesPlugin] }));
+  bot.use(
+    createConversation(handleReportIssue, {
+      plugins: [injectServicesPlugin, conversationAuthPlugin()],
+    }),
+  );
   bot.use(exitActiveConversations);
 
   bot.command("start", startCommand);
@@ -261,6 +284,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery(/^tr:grammar:/, handleGrammarBreakdownCallback);
   bot.callbackQuery(/^tr:etymology:/, handleEtymologyCallback);
   bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);
+
+  bot.callbackQuery("plan:upgrade", handleUpgradePromptCallback);
+  bot.callbackQuery(/^plan:buy:/, handleBuyPlanCallback);
   bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
   bot.callbackQuery(/^tr:langselect:/, handleLangSelectCallback);
   bot.callbackQuery(/^tr:oos:/, handleOutOfSetCallback);
@@ -317,23 +343,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   bot.use(modeRouterMiddleware);
 
-  bot.catch((err) => {
-    const ctx = err.ctx;
-    const userId = ctx.from?.id;
-    const command = ctx.message?.text?.split(" ")[0] ?? "unknown";
-    const callbackData = ctx.callbackQuery?.data;
-    logger.error(
-      {
-        error: err.error instanceof Error ? err.error.message : String(err.error),
-        userId,
-        command,
-        callbackFamily: callbackData?.split(":")[0],
-        sessionVersion: 1,
-        activeMode: ctx.session.activeMode,
-      },
-      "Bot error",
-    );
-  });
+  bot.catch(handleBotError);
 
   return bot;
 }

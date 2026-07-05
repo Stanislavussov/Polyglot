@@ -1,5 +1,3 @@
-import type { ZodSchema } from "zod";
-
 /** Classification result for translation quality */
 export type IdiomClassification =
   | "CORRECT_IDIOMATIC_TRANSLATION" // Natural, commonly used expression
@@ -48,6 +46,3 @@ export interface IdiomAnalysisResult {
   /** Explanation for the suggested alternative */
   alternativeExplanation?: string;
 }
-
-/** Generate function signature (injected dependency) */
-export type GenerateObjectFn = <T>(prompt: string, schema: ZodSchema<T>, model: string) => Promise<T>;

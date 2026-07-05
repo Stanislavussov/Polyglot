@@ -1,9 +1,9 @@
 import type { Conversation } from "@grammyjs/conversations";
-import { type IssueType, reportedIssueRepository, userRepository } from "@polyglot/adapter-db";
-import { logger, type SupportedLang, t } from "@polyglot/core";
+import { type IssueType, logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext, ConversationContext } from "../types.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
 const BACK = Symbol("back");
 type BackAction = typeof BACK;
@@ -46,7 +46,7 @@ async function stepChooseType(
   }
   const type = response.callbackQuery.data.replace("report:type:", "") as IssueType;
   await response.answerCallbackQuery();
-  await response.editMessageText(`${t("reportTitle", lang)}\n\n✅ ${typeToLabel(type, lang)}`);
+  await editMessageTextOrReply(response, `${t("reportTitle", lang)}\n\n✅ ${typeToLabel(type, lang)}`);
   return type;
 }
 
@@ -134,7 +134,9 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
     return;
   }
   const userId = ctx.user.id;
-  const settings = await userRepository.getSettings(userId);
+  // Read through conversation.external so it runs once against the live context
+  // rather than re-executing on every conversation replay.
+  const settings = await conversation.external(() => ctx.services.userRepository.getSettings(userId));
   const lang: SupportedLang = (settings?.interfaceLang ?? "en") as SupportedLang;
 
   const type = await stepChooseType(conversation, ctx, lang);
@@ -162,7 +164,7 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
   // action === "send"
   await cleanupTechnicalMessages(ctx);
   await conversation.external(async () => {
-    await reportedIssueRepository.create(userId, type, description);
+    await ctx.services.reportedIssueRepository.create(userId, type, description);
   });
   await ctx.reply(t("reportSent", lang));
   logger.info({ userId, type }, "User submitted a report");

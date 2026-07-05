@@ -2,7 +2,6 @@
  * Video Vocabulary handlers — YouTube video phrase extraction flow.
  */
 
-import { videoVocabularyRepository, vocabularyDictionaryRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import {
   extractVideoId,
   fetchMetadata,
@@ -15,6 +14,7 @@ import {
   extractPhrasesFromTranscript,
   isSupported,
   logger,
+  resolveEntitlements,
   resolveOutputConfig,
   type SupportedLang,
   t,
@@ -31,8 +31,11 @@ import {
 } from "../../renderers/video-vocabulary.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
+import { editMessageTextOrReply } from "./edit-message.helper.js";
+import { buildUpgradeKeyboard } from "./subscription.helper.js";
 
 const PHRASES_PER_PAGE = 5;
 const MAX_RETRIES = 2;
@@ -112,9 +115,24 @@ function buildNativeTranslation(phrase: VideoPhraseForSave, ctx: BotContext): Tr
   return translations;
 }
 
+/**
+ * Feature launch date — the free-tier lifetime video trial only counts analyses
+ * created on or after this date, so existing users aren't retroactively locked out.
+ * Overridable via env for staging/testing.
+ */
+const DEFAULT_VIDEO_TRIAL_START = "2026-07-04T00:00:00Z";
+const VIDEO_TRIAL_START = parseTrialStart(process.env.FEATURE_LAUNCH_DATE);
+
+/** Parse the launch date, falling back to the documented default on a malformed env value. */
+function parseTrialStart(raw: string | undefined): Date {
+  const parsed = new Date(raw ?? DEFAULT_VIDEO_TRIAL_START);
+  return Number.isNaN(parsed.getTime()) ? new Date(DEFAULT_VIDEO_TRIAL_START) : parsed;
+}
+
+/** Current calendar month as `YYYY-MM`, in UTC (matches the DB monthly-count boundaries). */
 function getCurrentYearMonth(): string {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
 /**
@@ -169,14 +187,14 @@ async function enrichVideoEntryInBackground(
         (code) => ctx.services.languageCache.getLang(code)?.id ?? null,
       );
 
-      await vocabularyRepository.updateEntry(entryId, {
+      await ctx.services.vocabularyRepository.updateEntry(entryId, {
         emoji: vocabInput.emoji,
         nativeMeaning: vocabInput.nativeMeaning,
         sourceUsage: vocabInput.sourceUsage,
       });
 
       if (vocabInput.translations.length > 0) {
-        await vocabularyRepository.updateAllTranslations(entryId, vocabInput.translations);
+        await ctx.services.vocabularyRepository.updateAllTranslations(entryId, vocabInput.translations);
       }
     }
     videoEnrichmentCounter.inc({ status: "success" });
@@ -202,14 +220,14 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
   if (!videoId) return;
 
   // Auto-expire processes stuck for more than 10 minutes
-  const expiredCount = await videoVocabularyRepository.expireStaleProcesses(10);
+  const expiredCount = await ctx.services.videoVocabularyRepository.expireStaleProcesses(10);
   if (expiredCount > 0) {
     videoProcessingCounter.inc({ status: "timeout" }, expiredCount);
     logger.info({ expiredCount }, "Expired stale video processes");
   }
 
   // Check for duplicate processing
-  const existing = await videoVocabularyRepository.findProcessByUserAndVideo(userId, videoId);
+  const existing = await ctx.services.videoVocabularyRepository.findProcessByUserAndVideo(userId, videoId);
   if (existing?.status === "completed") {
     // Show existing results
     await showPhraseBrowser(ctx, existing.id, 1, lang);
@@ -221,15 +239,35 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
     return;
   }
 
-  // Check monthly limit (admins bypass)
-  const isAdmin = ctx.user?.audienceGroup === "admin";
-  const config = await ctx.services.settings.getVideoVocabularyConfig();
-  const yearMonth = getCurrentYearMonth();
-  const usageCount = await videoVocabularyRepository.getMonthlyUsageCount(userId, yearMonth);
-  if (!isAdmin && usageCount >= config.monthlyLimit) {
-    const msg = await ctx.reply(t("videoLimitReached", lang));
+  // Plan-based video allowance (admin/tester get unlimited via role override).
+  const plan = ctx.user.subscriptionPlan ?? "free";
+  const planConfig = await ctx.services.settings.getPlanLimit(plan);
+  const { video: videoEntitlement } = resolveEntitlements({
+    audienceGroup: ctx.user.audienceGroup,
+    plan,
+    planConfig,
+    planFeatures: [],
+  });
+
+  let usageCount = 0;
+  if (videoEntitlement.window === "none") {
+    // Video not available on this plan → US-6 attaches the upgrade CTA keyboard here.
+    const msg = await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     trackTechnicalMessage(ctx, msg.message_id);
     return;
+  }
+  if (videoEntitlement.limit !== null) {
+    usageCount =
+      videoEntitlement.window === "lifetime"
+        ? await ctx.services.videoVocabularyRepository.getLifetimeUsageCount(userId, VIDEO_TRIAL_START)
+        : await ctx.services.videoVocabularyRepository.getMonthlyUsageCount(userId, getCurrentYearMonth());
+    if (usageCount >= videoEntitlement.limit) {
+      // Free trial exhausted (3 lifetime) or Plus monthly cap hit — the prime
+      // conversion moment, so surface the upgrade CTA here too.
+      const msg = await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+      trackTechnicalMessage(ctx, msg.message_id);
+      return;
+    }
   }
 
   // Fetch video metadata
@@ -253,7 +291,7 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
   const nativeLang = settings?.nativeLang ?? "en";
   const videoLang = userLangs[0] ?? nativeLang; // best guess, will be refined from transcript
 
-  const process = await videoVocabularyRepository.createProcess({
+  const process = await ctx.services.videoVocabularyRepository.createProcess({
     userId,
     videoId,
     videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
@@ -263,10 +301,10 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
   });
 
   metadata.language = videoLang;
-  const remaining = config.monthlyLimit - usageCount;
+  const remaining = videoEntitlement.limit === null ? null : videoEntitlement.limit - usageCount;
 
   // Show confirmation
-  const text2 = renderConfirmation(metadata, remaining, config.monthlyLimit, lang);
+  const text2 = renderConfirmation(metadata, remaining, videoEntitlement.limit, lang);
   const keyboard = buildConfirmationKeyboard(process.id, lang);
   const msg = await ctx.reply(text2, {
     parse_mode: "HTML",
@@ -291,17 +329,22 @@ export async function handleVideoConfirmCallback(ctx: BotContext): Promise<void>
   const userId = ctx.user?.id;
   if (!userId) return;
 
-  const process = await videoVocabularyRepository.findProcessById(processId);
+  const process = await ctx.services.videoVocabularyRepository.findProcessById(processId);
   if (!process || process.userId !== userId) return;
+
+  // Meter credits before the expensive extraction (Fable T16): a video pass runs
+  // a long-transcript prompt, so it is the heaviest paid call and is billed
+  // upfront on confirm (the extraction runs fire-and-forget).
+  const creditCost = await ensureAiQuota(ctx, ctx.user.subscriptionPlan, lang, "video");
+  if (creditCost === null) {
+    return;
+  }
+  await recordAiUsage(ctx, "video", creditCost);
 
   videoProcessingCounter.inc({ status: "initiated" });
 
   // Update status and start processing
-  try {
-    await ctx.editMessageText(t("videoProcessingStarted", lang), { parse_mode: "HTML" });
-  } catch {
-    // Message may have been deleted — proceed with processing anyway
-  }
+  await editMessageTextOrReply(ctx, t("videoProcessingStarted", lang), { parse_mode: "HTML" });
 
   // Start async processing (fire and forget)
   void processVideoInBackground(ctx, process.id, userId, lang);
@@ -316,7 +359,7 @@ export async function handleVideoCancelCallback(ctx: BotContext): Promise<void> 
   if (Number.isNaN(processId)) return;
 
   // Mark as failed (refund the limit slot)
-  await videoVocabularyRepository.updateProcessStatus(processId, "failed", "Cancelled by user");
+  await ctx.services.videoVocabularyRepository.updateProcessStatus(processId, "failed", "Cancelled by user");
 
   try {
     await ctx.deleteMessage();
@@ -351,7 +394,7 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
 
   const lang = await resolveInterfaceLang(ctx);
 
-  const phrase = await videoVocabularyRepository.findPhraseById(phraseId);
+  const phrase = await ctx.services.videoVocabularyRepository.findPhraseById(phraseId);
   if (!phrase) {
     await ctx.answerCallbackQuery({ text: t("videoPhraseNotFound", lang) });
     return;
@@ -362,7 +405,7 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
     return;
   }
 
-  const process = await videoVocabularyRepository.findProcessById(phrase.videoProcessId);
+  const process = await ctx.services.videoVocabularyRepository.findProcessById(phrase.videoProcessId);
   if (!process) return;
 
   // Get source language ID from language cache
@@ -373,9 +416,13 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
   }
 
   // Check if already in vocabulary
-  const existing = await vocabularyRepository.findByOriginalAndSource(userId, phrase.phrase, sourceLang.id);
+  const existing = await ctx.services.vocabularyRepository.findByOriginalAndSource(
+    userId,
+    phrase.phrase,
+    sourceLang.id,
+  );
   if (existing) {
-    await videoVocabularyRepository.markPhraseSaved(phraseId, existing.id);
+    await ctx.services.videoVocabularyRepository.markPhraseSaved(phraseId, existing.id);
     await ctx.answerCallbackQuery({ text: "✅" });
   } else {
     // Build translations array — include native language translation if available
@@ -390,7 +437,7 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
         }
       : undefined;
 
-    const entry = await vocabularyRepository.create(userId, {
+    const entry = await ctx.services.vocabularyRepository.create(userId, {
       original: phrase.phrase,
       sourceLangId: sourceLang.id,
       inputType: phrase.phraseType === "word" ? "word" : "phrase",
@@ -405,8 +452,8 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
       },
       translations,
     });
-    await vocabularyDictionaryRepository.addEntryToDefault(userId, entry.id);
-    await videoVocabularyRepository.markPhraseSaved(phraseId, entry.id);
+    await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(userId, entry.id);
+    await ctx.services.videoVocabularyRepository.markPhraseSaved(phraseId, entry.id);
     await ctx.answerCallbackQuery({ text: "✅" });
 
     // Enrich with full template translation in background
@@ -457,7 +504,7 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
 
   const lang = await resolveInterfaceLang(ctx);
 
-  const process = await videoVocabularyRepository.findProcessById(processId);
+  const process = await ctx.services.videoVocabularyRepository.findProcessById(processId);
   if (!process || process.userId !== userId) {
     await ctx.answerCallbackQuery();
     return;
@@ -470,16 +517,20 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
   }
 
   // Get all unsaved phrases
-  const allPhrases = await videoVocabularyRepository.findPhrasesByProcess(processId, 0, 100);
+  const allPhrases = await ctx.services.videoVocabularyRepository.findPhrasesByProcess(processId, 0, 100);
   const unsaved = allPhrases.filter((p) => !p.savedEntryId);
 
   let savedCount = 0;
   const enrichmentQueue: Array<{ entryId: number; phrase: string; inputType: "word" | "phrase" }> = [];
 
   for (const phrase of unsaved) {
-    const existing = await vocabularyRepository.findByOriginalAndSource(userId, phrase.phrase, sourceLang.id);
+    const existing = await ctx.services.vocabularyRepository.findByOriginalAndSource(
+      userId,
+      phrase.phrase,
+      sourceLang.id,
+    );
     if (existing) {
-      await videoVocabularyRepository.markPhraseSaved(phrase.id, existing.id);
+      await ctx.services.videoVocabularyRepository.markPhraseSaved(phrase.id, existing.id);
       savedCount++;
     } else {
       const translations = buildNativeTranslation(phrase, ctx);
@@ -491,7 +542,7 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
           }
         : undefined;
       const entryInputType = phrase.phraseType === "word" ? ("word" as const) : ("phrase" as const);
-      const entry = await vocabularyRepository.create(userId, {
+      const entry = await ctx.services.vocabularyRepository.create(userId, {
         original: phrase.phrase,
         sourceLangId: sourceLang.id,
         inputType: entryInputType,
@@ -506,8 +557,8 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
         },
         translations,
       });
-      await vocabularyDictionaryRepository.addEntryToDefault(userId, entry.id);
-      await videoVocabularyRepository.markPhraseSaved(phrase.id, entry.id);
+      await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(userId, entry.id);
+      await ctx.services.videoVocabularyRepository.markPhraseSaved(phrase.id, entry.id);
       enrichmentQueue.push({ entryId: entry.id, phrase: phrase.phrase, inputType: entryInputType });
       savedCount++;
     }
@@ -541,8 +592,13 @@ export async function handleVideosCommand(ctx: BotContext): Promise<void> {
   const pageSize = 5;
   const excludeFailed = ctx.user?.audienceGroup !== "admin";
 
-  const processes = await videoVocabularyRepository.findProcessesByUser(userId, page, pageSize, excludeFailed);
-  const totalCount = await videoVocabularyRepository.countProcessesByUser(userId, excludeFailed);
+  const processes = await ctx.services.videoVocabularyRepository.findProcessesByUser(
+    userId,
+    page,
+    pageSize,
+    excludeFailed,
+  );
+  const totalCount = await ctx.services.videoVocabularyRepository.countProcessesByUser(userId, excludeFailed);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const text = renderVideoList(processes, page, totalPages, lang);
@@ -560,12 +616,16 @@ export async function handleVideosCommand(ctx: BotContext): Promise<void> {
 /* ------------------------------------------------------------------ */
 
 async function showPhraseBrowser(ctx: BotContext, processId: number, page: number, lang: SupportedLang): Promise<void> {
-  const process = await videoVocabularyRepository.findProcessById(processId);
+  const process = await ctx.services.videoVocabularyRepository.findProcessById(processId);
   if (!process) return;
 
   const offset = (page - 1) * PHRASES_PER_PAGE;
-  const phrases = await videoVocabularyRepository.findPhrasesByProcess(processId, offset, PHRASES_PER_PAGE);
-  const totalPhrases = await videoVocabularyRepository.countPhrasesByProcess(processId);
+  const phrases = await ctx.services.videoVocabularyRepository.findPhrasesByProcess(
+    processId,
+    offset,
+    PHRASES_PER_PAGE,
+  );
+  const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
   const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
@@ -585,46 +645,47 @@ async function showPhraseBrowserEdit(
   page: number,
   lang: SupportedLang,
 ): Promise<void> {
-  const process = await videoVocabularyRepository.findProcessById(processId);
+  const process = await ctx.services.videoVocabularyRepository.findProcessById(processId);
   if (!process) return;
 
   const offset = (page - 1) * PHRASES_PER_PAGE;
-  const phrases = await videoVocabularyRepository.findPhrasesByProcess(processId, offset, PHRASES_PER_PAGE);
-  const totalPhrases = await videoVocabularyRepository.countPhrasesByProcess(processId);
+  const phrases = await ctx.services.videoVocabularyRepository.findPhrasesByProcess(
+    processId,
+    offset,
+    PHRASES_PER_PAGE,
+  );
+  const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
   const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
-  try {
-    await ctx.editMessageText(text, {
-      parse_mode: "HTML",
-      reply_markup: keyboard,
-      link_preview_options: { is_disabled: true },
-    });
-  } catch {
-    // Message unchanged or deleted
-  }
+  await editMessageTextOrReply(ctx, text, {
+    parse_mode: "HTML",
+    reply_markup: keyboard,
+    link_preview_options: { is_disabled: true },
+  });
 }
 
 async function showVideoListEdit(ctx: BotContext, userId: number, page: number, lang: SupportedLang): Promise<void> {
   const pageSize = 5;
   const excludeFailed = ctx.user?.audienceGroup !== "admin";
-  const processes = await videoVocabularyRepository.findProcessesByUser(userId, page, pageSize, excludeFailed);
-  const totalCount = await videoVocabularyRepository.countProcessesByUser(userId, excludeFailed);
+  const processes = await ctx.services.videoVocabularyRepository.findProcessesByUser(
+    userId,
+    page,
+    pageSize,
+    excludeFailed,
+  );
+  const totalCount = await ctx.services.videoVocabularyRepository.countProcessesByUser(userId, excludeFailed);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const text = renderVideoList(processes, page, totalPages, lang);
   const keyboard = buildVideoListKeyboard(processes, page, totalPages, lang);
 
-  try {
-    await ctx.editMessageText(text, {
-      parse_mode: "HTML",
-      reply_markup: keyboard,
-    });
-  } catch {
-    // Message unchanged or deleted
-  }
+  await editMessageTextOrReply(ctx, text, {
+    parse_mode: "HTML",
+    reply_markup: keyboard,
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -646,8 +707,10 @@ async function collectKnownPhrases(
 ): Promise<string[]> {
   const sourceLang = ctx.services.languageCache.getLang(language);
   const [savedOriginals, priorPhrases] = await Promise.all([
-    sourceLang ? vocabularyRepository.findOriginalsByUserAndSource(userId, sourceLang.id) : Promise.resolve([]),
-    videoVocabularyRepository.findKnownPhrasesByUser(userId, language, currentProcessId),
+    sourceLang
+      ? ctx.services.vocabularyRepository.findOriginalsByUserAndSource(userId, sourceLang.id)
+      : Promise.resolve([]),
+    ctx.services.videoVocabularyRepository.findKnownPhrasesByUser(userId, language, currentProcessId),
   ]);
   return [...savedOriginals, ...priorPhrases];
 }
@@ -658,7 +721,7 @@ async function processVideoInBackground(
   userId: number,
   lang: SupportedLang,
 ): Promise<void> {
-  const process = await videoVocabularyRepository.findProcessById(processId);
+  const process = await ctx.services.videoVocabularyRepository.findProcessById(processId);
   if (!process) return;
 
   const stopTimer = videoProcessingDuration.startTimer();
@@ -666,13 +729,16 @@ async function processVideoInBackground(
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      await videoVocabularyRepository.updateProcessStatus(processId, "processing");
+      await ctx.services.videoVocabularyRepository.updateProcessStatus(processId, "processing");
 
       // 1. Get transcript (from cache or YouTube)
       let transcriptText: string;
       let transcriptType: string | undefined;
 
-      const cached = await videoVocabularyRepository.findCachedTranscript(process.videoId, process.language);
+      const cached = await ctx.services.videoVocabularyRepository.findCachedTranscript(
+        process.videoId,
+        process.language,
+      );
       if (cached) {
         transcriptText = cached.transcript;
         transcriptType = cached.transcriptType ?? undefined;
@@ -680,7 +746,7 @@ async function processVideoInBackground(
         const transcript = await fetchTranscript(process.videoId, process.language);
         transcriptText = formatSegmentedTranscript(transcript.segments);
         transcriptType = transcript.type;
-        await videoVocabularyRepository.cacheTranscript(
+        await ctx.services.videoVocabularyRepository.cacheTranscript(
           process.videoId,
           transcript.language,
           transcriptText,
@@ -720,7 +786,7 @@ async function processVideoInBackground(
       );
 
       // 6. Save phrases to DB
-      await videoVocabularyRepository.savePhrases(
+      await ctx.services.videoVocabularyRepository.savePhrases(
         processId,
         phrases.map((p, i) => ({
           phrase: p.phrase,
@@ -735,7 +801,7 @@ async function processVideoInBackground(
       );
 
       // 7. Mark as completed
-      await videoVocabularyRepository.updateProcessStatus(processId, "completed");
+      await ctx.services.videoVocabularyRepository.updateProcessStatus(processId, "completed");
 
       stopTimer();
       videoProcessingCounter.inc({ status: "completed" });
@@ -783,7 +849,7 @@ async function processVideoInBackground(
 
   // All retries failed
   const errorMsg = lastError instanceof Error ? lastError.message : "Unknown error";
-  await videoVocabularyRepository.updateProcessStatus(processId, "failed", errorMsg);
+  await ctx.services.videoVocabularyRepository.updateProcessStatus(processId, "failed", errorMsg);
 
   stopTimer();
   videoProcessingCounter.inc({ status: "failed" });

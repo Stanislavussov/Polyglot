@@ -14,7 +14,7 @@ pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm
 - Do not defer fixes to "later"
 - Keep user-facing and operational changes under `## [Unreleased]` in `CHANGELOG.md`
 - `pnpm db:push` is the final step — applies schema changes to local/dev database
-- Run the test catalog script (`pnpm test:catalog`, output `apps/admin/public/reports/test-catalog.*`) and commit its artifacts **only when test files changed**; otherwise leave any spurious regeneration out of the commit (`git restore apps/admin/public/reports/test-catalog.*`)
+- Run the test catalog script (`pnpm test:catalog`, output `apps/admin/reports-data/test-catalog.*`) and commit its artifacts **only when test files changed**; otherwise leave any spurious regeneration out of the commit (`git restore apps/admin/reports-data/test-catalog.*`). (The reports directory was moved out of `apps/admin/public/` in Fable T09 so the reports are no longer served anonymously; they are now behind the cookie-gated SSR endpoint `apps/admin/src/pages/reports/[...file].ts`.)
 
 **Exception — Documentation-only changes:** When the only files touched are Markdown (`.md`), task specs, readmes, or changelogs, skip the quality gate. Running `pnpm build`, `pnpm lint`, and `pnpm test` is useless if no source code changed. In that case, only verify that the Markdown renders correctly and `CHANGELOG.md` is updated if needed.
 

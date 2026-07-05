@@ -23,6 +23,8 @@
   "enterWordToTranslate": "📝 Введите слово или фразу для перевода:",
   "translating": "⏳ Перевожу...",
   "translationError": "❌ Ошибка перевода. Попробуйте позже.",
+  "genericError": "⚠️ Что-то пошло не так. Попробуйте ещё раз.",
+  "staleSession": "⚠️ Сессия истекла. Отправьте слово для перевода ещё раз.",
   "translationUnavailable": "⚠️ Перевод временно недоступен. Попробуйте ещё раз.",
   "contextMarkerNeedsText": "Введите слово или фразу перед контекстной меткой.",
   "inputRejectedEmpty": "Отправьте текст для перевода.",
@@ -252,7 +254,7 @@
   "translationClarifyLanguageHint": "Выберите язык ниже (флаг + код) или отправьте уточнение.",
   "correctionNotice": "✏️ Исправлено: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Исправлено: {corrected}\n{explanation}",
-  "rateLimitExceeded": "⚠️ Дневной лимит переводов исчерпан. Откройте /settings, чтобы проверить план.",
+  "rateLimitExceeded": "⚠️ Месячный лимит переводов исчерпан. Подключите Plus для безлимитных переводов.",
   "mentorModeOn": "🧑‍🏫 Режим наставника активен! Спросите меня о любом слове, и я помогу вам его выучить — я не просто переведу, я буду вас направлять.",
   "mentorThinking": "🧠 Думаю...",
   "mentorError": "❌ Ошибка чата с наставником. Попробуйте позже.",
@@ -303,5 +305,11 @@
   "translationClarifyReasonUnrecognized": "«{word}» не похоже на обычное слово в языке {lang}.",
   "translationTranslateAsWritten": "➡️ Перевести как есть",
   "translationAsWrittenCaveat": "⚠️ Не найдено в стандартных словарях — переведено буквально.",
-  "translationNoMoreMeanings": "ℹ️ Других значений нет."
+  "translationNoMoreMeanings": "ℹ️ Других значений нет.",
+  "upgradeCta": "⭐ Подключить Plus или Pro",
+  "upgradePlus": "⭐ Plus",
+  "upgradePro": "💎 Pro",
+  "subscriptionActivated": "✅ {plan} активен до {date}",
+  "checkoutFailed": "⚠️ Не удалось начать оплату. Попробуйте позже.",
+  "upgradePrompt": "⭐ <b>Улучшите тариф</b>\n\n<b>Free</b>: 20 переводов/мес · 3 видео всего\n<b>Plus</b>: безлимит переводов · 10 видео/мес\n<b>Pro</b>: безлимит переводов · безлимит видео\n\nВыберите тариф ниже. Цены скоро."
 }

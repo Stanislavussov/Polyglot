@@ -268,7 +268,10 @@ describe("translateWithContext", () => {
     await translateWithContext({ ...baseInput, word: "stroha" }, deps);
 
     expect(translate).toHaveBeenCalledWith(
-      expect.objectContaining({ word: "stroha", dictionaryHit: false }),
+      expect.objectContaining({
+        word: "stroha",
+        correctionPolicy: expect.objectContaining({ dictionaryHit: false }),
+      }),
       deps.generateObjectFn,
     );
   });
@@ -288,7 +291,11 @@ describe("translateWithContext", () => {
     await translateWithContext({ ...baseInput, word: "bank" }, deps);
 
     expect(translate).toHaveBeenCalledWith(
-      expect.objectContaining({ word: "bank", dictionaryHit: true, dictionaryContext: undefined }),
+      expect.objectContaining({
+        word: "bank",
+        dictionaryContext: undefined,
+        correctionPolicy: expect.objectContaining({ dictionaryHit: true }),
+      }),
       deps.generateObjectFn,
     );
   });
@@ -300,7 +307,7 @@ describe("translateWithContext", () => {
     await translateWithContext(baseInput, deps);
 
     expect(translate).toHaveBeenCalledWith(
-      expect.objectContaining({ dictionaryHit: undefined }),
+      expect.objectContaining({ correctionPolicy: expect.objectContaining({ dictionaryHit: undefined }) }),
       deps.generateObjectFn,
     );
   });

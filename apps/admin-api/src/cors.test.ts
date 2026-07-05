@@ -1,5 +1,33 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { buildAdminApiApp } from "./index.js";
+import { buildAdminApiApp, resolveCorsOrigins } from "./index.js";
+
+describe("resolveCorsOrigins (D6: gate the dev origin in production)", () => {
+  it("adds the localhost dev origin outside production", () => {
+    const origins = resolveCorsOrigins({
+      ADMIN_PANEL_URL: "https://admin.polyglot.monster",
+      NODE_ENV: "development",
+    } as NodeJS.ProcessEnv);
+    expect(origins).toContain("https://admin.polyglot.monster");
+    expect(origins).toContain("http://localhost:4321");
+  });
+
+  it("allows ONLY the configured origin in production (no localhost)", () => {
+    const origins = resolveCorsOrigins({
+      ADMIN_PANEL_URL: "https://admin.polyglot.monster",
+      NODE_ENV: "production",
+    } as NodeJS.ProcessEnv);
+    expect(origins).toEqual(["https://admin.polyglot.monster"]);
+    expect(origins).not.toContain("http://localhost:4321");
+  });
+
+  it("supports multiple configured origins and de-dupes", () => {
+    const origins = resolveCorsOrigins({
+      ADMIN_PANEL_URL: "https://a.example, https://b.example, https://a.example",
+      NODE_ENV: "production",
+    } as NodeJS.ProcessEnv);
+    expect(origins).toEqual(["https://a.example", "https://b.example"]);
+  });
+});
 
 const originalAdminPanelUrl = process.env.ADMIN_PANEL_URL;
 const originalJwtSecret = process.env.JWT_SECRET;

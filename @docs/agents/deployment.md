@@ -76,3 +76,121 @@ the matching step is handled. Surface it even when you cannot execute it.
   `gh secret set`, or CI/provisioning will run with stale values.
 - **Changed only app code / containers** → nothing here applies; the normal
   app-deploy pipeline (§1) covers it. Do not run Ansible for app-only changes.
+
+## 5. Deploy health gate & rollback (T13)
+
+The app-deploy pipeline (§1) does **not** blindly declare success:
+
+- **Health gate.** After `docker compose up -d`, the deploy script waits for each
+  container's `docker inspect … .State.Health.Status` to become `healthy`
+  (services without a healthcheck are skipped), then probes the bot's **`/readyz`**
+  (T12) to confirm the DB is reachable and long-polling is live. A crash-loop or a
+  failed readiness check makes the **workflow fail** (red) instead of silently
+  shipping a broken release. The gate runs **before** image pruning, so a failed
+  deploy leaves the previous image in place.
+- **Rollback.** Before pulling new images, the script records the currently
+  running image references to `/opt/polyglot/PREVIOUS_RELEASE`. Pruning uses
+  `docker image prune -af --filter "until=168h"` (not `-af`), so the previous
+  release image survives for at least a week.
+
+  **To roll back** (on the VPS):
+
+  ```bash
+  cd /opt/polyglot
+  # Overlay the previous image tags onto the running env and restart.
+  cat PREVIOUS_RELEASE >> .env
+  docker compose up -d --remove-orphans
+  ```
+
+  Rollback reverts **app containers only**. The database schema is not rolled
+  back — which is safe *only* if migrations followed the expand/contract rule
+  below (old code keeps working against the newer schema).
+
+## 6. Expand/contract migrations
+
+`db:migrate` runs in CI on merge to `master` (CLAUDE.md Hard Rule #3), **before**
+the new containers start. For the window between "schema migrated" and "new code
+live", the **old** code runs against the **new** schema — a destructive change
+(drop/rename column, tighten a constraint) is an instant incident there, and it
+also breaks rollback.
+
+Split every destructive schema change into backward-compatible steps across
+**separate releases**:
+
+1. **Expand** — add the new column/table/index; keep the old one. Deploy code
+   that writes both (or reads new, falls back to old). Backfill data.
+2. **Migrate reads** — once the new shape is populated, switch code to read it.
+3. **Contract** — only in a *later* release, after the expand code is fully
+   deployed and stable, drop the old column/constraint.
+
+A single migration must never drop or rename something the currently-deployed
+code still uses. Destructive migrations get an explicit compatibility review.
+
+## 7. Monitoring image pins & nginx edge hardening (T20)
+
+**Monitoring images are pinned** by patch tag in
+`deploy/monitoring/docker-compose.monitoring.yml` (Grafana, Loki, promtail,
+Prometheus, node-exporter, cadvisor). `docker compose pull` must never drag in a
+new **major** — Loki changes its on-disk storage schema between majors and
+Grafana changes provisioning. Bump a pin deliberately: read the release notes,
+then update the tag in one commit.
+
+**nginx is hardened** via provisioned includes (written by `site.yml`):
+
+- `/etc/nginx/conf.d/polyglot-tls.conf` — **only** the TLS session cache
+  (`ssl_session_cache shared:PolyglotSSL:10m`, timeout, tickets off), in the
+  http context so the named shared-memory zone is defined exactly once. The
+  protocol/cipher directives are deliberately **not** here: Ubuntu's stock
+  `nginx.conf` already sets `ssl_protocols` and `ssl_prefer_server_ciphers` in
+  the http context, so repeating them there is a duplicate-directive error
+  (`nginx -t` emerg). They live in the per-server snippet below instead.
+- `/etc/nginx/snippets/polyglot-hardening.conf` — Mozilla "intermediate" TLS
+  (`TLSv1.2`/`TLSv1.3`, modern `ssl_ciphers`, `ssl_prefer_server_ciphers off`) +
+  HSTS + `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `client_max_body_size`, proxy timeouts; `include`d per TLS `server` block.
+  Server context **overrides** the stock http-level `ssl_protocols` /
+  `ssl_prefer_server_ciphers` cleanly (no duplicate), and HSTS must not be
+  emitted over plain HTTP. A full CSP is intentionally **not** set — a
+  restrictive policy would break the Astro admin SPA and Grafana;
+  `X-Frame-Options: SAMEORIGIN` covers clickjacking.
+- `/etc/nginx/conf.d/polyglot-limits.conf` — `limit_req_zone` applied to
+  `/api/auth/login` (5 r/min per IP), edge-level defense-in-depth in front of the
+  app's own limiter (T05).
+
+**Pre-TLS bootstrap (S10):** before a certificate exists, the admin panel, admin
+API and Grafana vhosts return **503** on port 80 instead of proxying their login
+UIs over plain HTTP. `certbot --nginx` layers the ACME HTTP-01 challenge on top,
+then the TLS `server` blocks take over on the next provisioning pass. (The public
+landing site has no login and keeps proxying during bootstrap.)
+
+These are **provisioning** changes: they are dormant until `pnpm ansible` is
+re-run against the host (subject to the explicit-prod rule in §Rules). Verify
+after applying with `curl -I https://<domain>` (expect `Strict-Transport-Security`
+and the security headers; no `TLSv1.0/1.1`).
+
+## 8. Migration file hygiene (T26)
+
+**`meta/_journal.json` is the source of apply order — the numeric filename is
+not.** `drizzle-kit migrate` applies exactly the migrations listed in the
+journal, in journal order, and ignores any `drizzle/*.sql` file that has no
+journal entry. Consequences to keep in mind:
+
+- Duplicate or gapped numbers are harmless as long as the journal is correct —
+  `packages/adapters/db/drizzle/` legitimately has two `0017_*` tags (both in the
+  journal) and no `0018`. Do **not** "fix" numbering by renaming applied files.
+- A `.sql` file that is **not** in the journal is dead — it never applies. Such
+  files are landmines when someone later assumes filename = order (or squashes
+  history). The orphaned `0015_custom_notification_time.sql` (absent from the
+  journal, and updating the long-since-renamed `notification_time` column) was
+  removed under T26.
+- **Never squash/rebuild migration history without rewriting seed migrations from
+  the current `schema.ts`.** Old seeds reference columns valid only at their point
+  in history — e.g. `0002_languages_metadata` still inserts `iso3_code`, which is
+  correct only because `0007_drop_iso3_code` runs after it on a fresh DB. Replay
+  them out of that order and `drizzle-kit migrate` fails with `42703 column … does
+  not exist` (see CLAUDE.md Hard Rule #3).
+
+Run `pnpm db:check` (drift check, safe on any branch) after touching migrations —
+it compares `schema.ts` against the journal snapshots and must report
+"Everything's fine". On `develop` use only `db:generate` + `db:push`; a true
+from-scratch `db:migrate` replay is a CI-environment check, never a local one.

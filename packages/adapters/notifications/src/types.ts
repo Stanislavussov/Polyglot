@@ -8,8 +8,12 @@ import type { DictionaryContext, GenerateObjectFn, NotificationType, Notificatio
 
 export type { NotificationType, NotificationUser };
 
-/** Injected send function — the notifications module never imports the bot. */
-export type SendFn = (telegramId: number, payload: NotificationPayload) => Promise<void>;
+/**
+ * Injected send function — the notifications module never imports the bot.
+ * Takes the neutral `userId` (Fable T24/A1); the channel adapter resolves the
+ * external delivery id via the identity port before hitting the channel API.
+ */
+export type SendFn = (userId: number, payload: NotificationPayload) => Promise<void>;
 
 /** Notification payload sent to the user. */
 export interface NotificationPayload {
@@ -68,40 +72,59 @@ export interface VocabEntry {
 // Scheduler types
 // ─────────────────────────────────────────────
 
-/** Send function for re-engagement messages (plain text). */
-export type ReEngagementSendFn = (telegramId: number, message: string) => Promise<void>;
+/** Send function for re-engagement messages (plain text). Takes the neutral `userId`. */
+export type ReEngagementSendFn = (userId: number, message: string) => Promise<void>;
 
 // ─────────────────────────────────────────────
 // Dependency injection
 // ─────────────────────────────────────────────
 
 /**
- * Dependencies injected into the notification service.
- * Keeps the adapter independent of concrete implementations.
+ * Dependencies required to pick a word from the user's dictionary.
+ *
+ * The AI/vocabulary lookups here are genuinely required — a service wired
+ * without them can never suggest a word, so they are non-optional and enforced
+ * at compile time rather than silently short-circuiting at runtime (Fable
+ * T29/A16). Truly optional enhancements stay optional.
  */
-export interface NotificationServiceDeps {
-  /** Get all vocabulary entries for a user (for pickDictionaryWord). */
-  getUserVocabulary?: (userId: number) => Promise<VocabEntry[]>;
+export interface DictionaryWordPickerDeps {
+  /** Get all vocabulary entries for a user. */
+  getUserVocabulary: (userId: number) => Promise<VocabEntry[]>;
 
   /** Resolve language ID → language code. */
-  getLangCode?: (langId: number) => string | undefined;
-
-  /** Generate typed object via AI (for contextual notifications). */
-  generateObject?: GenerateObjectFn;
-
-  /** AI model to use for contextual generation. */
-  contextualModel?: string;
+  getLangCode: (langId: number) => string | undefined;
 
   /**
    * Translate an entry that has no translations yet (lazy/JIT translation).
-   * Called by pickDictionaryWord when it encounters a saved entry with 0 translations.
-   * Returns updated translations if successful, null to skip the entry.
+   * Called by pickDictionaryWord when it encounters a saved entry with 0
+   * translations. Optional enhancement — when absent, such entries are skipped.
    */
   translateEntry?: (
     userId: number,
     entryId: number,
   ) => Promise<Array<{ targetLangId: number; text: string; synonyms?: string[] }> | null>;
 }
+
+/**
+ * Dependencies required to generate a contextual notification sentence.
+ *
+ * `generateObject` is required (Fable T29/A16); `contextualModel` stays optional
+ * because it is a config value that may be unset (feature disabled).
+ */
+export interface ContextualWordPickerDeps {
+  /** Generate typed object via AI (for contextual notifications). */
+  generateObject: GenerateObjectFn;
+
+  /** AI model to use for contextual generation. When unset, contextual picks are skipped. */
+  contextualModel?: string;
+}
+
+/**
+ * Full notification service dependencies — the composition of the dictionary and
+ * contextual picker deps. Keeps the adapter independent of concrete
+ * implementations.
+ */
+export type NotificationServiceDeps = DictionaryWordPickerDeps & ContextualWordPickerDeps;
 
 /**
  * Dependencies injected into the scheduler.
@@ -134,9 +157,22 @@ export interface SchedulerDeps {
     recentWords?: string[],
   ) => Promise<SuggestedWord | null>;
 
-  /** Send a prompt when user has no dictionary words at notification time. */
-  sendDictionaryEmptyPrompt: (telegramId: number, lang: string) => Promise<void>;
+  /** Send a prompt when user has no dictionary words at notification time. Takes the neutral `userId`. */
+  sendDictionaryEmptyPrompt: (userId: number, lang: string) => Promise<void>;
 
   /** Get i18n text. */
   t: (key: string, lang: string, params?: Record<string, string>) => string;
+
+  /**
+   * Classify a send error as a permanent "user blocked the bot" failure
+   * (Telegram 403). When it returns true the scheduler stops retrying and
+   * disables that user's notifications instead of retrying forever. Optional;
+   * defaults to treating every error as transient (retryable). Fable T14.
+   */
+  isUserBlocked?: (err: unknown) => boolean;
+  /**
+   * Sweep expired subscriptions (verify renewal, extend or downgrade). Optional —
+   * runs in the daily 00:00 UTC tick when provided. Returns per-run counts.
+   */
+  processSubscriptionRenewals?: () => Promise<{ renewed: number; expired: number }>;
 }

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockUserRepository, mockAi, mockSettings } = vi.hoisted(() => ({
+const { mockUserRepository, mockAi, mockSettings, mockTranslationRequestRepository } = vi.hoisted(() => ({
   mockUserRepository: {
     getSettings: vi.fn().mockResolvedValue({
       interfaceLang: "en",
@@ -14,11 +14,19 @@ const { mockUserRepository, mockAi, mockSettings } = vi.hoisted(() => ({
   mockSettings: {
     getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-4o"),
     getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-4o"),
+    getPlanLimit: vi.fn().mockResolvedValue({
+      name: "free",
+      label: "Free",
+      translationLimit: 50,
+      creditCost: 1,
+      isActive: true,
+      isDefault: true,
+    }),
   },
-}));
-
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: mockUserRepository,
+  mockTranslationRequestRepository: {
+    getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
+    logTranslationRequest: vi.fn().mockResolvedValue(1),
+  },
 }));
 
 vi.mock("@polyglot/core", async () => {
@@ -52,6 +60,7 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
       userRepository: mockUserRepository,
       ai: mockAi,
       settings: mockSettings,
+      translationRequestRepository: mockTranslationRequestRepository,
     },
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
@@ -190,5 +199,27 @@ describe("handleMentorText", () => {
     const replies = vi.mocked(ctx.reply).mock.calls;
     expect(replies.length).toBe(1);
     expect(replies[0][0]).toMatch(/short|long|character|limit/i);
+  });
+
+  it("refuses the mentor call when the daily credit quota is exhausted (T16)", async () => {
+    // Free plan = 50 credits/day; already at the limit.
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValueOnce(50);
+    const ctx = createMockCtx();
+
+    await handleMentorText(ctx, "help me learn");
+
+    // No paid call, and nothing billed.
+    expect(mockAi.generateChat).not.toHaveBeenCalled();
+    expect(mockTranslationRequestRepository.logTranslationRequest).not.toHaveBeenCalled();
+  });
+
+  it("bills a mentor turn against the shared credit ledger on success (T16)", async () => {
+    const ctx = createMockCtx();
+
+    await handleMentorText(ctx, "help me learn");
+
+    expect(mockAi.generateChat).toHaveBeenCalledTimes(1);
+    // A mentor turn costs AI_CALL_WEIGHTS.mentor (2) credits.
+    expect(mockTranslationRequestRepository.logTranslationRequest).toHaveBeenCalledWith(1, "[mentor]", null, [], 2);
   });
 });

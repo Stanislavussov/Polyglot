@@ -3,17 +3,14 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock dependencies before imports
-vi.mock("@polyglot/adapter-db", () => ({
-  translationTemplateRepository: {
-    getByUserId: vi.fn(),
-    upsert: vi.fn(),
-    deleteByUserId: vi.fn(),
-  },
-  userRepository: {
-    getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
-  },
-}));
+const translationTemplateRepository = {
+  getByUserId: vi.fn(),
+  upsert: vi.fn(),
+  deleteByUserId: vi.fn<() => Promise<void>>(),
+};
+const userRepository = {
+  getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
+};
 
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
@@ -31,7 +28,6 @@ vi.mock("@polyglot/infra", () => ({
   loadConfig: () => ({ AI_MODEL: "test-model", BOT_TOKEN: "test" }),
 }));
 
-import { translationTemplateRepository } from "@polyglot/adapter-db";
 import { DEFAULT_TEMPLATE } from "@polyglot/core";
 import {
   handleBackCallback,
@@ -59,6 +55,10 @@ function createMockCtx(callbackData?: string) {
     reply: vi.fn().mockResolvedValue({ message_id: 200 }),
     editMessageText: vi.fn().mockResolvedValue({}),
     answerCallbackQuery: vi.fn().mockResolvedValue({}),
+    services: {
+      translationTemplateRepository,
+      userRepository,
+    },
   } as any;
 }
 

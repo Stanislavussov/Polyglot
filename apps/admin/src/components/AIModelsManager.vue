@@ -151,7 +151,7 @@ import AppModal from "./ui/AppModal.vue";
 import CheckboxField from "./ui/CheckboxField.vue";
 import ComboboxField, { type ComboboxOption } from "./ui/ComboboxField.vue";
 import { type AIModel, type OpenRouterModel, aiModels, rateLimits } from "../lib/api";
-import { aiModelCreateSchema, aiModelSelectSchema, zodErrorMessage } from "../lib/validation";
+import { aiModelCreateSchema, aiModelSelectSchema, zodErrorMessage } from "@polyglot/admin-contracts";
 
 const models = ref<AIModel[]>([]);
 const openRouterModels = ref<OpenRouterModel[]>([]);

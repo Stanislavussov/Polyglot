@@ -1,8 +1,12 @@
 // Log helper
 export { logNotificationSent } from "./log.js";
 
-// Service factory
-export { createNotificationService } from "./notification.service.js";
+// Service factories
+export {
+  createContextualWordPicker,
+  createDictionaryWordPicker,
+  createNotificationService,
+} from "./notification.service.js";
 
 // Scheduler
 export {
@@ -15,6 +19,8 @@ export {
 
 // Types
 export type {
+  ContextualWordPickerDeps,
+  DictionaryWordPickerDeps,
   NotificationPayload,
   NotificationServiceDeps,
   NotificationType,

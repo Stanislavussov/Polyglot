@@ -21,10 +21,6 @@ const updateIssueBodySchema = z.object({
 });
 
 export async function reportedIssueRoutes(app: FastifyInstance) {
-  app.addHook("onRequest", async (request) => {
-    await request.jwtVerify();
-  });
-
   app.get("/reported-issues", async (request: FastifyRequest) => {
     const query = listIssuesQuerySchema.parse(request.query);
     const filters: {

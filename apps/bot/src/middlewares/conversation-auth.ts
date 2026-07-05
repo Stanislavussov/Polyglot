@@ -1,4 +1,3 @@
-import { userRepository } from "@polyglot/adapter-db";
 import { type Middleware, type NextFunction } from "grammy";
 import type { ConversationContext } from "../types.js";
 
@@ -11,7 +10,9 @@ export function conversationAuthPlugin(): Middleware<ConversationContext> {
     const telegramId = ctx.from?.id;
     if (!telegramId) return next();
 
-    const user = await userRepository.findByTelegramId(telegramId);
+    // Resolve via the channel identity (Fable T24/A1) — same neutral path as authMiddleware.
+    const userId = await ctx.services.identityRepository.resolveUserId("telegram", String(telegramId));
+    const user = userId !== null ? await ctx.services.userRepository.findById(userId) : null;
     if (user) {
       ctx.user = user;
     }

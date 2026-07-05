@@ -6,11 +6,11 @@
  */
 
 import type {
+  SupportedLang,
   VocabTranslationDetails,
   VocabularyDictionaryWithCount,
   VocabularyEntryWithTranslations,
-} from "@polyglot/adapter-db";
-import type { SupportedLang } from "@polyglot/core";
+} from "@polyglot/core";
 import { getLangFlag, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { formatInputType } from "./input-type-label.js";

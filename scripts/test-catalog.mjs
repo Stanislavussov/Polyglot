@@ -578,7 +578,8 @@ const scriptPath = process.argv[1] ? pathToFileURL(process.argv[1]).href : undef
 if (import.meta.url === scriptPath) {
   const rootDir = dirname(fileURLToPath(import.meta.url));
   const repoRoot = join(rootDir, "..");
-  const reportsDir = join(repoRoot, "apps/admin/public/reports");
+  // Non-public dir: served via the cookie-gated Astro endpoint, not statically (T09/S3).
+  const reportsDir = join(repoRoot, "apps/admin/reports-data");
   const jsonOutputPath = join(reportsDir, "test-catalog.json");
   const htmlOutputPath = join(reportsDir, "test-catalog.html");
   const report = buildTestCatalogReport({ rootDir: repoRoot, jsonOutputPath, htmlOutputPath });

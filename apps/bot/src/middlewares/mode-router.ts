@@ -6,17 +6,14 @@
  * the router falls back to translation rather than silently dropping messages.
  */
 
-import { userRepository } from "@polyglot/adapter-db";
 import { isVideoUrl, isYouTubeUrl } from "@polyglot/adapter-youtube";
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
+import { handleTranslationClarificationContextText } from "../scenes/helpers/clarification.js";
 import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
 import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
-import {
-  handleTranslateText,
-  handleTranslationClarificationContextText,
-} from "../scenes/helpers/translate-mode.helper.js";
+import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
 import { handleVideoVocabularyUrl } from "../scenes/helpers/video-vocabulary.helper.js";
 import type { BotContext } from "../types.js";
 import { trackTechnicalMessage } from "../utils/message-cleanup.js";
@@ -29,7 +26,7 @@ import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.
 async function resolveInterfaceLang(ctx: BotContext): Promise<SupportedLang> {
   const user = ctx.user;
   if (!user) return "en";
-  const settings = await userRepository.getSettings(user.id);
+  const settings = await ctx.services.userRepository.getSettings(user.id);
   const rawLang = settings?.interfaceLang ?? "en";
   return isSupported(rawLang) ? rawLang : "en";
 }
@@ -67,7 +64,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   // Emoji-only messages — cannot be translated
   if (isEmojiOnly(text)) {
     if (ctx.user?.onboarded) {
-      logger.debug({ text, userId: ctx.from?.id }, "Emoji-only message received");
+      logger.debug({ textPreview: text, userId: ctx.from?.id }, "Emoji-only message received");
       const lang = await resolveInterfaceLang(ctx);
       const msg = await ctx.reply(t("emojiNotSupported", lang));
       trackTechnicalMessage(ctx, msg.message_id);
@@ -109,7 +106,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   const mode = ctx.session.activeMode;
   const userId = ctx.from?.id;
 
-  logger.debug({ mode, text: text.slice(0, 30), userId }, "Mode router: routing message");
+  logger.debug({ mode, textPreview: text.slice(0, 30), userId }, "Mode router: routing message");
 
   switch (mode) {
     case "translate":
@@ -127,13 +124,13 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       if (user?.onboarded) {
         logger.warn({ mode, userId }, "Onboarded user hit idle mode — falling back to translate");
         ctx.session.activeMode = "translate";
-        await userRepository.updateActiveMode(user.id, "translate");
+        await ctx.services.userRepository.updateActiveMode(user.id, "translate");
         await handleTranslateText(ctx, text);
         return;
       }
 
       // Non-onboarded user — show hint to start onboarding
-      const settings = user ? await userRepository.getSettings(user.id) : null;
+      const settings = user ? await ctx.services.userRepository.getSettings(user.id) : null;
       const rawLang = settings?.interfaceLang ?? "en";
       const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
       const msg = await ctx.reply(t("welcome", lang));

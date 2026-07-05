@@ -23,6 +23,8 @@
   "enterWordToTranslate": "📝 Enter a word or phrase to translate:",
   "translating": "⏳ Translating...",
   "translationError": "❌ Translation failed. Please try again later.",
+  "genericError": "⚠️ Something went wrong. Please try again.",
+  "staleSession": "⚠️ Session expired. Please translate the word again.",
   "translationUnavailable": "⚠️ Translation temporarily unavailable. Try again.",
   "contextMarkerNeedsText": "Enter a word or phrase before the context marker.",
   "inputRejectedEmpty": "Send text to translate.",
@@ -256,7 +258,7 @@
   "translationNoMoreMeanings": "ℹ️ No other meanings available.",
   "correctionNotice": "✏️ Fixed: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Corrected: {corrected}\n{explanation}",
-  "rateLimitExceeded": "⚠️ Daily translation limit reached. Open /settings to check your plan.",
+  "rateLimitExceeded": "⚠️ Monthly translation limit reached. Upgrade to Plus for unlimited translations.",
   "mentorModeOn": "🧑‍🏫 Mentor mode active! Ask me about any word and I'll help you learn it — I won't just translate, I'll coach you.",
   "mentorThinking": "🧠 Thinking...",
   "mentorError": "❌ Mentor chat failed. Please try again later.",
@@ -303,5 +305,11 @@
   "videoPhrasesExtracted": "{count} phrases extracted",
   "chooseProficiencyLevel": "What is your level in {lang}?",
   "loading": "⏳ Loading...",
-  "loadingTimeout": "⌛ This is taking longer than expected. Please try again."
+  "loadingTimeout": "⌛ This is taking longer than expected. Please try again.",
+  "upgradeCta": "⭐ Get Plus or Pro",
+  "upgradePlus": "⭐ Plus",
+  "upgradePro": "💎 Pro",
+  "subscriptionActivated": "✅ {plan} is active until {date}",
+  "checkoutFailed": "⚠️ Couldn't start checkout. Please try again later.",
+  "upgradePrompt": "⭐ <b>Upgrade your plan</b>\n\n<b>Free</b>: 20 translations/month · 3 videos total\n<b>Plus</b>: unlimited translations · 10 videos/month\n<b>Pro</b>: unlimited translations · unlimited videos\n\nChoose a plan below. Pricing coming soon."
 }

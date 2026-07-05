@@ -123,13 +123,13 @@ export const videoVocabularyRepository = {
     return row?.count ?? 0;
   },
 
-  /* ---- Monthly usage ---- */
+  /* ---- Usage counters (successful analyses only) ---- */
 
   async getMonthlyUsageCount(userId: number, yearMonth: string): Promise<number> {
     const db = getDb();
     const startDate = new Date(`${yearMonth}-01T00:00:00Z`);
     const [year, month] = yearMonth.split("-").map(Number);
-    const endDate = new Date(year, month, 1); // first day of next month
+    const endDate = new Date(Date.UTC(year, month, 1)); // first day of next month (UTC)
 
     const [row] = await db
       .select({ count: count() })
@@ -137,9 +137,29 @@ export const videoVocabularyRepository = {
       .where(
         and(
           eq(videoProcesses.userId, userId),
-          ne(videoProcesses.status, "failed"),
+          eq(videoProcesses.status, "completed"),
           gte(videoProcesses.createdAt, startDate),
           lt(videoProcesses.createdAt, endDate),
+        ),
+      );
+
+    return row?.count ?? 0;
+  },
+
+  /**
+   * Count successfully completed video analyses for a user since `since`.
+   * Used for the free-tier lifetime trial (counts from the feature launch date).
+   */
+  async getLifetimeUsageCount(userId: number, since: Date): Promise<number> {
+    const db = getDb();
+    const [row] = await db
+      .select({ count: count() })
+      .from(videoProcesses)
+      .where(
+        and(
+          eq(videoProcesses.userId, userId),
+          eq(videoProcesses.status, "completed"),
+          gte(videoProcesses.createdAt, since),
         ),
       );
 

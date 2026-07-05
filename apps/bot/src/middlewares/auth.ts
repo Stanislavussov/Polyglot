@@ -1,10 +1,9 @@
-import { userRepository } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/core";
 import type { NextFunction } from "grammy";
-import type { BotContext, UserMode } from "../types.js";
+import { type BotContext, USER_MODES, type UserMode } from "../types.js";
 
-/** Modes that are valid for the session (matches UserMode type). */
-const VALID_MODES = new Set<string>(["idle", "translate", "mentor"]);
+/** Derived from the single source of truth so it can never drift from UserMode. */
+const VALID_MODES = new Set<UserMode>(USER_MODES);
 
 /**
  * Auth middleware: resolves the Telegram user from the database.
@@ -19,14 +18,23 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
     return next();
   }
 
-  let user = await userRepository.findByTelegramId(telegramId);
+  // Resolve the neutral userId from the channel identity (Fable T24/A1). The bot
+  // is the Telegram channel adapter, so it owns the telegram → userId mapping.
+  const externalId = String(telegramId);
+  const userId = await ctx.services.identityRepository.resolveUserId("telegram", externalId);
+  let user = userId !== null ? await ctx.services.userRepository.findById(userId) : null;
 
   if (!user) {
-    user = await userRepository.create({
+    // Either a brand-new user or an existing telegram-only user without an
+    // identity row yet. `create` is an idempotent get-or-create on telegram_id,
+    // so both paths converge on the right user; linking then self-heals the
+    // legacy user into an identity row on this first post-migration message.
+    user = await ctx.services.userRepository.create({
       telegramId,
       username: ctx.from?.username ?? null,
     });
-    logger.info({ telegramId, userId: user.id }, "New user created");
+    await ctx.services.identityRepository.linkIdentity(user.id, "telegram", externalId);
+    logger.info({ telegramId, userId: user.id }, "User resolved and identity linked");
   }
 
   ctx.user = user;
@@ -34,16 +42,16 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
   // Hydrate session activeMode from DB if user has settings.
   // This ensures the mode survives bot restarts.
   if (user.onboarded) {
-    const settings = await userRepository.getSettings(user.id);
+    const settings = await ctx.services.userRepository.getSettings(user.id);
     if (settings?.activeMode) {
       const dbMode = settings.activeMode;
-      ctx.session.activeMode = VALID_MODES.has(dbMode) ? (dbMode as UserMode) : "translate";
+      ctx.session.activeMode = VALID_MODES.has(dbMode as UserMode) ? (dbMode as UserMode) : "translate";
       logger.debug({ userId: user.id, activeMode: ctx.session.activeMode }, "Hydrated activeMode from DB");
     }
 
     // Fire-and-forget: update last interaction timestamp for notification inactivity detection.
     // Never blocks request processing — errors are logged but swallowed.
-    userRepository.updateLastInteraction(user.id).catch((err) => {
+    ctx.services.userRepository.updateLastInteraction(user.id).catch((err) => {
       logger.error({ err, userId: user.id }, "Failed to update last interaction timestamp");
     });
   }

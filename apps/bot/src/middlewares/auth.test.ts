@@ -1,18 +1,11 @@
 /**
  * Tests for auth middleware — user resolution + activeMode hydration from DB.
  */
+import type { ServiceContainer } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createServicesStub } from "../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../types.js";
 import { authMiddleware } from "./auth.js";
-
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
-    findByTelegramId: vi.fn(),
-    create: vi.fn(),
-    getSettings: vi.fn(),
-    updateLastInteraction: vi.fn().mockResolvedValue(undefined),
-  },
-}));
 
 vi.mock("@polyglot/infra", () => ({
   logger: {
@@ -23,9 +16,18 @@ vi.mock("@polyglot/infra", () => ({
   },
 }));
 
-import { userRepository } from "@polyglot/adapter-db";
+const repo = {
+  findById: vi.fn(),
+  create: vi.fn(),
+  getSettings: vi.fn(),
+  updateLastInteraction: vi.fn().mockResolvedValue(undefined),
+};
 
-const repo = vi.mocked(userRepository);
+const identityRepo = {
+  resolveUserId: vi.fn(),
+  findExternalId: vi.fn(),
+  linkIdentity: vi.fn().mockResolvedValue(undefined),
+};
 
 function createMockCtx(overrides: { telegramId?: number; sessionActiveMode?: string } = {}): BotContext {
   const session: SessionData = {
@@ -39,12 +41,15 @@ function createMockCtx(overrides: { telegramId?: number; sessionActiveMode?: str
     from: overrides.telegramId !== undefined ? { id: overrides.telegramId, username: "testuser" } : undefined,
     session,
     user: undefined as any,
+    services: createServicesStub({
+      userRepository: repo as unknown as ServiceContainer["userRepository"],
+      identityRepository: identityRepo as unknown as ServiceContainer["identityRepository"],
+    }),
   } as unknown as BotContext;
 }
 
 const FAKE_USER = {
   id: 1,
-  telegramId: 123456,
   username: "testuser",
   subscriptionPlan: "free",
   onboardingStep: 4,
@@ -65,6 +70,12 @@ const FAKE_SETTINGS = {
   updatedAt: new Date(),
 };
 
+/** Configure the identity + user mocks so `resolveUserId → findById` yields `user`. */
+function resolveExistingUser(user: unknown): void {
+  identityRepo.resolveUserId.mockResolvedValue(FAKE_USER.id);
+  repo.findById.mockResolvedValue(user as any);
+}
+
 describe("authMiddleware", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -78,11 +89,11 @@ describe("authMiddleware", () => {
     await authMiddleware(ctx, next);
 
     expect(next).toHaveBeenCalled();
-    expect(repo.findByTelegramId).not.toHaveBeenCalled();
+    expect(identityRepo.resolveUserId).not.toHaveBeenCalled();
   });
 
-  it("loads existing user and attaches to ctx.user", async () => {
-    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+  it("loads existing user via identity resolution and attaches to ctx.user", async () => {
+    resolveExistingUser(FAKE_USER);
     repo.getSettings.mockResolvedValue(FAKE_SETTINGS as any);
     const ctx = createMockCtx({ telegramId: 123456 });
     const next = vi.fn().mockResolvedValue(undefined);
@@ -90,12 +101,13 @@ describe("authMiddleware", () => {
     await authMiddleware(ctx, next);
 
     expect(ctx.user).toBe(FAKE_USER);
-    expect(repo.findByTelegramId).toHaveBeenCalledWith(123456);
+    expect(identityRepo.resolveUserId).toHaveBeenCalledWith("telegram", "123456");
+    expect(repo.findById).toHaveBeenCalledWith(1);
     expect(next).toHaveBeenCalled();
   });
 
-  it("creates new user when not found", async () => {
-    repo.findByTelegramId.mockResolvedValue(null);
+  it("creates new user and links identity when unresolved", async () => {
+    identityRepo.resolveUserId.mockResolvedValue(null);
     const newUser = { ...FAKE_USER, onboarded: false, onboardingStep: 0 };
     repo.create.mockResolvedValue(newUser as any);
     const ctx = createMockCtx({ telegramId: 999 });
@@ -107,12 +119,13 @@ describe("authMiddleware", () => {
       telegramId: 999,
       username: "testuser",
     });
+    expect(identityRepo.linkIdentity).toHaveBeenCalledWith(newUser.id, "telegram", "999");
     expect(ctx.user).toBe(newUser);
     expect(next).toHaveBeenCalled();
   });
 
   it("hydrates session activeMode from DB for onboarded users", async () => {
-    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+    resolveExistingUser(FAKE_USER);
     repo.getSettings.mockResolvedValue({
       ...FAKE_SETTINGS,
       activeMode: "translate",
@@ -130,7 +143,7 @@ describe("authMiddleware", () => {
   });
 
   it("falls back to 'translate' for unknown DB mode values", async () => {
-    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+    resolveExistingUser(FAKE_USER);
     repo.getSettings.mockResolvedValue({
       ...FAKE_SETTINGS,
       activeMode: "quiz", // future mode not yet in UserMode type
@@ -147,7 +160,7 @@ describe("authMiddleware", () => {
   });
 
   it("hydrates mentor mode from DB without falling back", async () => {
-    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+    resolveExistingUser(FAKE_USER);
     repo.getSettings.mockResolvedValue({
       ...FAKE_SETTINGS,
       activeMode: "mentor",
@@ -165,7 +178,7 @@ describe("authMiddleware", () => {
 
   it("does not hydrate activeMode for non-onboarded users", async () => {
     const nonOnboardedUser = { ...FAKE_USER, onboarded: false };
-    repo.findByTelegramId.mockResolvedValue(nonOnboardedUser as any);
+    resolveExistingUser(nonOnboardedUser);
     const ctx = createMockCtx({
       telegramId: 123456,
       sessionActiveMode: "idle",
@@ -179,7 +192,7 @@ describe("authMiddleware", () => {
   });
 
   it("keeps session default when onboarded user has no settings row", async () => {
-    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+    resolveExistingUser(FAKE_USER);
     repo.getSettings.mockResolvedValue(null);
     const ctx = createMockCtx({
       telegramId: 123456,
@@ -193,7 +206,7 @@ describe("authMiddleware", () => {
   });
 
   it("calls updateLastInteraction fire-and-forget for onboarded users", async () => {
-    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+    resolveExistingUser(FAKE_USER);
     repo.getSettings.mockResolvedValue(FAKE_SETTINGS as any);
     const ctx = createMockCtx({ telegramId: 123456 });
     const next = vi.fn().mockResolvedValue(undefined);
@@ -205,7 +218,7 @@ describe("authMiddleware", () => {
 
   it("does not call updateLastInteraction for non-onboarded users", async () => {
     const nonOnboardedUser = { ...FAKE_USER, onboarded: false };
-    repo.findByTelegramId.mockResolvedValue(nonOnboardedUser as any);
+    resolveExistingUser(nonOnboardedUser);
     const ctx = createMockCtx({ telegramId: 123456 });
     const next = vi.fn().mockResolvedValue(undefined);
 
@@ -215,7 +228,7 @@ describe("authMiddleware", () => {
   });
 
   it("does not block request when updateLastInteraction fails", async () => {
-    repo.findByTelegramId.mockResolvedValue(FAKE_USER as any);
+    resolveExistingUser(FAKE_USER);
     repo.getSettings.mockResolvedValue(FAKE_SETTINGS as any);
     repo.updateLastInteraction.mockRejectedValue(new Error("db error"));
     const ctx = createMockCtx({ telegramId: 123456 });

@@ -16,7 +16,16 @@
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
+import type { CachedLanguage } from "../../ports/language-cache.port.js";
+
+/**
+ * Loose input shape for {@link initLanguageRegistry}. Every field except
+ * `code`/`name`/`isSupported` is optional so callers (and tests) can supply a
+ * partial row; {@link initLanguageRegistry} normalizes each entry to the
+ * canonical {@link CachedLanguage} the registry stores.
+ */
 export interface LanguageEntry {
+  id?: number;
   code: string;
   name: string;
   nativeName?: string | null;
@@ -29,7 +38,10 @@ export interface LanguageEntry {
 /*  Registry state                                                     */
 /* ------------------------------------------------------------------ */
 
-const byCode = new Map<string, LanguageEntry>();
+// The registry is the single in-memory source of truth for language metadata
+// (Fable T21/A3). The adapter-db `language-cache` is a thin loader/delegator on
+// top of this — there is no second store or duplicated normalization logic.
+const byCode = new Map<string, CachedLanguage>();
 
 /* ------------------------------------------------------------------ */
 /*  Initialization                                                     */
@@ -46,7 +58,15 @@ const byCode = new Map<string, LanguageEntry>();
 export function initLanguageRegistry(entries: LanguageEntry[]): void {
   byCode.clear();
   for (const entry of entries) {
-    byCode.set(entry.code, entry);
+    byCode.set(entry.code, {
+      id: entry.id ?? 0,
+      code: entry.code,
+      name: entry.name,
+      nativeName: entry.nativeName ?? null,
+      flag: entry.flag ?? null,
+      isSupported: entry.isSupported,
+      localizedNames: entry.localizedNames ?? null,
+    });
   }
 }
 
@@ -152,7 +172,17 @@ export function getLangDisplay(code: string): string {
   return entry.flag ? `${entry.flag} ${label}` : label;
 }
 
+/** Get a single language entry by ISO 639-1 code (undefined if unknown). */
+export function getLanguageEntry(code: string): CachedLanguage | undefined {
+  return byCode.get(code);
+}
+
+/** Get every known language entry. */
+export function getAllLanguageEntries(): CachedLanguage[] {
+  return [...byCode.values()];
+}
+
 /** Get all supported languages (for bot UI). */
-export function getSupportedLanguages(): LanguageEntry[] {
+export function getSupportedLanguages(): CachedLanguage[] {
   return [...byCode.values()].filter((l) => l.isSupported);
 }

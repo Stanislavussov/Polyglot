@@ -23,6 +23,8 @@
   "enterWordToTranslate": "📝 Gib ein Wort oder einen Satz zum Übersetzen ein:",
   "translating": "⏳ Übersetze...",
   "translationError": "❌ Übersetzung fehlgeschlagen. Bitte versuche es später noch einmal.",
+  "genericError": "⚠️ Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+  "staleSession": "⚠️ Sitzung abgelaufen. Bitte sende das Wort erneut zum Übersetzen.",
   "translationUnavailable": "⚠️ Übersetzung vorübergehend nicht verfügbar. Versuche es noch einmal.",
   "contextMarkerNeedsText": "Gib ein Wort oder einen Satz vor der Kontextmarkierung ein.",
   "inputRejectedEmpty": "Sende Text zum Übersetzen.",
@@ -252,7 +254,7 @@
   "translationClarifyLanguageHint": "Wähle unten eine Sprache (Flagge + Code) oder sende eine Klarstellung.",
   "correctionNotice": "✏️ Korrigiert: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Korrigiert: {corrected}\n{explanation}",
-  "rateLimitExceeded": "⚠️ Tägliches Übersetzungslimit erreicht. Öffne /settings, um deinen Tarif zu prüfen.",
+  "rateLimitExceeded": "⚠️ Monatliches Übersetzungslimit erreicht. Hol dir Plus für unbegrenzte Übersetzungen.",
   "mentorModeOn": "🧑‍🏫 Mentor-Modus aktiv! Frag mich nach einem beliebigen Wort, und ich helfe dir, es zu lernen — ich übersetze nicht einfach nur, ich coache dich.",
   "mentorThinking": "🧠 Denke nach...",
   "mentorError": "❌ Mentor-Chat fehlgeschlagen. Bitte versuche es später noch einmal.",
@@ -303,5 +305,11 @@
   "translationClarifyReasonUnrecognized": "„{word}“ sieht nicht wie ein normales Wort in {lang} aus.",
   "translationTranslateAsWritten": "➡️ Wie geschrieben übersetzen",
   "translationAsWrittenCaveat": "⚠️ Nicht in Standardwörterbüchern gefunden — wörtlich übersetzt.",
-  "translationNoMoreMeanings": "ℹ️ Keine weiteren Bedeutungen verfügbar."
+  "translationNoMoreMeanings": "ℹ️ Keine weiteren Bedeutungen verfügbar.",
+  "upgradeCta": "⭐ Plus oder Pro holen",
+  "upgradePlus": "⭐ Plus",
+  "upgradePro": "💎 Pro",
+  "subscriptionActivated": "✅ {plan} ist aktiv bis {date}",
+  "checkoutFailed": "⚠️ Zahlung konnte nicht gestartet werden. Bitte versuche es später erneut.",
+  "upgradePrompt": "⭐ <b>Upgrade deinen Tarif</b>\n\n<b>Free</b>: 20 Übersetzungen/Monat · 3 Videos gesamt\n<b>Plus</b>: unbegrenzte Übersetzungen · 10 Videos/Monat\n<b>Pro</b>: unbegrenzte Übersetzungen · unbegrenzte Videos\n\nWähle unten einen Tarif. Preise folgen bald."
 }

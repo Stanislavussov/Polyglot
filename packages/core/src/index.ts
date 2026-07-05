@@ -1,15 +1,37 @@
 // Logger — singleton pino, also exported from here for convenience
 
-export type { AIModel, AIPort, ChatMessage, ChatOptions, GenerateOptions } from "./ports/ai.port.js";
+export type {
+  AIModel,
+  AIPort,
+  ChatMessage,
+  ChatOptions,
+  GenerateObjectFn,
+  GenerateOptions,
+} from "./ports/ai.port.js";
 // Ports — service container for dependency injection
 export type { ServiceContainer } from "./ports/container.js";
-export type { FeatureAccessPort, FeatureAccessResult } from "./ports/feature-access.port.js";
+export type { FeatureAccessPort, FeatureAccessResult, FeatureAccessSubject } from "./ports/feature-access.port.js";
 export { defaultFeatureAccess } from "./ports/feature-access.port.js";
+export type { IdentityRepository } from "./ports/identity.repository.js";
 export type { CachedLanguage, LanguageCachePort } from "./ports/language-cache.port.js";
+export type {
+  LanguageDetectionRepository,
+  RecordLanguageDetectionEventInput,
+} from "./ports/language-detection.repository.js";
 export type {
   NotificationType,
   NotificationUser,
 } from "./ports/notification.repository.js";
+export type { CheckoutResult, PaymentPort, RenewableSubscription, RenewalResult } from "./ports/payment.port.js";
+export type {
+  IssueType,
+  ReportedIssue,
+  ReportedIssueRepository,
+} from "./ports/reported-issue.repository.js";
+export type {
+  RecordRequestTimingInput,
+  RequestTimingRepository,
+} from "./ports/request-timing.repository.js";
 export type {
   AIGenerationDefaults,
   DictionaryConfig,
@@ -20,6 +42,12 @@ export type {
   TranslationPresetConfig,
   VideoVocabularyConfig,
 } from "./ports/settings.port.js";
+export type {
+  CreateSubscriptionInput,
+  Subscription,
+  SubscriptionRepository,
+  SubscriptionStatus,
+} from "./ports/subscription.repository.js";
 export type {
   TranslationRequest,
   TranslationRequestRepository,
@@ -68,32 +96,18 @@ export { getLogger, setLogger } from "./logger-interface.js";
 
 export * from "./modules/context-enrichment/index.js";
 export * from "./modules/dictionary-pipeline/index.js";
+export * from "./modules/entitlements/index.js";
 export * from "./modules/i18n/index.js";
-export type {
-  AnalyzeInput,
-  IdiomAnalysisInput,
-  IdiomAnalysisResult,
-  IdiomClassification,
-  SourceExpressionType,
-} from "./modules/idiom-analysis/index.js";
-// Idiom analysis — GenerateObjectFn is also exported from translation, so we
-// re-export everything except the duplicate to avoid TS2308.
-export {
-  analyzeIdiom,
-  analyzeIdiomBatch,
-  buildIdiomAnalysisPrompt,
-  idiomAnalysisResultSchema,
-  idiomClassificationSchema,
-  needsIdiomReview,
-  sourceExpressionTypeSchema,
-} from "./modules/idiom-analysis/index.js";
+export * from "./modules/idiom-analysis/index.js";
 export * from "./modules/input-analysis/index.js";
 export * from "./modules/language-detect/index.js";
 export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
 export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
+export * from "./modules/notifications/index.js";
 export * from "./modules/rate-limit/index.js";
 export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";
+export * from "./modules/subscriptions/index.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";
 export type {

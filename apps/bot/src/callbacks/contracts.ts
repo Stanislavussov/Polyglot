@@ -113,6 +113,15 @@ export const callbackContracts = [
     maxExampleData: "tr:clarify:option:12",
   },
   {
+    family: "translation",
+    prefix: "tr:oos",
+    restartSafety: "session-backed",
+    durableLookupKey: "Telegram message_id keyed into session pendingOutOfSet",
+    dbSource: "session pendingOutOfSet map; language added via user_language_settings on add",
+    expiryBehavior: "localized staleSession when the prompt entry is gone or the button language drifts",
+    maxExampleData: "tr:oos:once:zh-Hant",
+  },
+  {
     family: "flashcard",
     prefix: "fc",
     restartSafety: "session-backed",

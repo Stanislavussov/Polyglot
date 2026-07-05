@@ -8,17 +8,19 @@ import { InlineKeyboard } from "grammy";
 
 export function renderConfirmation(
   metadata: { title: string; durationSeconds: number; language: string },
-  remaining: number,
-  monthlyLimit: number,
+  remaining: number | null,
+  limit: number | null,
   lang: SupportedLang,
 ): string {
   const duration = formatDuration(metadata.durationSeconds, lang);
+  // Unlimited plans (pro / admin / tester) show ∞ instead of a remaining/limit ratio.
+  const quota = limit === null ? "∞" : `${remaining ?? 0}/${limit}`;
   return [
     `<b>🎬 ${escapeHtml(metadata.title)}</b>`,
     "",
     `⏱ ${t("videoDuration", lang)}: ${duration}`,
     `🌐 ${t("videoLanguage", lang)}: ${metadata.language}`,
-    `📊 ${t("videoRemaining", lang)}: ${remaining}/${monthlyLimit}`,
+    `📊 ${t("videoRemaining", lang)}: ${quota}`,
   ].join("\n");
 }
 

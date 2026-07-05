@@ -1,6 +1,7 @@
+import type { GenerateObjectFn } from "../../ports/ai.port.js";
 import { buildIdiomAnalysisPrompt } from "./prompt.builder.js";
 import { idiomAnalysisResultSchema } from "./schemas/idiom-analysis.schema.js";
-import type { GenerateObjectFn, IdiomAnalysisInput, IdiomAnalysisResult } from "./types.js";
+import type { IdiomAnalysisInput, IdiomAnalysisResult } from "./types.js";
 
 export interface AnalyzeInput extends IdiomAnalysisInput {
   model: string;

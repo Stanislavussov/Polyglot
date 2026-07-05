@@ -1,11 +1,11 @@
 import type { Conversation } from "@grammyjs/conversations";
-import { getLangDisplay, getSupportedLangs, userRepository } from "@polyglot/adapter-db";
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../commands/commands.js";
 import { MAX_LEARNING_LANGS } from "../constants.js";
 import type { BotContext, ConversationContext } from "../types.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
 type OnboardingConversation = Conversation<BotContext, ConversationContext>;
 
@@ -41,7 +41,9 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
   const telegramId = ctx.from!.id;
   const telegramLocale = ctx.from?.language_code;
   const user = await conversation.external(async () => {
-    return userRepository.findByTelegramId(telegramId);
+    // Resolve via the channel identity (Fable T24/A1) — the user was linked by authMiddleware.
+    const userId = await ctx.services.identityRepository.resolveUserId("telegram", String(telegramId));
+    return userId !== null ? ctx.services.userRepository.findById(userId) : null;
   });
 
   if (!user) {
@@ -63,7 +65,7 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
         // Step 1 has no back — always moves forward
         nativeLang = result;
         interfaceLang = inferInterfaceLang(nativeLang, telegramLocale);
-        await conversation.external(() => userRepository.updateOnboardingStep(userId, 1));
+        await conversation.external(() => ctx.services.userRepository.updateOnboardingStep(userId, 1));
         step = 2;
         break;
       }
@@ -74,9 +76,9 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
           break;
         }
         learningLangs = result;
-        await conversation.external(() => userRepository.updateOnboardingStep(userId, 2));
+        await conversation.external(() => ctx.services.userRepository.updateOnboardingStep(userId, 2));
         await conversation.external(() =>
-          userRepository.updateSettings(userId, {
+          ctx.services.userRepository.updateSettings(userId, {
             interfaceLang,
             nativeLang,
             learningLangs,
@@ -107,7 +109,7 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
     }
   }
 
-  await conversation.external(() => userRepository.markOnboarded(userId));
+  await conversation.external(() => ctx.services.userRepository.markOnboarded(userId));
 
   // Clean up technical onboarding messages
   await cleanupTechnicalMessages(ctx);
@@ -115,7 +117,7 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
   // Activate translate mode and persist to DB so it survives restarts
   ctx.session.activeMode = "translate";
   ctx.session.nextSourceLang = null; // Clear on re-onboard (Task 36)
-  await conversation.external(() => userRepository.updateActiveMode(userId, "translate"));
+  await conversation.external(() => ctx.services.userRepository.updateActiveMode(userId, "translate"));
 
   // Set user-specific bot commands in their chosen interface language
   const chatId = ctx.from!.id;
@@ -133,8 +135,8 @@ async function stepChooseNativeLang(
   lang: SupportedLang,
 ): Promise<SupportedLang> {
   const keyboard = new InlineKeyboard();
-  for (const l of getSupportedLangs()) {
-    keyboard.text(getLangDisplay(l.code), `lang:${l.code}`).row();
+  for (const l of ctx.services.languageCache.getSupportedLangs()) {
+    keyboard.text(ctx.services.languageCache.getLangDisplay(l.code), `lang:${l.code}`).row();
   }
 
   const msg = await ctx.reply(t("chooseNativeLang", lang), { reply_markup: keyboard });
@@ -152,7 +154,10 @@ async function stepChooseNativeLang(
   const selectedCode = response.callbackQuery.data.replace("lang:", "");
   await response.answerCallbackQuery();
 
-  await response.editMessageText(`${t("chooseNativeLang", lang)}\n\n✅ ${getLangDisplay(selectedCode)}`);
+  await editMessageTextOrReply(
+    response,
+    `${t("chooseNativeLang", lang)}\n\n✅ ${ctx.services.languageCache.getLangDisplay(selectedCode)}`,
+  );
 
   return isSupported(selectedCode) ? selectedCode : "en";
 }
@@ -171,11 +176,11 @@ async function stepChooseLearningLangs(
 
   function buildKeyboard(): InlineKeyboard {
     const keyboard = new InlineKeyboard();
-    for (const l of getSupportedLangs()) {
+    for (const l of ctx.services.languageCache.getSupportedLangs()) {
       if (l.code === nativeLang) continue;
       const isSelected = selected.includes(l.code);
       const prefix = isSelected ? "✅ " : "";
-      keyboard.text(`${prefix}${getLangDisplay(l.code)}`, `learn:${l.code}`).row();
+      keyboard.text(`${prefix}${ctx.services.languageCache.getLangDisplay(l.code)}`, `learn:${l.code}`).row();
     }
     if (selected.length > 0) {
       keyboard.text(t("done", interfaceLang), "learn:done").row();
@@ -214,8 +219,8 @@ async function stepChooseLearningLangs(
         continue;
       }
       await response.answerCallbackQuery();
-      const selectedDisplay = selected.map((c) => getLangDisplay(c)).join(", ");
-      await response.editMessageText(`${promptText}\n\n✅ ${selectedDisplay}`);
+      const selectedDisplay = selected.map((c) => ctx.services.languageCache.getLangDisplay(c)).join(", ");
+      await editMessageTextOrReply(response, `${promptText}\n\n✅ ${selectedDisplay}`);
       return selected;
     }
 
@@ -225,7 +230,7 @@ async function stepChooseLearningLangs(
     if (idx >= 0) {
       selected.splice(idx, 1);
       await response.answerCallbackQuery({
-        text: t("langRemoved", interfaceLang, { lang: getLangDisplay(langCode) }),
+        text: t("langRemoved", interfaceLang, { lang: ctx.services.languageCache.getLangDisplay(langCode) }),
       });
     } else if (selected.length >= MAX_LEARNING_LANGS) {
       await response.answerCallbackQuery({
@@ -236,11 +241,11 @@ async function stepChooseLearningLangs(
     } else {
       selected.push(langCode);
       await response.answerCallbackQuery({
-        text: t("langAdded", interfaceLang, { lang: getLangDisplay(langCode) }),
+        text: t("langAdded", interfaceLang, { lang: ctx.services.languageCache.getLangDisplay(langCode) }),
       });
     }
 
-    await response.editMessageReplyMarkup({
+    await editMessageReplyMarkupOrIgnore(response, {
       reply_markup: buildKeyboard(),
     });
   }
@@ -270,7 +275,7 @@ async function stepChooseProficiencyLevels(
 ): Promise<undefined | BackAction> {
   for (let i = 0; i < learningLangs.length; i++) {
     const langCode = learningLangs[i];
-    const langName = getLangDisplay(langCode);
+    const langName = ctx.services.languageCache.getLangDisplay(langCode);
 
     const keyboard = new InlineKeyboard();
     for (const level of PROFICIENCY_LEVELS) {
@@ -303,9 +308,9 @@ async function stepChooseProficiencyLevels(
     const parts = data.split(":");
     const selectedLevel = parts[2];
     await response.answerCallbackQuery();
-    await response.editMessageText(`${promptText}\n\n✅ ${LEVEL_LABELS[selectedLevel] ?? selectedLevel}`);
+    await editMessageTextOrReply(response, `${promptText}\n\n✅ ${LEVEL_LABELS[selectedLevel] ?? selectedLevel}`);
 
-    await conversation.external(() => userRepository.setLanguageLevel(userId, langCode, selectedLevel));
+    await conversation.external(() => ctx.services.userRepository.setLanguageLevel(userId, langCode, selectedLevel));
   }
 
   return undefined;

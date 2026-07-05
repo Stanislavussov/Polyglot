@@ -1,5 +1,6 @@
 import { and, arrayContains, eq, ilike, or, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
+import { escapeLikePattern } from "../like-escape.js";
 import { languages, wordContext } from "../schema.js";
 
 export type WordContext = typeof wordContext.$inferSelect;
@@ -32,7 +33,10 @@ export const wordContextRepository = {
       .from(wordContext)
       .innerJoin(languages, eq(wordContext.languageId, languages.id))
       .where(
-        and(or(ilike(wordContext.word, word), arrayContains(wordContext.forms, [word])), eq(languages.code, langCode)),
+        and(
+          or(sql`lower(${wordContext.word}) = lower(${word})`, arrayContains(wordContext.forms, [word])),
+          eq(languages.code, langCode),
+        ),
       );
   },
 
@@ -49,7 +53,7 @@ export const wordContextRepository = {
       .innerJoin(languages, eq(wordContext.languageId, languages.id))
       .where(
         and(
-          or(ilike(wordContext.word, word), arrayContains(wordContext.forms, [word])),
+          or(sql`lower(${wordContext.word}) = lower(${word})`, arrayContains(wordContext.forms, [word])),
           eq(languages.isSupported, true),
         ),
       )
@@ -66,7 +70,7 @@ export const wordContextRepository = {
     return db
       .select()
       .from(wordContext)
-      .where(and(ilike(wordContext.word, `%${query}%`), eq(wordContext.languageId, languageId)))
+      .where(and(ilike(wordContext.word, `%${escapeLikePattern(query)}%`), eq(wordContext.languageId, languageId)))
       .limit(limit);
   },
 

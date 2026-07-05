@@ -63,7 +63,6 @@ import {
 
 const mockUser: NotificationUser = {
   userId: 1,
-  telegramId: 12345,
   interfaceLang: "en",
   nativeLang: "en",
   learningLangs: ["cs", "de"],
@@ -172,7 +171,7 @@ describe("checkAndSend", () => {
     const result = await checkAndSend(mockSendFn, deps);
 
     expect(mockSendFn).toHaveBeenCalledOnce();
-    expect(mockSendFn).toHaveBeenCalledWith(12345, expect.objectContaining({ hour: 8 }));
+    expect(mockSendFn).toHaveBeenCalledWith(1, expect.objectContaining({ hour: 8 }));
     expect(result.sent).toBe(1);
     expect(result.errors).toBe(0);
   });
@@ -181,7 +180,6 @@ describe("checkAndSend", () => {
     const user2: NotificationUser = {
       ...mockUser,
       userId: 2,
-      telegramId: 67890,
       interfaceLang: "ru",
       notificationTimes: ["20:00"],
       notificationContext: null,
@@ -211,7 +209,6 @@ describe("checkAndSend", () => {
     const user2: NotificationUser = {
       ...mockUser,
       userId: 2,
-      telegramId: 67890,
       interfaceLang: "ru",
       notificationTimes: ["20:00"],
       notificationContext: null,
@@ -254,6 +251,23 @@ describe("checkAndSend", () => {
     expect(result.errors).toBe(0);
   });
 
+  it("disables notifications for a user who blocked the bot (403), without retrying", async () => {
+    const blockedError = new Error("Forbidden: bot was blocked by the user");
+    const failSend = vi.fn().mockRejectedValue(blockedError);
+    const deps = buildSchedulerDeps({
+      isUserBlocked: (err) => err === blockedError,
+    });
+
+    const result = await checkAndSend(failSend, deps);
+
+    // A permanent 403 must not be retried...
+    expect(failSend).toHaveBeenCalledTimes(1);
+    // ...and the user is removed from the mailing list instead.
+    expect(deps.disableNotifications).toHaveBeenCalledWith(1);
+    expect(result.errors).toBe(1);
+    expect(result.sent).toBe(0);
+  });
+
   it("sends empty dictionary prompt when no word could be picked", async () => {
     const deps = buildSchedulerDeps({
       pickDictionaryWord: vi.fn().mockResolvedValue(null),
@@ -262,7 +276,7 @@ describe("checkAndSend", () => {
     const result = await checkAndSend(mockSendFn, deps);
 
     expect(mockSendFn).not.toHaveBeenCalled();
-    expect(deps.sendDictionaryEmptyPrompt).toHaveBeenCalledWith(12345, "en");
+    expect(deps.sendDictionaryEmptyPrompt).toHaveBeenCalledWith(1, "en");
     expect(result.sent).toBe(0);
   });
 
@@ -296,6 +310,44 @@ describe("checkAndSend", () => {
       expect(deps.getSentWordsSince).toHaveBeenCalledWith(1, expect.any(Date));
       expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, ["house", "car"]);
     });
+
+    // A19 — the type→picker registry routes each notification type without a switch.
+    it("routes a contextual user to the contextual picker", async () => {
+      const contextualUser: NotificationUser = {
+        ...mockUser,
+        notificationType: "contextual",
+        notificationContext: "travel",
+      };
+      const deps = buildSchedulerDeps({
+        getUsersForWindow: vi.fn().mockResolvedValue([contextualUser]),
+      });
+
+      await checkAndSend(mockSendFn, deps);
+
+      expect(deps.pickContextualWord).toHaveBeenCalledWith(
+        1,
+        "travel",
+        { nativeLang: "en", learningLangs: ["cs", "de"] },
+        [],
+      );
+      expect(deps.pickDictionaryWord).not.toHaveBeenCalled();
+    });
+
+    it("falls back to the dictionary picker for a contextual user with no context", async () => {
+      const contextualUser: NotificationUser = {
+        ...mockUser,
+        notificationType: "contextual",
+        notificationContext: null,
+      };
+      const deps = buildSchedulerDeps({
+        getUsersForWindow: vi.fn().mockResolvedValue([contextualUser]),
+      });
+
+      await checkAndSend(mockSendFn, deps);
+
+      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
+      expect(deps.pickContextualWord).not.toHaveBeenCalled();
+    });
   });
 });
 
@@ -318,10 +370,7 @@ describe("processInactiveUsers", () => {
 
     const result = await processInactiveUsers(mockReEngagementSend, deps);
 
-    expect(mockReEngagementSend).toHaveBeenCalledWith(
-      12345,
-      "We paused your notifications. Use /settings to re-enable.",
-    );
+    expect(mockReEngagementSend).toHaveBeenCalledWith(1, "We paused your notifications. Use /settings to re-enable.");
     expect(deps.disableNotifications).toHaveBeenCalledWith(1);
     expect(result.processed).toBe(1);
     expect(result.errors).toBe(0);
@@ -331,7 +380,6 @@ describe("processInactiveUsers", () => {
     const user2: NotificationUser = {
       ...mockUser,
       userId: 2,
-      telegramId: 67890,
       interfaceLang: "ru",
       notificationContext: null,
     };
@@ -382,7 +430,6 @@ describe("processInactiveUsers", () => {
     const ruUser: NotificationUser = {
       ...mockUser,
       userId: 2,
-      telegramId: 67890,
       interfaceLang: "ru",
       notificationContext: null,
     };

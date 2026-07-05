@@ -7,8 +7,8 @@
  */
 
 import { z } from "zod";
+import type { GenerateObjectFn } from "../../ports/ai.port.js";
 import { getLanguageName } from "../i18n/language-registry.js";
-import type { GenerateObjectFn } from "./translation.service.js";
 
 export interface GrammarBreakdownInput {
   /** Original text that was translated */

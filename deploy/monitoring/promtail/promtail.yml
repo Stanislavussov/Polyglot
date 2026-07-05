@@ -1,8 +1,11 @@
 server:
   http_listen_port: 9080
 
+# Persist read positions on a mounted volume, not the container's ephemeral
+# /tmp (Fable T30, F8) — otherwise every restart re-reads log files from the
+# start and duplicates log lines in Loki. Backed by /opt/monitoring/data/promtail.
 positions:
-  filename: /tmp/positions.yaml
+  filename: /var/lib/promtail/positions.yaml
 
 clients:
   - url: http://loki:3100/loki/api/v1/push

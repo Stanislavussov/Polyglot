@@ -24,7 +24,14 @@ export async function translateWithContext(
 ): Promise<TranslationDecision> {
   const lookup = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
 
-  return translate({ ...input, dictionaryContext: lookup.context, dictionaryHit: lookup.hit }, deps.generateObjectFn);
+  return translate(
+    {
+      ...input,
+      dictionaryContext: lookup.context,
+      correctionPolicy: { ...input.correctionPolicy, dictionaryHit: lookup.hit },
+    },
+    deps.generateObjectFn,
+  );
 }
 
 export async function translateOneWithContext(
@@ -34,7 +41,11 @@ export async function translateOneWithContext(
   const lookup = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
 
   return translateOne(
-    { ...input, dictionaryContext: lookup.context, dictionaryHit: lookup.hit },
+    {
+      ...input,
+      dictionaryContext: lookup.context,
+      correctionPolicy: { ...input.correctionPolicy, dictionaryHit: lookup.hit },
+    },
     deps.generateObjectFn,
   );
 }

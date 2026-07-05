@@ -32,18 +32,14 @@ const { mockLogger, mockUserRepository, mockLanguageCache, mockTranslationReques
   };
 });
 
-// Mock dependencies before imports
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: mockUserRepository,
-  languageCache: mockLanguageCache,
-  getLangDisplay: mockLanguageCache.getLangDisplay,
-  getSupportedLangs: mockLanguageCache.getSupportedLangs,
-}));
-
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   return {
     ...actual,
+    // buildSettingsText/formatNotificationTimes call the real core getLangDisplay
+    // directly (pure registry lookup, no ctx.services) — override it here so the
+    // test doesn't depend on initLanguageRegistry having real language rows.
+    getLangDisplay: mockLanguageCache.getLangDisplay,
   };
 });
 
@@ -92,6 +88,17 @@ function createMockCtx(callbackData?: string) {
       userRepository: mockUserRepository,
       languageCache: mockLanguageCache,
       translationRequestRepository: mockTranslationRequestRepository,
+      settings: {
+        getPlanLimit: () =>
+          Promise.resolve({
+            name: "free",
+            label: "Free",
+            translationLimit: 20,
+            creditCost: 1,
+            isActive: true,
+            isDefault: true,
+          }),
+      },
     },
     callbackQuery: callbackData ? { data: callbackData, message: { message_id: 100 } } : undefined,
     reply: vi.fn().mockResolvedValue({ message_id: 200 }),
@@ -120,7 +127,7 @@ describe("handleSettingsCommand", () => {
     expect(text).toContain("🇬🇧 English");
     expect(text).toContain("🇨🇿 Čeština");
     expect(text).toContain("🇷🇺 Русский");
-    expect(text).toContain("40/50");
+    expect(text).toContain("10/20");
   });
 
   it("shows inline keyboard with change buttons", async () => {

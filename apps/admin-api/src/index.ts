@@ -6,6 +6,7 @@ import Fastify from "fastify";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenvConfig({ path: resolve(__dirname, "../../../.env") });
 
+import { installErrorHandler } from "./error-handler.js";
 import { authPlugin } from "./plugins/auth.js";
 import { aiDefaultRoutes } from "./routes/ai-defaults.js";
 import { aiModelRoutes } from "./routes/ai-models.js";
@@ -23,23 +24,49 @@ import { videoVocabularyRoutes } from "./routes/video-vocabulary.js";
 const PORT = Number.parseInt(process.env.PORT ?? "3001", 10);
 const HOST = process.env.HOST ?? "0.0.0.0";
 
-function adminPanelOrigins(): string[] {
-  return (process.env.ADMIN_PANEL_URL ?? "http://localhost:4321")
+/** The Astro admin-panel dev server origin, allowed only outside production. */
+const DEV_ADMIN_ORIGIN = "http://localhost:4321";
+
+function adminPanelOrigins(env: NodeJS.ProcessEnv): string[] {
+  return (env.ADMIN_PANEL_URL ?? DEV_ADMIN_ORIGIN)
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
 }
 
+/**
+ * Resolves the CORS allow-list (D6). The local dev-server origin is added only
+ * when NODE_ENV is not "production" — in production the API accepts requests
+ * exclusively from the configured admin origin(s), never localhost:4321.
+ */
+export function resolveCorsOrigins(env: NodeJS.ProcessEnv = process.env): string[] {
+  const configured = adminPanelOrigins(env);
+  const origins = env.NODE_ENV === "production" ? configured : [...configured, DEV_ADMIN_ORIGIN];
+  return [...new Set(origins)];
+}
+
 export async function buildAdminApiApp() {
-  const app = Fastify({ logger: true });
+  // trustProxy: the admin-API is only reachable through the nginx reverse proxy,
+  // so honour X-Forwarded-For to rate-limit by the real client IP, not nginx's.
+  const app = Fastify({ logger: true, trustProxy: true });
 
   await app.register(import("@fastify/cors"), {
-    origin: [...new Set([...adminPanelOrigins(), "http://localhost:4321"])],
+    origin: resolveCorsOrigins(),
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   });
 
+  // Soft global rate limit (per client IP). The public /login route tightens
+  // this to a hard anti-bruteforce limit via its own route config (see auth.ts).
+  await app.register(import("@fastify/rate-limit"), {
+    global: true,
+    max: 200,
+    timeWindow: "1 minute",
+  });
+
   await app.register(authPlugin);
+
+  installErrorHandler(app);
 
   app.get("/healthz", async () => ({ status: "ok" }));
 

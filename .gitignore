@@ -12,3 +12,5 @@ coverage
 .claude/
 .astro/
 **/.astro/
+.omc/
+**/.omc/

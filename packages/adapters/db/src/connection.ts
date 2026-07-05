@@ -5,6 +5,7 @@
  * modules can import getDb/closeDb without going through the barrel
  * (which re-exports them, causing circular dependencies).
  */
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema.js";
@@ -30,6 +31,11 @@ export function getDb(): Db {
     db = createDb();
   }
   return db;
+}
+
+/** Lightweight liveness probe for readiness checks: throws if the DB is unreachable. */
+export async function pingDatabase(): Promise<void> {
+  await getDb().execute(sql`select 1`);
 }
 
 /** Closes the connection pool. Call on graceful shutdown. */

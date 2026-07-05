@@ -16,13 +16,6 @@ const { mockLogger } = vi.hoisted(() => ({
 }));
 
 // Mock dependencies
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
-    getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
-    updateActiveMode: vi.fn().mockResolvedValue({}),
-  },
-}));
-
 vi.mock("@polyglot/core", () => ({
   t: vi.fn((key: string) => `[${key}]`),
   isSupported: vi.fn(() => true),
@@ -37,10 +30,14 @@ vi.mock("./commands.js", () => ({
   setUserCommands: vi.fn().mockResolvedValue(undefined),
 }));
 
-import { userRepository } from "@polyglot/adapter-db";
+import type { ServiceContainer } from "@polyglot/core";
+import { createServicesStub } from "../test-helpers/services-stub.js";
 import { setUserCommands } from "./commands.js";
 
-const repo = vi.mocked(userRepository);
+const mockUserRepository = {
+  getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
+  updateActiveMode: vi.fn().mockResolvedValue({}),
+};
 
 function createMockCtx(overrides: { onboarded?: boolean; userId?: number } = {}): BotContext {
   const session: SessionData = {
@@ -55,6 +52,9 @@ function createMockCtx(overrides: { onboarded?: boolean; userId?: number } = {})
     chat: { id: 123456789 },
     api: {},
     session,
+    services: createServicesStub({
+      userRepository: mockUserRepository as unknown as ServiceContainer["userRepository"],
+    }),
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     user: {
       id: 1,
@@ -88,7 +88,7 @@ describe("startCommand", () => {
 
     await startCommand(ctx);
 
-    expect(repo.updateActiveMode).toHaveBeenCalledWith(1, "translate");
+    expect(mockUserRepository.updateActiveMode).toHaveBeenCalledWith(1, "translate");
   });
 
   it("enters onboarding for non-onboarded users (no mode change)", async () => {
@@ -98,7 +98,7 @@ describe("startCommand", () => {
 
     expect(ctx.session.activeMode).toBe("idle"); // unchanged
     expect(ctx.conversation.enter).toHaveBeenCalledWith("onboarding");
-    expect(repo.updateActiveMode).not.toHaveBeenCalled();
+    expect(mockUserRepository.updateActiveMode).not.toHaveBeenCalled();
   });
 
   it("does nothing when user is not in context", async () => {
@@ -108,6 +108,6 @@ describe("startCommand", () => {
     await startCommand(ctx);
 
     expect(ctx.reply).not.toHaveBeenCalled();
-    expect(repo.updateActiveMode).not.toHaveBeenCalled();
+    expect(mockUserRepository.updateActiveMode).not.toHaveBeenCalled();
   });
 });

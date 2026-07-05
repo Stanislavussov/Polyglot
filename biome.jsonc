@@ -1,0 +1,81 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 120
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "noUnusedImports": "warn",
+        "noUnusedVariables": "warn"
+      },
+      "style": {
+        "noNonNullAssertion": "off",
+        "useImportType": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noConsole": "error",
+        "noThenProperty": "off"
+      },
+      "complexity": {
+        "noForEach": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "files": {
+    "includes": ["packages/**/*.ts", "apps/**/*.ts"]
+  },
+  "overrides": [
+    {
+      // Scenes→adapters boundary (Fable T28 follow-up). Bot scenes/helpers must
+      // reach adapters through ctx.services (the ServiceContainer wired in the
+      // composition root, apps/bot/src/container.ts) — never by importing an
+      // adapter package directly. This is the real, Biome-enforced backstop for
+      // the toothless dep-cruiser `no-bot-scenes-importing-adapters` rule
+      // (@polyglot/* specifiers resolve to `unknown` in dependency-cruiser).
+      "includes": ["apps/bot/src/scenes/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@polyglot/adapter-db": "Do not import @polyglot/adapter-db from a scene/helper. Use ctx.services (ServiceContainer) instead — the composition root (apps/bot/src/container.ts) wires the DB adapter into it.",
+                  "@polyglot/adapter-ai": "Do not import @polyglot/adapter-ai from a scene/helper. Use ctx.services.ai (ServiceContainer) instead.",
+                  "@polyglot/adapter-notifications": "Do not import @polyglot/adapter-notifications from a scene/helper. Use ctx.services (ServiceContainer) instead."
+                  // TODO(Fable T28 follow-up): @polyglot/adapter-youtube is
+                  // intentionally NOT banned yet. video-vocabulary.helper.ts
+                  // imports it directly (extractVideoId/fetchMetadata/
+                  // fetchTranscript — external YouTube I/O). Routing it through
+                  // ctx.services needs a new youtube port + container wiring +
+                  // test stub; do that, then add "@polyglot/adapter-youtube"
+                  // here to complete the boundary.
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

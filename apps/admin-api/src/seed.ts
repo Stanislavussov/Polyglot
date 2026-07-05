@@ -1,6 +1,11 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { adminUserRepository, closeDb, rateLimitPlanRepository } from "@polyglot/adapter-db";
+import {
+  adminUserRepository,
+  closeDb,
+  planFeatureAccessRepository,
+  rateLimitPlanRepository,
+} from "@polyglot/adapter-db";
 import bcrypt from "bcryptjs";
 import { config as dotenvConfig } from "dotenv";
 
@@ -8,56 +13,62 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenvConfig({ path: resolve(__dirname, "../../../.env") });
 
 async function seed() {
+  const PREMIUM_FEATURES = ["grammarBreakdown", "etymology", "grammarDetail"];
+
   const defaultPlans = [
     {
       name: "free",
       label: "Free",
-      creditsPerDay: 50,
-      windowMs: 86_400_000,
+      translationLimit: 20,
       creditCost: 1,
+      videoLimit: 3,
+      videoWindow: "lifetime" as const,
       isActive: true,
       isDefault: true,
+      features: [] as string[],
     },
     {
       name: "plus",
       label: "Plus",
-      creditsPerDay: 300,
-      windowMs: 86_400_000,
+      translationLimit: null,
       creditCost: 1,
+      videoLimit: 10,
+      videoWindow: "monthly" as const,
       isActive: true,
       isDefault: false,
+      features: PREMIUM_FEATURES,
     },
     {
       name: "pro",
       label: "Pro",
-      creditsPerDay: 1500,
-      windowMs: 86_400_000,
+      translationLimit: null,
       creditCost: 1,
+      videoLimit: null,
+      videoWindow: "monthly" as const,
       isActive: true,
       isDefault: false,
+      features: PREMIUM_FEATURES,
     },
     {
       name: "unlimited",
       label: "Unlimited",
-      creditsPerDay: null,
-      windowMs: 86_400_000,
+      translationLimit: null,
       creditCost: 1,
+      videoLimit: null,
+      videoWindow: "monthly" as const,
       isActive: true,
       isDefault: false,
+      features: PREMIUM_FEATURES,
     },
   ];
 
-  const existingPlans = await rateLimitPlanRepository.findAll();
-  if (existingPlans.length === 0) {
-    for (const plan of defaultPlans) {
-      await rateLimitPlanRepository.upsert(plan);
-    }
-    // biome-ignore lint/suspicious/noConsole: CLI script output
-    console.log("Created default subscription plans");
-  } else {
-    // biome-ignore lint/suspicious/noConsole: CLI script output
-    console.log("Subscription plans already exist; skipping default plan seed");
+  // Idempotent: upsert every plan (updates columns on re-run) and sync its feature access.
+  for (const { features, ...plan } of defaultPlans) {
+    await rateLimitPlanRepository.upsert(plan);
+    await planFeatureAccessRepository.setFeaturesForPlan(plan.name, features);
   }
+  // biome-ignore lint/suspicious/noConsole: CLI script output
+  console.log("Seeded/updated subscription plans and feature access");
 
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;

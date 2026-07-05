@@ -39,6 +39,22 @@ describe("buildMentorSystemPrompt", () => {
     expect(prompt).toBeTypeOf("string");
     expect(prompt.length).toBeGreaterThan(50);
   });
+
+  it("includes a prompt-injection guard treating user input as untrusted (S6)", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toMatch(/untrusted/i);
+    expect(prompt).toMatch(/never follow.*instructions|ignore.*instructions/i);
+  });
+
+  it("stays channel-neutral by default (no hardcoded frontend name)", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).not.toMatch(/telegram/i);
+  });
+
+  it("uses the provided channelHint in the prompt", () => {
+    const prompt = buildMentorSystemPrompt({ ...opts, channelHint: "a web widget" });
+    expect(prompt).toContain("a web widget");
+  });
 });
 
 describe("MAX_MENTOR_HISTORY", () => {

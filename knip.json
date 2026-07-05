@@ -3,7 +3,7 @@
   "ignoreFiles": ["scripts/import-wiktionary.ts"],
   "workspaces": {
     "apps/admin": {
-      "entry": ["src/pages/**/*.astro"],
+      "entry": ["src/pages/**/*.{astro,ts}"],
       "project": ["src/**/*.{astro,ts,vue}"],
       "ignoreFiles": ["src/components/ConfirmDialog.vue", "src/components/SettingsForm.vue"]
     },

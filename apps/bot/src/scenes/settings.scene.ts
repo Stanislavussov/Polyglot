@@ -4,22 +4,22 @@
  * Notification details are in a sub-menu (set:notif).
  * Callback handlers are in helpers/settings.helper.ts.
  */
-import { formatNotificationTime, getLangDisplay, parseNotificationMinutes, userRepository } from "@polyglot/adapter-db";
 import {
   evaluatePlanRateLimit,
-  evaluateRateLimit,
-  getDailyWindowReset,
-  getDailyWindowStart,
-  getPlanLimit,
+  formatNotificationTime,
+  getLangDisplay,
+  getMonthlyWindowReset,
+  getMonthlyWindowStart,
   isSupported,
   type PlanLimitConfig,
-  type SubscriptionPlan,
+  parseNotificationMinutes,
   type SupportedLang,
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../types.js";
 import { trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { resolvePlanLimit } from "../utils/plan-limit.js";
 
 /** Format a list of "HH:MM" times as a sorted, normalized, comma-separated string ("—" when empty). */
 export function formatNotificationTimes(times: string[]): string {
@@ -129,7 +129,7 @@ export function buildNotifSubKeyboard(lang: SupportedLang, notifEnabled: boolean
 
 /** /settings command handler */
 export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
@@ -142,12 +142,10 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   const plan = ctx.user.subscriptionPlan ?? "free";
   const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
     ctx.user.id,
-    getDailyWindowStart(),
+    getMonthlyWindowStart(),
   );
-  const planLimit = (await ctx.services.settings?.getPlanLimit(plan)) ?? null;
-  const planUsage = planLimit
-    ? formatPlanUsageFromConfig(planLimit, usedCredits, lang)
-    : formatPlanUsage(plan, usedCredits, lang);
+  const planLimit = await resolvePlanLimit(ctx.services.settings, plan);
+  const planUsage = formatPlanUsageFromConfig(planLimit, usedCredits, lang);
 
   const text = buildSettingsText(
     nativeLang,
@@ -165,32 +163,19 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   trackTechnicalMessage(ctx, msg.message_id);
 }
 
-export function formatPlanUsage(plan: SubscriptionPlan, usedCredits: number, lang: SupportedLang): string {
-  const limit = getPlanLimit(plan);
-  const status = evaluateRateLimit(plan, usedCredits, 0, getDailyWindowReset());
-  if (limit.creditsPerDay === null) {
-    return t("settingsPlanUnlimited", lang, { plan: limit.label });
-  }
-  return t("settingsPlan", lang, {
-    plan: limit.label,
-    remaining: status.remainingCredits ?? 0,
-    limit: limit.creditsPerDay,
-  });
-}
-
 export function formatPlanUsageFromConfig(plan: PlanLimitConfig, usedCredits: number, lang: SupportedLang): string {
   const status = evaluatePlanRateLimit(
-    { plan: plan.name, label: plan.label, creditsPerDay: plan.creditsPerDay },
+    { plan: plan.name, label: plan.label, creditsPerDay: plan.translationLimit },
     usedCredits,
     0,
-    getDailyWindowReset(),
+    getMonthlyWindowReset(),
   );
-  if (plan.creditsPerDay === null) {
+  if (plan.translationLimit === null) {
     return t("settingsPlanUnlimited", lang, { plan: plan.label });
   }
   return t("settingsPlan", lang, {
     plan: plan.label,
     remaining: status.remainingCredits ?? 0,
-    limit: plan.creditsPerDay,
+    limit: plan.translationLimit,
   });
 }

@@ -2,7 +2,6 @@
  * Template wizard callback handlers — tpl:* callbacks.
  * Manages customize, toggle, preview, save, cancel, reset flows.
  */
-import { translationTemplateRepository, userRepository } from "@polyglot/adapter-db";
 import {
   type I18nKey,
   isSupported,
@@ -17,6 +16,7 @@ import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import { MOCK_PREVIEW_OUTPUT } from "../template-preview.data.js";
+import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 /** Map TemplateFields key → i18n key for field label */
 const FIELD_I18N_MAP: Record<keyof TemplateFields, I18nKey> = {
@@ -30,7 +30,7 @@ const FIELD_I18N_MAP: Record<keyof TemplateFields, I18nKey> = {
 
 /** Resolve interface language from user settings */
 async function getLang(ctx: BotContext): Promise<SupportedLang> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   return (isSupported(iLang) ? iLang : "en") as SupportedLang;
 }
@@ -52,7 +52,7 @@ function buildToggleKeyboard(fields: TemplateFields, lang: SupportedLang): Inlin
 /** tpl:customize — enter the constructor */
 export async function handleCustomizeCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
-  const saved = await translationTemplateRepository.getByUserId(ctx.user.id);
+  const saved = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
   const tpl = resolveTemplate(saved ? { name: saved.name, fields: saved.fields } : null);
 
   ctx.session.templateWizard = { fields: { ...tpl.fields } };
@@ -60,7 +60,7 @@ export async function handleCustomizeCallback(ctx: BotContext): Promise<void> {
   const text = t("templateConstructor", lang);
 
   try {
-    await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
+    await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
     ctx.session.templateWizard.wizardMsgId = ctx.callbackQuery?.message?.message_id;
   } catch {
     const msg = await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
@@ -88,7 +88,7 @@ export async function handleToggleCallback(ctx: BotContext): Promise<void> {
   ctx.session.templateWizard.fields[key] = !ctx.session.templateWizard.fields[key];
   const lang = await getLang(ctx);
   const kb = buildToggleKeyboard(ctx.session.templateWizard.fields, lang);
-  await ctx.editMessageText(t("templateConstructor", lang), {
+  await editMessageTextOrReply(ctx, t("templateConstructor", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
   });
@@ -109,7 +109,7 @@ export async function handlePreviewCallback(ctx: BotContext): Promise<void> {
   const card = renderTranslation(MOCK_PREVIEW_OUTPUT, lang, ctx.session.templateWizard.fields);
   const text = `${t("templatePreviewHeader", lang)}\n\n${card}`;
   const kb = new InlineKeyboard().text(t("templateBack", lang), "tpl:back");
-  await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
+  await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
   await ctx.answerCallbackQuery();
 }
 
@@ -125,7 +125,7 @@ export async function handleBackCallback(ctx: BotContext): Promise<void> {
   }
   const lang = await getLang(ctx);
   const kb = buildToggleKeyboard(ctx.session.templateWizard.fields, lang);
-  await ctx.editMessageText(t("templateConstructor", lang), {
+  await editMessageTextOrReply(ctx, t("templateConstructor", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
   });
@@ -143,10 +143,10 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
     return;
   }
   const lang = await getLang(ctx);
-  await translationTemplateRepository.upsert(ctx.user.id, "Custom", ctx.session.templateWizard.fields);
+  await ctx.services.translationTemplateRepository.upsert(ctx.user.id, "Custom", ctx.session.templateWizard.fields);
   ctx.session.templateWizard = undefined;
   await cleanupTechnicalMessages(ctx);
-  await ctx.editMessageText(t("templateSaved", lang), {
+  await editMessageTextOrReply(ctx, t("templateSaved", lang), {
     parse_mode: "HTML",
   });
   await ctx.answerCallbackQuery();
@@ -157,7 +157,7 @@ export async function handleCancelCallback(ctx: BotContext): Promise<void> {
   ctx.session.templateWizard = undefined;
   const lang = await getLang(ctx);
   await cleanupTechnicalMessages(ctx);
-  await ctx.editMessageText(t("templateCancelled", lang), {
+  await editMessageTextOrReply(ctx, t("templateCancelled", lang), {
     parse_mode: "HTML",
   });
   await ctx.answerCallbackQuery();
@@ -166,10 +166,10 @@ export async function handleCancelCallback(ctx: BotContext): Promise<void> {
 /** tpl:reset — delete custom template */
 export async function handleResetCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
-  await translationTemplateRepository.deleteByUserId(ctx.user.id);
+  await ctx.services.translationTemplateRepository.deleteByUserId(ctx.user.id);
   ctx.session.templateWizard = undefined;
   await cleanupTechnicalMessages(ctx);
-  await ctx.editMessageText(t("templateResetDone", lang), {
+  await editMessageTextOrReply(ctx, t("templateResetDone", lang), {
     parse_mode: "HTML",
   });
   await ctx.answerCallbackQuery();
