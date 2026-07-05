@@ -29,6 +29,7 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../../utils/long-op.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
+import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
 import { isEtymologyEligible } from "./translate-mode.shared.js";
 
 /**
@@ -127,13 +128,9 @@ async function showSavedCard(
     ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`
     : renderTranslation(output, lang, effectiveTemplate.fields, nativeLang);
   const savedCard = `${cardText}\n\n${t("savedToDict", lang)}`;
-  try {
-    await ctx.editMessageText(savedCard, {
-      parse_mode: "HTML",
-    });
-  } catch (err) {
-    logger.error({ err }, "Failed to edit message after save — save still succeeded");
-  }
+  await editMessageTextOrReply(ctx, savedCard, {
+    parse_mode: "HTML",
+  });
 }
 
 /** @deprecated Kept for old messages with skip buttons. */
@@ -151,11 +148,7 @@ export async function handleRegenCallback(ctx: BotContext): Promise<void> {
  * section generates. Best-effort: the operation proceeds even if the swap fails.
  */
 async function showCardLoading(ctx: BotContext, lang: SupportedLang): Promise<void> {
-  try {
-    await ctx.editMessageReplyMarkup({ reply_markup: loadingKeyboard(lang) });
-  } catch {
-    // Message may be too old to edit — the loader is cosmetic.
-  }
+  await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: loadingKeyboard(lang) });
 }
 
 function longOpFailureText(err: unknown, lang: SupportedLang): string {
@@ -260,7 +253,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       undefined,
       showEtymologyButton,
     );
-    await ctx.editMessageText(cardText, {
+    await editMessageTextOrReply(ctx, cardText, {
       reply_markup: keyboard,
       parse_mode: "HTML",
     });

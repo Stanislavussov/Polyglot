@@ -3,6 +3,7 @@ import { type IssueType, logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext, ConversationContext } from "../types.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
 const BACK = Symbol("back");
 type BackAction = typeof BACK;
@@ -45,7 +46,7 @@ async function stepChooseType(
   }
   const type = response.callbackQuery.data.replace("report:type:", "") as IssueType;
   await response.answerCallbackQuery();
-  await response.editMessageText(`${t("reportTitle", lang)}\n\n✅ ${typeToLabel(type, lang)}`);
+  await editMessageTextOrReply(response, `${t("reportTitle", lang)}\n\n✅ ${typeToLabel(type, lang)}`);
   return type;
 }
 

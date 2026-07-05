@@ -9,6 +9,7 @@ import {
 import type { BotContext } from "../../types.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import { SRS_SESSION_LIMIT } from "../srs.scene.js";
+import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
@@ -51,7 +52,7 @@ export async function handleSrsReveal(ctx: BotContext): Promise<void> {
   );
 
   try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: buildSrsBackKeyboard(lang) });
+    await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsBackKeyboard(lang) });
   } catch {
     /* ignore */
   }
@@ -91,7 +92,7 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
     ctx.session.srs = undefined;
     await cleanupTechnicalMessages(ctx);
     try {
-      await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: buildSrsDoneKeyboard(lang) });
+      await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsDoneKeyboard(lang) });
     } catch {
       /* ignore */
     }
@@ -110,7 +111,7 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
   );
 
   try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: buildSrsFrontKeyboard(lang) });
+    await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsFrontKeyboard(lang) });
   } catch {
     /* ignore */
   }
@@ -124,7 +125,7 @@ export async function handleSrsRestart(ctx: BotContext): Promise<void> {
   if (deck.length === 0) {
     ctx.session.srs = undefined;
     try {
-      await ctx.editMessageText(t("srsEmpty", lang));
+      await editMessageTextOrReply(ctx, t("srsEmpty", lang));
     } catch {
       /* ignore */
     }
@@ -144,7 +145,7 @@ export async function handleSrsRestart(ctx: BotContext): Promise<void> {
   );
 
   try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: buildSrsFrontKeyboard(lang) });
+    await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsFrontKeyboard(lang) });
   } catch {
     /* ignore */
   }
@@ -156,7 +157,7 @@ export async function handleSrsQuit(ctx: BotContext): Promise<void> {
   ctx.session.srs = undefined;
   await cleanupTechnicalMessages(ctx);
   try {
-    await ctx.editMessageText(t("srsQuit", lang));
+    await editMessageTextOrReply(ctx, t("srsQuit", lang));
   } catch {
     /* ignore */
   }

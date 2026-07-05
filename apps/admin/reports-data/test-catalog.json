@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-05T12:56:30.327Z",
+  "generatedAt": "2026-07-05T13:40:27.717Z",
   "summary": {
-    "total": 2107,
+    "total": 2116,
     "business": 0,
-    "technical": 2107,
+    "technical": 2116,
     "workspaces": [
       "apps",
       "packages"
@@ -7198,6 +7198,150 @@
       "name": "Bot handle Skip Callback — source lang menu answers callback query after skip",
       "value": "Protects the bot handle Skip Callback — source lang menu behavior so answers callback query after skip.",
       "description": "Protects the bot handle Skip Callback — source lang menu behavior so answers callback query after skip."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-26-editmessagetextorreply-edits-the-message-in-place-on-the-happy-path-and-does-not-send-a-new-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/edit-message.helper.test.ts",
+      "sourceLine": 26,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "editMessageTextOrReply"
+      ],
+      "title": "edits the message in place on the happy path and does not send a new message",
+      "rawTitle": "edits the message in place on the happy path and does not send a new message",
+      "name": "Bot edit Message Text Or Reply edits the message in place on the happy path and does not send a new message",
+      "value": "Protects the bot edit Message Text Or Reply behavior so edits the message in place on the happy path and does not send a new message.",
+      "description": "Protects the bot edit Message Text Or Reply behavior so edits the message in place on the happy path and does not send a new message."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-36-editmessagetextorreply-swallows-message-is-not-modified-without-sending-a-new-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/edit-message.helper.test.ts",
+      "sourceLine": 36,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "editMessageTextOrReply"
+      ],
+      "title": "swallows 'message is not modified' without sending a new message",
+      "rawTitle": "swallows 'message is not modified' without sending a new message",
+      "name": "Bot edit Message Text Or Reply swallows 'message is not modified' without sending a new message",
+      "value": "Protects the bot edit Message Text Or Reply behavior so swallows 'message is not modified' without sending a new message.",
+      "description": "Protects the bot edit Message Text Or Reply behavior so swallows 'message is not modified' without sending a new message."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-43-editmessagetextorreply-falls-back-to-reply-with-the-same-text-options-when-the-message-is-too-old-to-edit",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/edit-message.helper.test.ts",
+      "sourceLine": 43,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "editMessageTextOrReply"
+      ],
+      "title": "falls back to reply with the same text + options when the message is too old to edit",
+      "rawTitle": "falls back to reply with the same text + options when the message is too old to edit",
+      "name": "Bot edit Message Text Or Reply falls back to reply with the same text + options when the message is too old to edit",
+      "value": "Protects the bot edit Message Text Or Reply behavior: falls back to reply with the same text + options when the message is too old to edit.",
+      "description": "Protects the bot edit Message Text Or Reply behavior: falls back to reply with the same text + options when the message is too old to edit."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-52-editmessagetextorreply-falls-back-to-reply-when-the-message-can-t-be-edited",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/edit-message.helper.test.ts",
+      "sourceLine": 52,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "editMessageTextOrReply"
+      ],
+      "title": "falls back to reply when the message can't be edited",
+      "rawTitle": "falls back to reply when the message can't be edited",
+      "name": "Bot edit Message Text Or Reply falls back to reply when the message can't be edited",
+      "value": "Protects the bot edit Message Text Or Reply behavior: falls back to reply when the message can't be edited.",
+      "description": "Protects the bot edit Message Text Or Reply behavior: falls back to reply when the message can't be edited."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-60-editmessagetextorreply-rethrows-unrelated-telegram-errors-instead-of-masking-them",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/edit-message.helper.test.ts",
+      "sourceLine": 60,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "editMessageTextOrReply"
+      ],
+      "title": "rethrows unrelated Telegram errors instead of masking them",
+      "rawTitle": "rethrows unrelated Telegram errors instead of masking them",
+      "name": "Bot edit Message Text Or Reply rethrows unrelated Telegram errors instead of masking them",
+      "value": "Protects the bot edit Message Text Or Reply behavior so rethrows unrelated Telegram errors instead of masking them.",
+      "description": "Protects the bot edit Message Text Or Reply behavior so rethrows unrelated Telegram errors instead of masking them."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-70-editmessagereplymarkuporignore-edits-the-keyboard-in-place-on-the-happy-path",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/edit-message.helper.test.ts",
+      "sourceLine": 70,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "editMessageReplyMarkupOrIgnore"
+      ],
+      "title": "edits the keyboard in place on the happy path",
+      "rawTitle": "edits the keyboard in place on the happy path",
+      "name": "Bot edit Message Reply Markup Or Ignore edits the keyboard in place on the happy path",
+      "value": "Protects the bot edit Message Reply Markup Or Ignore behavior so edits the keyboard in place on the happy path.",
+      "description": "Protects the bot edit Message Reply Markup Or Ignore behavior so edits the keyboard in place on the happy path."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-79-editmessagereplymarkuporignore-silently-ignores-a-too-old-message-no-text-to-re-send",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/edit-message.helper.test.ts",
+      "sourceLine": 79,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "editMessageReplyMarkupOrIgnore"
+      ],
+      "title": "silently ignores a too-old message (no text to re-send)",
+      "rawTitle": "silently ignores a too-old message (no text to re-send)",
+      "name": "Bot edit Message Reply Markup Or Ignore silently ignores a too old message (no text to re send)",
+      "value": "Protects the bot edit Message Reply Markup Or Ignore behavior so silently ignores a too old message (no text to re send).",
+      "description": "Protects the bot edit Message Reply Markup Or Ignore behavior so silently ignores a too old message (no text to re send)."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-88-editmessagereplymarkuporignore-swallows-message-is-not-modified",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/edit-message.helper.test.ts",
+      "sourceLine": 88,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "editMessageReplyMarkupOrIgnore"
+      ],
+      "title": "swallows 'message is not modified'",
+      "rawTitle": "swallows 'message is not modified'",
+      "name": "Bot edit Message Reply Markup Or Ignore swallows 'message is not modified'",
+      "value": "Protects the bot edit Message Reply Markup Or Ignore behavior so swallows 'message is not modified'.",
+      "description": "Protects the bot edit Message Reply Markup Or Ignore behavior so swallows 'message is not modified'."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-94-editmessagereplymarkuporignore-rethrows-unrelated-telegram-errors",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/edit-message.helper.test.ts",
+      "sourceLine": 94,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "editMessageReplyMarkupOrIgnore"
+      ],
+      "title": "rethrows unrelated Telegram errors",
+      "rawTitle": "rethrows unrelated Telegram errors",
+      "name": "Bot edit Message Reply Markup Or Ignore rethrows unrelated Telegram errors",
+      "value": "Protects the bot edit Message Reply Markup Or Ignore behavior so rethrows unrelated Telegram errors.",
+      "description": "Protects the bot edit Message Reply Markup Or Ignore behavior so rethrows unrelated Telegram errors."
     },
     {
       "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-77-handlementortext-calls-generatechat-with-system-prompt-history-and-user-message",

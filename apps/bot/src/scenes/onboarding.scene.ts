@@ -5,6 +5,7 @@ import { setUserCommands } from "../commands/commands.js";
 import { MAX_LEARNING_LANGS } from "../constants.js";
 import type { BotContext, ConversationContext } from "../types.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
 type OnboardingConversation = Conversation<BotContext, ConversationContext>;
 
@@ -153,7 +154,8 @@ async function stepChooseNativeLang(
   const selectedCode = response.callbackQuery.data.replace("lang:", "");
   await response.answerCallbackQuery();
 
-  await response.editMessageText(
+  await editMessageTextOrReply(
+    response,
     `${t("chooseNativeLang", lang)}\n\n✅ ${ctx.services.languageCache.getLangDisplay(selectedCode)}`,
   );
 
@@ -218,7 +220,7 @@ async function stepChooseLearningLangs(
       }
       await response.answerCallbackQuery();
       const selectedDisplay = selected.map((c) => ctx.services.languageCache.getLangDisplay(c)).join(", ");
-      await response.editMessageText(`${promptText}\n\n✅ ${selectedDisplay}`);
+      await editMessageTextOrReply(response, `${promptText}\n\n✅ ${selectedDisplay}`);
       return selected;
     }
 
@@ -243,7 +245,7 @@ async function stepChooseLearningLangs(
       });
     }
 
-    await response.editMessageReplyMarkup({
+    await editMessageReplyMarkupOrIgnore(response, {
       reply_markup: buildKeyboard(),
     });
   }
@@ -306,7 +308,7 @@ async function stepChooseProficiencyLevels(
     const parts = data.split(":");
     const selectedLevel = parts[2];
     await response.answerCallbackQuery();
-    await response.editMessageText(`${promptText}\n\n✅ ${LEVEL_LABELS[selectedLevel] ?? selectedLevel}`);
+    await editMessageTextOrReply(response, `${promptText}\n\n✅ ${LEVEL_LABELS[selectedLevel] ?? selectedLevel}`);
 
     await conversation.external(() => ctx.services.userRepository.setLanguageLevel(userId, langCode, selectedLevel));
   }

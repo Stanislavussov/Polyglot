@@ -23,6 +23,7 @@ import {
 import type { BotContext, ConversationContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
+import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 type TranslateConversation = Conversation<BotContext, ConversationContext>;
 
@@ -101,7 +102,7 @@ export async function handleRegenLoop(
           });
           const saved = `${renderCard(current, lang)}\n\n${t("savedToDict", lang)}`;
           const postSaveKb = new InlineKeyboard();
-          await resp.editMessageText(saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
+          await editMessageTextOrReply(resp, saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
           return;
         }
         const alreadySavedMsg = t("alreadySaved", lang);
@@ -124,12 +125,12 @@ export async function handleRegenLoop(
       // Post-save card with regen-only keyboard
       const saved = `${renderCard(current, lang)}\n\n${t("savedToDict", lang)}`;
       const postSaveKb = new InlineKeyboard();
-      await resp.editMessageText(saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
+      await editMessageTextOrReply(resp, saved, { reply_markup: postSaveKb, parse_mode: "HTML" });
       return;
     }
 
     if (data === "tr:skip") {
-      await resp.editMessageText(renderCard(current, lang), {
+      await editMessageTextOrReply(resp, renderCard(current, lang), {
         parse_mode: "HTML",
       });
       return;
@@ -139,7 +140,7 @@ export async function handleRegenLoop(
     const regenLang = data.replace("tr:regen:", "");
 
     // Show loading state
-    await resp.editMessageText(`${card}\n\n${t("regenerating", lang, { lang: regenLang.toUpperCase() })}`, {
+    await editMessageTextOrReply(resp, `${card}\n\n${t("regenerating", lang, { lang: regenLang.toUpperCase() })}`, {
       parse_mode: "HTML",
     });
 

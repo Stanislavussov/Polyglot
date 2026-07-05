@@ -33,6 +33,7 @@ import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
+import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 const PHRASES_PER_PAGE = 5;
 const MAX_RETRIES = 2;
@@ -306,11 +307,7 @@ export async function handleVideoConfirmCallback(ctx: BotContext): Promise<void>
   videoProcessingCounter.inc({ status: "initiated" });
 
   // Update status and start processing
-  try {
-    await ctx.editMessageText(t("videoProcessingStarted", lang), { parse_mode: "HTML" });
-  } catch {
-    // Message may have been deleted — proceed with processing anyway
-  }
+  await editMessageTextOrReply(ctx, t("videoProcessingStarted", lang), { parse_mode: "HTML" });
 
   // Start async processing (fire and forget)
   void processVideoInBackground(ctx, process.id, userId, lang);
@@ -626,15 +623,11 @@ async function showPhraseBrowserEdit(
   const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
-  try {
-    await ctx.editMessageText(text, {
-      parse_mode: "HTML",
-      reply_markup: keyboard,
-      link_preview_options: { is_disabled: true },
-    });
-  } catch {
-    // Message unchanged or deleted
-  }
+  await editMessageTextOrReply(ctx, text, {
+    parse_mode: "HTML",
+    reply_markup: keyboard,
+    link_preview_options: { is_disabled: true },
+  });
 }
 
 async function showVideoListEdit(ctx: BotContext, userId: number, page: number, lang: SupportedLang): Promise<void> {
@@ -652,14 +645,10 @@ async function showVideoListEdit(ctx: BotContext, userId: number, page: number, 
   const text = renderVideoList(processes, page, totalPages, lang);
   const keyboard = buildVideoListKeyboard(processes, page, totalPages, lang);
 
-  try {
-    await ctx.editMessageText(text, {
-      parse_mode: "HTML",
-      reply_markup: keyboard,
-    });
-  } catch {
-    // Message unchanged or deleted
-  }
+  await editMessageTextOrReply(ctx, text, {
+    parse_mode: "HTML",
+    reply_markup: keyboard,
+  });
 }
 
 /* ------------------------------------------------------------------ */

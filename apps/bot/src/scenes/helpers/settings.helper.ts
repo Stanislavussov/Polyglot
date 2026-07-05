@@ -25,6 +25,7 @@ import {
   buildSettingsText,
   formatPlanUsageFromConfig,
 } from "../settings.scene.js";
+import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
 
 /** Resolve interface language from user settings */
 async function getLang(ctx: BotContext): Promise<SupportedLang> {
@@ -59,7 +60,7 @@ async function showSettingsMenu(ctx: BotContext): Promise<void> {
     planUsage,
   );
   const kb = buildSettingsKeyboard(lang);
-  await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
+  await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
 }
 
 /** Re-render the notification sub-menu */
@@ -75,7 +76,7 @@ async function showNotifSubMenu(ctx: BotContext): Promise<void> {
 
   const text = buildNotifSubText(lang, notifEnabled, notifTimes, notifType, timezone, notifContext);
   const kb = buildNotifSubKeyboard(lang, notifEnabled, notifType);
-  await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
+  await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
 }
 
 /** set:native — show native language picker */
@@ -87,7 +88,7 @@ export async function handleSetNativeCallback(ctx: BotContext): Promise<void> {
   }
   kb.text(`⬅️ ${t("back", lang)}`, "set:back").row();
 
-  await ctx.editMessageText(t("settingsChooseNative", lang), {
+  await editMessageTextOrReply(ctx, t("settingsChooseNative", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
   });
@@ -117,7 +118,7 @@ export async function handleSetLearningCallback(ctx: BotContext): Promise<void> 
   const selected = settings?.learningLangs ?? [];
 
   const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
-  await ctx.editMessageText(t("settingsChooseLearning", lang), {
+  await editMessageTextOrReply(ctx, t("settingsChooseLearning", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
   });
@@ -180,7 +181,7 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
       text: t("langRemoved", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
     });
     const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
-    await ctx.editMessageReplyMarkup({ reply_markup: kb });
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: kb });
     return;
   }
 
@@ -195,7 +196,7 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
   // New language → ask for the proficiency level before saving.
   await ctx.answerCallbackQuery();
   const langName = ctx.services.languageCache.getLangDisplay(code);
-  await ctx.editMessageText(t("chooseProficiencyLevel", lang, { lang: langName }), {
+  await editMessageTextOrReply(ctx, t("chooseProficiencyLevel", lang, { lang: langName }), {
     reply_markup: buildLevelKeyboard(code, lang),
     parse_mode: "HTML",
   });
@@ -233,7 +234,7 @@ export async function handleSetLearnLevelCallback(ctx: BotContext): Promise<void
   await ctx.answerCallbackQuery({
     text: t("langAdded", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
   });
-  await ctx.editMessageText(t("settingsChooseLearning", lang), {
+  await editMessageTextOrReply(ctx, t("settingsChooseLearning", lang), {
     reply_markup: buildLearningKeyboard(ctx, selected, nativeLang, lang),
     parse_mode: "HTML",
   });
@@ -248,7 +249,7 @@ export async function handleSetInterfaceCallback(ctx: BotContext): Promise<void>
   }
   kb.text(`⬅️ ${t("back", lang)}`, "set:back").row();
 
-  await ctx.editMessageText(t("settingsChooseInterface", lang), {
+  await editMessageTextOrReply(ctx, t("settingsChooseInterface", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
   });
@@ -331,7 +332,7 @@ export async function handleSetNotifTimeCallback(ctx: BotContext): Promise<void>
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const selected = new Set((settings?.notificationTimes ?? []).map(parseNotificationMinutes));
 
-  await ctx.editMessageText(t("settingsNotifChooseTimes", lang), {
+  await editMessageTextOrReply(ctx, t("settingsNotifChooseTimes", lang), {
     reply_markup: buildNotifTimesKeyboard(selected, lang),
     parse_mode: "HTML",
   });
@@ -371,7 +372,7 @@ export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise
   const times = [...selected].sort((a, b) => a - b).map(formatNotificationTime);
   await ctx.services.notificationRepository.updatePrefs(ctx.user.id, { notificationTimes: times });
 
-  await ctx.editMessageReplyMarkup({ reply_markup: buildNotifTimesKeyboard(selected, lang) });
+  await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotifTimesKeyboard(selected, lang) });
 }
 
 /** set:notif:type — show notification type picker */
@@ -388,7 +389,7 @@ export async function handleSetNotifTypeCallback(ctx: BotContext): Promise<void>
   }
   kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
 
-  await ctx.editMessageText(t("settingsNotifChooseType", lang), {
+  await editMessageTextOrReply(ctx, t("settingsNotifChooseType", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
   });
@@ -433,7 +434,7 @@ export async function handleSetNotifTzCallback(ctx: BotContext): Promise<void> {
   }
   kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
 
-  await ctx.editMessageText(t("settingsNotifChooseTimezone", lang), {
+  await editMessageTextOrReply(ctx, t("settingsNotifChooseTimezone", lang), {
     reply_markup: kb,
     parse_mode: "HTML",
   });
@@ -483,7 +484,8 @@ export async function handleSetNotifContextCallback(ctx: BotContext): Promise<vo
   const kb = new InlineKeyboard();
   kb.text(t("settingsNotifContextCancel", lang), "set:notif:context:cancel").row();
 
-  await ctx.editMessageText(
+  await editMessageTextOrReply(
+    ctx,
     t("settingsNotifContextPrompt", lang, {
       current: currentContext || t("settingsNotifContextNotSet", lang),
     }),
@@ -534,7 +536,7 @@ export async function handleSetCloseCallback(ctx: BotContext): Promise<void> {
   try {
     await ctx.deleteMessage();
   } catch {
-    await ctx.editMessageReplyMarkup({ reply_markup: { inline_keyboard: [] } });
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
   }
   await ctx.answerCallbackQuery();
 }

@@ -22,6 +22,7 @@ import type { BotContext } from "../../types.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
+import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 const MAX_DICTIONARY_NAME_LENGTH = 32;
 
@@ -87,11 +88,7 @@ async function showDictionaryList(ctx: BotContext, dictionaryId: number, page: n
   const text = renderDictionaryList(entries, safePage, totalPages, total, lang, dictionary.name);
   const kb = buildDictionaryListKeyboard(entries, safePage, totalPages, lang, dictionary.id);
 
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch (err) {
-    logger.error({ err }, "Failed to edit dictionary message");
-  }
+  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
 
   ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: safePage, dictionaryId: dictionary.id };
 }
@@ -102,11 +99,7 @@ async function showSwitcher(ctx: BotContext): Promise<void> {
   const text = renderDictionarySwitcher(dictionaries, lang);
   const kb = buildDictionarySwitcherKeyboard(dictionaries, lang);
 
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch (err) {
-    logger.error({ err }, "Failed to edit dictionary switcher");
-  }
+  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
 }
 
 function validateDictionaryName(
@@ -203,11 +196,7 @@ export async function handleDictView(ctx: BotContext): Promise<void> {
   const hasTranslations = entry.translations.length > 0;
   const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations });
 
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch (err) {
-    logger.error({ err }, "Failed to edit dictionary message");
-  }
+  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page, dictionaryId };
   await ctx.answerCallbackQuery();
 }
@@ -233,11 +222,7 @@ export async function handleDictDelete(ctx: BotContext): Promise<void> {
   const text = t("dictionaryDeleteConfirm", lang, { word: entry.original });
   const kb = buildDeleteConfirmKeyboard(entryId, page, lang, dictionaryId);
 
-  try {
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
-  } catch (err) {
-    logger.error({ err }, "Failed to edit dictionary message");
-  }
+  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page, dictionaryId };
   await ctx.answerCallbackQuery();
 }
@@ -289,7 +274,7 @@ export async function handleDictCreate(ctx: BotContext): Promise<void> {
     action: "create",
     msgId: ctx.callbackQuery?.message?.message_id,
   };
-  await ctx.editMessageText(t("dictionaryCreatePrompt", lang), {
+  await editMessageTextOrReply(ctx, t("dictionaryCreatePrompt", lang), {
     reply_markup: buildDictionaryNamePromptKeyboard(lang),
     parse_mode: "HTML",
   });
@@ -313,7 +298,7 @@ export async function handleDictRename(ctx: BotContext): Promise<void> {
     dictionaryId,
     msgId: ctx.callbackQuery?.message?.message_id,
   };
-  await ctx.editMessageText(t("dictionaryRenamePrompt", lang, { name: dictionary.name }), {
+  await editMessageTextOrReply(ctx, t("dictionaryRenamePrompt", lang, { name: dictionary.name }), {
     reply_markup: buildDictionaryNamePromptKeyboard(lang),
     parse_mode: "HTML",
   });
@@ -332,7 +317,7 @@ export async function handleDictDeleteDictionary(ctx: BotContext): Promise<void>
     return;
   }
   const lang = await getUserLang(ctx);
-  await ctx.editMessageText(t("dictionaryDeleteCollectionConfirm", lang, { name: dictionary.name }), {
+  await editMessageTextOrReply(ctx, t("dictionaryDeleteCollectionConfirm", lang, { name: dictionary.name }), {
     reply_markup: buildDictionaryDeleteConfirmKeyboard(dictionaryId, lang),
     parse_mode: "HTML",
   });
@@ -376,7 +361,7 @@ async function showEntryDictionaryChoices(ctx: BotContext, action: "add" | "move
 
   const text = action === "add" ? t("dictionaryAddToPrompt", lang) : t("dictionaryMoveToPrompt", lang);
   const kb = buildDictionaryChoiceKeyboard(dictionaries, action, fromDictionaryId, entryId, page, lang);
-  await ctx.editMessageText(text, { reply_markup: kb, parse_mode: "HTML" });
+  await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
   await ctx.answerCallbackQuery();
 }
 
@@ -495,14 +480,10 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
   // Show loading state in the message itself (persists until translation completes)
   const nativeLangId = await resolveNativeLangId(ctx);
   const loadingText = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, { nativeLangId });
-  try {
-    await ctx.editMessageText(`${loadingText}\n\n⏳ ${t("videoProcessingStarted", lang)}`, {
-      parse_mode: "HTML",
-      reply_markup: undefined,
-    });
-  } catch {
-    // ignore
-  }
+  await editMessageTextOrReply(ctx, `${loadingText}\n\n⏳ ${t("videoProcessingStarted", lang)}`, {
+    parse_mode: "HTML",
+    reply_markup: undefined,
+  });
 
   const settings = await ctx.services.userRepository.getSettings(userId);
   if (!settings) return;
@@ -592,24 +573,16 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
     const updatedEntry = await ctx.services.vocabularyRepository.findById(entryId);
     const hasTranslations = (updatedEntry?.translations.length ?? 0) > 0;
     const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations });
-    try {
-      await ctx.editMessageText(translationText, { parse_mode: "HTML", reply_markup: kb });
-    } catch {
-      // Message unchanged
-    }
+    await editMessageTextOrReply(ctx, translationText, { parse_mode: "HTML", reply_markup: kb });
   } catch (err) {
     logger.error({ err, entryId, userId }, "Failed to translate dictionary entry");
     // Restore the card on error
     const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, { nativeLangId });
     const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations: false });
     const failureNote = isUserFacingTimeout(err) ? t("loadingTimeout", lang) : `❌ ${t("videoProcessingFailed", lang)}`;
-    try {
-      await ctx.editMessageText(`${text}\n\n${failureNote}`, {
-        parse_mode: "HTML",
-        reply_markup: kb,
-      });
-    } catch {
-      // ignore
-    }
+    await editMessageTextOrReply(ctx, `${text}\n\n${failureNote}`, {
+      parse_mode: "HTML",
+      reply_markup: kb,
+    });
   }
 }

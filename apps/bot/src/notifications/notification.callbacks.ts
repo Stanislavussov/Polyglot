@@ -7,6 +7,7 @@
  */
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import { renderDictionaryEntry } from "../renderers/dictionary.renderer.js";
+import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
 import type { BotContext } from "../types.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../utils/long-op.js";
 import { buildNotificationKeyboard, buildNotificationRevealedKeyboard } from "./notification.formatter.js";
@@ -32,7 +33,7 @@ async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
  */
 async function showLoadingKeyboard(ctx: BotContext): Promise<void> {
   try {
-    await ctx.editMessageReplyMarkup({ reply_markup: loadingKeyboard() });
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: loadingKeyboard() });
   } catch {
     // Message may be too old to edit — the loader is cosmetic.
   }
@@ -65,7 +66,7 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
     if (!entry) {
       await ctx.answerCallbackQuery({ text: t("noResults", lang) });
       try {
-        await ctx.editMessageReplyMarkup({ reply_markup: { inline_keyboard: [] } });
+        await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
       } catch {
         // Message might be too old
       }
@@ -77,11 +78,11 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
     const text = renderDictionaryEntry(entry, getLangCodeById, lang);
     const kb = buildNotificationRevealedKeyboard(lang, entryId);
 
-    await ctx.editMessageText(text, { parse_mode: "HTML", reply_markup: kb });
+    await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   } catch (err) {
     logger.error({ err, entryId }, "Failed to reveal notification card");
     try {
-      await ctx.editMessageReplyMarkup({ reply_markup: buildNotificationKeyboard(lang, entryId) });
+      await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationKeyboard(lang, entryId) });
     } catch {
       // Restore is best-effort; the alert below explains the failure.
     }
@@ -115,11 +116,11 @@ export async function handleNotifLearnedCallback(ctx: BotContext): Promise<void>
     await withTimeout(ctx.services.vocabularyRepository.delete(entryId, ctx.user.id), LONG_OP_TIMEOUT_MS);
 
     const confirmation = t("notifRemoved", lang, { word });
-    await ctx.editMessageText(confirmation, { parse_mode: "HTML" });
+    await editMessageTextOrReply(ctx, confirmation, { parse_mode: "HTML" });
   } catch (err) {
     logger.error({ err, entryId }, "Failed to delete vocabulary entry from notification");
     try {
-      await ctx.editMessageReplyMarkup({ reply_markup: buildNotificationRevealedKeyboard(lang, entryId) });
+      await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationRevealedKeyboard(lang, entryId) });
     } catch {
       // Restore is best-effort; the alert below explains the failure.
     }

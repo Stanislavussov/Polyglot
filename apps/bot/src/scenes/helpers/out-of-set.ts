@@ -17,6 +17,7 @@ import {
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import type { BotContext } from "../../types.js";
 import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
+import { editMessageReplyMarkupOrIgnore } from "./edit-message.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import { clearPendingClarification, getUserLanguageGroup, normalizeLearningLangs } from "./translate-mode.shared.js";
 
@@ -45,11 +46,7 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
     if (key) delete store[key];
     ctx.session.pendingOutOfSet = store;
   };
-  const removeKeyboard = (): Promise<void> =>
-    ctx.editMessageReplyMarkup().then(
-      () => undefined,
-      () => undefined,
-    );
+  const removeKeyboard = (): Promise<void> => editMessageReplyMarkupOrIgnore(ctx);
 
   if (data === "tr:oos:cancel") {
     settle();
