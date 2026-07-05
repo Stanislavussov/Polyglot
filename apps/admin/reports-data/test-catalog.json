@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-05T01:23:45.499Z",
+  "generatedAt": "2026-07-05T07:34:52.614Z",
   "summary": {
-    "total": 2071,
+    "total": 2076,
     "business": 0,
-    "technical": 2071,
+    "technical": 2076,
     "workspaces": [
       "apps",
       "packages"
@@ -17,6 +17,7 @@
       "admin-api",
       "bot",
       "core",
+      "infra",
       "translation-benchmark"
     ]
   },
@@ -33447,6 +33448,86 @@
       "name": "Core domain resolve Template returns the custom template as is when provided",
       "value": "Protects the core domain resolve Template behavior: returns the custom template as is when provided.",
       "description": "Protects the core domain resolve Template behavior: returns the custom template as is when provided."
+    },
+    {
+      "id": "packages-infra-src-config-test-ts-27-composable-env-schema-fable-t24-a18-loads-a-channel-less-admin-worker-config-without-bot-token",
+      "kind": "technical",
+      "filePath": "packages/infra/src/config.test.ts",
+      "sourceLine": 27,
+      "workspace": "packages",
+      "packageName": "infra",
+      "suitePath": [
+        "composable env schema (Fable T24/A18)"
+      ],
+      "title": "loads a channel-less (admin/worker) config without BOT_TOKEN",
+      "rawTitle": "loads a channel-less (admin/worker) config without BOT_TOKEN",
+      "name": "Infrastructure composable env schema (Fable T24 A18) loads a channel less (admin worker) config without BOT TOKEN",
+      "value": "Protects the infrastructure composable env schema (Fable T24 A18) behavior: loads a channel less (admin worker) config without BOT TOKEN.",
+      "description": "Protects the infrastructure composable env schema (Fable T24 A18) behavior: loads a channel less (admin worker) config without BOT TOKEN."
+    },
+    {
+      "id": "packages-infra-src-config-test-ts-34-composable-env-schema-fable-t24-a18-defaults-to-the-base-schema-when-none-is-passed",
+      "kind": "technical",
+      "filePath": "packages/infra/src/config.test.ts",
+      "sourceLine": 34,
+      "workspace": "packages",
+      "packageName": "infra",
+      "suitePath": [
+        "composable env schema (Fable T24/A18)"
+      ],
+      "title": "defaults to the base schema when none is passed",
+      "rawTitle": "defaults to the base schema when none is passed",
+      "name": "Infrastructure composable env schema (Fable T24 A18) defaults to the base schema when none is passed",
+      "value": "Protects the infrastructure composable env schema (Fable T24 A18) behavior: defaults to the base schema when none is passed.",
+      "description": "Protects the infrastructure composable env schema (Fable T24 A18) behavior: defaults to the base schema when none is passed."
+    },
+    {
+      "id": "packages-infra-src-config-test-ts-39-composable-env-schema-fable-t24-a18-still-requires-bot-token-for-the-bot-config",
+      "kind": "technical",
+      "filePath": "packages/infra/src/config.test.ts",
+      "sourceLine": 39,
+      "workspace": "packages",
+      "packageName": "infra",
+      "suitePath": [
+        "composable env schema (Fable T24/A18)"
+      ],
+      "title": "still requires BOT_TOKEN for the bot config",
+      "rawTitle": "still requires BOT_TOKEN for the bot config",
+      "name": "Infrastructure composable env schema (Fable T24 A18) still requires BOT TOKEN for the bot config",
+      "value": "Protects the infrastructure composable env schema (Fable T24 A18) behavior so still requires BOT TOKEN for the bot config.",
+      "description": "Protects the infrastructure composable env schema (Fable T24 A18) behavior so still requires BOT TOKEN for the bot config."
+    },
+    {
+      "id": "packages-infra-src-config-test-ts-43-composable-env-schema-fable-t24-a18-loads-the-bot-config-when-bot-token-is-present",
+      "kind": "technical",
+      "filePath": "packages/infra/src/config.test.ts",
+      "sourceLine": 43,
+      "workspace": "packages",
+      "packageName": "infra",
+      "suitePath": [
+        "composable env schema (Fable T24/A18)"
+      ],
+      "title": "loads the bot config when BOT_TOKEN is present",
+      "rawTitle": "loads the bot config when BOT_TOKEN is present",
+      "name": "Infrastructure composable env schema (Fable T24 A18) loads the bot config when BOT TOKEN is present",
+      "value": "Protects the infrastructure composable env schema (Fable T24 A18) behavior: loads the bot config when BOT TOKEN is present.",
+      "description": "Protects the infrastructure composable env schema (Fable T24 A18) behavior: loads the bot config when BOT TOKEN is present."
+    },
+    {
+      "id": "packages-infra-src-config-test-ts-50-composable-env-schema-fable-t24-a18-throws-a-typed-configerror-never-exits-on-invalid-env",
+      "kind": "technical",
+      "filePath": "packages/infra/src/config.test.ts",
+      "sourceLine": 50,
+      "workspace": "packages",
+      "packageName": "infra",
+      "suitePath": [
+        "composable env schema (Fable T24/A18)"
+      ],
+      "title": "throws a typed ConfigError (never exits) on invalid env",
+      "rawTitle": "throws a typed ConfigError (never exits) on invalid env",
+      "name": "Infrastructure composable env schema (Fable T24 A18) throws a typed Config Error (never exits) on invalid env",
+      "value": "Protects the infrastructure composable env schema (Fable T24 A18) behavior: throws a typed Config Error (never exits) on invalid env.",
+      "description": "Protects the infrastructure composable env schema (Fable T24 A18) behavior: throws a typed Config Error (never exits) on invalid env."
     }
   ]
 }

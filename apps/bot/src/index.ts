@@ -2,14 +2,26 @@ import { type RunnerHandle, run } from "@grammyjs/runner";
 import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
 import { stopScheduler } from "@polyglot/adapter-notifications";
 import { logger, setLogger } from "@polyglot/core";
-import { loadConfig } from "@polyglot/infra";
+import { botEnvSchema, ConfigError, loadConfig } from "@polyglot/infra";
 import { createPolyglotBot, installBotCommands } from "./bot-factory.js";
 import { startMetricsServer } from "./metrics.js";
 import { wireNotificationScheduler } from "./notifications/notification.wiring.js";
 import { stopTelemetryRetention, wireTelemetryRetention } from "./retention.wiring.js";
 import { createPostgresSessionStorage } from "./session-storage.js";
 
-const config = loadConfig();
+function loadBotConfig(): ReturnType<typeof loadConfig<typeof botEnvSchema>> {
+  try {
+    return loadConfig(botEnvSchema);
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      logger.error({ issues: err.issues }, "Invalid environment variables");
+      process.exit(1);
+    }
+    throw err;
+  }
+}
+
+const config = loadBotConfig();
 
 setLogger(logger);
 
