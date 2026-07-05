@@ -70,6 +70,7 @@ export interface VideoVocabularyRepository {
   ): Promise<VideoProcess[]>;
   countProcessesByUser(userId: number, excludeFailed?: boolean): Promise<number>;
   getMonthlyUsageCount(userId: number, yearMonth: string): Promise<number>;
+  getLifetimeUsageCount(userId: number, since: Date): Promise<number>;
   savePhrases(processId: number, phrases: SaveVideoPhraseInput[]): Promise<void>;
   findPhrasesByProcess(processId: number, offset?: number, limit?: number): Promise<VideoPhrase[]>;
   countPhrasesByProcess(processId: number): Promise<number>;

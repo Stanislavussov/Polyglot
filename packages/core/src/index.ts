@@ -10,7 +10,7 @@ export type {
 } from "./ports/ai.port.js";
 // Ports — service container for dependency injection
 export type { ServiceContainer } from "./ports/container.js";
-export type { FeatureAccessPort, FeatureAccessResult } from "./ports/feature-access.port.js";
+export type { FeatureAccessPort, FeatureAccessResult, FeatureAccessSubject } from "./ports/feature-access.port.js";
 export { defaultFeatureAccess } from "./ports/feature-access.port.js";
 export type { IdentityRepository } from "./ports/identity.repository.js";
 export type { CachedLanguage, LanguageCachePort } from "./ports/language-cache.port.js";
@@ -22,6 +22,7 @@ export type {
   NotificationType,
   NotificationUser,
 } from "./ports/notification.repository.js";
+export type { CheckoutResult, PaymentPort, RenewableSubscription, RenewalResult } from "./ports/payment.port.js";
 export type {
   IssueType,
   ReportedIssue,
@@ -41,6 +42,12 @@ export type {
   TranslationPresetConfig,
   VideoVocabularyConfig,
 } from "./ports/settings.port.js";
+export type {
+  CreateSubscriptionInput,
+  Subscription,
+  SubscriptionRepository,
+  SubscriptionStatus,
+} from "./ports/subscription.repository.js";
 export type {
   TranslationRequest,
   TranslationRequestRepository,
@@ -89,6 +96,7 @@ export { getLogger, setLogger } from "./logger-interface.js";
 
 export * from "./modules/context-enrichment/index.js";
 export * from "./modules/dictionary-pipeline/index.js";
+export * from "./modules/entitlements/index.js";
 export * from "./modules/i18n/index.js";
 export * from "./modules/idiom-analysis/index.js";
 export * from "./modules/input-analysis/index.js";
@@ -99,6 +107,7 @@ export * from "./modules/notifications/index.js";
 export * from "./modules/rate-limit/index.js";
 export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";
+export * from "./modules/subscriptions/index.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";
 export type {

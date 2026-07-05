@@ -46,7 +46,7 @@ export async function ensureAiQuota(
   const requestedCredits = planLimit.creditCost * weight;
 
   const status = evaluatePlanRateLimit(
-    { plan: planLimit.name, label: planLimit.label, creditsPerDay: planLimit.creditsPerDay },
+    { plan: planLimit.name, label: planLimit.label, creditsPerDay: planLimit.translationLimit },
     usedCredits,
     requestedCredits,
     getDailyWindowReset(),

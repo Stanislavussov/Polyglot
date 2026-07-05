@@ -182,8 +182,7 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
           Promise.resolve({
             name: "free",
             label: "Free",
-            creditsPerDay: 50,
-            windowMs: 86_400_000,
+            translationLimit: 50,
             creditCost: 1,
             isActive: true,
             isDefault: true,
@@ -249,14 +248,17 @@ describe("handleTranslateText — context enrichment", () => {
     );
   });
 
-  it("does not call AI when daily credits are exhausted", async () => {
+  it("does not call AI when the monthly translation limit is exhausted", async () => {
     mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(50);
     const ctx = createMockCtx();
 
     await handleTranslateText(ctx, "hello");
 
     expect(translateWithContext).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining("Daily translation limit"));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining("Monthly translation limit"),
+      expect.objectContaining({ reply_markup: expect.anything() }),
+    );
   });
 
   it("passes learner-friendly default outputConfig", async () => {

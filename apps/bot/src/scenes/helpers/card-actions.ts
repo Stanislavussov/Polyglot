@@ -297,7 +297,7 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
 
   // Check feature access
   const featureAccess = ctx.services.featureAccess ?? defaultFeatureAccess;
-  const access = await featureAccess.checkFeatureAccess(ctx.user.id, "grammarBreakdown");
+  const access = await featureAccess.checkFeatureAccess(ctx.user, "grammarBreakdown");
   if (!access.hasAccess) {
     await ctx.answerCallbackQuery({
       text: t("grammarLocked", lang),
@@ -378,7 +378,7 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
 
   // Check feature access
   const featureAccess = ctx.services.featureAccess ?? defaultFeatureAccess;
-  const access = await featureAccess.checkFeatureAccess(ctx.user.id, "etymology");
+  const access = await featureAccess.checkFeatureAccess(ctx.user, "etymology");
   if (!access.hasAccess) {
     await ctx.answerCallbackQuery({
       text: t("etymologyLocked", lang),
@@ -506,7 +506,7 @@ export async function handleGrammarDetailCallback(ctx: BotContext): Promise<void
 
   // Check feature access
   const featureAccess = ctx.services.featureAccess ?? defaultFeatureAccess;
-  const access = await featureAccess.checkFeatureAccess(ctx.user.id, "grammarDetail");
+  const access = await featureAccess.checkFeatureAccess(ctx.user, "grammarDetail");
   if (!access.hasAccess) {
     await ctx.answerCallbackQuery({
       text: t("grammarDetailLocked", lang),

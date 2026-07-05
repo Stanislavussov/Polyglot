@@ -51,6 +51,17 @@ vi.mock("@polyglot/adapter-db", () => ({
   reportedIssueRepository: {
     create: vi.fn().mockResolvedValue({ id: 1 }),
   },
+  planFeatureAccessRepository: {
+    findFeaturesForPlan: vi.fn().mockResolvedValue([]),
+    setFeaturesForPlan: vi.fn().mockResolvedValue(undefined),
+  },
+  subscriptionRepository: {
+    create: vi.fn().mockResolvedValue({ id: 1 }),
+    findActiveByUser: vi.fn().mockResolvedValue(null),
+    findExpired: vi.fn().mockResolvedValue([]),
+    extend: vi.fn().mockResolvedValue(undefined),
+    updateStatus: vi.fn().mockResolvedValue(undefined),
+  },
   createContextLookup: vi.fn(() => vi.fn().mockResolvedValue([])),
   createWordLanguageSweep: vi.fn(() => vi.fn().mockResolvedValue([])),
   aiRequestLatencyRepository: {

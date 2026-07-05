@@ -267,9 +267,10 @@ export const dictionaryLookupLogs = {
 export interface PlanLimitConfig {
   name: string;
   label: string;
-  creditsPerDay: number | null;
-  windowMs: number;
+  translationLimit: number | null;
   creditCost: number;
+  videoLimit: number | null;
+  videoWindow: "none" | "lifetime" | "monthly";
   isActive: boolean;
   isDefault: boolean;
 }

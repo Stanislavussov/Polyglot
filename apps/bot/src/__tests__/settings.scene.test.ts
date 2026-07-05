@@ -93,8 +93,7 @@ function createMockCtx(callbackData?: string) {
           Promise.resolve({
             name: "free",
             label: "Free",
-            creditsPerDay: 50,
-            windowMs: 86_400_000,
+            translationLimit: 20,
             creditCost: 1,
             isActive: true,
             isDefault: true,
@@ -128,7 +127,7 @@ describe("handleSettingsCommand", () => {
     expect(text).toContain("🇬🇧 English");
     expect(text).toContain("🇨🇿 Čeština");
     expect(text).toContain("🇷🇺 Русский");
-    expect(text).toContain("40/50");
+    expect(text).toContain("10/20");
   });
 
   it("shows inline keyboard with change buttons", async () => {

@@ -33,9 +33,10 @@ function autoMockObject<T extends object>(): T {
 export const DEFAULT_PLAN_LIMIT: NonNullable<Awaited<ReturnType<ServiceContainer["settings"]["getPlanLimit"]>>> = {
   name: "free",
   label: "Free",
-  creditsPerDay: 50,
-  windowMs: 86_400_000,
+  translationLimit: 50,
   creditCost: 1,
+  videoLimit: 3,
+  videoWindow: "lifetime",
   isActive: true,
   isDefault: true,
 };

@@ -60,6 +60,7 @@ export {
   notificationRepository,
   parseNotificationMinutes,
 } from "./repositories/notification.repository.js";
+export { planFeatureAccessRepository } from "./repositories/plan-feature-access.repository.js";
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 export { reportedIssueRepository } from "./repositories/reported-issue.repository.js";
@@ -71,6 +72,12 @@ export type {
 export { requestTimingRepository } from "./repositories/request-timing.repository.js";
 export type { AdminOverviewStats } from "./repositories/stats.repository.js";
 export { statsRepository } from "./repositories/stats.repository.js";
+export type {
+  CreateSubscriptionInput,
+  Subscription,
+  SubscriptionStatus,
+} from "./repositories/subscription.repository.js";
+export { subscriptionRepository } from "./repositories/subscription.repository.js";
 export { systemSettingsRepository } from "./repositories/system-settings.repository.js";
 export type {
   NewTopicTranslation,

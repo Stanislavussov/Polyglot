@@ -336,6 +336,12 @@ export function startScheduler(sendFn: SendFn, reEngagementSendFn: ReEngagementS
       // Process inactive users once daily at midnight UTC
       if (now.hour === 0 && now.minute === 0) {
         await processInactiveUsers(reEngagementSendFn, deps);
+
+        // Sweep expired subscriptions (renew or downgrade) in the same daily tick.
+        if (deps.processSubscriptionRenewals) {
+          const result = await deps.processSubscriptionRenewals();
+          logger.info(result, "Processed subscription renewals");
+        }
       }
     } catch (err) {
       // Catch-all safety net — cron must never crash

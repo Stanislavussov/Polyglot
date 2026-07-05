@@ -119,8 +119,7 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
           Promise.resolve({
             name: "free",
             label: "Free",
-            creditsPerDay: 50,
-            windowMs: 86_400_000,
+            translationLimit: 50,
             creditCost: 1,
             isActive: true,
             isDefault: true,

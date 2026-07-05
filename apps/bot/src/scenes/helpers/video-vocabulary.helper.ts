@@ -14,6 +14,7 @@ import {
   extractPhrasesFromTranscript,
   isSupported,
   logger,
+  resolveEntitlements,
   resolveOutputConfig,
   type SupportedLang,
   t,
@@ -34,6 +35,7 @@ import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
+import { buildUpgradeKeyboard } from "./subscription.helper.js";
 
 const PHRASES_PER_PAGE = 5;
 const MAX_RETRIES = 2;
@@ -113,9 +115,24 @@ function buildNativeTranslation(phrase: VideoPhraseForSave, ctx: BotContext): Tr
   return translations;
 }
 
+/**
+ * Feature launch date — the free-tier lifetime video trial only counts analyses
+ * created on or after this date, so existing users aren't retroactively locked out.
+ * Overridable via env for staging/testing.
+ */
+const DEFAULT_VIDEO_TRIAL_START = "2026-07-04T00:00:00Z";
+const VIDEO_TRIAL_START = parseTrialStart(process.env.FEATURE_LAUNCH_DATE);
+
+/** Parse the launch date, falling back to the documented default on a malformed env value. */
+function parseTrialStart(raw: string | undefined): Date {
+  const parsed = new Date(raw ?? DEFAULT_VIDEO_TRIAL_START);
+  return Number.isNaN(parsed.getTime()) ? new Date(DEFAULT_VIDEO_TRIAL_START) : parsed;
+}
+
+/** Current calendar month as `YYYY-MM`, in UTC (matches the DB monthly-count boundaries). */
 function getCurrentYearMonth(): string {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
 /**
@@ -222,15 +239,35 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
     return;
   }
 
-  // Check monthly limit (admins bypass)
-  const isAdmin = ctx.user?.audienceGroup === "admin";
-  const config = await ctx.services.settings.getVideoVocabularyConfig();
-  const yearMonth = getCurrentYearMonth();
-  const usageCount = await ctx.services.videoVocabularyRepository.getMonthlyUsageCount(userId, yearMonth);
-  if (!isAdmin && usageCount >= config.monthlyLimit) {
-    const msg = await ctx.reply(t("videoLimitReached", lang));
+  // Plan-based video allowance (admin/tester get unlimited via role override).
+  const plan = ctx.user.subscriptionPlan ?? "free";
+  const planConfig = await ctx.services.settings.getPlanLimit(plan);
+  const { video: videoEntitlement } = resolveEntitlements({
+    audienceGroup: ctx.user.audienceGroup,
+    plan,
+    planConfig,
+    planFeatures: [],
+  });
+
+  let usageCount = 0;
+  if (videoEntitlement.window === "none") {
+    // Video not available on this plan → US-6 attaches the upgrade CTA keyboard here.
+    const msg = await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     trackTechnicalMessage(ctx, msg.message_id);
     return;
+  }
+  if (videoEntitlement.limit !== null) {
+    usageCount =
+      videoEntitlement.window === "lifetime"
+        ? await ctx.services.videoVocabularyRepository.getLifetimeUsageCount(userId, VIDEO_TRIAL_START)
+        : await ctx.services.videoVocabularyRepository.getMonthlyUsageCount(userId, getCurrentYearMonth());
+    if (usageCount >= videoEntitlement.limit) {
+      // Free trial exhausted (3 lifetime) or Plus monthly cap hit — the prime
+      // conversion moment, so surface the upgrade CTA here too.
+      const msg = await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+      trackTechnicalMessage(ctx, msg.message_id);
+      return;
+    }
   }
 
   // Fetch video metadata
@@ -264,10 +301,10 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
   });
 
   metadata.language = videoLang;
-  const remaining = config.monthlyLimit - usageCount;
+  const remaining = videoEntitlement.limit === null ? null : videoEntitlement.limit - usageCount;
 
   // Show confirmation
-  const text2 = renderConfirmation(metadata, remaining, config.monthlyLimit, lang);
+  const text2 = renderConfirmation(metadata, remaining, videoEntitlement.limit, lang);
   const keyboard = buildConfirmationKeyboard(process.id, lang);
   const msg = await ctx.reply(text2, {
     parse_mode: "HTML",

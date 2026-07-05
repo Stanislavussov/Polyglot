@@ -5,6 +5,7 @@ import {
   identityRepository,
   notificationRepository,
   settingsAdapter,
+  subscriptionRepository,
   userRepository,
   vocabularyRepository,
 } from "@polyglot/adapter-db";
@@ -16,6 +17,7 @@ import {
   stopScheduler,
 } from "@polyglot/adapter-notifications";
 import {
+  createSubscriptionService,
   type GenerateObjectFn,
   isSupported,
   logger,
@@ -26,6 +28,7 @@ import {
 } from "@polyglot/core";
 import { type Api, GrammyError, type RawApi } from "grammy";
 import { z } from "zod";
+import { mockPaymentAdapter } from "../payment.js";
 import { resolveDefaultAIModel } from "../utils/ai-model.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
 
@@ -189,6 +192,12 @@ Return translations as JSON array.`;
     },
     t: (key: string, lang: string, params?: Record<string, string>) =>
       t(key as never, (isSupported(lang) ? lang : "en") as SupportedLang, params),
+    processSubscriptionRenewals: () =>
+      createSubscriptionService({
+        payment: mockPaymentAdapter,
+        subscriptions: subscriptionRepository,
+        users: userRepository,
+      }).processRenewals(),
   };
 
   startScheduler(sendFn, reEngagementSendFn, schedulerDeps);

@@ -84,6 +84,7 @@ import {
   handleSrsRestart,
   handleSrsReveal,
 } from "./scenes/helpers/srs.helper.js";
+import { handleBuyPlanCallback, handleUpgradePromptCallback } from "./scenes/helpers/subscription.helper.js";
 import {
   handleBackCallback,
   handleCancelCallback,
@@ -283,6 +284,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery(/^tr:grammar:/, handleGrammarBreakdownCallback);
   bot.callbackQuery(/^tr:etymology:/, handleEtymologyCallback);
   bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);
+
+  bot.callbackQuery("plan:upgrade", handleUpgradePromptCallback);
+  bot.callbackQuery(/^plan:buy:/, handleBuyPlanCallback);
   bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
   bot.callbackQuery(/^tr:langselect:/, handleLangSelectCallback);
   bot.callbackQuery(/^tr:oos:/, handleOutOfSetCallback);

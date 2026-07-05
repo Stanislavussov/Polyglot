@@ -8,11 +8,14 @@
       <template #cell-name="{ row }">
         <span class="font-medium text-gray-900">{{ row.name }}</span>
       </template>
-      <template #cell-creditsPerDay="{ value }">
+      <template #cell-translationLimit="{ value }">
         <span>{{ value == null ? "Unlimited" : value }}</span>
       </template>
-      <template #cell-windowMs="{ value }">
-        <span>{{ formatWindow(value) }}</span>
+      <template #cell-videoLimit="{ value }">
+        <span>{{ value == null ? "Unlimited" : value }}</span>
+      </template>
+      <template #cell-videoWindow="{ value }">
+        <span>{{ value }}</span>
       </template>
       <template #cell-isDefault="{ value }">
         <span
@@ -51,14 +54,31 @@
         <FormField id="plan-name" v-model="form.name" label="Name" name="name" required :readonly="editingName !== null" />
         <FormField id="plan-label" v-model="form.label" label="Label" name="label" required />
         <FormField
-          id="plan-credits"
-          v-model="form.creditsPerDay"
-          label="Credits per day"
-          name="creditsPerDay"
+          id="plan-translations"
+          v-model="form.translationLimit"
+          label="Translations / month"
+          name="translationLimit"
           placeholder="Leave empty for unlimited"
         />
-        <FormField id="plan-window" v-model="form.windowMs" type="number" label="Window, ms" name="windowMs" required />
         <FormField id="plan-cost" v-model="form.creditCost" type="number" label="Credit cost" name="creditCost" required />
+        <FormField
+          id="plan-video-limit"
+          v-model="form.videoLimit"
+          label="Video limit"
+          name="videoLimit"
+          placeholder="Leave empty for unlimited"
+        />
+        <label class="block">
+          <span class="mb-1 block text-sm font-medium text-gray-700">Video window</span>
+          <select
+            v-model="form.videoWindow"
+            class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
+            <option value="none">none (disabled)</option>
+            <option value="lifetime">lifetime</option>
+            <option value="monthly">monthly</option>
+          </select>
+        </label>
         <div class="flex gap-6">
           <CheckboxField v-model="form.isActive" label="Active" />
           <CheckboxField v-model="form.isDefault" label="Default" />
@@ -94,9 +114,10 @@ import FormField from "./ui/FormField.vue";
 interface PlanForm {
   name: string;
   label: string;
-  creditsPerDay: string;
-  windowMs: number;
+  translationLimit: string;
   creditCost: number;
+  videoLimit: string;
+  videoWindow: "none" | "lifetime" | "monthly";
   isActive: boolean;
   isDefault: boolean;
 }
@@ -104,8 +125,9 @@ interface PlanForm {
 const columns: Column[] = [
   { key: "name", label: "Plan" },
   { key: "label", label: "Label" },
-  { key: "creditsPerDay", label: "Credits/Day" },
-  { key: "windowMs", label: "Window" },
+  { key: "translationLimit", label: "Translations/mo" },
+  { key: "videoLimit", label: "Videos" },
+  { key: "videoWindow", label: "Video window" },
   { key: "creditCost", label: "Credit Cost" },
   { key: "isDefault", label: "Default" },
   { key: "isActive", label: "Status" },
@@ -126,9 +148,10 @@ function emptyForm(): PlanForm {
   return {
     name: "",
     label: "",
-    creditsPerDay: "",
-    windowMs: 86_400_000,
+    translationLimit: "",
     creditCost: 1,
+    videoLimit: "",
+    videoWindow: "none",
     isActive: true,
     isDefault: false,
   };
@@ -138,9 +161,10 @@ function toForm(plan: PlanLimitConfig): PlanForm {
   return {
     name: plan.name,
     label: plan.label,
-    creditsPerDay: plan.creditsPerDay === null ? "" : String(plan.creditsPerDay),
-    windowMs: plan.windowMs,
+    translationLimit: plan.translationLimit === null ? "" : String(plan.translationLimit),
     creditCost: plan.creditCost,
+    videoLimit: plan.videoLimit === null ? "" : String(plan.videoLimit),
+    videoWindow: plan.videoWindow,
     isActive: plan.isActive,
     isDefault: plan.isDefault,
   };
@@ -150,23 +174,13 @@ function toPlan(value: PlanForm): PlanLimitConfig {
   return {
     name: value.name.trim(),
     label: value.label.trim(),
-    creditsPerDay: value.creditsPerDay.trim() === "" ? null : Number(value.creditsPerDay),
-    windowMs: value.windowMs,
+    translationLimit: value.translationLimit.trim() === "" ? null : Number(value.translationLimit),
     creditCost: value.creditCost,
+    videoLimit: value.videoLimit.trim() === "" ? null : Number(value.videoLimit),
+    videoWindow: value.videoWindow,
     isActive: value.isActive,
     isDefault: value.isDefault,
   };
-}
-
-function formatWindow(value: TableCellValue): string {
-  if (typeof value !== "number") {
-    return "-";
-  }
-  const hours = value / 3_600_000;
-  if (Number.isInteger(hours)) {
-    return `${hours}h`;
-  }
-  return `${value}ms`;
 }
 
 async function loadPlans(): Promise<void> {

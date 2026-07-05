@@ -79,6 +79,7 @@ export interface UserRepository {
   updateLastInteraction(userId: number): Promise<void>;
   listActiveByAudienceGroups(audienceGroups: AudienceGroup[]): Promise<User[]>;
   updateAudienceGroup(userId: number, audienceGroup: AudienceGroup): Promise<User | null>;
+  updateSubscriptionPlan(userId: number, plan: string): Promise<User | null>;
   hasReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<boolean>;
   recordReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<void>;
   markOnboarded(userId: number): Promise<User>;

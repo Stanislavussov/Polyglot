@@ -26,12 +26,14 @@ export const audienceGroupSchema = z.enum(["admin", "tester", "product"]);
 export const rateLimitPlanSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
   label: z.string().min(1, "Label is required").max(100, "Label is too long"),
-  creditsPerDay: z.coerce.number().int("Credits must be an integer").min(0, "Credits cannot be negative").nullable(),
-  windowMs: z.coerce
+  translationLimit: z.coerce.number().int("Limit must be an integer").min(0, "Limit cannot be negative").nullable(),
+  videoLimit: z.coerce
     .number()
-    .int("Window must be an integer")
-    .min(1, "Window must be at least 1 ms")
-    .default(86_400_000),
+    .int("Video limit must be an integer")
+    .min(0, "Video limit cannot be negative")
+    .nullable()
+    .default(null),
+  videoWindow: z.enum(["none", "lifetime", "monthly"]).default("none"),
   creditCost: z.coerce
     .number()
     .int("Credit cost must be an integer")

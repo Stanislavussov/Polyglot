@@ -170,4 +170,9 @@ export interface SchedulerDeps {
    * defaults to treating every error as transient (retryable). Fable T14.
    */
   isUserBlocked?: (err: unknown) => boolean;
+  /**
+   * Sweep expired subscriptions (verify renewal, extend or downgrade). Optional —
+   * runs in the daily 00:00 UTC tick when provided. Returns per-run counts.
+   */
+  processSubscriptionRenewals?: () => Promise<{ renewed: number; expired: number }>;
 }

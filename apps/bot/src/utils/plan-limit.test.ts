@@ -5,13 +5,14 @@ import { resolvePlanLimit } from "./plan-limit.js";
 const free: PlanLimitConfig = {
   name: "free",
   label: "Free",
-  creditsPerDay: 50,
-  windowMs: 86_400_000,
+  translationLimit: 50,
   creditCost: 1,
+  videoLimit: 3,
+  videoWindow: "lifetime",
   isActive: true,
   isDefault: true,
 };
-const pro: PlanLimitConfig = { ...free, name: "pro", label: "Pro", creditsPerDay: 1500, isDefault: false };
+const pro: PlanLimitConfig = { ...free, name: "pro", label: "Pro", translationLimit: 1500, isDefault: false };
 
 function settingsWith(getPlanLimit: unknown, getPlanLimits: unknown): SettingsPort {
   return { getPlanLimit, getPlanLimits } as unknown as SettingsPort;

@@ -44,9 +44,10 @@ export const settingsAdapter: SettingsPort = {
     return plans.map((p) => ({
       name: p.name,
       label: p.label,
-      creditsPerDay: p.creditsPerDay,
-      windowMs: p.windowMs,
+      translationLimit: p.translationLimit,
       creditCost: p.creditCost,
+      videoLimit: p.videoLimit,
+      videoWindow: p.videoWindow,
       isActive: p.isActive,
       isDefault: p.isDefault,
     }));
@@ -58,9 +59,10 @@ export const settingsAdapter: SettingsPort = {
     return {
       name: p.name,
       label: p.label,
-      creditsPerDay: p.creditsPerDay,
-      windowMs: p.windowMs,
+      translationLimit: p.translationLimit,
       creditCost: p.creditCost,
+      videoLimit: p.videoLimit,
+      videoWindow: p.videoWindow,
       isActive: p.isActive,
       isDefault: p.isDefault,
     };

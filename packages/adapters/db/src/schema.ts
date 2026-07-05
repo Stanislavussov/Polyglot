@@ -554,18 +554,23 @@ export const systemSettings = pgTable("system_settings", {
 export type SystemSetting = typeof systemSettings.$inferSelect;
 
 // ─────────────────────────────────────────────
-// Rate limit plans — admin-configurable credit limits
+// Rate limit plans — admin-configurable per-plan limits
 // ─────────────────────────────────────────────
+/** How a plan's video allowance is counted. `none` = video feature not available. */
+export const videoWindowEnum = pgEnum("video_window", ["none", "lifetime", "monthly"]);
+
 export const rateLimitPlans = pgTable("rate_limit_plans", {
   /** Plan name: "free", "plus", "pro", "unlimited" */
   name: varchar("name", { length: 50 }).primaryKey(),
   label: varchar("label", { length: 100 }).notNull(),
-  /** Credits per daily window. null = unlimited */
-  creditsPerDay: integer("credits_per_day"),
-  /** Window size in ms (default 24h) */
-  windowMs: integer("window_ms").default(86_400_000).notNull(),
+  /** Max top-level translations per calendar month (UTC). null = unlimited */
+  translationLimit: integer("translation_limit"),
   /** Cost per single translation request */
   creditCost: integer("credit_cost").default(1).notNull(),
+  /** Max video analyses allowed within `videoWindow`. null = unlimited */
+  videoLimit: integer("video_limit"),
+  /** Window the video allowance is measured over. `none` = feature disabled for this plan. */
+  videoWindow: videoWindowEnum("video_window").default("none").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   /** Users are reassigned here when another plan is deleted. Exactly one default is expected. */
   isDefault: boolean("is_default").default(false).notNull(),
@@ -710,6 +715,27 @@ export const aiModelPlanAccess = pgTable(
 export type AIModelPlanAccess = typeof aiModelPlanAccess.$inferSelect;
 
 // ─────────────────────────────────────────────
+// Plan feature access — which premium features each plan unlocks
+// Mirrors aiModelPlanAccess: a junction gating feature keys per plan.
+// ─────────────────────────────────────────────
+export const planFeatureAccess = pgTable(
+  "plan_feature_access",
+  {
+    planName: varchar("plan_name", { length: 50 })
+      .notNull()
+      .references(() => rateLimitPlans.name, { onDelete: "cascade" }),
+    /** Feature key, e.g. "grammarBreakdown", "etymology", "grammarDetail" */
+    featureKey: varchar("feature_key", { length: 100 }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.planName, t.featureKey] }),
+    index("plan_feature_access_feature_idx").on(t.featureKey),
+  ],
+);
+
+export type PlanFeatureAccess = typeof planFeatureAccess.$inferSelect;
+
+// ─────────────────────────────────────────────
 // Translation output presets — admin-configurable
 // ─────────────────────────────────────────────
 export const translationPresets = pgTable("translation_presets", {
@@ -838,3 +864,40 @@ export const videoTranscriptCache = pgTable(
   },
   (t) => [uniqueIndex("vtc_video_lang_idx").on(t.videoId, t.language)],
 );
+
+export type VideoTranscriptCache = typeof videoTranscriptCache.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Subscriptions — recurring paid plan state (source of truth for lifecycle)
+// users.subscriptionPlan stays the fast pointer read by the entitlements resolver.
+// ─────────────────────────────────────────────
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /** Plan the subscription grants: "plus" | "pro" (references rate_limit_plans.name) */
+    plan: varchar("plan", { length: 50 })
+      .notNull()
+      .references(() => rateLimitPlans.name),
+    /** 'active' | 'past_due' | 'canceled' | 'expired' */
+    status: text("status").$type<"active" | "past_due" | "canceled" | "expired">().default("active").notNull(),
+    /** Payment provider: "mock" now, "mollie" later */
+    provider: varchar("provider", { length: 50 }).default("mock").notNull(),
+    /** Provider-side subscription id (null for mock) */
+    externalId: text("external_id"),
+    /** When the currently-paid period ends; cron sweeps rows past this. */
+    currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("subscriptions_user_idx").on(t.userId),
+    index("subscriptions_status_period_idx").on(t.status, t.currentPeriodEnd),
+  ],
+);
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type SubscriptionStatus = "active" | "past_due" | "canceled" | "expired";

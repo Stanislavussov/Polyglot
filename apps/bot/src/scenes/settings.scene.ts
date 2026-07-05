@@ -7,9 +7,9 @@
 import {
   evaluatePlanRateLimit,
   formatNotificationTime,
-  getDailyWindowReset,
-  getDailyWindowStart,
   getLangDisplay,
+  getMonthlyWindowReset,
+  getMonthlyWindowStart,
   isSupported,
   type PlanLimitConfig,
   parseNotificationMinutes,
@@ -142,7 +142,7 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   const plan = ctx.user.subscriptionPlan ?? "free";
   const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
     ctx.user.id,
-    getDailyWindowStart(),
+    getMonthlyWindowStart(),
   );
   const planLimit = await resolvePlanLimit(ctx.services.settings, plan);
   const planUsage = formatPlanUsageFromConfig(planLimit, usedCredits, lang);
@@ -165,17 +165,17 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
 
 export function formatPlanUsageFromConfig(plan: PlanLimitConfig, usedCredits: number, lang: SupportedLang): string {
   const status = evaluatePlanRateLimit(
-    { plan: plan.name, label: plan.label, creditsPerDay: plan.creditsPerDay },
+    { plan: plan.name, label: plan.label, creditsPerDay: plan.translationLimit },
     usedCredits,
     0,
-    getDailyWindowReset(),
+    getMonthlyWindowReset(),
   );
-  if (plan.creditsPerDay === null) {
+  if (plan.translationLimit === null) {
     return t("settingsPlanUnlimited", lang, { plan: plan.label });
   }
   return t("settingsPlan", lang, {
     plan: plan.label,
     remaining: status.remainingCredits ?? 0,
-    limit: plan.creditsPerDay,
+    limit: plan.translationLimit,
   });
 }

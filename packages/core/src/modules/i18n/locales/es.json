@@ -254,7 +254,7 @@
   "translationClarifyLanguageHint": "Elige un idioma abajo (bandera + código) o envía una aclaración.",
   "correctionNotice": "✏️ Corregido: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Corregido: {corrected}\n{explanation}",
-  "rateLimitExceeded": "⚠️ Has alcanzado el límite diario de traducciones. Abre /settings para revisar tu plan.",
+  "rateLimitExceeded": "⚠️ Límite mensual de traducciones alcanzado. Obtén Plus para traducciones ilimitadas.",
   "mentorModeOn": "🧑‍🏫 ¡Modo mentor activo! Pregúntame por cualquier palabra y te ayudaré a aprenderla — no solo la traduzco, te guío.",
   "mentorThinking": "🧠 Pensando...",
   "mentorError": "❌ El chat con el mentor falló. Inténtalo de nuevo más tarde.",
@@ -305,5 +305,11 @@
   "translationClarifyReasonUnrecognized": "«{word}» no parece una palabra estándar en {lang}.",
   "translationTranslateAsWritten": "➡️ Traducir tal cual",
   "translationAsWrittenCaveat": "⚠️ No se encontró en diccionarios estándar — traducido literalmente.",
-  "translationNoMoreMeanings": "ℹ️ No hay otros significados disponibles."
+  "translationNoMoreMeanings": "ℹ️ No hay otros significados disponibles.",
+  "upgradeCta": "⭐ Obtener Plus o Pro",
+  "upgradePlus": "⭐ Plus",
+  "upgradePro": "💎 Pro",
+  "subscriptionActivated": "✅ {plan} está activo hasta {date}",
+  "checkoutFailed": "⚠️ No se pudo iniciar el pago. Inténtalo de nuevo más tarde.",
+  "upgradePrompt": "⭐ <b>Mejora tu plan</b>\n\n<b>Free</b>: 20 traducciones/mes · 3 vídeos en total\n<b>Plus</b>: traducciones ilimitadas · 10 vídeos/mes\n<b>Pro</b>: traducciones ilimitadas · vídeos ilimitados\n\nElige un plan abajo. Precios muy pronto."
 }

@@ -254,7 +254,7 @@
   "translationClarifyLanguageHint": "Оберіть мову нижче (прапор + код) або надішліть уточнення.",
   "correctionNotice": "✏️ Виправлено: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Виправлено: {corrected}\n{explanation}",
-  "rateLimitExceeded": "⚠️ Денний ліміт перекладів вичерпано. Відкрий /settings, щоб перевірити свій план.",
+  "rateLimitExceeded": "⚠️ Місячний ліміт перекладів вичерпано. Підключіть Plus для безлімітних перекладів.",
   "mentorModeOn": "🧑‍🏫 Режим наставника активний! Запитай мене про будь-яке слово, і я допоможу тобі його вивчити — я не просто перекладу, а наставлятиму тебе.",
   "mentorThinking": "🧠 Думаю...",
   "mentorError": "❌ Не вдалося поспілкуватися з наставником. Спробуй пізніше.",
@@ -305,5 +305,11 @@
   "translationClarifyReasonUnrecognized": "«{word}» не схоже на звичайне слово в мові {lang}.",
   "translationTranslateAsWritten": "➡️ Перекласти як є",
   "translationAsWrittenCaveat": "⚠️ Не знайдено у стандартних словниках — перекладено буквально.",
-  "translationNoMoreMeanings": "ℹ️ Інших значень немає."
+  "translationNoMoreMeanings": "ℹ️ Інших значень немає.",
+  "upgradeCta": "⭐ Підключити Plus або Pro",
+  "upgradePlus": "⭐ Plus",
+  "upgradePro": "💎 Pro",
+  "subscriptionActivated": "✅ {plan} активний до {date}",
+  "checkoutFailed": "⚠️ Не вдалося розпочати оплату. Спробуйте пізніше.",
+  "upgradePrompt": "⭐ <b>Покращте свій тариф</b>\n\n<b>Free</b>: 20 перекладів/міс · 3 відео всього\n<b>Plus</b>: безлімітні переклади · 10 відео/міс\n<b>Pro</b>: безлімітні переклади · безлімітні відео\n\nОберіть тариф нижче. Ціни незабаром."
 }

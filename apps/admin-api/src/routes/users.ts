@@ -33,7 +33,7 @@ export async function userRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: "Invalid user id" });
     }
 
-    const updated = await userRepository.updatePlan(userId, body.plan);
+    const updated = await userRepository.updateSubscriptionPlan(userId, body.plan);
     if (!updated) {
       return reply.status(404).send({ error: "User not found" });
     }

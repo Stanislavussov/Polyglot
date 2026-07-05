@@ -258,15 +258,11 @@ export const userRepository = {
     return { users: usersList, total };
   },
 
-  /** Change a bot user's subscription plan. Returns false if no such user. */
-  async updatePlan(userId: number, plan: string): Promise<boolean> {
+  /** Update a user's subscription plan pointer (manual grant, mock upgrade, cron downgrade). */
+  async updateSubscriptionPlan(userId: number, plan: string): Promise<User | null> {
     const db = getDb();
-    const updated = await db
-      .update(users)
-      .set({ subscriptionPlan: plan })
-      .where(eq(users.id, userId))
-      .returning({ id: users.id });
-    return updated.length > 0;
+    const rows = await db.update(users).set({ subscriptionPlan: plan }).where(eq(users.id, userId)).returning();
+    return rows[0] ?? null;
   },
 
   /** Check if a release announcement was already delivered to one user/group. */

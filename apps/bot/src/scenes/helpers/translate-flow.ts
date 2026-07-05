@@ -18,15 +18,18 @@ import {
   detectOutOfSetLanguage,
   getLangFlag,
   getLanguageName,
+  getMonthlyWindowStart,
   type InputType,
   isSupported,
   isSupportedLanguage,
   logger,
   needsDictionaryVerification,
   resolveDirectionFromSource,
+  resolveEntitlements,
   resolveOutputConfig,
   resolveTemplate,
   resolveTranslationDirection,
+  type SubscriptionPlan,
   type SupportedLang,
   type TranslateOutput,
   type TranslationAmbiguity,
@@ -47,12 +50,12 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
-import { ensureAiQuota } from "../../utils/ai-quota.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
+import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
   clearPendingClarification,
   getUserLanguageGroup,
@@ -61,6 +64,44 @@ import {
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
+
+/**
+ * Translation quota — a monthly (calendar-UTC) window, distinct from the daily
+ * credit meter (`ensureAiQuota`) that governs the other paid AI calls. Free plans
+ * allow N translations per calendar month; unlimited plans and admin/tester roles
+ * skip the ledger entirely. Returns the credit cost to log on success, or null
+ * when the quota is exhausted (after replying with the limit notice + upgrade
+ * CTA — the caller must then abort).
+ */
+async function ensureTranslationQuota(
+  ctx: BotContext,
+  plan: SubscriptionPlan,
+  lang: SupportedLang,
+): Promise<number | null> {
+  const creditCost = 1;
+  const planConfig = await ctx.services.settings.getPlanLimit(plan);
+  const entitlements = resolveEntitlements({
+    audienceGroup: ctx.user.audienceGroup,
+    plan,
+    planConfig,
+    planFeatures: [],
+  });
+
+  if (entitlements.translationsPerMonth === null) {
+    return creditCost;
+  }
+
+  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
+    ctx.user.id,
+    getMonthlyWindowStart(),
+  );
+  if (usedCredits + creditCost > entitlements.translationsPerMonth) {
+    await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+    return null;
+  }
+
+  return creditCost;
+}
 
 /** Check if any LanguageTranslation has grammarBreakdown data */
 function hasGrammarBreakdownData(output: TranslateOutput): boolean {
@@ -473,7 +514,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const isSentence = classification.type === "sentence";
   let preflightMs = 0;
   const preflightStart = Date.now();
-  const creditCost = await ensureAiQuota(ctx, subscriptionPlan, lang, "translate");
+  const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
   if (creditCost === null) {
     return;
   }
@@ -858,7 +899,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   // Classify input type
   const classification = classifyInput(pendingWord);
   const isSentence = classification.type === "sentence";
-  const creditCost = await ensureAiQuota(ctx, subscriptionPlan, lang, "translate");
+  const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
   if (creditCost === null) {
     await ctx.answerCallbackQuery();
     return;

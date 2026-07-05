@@ -34,9 +34,11 @@ import {
   loadLanguageCache,
   normalizeToIso1,
   notificationRepository,
+  planFeatureAccessRepository,
   reportedIssueRepository,
   requestTimingRepository,
   settingsAdapter,
+  subscriptionRepository,
   translationRequestRepository,
   translationTemplateRepository,
   userRepository,
@@ -46,6 +48,8 @@ import {
   wordReviewRepository,
 } from "@polyglot/adapter-db";
 import { type ServiceContainer, SettingsService } from "@polyglot/core";
+import { createFeatureAccess } from "./feature-access.js";
+import { mockPaymentAdapter } from "./payment.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
 
 /**
@@ -134,6 +138,9 @@ export function createContainer(): ServiceContainer {
     },
     settings,
     videoVocabularyRepository,
+    featureAccess: createFeatureAccess({ settings, planFeatureAccess: planFeatureAccessRepository }),
+    paymentPort: mockPaymentAdapter,
+    subscriptionRepository,
   };
   return container;
 }

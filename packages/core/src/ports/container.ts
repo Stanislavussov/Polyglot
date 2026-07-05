@@ -9,9 +9,11 @@ import type { IdentityRepository } from "./identity.repository.js";
 import type { LanguageCachePort } from "./language-cache.port.js";
 import type { LanguageDetectionRepository } from "./language-detection.repository.js";
 import type { NotificationRepository } from "./notification.repository.js";
+import type { PaymentPort } from "./payment.port.js";
 import type { ReportedIssueRepository } from "./reported-issue.repository.js";
 import type { RequestTimingRepository } from "./request-timing.repository.js";
 import type { SettingsPort } from "./settings.port.js";
+import type { SubscriptionRepository } from "./subscription.repository.js";
 import type { TranslationRequestRepository } from "./translation-request.repository.js";
 import type { TranslationTemplateRepository } from "./translation-template.repository.js";
 import type { UserRepository } from "./user.repository.js";
@@ -47,4 +49,6 @@ export interface ServiceContainer {
   featureAccess?: FeatureAccessPort;
   /** Always populated by the composition root (`container.ts`) — not gated behind a feature flag. */
   videoVocabularyRepository: VideoVocabularyRepository;
+  paymentPort?: PaymentPort;
+  subscriptionRepository?: SubscriptionRepository;
 }

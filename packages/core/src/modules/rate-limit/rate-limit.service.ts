@@ -26,6 +26,20 @@ export function getDailyWindowReset(now = new Date()): Date {
 }
 
 /**
+ * Start of the current calendar month in UTC. The translation quota uses a
+ * monthly window (Free = N translations per calendar month), distinct from the
+ * daily credit meter that governs the other paid AI calls.
+ */
+export function getMonthlyWindowStart(now = new Date()): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+}
+
+/** Start of the next calendar month in UTC — when the monthly quota resets. */
+export function getMonthlyWindowReset(now = new Date()): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+}
+
+/**
  * Pure rate-limit policy. The plan limit is always supplied by the caller from
  * the DB-backed settings source (`SettingsPort`) — there is deliberately no
  * hardcoded plan table or `SubscriptionPlan`-keyed variant here (Fable T21/A7),
