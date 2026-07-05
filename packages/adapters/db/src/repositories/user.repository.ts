@@ -38,6 +38,13 @@ export const userRepository = {
     return rows[0] ?? null;
   },
 
+  /** Read the retained legacy `users.telegram_id` chat id for a user (Fable T24 outbound fallback). */
+  async getTelegramIdById(userId: number): Promise<number | null> {
+    const db = getDb();
+    const rows = await db.select({ telegramId: users.telegramId }).from(users).where(eq(users.id, userId)).limit(1);
+    return rows[0]?.telegramId ?? null;
+  },
+
   /** Create a new user. */
   async create(data: NewUser): Promise<User> {
     const db = getDb();

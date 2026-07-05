@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-05T08:36:31.206Z",
+  "generatedAt": "2026-07-05T08:57:21.652Z",
   "summary": {
-    "total": 2102,
+    "total": 2105,
     "business": 0,
-    "technical": 2102,
+    "technical": 2105,
     "workspaces": [
       "apps",
       "packages"
@@ -5646,6 +5646,54 @@
       "name": "Bot build Notification Revealed Keyboard creates keyboard with only Learned button",
       "value": "Protects the bot build Notification Revealed Keyboard behavior: creates keyboard with only Learned button.",
       "description": "Protects the bot build Notification Revealed Keyboard behavior: creates keyboard with only Learned button."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-wiring-test-ts-21-resolvetelegramchatid-returns-the-chat-id-from-the-identity-port-when-an-identity-row-exists",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.wiring.test.ts",
+      "sourceLine": 21,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveTelegramChatId"
+      ],
+      "title": "returns the chat id from the identity port when an identity row exists",
+      "rawTitle": "returns the chat id from the identity port when an identity row exists",
+      "name": "Bot resolve Telegram Chat Id returns the chat id from the identity port when an identity row exists",
+      "value": "Protects the bot resolve Telegram Chat Id behavior: returns the chat id from the identity port when an identity row exists.",
+      "description": "Protects the bot resolve Telegram Chat Id behavior: returns the chat id from the identity port when an identity row exists."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-wiring-test-ts-33-resolvetelegramchatid-falls-back-to-legacy-users-telegram-id-and-self-heals-an-identity-when-no-identity-row-exists",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.wiring.test.ts",
+      "sourceLine": 33,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveTelegramChatId"
+      ],
+      "title": "falls back to legacy users.telegram_id and self-heals an identity when no identity row exists",
+      "rawTitle": "falls back to legacy users.telegram_id and self-heals an identity when no identity row exists",
+      "name": "Bot resolve Telegram Chat Id falls back to legacy users telegram id and self heals an identity when no identity row exists",
+      "value": "Protects the bot resolve Telegram Chat Id behavior: falls back to legacy users telegram id and self heals an identity when no identity row exists.",
+      "description": "Protects the bot resolve Telegram Chat Id behavior: falls back to legacy users telegram id and self heals an identity when no identity row exists."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-wiring-test-ts-47-resolvetelegramchatid-skips-returns-null-only-when-both-the-identity-and-the-legacy-column-are-absent",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.wiring.test.ts",
+      "sourceLine": 47,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveTelegramChatId"
+      ],
+      "title": "skips (returns null) only when both the identity and the legacy column are absent",
+      "rawTitle": "skips (returns null) only when both the identity and the legacy column are absent",
+      "name": "Bot resolve Telegram Chat Id skips (returns null) only when both the identity and the legacy column are absent",
+      "value": "Protects the bot resolve Telegram Chat Id behavior: skips (returns null) only when both the identity and the legacy column are absent.",
+      "description": "Protects the bot resolve Telegram Chat Id behavior: skips (returns null) only when both the identity and the legacy column are absent."
     },
     {
       "id": "apps-bot-src-release-announcement-test-ts-63-sendreleaseannouncement-skips-empty-changelog-messages",

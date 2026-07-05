@@ -15,7 +15,15 @@ import {
   startScheduler,
   stopScheduler,
 } from "@polyglot/adapter-notifications";
-import { type GenerateObjectFn, isSupported, logger, SettingsService, type SupportedLang, t } from "@polyglot/core";
+import {
+  type GenerateObjectFn,
+  isSupported,
+  logger,
+  type ServiceContainer,
+  SettingsService,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
 import { type Api, GrammyError, type RawApi } from "grammy";
 import { z } from "zod";
 import { resolveDefaultAIModel } from "../utils/ai-model.js";
@@ -29,6 +37,39 @@ const jitTranslationSchema = z.object({
     }),
   ),
 });
+
+/**
+ * Resolve the Telegram chat id for a neutral userId on the outbound path
+ * (Fable T24/A1, hardened after T24 review).
+ *
+ * The identity port is the source of truth, but migration `0044` creates the
+ * `identities` table without a backfill, so at deploy every existing user — and
+ * the entire dormant re-engagement cohort, which sends no inbound message to
+ * self-heal — has no identity row. Resolving *exclusively* through identities
+ * would silently skip their scheduled notifications. So on a miss we fall back
+ * to the retained legacy `users.telegram_id` column and opportunistically link
+ * an identity (idempotent `onConflictDoNothing`), self-healing the row on this
+ * send. Only when BOTH the identity and the legacy column are absent do we skip.
+ */
+export async function resolveTelegramChatId(
+  userId: number,
+  services: Pick<ServiceContainer, "identityRepository" | "userRepository">,
+): Promise<number | null> {
+  const externalId = await services.identityRepository.findExternalId(userId, "telegram");
+  if (externalId) {
+    return Number(externalId);
+  }
+
+  const legacyTelegramId = await services.userRepository.getTelegramIdById(userId);
+  if (legacyTelegramId === null) {
+    logger.warn({ userId }, "No telegram identity or legacy telegram_id for user — skipping notification send");
+    return null;
+  }
+
+  // Self-heal the identity row so the next send resolves through the port.
+  await services.identityRepository.linkIdentity(userId, "telegram", String(legacyTelegramId));
+  return legacyTelegramId;
+}
 
 export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void> {
   const settings = new SettingsService(settingsAdapter);
@@ -96,15 +137,10 @@ Return translations as JSON array.`;
   });
 
   // The scheduler now hands us the neutral userId (Fable T24/A1); this channel
-  // adapter resolves the Telegram chat id via the identity port before sending.
-  const resolveTelegramId = async (userId: number): Promise<number | null> => {
-    const externalId = await identityRepository.findExternalId(userId, "telegram");
-    if (!externalId) {
-      logger.warn({ userId }, "No telegram identity for user — skipping notification send");
-      return null;
-    }
-    return Number(externalId);
-  };
+  // adapter resolves the Telegram chat id via the identity port (with a legacy
+  // telegram_id fallback) before sending — see resolveTelegramChatId.
+  const resolveTelegramId = (userId: number): Promise<number | null> =>
+    resolveTelegramChatId(userId, { identityRepository, userRepository });
 
   const sendFn = async (userId: number, payload: NotificationPayload): Promise<void> => {
     const telegramId = await resolveTelegramId(userId);

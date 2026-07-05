@@ -53,6 +53,18 @@ export interface UserLearningLanguage {
 export interface UserRepository {
   findById(userId: number): Promise<User | null>;
   create(data: NewUser): Promise<User>;
+  /**
+   * Read the retained legacy `users.telegram_id` chat id for a user, or null.
+   *
+   * The domain `User` read model no longer carries `telegramId` (Fable T24), but
+   * the outbound Telegram path needs the raw chat id as a fallback: migration
+   * `0044` creates the `identities` table without backfilling it, so existing
+   * and dormant users have no identity row until an inbound message self-heals
+   * one. This narrowly-scoped read is a Telegram channel-adapter concern (same
+   * justification as `NewUser.telegramId` above) and keeps the neutral
+   * `IdentityRepository` port free of channel specifics.
+   */
+  getTelegramIdById(userId: number): Promise<number | null>;
   getSettings(userId: number): Promise<UserLanguageSettings | null>;
   updateSettings(userId: number, settings: Partial<UserLanguageSettings>): Promise<UserLanguageSettings>;
   updateNativeLang(userId: number, lang: string): Promise<UserLanguageSettings | null>;
