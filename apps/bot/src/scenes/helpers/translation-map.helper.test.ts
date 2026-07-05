@@ -53,14 +53,54 @@ describe("setTranslationEntry", () => {
     expect(keys.sort((a, b) => a - b)).toEqual([7, 8, 9, 10]);
   });
 
-  it("evicts by numeric id, not lexicographic order (id 9 is older than id 10)", () => {
+  it("evicts by insertion recency, not message-id magnitude", () => {
     const session: SessionData = { activeMode: "idle" };
-    setTranslationEntry(session, 9, entry("nine"), 1);
-    setTranslationEntry(session, 10, entry("ten"), 1);
+    // Insert the LARGER id first, then a smaller id. Recency (not id) must win:
+    // the later insert (id 9) survives even though it is the smaller id.
+    setTranslationEntry(session, 100, entry("big-old"), 1);
+    setTranslationEntry(session, 9, entry("small-new"), 1);
 
-    // Lexicographically "10" < "9", but numerically 9 is the older card.
-    expect(session.translationMap?.["9"]).toBeUndefined();
+    expect(session.translationMap?.["100"]).toBeUndefined();
+    expect(session.translationMap?.["9"]).toBeDefined();
+  });
+
+  it("retains a freshly-added low-id card when the map holds stale high-id entries", () => {
+    // Regression: a chat recreated (or a different bot sharing this session key)
+    // restarts message ids at low numbers, so a new card's id can be smaller
+    // than stale entries. The new card must NOT be evicted in the same call
+    // that adds it — otherwise its inline buttons report "session expired".
+    const session: SessionData = { activeMode: "idle" };
+    const cap = 30;
+    // Fill the map with 30 stale high-id cards (ids 4318..4405).
+    for (let i = 0; i < cap; i++) {
+      setTranslationEntry(session, 4318 + i * 3, entry(`stale${i}`), cap);
+    }
+    // Now translate in a low-id chat: the new card is id 603.
+    setTranslationEntry(session, 603, entry("fresh"), cap);
+
+    expect(Object.keys(session.translationMap ?? {})).toHaveLength(cap);
+    expect(session.translationMap?.["603"]).toBeDefined();
+    expect(session.translationMap?.["603"]?.output.original).toBe("fresh");
+    // The evicted card is a stale one, not the freshly-added low id.
+    expect(session.translationMap?.["4318"]).toBeUndefined();
+  });
+
+  it("purges legacy entries without a recency stamp before freshly-stamped ones", () => {
+    const session: SessionData = { activeMode: "idle" };
+    // Simulate a pre-existing map persisted before recency stamps existed.
+    session.translationMap = {
+      "5000": entry("legacy-a"),
+      "5001": entry("legacy-b"),
+    };
+    // Two fresh (stamped) low-id inserts with cap 2 must push out both legacy
+    // entries, even though the legacy ids are numerically larger.
+    setTranslationEntry(session, 10, entry("fresh-a"), 2);
+    setTranslationEntry(session, 11, entry("fresh-b"), 2);
+
+    expect(session.translationMap?.["5000"]).toBeUndefined();
+    expect(session.translationMap?.["5001"]).toBeUndefined();
     expect(session.translationMap?.["10"]).toBeDefined();
+    expect(session.translationMap?.["11"]).toBeDefined();
   });
 
   it("defaults to MAX_TRANSLATION_MAP_ENTRIES when no cap is supplied", () => {

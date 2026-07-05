@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-05T09:38:35.834Z",
+  "generatedAt": "2026-07-05T12:43:58.886Z",
   "summary": {
-    "total": 2105,
+    "total": 2107,
     "business": 0,
-    "technical": 2105,
+    "technical": 2107,
     "workspaces": [
       "apps",
       "packages"
@@ -8496,7 +8496,7 @@
       "description": "Protects the bot set Translation Entry behavior so bounds the map to N keys after N + M inserts, evicting the oldest M."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-56-settranslationentry-evicts-by-numeric-id-not-lexicographic-order-id-9-is-older-than-id-10",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-56-settranslationentry-evicts-by-insertion-recency-not-message-id-magnitude",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
       "sourceLine": 56,
@@ -8505,17 +8505,49 @@
       "suitePath": [
         "setTranslationEntry"
       ],
-      "title": "evicts by numeric id, not lexicographic order (id 9 is older than id 10)",
-      "rawTitle": "evicts by numeric id, not lexicographic order (id 9 is older than id 10)",
-      "name": "Bot set Translation Entry evicts by numeric id, not lexicographic order (id 9 is older than id 10)",
-      "value": "Protects the bot set Translation Entry behavior so evicts by numeric id, not lexicographic order (id 9 is older than id 10).",
-      "description": "Protects the bot set Translation Entry behavior so evicts by numeric id, not lexicographic order (id 9 is older than id 10)."
+      "title": "evicts by insertion recency, not message-id magnitude",
+      "rawTitle": "evicts by insertion recency, not message-id magnitude",
+      "name": "Bot set Translation Entry evicts by insertion recency, not message id magnitude",
+      "value": "Protects the bot set Translation Entry behavior so evicts by insertion recency, not message id magnitude.",
+      "description": "Protects the bot set Translation Entry behavior so evicts by insertion recency, not message id magnitude."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-66-settranslationentry-defaults-to-max-translation-map-entries-when-no-cap-is-supplied",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-67-settranslationentry-retains-a-freshly-added-low-id-card-when-the-map-holds-stale-high-id-entries",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 66,
+      "sourceLine": 67,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "setTranslationEntry"
+      ],
+      "title": "retains a freshly-added low-id card when the map holds stale high-id entries",
+      "rawTitle": "retains a freshly-added low-id card when the map holds stale high-id entries",
+      "name": "Bot set Translation Entry retains a freshly added low id card when the map holds stale high id entries",
+      "value": "Protects the bot set Translation Entry behavior so retains a freshly added low id card when the map holds stale high id entries.",
+      "description": "Protects the bot set Translation Entry behavior so retains a freshly added low id card when the map holds stale high id entries."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-88-settranslationentry-purges-legacy-entries-without-a-recency-stamp-before-freshly-stamped-ones",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 88,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "setTranslationEntry"
+      ],
+      "title": "purges legacy entries without a recency stamp before freshly-stamped ones",
+      "rawTitle": "purges legacy entries without a recency stamp before freshly-stamped ones",
+      "name": "Bot set Translation Entry purges legacy entries without a recency stamp before freshly stamped ones",
+      "value": "Protects the bot set Translation Entry behavior so purges legacy entries without a recency stamp before freshly stamped ones.",
+      "description": "Protects the bot set Translation Entry behavior so purges legacy entries without a recency stamp before freshly stamped ones."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-106-settranslationentry-defaults-to-max-translation-map-entries-when-no-cap-is-supplied",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 106,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8528,10 +8560,10 @@
       "description": "Protects the bot set Translation Entry behavior: defaults to MAX TRANSLATION MAP ENTRIES when no cap is supplied."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-74-settranslationentry-overwrites-an-existing-entry-without-growing-the-map",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-114-settranslationentry-overwrites-an-existing-entry-without-growing-the-map",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 114,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

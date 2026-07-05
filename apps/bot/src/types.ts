@@ -63,6 +63,14 @@ export interface SessionData {
       grammarBreakdown?: Record<string, string[]>;
       /** Cached on-demand etymology prose for the original term */
       etymology?: string;
+      /**
+       * Monotonic insertion stamp used for recency-based eviction. Set by
+       * {@link setTranslationEntry}; Telegram message ids are not a safe proxy
+       * for recency (a chat or a different bot sharing this session key can
+       * restart ids at low numbers). Older/legacy entries lacking this field
+       * are treated as oldest and evicted first.
+       */
+      addedAt?: number;
     }
   >;
   /**
