@@ -2,27 +2,18 @@
  * dependency-cruiser configuration for Polyglot monorepo.
  *
  * Enforces the canonical dependency direction across packages and
- * internal core modules. See @docs/tasks/22-dependency-cruiser.md.
+ * internal core modules. See @docs/tasks/22-dependency-cruiser.md and
+ * @docs/fable/T28-dep-cruiser-allowlist.md.
  *
- * Audit summary (at time of authoring):
- *   0 package-level violations found.
- *   0 core-internal module violations found (after fixes in this task).
+ * Package-level rules are enumerated denylists. Core-internal module rules
+ * use an allowlist model (T28/A14): every core module is restricted to a
+ * declared set of allowed sibling modules, and a default rule constrains any
+ * module without an explicit allow rule to importing only itself — so a new
+ * module is restricted by default rather than silently unconstrained.
  *
- * Rule coverage:
- *   - no-core-importing-polyglot: 0 violations (architecture clean)
- *   - no-adapter-db-importing-infra: 0 violations (architecture clean)
- *   - no-adapter-db-importing-ai-or-notifications: 0 violations (architecture clean)
- *   - no-infra-importing-adapters-ai-or-notifications: 0 violations (architecture clean)
- *   - no-adapter-ai-importing-db-or-notifications: 0 violations (architecture clean)
- *   - no-adapter-notifications-importing-ai-or-db: 0 violations (architecture clean)
- *   - no-circular: 0 violations
- *   - no-i18n-importing-other-modules: 0 violations (leaf module clean)
- *   - no-language-detect-importing-other-modules: 0 violations (leaf module clean)
- *   - no-idiom-analysis-importing-other-modules: 0 violations (fixed: extracted getLanguageName via DI)
- *   - no-topics-importing-other-modules: 0 violations (fixed: moved shared types/presets to shared/)
- *   - no-validation-importing-translation-or-higher: 0 violations (architecture clean)
- *   - no-translation-importing-context-or-higher: 0 violations (architecture clean)
- *   - no-context-enrichment-importing-unsupported: 0 violations (architecture clean)
+ * The bot scenes→adapters boundary (no-bot-scenes-importing-adapters) is an
+ * error: scene/helper code reaches services through ctx.services; only the
+ * composition root (container.ts) and bootstrap/entry files import adapters.
  */
 
 /** @type {import('dependency-cruiser').IConfiguration} */
@@ -116,8 +107,11 @@ module.exports = {
     },
     {
       name: "no-bot-scenes-importing-adapters",
-      comment: "Bot scenes/helpers should import services via ctx.services, not directly from adapters (task-42 incremental migration)",
-      severity: "info",
+      comment:
+        "Bot scenes/helpers must reach services via ctx.services, never directly from adapters. " +
+        "Raised to error in T28 after the T22 DI refactor removed the direct scene→adapter imports; " +
+        "only the composition root (container.ts) and bootstrap/entry files may import adapters.",
+      severity: "error",
       from: { path: "^apps/bot/src/scenes/" },
       to: {
         path: [
@@ -127,20 +121,6 @@ module.exports = {
         ],
       },
     },
-    // Remove this rule after task-42 migration is complete
-    // {
-    //   name: "no-bot-scenes-importing-adapters",
-    //   comment: "Bot scenes/helpers should import services via ctx.services, not directly from adapters (task-42 incremental migration)",
-    //   severity: "info",
-    //   from: { path: "^apps/bot/src/scenes/" },
-    //   to: {
-    //     path: [
-    //       "^packages/adapters/db/",
-    //       "^packages/adapters/ai/",
-    //       "^packages/adapters/notifications/",
-    //     ],
-    //   },
-    // },
 
     // ───────────────────────────────────────────────
     // Circular dependency rule
@@ -155,138 +135,81 @@ module.exports = {
     },
 
     // ───────────────────────────────────────────────
-    // Core-internal module rules
+    // Core-internal module rules (allowlist model — T28/A14)
+    //
+    // Instead of each module enumerating its forbidden neighbours
+    // (a denylist, which silently lets any *unlisted* module import
+    // anything), every core module is constrained to a declared set of
+    // allowed sibling modules. The mechanism is a `forbidden` rule whose
+    // `to.pathNot` names the allowed set: any import from the module into
+    // another core module that is NOT in that set is flagged.
+    //
+    // The default rule below applies to every module that has no explicit
+    // allow rule and constrains it to importing only itself — so a brand
+    // new module is RESTRICTED by default until its allowed siblings are
+    // declared here. Modules that legitimately import siblings
+    // (validation, translation, context-enrichment, notifications) are
+    // carved out of the default via `from.pathNot` and given their own
+    // rule. Type-only imports are not analysed by dependency-cruiser
+    // (tsPreCompilationDeps defaults to false), so these rules constrain
+    // runtime (value) dependencies, which is the boundary that matters.
     // ───────────────────────────────────────────────
 
     {
-      name: "no-i18n-importing-other-modules",
-      comment: "i18n is a leaf module — must not import from any sibling module",
+      name: "core-module-no-undeclared-sibling-import",
+      comment:
+        "Default core-module boundary: a module may import only itself among core modules. " +
+        "Any new module is restricted by default; declare an explicit allow rule below to widen it.",
       severity: "error",
-      from: { path: "^packages/core/src/modules/i18n/" },
+      from: {
+        path: "^packages/core/src/modules/([^/]+)/",
+        // Modules with an explicit allow rule below are exempt from the default.
+        pathNot:
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications)/",
+      },
       to: {
-        path: [
-          "^packages/core/src/modules/translation/",
-          "^packages/core/src/modules/validation/",
-          "^packages/core/src/modules/topics/",
-          "^packages/core/src/modules/context-enrichment/",
-          "^packages/core/src/modules/idiom-analysis/",
-          "^packages/core/src/modules/language-detect/",
-          "^packages/core/src/modules/input-analysis/",
-        ],
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/$1/",
       },
     },
     {
-      name: "no-language-detect-importing-other-modules",
-      comment: "language-detect is a leaf module — must not import from any sibling module",
-      severity: "error",
-      from: { path: "^packages/core/src/modules/language-detect/" },
-      to: {
-        path: [
-          "^packages/core/src/modules/translation/",
-          "^packages/core/src/modules/validation/",
-          "^packages/core/src/modules/topics/",
-          "^packages/core/src/modules/context-enrichment/",
-          "^packages/core/src/modules/idiom-analysis/",
-          "^packages/core/src/modules/i18n/",
-          "^packages/core/src/modules/input-analysis/",
-        ],
-      },
-    },
-    {
-      name: "no-input-analysis-importing-other-modules",
-      comment: "input-analysis is a leaf module — must not import from any sibling module",
-      severity: "error",
-      from: { path: "^packages/core/src/modules/input-analysis/" },
-      to: {
-        path: [
-          "^packages/core/src/modules/translation/",
-          "^packages/core/src/modules/validation/",
-          "^packages/core/src/modules/topics/",
-          "^packages/core/src/modules/context-enrichment/",
-          "^packages/core/src/modules/idiom-analysis/",
-          "^packages/core/src/modules/i18n/",
-          "^packages/core/src/modules/language-detect/",
-        ],
-      },
-    },
-    {
-      name: "no-idiom-analysis-importing-other-modules",
-      comment: "idiom-analysis is a leaf module — must not import from any sibling module",
-      severity: "error",
-      from: { path: "^packages/core/src/modules/idiom-analysis/" },
-      to: {
-        path: [
-          "^packages/core/src/modules/translation/",
-          "^packages/core/src/modules/validation/",
-          "^packages/core/src/modules/topics/",
-          "^packages/core/src/modules/context-enrichment/",
-          "^packages/core/src/modules/i18n/",
-          "^packages/core/src/modules/language-detect/",
-          "^packages/core/src/modules/input-analysis/",
-        ],
-      },
-    },
-    {
-      name: "no-topics-importing-other-modules",
-      comment: "topics is a leaf module — must not import from any sibling module",
-      severity: "error",
-      from: { path: "^packages/core/src/modules/topics/" },
-      to: {
-        path: [
-          "^packages/core/src/modules/translation/",
-          "^packages/core/src/modules/validation/",
-          "^packages/core/src/modules/context-enrichment/",
-          "^packages/core/src/modules/idiom-analysis/",
-          "^packages/core/src/modules/i18n/",
-          "^packages/core/src/modules/language-detect/",
-          "^packages/core/src/modules/input-analysis/",
-        ],
-      },
-    },
-    {
-      name: "no-validation-importing-translation-or-higher",
-      comment: "validation may import i18n but must not import translation, topics, context-enrichment, idiom-analysis, language-detect, or input-analysis",
+      name: "core-validation-allowlist",
+      comment: "validation may import only i18n among core modules",
       severity: "error",
       from: { path: "^packages/core/src/modules/validation/" },
       to: {
-        path: [
-          "^packages/core/src/modules/translation/",
-          "^packages/core/src/modules/topics/",
-          "^packages/core/src/modules/context-enrichment/",
-          "^packages/core/src/modules/idiom-analysis/",
-          "^packages/core/src/modules/language-detect/",
-          "^packages/core/src/modules/input-analysis/",
-        ],
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(validation|i18n)/",
       },
     },
     {
-      name: "no-translation-importing-context-or-higher",
-      comment: "translation may import validation, i18n, and input-analysis but must not import context-enrichment, topics, idiom-analysis, or language-detect",
+      name: "core-translation-allowlist",
+      comment: "translation may import only i18n, input-analysis, and validation among core modules",
       severity: "error",
       from: { path: "^packages/core/src/modules/translation/" },
       to: {
-        path: [
-          "^packages/core/src/modules/context-enrichment/",
-          "^packages/core/src/modules/topics/",
-          "^packages/core/src/modules/idiom-analysis/",
-          "^packages/core/src/modules/language-detect/",
-        ],
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(translation|i18n|input-analysis|validation)/",
       },
     },
     {
-      name: "no-context-enrichment-importing-unsupported",
-      comment: "context-enrichment may import translation but must not import validation, topics, idiom-analysis, i18n, language-detect, or input-analysis",
+      name: "core-context-enrichment-allowlist",
+      comment: "context-enrichment may import only translation among core modules",
       severity: "error",
       from: { path: "^packages/core/src/modules/context-enrichment/" },
       to: {
-        path: [
-          "^packages/core/src/modules/validation/",
-          "^packages/core/src/modules/topics/",
-          "^packages/core/src/modules/idiom-analysis/",
-          "^packages/core/src/modules/i18n/",
-          "^packages/core/src/modules/language-detect/",
-          "^packages/core/src/modules/input-analysis/",
-        ],
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(context-enrichment|translation)/",
+      },
+    },
+    {
+      name: "core-notifications-allowlist",
+      comment: "notifications may import only i18n among core modules",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/notifications/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(notifications|i18n)/",
       },
     },
   ],
