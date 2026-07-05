@@ -8,6 +8,7 @@ import type {
 } from "@polyglot/core";
 import { and, eq, ilike, inArray, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
+import { escapeLikePattern } from "../like-escape.js";
 import { releaseAnnouncementDeliveries, userLanguageSettings, userLearningLanguages, users } from "../schema.js";
 
 export type { AudienceGroup, NewUser, SubscriptionPlan, User, UserLanguageSettings };
@@ -223,7 +224,7 @@ export const userRepository = {
   async listAdmin(params: { page: number; limit: number; search?: string }) {
     const db = getDb();
     const offset = (params.page - 1) * params.limit;
-    const searchFilter = params.search ? ilike(users.username, `%${params.search}%`) : undefined;
+    const searchFilter = params.search ? ilike(users.username, `%${escapeLikePattern(params.search)}%`) : undefined;
 
     const usersList = await db
       .select({

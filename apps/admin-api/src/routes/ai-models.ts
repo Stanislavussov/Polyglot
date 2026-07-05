@@ -29,6 +29,13 @@ const openRouterCurrentKeyResponseSchema = z.object({
 
 type OpenRouterKeyExpirationStatus = "active" | "expiring_soon" | "expired" | "unknown" | "not_configured";
 
+/**
+ * Wall-clock cap for outbound OpenRouter requests (D6). Without it a hung
+ * upstream would hold the admin-API request open indefinitely; the AbortSignal
+ * aborts the fetch so the route fails fast with a clear error instead.
+ */
+const OPENROUTER_FETCH_TIMEOUT_MS = 10_000;
+
 function providerFromModelId(id: string): string {
   return id.split("/")[0] ?? "unknown";
 }
@@ -103,7 +110,10 @@ export async function aiModelRoutes(app: FastifyInstance) {
       headers.Authorization = `Bearer ${process.env.OPENROUTER_API_KEY}`;
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/models", { headers });
+    const response = await fetch("https://openrouter.ai/api/v1/models", {
+      headers,
+      signal: AbortSignal.timeout(OPENROUTER_FETCH_TIMEOUT_MS),
+    });
     if (!response.ok) {
       throw new Error(`OpenRouter models request failed: ${response.status} ${response.statusText}`);
     }
@@ -134,6 +144,7 @@ export async function aiModelRoutes(app: FastifyInstance) {
 
     const response = await fetch("https://openrouter.ai/api/v1/key", {
       headers: { Authorization: `Bearer ${apiKey}` },
+      signal: AbortSignal.timeout(OPENROUTER_FETCH_TIMEOUT_MS),
     });
     if (!response.ok) {
       throw new Error(`OpenRouter key request failed: ${response.status} ${response.statusText}`);

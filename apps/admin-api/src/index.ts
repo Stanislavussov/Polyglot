@@ -24,11 +24,25 @@ import { videoVocabularyRoutes } from "./routes/video-vocabulary.js";
 const PORT = Number.parseInt(process.env.PORT ?? "3001", 10);
 const HOST = process.env.HOST ?? "0.0.0.0";
 
-function adminPanelOrigins(): string[] {
-  return (process.env.ADMIN_PANEL_URL ?? "http://localhost:4321")
+/** The Astro admin-panel dev server origin, allowed only outside production. */
+const DEV_ADMIN_ORIGIN = "http://localhost:4321";
+
+function adminPanelOrigins(env: NodeJS.ProcessEnv): string[] {
+  return (env.ADMIN_PANEL_URL ?? DEV_ADMIN_ORIGIN)
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
+}
+
+/**
+ * Resolves the CORS allow-list (D6). The local dev-server origin is added only
+ * when NODE_ENV is not "production" — in production the API accepts requests
+ * exclusively from the configured admin origin(s), never localhost:4321.
+ */
+export function resolveCorsOrigins(env: NodeJS.ProcessEnv = process.env): string[] {
+  const configured = adminPanelOrigins(env);
+  const origins = env.NODE_ENV === "production" ? configured : [...configured, DEV_ADMIN_ORIGIN];
+  return [...new Set(origins)];
 }
 
 export async function buildAdminApiApp() {
@@ -37,7 +51,7 @@ export async function buildAdminApiApp() {
   const app = Fastify({ logger: true, trustProxy: true });
 
   await app.register(import("@fastify/cors"), {
-    origin: [...new Set([...adminPanelOrigins(), "http://localhost:4321"])],
+    origin: resolveCorsOrigins(),
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   });

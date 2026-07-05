@@ -1,13 +1,15 @@
+import type { Server } from "node:http";
 import { type RunnerHandle, run } from "@grammyjs/runner";
 import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
 import { stopScheduler } from "@polyglot/adapter-notifications";
 import { logger, setLogger } from "@polyglot/core";
 import { botEnvSchema, ConfigError, loadConfig } from "@polyglot/infra";
 import { createPolyglotBot, installBotCommands } from "./bot-factory.js";
-import { startMetricsServer } from "./metrics.js";
+import { closeMetricsServer, startMetricsServer } from "./metrics.js";
 import { wireNotificationScheduler } from "./notifications/notification.wiring.js";
 import { stopTelemetryRetention, wireTelemetryRetention } from "./retention.wiring.js";
 import { createPostgresSessionStorage } from "./session-storage.js";
+import { createGracefulShutdown } from "./shutdown.js";
 
 function loadBotConfig(): ReturnType<typeof loadConfig<typeof botEnvSchema>> {
   try {
@@ -31,21 +33,32 @@ const bot = createPolyglotBot({
 });
 
 let runner: RunnerHandle | null = null;
+let metricsServer: Server | null = null;
+
+/**
+ * Hard deadline for graceful shutdown (B12). If cleanup outruns this the process
+ * force-exits rather than lingering until the orchestrator sends SIGKILL.
+ */
+const SHUTDOWN_DEADLINE_MS = 10_000;
 
 function setupGracefulShutdown(): void {
-  let shuttingDown = false;
-
-  const shutdown = async (signal: string) => {
-    if (shuttingDown) return;
-    shuttingDown = true;
-
-    logger.info({ signal }, "Received shutdown signal");
-    stopScheduler();
-    stopTelemetryRetention();
-    if (runner?.isRunning()) await runner.stop();
-    await closeDb();
-    logger.info("Bot stopped, scheduler stopped, and DB connection closed");
-  };
+  const shutdown = createGracefulShutdown({
+    steps: [
+      { name: "scheduler", run: () => stopScheduler() },
+      { name: "telemetryRetention", run: () => stopTelemetryRetention() },
+      {
+        name: "runner",
+        run: async () => {
+          if (runner?.isRunning()) await runner.stop();
+        },
+      },
+      { name: "metricsServer", run: () => closeMetricsServer(metricsServer) },
+      { name: "db", run: () => closeDb() },
+    ],
+    deadlineMs: SHUTDOWN_DEADLINE_MS,
+    logger,
+    forceExit: (code) => process.exit(code),
+  });
 
   process.on("SIGINT", () => {
     void shutdown("SIGINT");
@@ -67,7 +80,7 @@ async function main(): Promise<void> {
 
   await wireNotificationScheduler(bot.api);
   wireTelemetryRetention();
-  startMetricsServer();
+  metricsServer = startMetricsServer();
 
   logger.info({ sessionStorage: "postgres", languageCacheReady: true, pollingMode: "long-polling" }, "Starting bot");
   await bot.init();

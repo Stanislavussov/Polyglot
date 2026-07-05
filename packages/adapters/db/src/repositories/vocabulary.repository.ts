@@ -15,6 +15,7 @@ import type {
 } from "@polyglot/core";
 import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, notInArray, or, type SQL, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
+import { escapeLikePattern } from "../like-escape.js";
 import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations } from "../schema.js";
 
 export type {
@@ -66,7 +67,7 @@ function tomorrow(): Date {
 function originalSearchFilter(search?: string): SQL | undefined {
   const trimmed = search?.trim();
   if (!trimmed) return undefined;
-  return ilike(vocabularyEntries.original, `%${trimmed}%`);
+  return ilike(vocabularyEntries.original, `%${escapeLikePattern(trimmed)}%`);
 }
 
 /** Resolve the ORDER BY clause for the dictionary browse list. */
@@ -270,7 +271,7 @@ export const vocabularyRepository = {
         and(
           eq(vocabularyEntries.userId, userId),
           eq(vocabularyEntries.isActive, true),
-          ilike(vocabularyEntries.original, `%${query}%`),
+          ilike(vocabularyEntries.original, `%${escapeLikePattern(query)}%`),
         ),
       )
       .orderBy(desc(vocabularyEntries.createdAt));

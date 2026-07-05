@@ -46,6 +46,7 @@ import {
   wordReviewRepository,
 } from "@polyglot/adapter-db";
 import { type ServiceContainer, SettingsService } from "@polyglot/core";
+import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
 
 /**
  * Creates the full service container from adapter implementations.
@@ -77,8 +78,13 @@ export function createContainer(): ServiceContainer {
 
   // The AI adapter aborts a call once it blows this budget. The value is
   // admin-managed (DB `ai.defaults`), read through the cached settings service
-  // so a change in the admin panel takes effect without a redeploy.
-  setAIRequestTimeoutProvider(async () => (await settings.getAIGenerationDefaults()).requestTimeoutMs);
+  // so a change in the admin panel takes effect without a redeploy. The budget is
+  // clamped strictly below the outer long-op guard (B8) so the adapter always
+  // cancels first — an admin can't accidentally set it above the outer guard and
+  // leave a still-billing call running after the user-facing guard has given up.
+  setAIRequestTimeoutProvider(async () =>
+    clampAiBudgetToOpGuard((await settings.getAIGenerationDefaults()).requestTimeoutMs),
+  );
 
   // The model-tuning knobs (maxTokens/temperature/frequencyPenalty/maxRetries)
   // also come from the admin-managed AI Defaults, not adapter literals (Fable

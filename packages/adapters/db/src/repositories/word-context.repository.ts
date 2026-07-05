@@ -1,5 +1,6 @@
 import { and, arrayContains, eq, ilike, or, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
+import { escapeLikePattern } from "../like-escape.js";
 import { languages, wordContext } from "../schema.js";
 
 export type WordContext = typeof wordContext.$inferSelect;
@@ -69,7 +70,7 @@ export const wordContextRepository = {
     return db
       .select()
       .from(wordContext)
-      .where(and(ilike(wordContext.word, `%${query}%`), eq(wordContext.languageId, languageId)))
+      .where(and(ilike(wordContext.word, `%${escapeLikePattern(query)}%`), eq(wordContext.languageId, languageId)))
       .limit(limit);
   },
 

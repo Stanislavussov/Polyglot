@@ -1,6 +1,7 @@
 import type { SQL } from "drizzle-orm";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
+import { escapeLikePattern } from "../like-escape.js";
 import type { IssueStatus, IssueType, ReportedIssue } from "../schema.js";
 import { reportedIssues, users } from "../schema.js";
 
@@ -42,7 +43,7 @@ function buildListWhere(filters: ReportedIssueListFilters): SQL | undefined {
 
   const search = filters.search?.trim();
   if (search) {
-    const pattern = `%${search}%`;
+    const pattern = `%${escapeLikePattern(search)}%`;
     const searchCondition = or(
       ilike(reportedIssues.description, pattern),
       ilike(users.username, pattern),

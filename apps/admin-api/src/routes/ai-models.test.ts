@@ -72,6 +72,8 @@ describe("AI model OpenRouter routes", () => {
       });
       expect(fetchMock).toHaveBeenCalledWith("https://openrouter.ai/api/v1/key", {
         headers: { Authorization: "Bearer sk-or-test" },
+        // D6: outbound request is bounded by a timeout AbortSignal.
+        signal: expect.any(AbortSignal),
       });
     } finally {
       await app.close();
