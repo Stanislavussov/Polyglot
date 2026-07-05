@@ -198,9 +198,10 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
       await runClarifiedTranslation(ctx, pending, pending.sourceLang, pending.targetLangs, pending.contextHint);
       return;
     }
+    const optionLabel = option.label ?? option.value;
     const contextHint = pending.contextHint
-      ? `${pending.contextHint}; ${option.label}: ${option.value}`
-      : `${option.label}: ${option.value}`;
+      ? `${pending.contextHint}; ${optionLabel}: ${option.value}`
+      : `${optionLabel}: ${option.value}`;
     await ctx.answerCallbackQuery();
     await runClarifiedTranslation(ctx, pending, pending.sourceLang, pending.targetLangs, contextHint);
     return;

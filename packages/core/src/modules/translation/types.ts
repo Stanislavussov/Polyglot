@@ -138,24 +138,15 @@ export interface TranslationResult {
   translations: Record<string, LanguageTranslation>;
 }
 
-/** Input for the translate() entry point */
-export interface TranslateInput {
-  word: string;
-  sourceLang: string;
-  targetLangs: string[];
-  /** User's native language — for native synonym generation */
-  nativeLang?: string;
-  model: string;
-  topic?: string;
-  userId?: number;
-  /** Optional Wiktionary dictionary context for translation enrichment */
-  dictionaryContext?: DictionaryContext;
-  /** Optional output config to control which fields are requested from AI */
-  outputConfig?: TranslationOutputConfig;
-  /** Classified input type — drives prompt, schema, and validation behavior */
-  inputType?: InputType;
-  /** Confidence from upstream source-language detection when available */
-  detectionConfidence?: number;
+/**
+ * Policy governing input correction and source-word verification (Fable T23).
+ *
+ * Groups the formerly-flat task flags (`dictionaryHit`, `skipInputCorrection`,
+ * `assessSourceExistence`) so new correction/verification toggles are added here
+ * (OCP) instead of widening `TranslateInput`. An absent policy behaves exactly
+ * as before all flags were absent.
+ */
+export interface TranslationCorrectionPolicy {
   /**
    * Whether the input text was found in the source-language dictionary.
    * Set by the context-enrichment layer from its lookup result. `false` is a
@@ -165,12 +156,6 @@ export interface TranslateInput {
    * no lookup was performed — the preflight falls back to the confidence gate.
    */
   dictionaryHit?: boolean;
-  /** User interface language for preflight explanations and option labels */
-  interfaceLang?: string;
-  /** Optional benchmark-derived routing policy for generation and judge models */
-  modelRouting?: TranslationModelRoutingPolicy;
-  /** Previous translations to avoid — for "other meaning" regeneration */
-  negativeConstraints?: Record<string, string[]>;
   /**
    * Suppress AI input-correction (Task 69). When true, the preflight never
    * auto-corrects (`proceed_with_correction`) nor asks about typos
@@ -190,6 +175,37 @@ export interface TranslateInput {
    * topic, and video-vocabulary flows are unaffected.
    */
   assessSourceExistence?: boolean;
+}
+
+/** Input for the translate() entry point */
+export interface TranslateInput {
+  word: string;
+  sourceLang: string;
+  targetLangs: string[];
+  /** User's native language — for native synonym generation */
+  nativeLang?: string;
+  model: string;
+  topic?: string;
+  userId?: number;
+  /** Optional Wiktionary dictionary context for translation enrichment */
+  dictionaryContext?: DictionaryContext;
+  /** Optional output config to control which fields are requested from AI */
+  outputConfig?: TranslationOutputConfig;
+  /** Classified input type — drives prompt, schema, and validation behavior */
+  inputType?: InputType;
+  /** Confidence from upstream source-language detection when available */
+  detectionConfidence?: number;
+  /** User interface language for preflight explanations and option labels */
+  interfaceLang?: string;
+  /** Optional benchmark-derived routing policy for generation and judge models */
+  modelRouting?: TranslationModelRoutingPolicy;
+  /** Previous translations to avoid — for "other meaning" regeneration */
+  negativeConstraints?: Record<string, string[]>;
+  /**
+   * Correction / source-verification policy (Fable T23). Groups the dictionary
+   * hit signal and the input-correction / existence-assessment toggles.
+   */
+  correctionPolicy?: TranslationCorrectionPolicy;
 }
 
 /**
@@ -274,8 +290,13 @@ export type TranslationAmbiguityOptionKind =
 export interface TranslationAmbiguityOption {
   /** Stable option id for UI callbacks */
   id?: string;
-  /** Human-readable label for the button (e.g., "🇨🇿 Czech", "June 7", "bird (noun)") */
-  label: string;
+  /**
+   * Human-readable label for the button (e.g., "🇨🇿 Czech", "June 7", "bird
+   * (noun)"). Optional: core omits it for options whose label the channel
+   * derives from `kind` (e.g. `translate_as_written`), so core never localizes
+   * UI strings (Fable T23/A13). When absent the channel supplies the label.
+   */
+  label?: string;
   /** Machine-readable value that the caller feeds back into the pipeline */
   value: string;
   /** Option kind for caller-specific follow-up behavior */
@@ -284,6 +305,21 @@ export interface TranslationAmbiguityOption {
   langCode?: string;
   /** Corrected text selected by this option, when kind is typo_correction */
   correctedText?: string;
+}
+
+/**
+ * Structured interpolation params for channel-side localization (Fable T23/A13).
+ *
+ * Core returns these instead of a pre-localized message so each channel can
+ * render the reason via its own `t()` (e.g. the unrecognized-word reason needs
+ * the offending `word` and the source-language `lang` CODE — the channel
+ * localizes the display name from the code).
+ */
+export interface TranslationAmbiguityParams {
+  /** The user's input word/text relevant to the clarification. */
+  word?: string;
+  /** Source language CODE (the channel localizes the display name). */
+  lang?: string;
 }
 
 /**
@@ -296,8 +332,16 @@ export interface TranslationAmbiguityOption {
 export interface TranslationAmbiguity {
   /** Categorized reason why clarification is needed */
   reason: TranslationAmbiguityReason;
-  /** Human-readable explanation in the user's interface language */
-  message: string;
+  /**
+   * Optional human-readable explanation. Present only when it originates from
+   * the AI preflight (model output already in the user's language) or as a
+   * structural hint; ABSENT for fully-structured reasons the channel localizes
+   * from `reason` + `params`. Core never returns i18n-`t()` strings here
+   * (Fable T23/A13) — localization is the channel's responsibility.
+   */
+  message?: string;
+  /** Structured interpolation params for channel-side localization. */
+  params?: TranslationAmbiguityParams;
   /** Concrete options the user can choose from (e.g., language variants, senses, date interpretations) */
   options?: TranslationAmbiguityOption[];
 }

@@ -149,7 +149,9 @@ export interface SessionData {
     reason: string;
     options?: Array<{
       id?: string;
-      label: string;
+      // Optional: core omits the label for options the channel labels from
+      // `kind` (e.g. translate_as_written) — Fable T23/A13.
+      label?: string;
       value: string;
       kind?: string;
       langCode?: string;

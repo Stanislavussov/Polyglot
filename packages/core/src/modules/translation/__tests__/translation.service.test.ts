@@ -459,7 +459,7 @@ describe("translate", () => {
         ...defaultInput,
         word: "helllo",
         detectionConfidence: 0.2,
-        skipInputCorrection: true,
+        correctionPolicy: { skipInputCorrection: true },
       },
       mockGenerate,
     );
@@ -488,7 +488,7 @@ describe("translate", () => {
         ...defaultInput,
         word: "helllo",
         detectionConfidence: 0.2,
-        skipInputCorrection: true,
+        correctionPolicy: { skipInputCorrection: true },
       },
       mockGenerate,
     );
@@ -516,7 +516,7 @@ describe("translate", () => {
         targetLangs: ["en"],
         // Confident detection — the old gate would skip the preflight entirely.
         detectionConfidence: 0.95,
-        dictionaryHit: false,
+        correctionPolicy: { dictionaryHit: false },
       },
       mockGenerate,
     );
@@ -531,7 +531,10 @@ describe("translate", () => {
   it("skips the preflight for a confidently detected word that exists in the dictionary", async () => {
     const mockGenerate = createTranslateMock(makeValidResult());
 
-    await translate({ ...defaultInput, detectionConfidence: 0.95, dictionaryHit: true }, mockGenerate);
+    await translate(
+      { ...defaultInput, detectionConfidence: 0.95, correctionPolicy: { dictionaryHit: true } },
+      mockGenerate,
+    );
 
     expect(mockGenerate.mock.calls[0]?.[0]).not.toContain("preflight ambiguity checker");
   });
@@ -646,6 +649,31 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("needs_clarification");
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
+  it("returns the ambiguous date as a structured reason without a localized message (A13)", async () => {
+    const mockGenerate = vi.fn();
+
+    const result = await translate(
+      {
+        word: "Let's meet on 06/07 at 5.",
+        sourceLang: "en",
+        targetLangs: ["de"],
+        nativeLang: "ru",
+        inputType: "sentence",
+        outputConfig: SENTENCE_OUTPUT,
+        model: "openai/gpt-4o",
+      },
+      mockGenerate,
+    );
+
+    if (result.status !== "needs_clarification") throw new Error("expected needs_clarification");
+    expect(result.ambiguity.reason).toBe("date_or_time");
+    // Structural preflight returns no core-authored UI string; the two date
+    // interpretations remain as structured option values (data, not prose).
+    expect(result.ambiguity.message).toBeUndefined();
+    expect(result.ambiguity.options?.map((option) => option.value)).toEqual(["month-day", "day-month"]);
     expect(mockGenerate).not.toHaveBeenCalled();
   });
 
@@ -1456,7 +1484,11 @@ function createExistenceMock(
 }
 
 describe("unrecognized-word guard (Task 70)", () => {
-  const base: TranslateInput = { ...defaultInput, assessSourceExistence: true, interfaceLang: "en" };
+  const base: TranslateInput = {
+    ...defaultInput,
+    correctionPolicy: { assessSourceExistence: true },
+    interfaceLang: "en",
+  };
 
   it("returns an unrecognized-word clarification (not a card) with the correction offered", async () => {
     const mock = createExistenceMock(makeValidResult(), { recognized: false, correction: "strohá" });
@@ -1487,7 +1519,10 @@ describe("unrecognized-word guard (Task 70)", () => {
   it("translates as written and flags the result unverified once the user overrides", async () => {
     const mock = createExistenceMock(makeValidResult(), { recognized: false, correction: "strohá" });
 
-    const decision = await translate({ ...base, word: "stroha", skipInputCorrection: true }, mock);
+    const decision = await translate(
+      { ...base, word: "stroha", correctionPolicy: { assessSourceExistence: true, skipInputCorrection: true } },
+      mock,
+    );
 
     expect(decision.status).toBe("accepted");
     expect(unwrap(decision).unverified).toBe(true);
@@ -1509,5 +1544,22 @@ describe("unrecognized-word guard (Task 70)", () => {
 
     expect(decision.status).toBe("accepted");
     expect(unwrap(decision).unverified).toBeUndefined();
+  });
+
+  it("returns a STRUCTURED reason (no localized UI string) for the channel to render (A13)", async () => {
+    const mock = createExistenceMock(makeValidResult(), { recognized: false, correction: "strohá" });
+
+    const decision = await translate({ ...base, word: "stroha" }, mock);
+
+    if (decision.status !== "needs_clarification") throw new Error("expected needs_clarification");
+    expect(decision.ambiguity.reason).toBe("unrecognized_word");
+    // Core no longer localizes UI text — it returns structured params (word +
+    // source-language CODE); the channel localizes via t().
+    expect(decision.ambiguity.message).toBeUndefined();
+    expect(decision.ambiguity.params).toEqual({ word: "stroha", lang: "en" });
+    // The "translate as written" option carries no core-localized label.
+    const asWritten = decision.ambiguity.options?.find((o) => o.kind === "translate_as_written");
+    expect(asWritten).toBeDefined();
+    expect(asWritten?.label).toBeUndefined();
   });
 });

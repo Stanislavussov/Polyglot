@@ -91,6 +91,10 @@ function hasActionableLanguageAmbiguity(detection: DetectionResult): boolean {
 }
 
 function clarificationReasonText(ambiguity: TranslationAmbiguity, lang: SupportedLang): string {
+  // Core returns structured reason + params (Fable T23/A13); the channel
+  // localizes here via t(). `params.lang` is a source-language CODE — localize
+  // its display name locally.
+  const params = ambiguity.params ?? {};
   const fallbackByReason: Record<TranslationAmbiguity["reason"], string> = {
     source_language: t("translationClarifyReasonLanguage", lang),
     word_sense: t("translationClarifyReasonMeaning", lang),
@@ -99,11 +103,15 @@ function clarificationReasonText(ambiguity: TranslationAmbiguity, lang: Supporte
     placeholder_grammar: t("translationClarifyReasonFormat", lang),
     mixed_or_transliterated_input: t("translationClarifyReasonFormat", lang),
     unsupported_input: t("translationClarifyReasonFormat", lang),
-    unrecognized_word: t("translationClarifyReasonUnrecognized", lang, { word: "", lang: "" }),
+    unrecognized_word: t("translationClarifyReasonUnrecognized", lang, {
+      word: params.word ?? "",
+      lang: params.lang ? getLanguageName(params.lang, lang) : "",
+    }),
   };
   const technicalPattern = /\b(sourceLang|targetLangs|JSON|schema|pipeline|validation|fieldPath)\b/i;
-  if (ambiguity.message.trim() && !technicalPattern.test(ambiguity.message)) {
-    return ambiguity.message.trim();
+  const message = ambiguity.message?.trim();
+  if (message && !technicalPattern.test(message)) {
+    return message;
   }
   return fallbackByReason[ambiguity.reason];
 }
@@ -170,7 +178,14 @@ async function showTranslationClarification(
   );
 
   for (const { option, index } of otherOptions) {
-    keyboard.text(option.label, `tr:clarify:option:${index}`).row();
+    // Core omits the localized label for "translate as written" (Fable T23/A13);
+    // the channel supplies it from the option kind. Other options keep their
+    // model-authored/data label.
+    const label =
+      option.kind === "translate_as_written"
+        ? t("translationTranslateAsWritten", params.lang)
+        : (option.label ?? option.value);
+    keyboard.text(label, `tr:clarify:option:${index}`).row();
   }
 
   // No model-supplied language options but we still need a language choice —
@@ -680,9 +695,11 @@ async function runTranslationPipeline(
           ...(detectionConfidence !== undefined ? { detectionConfidence } : {}),
           outputConfig,
           inputType: classification.type,
-          ...(skipInputCorrection ? { skipInputCorrection: true } : {}),
-          // Task 70 — let the main call flag unrecognized/fabricated headwords.
-          assessSourceExistence: true,
+          correctionPolicy: {
+            // Task 70 — let the main call flag unrecognized/fabricated headwords.
+            assessSourceExistence: true,
+            ...(skipInputCorrection ? { skipInputCorrection: true } : {}),
+          },
         },
         {
           lookupContext: lookupContextFn,

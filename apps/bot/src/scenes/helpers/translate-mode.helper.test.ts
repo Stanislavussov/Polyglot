@@ -126,6 +126,7 @@ import {
   detectLanguageWithConfidenceAsync,
   generateEtymology,
   getLangFlag,
+  getLanguageName,
   initLanguageRegistry,
   t,
   translateOneWithContext,
@@ -500,6 +501,43 @@ describe("handleTranslateText — context enrichment", () => {
     expect(callbackData).not.toContain("tr:clarify:lang:cs");
     expect(callbackData).not.toContain("tr:clarify:lang:de");
     expect(callbackData).not.toContain("tr:clarify:cancel");
+  });
+
+  it("localizes a structured unrecognized-word reason via t() (core sends no UI strings)", async () => {
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "unrecognized_word",
+        // No `message` — core returns a structured reason + params (Fable T23/A13);
+        // the channel localizes here.
+        params: { word: "stroha", lang: "cs" },
+        options: [
+          { kind: "typo_correction", label: "strohá", value: "strohá", correctedText: "strohá" },
+          // No label — the channel derives "translate as written" from `kind`.
+          { kind: "translate_as_written", value: "as_written" },
+        ],
+      },
+    });
+    const ctx = createMockCtx();
+
+    await handleTranslateText(ctx, "stroha");
+
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1]?.reply_markup !== undefined);
+    // The reason line is localized on the channel from `reason` + `params` (lang code → display name).
+    const expectedReason = t("translationClarifyReasonUnrecognized", "en", {
+      word: "stroha",
+      lang: getLanguageName("cs", "en"),
+    });
+    expect(promptCall?.[0]).toContain(expectedReason);
+
+    const keyboard = promptCall?.[1]?.reply_markup as {
+      inline_keyboard: Array<Array<{ text: string; callback_data: string }>>;
+    };
+    const labels = keyboard.inline_keyboard.flat().map((button) => button.text);
+    // "Translate as written" label is localized on the channel from `kind`.
+    expect(labels).toContain(t("translationTranslateAsWritten", "en"));
+    // The typo-correction option keeps its data label (the corrected word).
+    expect(labels).toContain("strohá");
   });
 
   it("does not add source-language buttons to meaning clarification", async () => {
@@ -1182,7 +1220,10 @@ describe("input typo correction (Task 69)", () => {
     await handleTranslationClarificationCallback(ctx);
 
     expect(translateWithContext).toHaveBeenCalledWith(
-      expect.objectContaining({ word: "helllo", skipInputCorrection: true }),
+      expect.objectContaining({
+        word: "helllo",
+        correctionPolicy: expect.objectContaining({ skipInputCorrection: true }),
+      }),
       expect.anything(),
     );
     expect(await readCounter("translate_as_written", "word")).toBe(before + 1);
