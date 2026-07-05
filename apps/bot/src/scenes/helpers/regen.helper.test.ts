@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock external modules before imports
-vi.mock("@polyglot/adapter-ai", () => ({
-  generateObject: vi.fn(),
-}));
-
+// regen.helper routes AI through ctx.services.ai.generateObject (auto-mocked by
+// createServicesStub), so no adapter-ai module mock is needed here.
 const mockVocabularyRepository = {
   create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
   findByOriginalAndSource: vi.fn().mockResolvedValue(null),
@@ -185,6 +182,8 @@ describe("handleRegenLoop", () => {
       sourceLang: "en",
       targetLang: "cs",
     });
+    // AI is injected via the ctx.services DI seam, not an adapter import.
+    expect(call[1]).toBe(ctx.services.ai.generateObject);
 
     // Should re-render the card via ctx.api.editMessageText
     expect(ctx.api.editMessageText).toHaveBeenCalled();

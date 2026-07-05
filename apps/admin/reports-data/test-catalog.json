@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-05T08:57:21.652Z",
+  "generatedAt": "2026-07-05T09:38:35.834Z",
   "summary": {
     "total": 2105,
     "business": 0,
@@ -7408,10 +7408,10 @@
       "description": "Protects the bot handle Mentor Text behavior so bills a mentor turn against the shared credit ledger on success (T16)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-131-handleregenloop-saves-to-dictionary-on-tr-save-with-normalized-vocabulary-input",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-128-handleregenloop-saves-to-dictionary-on-tr-save-with-normalized-vocabulary-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 128,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7424,10 +7424,10 @@
       "description": "Protects the bot handle Regen Loop behavior: saves to dictionary on tr:save with normalized vocabulary input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-152-handleregenloop-renders-saved-card-with-savedtodict-text-and-post-save-keyboard-on-save",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-149-handleregenloop-renders-saved-card-with-savedtodict-text-and-post-save-keyboard-on-save",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 152,
+      "sourceLine": 149,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7440,10 +7440,10 @@
       "description": "Protects the bot handle Regen Loop behavior: renders saved card with saved To Dict text and post save keyboard on save."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-165-handleregenloop-removes-keyboard-on-tr-skip",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-162-handleregenloop-removes-keyboard-on-tr-skip",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 165,
+      "sourceLine": 162,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7456,10 +7456,10 @@
       "description": "Protects the bot handle Regen Loop behavior so removes keyboard on tr:skip."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-175-handleregenloop-calls-translateone-on-regen-and-re-renders-card",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-172-handleregenloop-calls-translateone-on-regen-and-re-renders-card",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 175,
+      "sourceLine": 172,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7472,10 +7472,10 @@
       "description": "Protects the bot handle Regen Loop behavior: calls translate One on regen and re renders card."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-193-handleregenloop-passes-learner-friendly-default-outputconfig-to-translateone",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-192-handleregenloop-passes-learner-friendly-default-outputconfig-to-translateone",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 193,
+      "sourceLine": 192,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7488,10 +7488,10 @@
       "description": "Protects the bot handle Regen Loop behavior so passes learner friendly default output Config to translate One."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-212-handleregenloop-shows-loading-message-during-regeneration",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-211-handleregenloop-shows-loading-message-during-regeneration",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 212,
+      "sourceLine": 211,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7504,10 +7504,10 @@
       "description": "Protects the bot handle Regen Loop behavior: shows loading message during regeneration."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-223-handleregenloop-merges-regenerated-translation-into-saved-vocabulary-input",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-222-handleregenloop-merges-regenerated-translation-into-saved-vocabulary-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 223,
+      "sourceLine": 222,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7520,10 +7520,10 @@
       "description": "Protects the bot handle Regen Loop behavior so merges regenerated translation into saved vocabulary input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-238-handleregenloop-handles-regeneration-error-gracefully-and-continues",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-237-handleregenloop-handles-regeneration-error-gracefully-and-continues",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 238,
+      "sourceLine": 237,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7536,10 +7536,10 @@
       "description": "Protects the bot handle Regen Loop behavior: handles regeneration error gracefully and continues."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-251-handleregenloop-supports-multiple-regenerations-before-save",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-250-handleregenloop-supports-multiple-regenerations-before-save",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 251,
+      "sourceLine": 250,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7552,10 +7552,10 @@
       "description": "Protects the bot handle Regen Loop behavior so supports multiple regenerations before save."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-261-handleregenloop-answers-callback-query-for-each-interaction",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-260-handleregenloop-answers-callback-query-for-each-interaction",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 261,
+      "sourceLine": 260,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7568,10 +7568,10 @@
       "description": "Protects the bot handle Regen Loop behavior so answers callback query for each interaction."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-270-handleregenloop-detects-duplicates-and-shows-alreadysaved-toast",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-269-handleregenloop-detects-duplicates-and-shows-alreadysaved-toast",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 270,
+      "sourceLine": 269,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7584,10 +7584,10 @@
       "description": "Protects the bot handle Regen Loop behavior: detects duplicates and shows already Saved toast."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-285-handleregenloop-resolves-sourcelangid-via-getlang-for-save",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-284-handleregenloop-resolves-sourcelangid-via-getlang-for-save",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 284,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7600,10 +7600,10 @@
       "description": "Protects the bot handle Regen Loop behavior: resolves source Lang Id via get Lang for save."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-300-handleregenloop-passes-inputtype-to-mockvocabularyrepository-create",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-299-handleregenloop-passes-inputtype-to-mockvocabularyrepository-create",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
-      "sourceLine": 300,
+      "sourceLine": 299,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

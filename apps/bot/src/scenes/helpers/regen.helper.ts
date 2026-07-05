@@ -4,7 +4,6 @@
  * FEAT-30: save path uses FK resolution, dedup detection, and content sanitization.
  */
 import type { Conversation } from "@grammyjs/conversations";
-import { generateObject } from "@polyglot/adapter-ai";
 import {
   type InputType,
   logger,
@@ -158,7 +157,7 @@ export async function handleRegenLoop(
             outputConfig,
             inputType,
           },
-          generateObject,
+          ctx.services.ai.generateObject,
         );
       });
 
