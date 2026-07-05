@@ -477,6 +477,13 @@
         state: started
       when: configure_public_routing | bool
 
+    # Reload nginx NOW (not at play end) so the acme-challenge webroot location
+    # is live before certbot runs. Without this, a first issuance / renewal via
+    # `certonly --webroot` would fail HTTP-01 because the running nginx still
+    # serves the old config (Fable T30, F6).
+    - name: Flush handlers so nginx serves the ACME challenge before certbot
+      ansible.builtin.meta: flush_handlers
+
     - name: Issue TLS certificates
       ansible.builtin.command:
         cmd: >-
@@ -612,6 +619,11 @@
         enabled: true
         state: started
       when: configure_landing_routing | bool
+
+    # Same reason as the public-routing block: reload nginx now so the landing
+    # acme-challenge webroot is served before certbot issues/renews (Fable T30, F6).
+    - name: Flush handlers so nginx serves the landing ACME challenge before certbot
+      ansible.builtin.meta: flush_handlers
 
     - name: Issue landing TLS certificate
       ansible.builtin.command:
