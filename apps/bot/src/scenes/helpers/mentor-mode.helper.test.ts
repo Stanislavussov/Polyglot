@@ -30,10 +30,6 @@ const { mockUserRepository, mockAi, mockSettings, mockTranslationRequestReposito
   },
 }));
 
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: mockUserRepository,
-}));
-
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   return { ...actual };

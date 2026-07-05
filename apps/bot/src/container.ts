@@ -18,6 +18,8 @@ import {
 // Re-export directly from adapters
 import {
   aiRequestLatencyRepository,
+  createContextLookup,
+  createWordLanguageSweep,
   getAllLangs,
   getLang,
   getLangDisplay,
@@ -27,9 +29,12 @@ import {
   getSupportedLangs,
   isKnownLang,
   isLanguageCacheLoaded,
+  languageDetectionRepository,
   loadLanguageCache,
   normalizeToIso1,
   notificationRepository,
+  reportedIssueRepository,
+  requestTimingRepository,
   settingsAdapter,
   translationRequestRepository,
   translationTemplateRepository,
@@ -96,6 +101,11 @@ export function createContainer(): ServiceContainer {
     wordReviewRepository,
     notificationRepository,
     translationRequestRepository,
+    languageDetectionRepository,
+    requestTimingRepository,
+    reportedIssueRepository,
+    contextLookup: createContextLookup(),
+    wordLanguageSweep: createWordLanguageSweep(),
     languageCache: {
       loadLanguageCache,
       isLanguageCacheLoaded,

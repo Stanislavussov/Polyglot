@@ -2,7 +2,6 @@
  * Template wizard callback handlers — tpl:* callbacks.
  * Manages customize, toggle, preview, save, cancel, reset flows.
  */
-import { translationTemplateRepository, userRepository } from "@polyglot/adapter-db";
 import {
   type I18nKey,
   isSupported,
@@ -30,7 +29,7 @@ const FIELD_I18N_MAP: Record<keyof TemplateFields, I18nKey> = {
 
 /** Resolve interface language from user settings */
 async function getLang(ctx: BotContext): Promise<SupportedLang> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   return (isSupported(iLang) ? iLang : "en") as SupportedLang;
 }
@@ -52,7 +51,7 @@ function buildToggleKeyboard(fields: TemplateFields, lang: SupportedLang): Inlin
 /** tpl:customize — enter the constructor */
 export async function handleCustomizeCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
-  const saved = await translationTemplateRepository.getByUserId(ctx.user.id);
+  const saved = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
   const tpl = resolveTemplate(saved ? { name: saved.name, fields: saved.fields } : null);
 
   ctx.session.templateWizard = { fields: { ...tpl.fields } };
@@ -143,7 +142,7 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
     return;
   }
   const lang = await getLang(ctx);
-  await translationTemplateRepository.upsert(ctx.user.id, "Custom", ctx.session.templateWizard.fields);
+  await ctx.services.translationTemplateRepository.upsert(ctx.user.id, "Custom", ctx.session.templateWizard.fields);
   ctx.session.templateWizard = undefined;
   await cleanupTechnicalMessages(ctx);
   await ctx.editMessageText(t("templateSaved", lang), {
@@ -166,7 +165,7 @@ export async function handleCancelCallback(ctx: BotContext): Promise<void> {
 /** tpl:reset — delete custom template */
 export async function handleResetCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
-  await translationTemplateRepository.deleteByUserId(ctx.user.id);
+  await ctx.services.translationTemplateRepository.deleteByUserId(ctx.user.id);
   ctx.session.templateWizard = undefined;
   await cleanupTechnicalMessages(ctx);
   await ctx.editMessageText(t("templateResetDone", lang), {

@@ -65,6 +65,7 @@ export interface UserRepository {
   hasReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<boolean>;
   recordReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<void>;
   markOnboarded(userId: number): Promise<User>;
+  updateOnboardingStep(userId: number, step: number): Promise<User>;
   getLanguageLevels(userId: number): Promise<UserLearningLanguage[]>;
   setLanguageLevel(userId: number, languageCode: string, proficiencyLevel: string): Promise<void>;
 }

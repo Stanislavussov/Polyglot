@@ -16,6 +16,17 @@ import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notific
 import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
 import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
 import {
+  handleAltMeaningCallback,
+  handleEtymologyCallback,
+  handleGrammarBreakdownCallback,
+  handleGrammarDetailCallback,
+  handleGrammarLangSelectCallback,
+  handleRegenCallback,
+  handleSaveCallback,
+  handleSkipCallback,
+} from "./scenes/helpers/card-actions.js";
+import { handleClarifyPostCallback, handleTranslationClarificationCallback } from "./scenes/helpers/clarification.js";
+import {
   handleDictAdd,
   handleDictAddMenu,
   handleDictClose,
@@ -43,6 +54,7 @@ import {
   handleFcReveal,
   handleFcStart,
 } from "./scenes/helpers/flashcard.helper.js";
+import { handleLangSelectCallback, handleOutOfSetCallback } from "./scenes/helpers/out-of-set.js";
 import {
   handleSetBackCallback,
   handleSetCloseCallback,
@@ -81,22 +93,7 @@ import {
   handleSaveTemplateCallback,
   handleToggleCallback,
 } from "./scenes/helpers/template.helper.js";
-import {
-  handleAltMeaningCallback,
-  handleClarifyPostCallback,
-  handleEtymologyCallback,
-  handleGrammarBreakdownCallback,
-  handleGrammarDetailCallback,
-  handleGrammarLangSelectCallback,
-  handleLangSelectCallback,
-  handleMistypeCancelCallback,
-  handleMistypeConfirmCallback,
-  handleOutOfSetCallback,
-  handleRegenCallback,
-  handleSaveCallback,
-  handleSkipCallback,
-  handleTranslationClarificationCallback,
-} from "./scenes/helpers/translate-mode.helper.js";
+import { handleMistypeCancelCallback, handleMistypeConfirmCallback } from "./scenes/helpers/translate-flow.js";
 import {
   handleVideoBrowseCallback,
   handleVideoCancelCallback,

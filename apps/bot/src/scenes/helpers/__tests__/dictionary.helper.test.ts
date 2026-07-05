@@ -1,8 +1,9 @@
 /**
  * Tests for dictionary callback handlers.
  */
-import type { VocabularyEntryWithTranslations } from "@polyglot/adapter-db";
+import type { ServiceContainer, VocabularyEntryWithTranslations } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createServicesStub } from "../../../test-helpers/services-stub.js";
 import type { BotContext } from "../../../types.js";
 
 /* ── Mocks ─────────────────────────────────────────────────────── */
@@ -16,22 +17,6 @@ const mockGetAllLangs = vi.fn();
 const mockFindOwnedById = vi.fn();
 const mockEntryBelongsToDictionary = vi.fn();
 const mockRemoveEntry = vi.fn();
-
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: { getSettings: (...args: unknown[]) => mockGetSettings(...args) },
-  vocabularyRepository: {
-    countByUser: (...args: unknown[]) => mockCountByUser(...args),
-    findByUserPaginated: (...args: unknown[]) => mockFindByUserPaginated(...args),
-    findById: (...args: unknown[]) => mockFindById(...args),
-    hardDelete: (...args: unknown[]) => mockHardDelete(...args),
-  },
-  vocabularyDictionaryRepository: {
-    findOwnedById: (...args: unknown[]) => mockFindOwnedById(...args),
-    entryBelongsToDictionary: (...args: unknown[]) => mockEntryBelongsToDictionary(...args),
-    removeEntry: (...args: unknown[]) => mockRemoveEntry(...args),
-  },
-  getAllLangs: () => mockGetAllLangs(),
-}));
 
 vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
@@ -112,6 +97,25 @@ function createMockCtx(
     editMessageText: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+    services: createServicesStub({
+      userRepository: {
+        getSettings: (...args: unknown[]) => mockGetSettings(...args),
+      } as unknown as ServiceContainer["userRepository"],
+      vocabularyRepository: {
+        countByUser: (...args: unknown[]) => mockCountByUser(...args),
+        findByUserPaginated: (...args: unknown[]) => mockFindByUserPaginated(...args),
+        findById: (...args: unknown[]) => mockFindById(...args),
+        hardDelete: (...args: unknown[]) => mockHardDelete(...args),
+      } as unknown as ServiceContainer["vocabularyRepository"],
+      vocabularyDictionaryRepository: {
+        findOwnedById: (...args: unknown[]) => mockFindOwnedById(...args),
+        entryBelongsToDictionary: (...args: unknown[]) => mockEntryBelongsToDictionary(...args),
+        removeEntry: (...args: unknown[]) => mockRemoveEntry(...args),
+      } as unknown as ServiceContainer["vocabularyDictionaryRepository"],
+      languageCache: {
+        getAllLangs: () => mockGetAllLangs(),
+      } as unknown as ServiceContainer["languageCache"],
+    }),
   } as unknown as BotContext & {
     editMessageText: ReturnType<typeof vi.fn>;
     deleteMessage: ReturnType<typeof vi.fn>;

@@ -45,22 +45,6 @@ const {
   },
 }));
 
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: mockUserRepository,
-  vocabularyRepository: mockVocabularyRepository,
-  createContextLookup: () => mockLookupContext,
-  createWordLanguageSweep: () => vi.fn().mockResolvedValue([]),
-  getLang: mockLanguageCache.getLang,
-  getLangDisplay: mockLanguageCache.getLangDisplay,
-  translationTemplateRepository: mockTranslationTemplateRepository,
-  requestTimingRepository: {
-    record: vi.fn().mockResolvedValue(undefined),
-  },
-  languageDetectionRepository: {
-    record: vi.fn().mockResolvedValue(undefined),
-  },
-}));
-
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   actual.initLanguageRegistry([
@@ -111,7 +95,7 @@ vi.mock("@polyglot/infra", () => ({
 }));
 
 import type { BotContext, SessionData } from "../../../types.js";
-import { handleTranslateText } from "../translate-mode.helper.js";
+import { handleTranslateText } from "../translate-flow.js";
 
 function createMockCtx(overrides?: Partial<SessionData>): BotContext {
   const session: SessionData = {
@@ -149,6 +133,10 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
       translationRequestRepository: mockTranslationRequestRepository,
+      languageDetectionRepository: { record: vi.fn().mockResolvedValue(undefined) },
+      requestTimingRepository: { record: vi.fn().mockResolvedValue(undefined) },
+      contextLookup: mockLookupContext,
+      wordLanguageSweep: vi.fn().mockResolvedValue([]),
       settings: {
         getPlanLimit: () =>
           Promise.resolve({

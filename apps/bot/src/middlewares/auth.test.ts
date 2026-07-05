@@ -1,18 +1,11 @@
 /**
  * Tests for auth middleware — user resolution + activeMode hydration from DB.
  */
+import type { ServiceContainer } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createServicesStub } from "../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../types.js";
 import { authMiddleware } from "./auth.js";
-
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
-    findByTelegramId: vi.fn(),
-    create: vi.fn(),
-    getSettings: vi.fn(),
-    updateLastInteraction: vi.fn().mockResolvedValue(undefined),
-  },
-}));
 
 vi.mock("@polyglot/infra", () => ({
   logger: {
@@ -23,9 +16,12 @@ vi.mock("@polyglot/infra", () => ({
   },
 }));
 
-import { userRepository } from "@polyglot/adapter-db";
-
-const repo = vi.mocked(userRepository);
+const repo = {
+  findByTelegramId: vi.fn(),
+  create: vi.fn(),
+  getSettings: vi.fn(),
+  updateLastInteraction: vi.fn().mockResolvedValue(undefined),
+};
 
 function createMockCtx(overrides: { telegramId?: number; sessionActiveMode?: string } = {}): BotContext {
   const session: SessionData = {
@@ -39,6 +35,9 @@ function createMockCtx(overrides: { telegramId?: number; sessionActiveMode?: str
     from: overrides.telegramId !== undefined ? { id: overrides.telegramId, username: "testuser" } : undefined,
     session,
     user: undefined as any,
+    services: createServicesStub({
+      userRepository: repo as unknown as ServiceContainer["userRepository"],
+    }),
   } as unknown as BotContext;
 }
 

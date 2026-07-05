@@ -4,13 +4,15 @@
  * Notification details are in a sub-menu (set:notif).
  * Callback handlers are in helpers/settings.helper.ts.
  */
-import { formatNotificationTime, getLangDisplay, parseNotificationMinutes, userRepository } from "@polyglot/adapter-db";
 import {
   evaluatePlanRateLimit,
+  formatNotificationTime,
   getDailyWindowReset,
   getDailyWindowStart,
+  getLangDisplay,
   isSupported,
   type PlanLimitConfig,
+  parseNotificationMinutes,
   type SupportedLang,
   t,
 } from "@polyglot/core";
@@ -127,7 +129,7 @@ export function buildNotifSubKeyboard(lang: SupportedLang, notifEnabled: boolean
 
 /** /settings command handler */
 export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 

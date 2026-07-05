@@ -2,8 +2,16 @@
  * Settings callback handlers — set:* callbacks.
  * Manages native/learning/interface language pickers, notification prefs, and close.
  */
-import { formatNotificationTime, NOTIFICATION_TYPES, parseNotificationMinutes } from "@polyglot/adapter-db";
-import { getDailyWindowStart, isSupported, type NotificationType, type SupportedLang, t } from "@polyglot/core";
+import {
+  formatNotificationTime,
+  getDailyWindowStart,
+  isSupported,
+  NOTIFICATION_TYPES,
+  type NotificationType,
+  parseNotificationMinutes,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "../../constants.js";

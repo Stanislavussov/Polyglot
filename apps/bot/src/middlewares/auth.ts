@@ -1,4 +1,3 @@
-import { userRepository } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { type BotContext, USER_MODES, type UserMode } from "../types.js";
@@ -19,10 +18,10 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
     return next();
   }
 
-  let user = await userRepository.findByTelegramId(telegramId);
+  let user = await ctx.services.userRepository.findByTelegramId(telegramId);
 
   if (!user) {
-    user = await userRepository.create({
+    user = await ctx.services.userRepository.create({
       telegramId,
       username: ctx.from?.username ?? null,
     });
@@ -34,7 +33,7 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
   // Hydrate session activeMode from DB if user has settings.
   // This ensures the mode survives bot restarts.
   if (user.onboarded) {
-    const settings = await userRepository.getSettings(user.id);
+    const settings = await ctx.services.userRepository.getSettings(user.id);
     if (settings?.activeMode) {
       const dbMode = settings.activeMode;
       ctx.session.activeMode = VALID_MODES.has(dbMode as UserMode) ? (dbMode as UserMode) : "translate";
@@ -43,7 +42,7 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
 
     // Fire-and-forget: update last interaction timestamp for notification inactivity detection.
     // Never blocks request processing — errors are logged but swallowed.
-    userRepository.updateLastInteraction(user.id).catch((err) => {
+    ctx.services.userRepository.updateLastInteraction(user.id).catch((err) => {
       logger.error({ err, userId: user.id }, "Failed to update last interaction timestamp");
     });
   }

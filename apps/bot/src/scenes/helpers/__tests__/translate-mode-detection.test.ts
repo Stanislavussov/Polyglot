@@ -49,22 +49,6 @@ const {
   },
 }));
 
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: mockUserRepository,
-  vocabularyRepository: mockVocabularyRepository,
-  createContextLookup: () => mockLookupContext,
-  createWordLanguageSweep: () => vi.fn().mockResolvedValue([]),
-  getLang: mockLanguageCache.getLang,
-  getLangDisplay: mockLanguageCache.getLangDisplay,
-  translationTemplateRepository: mockTranslationTemplateRepository,
-  requestTimingRepository: {
-    record: vi.fn().mockResolvedValue(undefined),
-  },
-  languageDetectionRepository: {
-    record: vi.fn().mockResolvedValue(undefined),
-  },
-}));
-
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   // Initialize registry since vi.importActual gets a fresh module copy
@@ -134,11 +118,7 @@ vi.mock("@polyglot/infra", () => ({
 
 import { detectLanguageWithConfidence, detectLanguageWithConfidenceAsync, translateWithContext } from "@polyglot/core";
 import type { BotContext, SessionData } from "../../../types.js";
-import {
-  handleMistypeCancelCallback,
-  handleMistypeConfirmCallback,
-  handleTranslateText,
-} from "../translate-mode.helper.js";
+import { handleMistypeCancelCallback, handleMistypeConfirmCallback, handleTranslateText } from "../translate-flow.js";
 
 function createMockCtx(): BotContext {
   const session: SessionData = {
@@ -171,6 +151,10 @@ function createMockCtx(): BotContext {
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
       translationRequestRepository: mockTranslationRequestRepository,
+      languageDetectionRepository: { record: vi.fn().mockResolvedValue(undefined) },
+      requestTimingRepository: { record: vi.fn().mockResolvedValue(undefined) },
+      contextLookup: mockLookupContext,
+      wordLanguageSweep: vi.fn().mockResolvedValue([]),
       settings: {
         getPlanLimit: () =>
           Promise.resolve({

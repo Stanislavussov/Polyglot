@@ -1,16 +1,24 @@
-import type { NotificationType, NotificationUser } from "@polyglot/core";
+import {
+  DEFAULT_NOTIFICATION_TIME,
+  formatNotificationTime,
+  NOTIFICATION_TYPES,
+  type NotificationType,
+  type NotificationUser,
+  parseNotificationMinutes,
+} from "@polyglot/core";
 import { and, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { notificationHistory, userLanguageSettings, users } from "../schema.js";
+
+// Re-exported so existing adapter-db consumers (e.g. admin) are unaffected —
+// these are pure notification-time helpers, now defined once in @polyglot/core
+// alongside their NotificationType twin (Fable T22/B7).
+export { DEFAULT_NOTIFICATION_TIME, formatNotificationTime, NOTIFICATION_TYPES, parseNotificationMinutes };
 
 /* ------------------------------------------------------------------ */
 /*  Domain constants — DB is the source of truth (db-sot policy)       */
 /* ------------------------------------------------------------------ */
 
-/** Valid notification type strategies */
-export const NOTIFICATION_TYPES = ["suggested", "srs", "contextual"] as const;
-/** Default notification time (08:00 local). Stored as "HH:MM" string in DB. */
-export const DEFAULT_NOTIFICATION_TIME = "08:00";
 /** Default notification type (schema default) */
 export const DEFAULT_NOTIFICATION_TYPE = "srs" as const;
 /** Days of inactivity before pausing notifications */
@@ -19,34 +27,6 @@ export const INACTIVITY_DAYS = 14;
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
-
-/**
- * Parse the notification_time DB value ("HH:MM") into total minutes since midnight.
- * Returns DEFAULT_NOTIFICATION_TIME minutes for invalid/missing values.
- */
-export function parseNotificationMinutes(value: string | null | undefined): number {
-  if (value == null) {
-    const [h, m] = DEFAULT_NOTIFICATION_TIME.split(":").map(Number);
-    return h * 60 + m;
-  }
-  const parts = value.split(":");
-  if (parts.length !== 2) return 8 * 60; // fallback 08:00
-  const h = Number.parseInt(parts[0], 10);
-  const m = Number.parseInt(parts[1], 10);
-  if (Number.isNaN(h) || Number.isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) {
-    return 8 * 60; // fallback 08:00
-  }
-  return h * 60 + m;
-}
-
-/**
- * Format total minutes since midnight as "HH:MM" (e.g. "08:00", "14:30").
- */
-export function formatNotificationTime(totalMinutes: number): string {
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-}
 
 /**
  * Get the local time in minutes since midnight for a given timezone and UTC time.

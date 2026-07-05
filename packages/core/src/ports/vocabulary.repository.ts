@@ -161,6 +161,21 @@ export interface VocabularyRepository {
     },
   ): Promise<void>;
   updateTranslation(entryId: number, targetLangId: number, data: UpdateTranslationData): Promise<VocabularyTranslation>;
+  /** Replace all translations for an entry (full card regen) — see adapter for upsert/SRS-preserving semantics. */
+  updateAllTranslations(
+    entryId: number,
+    translations: Array<{
+      targetLangId: number;
+      text: string;
+      expressionType?: string;
+      equivalentNote?: string;
+      usageNote?: string;
+      connotationWarning?: string;
+      details: VocabTranslationDetails;
+    }>,
+  ): Promise<VocabularyTranslation[]>;
+  /** Permanently delete an entry (used after the last dictionary membership is removed). */
+  hardDelete(entryId: number): Promise<void>;
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
   updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
   search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;

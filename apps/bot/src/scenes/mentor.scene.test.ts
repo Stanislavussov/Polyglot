@@ -11,16 +11,13 @@ const { mockUserRepository } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: mockUserRepository,
-  getLangDisplay: vi.fn((lang: string) => lang),
-}));
-
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   return { ...actual };
 });
 
+import type { ServiceContainer } from "@polyglot/core";
+import { createServicesStub } from "../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../types.js";
 import { handleMentorCommand } from "./mentor.scene.js";
 
@@ -36,6 +33,9 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     user: { id: 1, telegramId: 123456789, onboarded: true },
+    services: createServicesStub({
+      userRepository: mockUserRepository as unknown as ServiceContainer["userRepository"],
+    }),
   } as unknown as BotContext;
 }
 

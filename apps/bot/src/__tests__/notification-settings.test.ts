@@ -41,33 +41,15 @@ const {
   };
 });
 
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: mockUserRepository,
-  languageCache: mockLanguageCache,
-  notificationRepository: mockNotificationRepository,
-  getLangDisplay: mockLanguageCache.getLangDisplay,
-  getSupportedLangs: mockLanguageCache.getSupportedLangs,
-  NOTIFICATION_TYPES: ["suggested", "srs", "contextual"],
-  DEFAULT_NOTIFICATION_TIME: "08:00",
-  parseNotificationMinutes: (v: string | null | undefined) => {
-    if (v == null) return 8 * 60;
-    const parts = v.split(":");
-    if (parts.length !== 2) return 8 * 60;
-    const h = Number.parseInt(parts[0], 10);
-    const m = Number.parseInt(parts[1], 10);
-    if (Number.isNaN(h) || Number.isNaN(m) || h < 0 || h > 23) return 8 * 60;
-    return h * 60 + m;
-  },
-  formatNotificationTime: (m: number) => {
-    const h = Math.floor(m / 60);
-    const min = m % 60;
-    return `${h.toString().padStart(2, "0")}:${min.toString().padStart(2, "0")}`;
-  },
-}));
-
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
-  return { ...actual };
+  return {
+    ...actual,
+    // buildSettingsText/buildNotifSubText call the real core getLangDisplay
+    // directly (pure registry lookup, no ctx.services) — override it here so
+    // the test doesn't depend on initLanguageRegistry having real language rows.
+    getLangDisplay: mockLanguageCache.getLangDisplay,
+  };
 });
 
 vi.mock("@polyglot/infra", () => ({

@@ -6,7 +6,6 @@
  * conversation — it does NOT translate immediately.
  * Persists mode change to DB so it survives bot restarts.
  */
-import { userRepository } from "@polyglot/adapter-db";
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
 
@@ -18,13 +17,13 @@ import type { BotContext } from "../types.js";
 export async function handleMentorCommand(ctx: BotContext): Promise<void> {
   // Set active mode to mentor (session + DB)
   ctx.session.activeMode = "mentor";
-  await userRepository.updateActiveMode(ctx.user.id, "mentor");
+  await ctx.services.userRepository.updateActiveMode(ctx.user.id, "mentor");
 
   // Clear any existing mentor history — each /mentor entry starts fresh
   ctx.session.mentor = undefined;
 
   // Get user's settings for language display
-  const settings = await userRepository.getSettings(ctx.user.id);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 

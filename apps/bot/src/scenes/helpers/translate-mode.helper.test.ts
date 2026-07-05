@@ -51,20 +51,6 @@ const {
   },
 }));
 
-vi.mock("@polyglot/adapter-db", () => ({
-  MAX_LEARNING_LANGS: 4,
-  userRepository: mockUserRepository,
-  vocabularyRepository: mockVocabularyRepository,
-  createContextLookup: () => mockLookupContext,
-  createWordLanguageSweep: () => mockSweepWordLanguages,
-  getLang: mockLanguageCache.getLang,
-  translationTemplateRepository: mockTranslationTemplateRepository,
-  requestTimingRepository: mockRequestTimingRepository,
-  languageDetectionRepository: {
-    record: mockLanguageDetectionRecord,
-  },
-}));
-
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   return {
@@ -135,7 +121,6 @@ vi.mock("@polyglot/infra", () => ({
   logger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-import { MAX_LEARNING_LANGS } from "@polyglot/adapter-db";
 import {
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
@@ -146,17 +131,14 @@ import {
   translateOneWithContext,
   translateWithContext,
 } from "@polyglot/core";
+import { MAX_LEARNING_LANGS } from "../../constants.js";
 import { inputCorrectionCounter } from "../../metrics.js";
 import type { BotContext, SessionData } from "../../types.js";
-import {
-  handleEtymologyCallback,
-  handleOutOfSetCallback,
-  handleRegenCallback,
-  handleTranslateText,
-  handleTranslationClarificationCallback,
-  handleTranslationClarificationContextText,
-  isEtymologyEligible,
-} from "./translate-mode.helper.js";
+import { handleEtymologyCallback, handleRegenCallback } from "./card-actions.js";
+import { handleTranslationClarificationCallback, handleTranslationClarificationContextText } from "./clarification.js";
+import { handleOutOfSetCallback } from "./out-of-set.js";
+import { handleTranslateText } from "./translate-flow.js";
+import { isEtymologyEligible } from "./translate-mode.shared.js";
 
 function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, callbackMsgId = 1): BotContext {
   const session: SessionData = {
@@ -209,6 +191,10 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
       translationRequestRepository: mockTranslationRequestRepository,
+      languageDetectionRepository: { record: mockLanguageDetectionRecord },
+      requestTimingRepository: mockRequestTimingRepository,
+      contextLookup: mockLookupContext,
+      wordLanguageSweep: mockSweepWordLanguages,
       languageCache: mockLanguageCache,
       ai: mockAi,
     },

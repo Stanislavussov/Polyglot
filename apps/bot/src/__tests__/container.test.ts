@@ -37,6 +37,17 @@ vi.mock("@polyglot/adapter-db", () => ({
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
     getRecentRequests: vi.fn().mockResolvedValue([]),
   },
+  languageDetectionRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+  },
+  requestTimingRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+  },
+  reportedIssueRepository: {
+    create: vi.fn().mockResolvedValue({ id: 1 }),
+  },
+  createContextLookup: vi.fn(() => vi.fn().mockResolvedValue([])),
+  createWordLanguageSweep: vi.fn(() => vi.fn().mockResolvedValue([])),
   aiRequestLatencyRepository: {
     record: vi.fn().mockResolvedValue(undefined),
     getModelLatencySummary: vi.fn().mockResolvedValue([]),
@@ -129,6 +140,11 @@ describe("createContainer", () => {
     expect(container.wordReviewRepository).toBeDefined();
     expect(container.notificationRepository).toBeDefined();
     expect(container.translationRequestRepository).toBeDefined();
+    expect(container.languageDetectionRepository).toBeDefined();
+    expect(container.requestTimingRepository).toBeDefined();
+    expect(container.reportedIssueRepository).toBeDefined();
+    expect(typeof container.contextLookup).toBe("function");
+    expect(typeof container.wordLanguageSweep).toBe("function");
     expect(container.languageCache).toBeDefined();
     expect(container.ai).toBeDefined();
     expect(container.settings).toBeDefined();

@@ -20,20 +20,6 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
 }));
 
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: {
-    findByTelegramId: vi.fn(),
-    create: vi.fn(),
-    getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
-    updateActiveMode: vi.fn().mockResolvedValue({}),
-  },
-  vocabularyRepository: {
-    create: vi.fn().mockResolvedValue({ id: 1, translations: [] }),
-    findByOriginalAndSource: vi.fn().mockResolvedValue(null),
-    updateTranslation: vi.fn().mockResolvedValue({}),
-  },
-}));
-
 vi.mock("@polyglot/core", () => ({
   translate: vi.fn(),
   t: vi.fn((key: string) => `[${key}]`),
@@ -46,15 +32,24 @@ vi.mock("@polyglot/infra", () => ({
   logger: mockLogger,
 }));
 
-// Mock translate-mode helper
-vi.mock("../scenes/helpers/translate-mode.helper.js", () => ({
+// Mock translate-mode helpers (split into translate-flow + clarification, T22 slice (e))
+vi.mock("../scenes/helpers/translate-flow.js", () => ({
   handleTranslateText: vi.fn(),
 }));
+vi.mock("../scenes/helpers/clarification.js", () => ({
+  handleTranslationClarificationContextText: vi.fn(),
+}));
 
-import { userRepository } from "@polyglot/adapter-db";
-import { handleTranslateText } from "../scenes/helpers/translate-mode.helper.js";
+import type { ServiceContainer } from "@polyglot/core";
+import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
+import { createServicesStub } from "../test-helpers/services-stub.js";
 
-const repo = vi.mocked(userRepository);
+const mockUserRepository = {
+  findByTelegramId: vi.fn(),
+  create: vi.fn(),
+  getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
+  updateActiveMode: vi.fn().mockResolvedValue({}),
+};
 
 function createMockContext(
   overrides: { text?: string; activeMode?: UserMode; onboarded?: boolean; userId?: number } = {},
@@ -80,6 +75,9 @@ function createMockContext(
       telegramId: overrides.userId ?? 123456789,
       onboarded: overrides.onboarded ?? true,
     },
+    services: createServicesStub({
+      userRepository: mockUserRepository as unknown as ServiceContainer["userRepository"],
+    }),
   } as unknown as BotContext;
 }
 
@@ -145,7 +143,7 @@ describe("Translate Mode System", () => {
 
       await modeRouterMiddleware(ctx, next);
 
-      expect(repo.updateActiveMode).toHaveBeenCalledWith(1, "translate");
+      expect(mockUserRepository.updateActiveMode).toHaveBeenCalledWith(1, "translate");
     });
 
     it("shows hint for non-onboarded user in idle mode", async () => {

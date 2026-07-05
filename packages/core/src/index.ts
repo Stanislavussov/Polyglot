@@ -14,9 +14,22 @@ export type { FeatureAccessPort, FeatureAccessResult } from "./ports/feature-acc
 export { defaultFeatureAccess } from "./ports/feature-access.port.js";
 export type { CachedLanguage, LanguageCachePort } from "./ports/language-cache.port.js";
 export type {
+  LanguageDetectionRepository,
+  RecordLanguageDetectionEventInput,
+} from "./ports/language-detection.repository.js";
+export type {
   NotificationType,
   NotificationUser,
 } from "./ports/notification.repository.js";
+export type {
+  IssueType,
+  ReportedIssue,
+  ReportedIssueRepository,
+} from "./ports/reported-issue.repository.js";
+export type {
+  RecordRequestTimingInput,
+  RequestTimingRepository,
+} from "./ports/request-timing.repository.js";
 export type {
   AIGenerationDefaults,
   DictionaryConfig,

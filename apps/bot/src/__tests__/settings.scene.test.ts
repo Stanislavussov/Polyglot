@@ -32,18 +32,14 @@ const { mockLogger, mockUserRepository, mockLanguageCache, mockTranslationReques
   };
 });
 
-// Mock dependencies before imports
-vi.mock("@polyglot/adapter-db", () => ({
-  userRepository: mockUserRepository,
-  languageCache: mockLanguageCache,
-  getLangDisplay: mockLanguageCache.getLangDisplay,
-  getSupportedLangs: mockLanguageCache.getSupportedLangs,
-}));
-
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   return {
     ...actual,
+    // buildSettingsText/formatNotificationTimes call the real core getLangDisplay
+    // directly (pure registry lookup, no ctx.services) — override it here so the
+    // test doesn't depend on initLanguageRegistry having real language rows.
+    getLangDisplay: mockLanguageCache.getLangDisplay,
   };
 });
 
