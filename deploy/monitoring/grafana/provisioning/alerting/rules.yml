@@ -10,10 +10,14 @@ groups:
     interval: 1m
     rules:
       # 1. The bot's Prometheus target is down (process crashed / unreachable).
+      #    This is the sole liveness alert: up==0 fires only when the process is
+      #    actually down/unreachable, so it never false-pages on an idle bot.
+      #    noDataState: OK avoids paging on a transient Prometheus scrape gap.
       - uid: polyglot_bot_down
         title: Bot is down
         condition: C
         for: 2m
+        noDataState: OK
         labels:
           severity: critical
         annotations:
@@ -39,41 +43,25 @@ groups:
                     type: lt
                     params: [1]
 
-      # 2. No Telegram updates processed for 10m — long-polling likely stuck.
-      - uid: polyglot_bot_update_silence
-        title: No Telegram updates for 10m
-        condition: C
-        for: 5m
-        labels:
-          severity: critical
-        annotations:
-          summary: The bot has not processed any Telegram update in the last 10m (long-polling may be stuck).
-        data:
-          - refId: A
-            relativeTimeRange:
-              from: 600
-              to: 0
-            datasourceUid: prometheus
-            model:
-              refId: A
-              instant: true
-              expr: sum(increase(bot_telegram_messages_total[10m]))
-          - refId: C
-            datasourceUid: __expr__
-            model:
-              refId: C
-              type: threshold
-              expression: A
-              conditions:
-                - evaluator:
-                    type: lt
-                    params: [1]
+      # 2. (Removed) "No Telegram updates for 10m" — message volume was a poor
+      #    liveness proxy: with an MVP-sized user base the bot is legitimately
+      #    idle most of the time, so sum(increase(bot_telegram_messages_total))
+      #    sits at 0 and the rule false-fired constantly. Real process liveness
+      #    is already covered by rule #1 (Bot is down, up==0). A hung-but-alive
+      #    poll loop can't be distinguished from normal silence at this traffic
+      #    level; if that becomes a concern, add a dedicated poll-cycle heartbeat
+      #    counter in the bot and alert on rate(heartbeat)==0 instead.
 
       # 3. Translation error rate is elevated (AI provider failing, e.g. 429).
+      #    noDataState: OK + `or vector(0)` because the status="error" series
+      #    does not exist until the first error ever occurs; without this the
+      #    rule evaluates to NoData and false-fires DatasourceNoData while the
+      #    bot is perfectly healthy (zero errors).
       - uid: polyglot_bot_translation_errors
         title: Elevated translation error rate
         condition: C
         for: 5m
+        noDataState: OK
         labels:
           severity: warning
         annotations:
@@ -87,7 +75,7 @@ groups:
             model:
               refId: A
               instant: true
-              expr: sum(rate(bot_translations_total{status="error"}[5m]))
+              expr: sum(rate(bot_translations_total{status="error"}[5m])) or vector(0)
           - refId: C
             datasourceUid: __expr__
             model:
