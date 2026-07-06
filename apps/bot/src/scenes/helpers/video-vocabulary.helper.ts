@@ -46,7 +46,9 @@ const RETRY_DELAYS_MS = [2000, 4000];
 /* ------------------------------------------------------------------ */
 
 async function resolveInterfaceLang(ctx: BotContext): Promise<SupportedLang> {
-  const settings = ctx.user?.settings;
+  const userId = ctx.user?.id;
+  if (!userId) return "en";
+  const settings = await ctx.services.userRepository.getSettings(userId);
   const rawLang = settings?.interfaceLang ?? "en";
   return isSupported(rawLang) ? rawLang : "en";
 }
@@ -86,11 +88,14 @@ type TranslationInput = {
  * Build translations array with native language translation from extraction data.
  * Includes context sentence from the video as an example.
  */
-function buildNativeTranslation(phrase: VideoPhraseForSave, ctx: BotContext): TranslationInput[] {
+function buildNativeTranslation(
+  phrase: VideoPhraseForSave,
+  nativeLangCode: string | null | undefined,
+  ctx: BotContext,
+): TranslationInput[] {
   const translations: TranslationInput[] = [];
 
   if (phrase.nativeTranslation) {
-    const nativeLangCode = ctx.user?.settings?.nativeLang;
     if (nativeLangCode) {
       const nativeLang = ctx.services.languageCache.getLang(nativeLangCode);
       if (nativeLang) {
@@ -286,7 +291,7 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
   }
 
   // Create process record to reserve the limit
-  const settings = ctx.user?.settings;
+  const settings = await ctx.services.userRepository.getSettings(userId);
   const userLangs = settings?.learningLangs ?? [];
   const nativeLang = settings?.nativeLang ?? "en";
   const videoLang = userLangs[0] ?? nativeLang; // best guess, will be refined from transcript
@@ -426,7 +431,8 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
     await ctx.answerCallbackQuery({ text: "✅" });
   } else {
     // Build translations array — include native language translation if available
-    const translations = buildNativeTranslation(phrase, ctx);
+    const settings = await ctx.services.userRepository.getSettings(userId);
+    const translations = buildNativeTranslation(phrase, settings?.nativeLang, ctx);
 
     // Build sourceUsage with context sentence from video as example
     const sourceUsage = phrase.context
@@ -520,6 +526,9 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
   const allPhrases = await ctx.services.videoVocabularyRepository.findPhrasesByProcess(processId, 0, 100);
   const unsaved = allPhrases.filter((p) => !p.savedEntryId);
 
+  const settings = await ctx.services.userRepository.getSettings(userId);
+  const nativeLangCode = settings?.nativeLang;
+
   let savedCount = 0;
   const enrichmentQueue: Array<{ entryId: number; phrase: string; inputType: "word" | "phrase" }> = [];
 
@@ -533,7 +542,7 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
       await ctx.services.videoVocabularyRepository.markPhraseSaved(phrase.id, existing.id);
       savedCount++;
     } else {
-      const translations = buildNativeTranslation(phrase, ctx);
+      const translations = buildNativeTranslation(phrase, nativeLangCode, ctx);
       const sourceUsage = phrase.context
         ? {
             explanation: phrase.nativeTranslation ?? "",

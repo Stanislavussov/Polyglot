@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-06T15:48:33.320Z",
+  "generatedAt": "2026-07-06T18:55:50.069Z",
   "summary": {
-    "total": 2142,
+    "total": 2145,
     "business": 0,
-    "technical": 2142,
+    "technical": 2145,
     "workspaces": [
       "apps",
       "packages"
@@ -7342,6 +7342,54 @@
       "name": "Bot handle Skip Callback — source lang menu answers callback query after skip",
       "value": "Protects the bot handle Skip Callback — source lang menu behavior so answers callback query after skip.",
       "description": "Protects the bot handle Skip Callback — source lang menu behavior so answers callback query after skip."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-lang-test-ts-47-handlevideoscommand-interface-language-resolution-renders-the-video-ui-in-the-user-s-persisted-interfacelang-ru",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/video-vocabulary-lang.test.ts",
+      "sourceLine": 47,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleVideosCommand — interface language resolution"
+      ],
+      "title": "renders the video UI in the user's persisted interfaceLang (ru)",
+      "rawTitle": "renders the video UI in the user's persisted interfaceLang (ru)",
+      "name": "Bot handle Videos Command — interface language resolution renders the video UI in the user's persisted interface Lang (ru)",
+      "value": "Protects the bot handle Videos Command — interface language resolution behavior: renders the video UI in the user's persisted interface Lang (ru).",
+      "description": "Protects the bot handle Videos Command — interface language resolution behavior: renders the video UI in the user's persisted interface Lang (ru)."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-lang-test-ts-61-handlevideoscommand-interface-language-resolution-falls-back-to-english-when-interfacelang-is-absent",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/video-vocabulary-lang.test.ts",
+      "sourceLine": 61,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleVideosCommand — interface language resolution"
+      ],
+      "title": "falls back to English when interfaceLang is absent",
+      "rawTitle": "falls back to English when interfaceLang is absent",
+      "name": "Bot handle Videos Command — interface language resolution falls back to English when interface Lang is absent",
+      "value": "Protects the bot handle Videos Command — interface language resolution behavior: falls back to English when interface Lang is absent.",
+      "description": "Protects the bot handle Videos Command — interface language resolution behavior: falls back to English when interface Lang is absent."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-lang-test-ts-71-handlevideoscommand-interface-language-resolution-falls-back-to-english-when-settings-are-missing-entirely",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/video-vocabulary-lang.test.ts",
+      "sourceLine": 71,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleVideosCommand — interface language resolution"
+      ],
+      "title": "falls back to English when settings are missing entirely",
+      "rawTitle": "falls back to English when settings are missing entirely",
+      "name": "Bot handle Videos Command — interface language resolution falls back to English when settings are missing entirely",
+      "value": "Protects the bot handle Videos Command — interface language resolution behavior: falls back to English when settings are missing entirely.",
+      "description": "Protects the bot handle Videos Command — interface language resolution behavior: falls back to English when settings are missing entirely."
     },
     {
       "id": "apps-bot-src-scenes-helpers-edit-message-helper-test-ts-26-editmessagetextorreply-edits-the-message-in-place-on-the-happy-path-and-does-not-send-a-new-message",
