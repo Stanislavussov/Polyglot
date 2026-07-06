@@ -11,10 +11,14 @@ contactPoints:
         type: telegram
         disableResolveMessage: false
         settings:
-          # Quoted so the env-substituted values are always parsed as strings.
-          # A Telegram chat id is numeric (e.g. -1001234567890); unquoted, YAML
-          # parses it as a number and Grafana fails provisioning with
-          # "cannot unmarshal number into Go struct field Config.chatid of type
-          # string", crash-looping the whole container.
+          # bottoken stays in env (it is the real secret and is non-numeric, so
+          # it substitutes cleanly). chatid is hardcoded as a literal string on
+          # purpose: Grafana 11.x expands $__env{} AFTER YAML parsing and then
+          # re-types the result, so a numeric chat id comes back as a JSON number
+          # and provisioning dies with "cannot unmarshal number into Go struct
+          # field Config.chatid of type string" — crash-looping the whole
+          # container. YAML quoting does NOT fix it (confirmed: grafana/grafana
+          # #69950). A chat id is not a credential (useless without the bot
+          # token), so committing it as a literal is safe and sidesteps the bug.
           bottoken: "$__env{GRAFANA_ALERT_TELEGRAM_BOTTOKEN}"
-          chatid: "$__env{GRAFANA_ALERT_TELEGRAM_CHATID}"
+          chatid: "368249477"
