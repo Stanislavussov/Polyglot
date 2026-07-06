@@ -31,3 +31,35 @@ describe("renderTranslation — unverified caveat (Task 70)", () => {
     expect(card).not.toContain("translated literally");
   });
 });
+
+describe("renderTranslation — canonical source headword (die Arbeit)", () => {
+  /** A learning-source (de→ru) card: renderSourceUsageBlock owns the headword. */
+  function learningSourceOutput(headword?: string | null): TranslateOutput {
+    return {
+      original: "arbeit",
+      sourceLang: "de",
+      emoji: "💼",
+      nativeSynonyms: [],
+      sourceUsage: {
+        headword,
+        explanation: "Работа, труд.",
+        synonyms: [{ text: "die Tätigkeit" }],
+        examples: [{ context: "daily", target: "Die Arbeit macht Spaß.", native: "Работа приносит удовольствие." }],
+      },
+      translations: {
+        ru: { text: "работа", synonyms: [], examples: [] },
+      },
+    };
+  }
+
+  it("renders the canonical headword when the model supplied one", () => {
+    const card = renderTranslation(learningSourceOutput("die Arbeit"), "en", undefined, "ru");
+    expect(card).toContain("<b>die Arbeit</b>");
+    expect(card).not.toContain("<b>arbeit</b>");
+  });
+
+  it("falls back to the raw input when no headword is present", () => {
+    const card = renderTranslation(learningSourceOutput(undefined), "en", undefined, "ru");
+    expect(card).toContain("<b>arbeit</b>");
+  });
+});

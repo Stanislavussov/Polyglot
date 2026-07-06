@@ -898,6 +898,69 @@ describe("handleTranslateText — out-of-set language detection", () => {
     expect(translateWithContext).not.toHaveBeenCalled();
   });
 
+  it("offers add-and-translate when a Task 70 correction is in an unstudied language (Kazakh)", async () => {
+    // Russian-lettered Kazakh "кыздарай" coerces to ru (sync mock) with no async
+    // out-of-set signal, so the alphabet guard on the raw word can't fire (all
+    // letters are valid Russian). The pipeline then flags it (Task 70) and the AI
+    // corrects to proper Kazakh "қыздар-ай" whose "қ" is exclusive to kk. The
+    // flow must offer "add Kazakh and translate", not the spelling correction.
+    // (Confident sync coercion → the async detector is never called here.)
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "unrecognized_word",
+        params: { word: "кыздарай", lang: "ru" },
+        options: [
+          { kind: "typo_correction", label: "қыздар-ай", value: "қыздар-ай", correctedText: "қыздар-ай" },
+          { kind: "translate_as_written", value: "as_written" },
+        ],
+      },
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "кыздарай");
+
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1]?.reply_markup !== undefined);
+    const keyboard = promptCall?.[1]?.reply_markup as { inline_keyboard: Array<Array<{ callback_data: string }>> };
+    const callbackData = keyboard.inline_keyboard.flat().map((button) => button.callback_data);
+
+    expect(callbackData).toEqual(expect.arrayContaining(["tr:oos:add:kk", "tr:oos:once:kk", "tr:oos:cancel"]));
+    expect(callbackData).not.toContain("tr:clarify:option:0");
+    expect(ctx.session.pendingOutOfSet).toBeDefined();
+  });
+
+  it("keeps the spelling correction for a same-alphabet typo (no false out-of-set)", async () => {
+    // "fajcit" (Slovak) coerces to studied Czech; the AI correction "fajčit" is a
+    // valid Czech word sharing the Czech alphabet — no exclusive letter, so the
+    // alphabet guard must NOT fire and the normal correction UI is shown instead.
+    // (Confident sync coercion → the async detector is never called here.)
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "unrecognized_word",
+        params: { word: "fajcit", lang: "cs" },
+        options: [
+          { kind: "typo_correction", label: "fajčit", value: "fajčit", correctedText: "fajčit" },
+          { kind: "translate_as_written", value: "as_written" },
+        ],
+      },
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "fajcit");
+
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1]?.reply_markup !== undefined);
+    const keyboard = promptCall?.[1]?.reply_markup as {
+      inline_keyboard: Array<Array<{ text: string; callback_data: string }>>;
+    };
+    const callbackData = keyboard.inline_keyboard.flat().map((button) => button.callback_data);
+    const labels = keyboard.inline_keyboard.flat().map((button) => button.text);
+
+    expect(callbackData).toContain("tr:clarify:option:0");
+    expect(callbackData.some((data) => data.startsWith("tr:oos:"))).toBe(false);
+    expect(labels).toContain("fajčit");
+  });
+
   it("keeps the plain block for an UNSUPPORTED out-of-set language (can't be added)", async () => {
     vi.mocked(detectLanguageWithConfidence).mockReturnValueOnce({ confidence: 0, evidence: [] });
     vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce({
@@ -911,6 +974,31 @@ describe("handleTranslateText — out-of-set language detection", () => {
 
     expect(vi.mocked(ctx.reply).mock.calls[0][0]).toContain("isn't in your selected languages");
     expect(translateWithContext).not.toHaveBeenCalled();
+  });
+
+  it("does not let franc out-of-set override a confident in-set detection (Czech not blocked as Croatian)", async () => {
+    // "Výdaje ČR na obranu" is confidently Czech (an in-set learning language), but
+    // the unconstrained-franc detectOutOfSetLanguage prefers the close sibling
+    // Croatian (hr, out-of-set). A confident closed-set detection must win — the
+    // franc guard only runs when detection is inconclusive — so the phrase must
+    // translate from Czech, not get blocked as Croatian.
+    vi.mocked(detectLanguageWithConfidence).mockReturnValueOnce({
+      language: "cs",
+      confidence: 1,
+      evidence: [{ strategy: "franc", candidate: "cs", score: 1, reason: "test fixture" }],
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "Výdaje ČR na obranu");
+
+    // No out-of-set block reply; the translation pipeline runs from Czech.
+    for (const call of vi.mocked(ctx.reply).mock.calls) {
+      expect(String(call[0])).not.toContain("isn't in your");
+    }
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({ word: "Výdaje ČR na obranu", sourceLang: "cs" }),
+      expect.anything(),
+    );
   });
 
   it("re-verifies a confident heuristic-only diacritic detection via the async path", async () => {

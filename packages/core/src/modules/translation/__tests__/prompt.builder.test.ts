@@ -292,6 +292,38 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("collocations or lexical chunks");
   });
 
+  it("requests a canonical source headword and injects source-language traits (German article/capitalization)", () => {
+    const request: TranslationRequest = {
+      text: "arbeit",
+      sourceLang: "de",
+      targetLangs: ["ru"],
+      nativeLang: "ru",
+      inputType: "word",
+    };
+    // Both the full and the live metadata prompt must carry the source-side rules.
+    for (const prompt of [buildTranslationPrompt(request), buildMetadataPrompt(request)]) {
+      expect(prompt).toContain('"headword"');
+      expect(prompt).toContain("die Arbeit");
+      // The German directive (source language) — never covered by the
+      // target-only traits hint — must be applied to source-language fields.
+      expect(prompt).toContain("Apply German conventions to the source-language fields");
+      expect(prompt).toContain("der/die/das");
+    }
+  });
+
+  it("does not inject source-language traits when the source is the native language", () => {
+    const prompt = buildTranslationPrompt({
+      text: "богомол",
+      sourceLang: "ru",
+      targetLangs: ["de", "en"],
+      nativeLang: "ru",
+      inputType: "word",
+    });
+    // Native source → no sourceUsage block → no source headword request.
+    expect(prompt).not.toContain('"headword"');
+    expect(prompt).not.toContain("Apply Russian conventions to the source-language fields");
+  });
+
   it("instructs AI to translate into the native language when source is a learning language", () => {
     const prompt = buildTranslationPrompt({
       text: "kudlanka",

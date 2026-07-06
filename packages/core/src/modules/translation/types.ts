@@ -42,6 +42,12 @@ export interface Example {
 
 /** Learning-language usage help for reverse translations */
 export interface SourceUsage {
+  /**
+   * Canonical citation form of the source headword in the source language
+   * (e.g. German "die Arbeit" for the input "arbeit"). Display-only — the card
+   * renders it in place of the raw input; absent when nothing needs normalizing.
+   */
+  headword?: string | null;
   /** Native-language explanation of meaning, nuance, and when to use the source word */
   explanation: string;
   /** Close synonyms in the source learning language */

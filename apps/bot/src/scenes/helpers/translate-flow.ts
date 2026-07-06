@@ -119,6 +119,34 @@ function collectGrammarBreakdown(output: TranslateOutput): Record<string, string
   return result;
 }
 
+/**
+ * Task 70 cross-language guard. A `needs_clarification` of reason
+ * `unrecognized_word` carries the AI's spelling correction; when that correction
+ * is written in the exclusive alphabet of a SUPPORTED language the user does not
+ * study, the "unrecognized word" is really an out-of-set language the closed-set
+ * detector coerced to a studied one — e.g. Russian-lettered Kazakh "кыздарай",
+ * corrected to "қыздар-ай" whose "қ" exists only in Kazakh. Returns that
+ * language so the flow can offer "add and translate" instead of a nonsensical
+ * spelling fix. Returns undefined for genuine same-alphabet typos (Slovak vs
+ * Czech share their alphabet and cannot be told apart by letters alone — those
+ * need a dictionary/AI signal the alphabet check deliberately does not fake).
+ */
+function outOfSetLanguageFromCorrection(
+  ambiguity: TranslationAmbiguity,
+  nativeLang: string,
+  learningLangs: string[],
+): string | undefined {
+  if (ambiguity.reason !== "unrecognized_word") {
+    return undefined;
+  }
+  const correction = (ambiguity.options ?? []).find((option) => option.kind === "typo_correction")?.correctedText;
+  if (!correction) {
+    return undefined;
+  }
+  const outOfSetLang = detectOutOfSetByAlphabet(correction, [nativeLang, ...learningLangs]);
+  return outOfSetLang && isSupportedLanguage(outOfSetLang) ? outOfSetLang : undefined;
+}
+
 function hasActionableLanguageAmbiguity(detection: DetectionResult): boolean {
   const candidates = detection.ambiguousCandidates ?? [];
   if (candidates.length < 2) {
@@ -350,10 +378,19 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   // Signal precedence: dictionary sweep / AI (populated on detection) → cheap,
   // word-count-independent alphabet exclusion (letters only one out-of-set
   // language can produce, e.g. ñ→es, ә→kk) → franc-based check for 3+ words.
+  //
+  // The franc pass runs an UNCONSTRAINED francAll that readily prefers a close
+  // sibling of an in-set language (Czech → Croatian, Russian → Bulgarian), so it
+  // must NOT override a confident closed-set detection — otherwise legitimate
+  // in-set input (e.g. Czech "Výdaje ČR na obranu") gets blocked as its sibling.
+  // A genuinely out-of-set phrase almost never yields a *confident* in-set
+  // detection, so gating franc on `detection.language === undefined` is safe. The
+  // dictionary/AI and alphabet-exclusion signals stay unconditional — they are
+  // conservative and reliable even against a confident-but-wrong coercion.
   const outOfSetLang =
     detection.outOfSetLanguages?.[0] ??
     detectOutOfSetByAlphabet(cleanWord, candidatesWithEnglish) ??
-    detectOutOfSetLanguage(cleanWord, candidatesWithEnglish);
+    (detection.language === undefined ? detectOutOfSetLanguage(cleanWord, candidatesWithEnglish) : undefined);
   if (outOfSetLang) {
     // Supported but not-studied → offer "add and translate". Unsupported languages
     // can't be added, so fall back to the plain informational block.
@@ -754,6 +791,17 @@ async function runTranslationPipeline(
 
     if (decision.status === "needs_clarification") {
       await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+
+      // A Task 70 "unrecognized word" whose correction is actually in an
+      // unstudied supported language (same-script coercion, e.g. "кыздарай" →
+      // Kazakh "қыздар-ай") is an out-of-set language, not a typo — offer
+      // "add and translate" instead of a nonsensical spelling correction.
+      const outOfSetLang = outOfSetLanguageFromCorrection(decision.ambiguity, nativeLang, learningLangs);
+      if (outOfSetLang) {
+        await showAddLanguagePrompt(ctx, lang, outOfSetLang, word, contextHint);
+        return;
+      }
+
       await showTranslationClarification(ctx, {
         word,
         contextHint,

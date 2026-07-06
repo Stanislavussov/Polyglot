@@ -48,7 +48,10 @@ function renderSourceUsageBlock(
   const showSynonyms = fields?.synonyms !== false && usage.synonyms.length > 0;
   const synonyms = showSynonyms ? ` (${usage.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
 
-  lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(output.original)}</b>${synonyms}`);
+  // Prefer the canonical citation form (e.g. German "die Arbeit") when the model
+  // supplied one; the raw input stays in output.original for save/dedup.
+  const headword = usage.headword?.trim() ? usage.headword : output.original;
+  lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(headword)}</b>${synonyms}`);
 
   const nativeTranslation = nativeLang ? output.translations[nativeLang] : undefined;
 
