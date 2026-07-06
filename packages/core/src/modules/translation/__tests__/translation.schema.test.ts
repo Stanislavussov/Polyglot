@@ -493,6 +493,27 @@ describe("buildTranslationResultSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("accepts an optional canonical headword on sourceUsage (die Arbeit)", () => {
+    const schema = buildTranslationResultSchema(["ru"], undefined, true, true, "ru", false, "de");
+
+    const result = schema.safeParse({
+      emoji: "💼",
+      nativeMeaning: "Работа, труд.",
+      sourceUsage: {
+        headword: "die Arbeit",
+        explanation: "Существительное женского рода; повседневное слово.",
+        synonyms: [{ text: "die Tätigkeit" }],
+        examples: [{ context: "daily", target: "Die Arbeit macht Spaß.", native: "Работа приносит удовольствие." }],
+      },
+      nativeSynonyms: [{ text: "работа" }],
+      translations: {
+        ru: { text: "работа", synonyms: [{ text: "труд" }] },
+      },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("builds the native target block as minimal when source is a learning language", () => {
     const schema = buildTranslationResultSchema(["ru", "en"], undefined, true, true, "ru", false, "cs");
 

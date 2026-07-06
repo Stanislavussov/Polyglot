@@ -6,8 +6,40 @@
  */
 
 import { getLanguageName } from "../i18n/language-registry.js";
-import { buildLanguageTraitsHint } from "./language-traits.js";
+import { buildLanguageTraitsHint, getLanguageTraits } from "./language-traits.js";
 import type { DictionaryContext, TranslationOutputConfig, TranslationRequest } from "./types.js";
+
+/**
+ * The top-level "sourceUsage" bullet block for the learning-source flow (the
+ * user translates FROM a language they study). Shared by the full and metadata
+ * prompts so the two never drift.
+ *
+ * Two things the target-only `buildLanguageTraitsHint` cannot cover, because the
+ * source language is never a target here:
+ *  - injects the SOURCE language's own linguistic directive (articles,
+ *    capitalization, aspect, …) so its synonyms/examples are idiomatic
+ *    (e.g. German source synonyms carry der/die/das);
+ *  - requests a canonical `headword` (citation form) so a German noun renders
+ *    as "die Arbeit" instead of the raw lowercase input.
+ */
+function buildSourceUsageRule(
+  text: string,
+  sourceLang: string,
+  sourceLangName: string,
+  nativeLangName: string | null,
+): string {
+  const traits = getLanguageTraits(sourceLang);
+  const traitLine = traits
+    ? `\n  * Apply ${sourceLangName} conventions to the source-language fields: ${traits.directive}`
+    : "";
+  return `
+- Include top-level "sourceUsage" for the source word "${text}":
+  * "headword": the canonical dictionary/citation form of "${text}" in ${sourceLangName} — add only the markers ${sourceLangName} convention requires (e.g. a German noun's article + capitalization, "die Arbeit"), WITHOUT changing the word itself; when nothing needs normalizing, repeat "${text}" unchanged.
+  * "explanation": written in ${nativeLangName ?? "the user's native language"}; explain the meaning, nuance, register, and when a learner should use or avoid this word.
+  * "synonyms": 2-3 close synonyms in ${sourceLangName}, not translations into another language.
+  * "examples": exactly 3 short ${sourceLangName} sentences using "${text}" or its normal inflected form in realistic contexts.${nativeLangName ? ` Each example MUST include "native": a natural ${nativeLangName} translation.` : ""}
+  * Prefer collocations or lexical chunks that show how the word naturally combines with other words.${traitLine}`;
+}
 
 /**
  * Prompt-injection guard (S6). The word/phrase/sentence to translate and any
@@ -119,14 +151,7 @@ Rules:
       ? `
 - The user is translating from a learning language. Do not repeat the original input "${text}" as a displayed translation. Translate into ALL target languages, including the user's native language (${nativeLangName ?? nativeLang}). Provide a natural, accurate main translation for each target language — the native-language translation must be the direct word in the user's native language, not a description. Use "nativeMeaning" for a concise native-language summary and "sourceUsage" for source-language usage guidance.
 - For the native-language target block (${nativeLang ?? ""}) ONLY: provide just "text" (the direct native translation word) and "synonyms" (2-3 native synonyms). OMIT "examples", "alternatives", "usageNote", and "connotationWarning" for the native target block — the source-language examples with native translations in "sourceUsage" already demonstrate usage, and the user already knows their native language.${
-          isSentence
-            ? ""
-            : `
-- Include top-level "sourceUsage" for the source word "${text}":
-  * "explanation": written in ${nativeLangName ?? "the user's native language"}; explain the meaning, nuance, register, and when a learner should use or avoid this word.
-  * "synonyms": 2-3 close synonyms in ${sourceLangName}, not translations into another language.
-  * "examples": exactly 3 short ${sourceLangName} sentences using "${text}" or its normal inflected form in realistic contexts.${nativeLangName ? ` Each example MUST include "native": a natural ${nativeLangName} translation.` : ""}
-  * Prefer collocations or lexical chunks that show how the word naturally combines with other words.`
+          isSentence ? "" : buildSourceUsageRule(text, sourceLang, sourceLangName, nativeLangName)
         }`
       : ""
   }${
@@ -332,16 +357,7 @@ Rules:${
       ? `
 - Include top-level "nativeMeaning" written in ${nativeLangName}. It must explain the original expression's meaning naturally in the user's native language, independent of any target-language translations.`
       : ""
-  }${
-    isLearningSource && !isSentence
-      ? `
-- Include top-level "sourceUsage" for the source word "${text}":
-  * "explanation": written in ${nativeLangName ?? "the user's native language"}; explain the meaning, nuance, register, and when a learner should use or avoid this word.
-  * "synonyms": 2-3 close synonyms in ${sourceLangName}, not translations into another language.
-  * "examples": exactly 3 short ${sourceLangName} sentences using "${text}" or its normal inflected form in realistic contexts.${nativeLangName ? ` Each example MUST include "native": a natural ${nativeLangName} translation.` : ""}
-  * Prefer collocations or lexical chunks that show how the word naturally combines with other words.`
-      : ""
-  }${
+  }${isLearningSource && !isSentence ? buildSourceUsageRule(text, sourceLang, sourceLangName, nativeLangName) : ""}${
     cfg.includeNativeSynonyms && nativeLangName
       ? `
 - Provide 2–3 synonyms of the source word "${text}" in ${nativeLangName} in the "nativeSynonyms" array.`

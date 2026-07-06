@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { DEFAULT_COST_PER_1K, resolveModelCost, setAIModelPriceProvider } from "../model-price.js";
 
 afterEach(() => {

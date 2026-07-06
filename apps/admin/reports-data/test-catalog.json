@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-05T15:08:42.067Z",
+  "generatedAt": "2026-07-06T15:48:33.320Z",
   "summary": {
-    "total": 2129,
+    "total": 2142,
     "business": 0,
-    "technical": 2129,
+    "technical": 2142,
     "workspaces": [
       "apps",
       "packages"
@@ -1125,6 +1125,70 @@
       "name": "Bot create Container container services are callable",
       "value": "Protects the bot create Container behavior so container services are callable.",
       "description": "Protects the bot create Container behavior so container services are callable."
+    },
+    {
+      "id": "apps-bot-src-tests-conversation-fallthrough-test-ts-175-active-conversation-must-not-swallow-unmatched-updates-plain-text-during-the-report-dialog-falls-through-to-mode-router-and-gets-a-reply",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/conversation-fallthrough.test.ts",
+      "sourceLine": 175,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "active conversation must not swallow unmatched updates"
+      ],
+      "title": "plain text during the report dialog falls through to mode-router and gets a reply",
+      "rawTitle": "plain text during the report dialog falls through to mode-router and gets a reply",
+      "name": "Bot active conversation must not swallow unmatched updates plain text during the report dialog falls through to mode router and gets a reply",
+      "value": "Protects the bot active conversation must not swallow unmatched updates behavior so plain text during the report dialog falls through to mode router and gets a reply.",
+      "description": "Protects the bot active conversation must not swallow unmatched updates behavior so plain text during the report dialog falls through to mode router and gets a reply."
+    },
+    {
+      "id": "apps-bot-src-tests-conversation-fallthrough-test-ts-189-active-conversation-must-not-swallow-unmatched-updates-a-command-during-the-report-dialog-exits-it-and-executes",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/conversation-fallthrough.test.ts",
+      "sourceLine": 189,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "active conversation must not swallow unmatched updates"
+      ],
+      "title": "a command during the report dialog exits it and executes",
+      "rawTitle": "a command during the report dialog exits it and executes",
+      "name": "Bot active conversation must not swallow unmatched updates a command during the report dialog exits it and executes",
+      "value": "Protects the bot active conversation must not swallow unmatched updates behavior so a command during the report dialog exits it and executes.",
+      "description": "Protects the bot active conversation must not swallow unmatched updates behavior so a command during the report dialog exits it and executes."
+    },
+    {
+      "id": "apps-bot-src-tests-conversation-fallthrough-test-ts-201-active-conversation-must-not-swallow-unmatched-updates-an-update-the-dialog-expects-still-advances-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/conversation-fallthrough.test.ts",
+      "sourceLine": 201,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "active conversation must not swallow unmatched updates"
+      ],
+      "title": "an update the dialog expects still advances it",
+      "rawTitle": "an update the dialog expects still advances it",
+      "name": "Bot active conversation must not swallow unmatched updates an update the dialog expects still advances it",
+      "value": "Protects the bot active conversation must not swallow unmatched updates behavior so an update the dialog expects still advances it.",
+      "description": "Protects the bot active conversation must not swallow unmatched updates behavior so an update the dialog expects still advances it."
+    },
+    {
+      "id": "apps-bot-src-tests-conversation-fallthrough-test-ts-212-active-conversation-must-not-swallow-unmatched-updates-an-abandoned-dialog-self-destructs-after-the-wait-timeout-instead-of-capturing-the-chat-forever",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/conversation-fallthrough.test.ts",
+      "sourceLine": 212,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "active conversation must not swallow unmatched updates"
+      ],
+      "title": "an abandoned dialog self-destructs after the wait timeout instead of capturing the chat forever",
+      "rawTitle": "an abandoned dialog self-destructs after the wait timeout instead of capturing the chat forever",
+      "name": "Bot active conversation must not swallow unmatched updates an abandoned dialog self destructs after the wait timeout instead of capturing the chat forever",
+      "value": "Protects the bot active conversation must not swallow unmatched updates behavior so an abandoned dialog self destructs after the wait timeout instead of capturing the chat forever.",
+      "description": "Protects the bot active conversation must not swallow unmatched updates behavior so an abandoned dialog self destructs after the wait timeout instead of capturing the chat forever."
     },
     {
       "id": "apps-bot-src-tests-dictionary-context-renderer-test-ts-28-rendertranslation-dictionary-context-is-ai-only-does-not-render-dictionary-context-when-present",
@@ -5776,10 +5840,26 @@
       "description": "Protects the bot send Release Announcement behavior: does not resend already recorded deliveries."
     },
     {
-      "id": "apps-bot-src-release-announcement-test-ts-124-sendreleaseannouncement-continues-when-one-telegram-send-fails",
+      "id": "apps-bot-src-release-announcement-test-ts-124-sendreleaseannouncement-truncates-an-oversized-message-to-telegram-s-4096-char-limit-without-cutting-an-html-entity",
       "kind": "technical",
       "filePath": "apps/bot/src/release-announcement.test.ts",
       "sourceLine": 124,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendReleaseAnnouncement"
+      ],
+      "title": "truncates an oversized message to Telegram's 4096-char limit without cutting an HTML entity",
+      "rawTitle": "truncates an oversized message to Telegram's 4096-char limit without cutting an HTML entity",
+      "name": "Bot send Release Announcement truncates an oversized message to Telegram's 4096 char limit without cutting an HTML entity",
+      "value": "Protects the bot send Release Announcement behavior so truncates an oversized message to Telegram's 4096 char limit without cutting an HTML entity.",
+      "description": "Protects the bot send Release Announcement behavior so truncates an oversized message to Telegram's 4096 char limit without cutting an HTML entity."
+    },
+    {
+      "id": "apps-bot-src-release-announcement-test-ts-148-sendreleaseannouncement-continues-when-one-telegram-send-fails",
+      "kind": "technical",
+      "filePath": "apps/bot/src/release-announcement.test.ts",
+      "sourceLine": 148,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6350,6 +6430,38 @@
       "name": "Bot render Translation — unverified caveat (Task 70) omits the caveat for a normal card",
       "value": "Protects the bot render Translation — unverified caveat (Task 70) behavior: omits the caveat for a normal card.",
       "description": "Protects the bot render Translation — unverified caveat (Task 70) behavior: omits the caveat for a normal card."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-test-ts-55-rendertranslation-canonical-source-headword-die-arbeit-renders-the-canonical-headword-when-the-model-supplied-one",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.test.ts",
+      "sourceLine": 55,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderTranslation — canonical source headword (die Arbeit)"
+      ],
+      "title": "renders the canonical headword when the model supplied one",
+      "rawTitle": "renders the canonical headword when the model supplied one",
+      "name": "Bot render Translation — canonical source headword (die Arbeit) renders the canonical headword when the model supplied one",
+      "value": "Protects the bot render Translation — canonical source headword (die Arbeit) behavior: renders the canonical headword when the model supplied one.",
+      "description": "Protects the bot render Translation — canonical source headword (die Arbeit) behavior: renders the canonical headword when the model supplied one."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-test-ts-61-rendertranslation-canonical-source-headword-die-arbeit-falls-back-to-the-raw-input-when-no-headword-is-present",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.test.ts",
+      "sourceLine": 61,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderTranslation — canonical source headword (die Arbeit)"
+      ],
+      "title": "falls back to the raw input when no headword is present",
+      "rawTitle": "falls back to the raw input when no headword is present",
+      "name": "Bot render Translation — canonical source headword (die Arbeit) falls back to the raw input when no headword is present",
+      "value": "Protects the bot render Translation — canonical source headword (die Arbeit) behavior: falls back to the raw input when no headword is present.",
+      "description": "Protects the bot render Translation — canonical source headword (die Arbeit) behavior: falls back to the raw input when no headword is present."
     },
     {
       "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-151-handledictpage-calls-findbyuserpaginated-with-correct-offset",
@@ -8256,10 +8368,42 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so catches a letter marked out of set word via alphabet exclusion (no async signal needed)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-901-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-901-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-when-a-task-70-correction-is-in-an-unstudied-language-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
       "sourceLine": 901,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — out-of-set language detection"
+      ],
+      "title": "offers add-and-translate when a Task 70 correction is in an unstudied language (Kazakh)",
+      "rawTitle": "offers add-and-translate when a Task 70 correction is in an unstudied language (Kazakh)",
+      "name": "Bot handle Translate Text — out of set language detection offers add and translate when a Task 70 correction is in an unstudied language (Kazakh)",
+      "value": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate when a Task 70 correction is in an unstudied language (Kazakh).",
+      "description": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate when a Task 70 correction is in an unstudied language (Kazakh)."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-932-handletranslatetext-out-of-set-language-detection-keeps-the-spelling-correction-for-a-same-alphabet-typo-no-false-out-of-set",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 932,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — out-of-set language detection"
+      ],
+      "title": "keeps the spelling correction for a same-alphabet typo (no false out-of-set)",
+      "rawTitle": "keeps the spelling correction for a same-alphabet typo (no false out-of-set)",
+      "name": "Bot handle Translate Text — out of set language detection keeps the spelling correction for a same alphabet typo (no false out of set)",
+      "value": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the spelling correction for a same alphabet typo (no false out of set).",
+      "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the spelling correction for a same alphabet typo (no false out of set)."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-964-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 964,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8272,10 +8416,26 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the plain block for an UNSUPPORTED out of set language (can't be added)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-916-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-979-handletranslatetext-out-of-set-language-detection-does-not-let-franc-out-of-set-override-a-confident-in-set-detection-czech-not-blocked-as-croatian",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 916,
+      "sourceLine": 979,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — out-of-set language detection"
+      ],
+      "title": "does not let franc out-of-set override a confident in-set detection (Czech not blocked as Croatian)",
+      "rawTitle": "does not let franc out-of-set override a confident in-set detection (Czech not blocked as Croatian)",
+      "name": "Bot handle Translate Text — out of set language detection does not let franc out of set override a confident in set detection (Czech not blocked as Croatian)",
+      "value": "Protects the bot handle Translate Text — out of set language detection behavior: does not let franc out of set override a confident in set detection (Czech not blocked as Croatian).",
+      "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not let franc out of set override a confident in set detection (Czech not blocked as Croatian)."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1004-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 1004,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8288,10 +8448,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so re verifies a confident heuristic only diacritic detection via the async path."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-942-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1030-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 942,
+      "sourceLine": 1030,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8304,10 +8464,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not re verify confident ASCII detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-950-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1038-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 950,
+      "sourceLine": 1038,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8320,10 +8480,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: records a 'detected' telemetry event for confident detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-981-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1069-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 981,
+      "sourceLine": 1069,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8336,10 +8496,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:add adds the language to the learning set and then translates."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-993-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1081-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 993,
+      "sourceLine": 1081,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8352,10 +8512,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:once translates without persisting the language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1004-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1092-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1004,
+      "sourceLine": 1092,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8368,10 +8528,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:cancel dismisses without translating."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1013-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1101-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1013,
+      "sourceLine": 1101,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8384,10 +8544,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: keeps two consecutive prompts from cross wiring lang word (single slot race, T02)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1039-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1127-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1039,
+      "sourceLine": 1127,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8400,10 +8560,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: rejects a stale button whose language no longer matches its stored entry."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1049-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1137-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1049,
+      "sourceLine": 1137,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8416,10 +8576,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: shows a generic error (not 'max languages') when the DB write fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1066-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1154-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1066,
+      "sourceLine": 1154,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8432,10 +8592,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: reports the language limit without calling the DB when already at MAX LEARNING LANGS."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1083-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1171-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1083,
+      "sourceLine": 1171,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8448,10 +8608,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so localizes the stale session alert via t() (no hardcoded English)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1097-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1185-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1097,
+      "sourceLine": 1185,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8464,10 +8624,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so gates the clarify source language option: tapping an out of set language offers add and translate (incident: Kazakh)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1141-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1229-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1141,
+      "sourceLine": 1229,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8480,10 +8640,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so annotates the card with a ✏️ Fixed line when the input was auto corrected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1171-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1259-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1171,
+      "sourceLine": 1259,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8496,10 +8656,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior: renders language choices as flag + code buttons with a hint, not language names."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1203-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1291-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1203,
+      "sourceLine": 1291,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8512,10 +8672,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so re runs verbatim with skip Input Correction when the user picks 'translate as written'."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1236-isetymologyeligible-is-eligible-for-a-learning-language-word",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1324-isetymologyeligible-is-eligible-for-a-learning-language-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1236,
+      "sourceLine": 1324,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8528,10 +8688,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1240-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1328-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1240,
+      "sourceLine": 1328,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8544,10 +8704,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1244-isetymologyeligible-is-not-eligible-for-sentences",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1332-isetymologyeligible-is-not-eligible-for-sentences",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1244,
+      "sourceLine": 1332,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8560,10 +8720,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible for sentences."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1248-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1336-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1248,
+      "sourceLine": 1336,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8576,10 +8736,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible when the source term is in the native language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1286-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1374-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1286,
+      "sourceLine": 1374,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8592,10 +8752,10 @@
       "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior: keeps a loading button on the card and answers the tap only when the section is rendered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1299-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1387-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1299,
+      "sourceLine": 1387,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -29036,10 +29196,42 @@
       "description": "Protects the core domain build Translation Prompt behavior so requests source usage guidance for learning language source words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-295-buildtranslationprompt-instructs-ai-to-translate-into-the-native-language-when-source-is-a-learning-language",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-295-buildtranslationprompt-requests-a-canonical-source-headword-and-injects-source-language-traits-german-article-capitalization",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
       "sourceLine": 295,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildTranslationPrompt"
+      ],
+      "title": "requests a canonical source headword and injects source-language traits (German article/capitalization)",
+      "rawTitle": "requests a canonical source headword and injects source-language traits (German article/capitalization)",
+      "name": "Core domain build Translation Prompt requests a canonical source headword and injects source language traits (German article capitalization)",
+      "value": "Protects the core domain build Translation Prompt behavior so requests a canonical source headword and injects source language traits (German article capitalization).",
+      "description": "Protects the core domain build Translation Prompt behavior so requests a canonical source headword and injects source language traits (German article capitalization)."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-314-buildtranslationprompt-does-not-inject-source-language-traits-when-the-source-is-the-native-language",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
+      "sourceLine": 314,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildTranslationPrompt"
+      ],
+      "title": "does not inject source-language traits when the source is the native language",
+      "rawTitle": "does not inject source-language traits when the source is the native language",
+      "name": "Core domain build Translation Prompt does not inject source language traits when the source is the native language",
+      "value": "Protects the core domain build Translation Prompt behavior: does not inject source language traits when the source is the native language.",
+      "description": "Protects the core domain build Translation Prompt behavior: does not inject source language traits when the source is the native language."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-327-buildtranslationprompt-instructs-ai-to-translate-into-the-native-language-when-source-is-a-learning-language",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
+      "sourceLine": 327,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29052,10 +29244,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so instructs AI to translate into the native language when source is a learning language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-308-buildtranslationprompt-instructs-ai-to-keep-the-native-target-block-minimal-text-synonyms-only",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-340-buildtranslationprompt-instructs-ai-to-keep-the-native-target-block-minimal-text-synonyms-only",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 308,
+      "sourceLine": 340,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29068,10 +29260,10 @@
       "description": "Protects the core domain build Translation Prompt behavior so instructs AI to keep the native target block minimal (text + synonyms only)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-321-buildtranslationprompt-does-not-emit-the-minimal-native-target-rule-when-source-is-the-native-language",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-353-buildtranslationprompt-does-not-emit-the-minimal-native-target-rule-when-source-is-the-native-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 321,
+      "sourceLine": 353,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29084,10 +29276,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not emit the minimal native target rule when source is the native language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-333-buildtranslationprompt-does-not-request-source-usage-guidance-for-learning-language-source-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-365-buildtranslationprompt-does-not-request-source-usage-guidance-for-learning-language-source-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 333,
+      "sourceLine": 365,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29100,10 +29292,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not request source usage guidance for learning language source sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-346-buildtranslationprompt-does-not-require-a-native-connotation-warning-language-when-nativelang-is-absent",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-378-buildtranslationprompt-does-not-require-a-native-connotation-warning-language-when-nativelang-is-absent",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 346,
+      "sourceLine": 378,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29116,10 +29308,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: does not require a native connotation warning language when native Lang is absent."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-352-buildtranslationprompt-omits-connotation-warning-when-includeconnotationwarning-is-false",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-384-buildtranslationprompt-omits-connotation-warning-when-includeconnotationwarning-is-false",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 352,
+      "sourceLine": 384,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29132,10 +29324,10 @@
       "description": "Protects the core domain build Translation Prompt behavior: omits connotation warning when include Connotation Warning is false."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-369-buildstrictprompt-includes-the-base-prompt",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-401-buildstrictprompt-includes-the-base-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 369,
+      "sourceLine": 401,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29148,10 +29340,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes the base prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-376-buildstrictprompt-includes-error-feedback",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-408-buildstrictprompt-includes-error-feedback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 376,
+      "sourceLine": 408,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29164,10 +29356,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes error feedback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-386-buildstrictprompt-mentions-validation-errors-header",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-418-buildstrictprompt-mentions-validation-errors-header",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 386,
+      "sourceLine": 418,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29180,10 +29372,10 @@
       "description": "Protects the core domain build Strict Prompt behavior so mentions validation errors header."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-391-buildstrictprompt-includes-correction-guidance",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-423-buildstrictprompt-includes-correction-guidance",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 391,
+      "sourceLine": 423,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29196,10 +29388,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes correction guidance."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-397-buildstrictprompt-includes-native-example-check-when-native-language-is-present",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-429-buildstrictprompt-includes-native-example-check-when-native-language-is-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 397,
+      "sourceLine": 429,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29212,10 +29404,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes native example check when native language is present."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-403-buildstrictprompt-includes-source-usage-check-for-learning-language-source-words",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-435-buildstrictprompt-includes-source-usage-check-for-learning-language-source-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 403,
+      "sourceLine": 435,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29228,10 +29420,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes source usage check for learning language source words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-414-buildstrictprompt-includes-connotation-warning-check-in-strict-prompt",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-446-buildstrictprompt-includes-connotation-warning-check-in-strict-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 414,
+      "sourceLine": 446,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29244,10 +29436,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes connotation warning check in strict prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-420-buildstrictprompt-includes-native-language-connotation-warning-check-in-strict-prompt",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-452-buildstrictprompt-includes-native-language-connotation-warning-check-in-strict-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 420,
+      "sourceLine": 452,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29260,10 +29452,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes native language connotation warning check in strict prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-425-buildstrictprompt-includes-native-source-connotation-check-in-strict-prompt",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-457-buildstrictprompt-includes-native-source-connotation-check-in-strict-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 425,
+      "sourceLine": 457,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29276,10 +29468,10 @@
       "description": "Protects the core domain build Strict Prompt behavior: includes native source connotation check in strict prompt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-432-buildstrictprompt-states-that-connotationwarning-must-be-written-in-the-native-language-not-the-target-language",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-464-buildstrictprompt-states-that-connotationwarning-must-be-written-in-the-native-language-not-the-target-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 432,
+      "sourceLine": 464,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29292,10 +29484,10 @@
       "description": "Protects the core domain build Strict Prompt behavior so states that connotation Warning must be written in the native language, not the target language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-458-buildtranslationprompt-with-inputtype-sentence-uses-translate-the-following-sentence-intro-for-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-490-buildtranslationprompt-with-inputtype-sentence-uses-translate-the-following-sentence-intro-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 458,
+      "sourceLine": 490,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29308,10 +29500,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=sentence behavior: uses 'Translate the following sentence' intro for sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-464-buildtranslationprompt-with-inputtype-sentence-does-not-use-translate-format-for-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-496-buildtranslationprompt-with-inputtype-sentence-does-not-use-translate-format-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 464,
+      "sourceLine": 496,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29324,10 +29516,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=sentence behavior: does not use 'Translate \" \"' format for sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-471-buildtranslationprompt-with-inputtype-sentence-omits-synonyms-alternatives-examples-equivalentnote-via-sentence-output",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-503-buildtranslationprompt-with-inputtype-sentence-omits-synonyms-alternatives-examples-equivalentnote-via-sentence-output",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 471,
+      "sourceLine": 503,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29340,10 +29532,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=sentence behavior: omits synonyms, alternatives, examples, equivalent Note (via SENTENCE OUTPUT)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-480-buildtranslationprompt-with-inputtype-sentence-topic-hint-says-sentence-instead-of-word-for-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-512-buildtranslationprompt-with-inputtype-sentence-topic-hint-says-sentence-instead-of-word-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 480,
+      "sourceLine": 512,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29356,10 +29548,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=sentence behavior so topic hint says 'sentence' instead of 'word' for sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-495-buildtranslationprompt-with-inputtype-word-backward-compat-uses-standard-translate-format-for-words",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-527-buildtranslationprompt-with-inputtype-word-backward-compat-uses-standard-translate-format-for-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 495,
+      "sourceLine": 527,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29372,10 +29564,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type=word (backward compat) behavior: uses standard 'Translate \" \"' format for words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-508-buildtranslationprompt-with-inputtype-absent-backward-compat-uses-standard-translate-format-when-inputtype-is-absent",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-540-buildtranslationprompt-with-inputtype-absent-backward-compat-uses-standard-translate-format-when-inputtype-is-absent",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 508,
+      "sourceLine": 540,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29388,10 +29580,10 @@
       "description": "Protects the core domain build Translation Prompt with input Type absent (backward compat) behavior: uses standard 'Translate \" \"' format when input Type is absent."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-523-buildstrictprompt-with-inputtype-sentence-strict-prompt-also-uses-sentence-style-intro",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-555-buildstrictprompt-with-inputtype-sentence-strict-prompt-also-uses-sentence-style-intro",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 523,
+      "sourceLine": 555,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29404,10 +29596,10 @@
       "description": "Protects the core domain build Strict Prompt with input Type=sentence behavior so strict prompt also uses sentence style intro."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-528-buildstrictprompt-with-inputtype-sentence-strict-prompt-includes-error-feedback-for-sentences",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-560-buildstrictprompt-with-inputtype-sentence-strict-prompt-includes-error-feedback-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 528,
+      "sourceLine": 560,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29420,10 +29612,10 @@
       "description": "Protects the core domain build Strict Prompt with input Type=sentence behavior so strict prompt includes error feedback for sentences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-543-buildtranslationprompt-grammar-breakdown-includes-grammar-breakdown-instructions-for-phrases-when-enabled",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-575-buildtranslationprompt-grammar-breakdown-includes-grammar-breakdown-instructions-for-phrases-when-enabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 543,
+      "sourceLine": 575,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29436,10 +29628,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior: includes grammar breakdown instructions for phrases when enabled."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-554-buildtranslationprompt-grammar-breakdown-does-not-include-grammar-breakdown-for-words-even-when-enabled",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-586-buildtranslationprompt-grammar-breakdown-does-not-include-grammar-breakdown-for-words-even-when-enabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 554,
+      "sourceLine": 586,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29452,10 +29644,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior: does NOT include grammar breakdown for words even when enabled."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-565-buildtranslationprompt-grammar-breakdown-includes-grammar-breakdown-even-when-sourcelang-nativelang-analyzes-target-translations",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-597-buildtranslationprompt-grammar-breakdown-includes-grammar-breakdown-even-when-sourcelang-nativelang-analyzes-target-translations",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 565,
+      "sourceLine": 597,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29468,10 +29660,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior: includes grammar breakdown even when source Lang === native Lang (analyzes target translations)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-576-buildtranslationprompt-grammar-breakdown-does-not-include-grammar-breakdown-when-disabled-in-config",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-608-buildtranslationprompt-grammar-breakdown-does-not-include-grammar-breakdown-when-disabled-in-config",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 576,
+      "sourceLine": 608,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29484,10 +29676,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior: does NOT include grammar breakdown when disabled in config."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-585-buildtranslationprompt-grammar-breakdown-strict-prompt-includes-grammar-breakdown-check-item-when-enabled",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-617-buildtranslationprompt-grammar-breakdown-strict-prompt-includes-grammar-breakdown-check-item-when-enabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 585,
+      "sourceLine": 617,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29500,10 +29692,10 @@
       "description": "Protects the core domain build Translation Prompt — grammar breakdown behavior so strict prompt includes grammar breakdown check item when enabled."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-598-buildtranslationprompt-grammar-breakdown-strict-prompt-includes-grammar-breakdown-check-even-when-sourcelang-nativelang",
+      "id": "packages-core-src-modules-translation-tests-prompt-builder-test-ts-630-buildtranslationprompt-grammar-breakdown-strict-prompt-includes-grammar-breakdown-check-even-when-sourcelang-nativelang",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/prompt.builder.test.ts",
-      "sourceLine": 598,
+      "sourceLine": 630,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30140,10 +30332,26 @@
       "description": "Protects the core domain build Translation Result Schema behavior: accepts source Usage with source language examples and native translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-496-buildtranslationresultschema-builds-the-native-target-block-as-minimal-when-source-is-a-learning-language",
+      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-496-buildtranslationresultschema-accepts-an-optional-canonical-headword-on-sourceusage-die-arbeit",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.schema.test.ts",
       "sourceLine": 496,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildTranslationResultSchema"
+      ],
+      "title": "accepts an optional canonical headword on sourceUsage (die Arbeit)",
+      "rawTitle": "accepts an optional canonical headword on sourceUsage (die Arbeit)",
+      "name": "Core domain build Translation Result Schema accepts an optional canonical headword on source Usage (die Arbeit)",
+      "value": "Protects the core domain build Translation Result Schema behavior: accepts an optional canonical headword on source Usage (die Arbeit).",
+      "description": "Protects the core domain build Translation Result Schema behavior: accepts an optional canonical headword on source Usage (die Arbeit)."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-517-buildtranslationresultschema-builds-the-native-target-block-as-minimal-when-source-is-a-learning-language",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.schema.test.ts",
+      "sourceLine": 517,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30156,10 +30364,10 @@
       "description": "Protects the core domain build Translation Result Schema behavior: builds the native target block as minimal when source is a learning language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-527-buildtranslationresultschema-rejects-extra-fields-on-the-minimal-native-target-block-when-source-is-a-learning-language",
+      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-548-buildtranslationresultschema-rejects-extra-fields-on-the-minimal-native-target-block-when-source-is-a-learning-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.schema.test.ts",
-      "sourceLine": 527,
+      "sourceLine": 548,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30172,10 +30380,10 @@
       "description": "Protects the core domain build Translation Result Schema behavior: rejects extra fields on the minimal native target block when source is a learning language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-560-buildtranslationresultschema-does-not-build-a-minimal-native-target-when-source-equals-native-language",
+      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-581-buildtranslationresultschema-does-not-build-a-minimal-native-target-when-source-equals-native-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.schema.test.ts",
-      "sourceLine": 560,
+      "sourceLine": 581,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30188,10 +30396,10 @@
       "description": "Protects the core domain build Translation Result Schema behavior: does NOT build a minimal native target when source equals native language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-606-buildlanguagetranslationschema-grammar-breakdown-includes-grammarbreakdown-when-config-enables-it",
+      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-627-buildlanguagetranslationschema-grammar-breakdown-includes-grammarbreakdown-when-config-enables-it",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.schema.test.ts",
-      "sourceLine": 606,
+      "sourceLine": 627,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30204,10 +30412,10 @@
       "description": "Protects the core domain build Language Translation Schema — grammar breakdown behavior: includes grammar Breakdown when config enables it."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-615-buildlanguagetranslationschema-grammar-breakdown-does-not-include-grammarbreakdown-when-config-disables-it",
+      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-636-buildlanguagetranslationschema-grammar-breakdown-does-not-include-grammarbreakdown-when-config-disables-it",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.schema.test.ts",
-      "sourceLine": 615,
+      "sourceLine": 636,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30220,10 +30428,10 @@
       "description": "Protects the core domain build Language Translation Schema — grammar breakdown behavior: does NOT include grammar Breakdown when config disables it."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-623-buildlanguagetranslationschema-grammar-breakdown-does-not-include-grammarbreakdown-by-default-undefined-config",
+      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-644-buildlanguagetranslationschema-grammar-breakdown-does-not-include-grammarbreakdown-by-default-undefined-config",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.schema.test.ts",
-      "sourceLine": 623,
+      "sourceLine": 644,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30236,10 +30444,10 @@
       "description": "Protects the core domain build Language Translation Schema — grammar breakdown behavior: does NOT include grammar Breakdown by default (undefined config)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-634-buildlanguagetranslationschema-grammar-breakdown-validates-grammarbreakdown-as-non-empty-string-array-with-max-5-items",
+      "id": "packages-core-src-modules-translation-tests-translation-schema-test-ts-655-buildlanguagetranslationschema-grammar-breakdown-validates-grammarbreakdown-as-non-empty-string-array-with-max-5-items",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.schema.test.ts",
-      "sourceLine": 634,
+      "sourceLine": 655,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

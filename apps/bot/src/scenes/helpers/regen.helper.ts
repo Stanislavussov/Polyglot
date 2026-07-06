@@ -65,12 +65,18 @@ export async function handleRegenLoop(
   const callbackPattern = /^tr:(save|skip|regen:.+)$/;
 
   while (true) {
-    const resp = await conversation.waitUntil((ctx) => {
-      const text = ctx.message?.text;
-      if (text?.startsWith("/")) return false;
-      const data = ctx.callbackQuery?.data ?? "";
-      return callbackPattern.test(data);
-    });
+    // `next: true`: rejected updates fall through to downstream middleware
+    // instead of being dropped by the conversations engine (2026-07-06 prod
+    // incident — an abandoned dialog silently ate every message and command).
+    const resp = await conversation.waitUntil(
+      (ctx) => {
+        const text = ctx.message?.text;
+        if (text?.startsWith("/")) return false;
+        const data = ctx.callbackQuery?.data ?? "";
+        return callbackPattern.test(data);
+      },
+      { next: true },
+    );
     await resp.answerCallbackQuery();
     if (!resp.callbackQuery?.data) {
       throw new Error("Unexpected missing callback query data in regen loop");

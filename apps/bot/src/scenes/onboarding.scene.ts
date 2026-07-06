@@ -142,11 +142,19 @@ async function stepChooseNativeLang(
   const msg = await ctx.reply(t("chooseNativeLang", lang), { reply_markup: keyboard });
   trackTechnicalMessage(ctx, msg.message_id);
 
-  const response = await conversation.waitUntil((ctx) => {
-    const text = ctx.message?.text;
-    if (text?.startsWith("/")) return false;
-    return ctx.callbackQuery?.data?.startsWith("lang:") ?? false;
-  });
+  // `next: true` on every wait: an update the predicate rejects must fall
+  // through to downstream middleware (exitActiveConversations, mode-router)
+  // instead of being dropped by the conversations engine. Without it an
+  // abandoned dialog silently eats every message AND command in the chat
+  // until the next bot restart (2026-07-06 prod incident).
+  const response = await conversation.waitUntil(
+    (ctx) => {
+      const text = ctx.message?.text;
+      if (text?.startsWith("/")) return false;
+      return ctx.callbackQuery?.data?.startsWith("lang:") ?? false;
+    },
+    { next: true },
+  );
 
   if (!response.callbackQuery?.data) {
     throw new Error("Unexpected missing callback query data in onboarding language selection");
@@ -194,11 +202,14 @@ async function stepChooseLearningLangs(
   trackTechnicalMessage(ctx, msg.message_id);
 
   while (true) {
-    const response = await conversation.waitUntil((ctx) => {
-      const text = ctx.message?.text;
-      if (text?.startsWith("/")) return false;
-      return ctx.callbackQuery?.data?.startsWith("learn:") ?? false;
-    });
+    const response = await conversation.waitUntil(
+      (ctx) => {
+        const text = ctx.message?.text;
+        if (text?.startsWith("/")) return false;
+        return ctx.callbackQuery?.data?.startsWith("learn:") ?? false;
+      },
+      { next: true },
+    );
 
     if (!response.callbackQuery?.data) {
       throw new Error("Unexpected missing callback query data in onboarding learning language selection");
@@ -289,11 +300,14 @@ async function stepChooseProficiencyLevels(
     const msg = await ctx.reply(promptText, { reply_markup: keyboard });
     trackTechnicalMessage(ctx, msg.message_id);
 
-    const response = await conversation.waitUntil((waitCtx) => {
-      const text = waitCtx.message?.text;
-      if (text?.startsWith("/")) return false;
-      return waitCtx.callbackQuery?.data?.startsWith("level:") ?? false;
-    });
+    const response = await conversation.waitUntil(
+      (waitCtx) => {
+        const text = waitCtx.message?.text;
+        if (text?.startsWith("/")) return false;
+        return waitCtx.callbackQuery?.data?.startsWith("level:") ?? false;
+      },
+      { next: true },
+    );
 
     if (!response.callbackQuery?.data) {
       throw new Error("Unexpected missing callback query data in proficiency level selection");
@@ -336,11 +350,14 @@ async function stepDemoTranslation(
   // Wait for either a text message (word) or the back button
   let word: string;
   while (true) {
-    const response = await conversation.waitUntil((ctx) => {
-      const text = ctx.message?.text;
-      if (text?.startsWith("/")) return false;
-      return !!text || ctx.callbackQuery?.data === "onb:back";
-    });
+    const response = await conversation.waitUntil(
+      (ctx) => {
+        const text = ctx.message?.text;
+        if (text?.startsWith("/")) return false;
+        return !!text || ctx.callbackQuery?.data === "onb:back";
+      },
+      { next: true },
+    );
 
     if (response.callbackQuery?.data === "onb:back") {
       await response.answerCallbackQuery();

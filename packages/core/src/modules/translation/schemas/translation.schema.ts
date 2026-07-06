@@ -24,6 +24,9 @@ export const exampleSchema = z.object({
 
 /** Zod schema for source-language usage help in reverse-learning translations */
 export const sourceUsageSchema = z.object({
+  // Canonical citation form of the source headword (e.g. German "die Arbeit").
+  // Optional/display-only — absent responses fall back to the raw input.
+  headword: z.string().nullish(),
   explanation: z.string().min(1, "Source usage explanation is required"),
   synonyms: z.array(synonymSchema),
   examples: z.array(exampleSchema),
@@ -101,6 +104,7 @@ function buildSourceUsageSchema(config?: TranslationOutputConfig, requireExample
   const includeSynonyms = config?.includeSynonyms !== false;
 
   return z.object({
+    headword: z.string().nullish(),
     explanation: z.string().min(1, "Source usage explanation is required"),
     synonyms: includeSynonyms ? z.array(synonymSchema) : z.array(synonymSchema).optional(),
     examples: includeExamples

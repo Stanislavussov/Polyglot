@@ -2,7 +2,7 @@ import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { Bot, type Middleware, type NextFunction, type StorageAdapter, session } from "grammy";
+import { type ApiClientOptions, Bot, type Middleware, type NextFunction, type StorageAdapter, session } from "grammy";
 import { handleBotError } from "./bot-error-handler.js";
 import { changesCommand } from "./commands/changes.js";
 import { setBotCommands } from "./commands/commands.js";
@@ -121,7 +121,25 @@ export interface CreatePolyglotBotOptions {
   services?: BotContext["services"];
   sessionStorage?: StorageAdapter<SessionData>;
   apiRoot?: string;
+  /**
+   * Test seam: custom transport, passed through as a grammY client option so it
+   * reaches every Api instance — including the fresh ones the conversations
+   * plugin spawns for conversation contexts, which bypass bot.api transformers.
+   */
+  fetch?: NonNullable<ApiClientOptions["fetch"]>;
 }
+
+/**
+ * Safety net for EVERY dialog, current and future (2026-07-06 incident): if a
+ * conversation wait outlives this, the next update — even one the wait was
+ * matching — halts the abandoned conversation with `{ next: true }`, so the
+ * update is handled by downstream middleware instead of feeding a zombie
+ * dialog. Per-wait `next: true` handles rejected updates immediately; this
+ * timeout guarantees no dialog can capture a chat indefinitely even if a new
+ * wait call forgets that option. Applied via `maxMillisecondsToWait` on every
+ * `createConversation` below — set it on any conversation added later, too.
+ */
+const CONVERSATION_WAIT_TIMEOUT_MS = 10 * 60 * 1000;
 
 /**
  * Exits all active conversations when the user performs an external action
@@ -179,8 +197,15 @@ export function createInitialSession(): SessionData {
 }
 
 export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotContext> {
+  const clientOptions: ApiClientOptions | undefined =
+    options.apiRoot || options.fetch
+      ? {
+          ...(options.apiRoot ? { apiRoot: options.apiRoot } : {}),
+          ...(options.fetch ? { fetch: options.fetch } : {}),
+        }
+      : undefined;
   const bot = new Bot<BotContext>(options.token, {
-    client: options.apiRoot ? { apiRoot: options.apiRoot } : undefined,
+    client: clientOptions,
   });
 
   // Telegram resilience (Fable T14). auto-retry backs off and retries on 429
@@ -225,10 +250,16 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
     ctx.services = services;
     return next();
   };
-  bot.use(createConversation(onboarding, { plugins: [injectServicesPlugin] }));
+  bot.use(
+    createConversation(onboarding, {
+      plugins: [injectServicesPlugin],
+      maxMillisecondsToWait: CONVERSATION_WAIT_TIMEOUT_MS,
+    }),
+  );
   bot.use(
     createConversation(handleReportIssue, {
       plugins: [injectServicesPlugin, conversationAuthPlugin()],
+      maxMillisecondsToWait: CONVERSATION_WAIT_TIMEOUT_MS,
     }),
   );
   bot.use(exitActiveConversations);
