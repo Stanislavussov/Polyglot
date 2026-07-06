@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-05T15:08:42.067Z",
+  "generatedAt": "2026-07-06T14:32:45.755Z",
   "summary": {
-    "total": 2129,
+    "total": 2134,
     "business": 0,
-    "technical": 2129,
+    "technical": 2134,
     "workspaces": [
       "apps",
       "packages"
@@ -1125,6 +1125,70 @@
       "name": "Bot create Container container services are callable",
       "value": "Protects the bot create Container behavior so container services are callable.",
       "description": "Protects the bot create Container behavior so container services are callable."
+    },
+    {
+      "id": "apps-bot-src-tests-conversation-fallthrough-test-ts-175-active-conversation-must-not-swallow-unmatched-updates-plain-text-during-the-report-dialog-falls-through-to-mode-router-and-gets-a-reply",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/conversation-fallthrough.test.ts",
+      "sourceLine": 175,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "active conversation must not swallow unmatched updates"
+      ],
+      "title": "plain text during the report dialog falls through to mode-router and gets a reply",
+      "rawTitle": "plain text during the report dialog falls through to mode-router and gets a reply",
+      "name": "Bot active conversation must not swallow unmatched updates plain text during the report dialog falls through to mode router and gets a reply",
+      "value": "Protects the bot active conversation must not swallow unmatched updates behavior so plain text during the report dialog falls through to mode router and gets a reply.",
+      "description": "Protects the bot active conversation must not swallow unmatched updates behavior so plain text during the report dialog falls through to mode router and gets a reply."
+    },
+    {
+      "id": "apps-bot-src-tests-conversation-fallthrough-test-ts-189-active-conversation-must-not-swallow-unmatched-updates-a-command-during-the-report-dialog-exits-it-and-executes",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/conversation-fallthrough.test.ts",
+      "sourceLine": 189,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "active conversation must not swallow unmatched updates"
+      ],
+      "title": "a command during the report dialog exits it and executes",
+      "rawTitle": "a command during the report dialog exits it and executes",
+      "name": "Bot active conversation must not swallow unmatched updates a command during the report dialog exits it and executes",
+      "value": "Protects the bot active conversation must not swallow unmatched updates behavior so a command during the report dialog exits it and executes.",
+      "description": "Protects the bot active conversation must not swallow unmatched updates behavior so a command during the report dialog exits it and executes."
+    },
+    {
+      "id": "apps-bot-src-tests-conversation-fallthrough-test-ts-201-active-conversation-must-not-swallow-unmatched-updates-an-update-the-dialog-expects-still-advances-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/conversation-fallthrough.test.ts",
+      "sourceLine": 201,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "active conversation must not swallow unmatched updates"
+      ],
+      "title": "an update the dialog expects still advances it",
+      "rawTitle": "an update the dialog expects still advances it",
+      "name": "Bot active conversation must not swallow unmatched updates an update the dialog expects still advances it",
+      "value": "Protects the bot active conversation must not swallow unmatched updates behavior so an update the dialog expects still advances it.",
+      "description": "Protects the bot active conversation must not swallow unmatched updates behavior so an update the dialog expects still advances it."
+    },
+    {
+      "id": "apps-bot-src-tests-conversation-fallthrough-test-ts-212-active-conversation-must-not-swallow-unmatched-updates-an-abandoned-dialog-self-destructs-after-the-wait-timeout-instead-of-capturing-the-chat-forever",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/conversation-fallthrough.test.ts",
+      "sourceLine": 212,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "active conversation must not swallow unmatched updates"
+      ],
+      "title": "an abandoned dialog self-destructs after the wait timeout instead of capturing the chat forever",
+      "rawTitle": "an abandoned dialog self-destructs after the wait timeout instead of capturing the chat forever",
+      "name": "Bot active conversation must not swallow unmatched updates an abandoned dialog self destructs after the wait timeout instead of capturing the chat forever",
+      "value": "Protects the bot active conversation must not swallow unmatched updates behavior so an abandoned dialog self destructs after the wait timeout instead of capturing the chat forever.",
+      "description": "Protects the bot active conversation must not swallow unmatched updates behavior so an abandoned dialog self destructs after the wait timeout instead of capturing the chat forever."
     },
     {
       "id": "apps-bot-src-tests-dictionary-context-renderer-test-ts-28-rendertranslation-dictionary-context-is-ai-only-does-not-render-dictionary-context-when-present",
@@ -5776,10 +5840,26 @@
       "description": "Protects the bot send Release Announcement behavior: does not resend already recorded deliveries."
     },
     {
-      "id": "apps-bot-src-release-announcement-test-ts-124-sendreleaseannouncement-continues-when-one-telegram-send-fails",
+      "id": "apps-bot-src-release-announcement-test-ts-124-sendreleaseannouncement-truncates-an-oversized-message-to-telegram-s-4096-char-limit-without-cutting-an-html-entity",
       "kind": "technical",
       "filePath": "apps/bot/src/release-announcement.test.ts",
       "sourceLine": 124,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendReleaseAnnouncement"
+      ],
+      "title": "truncates an oversized message to Telegram's 4096-char limit without cutting an HTML entity",
+      "rawTitle": "truncates an oversized message to Telegram's 4096-char limit without cutting an HTML entity",
+      "name": "Bot send Release Announcement truncates an oversized message to Telegram's 4096 char limit without cutting an HTML entity",
+      "value": "Protects the bot send Release Announcement behavior so truncates an oversized message to Telegram's 4096 char limit without cutting an HTML entity.",
+      "description": "Protects the bot send Release Announcement behavior so truncates an oversized message to Telegram's 4096 char limit without cutting an HTML entity."
+    },
+    {
+      "id": "apps-bot-src-release-announcement-test-ts-148-sendreleaseannouncement-continues-when-one-telegram-send-fails",
+      "kind": "technical",
+      "filePath": "apps/bot/src/release-announcement.test.ts",
+      "sourceLine": 148,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

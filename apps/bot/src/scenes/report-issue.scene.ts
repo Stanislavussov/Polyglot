@@ -35,11 +35,19 @@ async function stepChooseType(
   const typeMsg = await ctx.reply(t("reportChooseType", lang), { reply_markup: keyboard });
   trackTechnicalMessage(ctx, typeMsg.message_id);
 
-  const response = await conversation.waitUntil((ctx) => {
-    const text = ctx.message?.text;
-    if (text?.startsWith("/")) return false;
-    return ctx.callbackQuery?.data?.startsWith("report:type:") ?? false;
-  });
+  // `next: true` on every wait: an update the predicate rejects must fall
+  // through to downstream middleware (exitActiveConversations, mode-router)
+  // instead of being dropped by the conversations engine. Without it an
+  // abandoned dialog silently eats every message AND command in the chat
+  // until the next bot restart (2026-07-06 prod incident).
+  const response = await conversation.waitUntil(
+    (ctx) => {
+      const text = ctx.message?.text;
+      if (text?.startsWith("/")) return false;
+      return ctx.callbackQuery?.data?.startsWith("report:type:") ?? false;
+    },
+    { next: true },
+  );
 
   if (!response.callbackQuery?.data) {
     throw new Error("Unexpected missing callback query data in report type selection");
@@ -61,11 +69,14 @@ async function stepEnterDescription(
   trackTechnicalMessage(ctx, descMsg.message_id);
 
   while (true) {
-    const response = await conversation.waitUntil((ctx) => {
-      const text = ctx.message?.text;
-      if (text?.startsWith("/")) return false;
-      return !!text || ctx.callbackQuery?.data === "report:back";
-    });
+    const response = await conversation.waitUntil(
+      (ctx) => {
+        const text = ctx.message?.text;
+        if (text?.startsWith("/")) return false;
+        return !!text || ctx.callbackQuery?.data === "report:back";
+      },
+      { next: true },
+    );
 
     if (response.callbackQuery?.data === "report:back") {
       await response.answerCallbackQuery();
@@ -104,11 +115,14 @@ async function stepPreview(
   const previewMsg = await ctx.reply(preview, { parse_mode: "HTML", reply_markup: keyboard });
   trackTechnicalMessage(ctx, previewMsg.message_id);
 
-  const response = await conversation.waitUntil((ctx) => {
-    const text = ctx.message?.text;
-    if (text?.startsWith("/")) return false;
-    return ["report:send", "report:edit", "report:cancel"].includes(ctx.callbackQuery?.data ?? "");
-  });
+  const response = await conversation.waitUntil(
+    (ctx) => {
+      const text = ctx.message?.text;
+      if (text?.startsWith("/")) return false;
+      return ["report:send", "report:edit", "report:cancel"].includes(ctx.callbackQuery?.data ?? "");
+    },
+    { next: true },
+  );
 
   if (!response.callbackQuery?.data) {
     throw new Error("Unexpected missing callback query data in report preview");
