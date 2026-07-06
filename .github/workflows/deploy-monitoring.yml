@@ -52,6 +52,11 @@ jobs:
             docker network create polyglot-network 2>/dev/null || true
 
             export GF_SECURITY_ADMIN_PASSWORD="${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}"
+            # Provisioned Telegram alert contact point (Fable T12). The compose
+            # file reads these from the environment; without them Grafana fails
+            # to validate contact-points.yml at startup and crash-loops.
+            export GRAFANA_ALERT_TELEGRAM_BOTTOKEN="${{ secrets.GRAFANA_ALERT_TELEGRAM_BOTTOKEN }}"
+            export GRAFANA_ALERT_TELEGRAM_CHATID="${{ secrets.GRAFANA_ALERT_TELEGRAM_CHATID }}"
 
             docker compose -f docker-compose.monitoring.yml pull
 
