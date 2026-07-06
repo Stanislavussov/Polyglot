@@ -11,5 +11,10 @@ contactPoints:
         type: telegram
         disableResolveMessage: false
         settings:
-          bottoken: $__env{GRAFANA_ALERT_TELEGRAM_BOTTOKEN}
-          chatid: $__env{GRAFANA_ALERT_TELEGRAM_CHATID}
+          # Quoted so the env-substituted values are always parsed as strings.
+          # A Telegram chat id is numeric (e.g. -1001234567890); unquoted, YAML
+          # parses it as a number and Grafana fails provisioning with
+          # "cannot unmarshal number into Go struct field Config.chatid of type
+          # string", crash-looping the whole container.
+          bottoken: "$__env{GRAFANA_ALERT_TELEGRAM_BOTTOKEN}"
+          chatid: "$__env{GRAFANA_ALERT_TELEGRAM_CHATID}"
