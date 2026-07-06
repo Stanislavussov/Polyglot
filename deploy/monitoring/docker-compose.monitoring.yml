@@ -23,7 +23,14 @@ services:
         max-file: "3"
 
   grafana:
-    image: grafana/grafana:11.4.0
+    # 13.1.0, not 11.4.0: the on-disk grafana.db was migrated by latest (13.x)
+    # on 2026-06-27 before the T20 pin landed, and Grafana does not support
+    # running below its DB schema version. 11.4.0 on the 13.x schema inserts
+    # provisioned alert rules with an empty `guid` (it predates the column),
+    # which collides with the UNIQUE index on the second rule and crash-loops
+    # the container ("UNIQUE constraint failed: alert_rule.guid"). Keep this
+    # pin >= the version that last migrated /opt/monitoring/data/grafana.
+    image: grafana/grafana:13.1.0
     container_name: polyglot_grafana
     restart: unless-stopped
     user: "472"
