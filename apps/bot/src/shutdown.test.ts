@@ -2,12 +2,17 @@
  * Tests for the graceful-shutdown orchestrator (B12): ordered cleanup,
  * idempotency, error isolation, and the hard force-exit deadline.
  */
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { isShuttingDown, resetLivenessState } from "./liveness-state.js";
 import { createGracefulShutdown, type ShutdownLogger } from "./shutdown.js";
 
 function stubLogger(): ShutdownLogger {
   return { info: vi.fn(), error: vi.fn() };
 }
+
+beforeEach(() => {
+  resetLivenessState();
+});
 
 afterEach(() => {
   vi.useRealTimers();
@@ -109,5 +114,32 @@ describe("createGracefulShutdown", () => {
     await vi.advanceTimersByTimeAsync(10_000);
 
     expect(forceExit).not.toHaveBeenCalled();
+  });
+
+  it("marks liveness-state as shutting down before the runner-stop step runs (Phase 1a false-positive-restart guard)", async () => {
+    // Regression test: /livez reads a stopping runner as a graceful shutdown only
+    // because setShuttingDown(true) runs before any cleanup step — including the
+    // step that stops the runner. If that ordering were ever dropped or reordered
+    // after "runner", this assertion (evaluated AT THE MOMENT the runner step
+    // executes) would fail, even though every other shutdown test stays green.
+    expect(isShuttingDown()).toBe(false);
+
+    const shutdown = createGracefulShutdown({
+      steps: [
+        {
+          name: "runner",
+          run: () => {
+            expect(isShuttingDown()).toBe(true);
+          },
+        },
+      ],
+      deadlineMs: 10_000,
+      logger: stubLogger(),
+      forceExit: vi.fn(),
+    });
+
+    await shutdown("SIGTERM");
+
+    expect(isShuttingDown()).toBe(true);
   });
 });

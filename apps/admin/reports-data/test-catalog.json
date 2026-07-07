@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-07T19:23:39.630Z",
+  "generatedAt": "2026-07-07T21:02:33.423Z",
   "summary": {
-    "total": 2151,
+    "total": 2165,
     "business": 0,
-    "technical": 2151,
+    "technical": 2165,
     "workspaces": [
       "apps",
       "packages"
@@ -5056,10 +5056,10 @@
       "description": "Protects the bot create Feature Access behavior so grants premium features to plus (product) users."
     },
     {
-      "id": "apps-bot-src-health-test-ts-8-bot-readiness-t12-is-ok-when-an-update-was-processed-recently-and-the-db-responds",
+      "id": "apps-bot-src-health-test-ts-19-bot-readiness-t12-is-ok-when-an-update-was-processed-recently-and-the-db-responds",
       "kind": "technical",
       "filePath": "apps/bot/src/health.test.ts",
-      "sourceLine": 8,
+      "sourceLine": 19,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5072,10 +5072,10 @@
       "description": "Protects the bot bot readiness (T12) behavior so is ok when an update was processed recently and the DB responds."
     },
     {
-      "id": "apps-bot-src-health-test-ts-19-bot-readiness-t12-is-not-ok-when-long-polling-looks-stuck-last-update-too-old",
+      "id": "apps-bot-src-health-test-ts-30-bot-readiness-t12-is-not-ok-when-long-polling-looks-stuck-last-update-too-old",
       "kind": "technical",
       "filePath": "apps/bot/src/health.test.ts",
-      "sourceLine": 19,
+      "sourceLine": 30,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5088,10 +5088,10 @@
       "description": "Protects the bot bot readiness (T12) behavior so is not ok when long polling looks stuck (last update too old)."
     },
     {
-      "id": "apps-bot-src-health-test-ts-30-bot-readiness-t12-is-not-ok-when-the-database-ping-fails",
+      "id": "apps-bot-src-health-test-ts-41-bot-readiness-t12-is-not-ok-when-the-database-ping-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/health.test.ts",
-      "sourceLine": 30,
+      "sourceLine": 41,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5104,10 +5104,10 @@
       "description": "Protects the bot bot readiness (T12) behavior so is not ok when the database ping fails."
     },
     {
-      "id": "apps-bot-src-health-test-ts-41-bot-readiness-t12-records-the-heartbeat-timestamp",
+      "id": "apps-bot-src-health-test-ts-52-bot-readiness-t12-records-the-heartbeat-timestamp",
       "kind": "technical",
       "filePath": "apps/bot/src/health.test.ts",
-      "sourceLine": 41,
+      "sourceLine": 52,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5118,6 +5118,214 @@
       "name": "Bot bot readiness (T12) records the heartbeat timestamp",
       "value": "Protects the bot bot readiness (T12) behavior: records the heartbeat timestamp.",
       "description": "Protects the bot bot readiness (T12) behavior: records the heartbeat timestamp."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-63-bot-liveness-livez-phase-1a-is-unhealthy-when-the-runner-is-set-running-has-stopped-and-we-are-not-shutting-down-the-incident",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 63,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot liveness (/livez, Phase 1a)"
+      ],
+      "title": "is unhealthy when the runner is set, running has stopped, and we are NOT shutting down (the incident)",
+      "rawTitle": "is unhealthy when the runner is set, running has stopped, and we are NOT shutting down (the incident)",
+      "name": "Bot bot liveness ( livez, Phase 1a) is unhealthy when the runner is set, running has stopped, and we are NOT shutting down (the incident)",
+      "value": "Protects the bot bot liveness ( livez, Phase 1a) behavior so is unhealthy when the runner is set, running has stopped, and we are NOT shutting down (the incident).",
+      "description": "Protects the bot bot liveness ( livez, Phase 1a) behavior so is unhealthy when the runner is set, running has stopped, and we are NOT shutting down (the incident)."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-72-bot-liveness-livez-phase-1a-is-healthy-when-the-runner-has-stopped-but-we-are-shutting-down-graceful-stop-not-a-crash",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 72,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot liveness (/livez, Phase 1a)"
+      ],
+      "title": "is healthy when the runner has stopped but we are shutting down (graceful stop, not a crash)",
+      "rawTitle": "is healthy when the runner has stopped but we are shutting down (graceful stop, not a crash)",
+      "name": "Bot bot liveness ( livez, Phase 1a) is healthy when the runner has stopped but we are shutting down (graceful stop, not a crash)",
+      "value": "Protects the bot bot liveness ( livez, Phase 1a) behavior so is healthy when the runner has stopped but we are shutting down (graceful stop, not a crash).",
+      "description": "Protects the bot bot liveness ( livez, Phase 1a) behavior so is healthy when the runner has stopped but we are shutting down (graceful stop, not a crash)."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-81-bot-liveness-livez-phase-1a-is-healthy-when-the-runner-is-running-and-idle-no-traffic-is-normal-no-staleness-threshold",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 81,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot liveness (/livez, Phase 1a)"
+      ],
+      "title": "is healthy when the runner is running and idle (no traffic is normal — no staleness threshold)",
+      "rawTitle": "is healthy when the runner is running and idle (no traffic is normal — no staleness threshold)",
+      "name": "Bot bot liveness ( livez, Phase 1a) is healthy when the runner is running and idle (no traffic is normal — no staleness threshold)",
+      "value": "Protects the bot bot liveness ( livez, Phase 1a) behavior so is healthy when the runner is running and idle (no traffic is normal — no staleness threshold).",
+      "description": "Protects the bot bot liveness ( livez, Phase 1a) behavior so is healthy when the runner is running and idle (no traffic is normal — no staleness threshold)."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-89-bot-liveness-livez-phase-1a-is-healthy-while-booting-runner-handle-not-set-yet-and-must-not-throw-on-the-null-handle",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 89,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot liveness (/livez, Phase 1a)"
+      ],
+      "title": "is healthy while booting (runner handle not set yet) and MUST NOT throw on the null handle",
+      "rawTitle": "is healthy while booting (runner handle not set yet) and MUST NOT throw on the null handle",
+      "name": "Bot bot liveness ( livez, Phase 1a) is healthy while booting (runner handle not set yet) and MUST NOT throw on the null handle",
+      "value": "Protects the bot bot liveness ( livez, Phase 1a) behavior so is healthy while booting (runner handle not set yet) and MUST NOT throw on the null handle.",
+      "description": "Protects the bot bot liveness ( livez, Phase 1a) behavior so is healthy while booting (runner handle not set yet) and MUST NOT throw on the null handle."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-94-bot-liveness-livez-phase-1a-stays-healthy-on-a-single-db-failure-but-trips-after-livez-db-fail-streak-consecutive-failures",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 94,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot liveness (/livez, Phase 1a)"
+      ],
+      "title": "stays healthy on a single DB failure but trips after LIVEZ_DB_FAIL_STREAK consecutive failures",
+      "rawTitle": "stays healthy on a single DB failure but trips after LIVEZ_DB_FAIL_STREAK consecutive failures",
+      "name": "Bot bot liveness ( livez, Phase 1a) stays healthy on a single DB failure but trips after LIVEZ DB FAIL STREAK consecutive failures",
+      "value": "Protects the bot bot liveness ( livez, Phase 1a) behavior so stays healthy on a single DB failure but trips after LIVEZ DB FAIL STREAK consecutive failures.",
+      "description": "Protects the bot bot liveness ( livez, Phase 1a) behavior so stays healthy on a single DB failure but trips after LIVEZ DB FAIL STREAK consecutive failures."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-106-bot-liveness-livez-phase-1a-resets-the-db-failure-streak-on-any-success-mid-streak",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 106,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot liveness (/livez, Phase 1a)"
+      ],
+      "title": "resets the DB failure streak on any success mid-streak",
+      "rawTitle": "resets the DB failure streak on any success mid-streak",
+      "name": "Bot bot liveness ( livez, Phase 1a) resets the DB failure streak on any success mid streak",
+      "value": "Protects the bot bot liveness ( livez, Phase 1a) behavior so resets the DB failure streak on any success mid streak.",
+      "description": "Protects the bot bot liveness ( livez, Phase 1a) behavior so resets the DB failure streak on any success mid streak."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-118-bot-liveness-livez-phase-1a-flags-the-first-runner-dead-check-as-a-new-death-edge-trigger-for-bot-runner-death-detected-total",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 118,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot liveness (/livez, Phase 1a)"
+      ],
+      "title": "flags the first runner_dead check as a new death (edge-trigger for bot_runner_death_detected_total)",
+      "rawTitle": "flags the first runner_dead check as a new death (edge-trigger for bot_runner_death_detected_total)",
+      "name": "Bot bot liveness ( livez, Phase 1a) flags the first runner dead check as a new death (edge trigger for bot runner death detected total)",
+      "value": "Protects the bot bot liveness ( livez, Phase 1a) behavior so flags the first runner dead check as a new death (edge trigger for bot runner death detected total).",
+      "description": "Protects the bot bot liveness ( livez, Phase 1a) behavior so flags the first runner dead check as a new death (edge trigger for bot runner death detected total)."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-127-bot-liveness-livez-phase-1a-does-not-flag-a-second-consecutive-runner-dead-check-as-a-new-death-still-dead-not-a-second-death",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 127,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot liveness (/livez, Phase 1a)"
+      ],
+      "title": "does not flag a second consecutive runner_dead check as a new death (still dead, not a second death)",
+      "rawTitle": "does not flag a second consecutive runner_dead check as a new death (still dead, not a second death)",
+      "name": "Bot bot liveness ( livez, Phase 1a) does not flag a second consecutive runner dead check as a new death (still dead, not a second death)",
+      "value": "Protects the bot bot liveness ( livez, Phase 1a) behavior: does not flag a second consecutive runner dead check as a new death (still dead, not a second death).",
+      "description": "Protects the bot bot liveness ( livez, Phase 1a) behavior: does not flag a second consecutive runner dead check as a new death (still dead, not a second death)."
+    },
+    {
+      "id": "apps-bot-src-health-test-ts-137-bot-liveness-livez-phase-1a-flags-a-new-death-again-after-recovering-and-dying-a-second-time",
+      "kind": "technical",
+      "filePath": "apps/bot/src/health.test.ts",
+      "sourceLine": 137,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot liveness (/livez, Phase 1a)"
+      ],
+      "title": "flags a new death again after recovering and dying a second time",
+      "rawTitle": "flags a new death again after recovering and dying a second time",
+      "name": "Bot bot liveness ( livez, Phase 1a) flags a new death again after recovering and dying a second time",
+      "value": "Protects the bot bot liveness ( livez, Phase 1a) behavior so flags a new death again after recovering and dying a second time.",
+      "description": "Protects the bot bot liveness ( livez, Phase 1a) behavior so flags a new death again after recovering and dying a second time."
+    },
+    {
+      "id": "apps-bot-src-metrics-livez-test-ts-66-livez-endpoint-phase-1a-responds-503-when-the-injected-runner-reports-it-has-stopped-running-dead-poller",
+      "kind": "technical",
+      "filePath": "apps/bot/src/metrics.livez.test.ts",
+      "sourceLine": 66,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/livez endpoint (Phase 1a)"
+      ],
+      "title": "responds 503 when the injected runner reports it has stopped running (dead poller)",
+      "rawTitle": "responds 503 when the injected runner reports it has stopped running (dead poller)",
+      "name": "Bot livez endpoint (Phase 1a) responds 503 when the injected runner reports it has stopped running (dead poller)",
+      "value": "Protects the bot livez endpoint (Phase 1a) behavior so responds 503 when the injected runner reports it has stopped running (dead poller).",
+      "description": "Protects the bot livez endpoint (Phase 1a) behavior so responds 503 when the injected runner reports it has stopped running (dead poller)."
+    },
+    {
+      "id": "apps-bot-src-metrics-livez-test-ts-75-livez-endpoint-phase-1a-responds-200-when-the-runner-is-running-and-idle",
+      "kind": "technical",
+      "filePath": "apps/bot/src/metrics.livez.test.ts",
+      "sourceLine": 75,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/livez endpoint (Phase 1a)"
+      ],
+      "title": "responds 200 when the runner is running and idle",
+      "rawTitle": "responds 200 when the runner is running and idle",
+      "name": "Bot livez endpoint (Phase 1a) responds 200 when the runner is running and idle",
+      "value": "Protects the bot livez endpoint (Phase 1a) behavior so responds 200 when the runner is running and idle.",
+      "description": "Protects the bot livez endpoint (Phase 1a) behavior so responds 200 when the runner is running and idle."
+    },
+    {
+      "id": "apps-bot-src-metrics-livez-test-ts-84-livez-endpoint-phase-1a-responds-200-before-any-runner-handle-is-set-booting-without-a-500",
+      "kind": "technical",
+      "filePath": "apps/bot/src/metrics.livez.test.ts",
+      "sourceLine": 84,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/livez endpoint (Phase 1a)"
+      ],
+      "title": "responds 200 before any runner handle is set (booting) without a 500",
+      "rawTitle": "responds 200 before any runner handle is set (booting) without a 500",
+      "name": "Bot livez endpoint (Phase 1a) responds 200 before any runner handle is set (booting) without a 500",
+      "value": "Protects the bot livez endpoint (Phase 1a) behavior so responds 200 before any runner handle is set (booting) without a 500.",
+      "description": "Protects the bot livez endpoint (Phase 1a) behavior so responds 200 before any runner handle is set (booting) without a 500."
+    },
+    {
+      "id": "apps-bot-src-metrics-livez-test-ts-92-livez-endpoint-phase-1a-increments-bot-runner-death-detected-total-once-per-death-not-once-per-probe-while-still-dead",
+      "kind": "technical",
+      "filePath": "apps/bot/src/metrics.livez.test.ts",
+      "sourceLine": 92,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/livez endpoint (Phase 1a)"
+      ],
+      "title": "increments bot_runner_death_detected_total once per death, not once per probe while still dead",
+      "rawTitle": "increments bot_runner_death_detected_total once per death, not once per probe while still dead",
+      "name": "Bot livez endpoint (Phase 1a) increments bot runner death detected total once per death, not once per probe while still dead",
+      "value": "Protects the bot livez endpoint (Phase 1a) behavior so increments bot runner death detected total once per death, not once per probe while still dead.",
+      "description": "Protects the bot livez endpoint (Phase 1a) behavior so increments bot runner death detected total once per death, not once per probe while still dead."
     },
     {
       "id": "apps-bot-src-middlewares-auth-test-ts-84-authmiddleware-calls-next-when-no-from-id-e-g-channel-post",
@@ -9280,10 +9488,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior: records the latency of every storage round trip so DB slowness is visible in Prometheus."
     },
     {
-      "id": "apps-bot-src-shutdown-test-ts-17-creategracefulshutdown-runs-every-cleanup-step-in-order",
+      "id": "apps-bot-src-shutdown-test-ts-22-creategracefulshutdown-runs-every-cleanup-step-in-order",
       "kind": "technical",
       "filePath": "apps/bot/src/shutdown.test.ts",
-      "sourceLine": 17,
+      "sourceLine": 22,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9296,10 +9504,10 @@
       "description": "Protects the bot create Graceful Shutdown behavior so runs every cleanup step in order."
     },
     {
-      "id": "apps-bot-src-shutdown-test-ts-35-creategracefulshutdown-is-idempotent-a-second-signal-does-not-re-run-cleanup",
+      "id": "apps-bot-src-shutdown-test-ts-40-creategracefulshutdown-is-idempotent-a-second-signal-does-not-re-run-cleanup",
       "kind": "technical",
       "filePath": "apps/bot/src/shutdown.test.ts",
-      "sourceLine": 35,
+      "sourceLine": 40,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9312,10 +9520,10 @@
       "description": "Protects the bot create Graceful Shutdown behavior so is idempotent — a second signal does not re run cleanup."
     },
     {
-      "id": "apps-bot-src-shutdown-test-ts-50-creategracefulshutdown-isolates-a-failing-step-so-later-steps-still-run",
+      "id": "apps-bot-src-shutdown-test-ts-55-creategracefulshutdown-isolates-a-failing-step-so-later-steps-still-run",
       "kind": "technical",
       "filePath": "apps/bot/src/shutdown.test.ts",
-      "sourceLine": 50,
+      "sourceLine": 55,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9328,10 +9536,10 @@
       "description": "Protects the bot create Graceful Shutdown behavior so isolates a failing step so later steps still run."
     },
     {
-      "id": "apps-bot-src-shutdown-test-ts-74-creategracefulshutdown-force-exits-when-cleanup-outruns-the-deadline",
+      "id": "apps-bot-src-shutdown-test-ts-79-creategracefulshutdown-force-exits-when-cleanup-outruns-the-deadline",
       "kind": "technical",
       "filePath": "apps/bot/src/shutdown.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 79,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9344,10 +9552,10 @@
       "description": "Protects the bot create Graceful Shutdown behavior so force exits when cleanup outruns the deadline."
     },
     {
-      "id": "apps-bot-src-shutdown-test-ts-98-creategracefulshutdown-clears-the-deadline-timer-once-cleanup-completes-in-time",
+      "id": "apps-bot-src-shutdown-test-ts-103-creategracefulshutdown-clears-the-deadline-timer-once-cleanup-completes-in-time",
       "kind": "technical",
       "filePath": "apps/bot/src/shutdown.test.ts",
-      "sourceLine": 98,
+      "sourceLine": 103,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9358,6 +9566,22 @@
       "name": "Bot create Graceful Shutdown clears the deadline timer once cleanup completes in time",
       "value": "Protects the bot create Graceful Shutdown behavior so clears the deadline timer once cleanup completes in time.",
       "description": "Protects the bot create Graceful Shutdown behavior so clears the deadline timer once cleanup completes in time."
+    },
+    {
+      "id": "apps-bot-src-shutdown-test-ts-119-creategracefulshutdown-marks-liveness-state-as-shutting-down-before-the-runner-stop-step-runs-phase-1a-false-positive-restart-guard",
+      "kind": "technical",
+      "filePath": "apps/bot/src/shutdown.test.ts",
+      "sourceLine": 119,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "createGracefulShutdown"
+      ],
+      "title": "marks liveness-state as shutting down before the runner-stop step runs (Phase 1a false-positive-restart guard)",
+      "rawTitle": "marks liveness-state as shutting down before the runner-stop step runs (Phase 1a false-positive-restart guard)",
+      "name": "Bot create Graceful Shutdown marks liveness state as shutting down before the runner stop step runs (Phase 1a false positive restart guard)",
+      "value": "Protects the bot create Graceful Shutdown behavior: marks liveness state as shutting down before the runner stop step runs (Phase 1a false positive restart guard).",
+      "description": "Protects the bot create Graceful Shutdown behavior: marks liveness state as shutting down before the runner stop step runs (Phase 1a false positive restart guard)."
     },
     {
       "id": "apps-bot-src-utils-ai-quota-test-ts-30-ensureaiquota-t16-charges-the-per-call-type-weight-for-an-allowed-call",

@@ -86,3 +86,50 @@ groups:
                 - evaluator:
                     type: gt
                     params: [0.05]
+
+      # 4. Self-healing Phase 1d: bot restart loop (autoheal or Docker itself is
+      #    repeatedly restarting the container — the container-level analogue of
+      #    the 2026-07-01 model-freeze incident, where the process stayed up but
+      #    wedged). Metric source: cAdvisor's `container_start_time_seconds`,
+      #    selected by the `name` label — already scraped by this stack's
+      #    cadvisor job (prometheus.yml) and already used with the same `name`
+      #    label throughout the provisioned Docker dashboard (e.g.
+      #    `container_last_seen{name=~".+"}`), so `name="polyglot_bot"` is a
+      #    proven-working selector here, not a guess. `changes(...)` counts
+      #    process-start-time jumps within the window — each restart (whether
+      #    triggered by autoheal's /restart call or a plain crash) bumps the
+      #    start time, so >3 changes in 15m means a loop, not one-off recovery.
+      #    (Alternative source, not used: the Phase 1a `bot_boot_total` counter
+      #    via `increase(bot_boot_total[15m]) > 3` — also valid, but the
+      #    cAdvisor signal was chosen since it observes restarts from outside
+      #    the process, so it still fires if the process fails to boot far
+      #    enough to increment its own counter.)
+      - uid: polyglot_bot_restart_loop
+        title: Bot restart loop detected
+        condition: C
+        for: 0m
+        noDataState: OK
+        labels:
+          severity: critical
+        annotations:
+          summary: The bot container has restarted more than 3 times in the last 15m (possible crash loop).
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 900
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: changes(container_start_time_seconds{name="polyglot_bot"}[15m])
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [3]

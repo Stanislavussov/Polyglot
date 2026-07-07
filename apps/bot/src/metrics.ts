@@ -6,7 +6,7 @@ import { createServer, type Server } from "node:http";
 import { pingDatabase } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/core";
 import { Counter, collectDefaultMetrics, Histogram, register } from "prom-client";
-import { checkReadiness } from "./health.js";
+import { checkLiveness, checkReadiness } from "./health.js";
 
 // ── Default Node.js metrics (CPU, memory, event-loop, GC) ───────────
 collectDefaultMetrics();
@@ -116,6 +116,16 @@ export const sessionStorageDuration = new Histogram({
   buckets: [0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10],
 });
 
+export const runnerDeathCounter = new Counter({
+  name: "bot_runner_death_detected_total",
+  help: "Times /livez detected a silently-dead grammY runner (poller stopped, process alive) — Phase 1a autoheal signal",
+});
+
+export const botBootCounter = new Counter({
+  name: "bot_boot_total",
+  help: "Bot process boots (incremented once at startup) — a rising rate signals a restart loop",
+});
+
 // ── HTTP server ──────────────────────────────────────────────────────
 
 const METRICS_PORT = Number(process.env.METRICS_PORT) || 9090;
@@ -125,7 +135,11 @@ const METRICS_PORT = Number(process.env.METRICS_PORT) || 9090;
  * shutdown can close it (B12) — otherwise the open listener keeps the process
  * alive until SIGKILL.
  */
-export function startMetricsServer(): Server {
+export function startMetricsServer(pingDb: () => Promise<void> = pingDatabase, port: number = METRICS_PORT): Server {
+  // One boot per process start (this runs exactly once from main()); feeds a
+  // later restart-loop alert built on the rate of this counter.
+  botBootCounter.inc();
+
   const server = createServer(async (req, res) => {
     if (req.url === "/metrics") {
       res.setHeader("Content-Type", register.contentType);
@@ -137,18 +151,32 @@ export function startMetricsServer(): Server {
       res.end(JSON.stringify({ status: "ok", uptime: process.uptime() }));
     } else if (req.url === "/readyz") {
       // Readiness (T12): non-ok when long-polling is stuck or the DB is down.
-      const result = await checkReadiness(pingDatabase);
+      const result = await checkReadiness(pingDb);
       res.statusCode = result.status === "ok" ? 200 : 503;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify(result));
+    } else if (req.url === "/livez") {
+      // Liveness for autoheal (Phase 1a): 503 only on a dead runner or a dead DB.
+      const result = await checkLiveness(pingDb);
+      if (result.status === "ok") {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ status: "ok" }));
+      } else {
+        // Edge-triggered (Phase 1a fast-follow): counts deaths, not probes-while-dead.
+        if (result.isNewRunnerDeath) runnerDeathCounter.inc();
+        res.statusCode = 503;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ status: "unhealthy", reason: result.reason }));
+      }
     } else {
       res.statusCode = 404;
       res.end("Not Found");
     }
   });
 
-  server.listen(METRICS_PORT, () => {
-    logger.info({ port: METRICS_PORT }, "Metrics server started");
+  server.listen(port, () => {
+    logger.info({ port }, "Metrics server started");
   });
 
   return server;
