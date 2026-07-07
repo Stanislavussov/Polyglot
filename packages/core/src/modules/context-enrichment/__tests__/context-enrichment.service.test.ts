@@ -261,22 +261,19 @@ describe("translateWithContext", () => {
     await expect(translateWithContext(baseInput, deps)).rejects.toThrow("AI generation failed");
   });
 
-  it("passes dictionaryHit=false when the word is not in the dictionary", async () => {
+  it("leaves dictionaryContext undefined when the word is not in the dictionary", async () => {
     const deps = createMockDeps(undefined); // lookup → []
     vi.mocked(translate).mockResolvedValue(makeAcceptedDecision(makeTranslateOutput("stroha", ["en"])));
 
     await translateWithContext({ ...baseInput, word: "stroha" }, deps);
 
     expect(translate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        word: "stroha",
-        correctionPolicy: expect.objectContaining({ dictionaryHit: false }),
-      }),
+      expect.objectContaining({ word: "stroha", dictionaryContext: undefined }),
       deps.generateObjectFn,
     );
   });
 
-  it("passes dictionaryHit=true when the word exists in the dictionary (even ambiguously)", async () => {
+  it("leaves dictionaryContext undefined for an ambiguous multi-sense match (never guesses a sense)", async () => {
     const first = makeDictionaryContext("bank");
     const second = { ...makeDictionaryContext("bank"), glosses: ["river edge"] };
     const deps: ContextEnrichmentDeps = {
@@ -291,23 +288,19 @@ describe("translateWithContext", () => {
     await translateWithContext({ ...baseInput, word: "bank" }, deps);
 
     expect(translate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        word: "bank",
-        dictionaryContext: undefined,
-        correctionPolicy: expect.objectContaining({ dictionaryHit: true }),
-      }),
+      expect.objectContaining({ word: "bank", dictionaryContext: undefined }),
       deps.generateObjectFn,
     );
   });
 
-  it("passes dictionaryHit=undefined when the lookup fails (no fabricated miss signal)", async () => {
+  it("leaves dictionaryContext undefined when the lookup fails (fail-open)", async () => {
     const deps = createMockDeps(undefined, new Error("DB connection failed"));
     vi.mocked(translate).mockResolvedValue(makeAcceptedDecision(makeTranslateOutput("apple", ["cs", "de"])));
 
     await translateWithContext(baseInput, deps);
 
     expect(translate).toHaveBeenCalledWith(
-      expect.objectContaining({ correctionPolicy: expect.objectContaining({ dictionaryHit: undefined }) }),
+      expect.objectContaining({ dictionaryContext: undefined }),
       deps.generateObjectFn,
     );
   });

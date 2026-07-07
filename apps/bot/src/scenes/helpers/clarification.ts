@@ -24,6 +24,7 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { LONG_OP_TIMEOUT_MS, startTypingKeepalive, withTimeout } from "../../utils/long-op.js";
 import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import {
@@ -253,23 +254,33 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
 
       const lookupContextFn = isSentence ? async () => [] : ctx.services.contextLookup;
 
-      const decision = await translateWithContext(
-        {
-          word: entry.output.original,
-          sourceLang: entry.output.sourceLang,
-          targetLangs,
-          nativeLang,
-          model,
-          topic: entry.contextHint,
-          userId: ctx.user.id,
-          outputConfig,
-          inputType: entry.inputType,
-        },
-        {
-          lookupContext: lookupContextFn,
-          generateObjectFn: ctx.services.ai.generateObject,
-        },
-      );
+      // Bound the synchronous re-translation and hold "typing…" open — this
+      // callback path has no loader message of its own.
+      const stopTyping = startTypingKeepalive(ctx);
+      const decision = await withTimeout(
+        translateWithContext(
+          {
+            word: entry.output.original,
+            sourceLang: entry.output.sourceLang,
+            targetLangs,
+            nativeLang,
+            model,
+            topic: entry.contextHint,
+            userId: ctx.user.id,
+            outputConfig,
+            inputType: entry.inputType,
+            // This is a re-run behind a callback — the input was already
+            // validated on the first translation. Mark it so the pipeline caps
+            // the repair budget and skips the extra judge cycle (isClarifyRerun).
+            correctionPolicy: { skipInputCorrection: true },
+          },
+          {
+            lookupContext: lookupContextFn,
+            generateObjectFn: ctx.services.ai.generateObject,
+          },
+        ),
+        LONG_OP_TIMEOUT_MS,
+      ).finally(stopTyping);
 
       if (decision.status === "needs_clarification") {
         throw new Error("Unexpected needs_clarification in post-translation clarify flow");

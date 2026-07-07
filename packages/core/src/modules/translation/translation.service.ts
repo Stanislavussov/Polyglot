@@ -51,6 +51,13 @@ import type {
 
 const MAX_FULL_RETRIES = 2;
 const MAX_TARGETED_REPAIRS = 2;
+/**
+ * Repair budget on a clarify/confirm re-run. Pathologically ambiguous words
+ * (e.g. "tow") can fight validation indefinitely; on a re-run the user is
+ * waiting synchronously behind a Telegram callback, so cap the repairs and let
+ * the pipeline settle to `needs_review` instead of burning the full budget.
+ */
+const MAX_TARGETED_REPAIRS_ON_RERUN = 1;
 const PROMPT_VERSION = "translation-v1";
 const SCHEMA_VERSION = 1;
 const HIGH_RISK_SCORE = 3;
@@ -488,6 +495,7 @@ async function validateAndRepairStep(ctx: PipelineContext, generateObjectFn: Gen
       generateObjectFn,
       ctx.attemptCount,
       generationModel,
+      isClarifyRerun(normalizedInput) ? MAX_TARGETED_REPAIRS_ON_RERUN : MAX_TARGETED_REPAIRS,
     );
     ctx.result = repaired.result;
     issues = repaired.issues;
@@ -529,7 +537,9 @@ async function judgeStep(ctx: PipelineContext, generateObjectFn: GenerateObjectF
 
     if (judged.issues.length > 0) {
       issues = [...issues, ...judged.issues];
-      if (hasBlockingIssues(judged.issues)) {
+      // On a clarify/confirm re-run, skip the extra repair-and-re-judge cycle:
+      // the user is waiting behind a callback, so settle to needs_review instead.
+      if (hasBlockingIssues(judged.issues) && !isClarifyRerun(normalizedInput)) {
         const repaired = await repairTranslationBlocks(
           result,
           judged.issues,
@@ -823,14 +833,12 @@ function shouldRunAIPreflight(input: TranslateInput): input is TranslateInput & 
   if (input.detectionConfidence === undefined) {
     return false;
   }
-  if (input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence) {
-    return true;
-  }
-  // Confident language detection does not mean correct spelling: an input
-  // missing from the source-language dictionary (e.g. "stroha" — only valid
-  // in Czech as "strohá") is a typo/missing-diacritics signal that must be
-  // checked regardless of detection confidence.
-  return input.correctionPolicy?.dictionaryHit === false;
+  // Only low-confidence language detection triggers the preflight. Dictionary
+  // presence is deliberately NOT a gate: the offline Wiktionary import is
+  // incomplete, so a valid word's absence is not a typo signal (e.g. the common
+  // verb "tow" is not in the table at all). Spelling/existence is instead judged
+  // by the AI existence check (Task 70, `assessSourceExistence`).
+  return input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence;
 }
 
 function preflightOutcomeToReason(outcome: PreflightResult["outcome"]): TranslationAmbiguity["reason"] {
@@ -876,7 +884,6 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
       interfaceLang: input.interfaceLang,
       inputType: input.inputType ?? "word",
       detectionConfidence: input.detectionConfidence,
-      dictionaryHit: input.correctionPolicy?.dictionaryHit,
       config: PREFLIGHT_DEFAULTS,
     }),
     preflightResultSchema,
@@ -931,6 +938,24 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
   };
 }
 
+/**
+ * A clarify/confirm re-run: the user already engaged (confirmed the language or
+ * a typo, or supplied a context hint), so the input is translated a second time.
+ * These re-runs are latency-critical — the user waits synchronously behind a
+ * Telegram callback — so they get a reduced repair budget and skip the extra
+ * judge repair-and-re-judge cycle, settling to `needs_review` instead of
+ * burning the full budget on a pathologically ambiguous word.
+ *
+ * Gated on `skipInputCorrection` alone: every re-run path sets it (the
+ * mistype/language-confirm callbacks and the post-translation clarify flow).
+ * `topic` is deliberately NOT a signal — it is also present on a genuine
+ * first-pass translation carrying an inline context hint (`word :: context`),
+ * which must keep the full repair/judge budget.
+ */
+function isClarifyRerun(input: TranslateInput): boolean {
+  return input.correctionPolicy?.skipInputCorrection === true;
+}
+
 async function repairTranslationBlocks(
   result: TranslationResult,
   sourceIssues: QualityIssue[],
@@ -939,6 +964,7 @@ async function repairTranslationBlocks(
   generateObjectFn: GenerateObjectFn,
   initialAttemptCount: number,
   fallbackGenerationModel: string,
+  maxTargetedRepairs: number = MAX_TARGETED_REPAIRS,
 ): Promise<{ result: TranslationResult; issues: QualityIssue[]; attemptCount: number }> {
   const languages = uniqueRepairLanguages(sourceIssues);
   if (languages.length === 0) {
@@ -957,7 +983,7 @@ async function repairTranslationBlocks(
     const langIssues = sourceIssues.filter((issue) => issue.fieldPath.startsWith(`translations.${lang}.`));
     if (langIssues.length === 0) continue;
 
-    for (let attempt = 0; attempt < MAX_TARGETED_REPAIRS; attempt++) {
+    for (let attempt = 0; attempt < maxTargetedRepairs; attempt++) {
       const repairedBlock = await generateObjectFn(
         buildRepairPrompt(request, lang, workingResult.translations[lang], langIssues),
         buildLanguageTranslationSchema(

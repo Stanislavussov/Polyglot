@@ -89,3 +89,19 @@ export function sendTypingIndicator(ctx: BotContext): void {
     // A cosmetic indicator must never break the flow.
   }
 }
+
+/** Telegram clears the "typing…" action after ~5s, so refresh it below that. */
+const TYPING_KEEPALIVE_MS = 4_000;
+
+/**
+ * Holds the "typing…" chat action open for the length of a long operation by
+ * re-sending it on an interval (a single {@link sendTypingIndicator} lapses
+ * after ~5s while a translation can run up to {@link LONG_OP_TIMEOUT_MS}).
+ * Returns a stop function that MUST be called — attach it with `.finally()` so
+ * the interval is always cleared, on both success and failure.
+ */
+export function startTypingKeepalive(ctx: BotContext): () => void {
+  sendTypingIndicator(ctx);
+  const interval = setInterval(() => sendTypingIndicator(ctx), TYPING_KEEPALIVE_MS);
+  return () => clearInterval(interval);
+}

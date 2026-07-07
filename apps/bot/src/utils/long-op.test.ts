@@ -10,6 +10,7 @@ import {
   LONG_OP_TIMEOUT_MS,
   OperationTimeoutError,
   sendTypingIndicator,
+  startTypingKeepalive,
   withTimeout,
 } from "./long-op.js";
 
@@ -67,5 +68,28 @@ describe("sendTypingIndicator", () => {
 
     expect(() => sendTypingIndicator(ctx)).not.toThrow();
     await vi.waitFor(() => expect(ctx.replyWithChatAction).toHaveBeenCalledWith("typing"));
+  });
+});
+
+describe("startTypingKeepalive", () => {
+  it("sends typing immediately and refreshes it on an interval until stopped", () => {
+    vi.useFakeTimers();
+    const ctx = {
+      replyWithChatAction: vi.fn().mockResolvedValue(undefined),
+    } as unknown as BotContext;
+
+    const stop = startTypingKeepalive(ctx);
+    // Immediate action so the user sees "typing…" without waiting a full tick.
+    expect(ctx.replyWithChatAction).toHaveBeenCalledTimes(1);
+
+    // Telegram clears the action after ~5s; the keep-alive refreshes below that.
+    vi.advanceTimersByTime(12_000);
+    expect((ctx.replyWithChatAction as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(1);
+
+    const callsAtStop = (ctx.replyWithChatAction as ReturnType<typeof vi.fn>).mock.calls.length;
+    stop();
+    vi.advanceTimersByTime(20_000);
+    // No further actions once stopped — the interval is cleared.
+    expect(ctx.replyWithChatAction).toHaveBeenCalledTimes(callsAtStop);
   });
 });

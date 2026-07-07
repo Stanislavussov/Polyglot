@@ -9,8 +9,6 @@ export interface BuildPreflightPromptInput {
   interfaceLang?: string;
   inputType: InputType;
   detectionConfidence: number;
-  /** Whether the input was found in the source-language dictionary (undefined = no lookup). */
-  dictionaryHit?: boolean;
   config: PreflightScoringConfig;
 }
 
@@ -28,15 +26,6 @@ Target languages: ${input.targetLangs.join(", ")}
 User native language: ${input.nativeLang ?? "unknown"}
 User configured languages: ${userLanguages.join(", ")}
 Upstream language-detection confidence: ${input.detectionConfidence.toFixed(2)}
-Found in ${input.sourceLang} dictionary: ${
-    input.inputType === "sentence"
-      ? "not applicable (sentence)"
-      : input.dictionaryHit === undefined
-        ? "unknown (no lookup)"
-        : input.dictionaryHit
-          ? "yes"
-          : "NO"
-  }
 User interface language: ${input.interfaceLang ?? "en"}
 
 Return ONLY JSON matching the provided schema.
@@ -51,7 +40,6 @@ Scoring policy:
 Typo / error-severity policy:
 - This applies to EVERY language, not only the detected one. High language-detection confidence does NOT mean the spelling is correct — always check the exact written form.
 - Missing, wrong, or dropped diacritics/accents are typos and MUST be restored to the standard written form (e.g. Czech "stroha" → "strohá", German "uber" → "über", Spanish "cancion" → "canción", French "eleve" → "élève"). When the input is only a valid word once diacritics are restored and the restoration is unambiguous, this is a MINOR typo → "proceed_with_correction".
-- "Found in dictionary: NO" is a strong typo signal — look hard for a missing-diacritic or misspelled variant before proceeding as written.
 - MINOR typo → outcome "proceed_with_correction": the correction is unambiguous AND the input does not read as a valid word in any of the user's configured languages, AND there is no other meaningful reading. Put the fixed text in "correctedText" and briefly explain the fix in "explanation". Do not use options.
 - SEVERE / ambiguous typo → outcome "confirm_typo_suggestion": there are multiple plausible corrections, OR the input is a valid word in another configured language, OR the construction is fully broken. Options must include 1-3 typo_correction choices and one translate_as_written choice. If the input is total gibberish with no confident correction, offer ONLY translate_as_written (no typo_correction option).
 - When in doubt between minor and severe, prefer "confirm_typo_suggestion" — never silently change a word the user may have meant.

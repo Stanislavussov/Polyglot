@@ -51,7 +51,13 @@ import {
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
-import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
+import {
+  isUserFacingTimeout,
+  LONG_OP_TIMEOUT_MS,
+  sendTypingIndicator,
+  startTypingKeepalive,
+  withTimeout,
+} from "../../utils/long-op.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
@@ -759,6 +765,9 @@ async function runTranslationPipeline(
 
     const stopTimer = translationDuration.startTimer();
     const aiStart = Date.now();
+    // Hold "typing…" open for the whole translation so the user sees progress
+    // while the pipeline runs (the loader message already shows too).
+    const stopTyping = startTypingKeepalive(ctx);
     const decision = await withTimeout(
       translateWithContext(
         {
@@ -785,7 +794,7 @@ async function runTranslationPipeline(
         },
       ),
       LONG_OP_TIMEOUT_MS,
-    );
+    ).finally(stopTyping);
     aiRequestMs = Date.now() - aiStart;
     stopTimer();
 
@@ -918,6 +927,11 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     return;
   }
 
+  // Answer the callback up front, before the multi-second translation pipeline,
+  // so Telegram does not expire the query ("query is too old"). Defensive catch:
+  // the clarification flow may already have answered it.
+  await ctx.answerCallbackQuery().catch(() => {});
+
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
@@ -949,7 +963,6 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   const isSentence = classification.type === "sentence";
   const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
   if (creditCost === null) {
-    await ctx.answerCallbackQuery();
     return;
   }
 
@@ -974,8 +987,6 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     skipInputCorrection: true,
     withInlineGrammar: false,
   });
-
-  await ctx.answerCallbackQuery();
 }
 
 /**

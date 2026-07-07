@@ -15,6 +15,18 @@ function normalizeLookupInput(input: string): string {
   return input.normalize("NFC").trim().replace(/\s+/gu, " ").toLowerCase();
 }
 
+/**
+ * A single all-caps token (TOW, NASA, US) is, in Wiktionary, essentially always
+ * an initialism / acronym / abbreviation rather than an ordinary lexical word.
+ *
+ * Requires at least one cased letter (so "123" or "—" are not treated as
+ * acronyms) and no lowercase letters.
+ */
+function isAllCapsInitialism(value: string): boolean {
+  const trimmed = value.trim();
+  return trimmed.length >= 2 && trimmed === trimmed.toUpperCase() && trimmed !== trimmed.toLowerCase();
+}
+
 function getMatchType(
   normalizedInput: string,
   entry: { word: string; forms?: string[] | null },
@@ -91,7 +103,13 @@ export function createContextLookup(): ContextLookupFn {
     try {
       const results = await wordContextRepository.findByWordAndLangCode(normalizedWord, langCode);
 
+      // Drop all-caps initialism headwords (e.g. "TOW", the Friends-episode
+      // acronym) when the user did not type the input in all-caps — otherwise a
+      // lowercase common word like "tow" (буксировать) gets hijacked by the
+      // acronym's gloss. A genuine acronym lookup ("TOW") still matches.
+      const inputIsInitialism = isAllCapsInitialism(word);
       const candidates = results
+        .filter((entry) => inputIsInitialism || !isAllCapsInitialism(entry.word))
         .map(
           (entry): DictionaryContextCandidate => ({
             matchType: getMatchType(normalizedWord, entry),

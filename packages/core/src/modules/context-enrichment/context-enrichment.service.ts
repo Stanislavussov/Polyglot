@@ -22,13 +22,12 @@ export async function translateWithContext(
   input: EnrichedTranslateInput,
   deps: ContextEnrichmentDeps,
 ): Promise<TranslationDecision> {
-  const lookup = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
+  const context = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
 
   return translate(
     {
       ...input,
-      dictionaryContext: lookup.context,
-      correctionPolicy: { ...input.correctionPolicy, dictionaryHit: lookup.hit },
+      dictionaryContext: context,
     },
     deps.generateObjectFn,
   );
@@ -38,13 +37,12 @@ export async function translateOneWithContext(
   input: EnrichedTranslateInput & { targetLang: string },
   deps: ContextEnrichmentDeps,
 ): Promise<TranslationDecision> {
-  const lookup = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
+  const context = await lookupUnambiguousContext(deps.lookupContext, input.word, input.sourceLang);
 
   return translateOne(
     {
       ...input,
-      dictionaryContext: lookup.context,
-      correctionPolicy: { ...input.correctionPolicy, dictionaryHit: lookup.hit },
+      dictionaryContext: context,
     },
     deps.generateObjectFn,
   );
@@ -70,25 +68,21 @@ export async function translateBatchWithContext(
 /**
  * Safe lookup wrapper — catches errors and fails open.
  *
- * `context` is set only for an unambiguous single match. `hit` reports whether
- * the word exists in the dictionary at all (any number of candidates) — a
- * `false` hit is a typo/missing-diacritics signal consumed by the AI preflight.
- * On lookup error `hit` is undefined so the miss signal is never fabricated.
+ * Returns a context only for an unambiguous single match; ambiguous (multiple
+ * candidates), missing, or errored lookups return `undefined` so the AI is never
+ * steered by a guessed sense.
  */
 async function lookupUnambiguousContext(
   lookupContext: ContextEnrichmentDeps["lookupContext"],
   word: string,
   langCode: string,
-): Promise<{ context: DictionaryContext | undefined; hit: boolean | undefined }> {
+): Promise<DictionaryContext | undefined> {
   try {
     const candidates = await lookupContext(word, langCode);
-    return {
-      context: candidates.length === 1 ? candidates[0]?.context : undefined,
-      hit: candidates.length > 0,
-    };
+    return candidates.length === 1 ? candidates[0]?.context : undefined;
   } catch {
     // Fail-open: dictionary context lookup is optional enrichment.
     // On error, translation proceeds without context.
-    return { context: undefined, hit: undefined };
+    return undefined;
   }
 }
