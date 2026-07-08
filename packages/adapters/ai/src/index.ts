@@ -9,6 +9,16 @@
  */
 
 export { setAIApiKey } from "./client.js";
+export {
+  type AIFallbackEvent,
+  type AIFallbackObserver,
+  type FallbackReason,
+  isRetriableProviderError,
+  type ModelFailoverConfig,
+  retriableReason,
+  setAIFallbackObserver,
+  withModelFailover,
+} from "./failover.js";
 export { generateChat, generateObject, generateText } from "./generate.js";
 export {
   type AIGenerationDefaultsProvider,

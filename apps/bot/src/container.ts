@@ -6,10 +6,12 @@
  */
 
 import {
+  type AIFallbackEvent,
   generateChat,
   generateObject,
   generateText,
   setAIApiKey,
+  setAIFallbackObserver,
   setAIGenerationDefaultsProvider,
   setAIModelPriceProvider,
   setAIRequestMetricSink,
@@ -47,9 +49,13 @@ import {
   vocabularyRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
+import type { AIFailover, ChatMessage, ChatOptions, GenerateOptions } from "@polyglot/core";
 import { type ServiceContainer, SettingsService } from "@polyglot/core";
+import type { ZodSchema } from "zod";
 import { createFeatureAccess } from "./feature-access.js";
+import { aiFallbackCounter } from "./metrics.js";
 import { mockPaymentAdapter } from "./payment.js";
+import { buildAiFailover } from "./utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
 
 /**
@@ -63,6 +69,14 @@ export function createContainer(): ServiceContainer {
   // adapter no longer reaches for the key on its own initiative. It still falls
   // back to the OPENROUTER_API_KEY env var when nothing is injected.
   setAIApiKey(process.env.OPENROUTER_API_KEY ?? null);
+
+  // Fallback-model failover (Phase 2) is a QUALITY UPGRADE, not a freeze fix: the
+  // per-request abort budget already bounds a hung provider and surfaces an
+  // AITimeoutError; this turns that (or a 429/5xx) into a successful reply on the
+  // hardcoded fallback model. Each attempt on the fallback is counted here.
+  setAIFallbackObserver((event: AIFallbackEvent) =>
+    aiFallbackCounter.inc({ from_model: event.fromModel, to_model: event.toModel, reason: event.reason }),
+  );
 
   setAIRequestMetricSink((log) =>
     aiRequestLatencyRepository.record({
@@ -104,6 +118,24 @@ export function createContainer(): ServiceContainer {
     return model ? { costPer1kInput: model.costPer1kInput, costPer1kOutput: model.costPer1kOutput } : null;
   });
 
+  // Resolves the fixed failover split from the same admin-managed budget the abort
+  // timeout uses (B = clamped requestTimeoutMs). Every bot AI call routes through
+  // this so real traffic gets failover; the model passed to each generate call is
+  // the primary, and the hardcoded fallback is the second model. Returns undefined
+  // when B is too small to reserve a fallback window — then the call runs unsplit.
+  const resolveFailover = async (): Promise<AIFailover | undefined> => {
+    const budgetMs = clampAiBudgetToOpGuard((await settings.getAIGenerationDefaults()).requestTimeoutMs);
+    return buildAiFailover(budgetMs);
+  };
+  const ai = {
+    generateObject: async <T>(prompt: string, schema: ZodSchema<T>, model: string, options?: GenerateOptions) =>
+      generateObject(prompt, schema, model, { ...options, failover: await resolveFailover() }),
+    generateText: async (prompt: string, model: string, options?: GenerateOptions) =>
+      generateText(prompt, model, { ...options, failover: await resolveFailover() }),
+    generateChat: async (messages: ChatMessage[], model: string, options?: ChatOptions) =>
+      generateChat(messages, model, { ...options, failover: await resolveFailover() }),
+  };
+
   const container: ServiceContainer = {
     userRepository,
     identityRepository,
@@ -131,11 +163,7 @@ export function createContainer(): ServiceContainer {
       isKnownLang,
       normalizeToIso1,
     },
-    ai: {
-      generateObject,
-      generateText,
-      generateChat,
-    },
+    ai,
     settings,
     videoVocabularyRepository,
     featureAccess: createFeatureAccess({ settings, planFeatureAccess: planFeatureAccessRepository }),

@@ -11,11 +11,19 @@ import { AITimeoutError, type ChatMessage, type ChatOptions, type GenerateOption
 import { generateObject as aiGenerateObject, generateText as aiGenerateText } from "ai";
 import type { ZodSchema } from "zod";
 import { getModel } from "./client.js";
+import { withModelFailover } from "./failover.js";
 import { type GenerationParams, resolveGenerationParams } from "./generation-defaults.js";
 import { logRequest } from "./logger.js";
 import { resolveModelCost } from "./model-price.js";
 import { createRequestTimeout, resolveRequestTimeoutMs } from "./timeout.js";
 import type { AIRequestLog } from "./types.js";
+
+/**
+ * When failover is configured the fallback model IS the retry strategy, so the
+ * primary attempt should not also burn the AI SDK's internal retries inside its
+ * tighter budget. Cap retries here unless the caller set an explicit value.
+ */
+const FAILOVER_MAX_RETRIES = 1;
 
 /** Token usage as reported by the AI SDK (structural — avoids importing SDK types). */
 interface CallUsage {
@@ -28,6 +36,8 @@ interface CallContext {
   defaults: GenerationParams;
   maxRetries: number;
   signal: AbortSignal;
+  /** The model this attempt runs on — may be the fallback when failover kicked in. */
+  model: string;
 }
 
 /**
@@ -44,12 +54,14 @@ async function withInstrumentedCall<R>(
 ): Promise<R> {
   const defaults = await resolveGenerationParams();
   const maxRetries = options?.maxRetries ?? defaults.maxRetries;
-  const budgetMs = await resolveRequestTimeoutMs();
+  // N1a: an injected budget (e.g. a failover attempt's split) overrides the
+  // self-resolved request budget; when omitted, behavior is unchanged.
+  const budgetMs = options?.budgetMs ?? (await resolveRequestTimeoutMs());
   const timeout = createRequestTimeout(budgetMs);
   const start = Date.now();
 
   try {
-    const { value, usage } = await fn({ defaults, maxRetries, signal: timeout.signal });
+    const { value, usage } = await fn({ defaults, maxRetries, signal: timeout.signal, model });
 
     const duration_ms = Date.now() - start;
     const inputTokens = usage?.inputTokens ?? 0;
@@ -89,6 +101,42 @@ async function withInstrumentedCall<R>(
 }
 
 /**
+ * Dispatches one generate call, optionally through fallback-model failover.
+ *
+ * With no `options.failover` it is exactly {@link withInstrumentedCall} — unchanged
+ * single-model behavior. With failover configured it routes through
+ * {@link withModelFailover}, which runs the primary bounded by `primaryBudgetMs`
+ * and, on a retriable failure, the fallback bounded by `reservedFallbackMs`. Each
+ * attempt is a full instrumented call (own abort budget, cost + logging) with its
+ * split budget injected as `options.budgetMs` and the failover config stripped so
+ * the inner call never recurses.
+ */
+function runGenerate<R>(
+  requestKind: AIRequestLog["requestKind"],
+  model: string,
+  options: GenerateOptions | undefined,
+  fn: (ctx: CallContext) => Promise<{ value: R; usage?: CallUsage }>,
+): Promise<R> {
+  const failover = options?.failover;
+  if (!failover) {
+    return withInstrumentedCall(requestKind, model, options, fn);
+  }
+
+  const base: GenerateOptions = { ...options, maxRetries: options?.maxRetries ?? FAILOVER_MAX_RETRIES };
+  base.failover = undefined;
+
+  return withModelFailover(
+    {
+      primaryModel: model,
+      fallbackModel: failover.fallbackModel,
+      primaryBudgetMs: failover.primaryBudgetMs,
+      reservedFallbackMs: failover.reservedFallbackMs,
+    },
+    (attemptModel, { budgetMs }) => withInstrumentedCall(requestKind, attemptModel, { ...base, budgetMs }, fn),
+  );
+}
+
+/**
  * Generate a typed object from AI using a Zod schema.
  *
  * @param prompt  - The prompt to send to the AI
@@ -103,9 +151,9 @@ export async function generateObject<T>(
   model: string,
   options?: GenerateOptions,
 ): Promise<T> {
-  return withInstrumentedCall("object", model, options, async ({ defaults, maxRetries, signal }) => {
+  return runGenerate("object", model, options, async ({ defaults, maxRetries, signal, model: attemptModel }) => {
     const result = await aiGenerateObject({
-      model: getModel(model),
+      model: getModel(attemptModel),
       schema,
       prompt,
       maxRetries,
@@ -127,9 +175,9 @@ export async function generateObject<T>(
  * @returns The generated text
  */
 export async function generateText(prompt: string, model: string, options?: GenerateOptions): Promise<string> {
-  return withInstrumentedCall("text", model, options, async ({ maxRetries, signal }) => {
+  return runGenerate("text", model, options, async ({ maxRetries, signal, model: attemptModel }) => {
     const result = await aiGenerateText({
-      model: getModel(model),
+      model: getModel(attemptModel),
       prompt,
       maxRetries,
       abortSignal: signal,
@@ -151,9 +199,9 @@ export async function generateText(prompt: string, model: string, options?: Gene
  * @returns The generated text
  */
 export async function generateChat(messages: ChatMessage[], model: string, options?: ChatOptions): Promise<string> {
-  return withInstrumentedCall("chat", model, options, async ({ maxRetries, signal }) => {
+  return runGenerate("chat", model, options, async ({ maxRetries, signal, model: attemptModel }) => {
     const result = await aiGenerateText({
-      model: getModel(model),
+      model: getModel(attemptModel),
       messages,
       maxRetries,
       abortSignal: signal,

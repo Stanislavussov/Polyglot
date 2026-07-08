@@ -73,6 +73,12 @@ export const aiTokensCounter = new Counter({
   labelNames: ["model", "type"] as const,
 });
 
+export const aiFallbackCounter = new Counter({
+  name: "bot_ai_fallback_total",
+  help: "AI fallback-model failovers (Phase 2): a retriable failure on the primary model succeeded on the fallback",
+  labelNames: ["from_model", "to_model", "reason"] as const,
+});
+
 export const activeUsersGauge = new Counter({
   name: "bot_active_users_total",
   help: "Total unique users who sent a message",

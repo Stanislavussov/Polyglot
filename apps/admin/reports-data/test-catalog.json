@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-07T21:02:33.423Z",
+  "generatedAt": "2026-07-08T06:45:22.988Z",
   "summary": {
-    "total": 2165,
+    "total": 2185,
     "business": 0,
-    "technical": 2165,
+    "technical": 2185,
     "workspaces": [
       "apps",
       "packages"
@@ -1063,10 +1063,90 @@
       "description": "Protects the admin UI reports auth middleware (T09) behavior so fails closed (401) when the admin API is unreachable."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-148-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-ai-model-test-ts-17-buildaifailover-gives-the-full-5s-reservation-and-the-remainder-to-the-primary-at-the-default-budget",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 17,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildAiFailover"
+      ],
+      "title": "gives the full 5s reservation and the remainder to the primary at the default budget",
+      "rawTitle": "gives the full 5s reservation and the remainder to the primary at the default budget",
+      "name": "Bot build Ai Failover gives the full 5s reservation and the remainder to the primary at the default budget",
+      "value": "Protects the bot build Ai Failover behavior so gives the full 5s reservation and the remainder to the primary at the default budget.",
+      "description": "Protects the bot build Ai Failover behavior so gives the full 5s reservation and the remainder to the primary at the default budget."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-26-buildaifailover-scales-the-reservation-down-to-1-3-of-a-mid-range-budget-so-the-primary-keeps-the-larger-share",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 26,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildAiFailover"
+      ],
+      "title": "scales the reservation down to ~1/3 of a mid-range budget so the primary keeps the larger share",
+      "rawTitle": "scales the reservation down to ~1/3 of a mid-range budget so the primary keeps the larger share",
+      "name": "Bot build Ai Failover scales the reservation down to ~1 3 of a mid range budget so the primary keeps the larger share",
+      "value": "Protects the bot build Ai Failover behavior so scales the reservation down to ~1 3 of a mid range budget so the primary keeps the larger share.",
+      "description": "Protects the bot build Ai Failover behavior so scales the reservation down to ~1 3 of a mid range budget so the primary keeps the larger share."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-35-buildaifailover-disables-the-split-undefined-for-a-budget-below-the-floor",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 35,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildAiFailover"
+      ],
+      "title": "disables the split (undefined) for a budget below the floor",
+      "rawTitle": "disables the split (undefined) for a budget below the floor",
+      "name": "Bot build Ai Failover disables the split (undefined) for a budget below the floor",
+      "value": "Protects the bot build Ai Failover behavior so disables the split (undefined) for a budget below the floor.",
+      "description": "Protects the bot build Ai Failover behavior so disables the split (undefined) for a budget below the floor."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-39-buildaifailover-disables-the-split-exactly-one-ms-below-the-floor-and-enables-it-at-the-floor",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 39,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildAiFailover"
+      ],
+      "title": "disables the split exactly one ms below the floor and enables it at the floor",
+      "rawTitle": "disables the split exactly one ms below the floor and enables it at the floor",
+      "name": "Bot build Ai Failover disables the split exactly one ms below the floor and enables it at the floor",
+      "value": "Protects the bot build Ai Failover behavior so disables the split exactly one ms below the floor and enables it at the floor.",
+      "description": "Protects the bot build Ai Failover behavior so disables the split exactly one ms below the floor and enables it at the floor."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-44-buildaifailover-holds-both-budget-invariants-across-the-full-admin-allowed-range",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 44,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildAiFailover"
+      ],
+      "title": "holds both budget invariants across the full admin-allowed range",
+      "rawTitle": "holds both budget invariants across the full admin-allowed range",
+      "name": "Bot build Ai Failover holds both budget invariants across the full admin allowed range",
+      "value": "Protects the bot build Ai Failover behavior so holds both budget invariants across the full admin allowed range.",
+      "description": "Protects the bot build Ai Failover behavior so holds both budget invariants across the full admin allowed range."
+    },
+    {
+      "id": "apps-bot-src-tests-container-test-ts-149-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 148,
+      "sourceLine": 149,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1079,10 +1159,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-169-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-170-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 169,
+      "sourceLine": 170,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1095,10 +1175,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-179-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-180-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 179,
+      "sourceLine": 180,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1111,10 +1191,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-187-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-188-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 187,
+      "sourceLine": 188,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1637,6 +1717,22 @@
       "name": "Bot build Flash Card Done Keyboard has fc:restart and fc:close buttons",
       "value": "Protects the bot build Flash Card Done Keyboard behavior so has fc:restart and fc:close buttons.",
       "description": "Protects the bot build Flash Card Done Keyboard behavior so has fc:restart and fc:close buttons."
+    },
+    {
+      "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-92-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/mentor-mode.failover.test.ts",
+      "sourceLine": 92,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText with failover"
+      ],
+      "title": "delivers a fallback coaching reply when the primary model 429s",
+      "rawTitle": "delivers a fallback coaching reply when the primary model 429s",
+      "name": "Bot handle Mentor Text with failover delivers a fallback coaching reply when the primary model 429s",
+      "value": "Protects the bot handle Mentor Text with failover behavior so delivers a fallback coaching reply when the primary model 429s.",
+      "description": "Protects the bot handle Mentor Text with failover behavior so delivers a fallback coaching reply when the primary model 429s."
     },
     {
       "id": "apps-bot-src-tests-notification-settings-test-ts-134-buildsettingstext-shows-notification-status-line",
@@ -11782,6 +11878,230 @@
       "name": "AI adapter client reset Client resets the singleton so next get Client creates a new one",
       "value": "Protects the aI adapter client reset Client behavior so resets the singleton so next get Client creates a new one.",
       "description": "Protects the aI adapter client reset Client behavior so resets the singleton so next get Client creates a new one."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-6-retriablereason-classifies-the-adapter-s-own-aitimeouterror-as-timeout",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 6,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "retriableReason"
+      ],
+      "title": "classifies the adapter's own AITimeoutError as timeout",
+      "rawTitle": "classifies the adapter's own AITimeoutError as timeout",
+      "name": "AI adapter retriable Reason classifies the adapter's own AITimeout Error as timeout",
+      "value": "Protects the aI adapter retriable Reason behavior: classifies the adapter's own AITimeout Error as timeout.",
+      "description": "Protects the aI adapter retriable Reason behavior: classifies the adapter's own AITimeout Error as timeout."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-10-retriablereason-classifies-a-429-status-as-rate-limit",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 10,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "retriableReason"
+      ],
+      "title": "classifies a 429 status as rate_limit",
+      "rawTitle": "classifies a 429 status as rate_limit",
+      "name": "AI adapter retriable Reason classifies a 429 status as rate limit",
+      "value": "Protects the aI adapter retriable Reason behavior: classifies a 429 status as rate limit.",
+      "description": "Protects the aI adapter retriable Reason behavior: classifies a 429 status as rate limit."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-14-retriablereason-classifies-5xx-408-statuses-as-server-error-timeout",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 14,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "retriableReason"
+      ],
+      "title": "classifies 5xx / 408 statuses as server_error / timeout",
+      "rawTitle": "classifies 5xx / 408 statuses as server_error / timeout",
+      "name": "AI adapter retriable Reason classifies 5xx 408 statuses as server error timeout",
+      "value": "Protects the aI adapter retriable Reason behavior: classifies 5xx 408 statuses as server error timeout.",
+      "description": "Protects the aI adapter retriable Reason behavior: classifies 5xx 408 statuses as server error timeout."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-22-retriablereason-classifies-aborterror-timeouterror-by-name-as-timeout",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 22,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "retriableReason"
+      ],
+      "title": "classifies AbortError / TimeoutError by name as timeout",
+      "rawTitle": "classifies AbortError / TimeoutError by name as timeout",
+      "name": "AI adapter retriable Reason classifies Abort Error Timeout Error by name as timeout",
+      "value": "Protects the aI adapter retriable Reason behavior: classifies Abort Error Timeout Error by name as timeout.",
+      "description": "Protects the aI adapter retriable Reason behavior: classifies Abort Error Timeout Error by name as timeout."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-31-retriablereason-classifies-transient-messages-by-content-rate-limit-server-network",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 31,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "retriableReason"
+      ],
+      "title": "classifies transient messages by content (rate limit / server / network)",
+      "rawTitle": "classifies transient messages by content (rate limit / server / network)",
+      "name": "AI adapter retriable Reason classifies transient messages by content (rate limit server network)",
+      "value": "Protects the aI adapter retriable Reason behavior: classifies transient messages by content (rate limit server network).",
+      "description": "Protects the aI adapter retriable Reason behavior: classifies transient messages by content (rate limit server network)."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-38-retriablereason-returns-null-for-client-errors-and-validation-failures-never-masked",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 38,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "retriableReason"
+      ],
+      "title": "returns null for client errors and validation failures (never masked)",
+      "rawTitle": "returns null for client errors and validation failures (never masked)",
+      "name": "AI adapter retriable Reason returns null for client errors and validation failures (never masked)",
+      "value": "Protects the aI adapter retriable Reason behavior: returns null for client errors and validation failures (never masked).",
+      "description": "Protects the aI adapter retriable Reason behavior: returns null for client errors and validation failures (never masked)."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-66-withmodelfailover-runs-the-primary-once-with-primarybudgetms-and-never-falls-back-on-success",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 66,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover"
+      ],
+      "title": "runs the primary once with primaryBudgetMs and never falls back on success",
+      "rawTitle": "runs the primary once with primaryBudgetMs and never falls back on success",
+      "name": "AI adapter with Model Failover runs the primary once with primary Budget Ms and never falls back on success",
+      "value": "Protects the aI adapter with Model Failover behavior so runs the primary once with primary Budget Ms and never falls back on success.",
+      "description": "Protects the aI adapter with Model Failover behavior so runs the primary once with primary Budget Ms and never falls back on success."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-77-withmodelfailover-fast-path-an-instant-429-on-the-primary-triggers-the-fallback-and-counts-the-metric",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 77,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover"
+      ],
+      "title": "fast-path: an instant 429 on the primary triggers the fallback and counts the metric",
+      "rawTitle": "fast-path: an instant 429 on the primary triggers the fallback and counts the metric",
+      "name": "AI adapter with Model Failover fast path: an instant 429 on the primary triggers the fallback and counts the metric",
+      "value": "Protects the aI adapter with Model Failover behavior so fast path: an instant 429 on the primary triggers the fallback and counts the metric.",
+      "description": "Protects the aI adapter with Model Failover behavior so fast path: an instant 429 on the primary triggers the fallback and counts the metric."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-94-withmodelfailover-n2-dedup-identical-primary-fallback-runs-once-no-fallback-attempt-no-metric",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 94,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover"
+      ],
+      "title": "N2 dedup: identical primary/fallback runs once, no fallback attempt, no metric",
+      "rawTitle": "N2 dedup: identical primary/fallback runs once, no fallback attempt, no metric",
+      "name": "AI adapter with Model Failover N2 dedup: identical primary fallback runs once, no fallback attempt, no metric",
+      "value": "Protects the aI adapter with Model Failover behavior so N2 dedup: identical primary fallback runs once, no fallback attempt, no metric.",
+      "description": "Protects the aI adapter with Model Failover behavior so N2 dedup: identical primary fallback runs once, no fallback attempt, no metric."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-105-withmodelfailover-anti-masking-a-non-retriable-4xx-is-rethrown-with-no-fallback",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
+      "sourceLine": 105,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover"
+      ],
+      "title": "anti-masking: a non-retriable 4xx is rethrown with no fallback",
+      "rawTitle": "anti-masking: a non-retriable 4xx is rethrown with no fallback",
+      "name": "AI adapter with Model Failover anti masking: a non retriable 4xx is rethrown with no fallback",
+      "value": "Protects the aI adapter with Model Failover behavior so anti masking: a non retriable 4xx is rethrown with no fallback.",
+      "description": "Protects the aI adapter with Model Failover behavior so anti masking: a non retriable 4xx is rethrown with no fallback."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-50-failover-budget-split-generate-boundary-headline-a-hung-primary-is-aborted-at-primarybudgetms-and-both-attempts-fit-inside-b",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
+      "sourceLine": 50,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "failover budget split (generate boundary)"
+      ],
+      "title": "HEADLINE: a hung primary is aborted at primaryBudgetMs and BOTH attempts fit inside B",
+      "rawTitle": "HEADLINE: a hung primary is aborted at primaryBudgetMs and BOTH attempts fit inside B",
+      "name": "AI adapter failover budget split (generate boundary) HEADLINE: a hung primary is aborted at primary Budget Ms and BOTH attempts fit inside B",
+      "value": "Protects the aI adapter failover budget split (generate boundary) behavior so HEADLINE: a hung primary is aborted at primary Budget Ms and BOTH attempts fit inside B.",
+      "description": "Protects the aI adapter failover budget split (generate boundary) behavior so HEADLINE: a hung primary is aborted at primary Budget Ms and BOTH attempts fit inside B."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-76-failover-budget-split-generate-boundary-bounds-the-primary-at-the-injected-primarybudgetms-not-the-resolved-b",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
+      "sourceLine": 76,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "failover budget split (generate boundary)"
+      ],
+      "title": "bounds the primary at the INJECTED primaryBudgetMs, not the resolved B",
+      "rawTitle": "bounds the primary at the INJECTED primaryBudgetMs, not the resolved B",
+      "name": "AI adapter failover budget split (generate boundary) bounds the primary at the INJECTED primary Budget Ms, not the resolved B",
+      "value": "Protects the aI adapter failover budget split (generate boundary) behavior so bounds the primary at the INJECTED primary Budget Ms, not the resolved B.",
+      "description": "Protects the aI adapter failover budget split (generate boundary) behavior so bounds the primary at the INJECTED primary Budget Ms, not the resolved B."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-100-failover-budget-split-generate-boundary-passes-each-attempt-its-own-fresh-abort-signal-and-the-right-model",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
+      "sourceLine": 100,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "failover budget split (generate boundary)"
+      ],
+      "title": "passes each attempt its own fresh abort signal and the right model",
+      "rawTitle": "passes each attempt its own fresh abort signal and the right model",
+      "name": "AI adapter failover budget split (generate boundary) passes each attempt its own fresh abort signal and the right model",
+      "value": "Protects the aI adapter failover budget split (generate boundary) behavior so passes each attempt its own fresh abort signal and the right model.",
+      "description": "Protects the aI adapter failover budget split (generate boundary) behavior so passes each attempt its own fresh abort signal and the right model."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-117-failover-budget-split-generate-boundary-without-failover-behavior-is-unchanged-single-attempt-no-split",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
+      "sourceLine": 117,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "failover budget split (generate boundary)"
+      ],
+      "title": "without failover, behavior is unchanged (single attempt, no split)",
+      "rawTitle": "without failover, behavior is unchanged (single attempt, no split)",
+      "name": "AI adapter failover budget split (generate boundary) without failover, behavior is unchanged (single attempt, no split)",
+      "value": "Protects the aI adapter failover budget split (generate boundary) behavior so without failover, behavior is unchanged (single attempt, no split).",
+      "description": "Protects the aI adapter failover budget split (generate boundary) behavior so without failover, behavior is unchanged (single attempt, no split)."
     },
     {
       "id": "packages-adapters-ai-src-tests-generation-defaults-test-ts-22-resolvegenerationparams-returns-the-built-in-baseline-when-no-provider-is-wired",
