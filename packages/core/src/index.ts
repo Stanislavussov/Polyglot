@@ -136,6 +136,8 @@ export {
 
 // Shared
 export * from "./shared/errors.js";
+export { isFinitePositive } from "./shared/numbers.js";
+export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/settings/ai-defaults.schema.js";
 export type { InputContext } from "./shared/translation-template.service.js";
 export {
   resolveOutputConfig,

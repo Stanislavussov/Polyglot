@@ -1,4 +1,4 @@
-import type { AIFailover, SettingsPort } from "@polyglot/core";
+import { type AIFailover, isFinitePositive, type SettingsPort } from "@polyglot/core";
 
 /**
  * Hardcoded fallback model. `resolveDefaultAIModel` returns it when the admin has
@@ -49,8 +49,12 @@ export const MIN_FAILOVER_BUDGET_MS = 6_000;
  * and `primaryBudgetMs >= reservedFallbackMs`.
  */
 export function buildAiFailover(budgetMs: number): AIFailover | undefined {
-  // Deliberate floor: below this the two-way split isn't worthwhile — disable it.
-  if (budgetMs < MIN_FAILOVER_BUDGET_MS) {
+  // A non-finite/non-positive budget (NaN/Infinity/0/negative) disables the split:
+  // `NaN < MIN` is false, so without this guard NaN would flow into the arithmetic
+  // below and yield `{ primaryBudgetMs: NaN, reservedFallbackMs: NaN }`, which
+  // `setTimeout` treats as an instant abort. Deliberate floor otherwise: below
+  // MIN_FAILOVER_BUDGET_MS the two-way split isn't worthwhile — disable it.
+  if (!isFinitePositive(budgetMs) || budgetMs < MIN_FAILOVER_BUDGET_MS) {
     return undefined;
   }
   // Scale the reservation so the fallback takes at most ~1/3 of the budget; this

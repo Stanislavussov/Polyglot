@@ -9,19 +9,18 @@ import type {
   TranslationPresetConfig,
   VideoVocabularyConfig,
 } from "@polyglot/core";
+import { parseAIGenerationDefaults } from "@polyglot/core";
 import { aiModelRepository } from "./repositories/ai-model.repository.js";
 import { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 import { systemSettingsRepository } from "./repositories/system-settings.repository.js";
 import { translationPresetRepository } from "./repositories/translation-preset.repository.js";
 
 const DEFAULTS: {
-  ai: AIGenerationDefaults;
   srs: SrsConfig;
   notifications: NotificationDefaults;
   dictionary: DictionaryConfig;
   videoVocabulary: VideoVocabularyConfig;
 } = {
-  ai: { maxTokens: 4096, temperature: 0.3, frequencyPenalty: 0.5, maxRetries: 2, requestTimeoutMs: 15_000 },
   srs: { minEaseFactor: 1.3, defaultEaseFactor: 2.5 },
   notifications: { defaultTime: "08:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 },
   dictionary: { flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 },
@@ -35,6 +34,18 @@ const DEFAULTS: {
 
 async function getWithFallback<T>(key: string, fallback: T): Promise<T> {
   const value = await systemSettingsRepository.get<T>(key);
+  // Backfill keys ABSENT from a partial/legacy blob from the complete defaults.
+  // A plain `value ?? fallback` returns a stored object verbatim, so a blob
+  // written before a field existed (e.g. `ai.defaults` predating `requestTimeoutMs`,
+  // added in Fable T27) comes back with that field `undefined` — the whole
+  // fallback is only used when the row is null. Applies to every settings group
+  // read through this helper (ai/srs/notifications/dictionary/videoVocabulary),
+  // all flat objects, so a shallow merge is correct. NOTE: this heals MISSING
+  // keys only; a present-but-invalid value (e.g. `requestTimeoutMs: null`) still
+  // survives the merge and is caught downstream at each budget-consuming site.
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    return { ...fallback, ...value };
+  }
   return value ?? fallback;
 }
 
@@ -115,7 +126,9 @@ export const settingsAdapter: SettingsPort = {
   },
 
   async getAIGenerationDefaults(): Promise<AIGenerationDefaults> {
-    return getWithFallback<AIGenerationDefaults>("ai.defaults", DEFAULTS.ai);
+    // Validate at the read boundary (parse, not cast): a legacy/partial/invalid
+    // `ai.defaults` blob can never surface a non-finite requestTimeoutMs downstream.
+    return parseAIGenerationDefaults(await systemSettingsRepository.get("ai.defaults"));
   },
 
   async getSrsConfig(): Promise<SrsConfig> {
