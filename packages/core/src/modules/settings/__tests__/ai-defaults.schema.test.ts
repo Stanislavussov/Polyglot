@@ -14,7 +14,12 @@ describe("parseAIGenerationDefaults", () => {
   });
 
   it("backfills a missing field from defaults while preserving stored values", () => {
-    const result = parseAIGenerationDefaults({ maxTokens: 8192, temperature: 0.3, frequencyPenalty: 0.5, maxRetries: 2 });
+    const result = parseAIGenerationDefaults({
+      maxTokens: 8192,
+      temperature: 0.3,
+      frequencyPenalty: 0.5,
+      maxRetries: 2,
+    });
     expect(result.requestTimeoutMs).toBe(AI_GENERATION_DEFAULTS.requestTimeoutMs); // 15_000
     expect(result.maxTokens).toBe(8192);
   });

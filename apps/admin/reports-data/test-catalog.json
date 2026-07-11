@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-11T21:05:33.531Z",
+  "generatedAt": "2026-07-11T21:09:12.658Z",
   "summary": {
     "total": 2215,
     "business": 0,
@@ -26400,10 +26400,10 @@
       "description": "Protects the core domain parse AIGeneration Defaults behavior so backfills a missing field from defaults while preserving stored values."
     },
     {
-      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-22-parseaigenerationdefaults-falls-back-to-safe-defaults-for-a-present-but-invalid-field-the-outage-shape",
+      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-27-parseaigenerationdefaults-falls-back-to-safe-defaults-for-a-present-but-invalid-field-the-outage-shape",
       "kind": "technical",
       "filePath": "packages/core/src/modules/settings/__tests__/ai-defaults.schema.test.ts",
-      "sourceLine": 22,
+      "sourceLine": 27,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26416,10 +26416,10 @@
       "description": "Protects the core domain parse AIGeneration Defaults behavior: falls back to safe defaults for a present but invalid field (the outage shape)."
     },
     {
-      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-35-parseaigenerationdefaults-returns-full-defaults-for-null-undefined-or-a-non-object-blob",
+      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-40-parseaigenerationdefaults-returns-full-defaults-for-null-undefined-or-a-non-object-blob",
       "kind": "technical",
       "filePath": "packages/core/src/modules/settings/__tests__/ai-defaults.schema.test.ts",
-      "sourceLine": 35,
+      "sourceLine": 40,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26432,10 +26432,10 @@
       "description": "Protects the core domain parse AIGeneration Defaults behavior: returns full defaults for null, undefined, or a non object blob."
     },
     {
-      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-41-parseaigenerationdefaults-always-yields-a-finite-in-range-requesttimeoutms",
+      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-46-parseaigenerationdefaults-always-yields-a-finite-in-range-requesttimeoutms",
       "kind": "technical",
       "filePath": "packages/core/src/modules/settings/__tests__/ai-defaults.schema.test.ts",
-      "sourceLine": 41,
+      "sourceLine": 46,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
