@@ -100,9 +100,13 @@ vi.mock("@polyglot/core", async () => {
       },
     }),
     detectLanguageWithConfidence: vi.fn((text: string, candidates: string[]) => {
-      // Simulate real detection: Cyrillic → Russian, otherwise first candidate
+      // Simulate real detection: Cyrillic → Russian, otherwise the first STUDIED
+      // candidate. `en` is now prepended to the sync candidate set as a universal
+      // source (US-B), but a real single ambiguous Latin word does not confidently
+      // resolve to English synchronously (it escalates to the async pass), so this
+      // fixture skips `en` and falls to the user's own first candidate.
       const hasRu = candidates.includes("ru");
-      const language = /[а-яА-ЯЁё]/.test(text) && hasRu ? "ru" : candidates[0];
+      const language = /[а-яА-ЯЁё]/.test(text) && hasRu ? "ru" : (candidates.find((c) => c !== "en") ?? candidates[0]);
       return language
         ? {
             language,

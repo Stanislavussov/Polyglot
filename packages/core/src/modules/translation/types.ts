@@ -147,21 +147,12 @@ export interface TranslationResult {
 /**
  * Policy governing input correction and source-word verification (Fable T23).
  *
- * Groups the formerly-flat task flags (`dictionaryHit`, `skipInputCorrection`,
+ * Groups the formerly-flat task flags (`skipInputCorrection`,
  * `assessSourceExistence`) so new correction/verification toggles are added here
  * (OCP) instead of widening `TranslateInput`. An absent policy behaves exactly
  * as before all flags were absent.
  */
 export interface TranslationCorrectionPolicy {
-  /**
-   * Whether the input text was found in the source-language dictionary.
-   * Set by the context-enrichment layer from its lookup result. `false` is a
-   * strong typo/missing-diacritics signal and forces the AI preflight to run
-   * even when language detection was confident (e.g. "stroha" detected as
-   * Czech with high confidence but only valid as "strohá"). `undefined` means
-   * no lookup was performed — the preflight falls back to the confidence gate.
-   */
-  dictionaryHit?: boolean;
   /**
    * Suppress AI input-correction (Task 69). When true, the preflight never
    * auto-corrects (`proceed_with_correction`) nor asks about typos

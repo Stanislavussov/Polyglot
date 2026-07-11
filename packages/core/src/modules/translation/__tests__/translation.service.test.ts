@@ -247,6 +247,54 @@ describe("translate", () => {
     expect(result.status).toBe("needs_review");
   });
 
+  it("caps the repair budget on a clarify/confirm re-run and settles to needs_review", async () => {
+    // On a re-run (skipInputCorrection) the user waits behind a Telegram
+    // callback, so a pathologically unfixable block gets ONE repair, not two,
+    // then bails to needs_review instead of burning the full budget.
+    const badResult = makeValidResult({
+      translations: {
+        cs: {
+          text: "hello",
+          synonyms: [{ text: "čau" }],
+          examples: [{ context: "neutral", target: "Hello world in Czech." }],
+        },
+      },
+    });
+
+    const mockGenerate = createTranslateMock(badResult);
+
+    const result = await translate({ ...defaultInput, correctionPolicy: { skipInputCorrection: true } }, mockGenerate);
+
+    // 2 parallel (metadata + cs) + 1 targeted repair = 3 calls (vs 4 on a first run)
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    expect(result.status).toBe("needs_review");
+  });
+
+  it("keeps the FULL repair budget on a first-pass translation that carries an inline context hint", async () => {
+    // Regression: a first-pass `word :: context` sets `topic` but not
+    // `skipInputCorrection`. It must NOT be treated as a clarify re-run — the
+    // user is on a normal loader, not behind a callback — so it keeps both
+    // targeted repairs (a `topic`-based rerun signal would wrongly cap it to 1).
+    const badResult = makeValidResult({
+      translations: {
+        cs: {
+          text: "hello",
+          synonyms: [{ text: "čau" }],
+          examples: [{ context: "neutral", target: "Hello world in Czech." }],
+        },
+      },
+    });
+
+    const mockGenerate = createTranslateMock(badResult);
+
+    const result = await translate({ ...defaultInput, topic: "finance" }, mockGenerate);
+
+    // 2 parallel (metadata + cs) + 2 targeted repairs = 4 calls, same as a
+    // first run with no hint — the inline hint does not shrink the budget.
+    expect(mockGenerate).toHaveBeenCalledTimes(4);
+    expect(result.status).toBe("needs_review");
+  });
+
   it("includes topic in the prompt when provided", async () => {
     const mockGenerate = createTranslateMock(makeValidResult());
 
@@ -497,42 +545,14 @@ describe("translate", () => {
     expect(unwrap(result).original).toBe("helllo");
   });
 
-  it("runs the typo preflight on a dictionary miss even when language detection is confident", async () => {
-    const goodResult = makeValidResult();
-    const mockGenerate = createTranslateMock(goodResult, { issues: [], summary: "ok" }).mockResolvedValueOnce({
-      confidence: 0.6,
-      outcome: "proceed_with_correction",
-      reasonCode: "probable_typo",
-      explanation: "missing diacritic restored",
-      correctedText: "strohá",
-      options: [],
-    });
-
-    const result = await translate(
-      {
-        ...defaultInput,
-        word: "stroha",
-        sourceLang: "cs",
-        targetLangs: ["en"],
-        // Confident detection — the old gate would skip the preflight entirely.
-        detectionConfidence: 0.95,
-        correctionPolicy: { dictionaryHit: false },
-      },
-      mockGenerate,
-    );
-
-    expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
-    expect(mockGenerate.mock.calls[0]?.[0]).toContain("Found in cs dictionary: NO");
-    const output = unwrap(result);
-    expect(output.original).toBe("strohá");
-    expect(output.correction).toMatchObject({ original: "stroha", corrected: "strohá" });
-  });
-
-  it("skips the preflight for a confidently detected word that exists in the dictionary", async () => {
+  it("does not run the preflight on a dictionary miss when detection is confident (decoupled from DB lookup)", async () => {
+    // The offline Wiktionary import is incomplete, so a valid word's absence is
+    // not a typo signal. At high detection confidence the preflight is skipped
+    // and the input is translated directly — no "preflight ambiguity checker".
     const mockGenerate = createTranslateMock(makeValidResult());
 
     await translate(
-      { ...defaultInput, detectionConfidence: 0.95, correctionPolicy: { dictionaryHit: true } },
+      { ...defaultInput, word: "stroha", sourceLang: "cs", targetLangs: ["en"], detectionConfidence: 0.95 },
       mockGenerate,
     );
 

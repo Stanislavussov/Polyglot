@@ -70,8 +70,14 @@ USER node
 
 EXPOSE 9090
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD wget -qO- http://localhost:9090/healthz || exit 1
+# Liveness for autoheal (self-healing Phase 1b): probe /livez, which returns 503
+# only on the two unambiguous crash signals (silently-dead grammY runner, or DB
+# dead 3x consecutive). The 45s start-period covers the boot window before the
+# runner handle is published (already reported healthy in code — belt-and-braces).
+# NOTE: the deploy health-gate (.github/workflows/deploy.yml) still probes /readyz
+# separately for deploy-readiness; the two signals are intentionally decoupled.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=45s --retries=3 \
+  CMD wget -qO- http://localhost:9090/livez || exit 1
 
 CMD ["node", "apps/bot/dist/index.js"]
 

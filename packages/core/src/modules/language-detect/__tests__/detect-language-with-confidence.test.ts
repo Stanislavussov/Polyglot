@@ -415,3 +415,78 @@ describe("detectLanguageWithConfidenceAsync", () => {
     expect(mockGenerate).not.toHaveBeenCalled();
   });
 });
+
+// Real-franc behaviour behind US-B (English added to the multi-word sync candidate
+// set in translate-flow). These use the REAL detector — no mock — so they document
+// what the change actually rescues, and the current franc limitation.
+describe("detectLanguageWithConfidence — English among studied Latin candidates (US-B)", () => {
+  const candidates = ["en", "ru", "de"];
+
+  it("resolves a phrase franc reads as English to en (rescued by including en)", () => {
+    const result = detectLanguageWithConfidence("I will get you", candidates);
+    expect(result.language).toBe("en");
+  });
+
+  it("resolves a longer English phrase to en", () => {
+    const result = detectLanguageWithConfidence("That will get you there", candidates);
+    expect(result.language).toBe("en");
+  });
+
+  it("still coerces a real German phrase to de (English does not steal it)", () => {
+    const result = detectLanguageWithConfidence("Das ist wirklich gut", candidates);
+    expect(result.language).toBe("de");
+  });
+
+  // franc misreads this very short English phrase as German (deu:1 vs eng:0.78),
+  // so the SYNC pass alone still returns de — the candidate set can't fix it. The
+  // async AI-arbitration pass (below) is what rescues it in production.
+  it("sync alone still returns de for a franc-misread short English phrase", () => {
+    const result = detectLanguageWithConfidence("That will get you", candidates);
+    expect(result.language).toBe("de");
+  });
+});
+
+describe("detectLanguageWithConfidenceAsync — AI arbitration overrides franc coercion (US-B)", () => {
+  const candidates = ["en", "ru", "de"];
+
+  it("overrides franc's German coercion with the AI's English when they disagree", async () => {
+    const aiGenerate = vi.fn().mockResolvedValue("en");
+    const result = await detectLanguageWithConfidenceAsync("That will get you", candidates, { aiGenerate });
+    expect(result.language).toBe("en");
+    expect(aiGenerate).toHaveBeenCalled();
+  });
+
+  it("keeps franc's result when the AI agrees with it", async () => {
+    const aiGenerate = vi.fn().mockResolvedValue("de");
+    const result = await detectLanguageWithConfidenceAsync("That will get you", candidates, { aiGenerate });
+    expect(result.language).toBe("de");
+  });
+
+  it("keeps franc's result when the AI is inconclusive (ambiguous)", async () => {
+    const aiGenerate = vi.fn().mockResolvedValue("ambiguous");
+    const result = await detectLanguageWithConfidenceAsync("That will get you", candidates, { aiGenerate });
+    expect(result.language).toBe("de");
+  });
+
+  it("does NOT arbitrate a LOW-English-affinity German sentence (no AI call)", async () => {
+    // This diacritic-heavy sentence scores low franc English-affinity (eng≈0.48),
+    // below the 0.7 gate, so no AI call is spent.
+    const aiGenerate = vi.fn().mockResolvedValue("en");
+    const result = await detectLanguageWithConfidenceAsync("Das Wetter ist heute wirklich schön", candidates, {
+      aiGenerate,
+    });
+    expect(result.language).toBe("de");
+    expect(aiGenerate).not.toHaveBeenCalled();
+  });
+
+  it("DOES arbitrate a high-English-affinity German sentence, but the agreeing AI keeps it de", async () => {
+    // Honest documentation of the accepted over-fire: "Ich liebe dich sehr" scores
+    // eng≈0.772 (near the repro's 0.780), so the gate fires and an AI call IS spent —
+    // but the AI agrees (de), so franc's result stands. Correctness preserved, one
+    // extra short detection call is the accepted cost.
+    const aiGenerate = vi.fn().mockResolvedValue("de");
+    const result = await detectLanguageWithConfidenceAsync("Ich liebe dich sehr", candidates, { aiGenerate });
+    expect(result.language).toBe("de");
+    expect(aiGenerate).toHaveBeenCalled();
+  });
+});

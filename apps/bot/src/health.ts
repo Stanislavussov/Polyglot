@@ -5,6 +5,8 @@
  * failure modes behind the silent "429 freeze" incident.
  */
 
+import { getRunnerHandle, isShuttingDown, recordDbProbe, recordLivenessReason } from "./liveness-state.js";
+
 /** Max age of the last processed update before long-polling is deemed stuck. */
 export const READINESS_MAX_STALENESS_MS = Number(process.env.READINESS_MAX_STALENESS_MS) || 600_000;
 
@@ -51,4 +53,56 @@ export async function checkReadiness(pingDb: () => Promise<void>, now: number = 
       database: dbOk ? { ok: true } : { ok: false, error: dbError },
     },
   };
+}
+
+/**
+ * Threshold-free liveness signal for autoheal (Phase 1a), distinct from `/readyz`
+ * (deploy gate) and `/healthz` (always-ok). It reports "not ok" only on the two
+ * unambiguous "stuck-or-dead" signals:
+ *
+ *  1. **Dead runner** — the incident detector: the runner handle is set, we are
+ *     not shutting down, yet the runner reports it is no longer running. That is
+ *     a silent grammY-runner death (poller stopped, process alive).
+ *  2. **Dead DB** — the DB ping fails on {@link LIVEZ_DB_FAIL_STREAK} consecutive
+ *     probes. A single failure never trips it; any success resets the streak.
+ *
+ * Deliberately threshold-free otherwise: an idle-but-running bot and a graceful
+ * shutdown are both healthy, and there is NO staleness/latency/in-flight belt (a
+ * wedged event loop is caught for free by the HTTP probe timing out).
+ */
+export const LIVEZ_DB_FAIL_STREAK = Number(process.env.LIVEZ_DB_FAIL_STREAK) || 3;
+
+export interface LivenessResult {
+  status: "ok" | "error";
+  reason?: "runner_dead" | "db_dead";
+  /**
+   * True only on the transition INTO `runner_dead` (edge-triggered). Lets the
+   * HTTP layer increment `bot_runner_death_detected_total` once per incident
+   * instead of once per probe for the whole duration the runner stays dead.
+   */
+  isNewRunnerDeath?: boolean;
+}
+
+export async function checkLiveness(pingDb: () => Promise<void>): Promise<LivenessResult> {
+  const runner = getRunnerHandle();
+  // Boot null-guard: a null handle means the process is still starting — healthy,
+  // and never dereferenced (that would 500 during startup).
+  if (runner !== null && !isShuttingDown() && !runner.isRunning()) {
+    const isNewRunnerDeath = recordLivenessReason("runner_dead");
+    return { status: "error", reason: "runner_dead", isNewRunnerDeath };
+  }
+
+  let dbOk = true;
+  try {
+    await pingDb();
+  } catch {
+    dbOk = false;
+  }
+  if (recordDbProbe(dbOk) >= LIVEZ_DB_FAIL_STREAK) {
+    recordLivenessReason("db_dead");
+    return { status: "error", reason: "db_dead" };
+  }
+
+  recordLivenessReason("ok");
+  return { status: "ok" };
 }

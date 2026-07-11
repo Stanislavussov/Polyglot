@@ -1,6 +1,7 @@
 // Logger — singleton pino, also exported from here for convenience
 
 export type {
+  AIFailover,
   AIModel,
   AIPort,
   ChatMessage,

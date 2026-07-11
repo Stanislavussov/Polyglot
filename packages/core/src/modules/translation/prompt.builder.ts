@@ -501,7 +501,7 @@ function buildConnotationCheck(nativeLangName: string | null, isNativeSource: bo
 function buildDictionaryHint(ctx: DictionaryContext, config: Required<TranslationOutputConfig>): string {
   const lines: string[] = [
     "",
-    "IMPORTANT — Authoritative Dictionary Context (Wiktionary):",
+    "Dictionary reference (Wiktionary — may be incomplete or list only a rare sense):",
     `Word: "${ctx.word}" (${getLanguageName(ctx.langCode)}), part of speech: ${ctx.pos}.`,
   ];
 
@@ -511,11 +511,10 @@ function buildDictionaryHint(ctx: DictionaryContext, config: Required<Translatio
       .slice(0, maxGlosses)
       .map((g) => `"${g}"`)
       .join(", ");
-    lines.push(`The verified meaning of this word is: ${glossList}.`);
-    lines.push("Use these definitions as the PRIMARY basis for the main translation.");
-    if (config.includeAlternatives || config.includeSynonyms) {
-      lines.push("Alternatives and synonyms should reflect these meanings.");
-    }
+    lines.push(`One catalogued sense is: ${glossList}.`);
+    lines.push(
+      "Treat this only as a hint. If it is a rare, niche, or clearly wrong sense for the input, IGNORE it and translate the most natural, common everyday meaning using your own knowledge.",
+    );
   }
 
   if (ctx.formTags && ctx.formTags.length > 0) {

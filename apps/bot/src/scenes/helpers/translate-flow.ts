@@ -23,6 +23,7 @@ import {
   isSupported,
   isSupportedLanguage,
   logger,
+  needsAiArbitration,
   needsDictionaryVerification,
   resolveDirectionFromSource,
   resolveEntitlements,
@@ -51,7 +52,13 @@ import {
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
-import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
+import {
+  isUserFacingTimeout,
+  LONG_OP_TIMEOUT_MS,
+  sendTypingIndicator,
+  startTypingKeepalive,
+  withTimeout,
+} from "../../utils/long-op.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
@@ -340,13 +347,39 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const allCandidates = [nativeLang, ...learningLangs];
   const candidatesWithEnglish = ["en", ...allCandidates];
 
-  // Confidence-aware detection: sync first (script + diacritics + franc)
-  let detection: DetectionResult = detectLanguageWithConfidence(cleanWord, allCandidates);
+  // Confidence-aware detection: sync first (script + diacritics + franc).
+  //
+  // For MULTI-WORD input, English is included as a candidate even when the user
+  // does not study it: English is a universally valid source (translated into the
+  // learning langs), and leaving it out let an English phrase get franc-coerced to
+  // the nearest studied Latin language (e.g. German), which then failed downstream
+  // as an "unrecognized German word". Adding `en` lets franc pick English for a
+  // phrase it confidently reads as English (e.g. "I will get you" → en).
+  //
+  // Scoped to multi-word only, deliberately: `en` only helps the franc pass (3+
+  // words), while for a single ASCII word it would turn a confident sole-Latin
+  // candidate into a shared-script tie and force every such word into the async
+  // AI pass — an unwanted latency/cost expansion. Single words keep the original
+  // candidate set and their existing escalation path.
+  //
+  // franc still misreads some short English phrases as a sibling Latin language
+  // (e.g. "That will get you" → de, deu:1 vs eng:0.78); those are caught by the
+  // AI-arbitration escalation below, not the candidate set.
+  const isMultiWord = cleanWord.trim().split(/\s+/).filter(Boolean).length > 1;
+  const syncCandidates = isMultiWord ? candidatesWithEnglish : allCandidates;
+  let detection: DetectionResult = detectLanguageWithConfidence(cleanWord, syncCandidates);
 
   // Escalate to async (dictionary sweep + Wiktionary + AI) when sync is
-  // ambiguous, or when a confident single-word result rests on heuristics
-  // alone and needs dictionary confirmation (e.g. "Strohá" is not English).
-  if (detection.language === undefined || needsDictionaryVerification(cleanWord, detection)) {
+  // ambiguous, when a confident single-word result rests on heuristics alone and
+  // needs dictionary confirmation (e.g. "Strohá" is not English), or when a
+  // confident multi-word Latin result rests on franc and a close runner-up makes
+  // it coercion-prone (e.g. English "That will get you" mis-read as German) — the
+  // async pass then lets the AI's open detection override franc.
+  if (
+    detection.language === undefined ||
+    needsDictionaryVerification(cleanWord, detection) ||
+    needsAiArbitration(cleanWord, detection, candidatesWithEnglish)
+  ) {
     const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
     const aiGenerate = async (prompt: string) => {
       const result = await ctx.services.ai.generateText(prompt, model);
@@ -759,6 +792,9 @@ async function runTranslationPipeline(
 
     const stopTimer = translationDuration.startTimer();
     const aiStart = Date.now();
+    // Hold "typing…" open for the whole translation so the user sees progress
+    // while the pipeline runs (the loader message already shows too).
+    const stopTyping = startTypingKeepalive(ctx);
     const decision = await withTimeout(
       translateWithContext(
         {
@@ -785,7 +821,7 @@ async function runTranslationPipeline(
         },
       ),
       LONG_OP_TIMEOUT_MS,
-    );
+    ).finally(stopTyping);
     aiRequestMs = Date.now() - aiStart;
     stopTimer();
 
@@ -918,6 +954,11 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     return;
   }
 
+  // Answer the callback up front, before the multi-second translation pipeline,
+  // so Telegram does not expire the query ("query is too old"). Defensive catch:
+  // the clarification flow may already have answered it.
+  await ctx.answerCallbackQuery().catch(() => {});
+
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
@@ -949,7 +990,6 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   const isSentence = classification.type === "sentence";
   const creditCost = await ensureTranslationQuota(ctx, subscriptionPlan, lang);
   if (creditCost === null) {
-    await ctx.answerCallbackQuery();
     return;
   }
 
@@ -974,8 +1014,6 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     skipInputCorrection: true,
     withInlineGrammar: false,
   });
-
-  await ctx.answerCallbackQuery();
 }
 
 /**

@@ -5,6 +5,7 @@ import { stopScheduler } from "@polyglot/adapter-notifications";
 import { logger, setLogger } from "@polyglot/core";
 import { botEnvSchema, ConfigError, loadConfig } from "@polyglot/infra";
 import { createPolyglotBot, installBotCommands } from "./bot-factory.js";
+import { setRunnerHandle } from "./liveness-state.js";
 import { closeMetricsServer, startMetricsServer } from "./metrics.js";
 import { wireNotificationScheduler } from "./notifications/notification.wiring.js";
 import { stopTelemetryRetention, wireTelemetryRetention } from "./retention.wiring.js";
@@ -85,6 +86,8 @@ async function main(): Promise<void> {
   logger.info({ sessionStorage: "postgres", languageCacheReady: true, pollingMode: "long-polling" }, "Starting bot");
   await bot.init();
   runner = run(bot);
+  // Publish the handle so /livez can detect a silently-dead runner (Phase 1a).
+  setRunnerHandle(runner);
   // botUsername (not the redacted `username` PII path): this is the bot's own handle.
   logger.info({ botUsername: bot.botInfo.username, id: bot.botInfo.id }, "Bot started (concurrent runner)");
 }

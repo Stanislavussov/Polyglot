@@ -22,7 +22,12 @@ services:
       - "127.0.0.1:${METRICS_PORT:-9090}:9090"
     # Healthcheck is baked into the image (deploy/Dockerfile HEALTHCHECK), single
     # source of truth (Fable T30, F10) — matches admin/admin-api which also rely
-    # on the image-level healthcheck.
+    # on the image-level healthcheck. The image HEALTHCHECK now probes /livez, so
+    # a wedged/dead runner turns the container `unhealthy` and the autoheal
+    # service (below) restarts it. Only the bot is labelled; admin-api/admin/
+    # landing have no liveness-grade healthcheck and are intentionally left out.
+    labels:
+      - "autoheal=true"
     mem_limit: 512m
     cpus: 0.75
     logging:
@@ -102,7 +107,94 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # ── Self-healing Phase 1c ────────────────────────────────────────────
+  # Container auto-restart for the bot when its /livez healthcheck fails.
+  # autoheal never touches the raw Docker socket: it talks only to the
+  # wollomatic socket-proxy over an internal-only network, and the proxy
+  # exposes exactly two gated Docker API calls (list + restart) — nothing
+  # can create/kill/stop/exec, because those paths simply don't match the
+  # allow-regex and are denied by non-match (default-deny).
+  docker-socket-proxy:
+    image: wollomatic/socket-proxy:1.12.2
+    container_name: polyglot_docker_socket_proxy
+    restart: unless-stopped
+    # Distroless nonroot image (USER 65534). GID 999 is the `docker` group on
+    # the Ubuntu docker-ce host (provisioned by deploy/ansible/site.yml) and is
+    # required to READ the root:docker-owned socket. If `getent group docker`
+    # on the host ever reports a different GID, update this value.
+    user: "65534:999"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges
+    command:
+      - "-loglevel=info"
+      # Listen on all interfaces so autoheal can reach it over the internal
+      # network (the default 127.0.0.1 would only serve localhost).
+      - "-listenip=0.0.0.0"
+      # Only the autoheal container may connect (resolved via Docker DNS).
+      - "-allowfrom=autoheal"
+      # Auto-anchored ^...$ against r.URL.Path (query string stripped). autoheal
+      # lists unhealthy containers via GET /containers/json?filters=... — path is
+      # /containers/json. The optional (v[\d.]+/)? tolerates an API-version
+      # prefix (e.g. /v1.44/) though autoheal does not send one.
+      - "-allowGET=/(v[\\d.]+/)?containers/json"
+      # autoheal restarts via POST /containers/<id>/restart?t=<timeout> — path is
+      # /containers/<id>/restart. <id> is a container ID or name.
+      - "-allowPOST=/(v[\\d.]+/)?containers/[a-zA-Z0-9_.-]+/restart"
+    volumes:
+      # Read-only mount — the ONLY place the real socket is exposed.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - docker-proxynet
+    mem_limit: 64m
+    cpus: 0.25
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  autoheal:
+    image: willfarrell/autoheal:1.2.0
+    container_name: polyglot_autoheal
+    restart: unless-stopped
+    # Defense-in-depth (symmetry with the proxy's hardening): autoheal holds no
+    # socket and only reaches the Docker API through the gated proxy, so this
+    # is not fixing an exploit path. `read_only` is deliberately NOT set here —
+    # unlike the proxy, autoheal's entrypoint is unverified against a read-only
+    # rootfs and may need to write (e.g. temp/log files).
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      # Talk to the Docker API only through the gated proxy — never the raw
+      # socket (no /var/run/docker.sock mount here by design).
+      - DOCKER_SOCK=tcp://docker-socket-proxy:2375
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=10
+      - AUTOHEAL_START_PERIOD=60
+    networks:
+      # autoheal only needs the proxy connection; the proxy talks to the daemon
+      # over the mounted socket, and the daemon can restart the bot regardless of
+      # which network the bot is on — so autoheal stays off polyglot-network.
+      - docker-proxynet
+    mem_limit: 64m
+    cpus: 0.25
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 networks:
   default:
     name: polyglot-network
     external: true
+  # Internal-only (no host/external route): nothing outside can reach the
+  # Docker-API proxy. Only docker-socket-proxy + autoheal are attached here;
+  # the app services stay on polyglot-network as before.
+  docker-proxynet:
+    internal: true

@@ -17,6 +17,7 @@ import {
   stopScheduler,
 } from "@polyglot/adapter-notifications";
 import {
+  type AIFailover,
   createSubscriptionService,
   type GenerateObjectFn,
   isSupported,
@@ -29,7 +30,8 @@ import {
 import { type Api, GrammyError, type RawApi } from "grammy";
 import { z } from "zod";
 import { mockPaymentAdapter } from "../payment.js";
-import { resolveDefaultAIModel } from "../utils/ai-model.js";
+import { buildAiFailover, resolveDefaultAIModel } from "../utils/ai-model.js";
+import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
 
 const jitTranslationSchema = z.object({
@@ -77,6 +79,18 @@ export async function resolveTelegramChatId(
 export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void> {
   const settings = new SettingsService(settingsAdapter);
   const contextualModel = await resolveDefaultAIModel(settings);
+
+  // Scheduled-notification JIT translations run in the background, but they must
+  // still fail over on a transient primary-model error just like foreground bot
+  // traffic does — otherwise a background 429/5xx silently drops the translation.
+  // Resolve the split per-call from the same admin-managed budget the container
+  // uses (clamped requestTimeoutMs), so an admin change takes effect without a
+  // redeploy. Returns undefined when the budget is too small to split — then the
+  // call runs unsplit, matching container behaviour.
+  const resolveFailover = async (): Promise<AIFailover | undefined> => {
+    const budgetMs = clampAiBudgetToOpGuard((await settings.getAIGenerationDefaults()).requestTimeoutMs);
+    return buildAiFailover(budgetMs);
+  };
   const notifService = createNotificationService({
     getUserVocabulary: async (userId: number) => {
       const entries = await vocabularyRepository.findByUser(userId);
@@ -98,8 +112,8 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
       const all = getAllLangs();
       return all.find((l) => l.id === langId)?.code;
     },
-    generateObject: ((prompt, schema, model, options) => {
-      return generateObject(prompt, schema, model, options);
+    generateObject: (async (prompt, schema, model, options) => {
+      return generateObject(prompt, schema, model, { ...options, failover: await resolveFailover() });
     }) satisfies GenerateObjectFn,
     contextualModel,
     translateEntry: async (userId: number, entryId: number) => {
@@ -124,7 +138,10 @@ Phrase: "${entry.original}"
 
 Return translations as JSON array.`;
 
-      const result = await generateObject(prompt, jitTranslationSchema, model, { userId });
+      const result = await generateObject(prompt, jitTranslationSchema, model, {
+        userId,
+        failover: await resolveFailover(),
+      });
 
       const translations: Array<{ targetLangId: number; text: string; synonyms?: string[] }> = [];
       for (const tr of result.translations) {

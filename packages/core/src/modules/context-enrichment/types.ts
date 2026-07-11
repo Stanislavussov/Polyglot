@@ -48,8 +48,7 @@ export interface ContextEnrichmentDeps {
  * Input for context-enriched translation.
  *
  * Same as TranslateInput but omits `dictionaryContext` — the enrichment layer
- * fills it automatically from the lookup function. The layer also fills
- * `correctionPolicy.dictionaryHit` from the same lookup; callers should not set
- * it (doing so is overwritten). Prevents accidental double-lookup.
+ * fills it automatically from the lookup function. Prevents accidental
+ * double-lookup.
  */
 export type EnrichedTranslateInput = Omit<TranslateInput, "dictionaryContext">;

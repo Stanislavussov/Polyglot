@@ -9,6 +9,8 @@
  * touching real signals or the process lifecycle.
  */
 
+import { setShuttingDown } from "./liveness-state.js";
+
 /** Minimal structural logger — matches the core pino logger without importing it. */
 export interface ShutdownLogger {
   info(obj: Record<string, unknown> | string, msg?: string): void;
@@ -41,6 +43,9 @@ export function createGracefulShutdown(config: GracefulShutdownConfig): (signal:
   return async (signal: string): Promise<void> => {
     if (shuttingDown) return;
     shuttingDown = true;
+    // At the very start of the sequence (before the runner is stopped) so that
+    // /livez reads a stopping runner as a graceful shutdown, not a crash (Phase 1a).
+    setShuttingDown(true);
 
     config.logger.info({ signal }, "Received shutdown signal");
 

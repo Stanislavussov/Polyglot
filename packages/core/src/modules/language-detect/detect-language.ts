@@ -815,6 +815,62 @@ export function needsDictionaryVerification(text: string, detection: DetectionRe
   );
 }
 
+/**
+ * Franc runner-up score at/above which a multi-word Latin detection is treated as
+ * ambiguous enough to arbitrate with the AI. franc's closed-set winner can be a
+ * coercion for a short phrase — it reads English "That will get you" as German
+ * (deu:1 vs eng:0.78) — so when another candidate scores this highly in an
+ * unconstrained pass, the statistical winner is not trustworthy on its own.
+ */
+const ARBITRATION_RUNNERUP_MIN = 0.7;
+
+/**
+ * Whether a confident, multi-word, Latin-script detection should be arbitrated by
+ * the AI before it is trusted.
+ *
+ * The sync closed-set detector can only return a candidate, and franc (its
+ * deciding evidence for phrases) misreads some short English input as a sibling
+ * Latin language — coercing an out-of-set or wrong-direction source that then
+ * fails downstream. When the winner rests on franc AND a candidate-restricted
+ * franc pass shows another *candidate* scoring at/above {@link ARBITRATION_RUNNERUP_MIN},
+ * this returns true so the caller runs the AI open-detection, which overrides franc
+ * on disagreement.
+ *
+ * Narrowing: it never fires on script/diacritic/dictionary winners, on single
+ * words, or on non-Latin input. It does NOT, however, only fire on truly ambiguous
+ * phrases — franc's within-candidate English affinity can be high for ordinary
+ * German/Czech sentences too (e.g. "Ich liebe dich sehr" scores eng:0.772, nearly
+ * identical to the repro "That will get you" at eng:0.780), so a minority of
+ * genuine target-language inputs also arbitrate and spend one extra short
+ * detection call. That over-fire is a deliberate, accepted cost: no scalar franc
+ * threshold can separate a coerced English phrase from real German (the AI call is
+ * exactly what performs that separation), and correctness is preserved because the
+ * AI agrees on genuine target input, leaving franc's result unchanged.
+ */
+export function needsAiArbitration(text: string, detection: DetectionResult, candidates: string[]): boolean {
+  if (detection.language === undefined) return false;
+  const trimmed = text.trim();
+  if (wordCount(trimmed) < 2) return false;
+  if (detectScript(trimmed) !== "latin") return false;
+
+  const wonByFranc = detection.evidence.some(
+    (entry) => entry.candidate === detection.language && entry.strategy === "franc",
+  );
+  if (!wonByFranc) return false;
+
+  const winnerIso3 = ISO1_TO_ISO3[detection.language];
+  // Rank ONLY within the candidate set: francAll's default scores are normalised
+  // to the global top language (often an unrelated one), which would hide how
+  // close a candidate runner-up is. Restricting to candidate iso3s gives the
+  // within-set margin (e.g. deu:1 vs eng:0.78 for "That will get you").
+  const candidateIso3 = candidates.map((c) => ISO1_TO_ISO3[c]).filter((iso3): iso3 is string => iso3 !== undefined);
+  if (candidateIso3.length < 2) return false;
+  const runnerUp = francAll(trimmed, { only: candidateIso3 }).find(
+    ([iso3, score]) => iso3 !== winnerIso3 && score >= ARBITRATION_RUNNERUP_MIN,
+  );
+  return runnerUp !== undefined;
+}
+
 function isEnglishOnlyLookupTooWeakForSharedScriptWord(
   text: string,
   evidence: readonly DetectionEvidence[],
@@ -921,7 +977,8 @@ export async function detectLanguageWithConfidenceAsync(
 
   const earlyResult = buildResult(evidence);
   const verifying = deps.findWordLanguages !== undefined && needsDictionaryVerification(trimmed, earlyResult);
-  if (earlyResult.language !== undefined && !verifying) {
+  const arbitrating = deps.aiGenerate !== undefined && needsAiArbitration(trimmed, earlyResult, uniqueCandidates);
+  if (earlyResult.language !== undefined && !verifying && !arbitrating) {
     return earlyResult;
   }
 
@@ -963,16 +1020,14 @@ export async function detectLanguageWithConfidenceAsync(
   }
 
   const postWiktionaryResult = buildResult(evidence);
-  if (postWiktionaryResult.language !== undefined) {
+  if (postWiktionaryResult.language !== undefined && !arbitrating) {
     return postWiktionaryResult;
   }
 
   if (deps.aiGenerate) {
     const aiStrategy = new AIStrategy(deps.aiGenerate);
     const aiResult = await aiStrategy.detectOpen(trimmed, uniqueCandidates);
-    if (aiResult?.inCandidates) {
-      evidence.push({ strategy: "ai", candidate: aiResult.language, score: 0.6, reason: "AI language identification" });
-    } else if (aiResult) {
+    if (aiResult && !aiResult.inCandidates) {
       return {
         confidence: 0,
         evidence: [
@@ -982,6 +1037,28 @@ export async function detectLanguageWithConfidenceAsync(
         outOfSetLanguages: [aiResult.language],
       };
     }
+    if (aiResult?.inCandidates) {
+      // Arbitration: on an ambiguous multi-word Latin phrase where franc's winner
+      // may be a coercion, the AI's open detection overrides franc when they
+      // disagree (e.g. "That will get you" → franc de, AI en → en).
+      if (arbitrating && aiResult.language !== earlyResult.language) {
+        return {
+          language: aiResult.language,
+          confidence: 0.9,
+          evidence: [
+            ...evidence,
+            { strategy: "ai", candidate: aiResult.language, score: 0.9, reason: "AI arbitration overrode franc" },
+          ],
+        };
+      }
+      evidence.push({ strategy: "ai", candidate: aiResult.language, score: 0.6, reason: "AI language identification" });
+    }
+  }
+
+  // Arbitration ran but the AI agreed with franc or was inconclusive → keep the
+  // original franc-based result rather than dropping to a lower-confidence rebuild.
+  if (arbitrating && earlyResult.language !== undefined) {
+    return earlyResult;
   }
 
   return buildResult(evidence);

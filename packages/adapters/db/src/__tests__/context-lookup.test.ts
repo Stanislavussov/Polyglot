@@ -296,6 +296,76 @@ describe("createContextLookup", () => {
     expect(result[0]?.context.langCode).toBe("es");
   });
 
+  it("drops an all-caps initialism headword for a lowercase input (no acronym hijack)", async () => {
+    // Regression: "tow" (буксировать) must not match the Friends-episode acronym
+    // "TOW", which is the only word_context row for lower('tow').
+    mockFindByWordAndLangCode.mockResolvedValue([
+      {
+        id: 1,
+        word: "TOW",
+        languageId: 1,
+        pos: "phrase",
+        formTags: [],
+        glosses: ["Initialism of The One With ...: episodes of Friends"],
+        createdAt: new Date(),
+      },
+    ]);
+
+    const lookup = createContextLookup();
+    const result = await lookup("tow", "en");
+
+    expect(result).toEqual([]);
+  });
+
+  it("keeps an all-caps initialism when the user typed the input in all-caps", async () => {
+    mockFindByWordAndLangCode.mockResolvedValue([
+      {
+        id: 1,
+        word: "TOW",
+        languageId: 1,
+        pos: "phrase",
+        formTags: [],
+        glosses: ["Initialism of The One With ...: episodes of Friends"],
+        createdAt: new Date(),
+      },
+    ]);
+
+    const lookup = createContextLookup();
+    const result = await lookup("TOW", "en");
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.context.word).toBe("TOW");
+  });
+
+  it("keeps a normal headword and drops only the colliding acronym for a lowercase input", async () => {
+    mockFindByWordAndLangCode.mockResolvedValue([
+      {
+        id: 1,
+        word: "us",
+        languageId: 1,
+        pos: "pronoun",
+        formTags: [],
+        glosses: ["objective case of we"],
+        createdAt: new Date(),
+      },
+      {
+        id: 2,
+        word: "US",
+        languageId: 1,
+        pos: "noun",
+        formTags: [],
+        glosses: ["United States"],
+        createdAt: new Date(),
+      },
+    ]);
+
+    const lookup = createContextLookup();
+    const result = await lookup("us", "en");
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.context.word).toBe("us");
+  });
+
   it("does not fail lookup when audit logging fails", async () => {
     mockFindByWordAndLangCode.mockResolvedValue([
       {
