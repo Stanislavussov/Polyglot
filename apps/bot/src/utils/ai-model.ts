@@ -4,8 +4,14 @@ import type { AIFailover, SettingsPort } from "@polyglot/core";
  * Hardcoded fallback model. `resolveDefaultAIModel` returns it when the admin has
  * set no DB default, and Phase 2 failover uses it as the second model tried after
  * a retriable failure on the primary (admin-configured) model.
+ *
+ * Set to the full (non-lite) `gemini-3.1-flash`: the production primary is
+ * `gemini-3.1-flash-lite`, whose dominant failure mode is malformed/truncated
+ * structured output rather than a provider outage, so failing over to the more
+ * capable sibling model recovers those cases. (Tradeoff: same provider family, so
+ * this fallback does not add resilience against a Google/OpenRouter outage.)
  */
-export const FALLBACK_AI_MODEL = "openai/gpt-5-nano";
+export const FALLBACK_AI_MODEL = "google/gemini-3.1-flash";
 
 /**
  * Ideal budget (ms) reserved for the fallback attempt in the failover split. With

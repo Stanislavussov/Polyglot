@@ -51,7 +51,7 @@ export function validateExamples(
 
   if (shouldValidateFirstExampleHeadword(word, expressionType)) {
     const firstTarget = examples[0]?.target ?? "";
-    if (!containsInflectedExpression(firstTarget, word)) {
+    if (!sharesExpressionToken(firstTarget, word)) {
       errors.push({
         rule: "examples",
         message: `First example should demonstrate the main translation "${word}"`,
@@ -68,12 +68,26 @@ function shouldValidateFirstExampleHeadword(word: string, expressionType?: Expre
   return tokenize(word).some((token) => token.length >= 3);
 }
 
-function containsInflectedExpression(target: string, expression: string): boolean {
+/**
+ * True when the first example demonstrates the translation — i.e. it shares at
+ * least one significant (>= 3 char) token of the translation, matched by stem so
+ * inflected forms count.
+ *
+ * Deliberately "at least one significant token", not "every token". Requiring
+ * every token to appear verbatim over-rejected correct output: a first example
+ * naturally inflects or reorders a multi-word translation and drops/changes
+ * function words, so a leading article ("der Spott, -e" demonstrated by "den
+ * Spott …") or an idiom's particles ("etwas auf dem Kasten haben" shown as "…
+ * was auf dem Kasten") made the check fail on a good translation. The head
+ * content word is enough to show the example is on-topic; a genuinely unrelated
+ * example shares no token and still fails.
+ */
+function sharesExpressionToken(target: string, expression: string): boolean {
   const targetTokens = tokenize(target);
   const expressionTokens = tokenize(expression).filter((token) => token.length >= 3);
 
   return (
-    expressionTokens.length > 0 && expressionTokens.every((token) => targetTokens.some((item) => sameStem(token, item)))
+    expressionTokens.length > 0 && expressionTokens.some((token) => targetTokens.some((item) => sameStem(token, item)))
   );
 }
 

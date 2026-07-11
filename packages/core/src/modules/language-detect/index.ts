@@ -17,6 +17,7 @@ export {
   detectOutOfSetLanguage,
   FrancStrategy,
   ISO1_TO_ISO3,
+  needsAiArbitration,
   needsDictionaryVerification,
   // Strategy classes
   ScriptStrategy,

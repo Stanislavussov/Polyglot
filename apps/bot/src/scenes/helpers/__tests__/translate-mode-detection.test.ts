@@ -242,6 +242,74 @@ describe("handleTranslateText — auto-detect language direction", () => {
   });
 });
 
+// US-B: a user who does NOT study English types a multi-word English phrase.
+// English is added to the sync-detection candidate set for MULTI-WORD input so
+// franc can pick English for a phrase it reads as English, instead of coercing
+// it to the nearest studied Latin language (German) — after which it resolves to
+// the English-source branch (translated into the studied languages).
+//
+// These tests assert the candidate-set WIRING (the actual code change); the
+// real-franc behaviour of specific phrases is covered by a no-mock unit test in
+// packages/core/.../detect-language-with-confidence.test.ts. Note the wiring is
+// scoped to multi-word: a single word keeps the original (English-free) set so it
+// does not get pushed into the async AI pass.
+describe("handleTranslateText — English in sync candidates for multi-word input (US-B)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Russian native, studies German only — English is NOT a learning language.
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "ru",
+      nativeLang: "ru",
+      learningLangs: ["de"],
+    });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
+    // Simulate a phrase franc reads as English: identifiable as English only when
+    // `en` is among the candidates.
+    vi.mocked(detectLanguageWithConfidence).mockImplementation((_text: string, candidates: string[]) =>
+      candidates.includes("en")
+        ? {
+            language: "en",
+            confidence: 0.9,
+            evidence: [{ strategy: "franc", candidate: "en", score: 0.9, reason: "mock" }],
+          }
+        : { confidence: 0, evidence: [] },
+    );
+    // If the sync result is coercion-prone and escalates to the async AI-arbitration
+    // pass, that pass resolves the phrase to English (what real AI open-detection does).
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValue({
+      language: "en",
+      confidence: 0.9,
+      evidence: [{ strategy: "ai", candidate: "en", score: 0.9, reason: "mock" }],
+    });
+  });
+
+  it("includes English among the sync-detection candidates for a multi-word phrase", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "I will get you");
+
+    expect(detectLanguageWithConfidence).toHaveBeenCalledWith("I will get you", expect.arrayContaining(["en"]));
+  });
+
+  it("does NOT add English to the sync candidates for a single word", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "Haus");
+
+    const syncCall = vi.mocked(detectLanguageWithConfidence).mock.calls.find((call) => call[0] === "Haus");
+    expect(syncCall).toBeDefined();
+    expect(syncCall?.[1]).not.toContain("en");
+  });
+
+  it("translates a franc-identified English phrase as English source, targeting the studied language", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "I will get you");
+
+    expect(translateWithContext).toHaveBeenCalled();
+    const callArgs = vi.mocked(translateWithContext).mock.calls[0][0];
+    expect(callArgs.sourceLang).toBe("en");
+    expect(callArgs.targetLangs).toContain("de");
+  });
+});
+
 describe("handleTranslateText — mistype warning (Task 58)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -252,6 +320,9 @@ describe("handleTranslateText — mistype warning (Task 58)", () => {
     });
     // Mock detectLanguageWithConfidence to return ambiguous (no language detected)
     vi.mocked(detectLanguageWithConfidence).mockReturnValue({ confidence: 0, evidence: [] });
+    // Async escalation also finds nothing (stub explicitly — clearAllMocks does not
+    // reset a mockResolvedValue set by an earlier describe block).
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValue({ confidence: 0, evidence: [] });
   });
 
   it("shows mistype warning when detectLanguage returns undefined", async () => {

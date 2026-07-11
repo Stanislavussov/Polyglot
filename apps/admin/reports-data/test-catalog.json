@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-08T06:45:22.988Z",
+  "generatedAt": "2026-07-11T17:16:26.001Z",
   "summary": {
-    "total": 2185,
+    "total": 2201,
     "business": 0,
-    "technical": 2185,
+    "technical": 2201,
     "workspaces": [
       "apps",
       "packages"
@@ -7136,10 +7136,58 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: falls back to native→learning for ambiguous input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-257-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-286-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-includes-english-among-the-sync-detection-candidates-for-a-multi-word-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 257,
+      "sourceLine": 286,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — English in sync candidates for multi-word input (US-B)"
+      ],
+      "title": "includes English among the sync-detection candidates for a multi-word phrase",
+      "rawTitle": "includes English among the sync-detection candidates for a multi-word phrase",
+      "name": "Bot handle Translate Text — English in sync candidates for multi word input (US B) includes English among the sync detection candidates for a multi word phrase",
+      "value": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: includes English among the sync detection candidates for a multi word phrase.",
+      "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: includes English among the sync detection candidates for a multi word phrase."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-293-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-does-not-add-english-to-the-sync-candidates-for-a-single-word",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
+      "sourceLine": 293,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — English in sync candidates for multi-word input (US-B)"
+      ],
+      "title": "does NOT add English to the sync candidates for a single word",
+      "rawTitle": "does NOT add English to the sync candidates for a single word",
+      "name": "Bot handle Translate Text — English in sync candidates for multi word input (US B) does NOT add English to the sync candidates for a single word",
+      "value": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: does NOT add English to the sync candidates for a single word.",
+      "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: does NOT add English to the sync candidates for a single word."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-302-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-translates-a-franc-identified-english-phrase-as-english-source-targeting-the-studied-language",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
+      "sourceLine": 302,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — English in sync candidates for multi-word input (US-B)"
+      ],
+      "title": "translates a franc-identified English phrase as English source, targeting the studied language",
+      "rawTitle": "translates a franc-identified English phrase as English source, targeting the studied language",
+      "name": "Bot handle Translate Text — English in sync candidates for multi word input (US B) translates a franc identified English phrase as English source, targeting the studied language",
+      "value": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: translates a franc identified English phrase as English source, targeting the studied language.",
+      "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: translates a franc identified English phrase as English source, targeting the studied language."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-328-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
+      "sourceLine": 328,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7152,10 +7200,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: shows mistype warning when detect Language returns undefined."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-268-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-339-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 268,
+      "sourceLine": 339,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7168,10 +7216,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores pending state in session when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-277-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-348-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 277,
+      "sourceLine": 348,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7184,10 +7232,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores clean pending word and context hint when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-285-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-356-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 356,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7200,10 +7248,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not call translate With Context when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-292-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-363-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 292,
+      "sourceLine": 363,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7216,10 +7264,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior so asks for source language when fast has dictionary evidence in English and German."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-325-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-396-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 325,
+      "sourceLine": 396,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7232,10 +7280,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not ask for source language for weak shared script ambiguity only."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-385-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-456-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 385,
+      "sourceLine": 456,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7248,10 +7296,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior so proceeds with translation when confirm callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-401-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-472-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 401,
+      "sourceLine": 472,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7264,10 +7312,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior: shows session expired alert when no pending state."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-422-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-493-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 422,
+      "sourceLine": 493,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7280,10 +7328,10 @@
       "description": "Protects the bot handle Mistype Cancel Callback — Task 58 behavior so clears pending state when cancel callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-435-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-506-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 435,
+      "sourceLine": 506,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8288,10 +8336,10 @@
       "description": "Protects the bot handle Regen Loop behavior so passes input Type to mock Vocabulary Repository create."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-216-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-220-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 216,
+      "sourceLine": 220,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8304,10 +8352,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: calls translate With Context with correct input and deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-237-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-241-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 237,
+      "sourceLine": 241,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8320,10 +8368,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: logs one credit after successful incoming translation request."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-251-handletranslatetext-context-enrichment-does-not-call-ai-when-the-monthly-translation-limit-is-exhausted",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-255-handletranslatetext-context-enrichment-does-not-call-ai-when-the-monthly-translation-limit-is-exhausted",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 251,
+      "sourceLine": 255,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8336,10 +8384,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not call AI when the monthly translation limit is exhausted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-264-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-268-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 264,
+      "sourceLine": 268,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8352,10 +8400,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes learner friendly default output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-281-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-285-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 281,
+      "sourceLine": 285,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8368,10 +8416,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes lookup Context from create Context Lookup to deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-289-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-293-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 289,
+      "sourceLine": 293,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8384,10 +8432,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not include dictionary Context in input (layer fills it)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-297-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-301-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 297,
+      "sourceLine": 301,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8400,10 +8448,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: includes user Id in translate With Context input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-309-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-313-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 309,
+      "sourceLine": 313,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8416,10 +8464,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes clean text and context hint to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-322-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-326-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 322,
+      "sourceLine": 326,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8432,10 +8480,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: records the routed translation model in request timing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-358-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-362-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 358,
+      "sourceLine": 362,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8448,10 +8496,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes free form context description to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-371-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-375-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 371,
+      "sourceLine": 375,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8464,10 +8512,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not request a native language translation block for native source text."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-392-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-396-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 392,
+      "sourceLine": 396,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8480,10 +8528,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: stores context hint in translation Map for regeneration."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-399-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-403-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 399,
+      "sourceLine": 403,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8496,10 +8544,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: rejects marker only input before calling AI."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-407-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-411-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 407,
+      "sourceLine": 411,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8512,10 +8560,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback is a stub that just answers the callback query."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-440-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-444-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 440,
+      "sourceLine": 444,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8528,10 +8576,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback does not call AI even when credits are available."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-473-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-477-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 473,
+      "sourceLine": 477,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8544,10 +8592,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: shows clarification UI instead of generic translation error."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-508-handletranslatetext-context-enrichment-localizes-a-structured-unrecognized-word-reason-via-t-core-sends-no-ui-strings",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-512-handletranslatetext-context-enrichment-localizes-a-structured-unrecognized-word-reason-via-t-core-sends-no-ui-strings",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 508,
+      "sourceLine": 512,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8560,10 +8608,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so localizes a structured unrecognized word reason via t() (core sends no UI strings)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-545-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-549-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 545,
+      "sourceLine": 549,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8576,10 +8624,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not add source language buttons to meaning clarification."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-568-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-572-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 568,
+      "sourceLine": 572,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8592,10 +8640,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses only core source language options when source language ambiguity is returned."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-601-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-605-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 601,
+      "sourceLine": 605,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8608,10 +8656,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so sets awaiting state when clarification context is requested."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-621-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-625-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 621,
+      "sourceLine": 625,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8624,10 +8672,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the next text message as clarification context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-648-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-652-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 648,
+      "sourceLine": 652,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8640,10 +8688,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with the selected source language and user language targets."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-674-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-678-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 674,
+      "sourceLine": 678,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8656,10 +8704,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with a source language option from core preflight."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-709-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-713-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 709,
+      "sourceLine": 713,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8672,10 +8720,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with corrected text when a typo option is selected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-750-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-754-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 750,
+      "sourceLine": 754,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8688,10 +8736,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the corrected text language when a typo option includes lang Code."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-786-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-790-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 786,
+      "sourceLine": 790,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8704,10 +8752,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses ambiguity option as context hint when no structured pipeline field exists."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-815-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-819-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 815,
+      "sourceLine": 819,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8720,10 +8768,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so clears pending clarification on a stale cancel callback."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-860-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-not-a-silent-translation-for-a-supported-out-of-set-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-864-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-not-a-silent-translation-for-a-supported-out-of-set-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 860,
+      "sourceLine": 864,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8736,10 +8784,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate (not a silent translation) for a supported out of set language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-885-handletranslatetext-out-of-set-language-detection-catches-a-letter-marked-out-of-set-word-via-alphabet-exclusion-no-async-signal-needed",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-889-handletranslatetext-out-of-set-language-detection-catches-a-letter-marked-out-of-set-word-via-alphabet-exclusion-no-async-signal-needed",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 885,
+      "sourceLine": 889,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8752,10 +8800,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so catches a letter marked out of set word via alphabet exclusion (no async signal needed)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-901-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-when-a-task-70-correction-is-in-an-unstudied-language-kazakh",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-905-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-when-a-task-70-correction-is-in-an-unstudied-language-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 901,
+      "sourceLine": 905,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8768,10 +8816,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate when a Task 70 correction is in an unstudied language (Kazakh)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-932-handletranslatetext-out-of-set-language-detection-keeps-the-spelling-correction-for-a-same-alphabet-typo-no-false-out-of-set",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-936-handletranslatetext-out-of-set-language-detection-keeps-the-spelling-correction-for-a-same-alphabet-typo-no-false-out-of-set",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 932,
+      "sourceLine": 936,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8784,10 +8832,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the spelling correction for a same alphabet typo (no false out of set)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-964-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-968-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 964,
+      "sourceLine": 968,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8800,10 +8848,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the plain block for an UNSUPPORTED out of set language (can't be added)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-979-handletranslatetext-out-of-set-language-detection-does-not-let-franc-out-of-set-override-a-confident-in-set-detection-czech-not-blocked-as-croatian",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-983-handletranslatetext-out-of-set-language-detection-does-not-let-franc-out-of-set-override-a-confident-in-set-detection-czech-not-blocked-as-croatian",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 979,
+      "sourceLine": 983,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8816,10 +8864,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not let franc out of set override a confident in set detection (Czech not blocked as Croatian)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1004-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1008-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1004,
+      "sourceLine": 1008,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8832,10 +8880,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so re verifies a confident heuristic only diacritic detection via the async path."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1030-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1034-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1030,
+      "sourceLine": 1034,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8848,10 +8896,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not re verify confident ASCII detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1038-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1042-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1038,
+      "sourceLine": 1042,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8864,10 +8912,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: records a 'detected' telemetry event for confident detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1069-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1073-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1069,
+      "sourceLine": 1073,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8880,10 +8928,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:add adds the language to the learning set and then translates."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1081-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1085-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1081,
+      "sourceLine": 1085,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8896,10 +8944,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:once translates without persisting the language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1092-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1096-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1092,
+      "sourceLine": 1096,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8912,10 +8960,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:cancel dismisses without translating."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1101-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1105-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1101,
+      "sourceLine": 1105,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8928,10 +8976,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: keeps two consecutive prompts from cross wiring lang word (single slot race, T02)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1127-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1131-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1127,
+      "sourceLine": 1131,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8944,10 +8992,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: rejects a stale button whose language no longer matches its stored entry."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1137-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1141-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1137,
+      "sourceLine": 1141,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8960,10 +9008,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: shows a generic error (not 'max languages') when the DB write fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1154-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1158-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1154,
+      "sourceLine": 1158,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8976,10 +9024,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: reports the language limit without calling the DB when already at MAX LEARNING LANGS."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1171-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1175-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1171,
+      "sourceLine": 1175,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8992,10 +9040,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so localizes the stale session alert via t() (no hardcoded English)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1185-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1189-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1185,
+      "sourceLine": 1189,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9008,10 +9056,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so gates the clarify source language option: tapping an out of set language offers add and translate (incident: Kazakh)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1229-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1233-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1229,
+      "sourceLine": 1233,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9024,10 +9072,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so annotates the card with a ✏️ Fixed line when the input was auto corrected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1259-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1263-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1259,
+      "sourceLine": 1263,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9040,10 +9088,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior: renders language choices as flag + code buttons with a hint, not language names."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1291-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1295-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1291,
+      "sourceLine": 1295,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9056,10 +9104,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so re runs verbatim with skip Input Correction when the user picks 'translate as written'."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1324-isetymologyeligible-is-eligible-for-a-learning-language-word",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1328-isetymologyeligible-is-eligible-for-a-learning-language-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1324,
+      "sourceLine": 1328,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9072,10 +9120,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1328-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1332-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1328,
+      "sourceLine": 1332,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9088,10 +9136,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1332-isetymologyeligible-is-not-eligible-for-sentences",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1336-isetymologyeligible-is-not-eligible-for-sentences",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1332,
+      "sourceLine": 1336,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9104,10 +9152,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible for sentences."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1336-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1340-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1336,
+      "sourceLine": 1340,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9120,10 +9168,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible when the source term is in the native language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1374-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1378-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1374,
+      "sourceLine": 1378,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9136,10 +9184,10 @@
       "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior: keeps a loading button on the card and answers the tap only when the section is rendered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1387-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1391-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1387,
+      "sourceLine": 1391,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -24208,6 +24256,150 @@
       "description": "Protects the core domain detect Language With Confidence Async behavior: does not call AI when Wiktionary already resolved."
     },
     {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-425-detectlanguagewithconfidence-english-among-studied-latin-candidates-us-b-resolves-a-phrase-franc-reads-as-english-to-en-rescued-by-including-en",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 425,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence — English among studied Latin candidates (US-B)"
+      ],
+      "title": "resolves a phrase franc reads as English to en (rescued by including en)",
+      "rawTitle": "resolves a phrase franc reads as English to en (rescued by including en)",
+      "name": "Core domain detect Language With Confidence — English among studied Latin candidates (US B) resolves a phrase franc reads as English to en (rescued by including en)",
+      "value": "Protects the core domain detect Language With Confidence — English among studied Latin candidates (US B) behavior: resolves a phrase franc reads as English to en (rescued by including en).",
+      "description": "Protects the core domain detect Language With Confidence — English among studied Latin candidates (US B) behavior: resolves a phrase franc reads as English to en (rescued by including en)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-430-detectlanguagewithconfidence-english-among-studied-latin-candidates-us-b-resolves-a-longer-english-phrase-to-en",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 430,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence — English among studied Latin candidates (US-B)"
+      ],
+      "title": "resolves a longer English phrase to en",
+      "rawTitle": "resolves a longer English phrase to en",
+      "name": "Core domain detect Language With Confidence — English among studied Latin candidates (US B) resolves a longer English phrase to en",
+      "value": "Protects the core domain detect Language With Confidence — English among studied Latin candidates (US B) behavior: resolves a longer English phrase to en.",
+      "description": "Protects the core domain detect Language With Confidence — English among studied Latin candidates (US B) behavior: resolves a longer English phrase to en."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-435-detectlanguagewithconfidence-english-among-studied-latin-candidates-us-b-still-coerces-a-real-german-phrase-to-de-english-does-not-steal-it",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 435,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence — English among studied Latin candidates (US-B)"
+      ],
+      "title": "still coerces a real German phrase to de (English does not steal it)",
+      "rawTitle": "still coerces a real German phrase to de (English does not steal it)",
+      "name": "Core domain detect Language With Confidence — English among studied Latin candidates (US B) still coerces a real German phrase to de (English does not steal it)",
+      "value": "Protects the core domain detect Language With Confidence — English among studied Latin candidates (US B) behavior so still coerces a real German phrase to de (English does not steal it).",
+      "description": "Protects the core domain detect Language With Confidence — English among studied Latin candidates (US B) behavior so still coerces a real German phrase to de (English does not steal it)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-443-detectlanguagewithconfidence-english-among-studied-latin-candidates-us-b-sync-alone-still-returns-de-for-a-franc-misread-short-english-phrase",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 443,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidence — English among studied Latin candidates (US-B)"
+      ],
+      "title": "sync alone still returns de for a franc-misread short English phrase",
+      "rawTitle": "sync alone still returns de for a franc-misread short English phrase",
+      "name": "Core domain detect Language With Confidence — English among studied Latin candidates (US B) sync alone still returns de for a franc misread short English phrase",
+      "value": "Protects the core domain detect Language With Confidence — English among studied Latin candidates (US B) behavior so sync alone still returns de for a franc misread short English phrase.",
+      "description": "Protects the core domain detect Language With Confidence — English among studied Latin candidates (US B) behavior so sync alone still returns de for a franc misread short English phrase."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-452-detectlanguagewithconfidenceasync-ai-arbitration-overrides-franc-coercion-us-b-overrides-franc-s-german-coercion-with-the-ai-s-english-when-they-disagree",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 452,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync — AI arbitration overrides franc coercion (US-B)"
+      ],
+      "title": "overrides franc's German coercion with the AI's English when they disagree",
+      "rawTitle": "overrides franc's German coercion with the AI's English when they disagree",
+      "name": "Core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) overrides franc's German coercion with the AI's English when they disagree",
+      "value": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior so overrides franc's German coercion with the AI's English when they disagree.",
+      "description": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior so overrides franc's German coercion with the AI's English when they disagree."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-459-detectlanguagewithconfidenceasync-ai-arbitration-overrides-franc-coercion-us-b-keeps-franc-s-result-when-the-ai-agrees-with-it",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 459,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync — AI arbitration overrides franc coercion (US-B)"
+      ],
+      "title": "keeps franc's result when the AI agrees with it",
+      "rawTitle": "keeps franc's result when the AI agrees with it",
+      "name": "Core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) keeps franc's result when the AI agrees with it",
+      "value": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior: keeps franc's result when the AI agrees with it.",
+      "description": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior: keeps franc's result when the AI agrees with it."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-465-detectlanguagewithconfidenceasync-ai-arbitration-overrides-franc-coercion-us-b-keeps-franc-s-result-when-the-ai-is-inconclusive-ambiguous",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 465,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync — AI arbitration overrides franc coercion (US-B)"
+      ],
+      "title": "keeps franc's result when the AI is inconclusive (ambiguous)",
+      "rawTitle": "keeps franc's result when the AI is inconclusive (ambiguous)",
+      "name": "Core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) keeps franc's result when the AI is inconclusive (ambiguous)",
+      "value": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior: keeps franc's result when the AI is inconclusive (ambiguous).",
+      "description": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior: keeps franc's result when the AI is inconclusive (ambiguous)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-471-detectlanguagewithconfidenceasync-ai-arbitration-overrides-franc-coercion-us-b-does-not-arbitrate-a-low-english-affinity-german-sentence-no-ai-call",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 471,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync — AI arbitration overrides franc coercion (US-B)"
+      ],
+      "title": "does NOT arbitrate a LOW-English-affinity German sentence (no AI call)",
+      "rawTitle": "does NOT arbitrate a LOW-English-affinity German sentence (no AI call)",
+      "name": "Core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) does NOT arbitrate a LOW English affinity German sentence (no AI call)",
+      "value": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior: does NOT arbitrate a LOW English affinity German sentence (no AI call).",
+      "description": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior: does NOT arbitrate a LOW English affinity German sentence (no AI call)."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-detect-language-with-confidence-test-ts-482-detectlanguagewithconfidenceasync-ai-arbitration-overrides-franc-coercion-us-b-does-arbitrate-a-high-english-affinity-german-sentence-but-the-agreeing-ai-keeps-it-de",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language-with-confidence.test.ts",
+      "sourceLine": 482,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "detectLanguageWithConfidenceAsync — AI arbitration overrides franc coercion (US-B)"
+      ],
+      "title": "DOES arbitrate a high-English-affinity German sentence, but the agreeing AI keeps it de",
+      "rawTitle": "DOES arbitrate a high-English-affinity German sentence, but the agreeing AI keeps it de",
+      "name": "Core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) DOES arbitrate a high English affinity German sentence, but the agreeing AI keeps it de",
+      "value": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior: DOES arbitrate a high English affinity German sentence, but the agreeing AI keeps it de.",
+      "description": "Protects the core domain detect Language With Confidence Async — AI arbitration overrides franc coercion (US B) behavior: DOES arbitrate a high English affinity German sentence, but the agreeing AI keeps it de."
+    },
+    {
       "id": "packages-core-src-modules-language-detect-tests-detect-language-test-ts-17-detectlanguage-returns-undefined-for-empty-text",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/detect-language.test.ts",
@@ -32506,6 +32698,74 @@
       "name": "Core domain validate Examples includes field path with example index",
       "value": "Protects the core domain validate Examples behavior: includes field path with example index.",
       "description": "Protects the core domain validate Examples behavior: includes field path with example index."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-163-validateexamples-shares-a-significant-token-not-every-token-accepts-an-annotated-german-noun-whose-example-uses-a-different-article-case",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
+      "sourceLine": 163,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples",
+        "shares-a-significant-token (not every token)"
+      ],
+      "title": "accepts an annotated German noun whose example uses a different article/case",
+      "rawTitle": "accepts an annotated German noun whose example uses a different article/case",
+      "name": "Core domain validate Examples shares a significant token (not every token) accepts an annotated German noun whose example uses a different article case",
+      "value": "Protects the core domain validate Examples shares a significant token (not every token) behavior: accepts an annotated German noun whose example uses a different article case.",
+      "description": "Protects the core domain validate Examples shares a significant token (not every token) behavior: accepts an annotated German noun whose example uses a different article case."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-173-validateexamples-shares-a-significant-token-not-every-token-accepts-an-annotated-german-noun-phrase-demonstrated-by-its-head-noun",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
+      "sourceLine": 173,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples",
+        "shares-a-significant-token (not every token)"
+      ],
+      "title": "accepts an annotated German noun phrase demonstrated by its head noun",
+      "rawTitle": "accepts an annotated German noun phrase demonstrated by its head noun",
+      "name": "Core domain validate Examples shares a significant token (not every token) accepts an annotated German noun phrase demonstrated by its head noun",
+      "value": "Protects the core domain validate Examples shares a significant token (not every token) behavior: accepts an annotated German noun phrase demonstrated by its head noun.",
+      "description": "Protects the core domain validate Examples shares a significant token (not every token) behavior: accepts an annotated German noun phrase demonstrated by its head noun."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-181-validateexamples-shares-a-significant-token-not-every-token-accepts-a-multi-word-idiom-whose-example-drops-particles-but-keeps-the-head",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
+      "sourceLine": 181,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples",
+        "shares-a-significant-token (not every token)"
+      ],
+      "title": "accepts a multi-word idiom whose example drops particles but keeps the head",
+      "rawTitle": "accepts a multi-word idiom whose example drops particles but keeps the head",
+      "name": "Core domain validate Examples shares a significant token (not every token) accepts a multi word idiom whose example drops particles but keeps the head",
+      "value": "Protects the core domain validate Examples shares a significant token (not every token) behavior: accepts a multi word idiom whose example drops particles but keeps the head.",
+      "description": "Protects the core domain validate Examples shares a significant token (not every token) behavior: accepts a multi word idiom whose example drops particles but keeps the head."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-191-validateexamples-shares-a-significant-token-not-every-token-still-rejects-a-first-example-that-shares-no-token-with-the-translation",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
+      "sourceLine": 191,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples",
+        "shares-a-significant-token (not every token)"
+      ],
+      "title": "still rejects a first example that shares no token with the translation",
+      "rawTitle": "still rejects a first example that shares no token with the translation",
+      "name": "Core domain validate Examples shares a significant token (not every token) still rejects a first example that shares no token with the translation",
+      "value": "Protects the core domain validate Examples shares a significant token (not every token) behavior so still rejects a first example that shares no token with the translation.",
+      "description": "Protects the core domain validate Examples shares a significant token (not every token) behavior so still rejects a first example that shares no token with the translation."
     },
     {
       "id": "packages-core-src-modules-validation-tests-schema-validator-test-ts-12-validateschema-returns-valid-for-conforming-data",
