@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-11T21:09:12.658Z",
+  "generatedAt": "2026-07-13T18:32:51.711Z",
   "summary": {
-    "total": 2215,
+    "total": 2219,
     "business": 0,
-    "technical": 2215,
+    "technical": 2219,
     "workspaces": [
       "apps",
       "packages"
@@ -25920,7 +25920,7 @@
       "description": "Protects the core domain resolve Translation Direction behavior so reverses direction when Czech (learning) is detected."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-50-resolvetranslationdirection-falls-back-to-native-source-and-learning-language-targets-for-ambiguous-short-input",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-50-resolvetranslationdirection-falls-back-to-english-for-an-ambiguous-latin-word-when-native-is-cyrillic",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
       "sourceLine": 50,
@@ -25929,17 +25929,81 @@
       "suitePath": [
         "resolveTranslationDirection"
       ],
-      "title": "falls back to native source and learning-language targets for ambiguous short input",
-      "rawTitle": "falls back to native source and learning-language targets for ambiguous short input",
-      "name": "Core domain resolve Translation Direction falls back to native source and learning language targets for ambiguous short input",
-      "value": "Protects the core domain resolve Translation Direction behavior: falls back to native source and learning language targets for ambiguous short input.",
-      "description": "Protects the core domain resolve Translation Direction behavior: falls back to native source and learning language targets for ambiguous short input."
+      "title": "falls back to English for an ambiguous Latin word when native is Cyrillic",
+      "rawTitle": "falls back to English for an ambiguous Latin word when native is Cyrillic",
+      "name": "Core domain resolve Translation Direction falls back to English for an ambiguous Latin word when native is Cyrillic",
+      "value": "Protects the core domain resolve Translation Direction behavior: falls back to English for an ambiguous Latin word when native is Cyrillic.",
+      "description": "Protects the core domain resolve Translation Direction behavior: falls back to English for an ambiguous Latin word when native is Cyrillic."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-62-resolvetranslationdirection-falls-back-for-empty-text",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-63-resolvetranslationdirection-falls-back-to-the-first-script-compatible-learning-language-when-english-is-not-studied",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 62,
+      "sourceLine": 63,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "resolveTranslationDirection"
+      ],
+      "title": "falls back to the first script-compatible learning language when English is not studied",
+      "rawTitle": "falls back to the first script-compatible learning language when English is not studied",
+      "name": "Core domain resolve Translation Direction falls back to the first script compatible learning language when English is not studied",
+      "value": "Protects the core domain resolve Translation Direction behavior: falls back to the first script compatible learning language when English is not studied.",
+      "description": "Protects the core domain resolve Translation Direction behavior: falls back to the first script compatible learning language when English is not studied."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-75-resolvetranslationdirection-prefers-english-over-config-order-for-an-ambiguous-latin-word",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
+      "sourceLine": 75,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "resolveTranslationDirection"
+      ],
+      "title": "prefers English over config order for an ambiguous Latin word",
+      "rawTitle": "prefers English over config order for an ambiguous Latin word",
+      "name": "Core domain resolve Translation Direction prefers English over config order for an ambiguous Latin word",
+      "value": "Protects the core domain resolve Translation Direction behavior so prefers English over config order for an ambiguous Latin word.",
+      "description": "Protects the core domain resolve Translation Direction behavior so prefers English over config order for an ambiguous Latin word."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-89-resolvetranslationdirection-keeps-the-native-fallback-when-the-script-matches-the-native-language",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
+      "sourceLine": 89,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "resolveTranslationDirection"
+      ],
+      "title": "keeps the native fallback when the script matches the native language",
+      "rawTitle": "keeps the native fallback when the script matches the native language",
+      "name": "Core domain resolve Translation Direction keeps the native fallback when the script matches the native language",
+      "value": "Protects the core domain resolve Translation Direction behavior: keeps the native fallback when the script matches the native language.",
+      "description": "Protects the core domain resolve Translation Direction behavior: keeps the native fallback when the script matches the native language."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-101-resolvetranslationdirection-keeps-the-native-fallback-when-no-learning-language-matches-the-script",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
+      "sourceLine": 101,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "resolveTranslationDirection"
+      ],
+      "title": "keeps the native fallback when no learning language matches the script",
+      "rawTitle": "keeps the native fallback when no learning language matches the script",
+      "name": "Core domain resolve Translation Direction keeps the native fallback when no learning language matches the script",
+      "value": "Protects the core domain resolve Translation Direction behavior: keeps the native fallback when no learning language matches the script.",
+      "description": "Protects the core domain resolve Translation Direction behavior: keeps the native fallback when no learning language matches the script."
+    },
+    {
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-113-resolvetranslationdirection-falls-back-for-empty-text",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
+      "sourceLine": 113,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25952,10 +26016,10 @@
       "description": "Protects the core domain resolve Translation Direction behavior: falls back for empty text."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-72-resolvetranslationdirection-falls-back-for-numbers-emoji",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-123-resolvetranslationdirection-falls-back-for-numbers-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 72,
+      "sourceLine": 123,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25968,10 +26032,10 @@
       "description": "Protects the core domain resolve Translation Direction behavior: falls back for numbers emoji."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-84-resolvetranslationdirection-handles-single-learning-language-detected-learning-targets-native",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-135-resolvetranslationdirection-handles-single-learning-language-detected-learning-targets-native",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 84,
+      "sourceLine": 135,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25984,10 +26048,10 @@
       "description": "Protects the core domain resolve Translation Direction behavior: handles single learning language: detected=learning → targets=[native]."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-95-resolvetranslationdirection-handles-single-learning-language-native-input-targets-learning",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-146-resolvetranslationdirection-handles-single-learning-language-native-input-targets-learning",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 146,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26000,10 +26064,10 @@
       "description": "Protects the core domain resolve Translation Direction behavior: handles single learning language: native input → targets=[learning]."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-108-resolvetranslationdirection-uses-all-learning-languages-as-targets-when-reversing",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-159-resolvetranslationdirection-uses-all-learning-languages-as-targets-when-reversing",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 159,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26016,10 +26080,10 @@
       "description": "Protects the core domain resolve Translation Direction behavior: uses all learning languages as targets when reversing."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-121-resolvetranslationdirection-detects-cyrillic-single-word-as-native-ru-with-script-heuristic",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-172-resolvetranslationdirection-detects-cyrillic-single-word-as-native-ru-with-script-heuristic",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 121,
+      "sourceLine": 172,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26032,10 +26096,10 @@
       "description": "Protects the core domain resolve Translation Direction behavior: detects Cyrillic single word as native (ru) with script heuristic."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-134-resolvetranslationdirection-handles-empty-learning-languages",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-185-resolvetranslationdirection-handles-empty-learning-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 134,
+      "sourceLine": 185,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26048,10 +26112,10 @@
       "description": "Protects the core domain resolve Translation Direction behavior: handles empty learning languages."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-153-resolvedirectionfromsource-returns-learning-lang-targets-when-source-is-native",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-204-resolvedirectionfromsource-returns-learning-lang-targets-when-source-is-native",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 153,
+      "sourceLine": 204,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26064,10 +26128,10 @@
       "description": "Protects the core domain resolve Direction From Source behavior: returns learning lang targets when source is native."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-160-resolvedirectionfromsource-excludes-source-from-targets-when-source-is-a-learning-lang",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-211-resolvedirectionfromsource-excludes-source-from-targets-when-source-is-a-learning-lang",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 160,
+      "sourceLine": 211,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26080,10 +26144,10 @@
       "description": "Protects the core domain resolve Direction From Source behavior: excludes source from targets when source is a learning lang."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-168-resolvedirectionfromsource-returns-null-when-source-not-in-config",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-219-resolvedirectionfromsource-returns-null-when-source-not-in-config",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 168,
+      "sourceLine": 219,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26096,10 +26160,10 @@
       "description": "Protects the core domain resolve Direction From Source behavior: returns null when source not in config."
     },
     {
-      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-173-resolvedirectionfromsource-guard-does-not-include-source-back-when-single-learning-lang",
+      "id": "packages-core-src-modules-language-detect-tests-resolve-direction-test-ts-224-resolvedirectionfromsource-guard-does-not-include-source-back-when-single-learning-lang",
       "kind": "technical",
       "filePath": "packages/core/src/modules/language-detect/__tests__/resolve-direction.test.ts",
-      "sourceLine": 173,
+      "sourceLine": 224,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

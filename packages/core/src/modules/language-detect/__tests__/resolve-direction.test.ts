@@ -45,17 +45,68 @@ describe("resolveTranslationDirection", () => {
     expect(result.detectedLang).toBe("cs");
   });
 
-  // === Unknown / inconclusive input → fallback ===
+  // === Unknown / inconclusive input → script-aware fallback ===
 
-  it("falls back to native source and learning-language targets for ambiguous short input", () => {
-    // "hello" is a single Latin word, both "en" and "cs" use Latin → ambiguous
+  it("falls back to English for an ambiguous Latin word when native is Cyrillic", () => {
+    // "hello" is a single Latin word, both "en" and "cs" use Latin → ambiguous.
+    // Latin script rules out the Cyrillic native language, so the fallback
+    // must pick a script-compatible learning language (English preferred).
     const result = resolveTranslationDirection({
       ...base,
       text: "hello",
     });
-    // Falls back to native → learning
+    expect(result.sourceLang).toBe("en");
+    expect(result.targetLangs).toEqual(["ru", "cs"]);
+    expect(result.detectedLang).toBeUndefined();
+  });
+
+  it("falls back to the first script-compatible learning language when English is not studied", () => {
+    // Latin word, native ru (Cyrillic), learning cs+de (both Latin) → cs wins by config order.
+    const result = resolveTranslationDirection({
+      text: "Doom",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de"],
+    });
+    expect(result.sourceLang).toBe("cs");
+    expect(result.targetLangs).toEqual(["ru", "de"]);
+    expect(result.detectedLang).toBeUndefined();
+  });
+
+  it("prefers English over config order for an ambiguous Latin word", () => {
+    // Real-world regression: "Doom" for a ru-native user learning en+cs+de fell
+    // back to sourceLang=ru and hit the unrecognized-word guard ("не похоже на
+    // обычное слово в языке Русский").
+    const result = resolveTranslationDirection({
+      text: "Doom",
+      nativeLang: "ru",
+      learningLangs: ["cs", "en", "de"],
+    });
+    expect(result.sourceLang).toBe("en");
+    expect(result.targetLangs).toEqual(["ru", "cs", "de"]);
+    expect(result.detectedLang).toBeUndefined();
+  });
+
+  it("keeps the native fallback when the script matches the native language", () => {
+    // Cyrillic gibberish stays ru → learning even though detection is inconclusive.
+    const result = resolveTranslationDirection({
+      text: "хзйцкь",
+      nativeLang: "ru",
+      learningLangs: ["uk", "en"],
+    });
     expect(result.sourceLang).toBe("ru");
-    expect(result.targetLangs).toEqual(["cs", "en"]);
+    expect(result.targetLangs).toEqual(["uk", "en"]);
+    expect(result.detectedLang).toBeUndefined();
+  });
+
+  it("keeps the native fallback when no learning language matches the script", () => {
+    // Latin word but the user only studies Japanese → nothing compatible, keep native.
+    const result = resolveTranslationDirection({
+      text: "Doom",
+      nativeLang: "ru",
+      learningLangs: ["ja"],
+    });
+    expect(result.sourceLang).toBe("ru");
+    expect(result.targetLangs).toEqual(["ja"]);
     expect(result.detectedLang).toBeUndefined();
   });
 
