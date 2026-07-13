@@ -83,6 +83,19 @@ const SCRIPT_TO_LANGS: Record<ScriptId, string[]> = {
   kana: ["ja"],
 };
 
+/**
+ * Filter `candidates` down to languages whose alphabet can express the
+ * dominant script of `text`. Returns undefined when the text has no
+ * detectable script (numbers, emoji, empty) — callers should treat that
+ * as "no signal" rather than "no compatible language".
+ */
+export function scriptCompatibleCandidates(text: string, candidates: string[]): string[] | undefined {
+  const script = detectScript(text);
+  if (!script) return undefined;
+  const scriptLangs = SCRIPT_TO_LANGS[script] ?? [];
+  return candidates.filter((candidate) => scriptLangs.includes(candidate));
+}
+
 function detectScript(text: string): ScriptId | undefined {
   const counts: Partial<Record<ScriptId, number>> = {};
   let total = 0;
