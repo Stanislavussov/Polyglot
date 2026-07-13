@@ -55,4 +55,14 @@ describe("buildAiFailover", () => {
       expect(split.reservedFallbackMs).toBeGreaterThan(0);
     }
   });
+
+  it("disables the split for a non-finite/non-positive budget instead of returning a NaN split", () => {
+    // Regression for the "timed out after NaNms" outage: a partial ai.defaults blob
+    // yielded requestTimeoutMs=undefined → NaN budget. `NaN < MIN` is false, so
+    // without the isFinitePositive guard buildAiFailover returned {primaryBudgetMs:
+    // NaN, reservedFallbackMs: NaN}, which setTimeout treats as an instant abort.
+    for (const bad of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 0, -1]) {
+      expect(buildAiFailover(bad)).toBeUndefined();
+    }
+  });
 });

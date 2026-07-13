@@ -13,6 +13,8 @@
  * applies.
  */
 
+import { isFinitePositive } from "@polyglot/core";
+
 /** Fallback budget used when no provider is injected or it yields an invalid value. */
 export const DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
 
@@ -38,7 +40,7 @@ export async function resolveRequestTimeoutMs(): Promise<number> {
   if (!provider) return DEFAULT_REQUEST_TIMEOUT_MS;
   try {
     const ms = await provider();
-    return Number.isFinite(ms) && ms > 0 ? ms : DEFAULT_REQUEST_TIMEOUT_MS;
+    return isFinitePositive(ms) ? ms : DEFAULT_REQUEST_TIMEOUT_MS;
   } catch {
     return DEFAULT_REQUEST_TIMEOUT_MS;
   }

@@ -10,6 +10,7 @@ import type {
   VideoVocabularyConfig,
 } from "../../ports/settings.port.js";
 import type { SubscriptionPlan } from "../../ports/user.repository.js";
+import { AI_GENERATION_DEFAULTS } from "./ai-defaults.schema.js";
 
 const CACHE_TTL_MS = 60_000;
 
@@ -120,13 +121,8 @@ const FALLBACK_AI_MODELS: AIModel[] = [
   },
 ];
 
-const FALLBACK_AI_DEFAULTS: AIGenerationDefaults = {
-  maxTokens: 4096,
-  temperature: 0.3,
-  frequencyPenalty: 0.5,
-  maxRetries: 2,
-  requestTimeoutMs: 15_000,
-};
+// Single source of truth for the defaults lives with the read-boundary validator.
+const FALLBACK_AI_DEFAULTS: AIGenerationDefaults = AI_GENERATION_DEFAULTS;
 
 const FALLBACK_SRS: SrsConfig = { minEaseFactor: 1.3, defaultEaseFactor: 2.5 };
 

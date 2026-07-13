@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-11T17:16:26.001Z",
+  "generatedAt": "2026-07-11T21:09:12.658Z",
   "summary": {
-    "total": 2201,
+    "total": 2215,
     "business": 0,
-    "technical": 2201,
+    "technical": 2215,
     "workspaces": [
       "apps",
       "packages"
@@ -1141,6 +1141,22 @@
       "name": "Bot build Ai Failover holds both budget invariants across the full admin allowed range",
       "value": "Protects the bot build Ai Failover behavior so holds both budget invariants across the full admin allowed range.",
       "description": "Protects the bot build Ai Failover behavior so holds both budget invariants across the full admin allowed range."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-59-buildaifailover-disables-the-split-for-a-non-finite-non-positive-budget-instead-of-returning-a-nan-split",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 59,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildAiFailover"
+      ],
+      "title": "disables the split for a non-finite/non-positive budget instead of returning a NaN split",
+      "rawTitle": "disables the split for a non-finite/non-positive budget instead of returning a NaN split",
+      "name": "Bot build Ai Failover disables the split for a non finite non positive budget instead of returning a Na N split",
+      "value": "Protects the bot build Ai Failover behavior so disables the split for a non finite non positive budget instead of returning a Na N split.",
+      "description": "Protects the bot build Ai Failover behavior so disables the split for a non finite non positive budget instead of returning a Na N split."
     },
     {
       "id": "apps-bot-src-tests-container-test-ts-149-createcontainer-creates-a-container-with-all-services",
@@ -12152,6 +12168,22 @@
       "description": "Protects the aI adapter failover budget split (generate boundary) behavior so without failover, behavior is unchanged (single attempt, no split)."
     },
     {
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-126-failover-budget-split-generate-boundary-regression-an-injected-non-finite-budget-falls-back-to-the-resolved-default-not-an-instant-abort",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
+      "sourceLine": 126,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "failover budget split (generate boundary)"
+      ],
+      "title": "REGRESSION: an injected NON-FINITE budget falls back to the resolved default, not an instant abort",
+      "rawTitle": "REGRESSION: an injected NON-FINITE budget falls back to the resolved default, not an instant abort",
+      "name": "AI adapter failover budget split (generate boundary) REGRESSION: an injected NON FINITE budget falls back to the resolved default, not an instant abort",
+      "value": "Protects the aI adapter failover budget split (generate boundary) behavior so REGRESSION: an injected NON FINITE budget falls back to the resolved default, not an instant abort.",
+      "description": "Protects the aI adapter failover budget split (generate boundary) behavior so REGRESSION: an injected NON FINITE budget falls back to the resolved default, not an instant abort."
+    },
+    {
       "id": "packages-adapters-ai-src-tests-generation-defaults-test-ts-22-resolvegenerationparams-returns-the-built-in-baseline-when-no-provider-is-wired",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/generation-defaults.test.ts",
@@ -14532,6 +14564,86 @@
       "name": "Database adapter run Telemetry Retention reports the number of rows deleted per table",
       "value": "Protects the database adapter run Telemetry Retention behavior: reports the number of rows deleted per table.",
       "description": "Protects the database adapter run Telemetry Retention behavior: reports the number of rows deleted per table."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-28-settingsadapter-getaigenerationdefaults-partial-blob-merge-backfills-a-missing-requesttimeoutms-from-defaults-while-preserving-stored-values",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 28,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getAIGenerationDefaults — partial-blob merge"
+      ],
+      "title": "backfills a missing requestTimeoutMs from defaults while preserving stored values",
+      "rawTitle": "backfills a missing requestTimeoutMs from defaults while preserving stored values",
+      "name": "Database adapter settings Adapter get AIGeneration Defaults — partial blob merge backfills a missing request Timeout Ms from defaults while preserving stored values",
+      "value": "Protects the database adapter settings Adapter get AIGeneration Defaults — partial blob merge behavior so backfills a missing request Timeout Ms from defaults while preserving stored values.",
+      "description": "Protects the database adapter settings Adapter get AIGeneration Defaults — partial blob merge behavior so backfills a missing request Timeout Ms from defaults while preserving stored values."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-38-settingsadapter-getaigenerationdefaults-partial-blob-merge-returns-a-complete-stored-blob-unchanged-merge-is-a-no-op",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 38,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getAIGenerationDefaults — partial-blob merge"
+      ],
+      "title": "returns a complete stored blob unchanged (merge is a no-op)",
+      "rawTitle": "returns a complete stored blob unchanged (merge is a no-op)",
+      "name": "Database adapter settings Adapter get AIGeneration Defaults — partial blob merge returns a complete stored blob unchanged (merge is a no op)",
+      "value": "Protects the database adapter settings Adapter get AIGeneration Defaults — partial blob merge behavior: returns a complete stored blob unchanged (merge is a no op).",
+      "description": "Protects the database adapter settings Adapter get AIGeneration Defaults — partial blob merge behavior: returns a complete stored blob unchanged (merge is a no op)."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-51-settingsadapter-getaigenerationdefaults-partial-blob-merge-falls-back-to-full-defaults-when-the-row-is-null",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 51,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getAIGenerationDefaults — partial-blob merge"
+      ],
+      "title": "falls back to full defaults when the row is null",
+      "rawTitle": "falls back to full defaults when the row is null",
+      "name": "Database adapter settings Adapter get AIGeneration Defaults — partial blob merge falls back to full defaults when the row is null",
+      "value": "Protects the database adapter settings Adapter get AIGeneration Defaults — partial blob merge behavior: falls back to full defaults when the row is null.",
+      "description": "Protects the database adapter settings Adapter get AIGeneration Defaults — partial blob merge behavior: falls back to full defaults when the row is null."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-60-settingsadapter-getaigenerationdefaults-partial-blob-merge-falls-back-to-safe-defaults-when-a-stored-field-is-present-but-invalid",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 60,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getAIGenerationDefaults — partial-blob merge"
+      ],
+      "title": "falls back to safe defaults when a stored field is present but invalid",
+      "rawTitle": "falls back to safe defaults when a stored field is present but invalid",
+      "name": "Database adapter settings Adapter get AIGeneration Defaults — partial blob merge falls back to safe defaults when a stored field is present but invalid",
+      "value": "Protects the database adapter settings Adapter get AIGeneration Defaults — partial blob merge behavior: falls back to safe defaults when a stored field is present but invalid.",
+      "description": "Protects the database adapter settings Adapter get AIGeneration Defaults — partial blob merge behavior: falls back to safe defaults when a stored field is present but invalid."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-85-settingsadapter-getsrsconfig-getwithfallback-shallow-merge-non-ai-blobs-backfills-a-key-missing-from-a-partial-blob",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 85,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getSrsConfig — getWithFallback shallow-merge (non-ai blobs)"
+      ],
+      "title": "backfills a key missing from a partial blob",
+      "rawTitle": "backfills a key missing from a partial blob",
+      "name": "Database adapter settings Adapter get Srs Config — get With Fallback shallow merge (non ai blobs) backfills a key missing from a partial blob",
+      "value": "Protects the database adapter settings Adapter get Srs Config — get With Fallback shallow merge (non ai blobs) behavior so backfills a key missing from a partial blob.",
+      "description": "Protects the database adapter settings Adapter get Srs Config — get With Fallback shallow merge (non ai blobs) behavior so backfills a key missing from a partial blob."
     },
     {
       "id": "packages-adapters-db-src-tests-topic-repository-test-ts-65-topicrepository-getcached-returns-a-cached-translation-when-found",
@@ -26256,6 +26368,86 @@
       "description": "Protects the core domain rate limit policy behavior: allows unlimited plans regardless of used credits."
     },
     {
+      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-11-parseaigenerationdefaults-returns-a-complete-valid-blob-unchanged",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/ai-defaults.schema.test.ts",
+      "sourceLine": 11,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "parseAIGenerationDefaults"
+      ],
+      "title": "returns a complete, valid blob unchanged",
+      "rawTitle": "returns a complete, valid blob unchanged",
+      "name": "Core domain parse AIGeneration Defaults returns a complete, valid blob unchanged",
+      "value": "Protects the core domain parse AIGeneration Defaults behavior: returns a complete, valid blob unchanged.",
+      "description": "Protects the core domain parse AIGeneration Defaults behavior: returns a complete, valid blob unchanged."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-16-parseaigenerationdefaults-backfills-a-missing-field-from-defaults-while-preserving-stored-values",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/ai-defaults.schema.test.ts",
+      "sourceLine": 16,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "parseAIGenerationDefaults"
+      ],
+      "title": "backfills a missing field from defaults while preserving stored values",
+      "rawTitle": "backfills a missing field from defaults while preserving stored values",
+      "name": "Core domain parse AIGeneration Defaults backfills a missing field from defaults while preserving stored values",
+      "value": "Protects the core domain parse AIGeneration Defaults behavior so backfills a missing field from defaults while preserving stored values.",
+      "description": "Protects the core domain parse AIGeneration Defaults behavior so backfills a missing field from defaults while preserving stored values."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-27-parseaigenerationdefaults-falls-back-to-safe-defaults-for-a-present-but-invalid-field-the-outage-shape",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/ai-defaults.schema.test.ts",
+      "sourceLine": 27,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "parseAIGenerationDefaults"
+      ],
+      "title": "falls back to safe defaults for a present-but-invalid field (the outage shape)",
+      "rawTitle": "falls back to safe defaults for a present-but-invalid field (the outage shape)",
+      "name": "Core domain parse AIGeneration Defaults falls back to safe defaults for a present but invalid field (the outage shape)",
+      "value": "Protects the core domain parse AIGeneration Defaults behavior: falls back to safe defaults for a present but invalid field (the outage shape).",
+      "description": "Protects the core domain parse AIGeneration Defaults behavior: falls back to safe defaults for a present but invalid field (the outage shape)."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-40-parseaigenerationdefaults-returns-full-defaults-for-null-undefined-or-a-non-object-blob",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/ai-defaults.schema.test.ts",
+      "sourceLine": 40,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "parseAIGenerationDefaults"
+      ],
+      "title": "returns full defaults for null, undefined, or a non-object blob",
+      "rawTitle": "returns full defaults for null, undefined, or a non-object blob",
+      "name": "Core domain parse AIGeneration Defaults returns full defaults for null, undefined, or a non object blob",
+      "value": "Protects the core domain parse AIGeneration Defaults behavior: returns full defaults for null, undefined, or a non object blob.",
+      "description": "Protects the core domain parse AIGeneration Defaults behavior: returns full defaults for null, undefined, or a non object blob."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-ai-defaults-schema-test-ts-46-parseaigenerationdefaults-always-yields-a-finite-in-range-requesttimeoutms",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/ai-defaults.schema.test.ts",
+      "sourceLine": 46,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "parseAIGenerationDefaults"
+      ],
+      "title": "always yields a finite, in-range requestTimeoutMs",
+      "rawTitle": "always yields a finite, in-range requestTimeoutMs",
+      "name": "Core domain parse AIGeneration Defaults always yields a finite, in range request Timeout Ms",
+      "value": "Protects the core domain parse AIGeneration Defaults behavior so always yields a finite, in range request Timeout Ms.",
+      "description": "Protects the core domain parse AIGeneration Defaults behavior so always yields a finite, in range request Timeout Ms."
+    },
+    {
       "id": "packages-core-src-modules-srs-sm2-test-ts-7-sm-2-srs-scheduling-schedules-new-saved-cards-for-first-review-tomorrow",
       "kind": "technical",
       "filePath": "packages/core/src/modules/srs/sm2.test.ts",
@@ -35310,6 +35502,38 @@
       "name": "Core domain compute Phrase Target never exceeds the bounds even if min > max is misconfigured",
       "value": "Protects the core domain compute Phrase Target behavior so never exceeds the bounds even if min > max is misconfigured.",
       "description": "Protects the core domain compute Phrase Target behavior so never exceeds the bounds even if min > max is misconfigured."
+    },
+    {
+      "id": "packages-core-src-shared-tests-numbers-test-ts-10-isfinitepositive-accepts-finite-numbers-strictly-greater-than-zero",
+      "kind": "technical",
+      "filePath": "packages/core/src/shared/__tests__/numbers.test.ts",
+      "sourceLine": 10,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "isFinitePositive"
+      ],
+      "title": "accepts finite numbers strictly greater than zero",
+      "rawTitle": "accepts finite numbers strictly greater than zero",
+      "name": "Core domain is Finite Positive accepts finite numbers strictly greater than zero",
+      "value": "Protects the core domain is Finite Positive behavior: accepts finite numbers strictly greater than zero.",
+      "description": "Protects the core domain is Finite Positive behavior: accepts finite numbers strictly greater than zero."
+    },
+    {
+      "id": "packages-core-src-shared-tests-numbers-test-ts-16-isfinitepositive-rejects-nan-infinity-zero-negatives-and-non-numbers",
+      "kind": "technical",
+      "filePath": "packages/core/src/shared/__tests__/numbers.test.ts",
+      "sourceLine": 16,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "isFinitePositive"
+      ],
+      "title": "rejects NaN, Infinity, zero, negatives and non-numbers",
+      "rawTitle": "rejects NaN, Infinity, zero, negatives and non-numbers",
+      "name": "Core domain is Finite Positive rejects Na N, Infinity, zero, negatives and non numbers",
+      "value": "Protects the core domain is Finite Positive behavior: rejects Na N, Infinity, zero, negatives and non numbers.",
+      "description": "Protects the core domain is Finite Positive behavior: rejects Na N, Infinity, zero, negatives and non numbers."
     },
     {
       "id": "packages-core-src-shared-tests-translation-template-test-ts-12-default-template-has-learner-friendly-default-fields-for-words-and-phrases",

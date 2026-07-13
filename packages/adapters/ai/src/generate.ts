@@ -7,7 +7,13 @@
  * lives in a single place instead of being copy-pasted per request kind.
  */
 
-import { AITimeoutError, type ChatMessage, type ChatOptions, type GenerateOptions } from "@polyglot/core";
+import {
+  AITimeoutError,
+  type ChatMessage,
+  type ChatOptions,
+  type GenerateOptions,
+  isFinitePositive,
+} from "@polyglot/core";
 import { generateObject as aiGenerateObject, generateText as aiGenerateText } from "ai";
 import type { ZodSchema } from "zod";
 import { getModel } from "./client.js";
@@ -55,8 +61,13 @@ async function withInstrumentedCall<R>(
   const defaults = await resolveGenerationParams();
   const maxRetries = options?.maxRetries ?? defaults.maxRetries;
   // N1a: an injected budget (e.g. a failover attempt's split) overrides the
-  // self-resolved request budget; when omitted, behavior is unchanged.
-  const budgetMs = options?.budgetMs ?? (await resolveRequestTimeoutMs());
+  // self-resolved request budget; when omitted OR non-finite it falls back to the
+  // guarded resolver. A plain `??` would let an injected NaN/Infinity through
+  // (nullish only traps null/undefined), and `setTimeout(NaN)` fires immediately —
+  // the root of the "timed out after NaNms" outage. This is the last-line guard so
+  // no budget path (direct or failover) can ever mint a non-finite timeout.
+  const injectedBudgetMs = options?.budgetMs;
+  const budgetMs = isFinitePositive(injectedBudgetMs) ? injectedBudgetMs : await resolveRequestTimeoutMs();
   const timeout = createRequestTimeout(budgetMs);
   const start = Date.now();
 

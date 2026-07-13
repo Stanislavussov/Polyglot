@@ -122,4 +122,34 @@ describe("failover budget split (generate boundary)", () => {
     expect(result).toBe("plain");
     expect(mockAiGenerateText).toHaveBeenCalledTimes(1);
   });
+
+  it("REGRESSION: an injected NON-FINITE budget falls back to the resolved default, not an instant abort", async () => {
+    // Simulates the "timed out after NaNms" outage at the generate boundary,
+    // BYPASSING buildAiFailover — so it proves generate.ts's own guard, independent
+    // of the failover-source fix. With the bug, budgetMs=NaN → setTimeout(NaN) aborts
+    // the primary at ~0ms; with the fix, NaN → resolveRequestTimeoutMs()=B, so a
+    // primary that resolves in 3s completes normally with no fallback.
+    vi.useFakeTimers();
+    setAIRequestTimeoutProvider(() => B);
+
+    mockAiGenerateText.mockImplementationOnce(
+      (opts: { abortSignal?: AbortSignal }) =>
+        new Promise((resolve, reject) => {
+          opts.abortSignal?.addEventListener("abort", () => reject(new Error("The operation was aborted")));
+          setTimeout(() => resolve({ text: "ok", usage: { inputTokens: 1, outputTokens: 1 } }), 3_000);
+        }),
+    );
+
+    const NAN_FAILOVER = {
+      fallbackModel: "fallback/model",
+      primaryBudgetMs: Number.NaN,
+      reservedFallbackMs: Number.NaN,
+    };
+    const pending = generateText("hi", "primary/model", { failover: NAN_FAILOVER });
+    await vi.runAllTimersAsync();
+
+    await expect(pending).resolves.toBe("ok");
+    // Primary succeeded on the coerced 15s budget → no fallback attempt.
+    expect(mockAiGenerateText).toHaveBeenCalledTimes(1);
+  });
 });
