@@ -153,7 +153,9 @@ User can translate any word or phrase in multi-language mode, with CEFR, synonym
 
 ## Milestone 3 — Topic Learning (v2.0 parallel track, planned)
 
-**Theme:** Curated and AI-generated word sets for structured learning.
+**Theme:** Curated and AI-generated word sets for structured learning — framed for **level-up (A2→B1→B2)**, not survival/beginner vocabulary.
+
+**Persona alignment (2026-07-18):** the target user is a settled émigré stuck on the A2/B1 plateau who already has the survival basics; topic content must push toward B1/B2 (register, idioms/collocations, false friends, CEFR-targeted sets), **not** "how to buy milk / talk to a doctor." See `@docs/business/backlog.md` B-07 and B-18.
 
 **Dependencies:** Dictionary (Milestone 1.0) for "save word from topic."
 
@@ -162,7 +164,7 @@ User can translate any word or phrase in multi-language mode, with CEFR, synonym
 **Status:** Planned. BRD §7.2.
 
 **Scope:**
-- Built-in topics: Food, Travel, IT Terms, Basic Phrases (JSON/CSV datasets)
+- Built-in topics oriented to level-up: idioms & collocations, register upgrades (neutral → natural/colloquial), false friends, domain vocab by interest (IT, work, culture) — each tagged with a target CEFR level. Survival/beginner packs (e.g. "Basic Phrases") are deliberately out of scope — see persona alignment above. (JSON/CSV datasets)
 - Topic browsing via bot menu
 - Translations generated on first open (AI batch)
 - Shared translation cache: translations shared across users with same language pair set
