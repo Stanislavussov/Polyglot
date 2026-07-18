@@ -16,6 +16,7 @@ export {
   isRetriableProviderError,
   type ModelFailoverConfig,
   retriableReason,
+  setAICircuitBreakerEnabled,
   setAIFallbackObserver,
   withModelFailover,
 } from "./failover.js";

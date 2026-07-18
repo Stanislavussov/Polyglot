@@ -133,3 +133,43 @@ groups:
                 - evaluator:
                     type: gt
                     params: [3]
+
+      # 5. Self-healing Phase 3: an AI model's circuit breaker is open. The breaker
+      #    trips after repeated retriable provider failures and fast-fails requests
+      #    (routing to the fallback, or refusing outright when both are down) instead
+      #    of hammering a provider that is already failing — the direct successor to
+      #    the 2026-07-01 model-freeze incident. Gauge encoding: 0=closed,
+      #    1=half-open, 2=open, so `> 1` fires only on a fully-open breaker (a
+      #    half-open probe window is a normal recovery step, not a page). `max(...)`
+      #    collapses the per-model series to "is ANY model open"; `or vector(0)` +
+      #    noDataState: OK because the series does not exist until the first
+      #    transition ever occurs (identical rationale to rule #3).
+      - uid: polyglot_bot_circuit_open
+        title: AI model circuit breaker open
+        condition: C
+        for: 5m
+        noDataState: OK
+        labels:
+          severity: warning
+        annotations:
+          summary: An AI model's circuit breaker has been open for 5m (provider failing; requests are being fast-failed).
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: max(bot_ai_circuit_state) or vector(0)
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [1]

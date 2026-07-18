@@ -5,7 +5,7 @@
 import { createServer, type Server } from "node:http";
 import { pingDatabase } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/core";
-import { Counter, collectDefaultMetrics, Histogram, register } from "prom-client";
+import { Counter, collectDefaultMetrics, Gauge, Histogram, register } from "prom-client";
 import { checkLiveness, checkReadiness } from "./health.js";
 
 // ── Default Node.js metrics (CPU, memory, event-loop, GC) ───────────
@@ -77,6 +77,18 @@ export const aiFallbackCounter = new Counter({
   name: "bot_ai_fallback_total",
   help: "AI fallback-model failovers (Phase 2): a retriable failure on the primary model succeeded on the fallback",
   labelNames: ["from_model", "to_model", "reason"] as const,
+});
+
+export const aiCircuitStateGauge = new Gauge({
+  name: "bot_ai_circuit_state",
+  help: "AI per-model circuit breaker state (Phase 3): 0=closed, 1=half-open, 2=open",
+  labelNames: ["model"] as const,
+});
+
+export const aiCircuitTransitionsCounter = new Counter({
+  name: "bot_ai_circuit_transitions_total",
+  help: "AI circuit breaker state transitions (Phase 3), by target state (bounded labels)",
+  labelNames: ["model", "to_state"] as const,
 });
 
 export const activeUsersGauge = new Counter({

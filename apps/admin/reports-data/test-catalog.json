@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-18T16:15:32.788Z",
+  "generatedAt": "2026-07-18T16:53:42.523Z",
   "summary": {
-    "total": 2229,
+    "total": 2253,
     "business": 0,
-    "technical": 2229,
+    "technical": 2253,
     "workspaces": [
       "apps",
       "packages"
@@ -1159,10 +1159,10 @@
       "description": "Protects the bot build Ai Failover behavior so disables the split for a non finite non positive budget instead of returning a Na N split."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-149-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-150-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 149,
+      "sourceLine": 150,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1175,10 +1175,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-170-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-171-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 171,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1191,10 +1191,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-180-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-181-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 180,
+      "sourceLine": 181,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1207,10 +1207,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-188-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-189-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 188,
+      "sourceLine": 189,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1735,10 +1735,10 @@
       "description": "Protects the bot build Flash Card Done Keyboard behavior so has fc:restart and fc:close buttons."
     },
     {
-      "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-92-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
+      "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-95-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/mentor-mode.failover.test.ts",
-      "sourceLine": 92,
+      "sourceLine": 95,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4832,10 +4832,10 @@
       "description": "Protects the bot input correction annotations (Task 69) behavior: shows the corrected sentence and error explanation on a sentence card."
     },
     {
-      "id": "apps-bot-src-bot-error-handler-test-ts-38-handleboterror-t15-does-not-throw-when-the-error-happened-before-the-session-middleware-ran",
+      "id": "apps-bot-src-bot-error-handler-test-ts-39-handleboterror-t15-does-not-throw-when-the-error-happened-before-the-session-middleware-ran",
       "kind": "technical",
       "filePath": "apps/bot/src/bot-error-handler.test.ts",
-      "sourceLine": 38,
+      "sourceLine": 39,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4848,10 +4848,10 @@
       "description": "Protects the bot handle Bot Error (T15) behavior: does not throw when the error happened before the session middleware ran."
     },
     {
-      "id": "apps-bot-src-bot-error-handler-test-ts-46-handleboterror-t15-replies-to-the-user-and-clears-the-button-spinner-on-an-application-error",
+      "id": "apps-bot-src-bot-error-handler-test-ts-47-handleboterror-t15-replies-to-the-user-and-clears-the-button-spinner-on-an-application-error",
       "kind": "technical",
       "filePath": "apps/bot/src/bot-error-handler.test.ts",
-      "sourceLine": 46,
+      "sourceLine": 47,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4864,10 +4864,26 @@
       "description": "Protects the bot handle Bot Error (T15) behavior so replies to the user and clears the button spinner on an application error."
     },
     {
-      "id": "apps-bot-src-bot-error-handler-test-ts-59-handleboterror-t15-does-not-reply-on-a-telegram-api-error-the-reply-would-just-fail-again",
+      "id": "apps-bot-src-bot-error-handler-test-ts-60-handleboterror-t15-surfaces-an-open-circuit-phase-3-as-the-graceful-try-again-shortly-notice-never-a-hard-error",
       "kind": "technical",
       "filePath": "apps/bot/src/bot-error-handler.test.ts",
-      "sourceLine": 59,
+      "sourceLine": 60,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleBotError (T15)"
+      ],
+      "title": "surfaces an open circuit (Phase 3) as the graceful 'try again shortly' notice, never a hard error",
+      "rawTitle": "surfaces an open circuit (Phase 3) as the graceful 'try again shortly' notice, never a hard error",
+      "name": "Bot handle Bot Error (T15) surfaces an open circuit (Phase 3) as the graceful 'try again shortly' notice, never a hard error",
+      "value": "Protects the bot handle Bot Error (T15) behavior so surfaces an open circuit (Phase 3) as the graceful 'try again shortly' notice, never a hard error.",
+      "description": "Protects the bot handle Bot Error (T15) behavior so surfaces an open circuit (Phase 3) as the graceful 'try again shortly' notice, never a hard error."
+    },
+    {
+      "id": "apps-bot-src-bot-error-handler-test-ts-72-handleboterror-t15-does-not-reply-on-a-telegram-api-error-the-reply-would-just-fail-again",
+      "kind": "technical",
+      "filePath": "apps/bot/src/bot-error-handler.test.ts",
+      "sourceLine": 72,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4880,10 +4896,10 @@
       "description": "Protects the bot handle Bot Error (T15) behavior: does not reply on a Telegram API error (the reply would just fail again)."
     },
     {
-      "id": "apps-bot-src-bot-error-handler-test-ts-69-handleboterror-t15-never-throws-even-if-the-best-effort-reply-itself-fails",
+      "id": "apps-bot-src-bot-error-handler-test-ts-82-handleboterror-t15-never-throws-even-if-the-best-effort-reply-itself-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/bot-error-handler.test.ts",
-      "sourceLine": 69,
+      "sourceLine": 82,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11944,6 +11960,134 @@
       "description": "Protects the aI adapter client reset Client behavior so resets the singleton so next get Client creates a new one."
     },
     {
+      "id": "packages-adapters-ai-src-tests-failover-circuit-test-ts-54-withmodelfailover-circuit-gate-routing-routes-to-the-fallback-without-calling-the-primary-when-the-primary-breaker-is-open",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.circuit.test.ts",
+      "sourceLine": 54,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover circuit gate — routing"
+      ],
+      "title": "routes to the fallback WITHOUT calling the primary when the primary breaker is open",
+      "rawTitle": "routes to the fallback WITHOUT calling the primary when the primary breaker is open",
+      "name": "AI adapter with Model Failover circuit gate — routing routes to the fallback WITHOUT calling the primary when the primary breaker is open",
+      "value": "Protects the aI adapter with Model Failover circuit gate — routing behavior: routes to the fallback WITHOUT calling the primary when the primary breaker is open.",
+      "description": "Protects the aI adapter with Model Failover circuit gate — routing behavior: routes to the fallback WITHOUT calling the primary when the primary breaker is open."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-circuit-test-ts-71-withmodelfailover-circuit-gate-routing-fast-fails-with-aicircuitopenerror-and-makes-no-provider-call-when-both-breakers-are-open",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.circuit.test.ts",
+      "sourceLine": 71,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover circuit gate — routing"
+      ],
+      "title": "fast-fails with AICircuitOpenError and makes NO provider call when both breakers are open",
+      "rawTitle": "fast-fails with AICircuitOpenError and makes NO provider call when both breakers are open",
+      "name": "AI adapter with Model Failover circuit gate — routing fast fails with AICircuit Open Error and makes NO provider call when both breakers are open",
+      "value": "Protects the aI adapter with Model Failover circuit gate — routing behavior so fast fails with AICircuit Open Error and makes NO provider call when both breakers are open.",
+      "description": "Protects the aI adapter with Model Failover circuit gate — routing behavior so fast fails with AICircuit Open Error and makes NO provider call when both breakers are open."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-circuit-test-ts-80-withmodelfailover-circuit-gate-routing-throws-aicircuitopenerror-not-a-wasted-second-call-when-a-same-model-breaker-is-open",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.circuit.test.ts",
+      "sourceLine": 80,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover circuit gate — routing"
+      ],
+      "title": "throws AICircuitOpenError (not a wasted second call) when a same-model breaker is open",
+      "rawTitle": "throws AICircuitOpenError (not a wasted second call) when a same-model breaker is open",
+      "name": "AI adapter with Model Failover circuit gate — routing throws AICircuit Open Error (not a wasted second call) when a same model breaker is open",
+      "value": "Protects the aI adapter with Model Failover circuit gate — routing behavior: throws AICircuit Open Error (not a wasted second call) when a same model breaker is open.",
+      "description": "Protects the aI adapter with Model Failover circuit gate — routing behavior: throws AICircuit Open Error (not a wasted second call) when a same model breaker is open."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-circuit-test-ts-89-withmodelfailover-circuit-gate-routing-a-non-retriable-primary-error-is-rethrown-and-never-trips-the-breaker",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.circuit.test.ts",
+      "sourceLine": 89,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover circuit gate — routing"
+      ],
+      "title": "a non-retriable primary error is rethrown and NEVER trips the breaker",
+      "rawTitle": "a non-retriable primary error is rethrown and NEVER trips the breaker",
+      "name": "AI adapter with Model Failover circuit gate — routing a non retriable primary error is rethrown and NEVER trips the breaker",
+      "value": "Protects the aI adapter with Model Failover circuit gate — routing behavior so a non retriable primary error is rethrown and NEVER trips the breaker.",
+      "description": "Protects the aI adapter with Model Failover circuit gate — routing behavior so a non retriable primary error is rethrown and NEVER trips the breaker."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-circuit-test-ts-103-withmodelfailover-circuit-gate-routing-records-a-retriable-primary-failure-on-the-breaker-and-still-fails-over",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.circuit.test.ts",
+      "sourceLine": 103,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover circuit gate — routing"
+      ],
+      "title": "records a retriable primary failure on the breaker and still fails over",
+      "rawTitle": "records a retriable primary failure on the breaker and still fails over",
+      "name": "AI adapter with Model Failover circuit gate — routing records a retriable primary failure on the breaker and still fails over",
+      "value": "Protects the aI adapter with Model Failover circuit gate — routing behavior: records a retriable primary failure on the breaker and still fails over.",
+      "description": "Protects the aI adapter with Model Failover circuit gate — routing behavior: records a retriable primary failure on the breaker and still fails over."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-circuit-test-ts-124-withmodelfailover-circuit-gate-half-open-recovery-a-non-retriable-error-on-the-half-open-probe-still-closes-the-breaker-proof-of-life-instead-of-wedging-it-open-forever",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.circuit.test.ts",
+      "sourceLine": 124,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover circuit gate — half-open recovery"
+      ],
+      "title": "a non-retriable error on the half-open probe still closes the breaker (proof of life) instead of wedging it open forever",
+      "rawTitle": "a non-retriable error on the half-open probe still closes the breaker (proof of life) instead of wedging it open forever",
+      "name": "AI adapter with Model Failover circuit gate — half open recovery a non retriable error on the half open probe still closes the breaker (proof of life) instead of wedging it open forever",
+      "value": "Protects the aI adapter with Model Failover circuit gate — half open recovery behavior so a non retriable error on the half open probe still closes the breaker (proof of life) instead of wedging it open forever.",
+      "description": "Protects the aI adapter with Model Failover circuit gate — half open recovery behavior so a non retriable error on the half open probe still closes the breaker (proof of life) instead of wedging it open forever."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-circuit-test-ts-155-withmodelfailover-circuit-gate-happy-path-neutrality-with-the-breaker-closed-n-successful-calls-behave-identically-to-the-ungated-path",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.circuit.test.ts",
+      "sourceLine": 155,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover circuit gate — happy-path neutrality"
+      ],
+      "title": "with the breaker closed, N successful calls behave identically to the ungated path",
+      "rawTitle": "with the breaker closed, N successful calls behave identically to the ungated path",
+      "name": "AI adapter with Model Failover circuit gate — happy path neutrality with the breaker closed, N successful calls behave identically to the ungated path",
+      "value": "Protects the aI adapter with Model Failover circuit gate — happy path neutrality behavior so with the breaker closed, N successful calls behave identically to the ungated path.",
+      "description": "Protects the aI adapter with Model Failover circuit gate — happy path neutrality behavior so with the breaker closed, N successful calls behave identically to the ungated path."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-failover-circuit-test-ts-183-withmodelfailover-circuit-gate-kill-switch-with-the-kill-switch-off-an-open-breaker-is-ignored-and-the-primary-is-still-called",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/failover.circuit.test.ts",
+      "sourceLine": 183,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "withModelFailover circuit gate — kill-switch"
+      ],
+      "title": "with the kill-switch off, an OPEN breaker is ignored and the primary is still called",
+      "rawTitle": "with the kill-switch off, an OPEN breaker is ignored and the primary is still called",
+      "name": "AI adapter with Model Failover circuit gate — kill switch with the kill switch off, an OPEN breaker is ignored and the primary is still called",
+      "value": "Protects the aI adapter with Model Failover circuit gate — kill switch behavior so with the kill switch off, an OPEN breaker is ignored and the primary is still called.",
+      "description": "Protects the aI adapter with Model Failover circuit gate — kill switch behavior so with the kill switch off, an OPEN breaker is ignored and the primary is still called."
+    },
+    {
       "id": "packages-adapters-ai-src-tests-failover-test-ts-6-retriablereason-classifies-the-adapter-s-own-aitimeouterror-as-timeout",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
@@ -12040,10 +12184,10 @@
       "description": "Protects the aI adapter retriable Reason behavior: returns null for client errors and validation failures (never masked)."
     },
     {
-      "id": "packages-adapters-ai-src-tests-failover-test-ts-66-withmodelfailover-runs-the-primary-once-with-primarybudgetms-and-never-falls-back-on-success",
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-70-withmodelfailover-runs-the-primary-once-with-primarybudgetms-and-never-falls-back-on-success",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
-      "sourceLine": 66,
+      "sourceLine": 70,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -12056,10 +12200,10 @@
       "description": "Protects the aI adapter with Model Failover behavior so runs the primary once with primary Budget Ms and never falls back on success."
     },
     {
-      "id": "packages-adapters-ai-src-tests-failover-test-ts-77-withmodelfailover-fast-path-an-instant-429-on-the-primary-triggers-the-fallback-and-counts-the-metric",
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-81-withmodelfailover-fast-path-an-instant-429-on-the-primary-triggers-the-fallback-and-counts-the-metric",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
-      "sourceLine": 77,
+      "sourceLine": 81,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -12072,10 +12216,10 @@
       "description": "Protects the aI adapter with Model Failover behavior so fast path: an instant 429 on the primary triggers the fallback and counts the metric."
     },
     {
-      "id": "packages-adapters-ai-src-tests-failover-test-ts-94-withmodelfailover-n2-dedup-identical-primary-fallback-runs-once-no-fallback-attempt-no-metric",
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-98-withmodelfailover-n2-dedup-identical-primary-fallback-runs-once-no-fallback-attempt-no-metric",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
-      "sourceLine": 94,
+      "sourceLine": 98,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -12088,10 +12232,10 @@
       "description": "Protects the aI adapter with Model Failover behavior so N2 dedup: identical primary fallback runs once, no fallback attempt, no metric."
     },
     {
-      "id": "packages-adapters-ai-src-tests-failover-test-ts-105-withmodelfailover-anti-masking-a-non-retriable-4xx-is-rethrown-with-no-fallback",
+      "id": "packages-adapters-ai-src-tests-failover-test-ts-109-withmodelfailover-anti-masking-a-non-retriable-4xx-is-rethrown-with-no-fallback",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.test.ts",
-      "sourceLine": 105,
+      "sourceLine": 109,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -12104,10 +12248,10 @@
       "description": "Protects the aI adapter with Model Failover behavior so anti masking: a non retriable 4xx is rethrown with no fallback."
     },
     {
-      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-50-failover-budget-split-generate-boundary-headline-a-hung-primary-is-aborted-at-primarybudgetms-and-both-attempts-fit-inside-b",
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-53-failover-budget-split-generate-boundary-headline-a-hung-primary-is-aborted-at-primarybudgetms-and-both-attempts-fit-inside-b",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
-      "sourceLine": 50,
+      "sourceLine": 53,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -12120,10 +12264,10 @@
       "description": "Protects the aI adapter failover budget split (generate boundary) behavior so HEADLINE: a hung primary is aborted at primary Budget Ms and BOTH attempts fit inside B."
     },
     {
-      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-76-failover-budget-split-generate-boundary-bounds-the-primary-at-the-injected-primarybudgetms-not-the-resolved-b",
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-79-failover-budget-split-generate-boundary-bounds-the-primary-at-the-injected-primarybudgetms-not-the-resolved-b",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
-      "sourceLine": 76,
+      "sourceLine": 79,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -12136,10 +12280,10 @@
       "description": "Protects the aI adapter failover budget split (generate boundary) behavior so bounds the primary at the INJECTED primary Budget Ms, not the resolved B."
     },
     {
-      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-100-failover-budget-split-generate-boundary-passes-each-attempt-its-own-fresh-abort-signal-and-the-right-model",
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-103-failover-budget-split-generate-boundary-passes-each-attempt-its-own-fresh-abort-signal-and-the-right-model",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
-      "sourceLine": 100,
+      "sourceLine": 103,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -12152,10 +12296,10 @@
       "description": "Protects the aI adapter failover budget split (generate boundary) behavior so passes each attempt its own fresh abort signal and the right model."
     },
     {
-      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-117-failover-budget-split-generate-boundary-without-failover-behavior-is-unchanged-single-attempt-no-split",
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-120-failover-budget-split-generate-boundary-without-failover-behavior-is-unchanged-single-attempt-no-split",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
-      "sourceLine": 117,
+      "sourceLine": 120,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -12168,10 +12312,10 @@
       "description": "Protects the aI adapter failover budget split (generate boundary) behavior so without failover, behavior is unchanged (single attempt, no split)."
     },
     {
-      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-126-failover-budget-split-generate-boundary-regression-an-injected-non-finite-budget-falls-back-to-the-resolved-default-not-an-instant-abort",
+      "id": "packages-adapters-ai-src-tests-failover-timeout-test-ts-129-failover-budget-split-generate-boundary-regression-an-injected-non-finite-budget-falls-back-to-the-resolved-default-not-an-instant-abort",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/failover.timeout.test.ts",
-      "sourceLine": 126,
+      "sourceLine": 129,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -35726,6 +35870,246 @@
       "name": "Core domain compute Phrase Target never exceeds the bounds even if min > max is misconfigured",
       "value": "Protects the core domain compute Phrase Target behavior so never exceeds the bounds even if min > max is misconfigured.",
       "description": "Protects the core domain compute Phrase Target behavior so never exceeds the bounds even if min > max is misconfigured."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-breaker-registry-test-ts-24-breakerregistry-returns-the-same-breaker-instance-for-the-same-model-id-caches",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/breaker-registry.test.ts",
+      "sourceLine": 24,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "BreakerRegistry"
+      ],
+      "title": "returns the same breaker instance for the same model id (caches)",
+      "rawTitle": "returns the same breaker instance for the same model id (caches)",
+      "name": "Core domain Breaker Registry returns the same breaker instance for the same model id (caches)",
+      "value": "Protects the core domain Breaker Registry behavior: returns the same breaker instance for the same model id (caches).",
+      "description": "Protects the core domain Breaker Registry behavior: returns the same breaker instance for the same model id (caches)."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-breaker-registry-test-ts-29-breakerregistry-isolates-models-tripping-model-a-s-breaker-does-not-affect-model-b",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/breaker-registry.test.ts",
+      "sourceLine": 29,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "BreakerRegistry"
+      ],
+      "title": "isolates models: tripping model A's breaker does not affect model B",
+      "rawTitle": "isolates models: tripping model A's breaker does not affect model B",
+      "name": "Core domain Breaker Registry isolates models: tripping model A's breaker does not affect model B",
+      "value": "Protects the core domain Breaker Registry behavior so isolates models: tripping model A's breaker does not affect model B.",
+      "description": "Protects the core domain Breaker Registry behavior so isolates models: tripping model A's breaker does not affect model B."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-breaker-registry-test-ts-42-breakerregistry-reset-clears-cached-breakers-so-state-does-not-leak-between-tests",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/breaker-registry.test.ts",
+      "sourceLine": 42,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "BreakerRegistry"
+      ],
+      "title": "reset() clears cached breakers so state does not leak between tests",
+      "rawTitle": "reset() clears cached breakers so state does not leak between tests",
+      "name": "Core domain Breaker Registry reset() clears cached breakers so state does not leak between tests",
+      "value": "Protects the core domain Breaker Registry behavior so reset() clears cached breakers so state does not leak between tests.",
+      "description": "Protects the core domain Breaker Registry behavior so reset() clears cached breakers so state does not leak between tests."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-breaker-registry-test-ts-51-breakerregistry-fans-transitions-out-to-the-injected-observer-tagged-with-the-model-id",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/breaker-registry.test.ts",
+      "sourceLine": 51,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "BreakerRegistry"
+      ],
+      "title": "fans transitions out to the injected observer tagged with the model id",
+      "rawTitle": "fans transitions out to the injected observer tagged with the model id",
+      "name": "Core domain Breaker Registry fans transitions out to the injected observer tagged with the model id",
+      "value": "Protects the core domain Breaker Registry behavior so fans transitions out to the injected observer tagged with the model id.",
+      "description": "Protects the core domain Breaker Registry behavior so fans transitions out to the injected observer tagged with the model id."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-breaker-registry-test-ts-66-default-module-registry-getbreaker-caches-per-model-id-in-the-process-wide-default-registry",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/breaker-registry.test.ts",
+      "sourceLine": 66,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "default module registry"
+      ],
+      "title": "getBreaker caches per model id in the process-wide default registry",
+      "rawTitle": "getBreaker caches per model id in the process-wide default registry",
+      "name": "Core domain default module registry get Breaker caches per model id in the process wide default registry",
+      "value": "Protects the core domain default module registry behavior so get Breaker caches per model id in the process wide default registry.",
+      "description": "Protects the core domain default module registry behavior so get Breaker caches per model id in the process wide default registry."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-breaker-registry-test-ts-70-default-module-registry-routes-default-registry-transitions-through-the-injected-circuit-observer",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/breaker-registry.test.ts",
+      "sourceLine": 70,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "default module registry"
+      ],
+      "title": "routes default-registry transitions through the injected circuit observer",
+      "rawTitle": "routes default-registry transitions through the injected circuit observer",
+      "name": "Core domain default module registry routes default registry transitions through the injected circuit observer",
+      "value": "Protects the core domain default module registry behavior: routes default registry transitions through the injected circuit observer.",
+      "description": "Protects the core domain default module registry behavior: routes default registry transitions through the injected circuit observer."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-breaker-registry-test-ts-82-default-module-registry-a-thrown-observer-never-propagates-out-of-a-transition-metric-sink-is-best-effort",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/breaker-registry.test.ts",
+      "sourceLine": 82,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "default module registry"
+      ],
+      "title": "a thrown observer never propagates out of a transition (metric sink is best-effort)",
+      "rawTitle": "a thrown observer never propagates out of a transition (metric sink is best-effort)",
+      "name": "Core domain default module registry a thrown observer never propagates out of a transition (metric sink is best effort)",
+      "value": "Protects the core domain default module registry behavior so a thrown observer never propagates out of a transition (metric sink is best effort).",
+      "description": "Protects the core domain default module registry behavior so a thrown observer never propagates out of a transition (metric sink is best effort)."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-circuit-breaker-test-ts-24-circuitbreaker-starts-closed-and-lets-calls-proceed-with-zero-behavior-change",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/circuit-breaker.test.ts",
+      "sourceLine": 24,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "CircuitBreaker"
+      ],
+      "title": "starts closed and lets calls proceed with zero behavior change",
+      "rawTitle": "starts closed and lets calls proceed with zero behavior change",
+      "name": "Core domain Circuit Breaker starts closed and lets calls proceed with zero behavior change",
+      "value": "Protects the core domain Circuit Breaker behavior so starts closed and lets calls proceed with zero behavior change.",
+      "description": "Protects the core domain Circuit Breaker behavior so starts closed and lets calls proceed with zero behavior change."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-circuit-breaker-test-ts-34-circuitbreaker-opens-after-n-consecutive-failures-and-then-refuses-calls-while-cooling",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/circuit-breaker.test.ts",
+      "sourceLine": 34,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "CircuitBreaker"
+      ],
+      "title": "opens after N consecutive failures and then refuses calls while cooling",
+      "rawTitle": "opens after N consecutive failures and then refuses calls while cooling",
+      "name": "Core domain Circuit Breaker opens after N consecutive failures and then refuses calls while cooling",
+      "value": "Protects the core domain Circuit Breaker behavior so opens after N consecutive failures and then refuses calls while cooling.",
+      "description": "Protects the core domain Circuit Breaker behavior so opens after N consecutive failures and then refuses calls while cooling."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-circuit-breaker-test-ts-48-circuitbreaker-a-success-resets-the-consecutive-failure-count-so-the-threshold-is-truly-consecutive",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/circuit-breaker.test.ts",
+      "sourceLine": 48,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "CircuitBreaker"
+      ],
+      "title": "a success resets the consecutive-failure count so the threshold is truly consecutive",
+      "rawTitle": "a success resets the consecutive-failure count so the threshold is truly consecutive",
+      "name": "Core domain Circuit Breaker a success resets the consecutive failure count so the threshold is truly consecutive",
+      "value": "Protects the core domain Circuit Breaker behavior so a success resets the consecutive failure count so the threshold is truly consecutive.",
+      "description": "Protects the core domain Circuit Breaker behavior so a success resets the consecutive failure count so the threshold is truly consecutive."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-circuit-breaker-test-ts-58-circuitbreaker-transitions-to-half-open-after-the-cooldown-elapses-and-admits-exactly-one-probe",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/circuit-breaker.test.ts",
+      "sourceLine": 58,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "CircuitBreaker"
+      ],
+      "title": "transitions to half-open after the cooldown elapses and admits exactly one probe",
+      "rawTitle": "transitions to half-open after the cooldown elapses and admits exactly one probe",
+      "name": "Core domain Circuit Breaker transitions to half open after the cooldown elapses and admits exactly one probe",
+      "value": "Protects the core domain Circuit Breaker behavior so transitions to half open after the cooldown elapses and admits exactly one probe.",
+      "description": "Protects the core domain Circuit Breaker behavior so transitions to half open after the cooldown elapses and admits exactly one probe."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-circuit-breaker-test-ts-74-circuitbreaker-closes-on-a-successful-half-open-probe-recovery",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/circuit-breaker.test.ts",
+      "sourceLine": 74,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "CircuitBreaker"
+      ],
+      "title": "closes on a successful half-open probe (recovery)",
+      "rawTitle": "closes on a successful half-open probe (recovery)",
+      "name": "Core domain Circuit Breaker closes on a successful half open probe (recovery)",
+      "value": "Protects the core domain Circuit Breaker behavior: closes on a successful half open probe (recovery).",
+      "description": "Protects the core domain Circuit Breaker behavior: closes on a successful half open probe (recovery)."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-circuit-breaker-test-ts-86-circuitbreaker-re-opens-on-a-failed-half-open-probe-and-resets-the-cooldown-window",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/circuit-breaker.test.ts",
+      "sourceLine": 86,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "CircuitBreaker"
+      ],
+      "title": "re-opens on a failed half-open probe AND resets the cooldown window",
+      "rawTitle": "re-opens on a failed half-open probe AND resets the cooldown window",
+      "name": "Core domain Circuit Breaker re opens on a failed half open probe AND resets the cooldown window",
+      "value": "Protects the core domain Circuit Breaker behavior so re opens on a failed half open probe AND resets the cooldown window.",
+      "description": "Protects the core domain Circuit Breaker behavior so re opens on a failed half open probe AND resets the cooldown window."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-circuit-breaker-test-ts-102-circuitbreaker-emits-every-state-transition-through-ontransition-drives-the-metric",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/circuit-breaker.test.ts",
+      "sourceLine": 102,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "CircuitBreaker"
+      ],
+      "title": "emits every state transition through onTransition (drives the metric)",
+      "rawTitle": "emits every state transition through onTransition (drives the metric)",
+      "name": "Core domain Circuit Breaker emits every state transition through on Transition (drives the metric)",
+      "value": "Protects the core domain Circuit Breaker behavior so emits every state transition through on Transition (drives the metric).",
+      "description": "Protects the core domain Circuit Breaker behavior so emits every state transition through on Transition (drives the metric)."
+    },
+    {
+      "id": "packages-core-src-resilience-tests-circuit-breaker-test-ts-121-circuitbreaker-does-not-fire-ontransition-on-a-no-op-record-a-success-while-already-closed",
+      "kind": "technical",
+      "filePath": "packages/core/src/resilience/__tests__/circuit-breaker.test.ts",
+      "sourceLine": 121,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "CircuitBreaker"
+      ],
+      "title": "does not fire onTransition on a no-op record (a success while already closed)",
+      "rawTitle": "does not fire onTransition on a no-op record (a success while already closed)",
+      "name": "Core domain Circuit Breaker does not fire on Transition on a no op record (a success while already closed)",
+      "value": "Protects the core domain Circuit Breaker behavior: does not fire on Transition on a no op record (a success while already closed).",
+      "description": "Protects the core domain Circuit Breaker behavior: does not fire on Transition on a no op record (a success while already closed)."
     },
     {
       "id": "packages-core-src-shared-tests-numbers-test-ts-10-isfinitepositive-accepts-finite-numbers-strictly-greater-than-zero",

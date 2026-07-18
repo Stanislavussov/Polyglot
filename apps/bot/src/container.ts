@@ -11,6 +11,7 @@ import {
   generateObject,
   generateText,
   setAIApiKey,
+  setAICircuitBreakerEnabled,
   setAIFallbackObserver,
   setAIGenerationDefaultsProvider,
   setAIModelPriceProvider,
@@ -49,14 +50,29 @@ import {
   vocabularyRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
-import type { AIFailover, ChatMessage, ChatOptions, GenerateOptions } from "@polyglot/core";
-import { type ServiceContainer, SettingsService } from "@polyglot/core";
+import type { AICircuitEvent, AIFailover, ChatMessage, ChatOptions, GenerateOptions } from "@polyglot/core";
+import { type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
 import type { ZodSchema } from "zod";
 import { createFeatureAccess } from "./feature-access.js";
-import { aiFallbackCounter } from "./metrics.js";
+import { aiCircuitStateGauge, aiCircuitTransitionsCounter, aiFallbackCounter } from "./metrics.js";
 import { mockPaymentAdapter } from "./payment.js";
 import { buildAiFailover } from "./utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
+
+/**
+ * Values that disable `AI_CIRCUIT_BREAKER_ENABLED` (the Phase 3 rollback
+ * kill-switch). Deliberately permissive — an operator reaching for this under
+ * pressure may reasonably set `0`/`off`/`no`/`FALSE`, and the switch must not
+ * silently stay ON just because the value wasn't the exact string `"false"`.
+ * Anything else (including unset) stays default-ON.
+ */
+const DISABLE_VALUES = new Set(["false", "0", "off", "no"]);
+
+/** True unless the env var is set to a recognized "disable" value (case/whitespace-insensitive). */
+function isCircuitBreakerEnabled(raw: string | undefined): boolean {
+  if (raw === undefined) return true;
+  return !DISABLE_VALUES.has(raw.trim().toLowerCase());
+}
 
 /**
  * Creates the full service container from adapter implementations.
@@ -77,6 +93,19 @@ export function createContainer(): ServiceContainer {
   setAIFallbackObserver((event: AIFallbackEvent) =>
     aiFallbackCounter.inc({ from_model: event.fromModel, to_model: event.toModel, reason: event.reason }),
   );
+
+  // Per-model circuit breaker (Phase 3) gates the same failover path so a provider
+  // that is already failing is not hammered. Default-closed and behavior-neutral —
+  // it only changes behavior after repeated retriable failures trip it open. The
+  // AI_CIRCUIT_BREAKER_ENABLED kill-switch (default ON) disables the gate entirely
+  // without a logic redeploy — the plan's rollback path. Each transition drives a
+  // gauge (0=closed, 1=half-open, 2=open) and a transitions counter for alerting.
+  setAICircuitBreakerEnabled(isCircuitBreakerEnabled(process.env.AI_CIRCUIT_BREAKER_ENABLED));
+  setAICircuitObserver((event: AICircuitEvent) => {
+    const stateValue = event.state === "open" ? 2 : event.state === "half-open" ? 1 : 0;
+    aiCircuitStateGauge.set({ model: event.model }, stateValue);
+    aiCircuitTransitionsCounter.inc({ model: event.model, to_state: event.state });
+  });
 
   setAIRequestMetricSink((log) =>
     aiRequestLatencyRepository.record({

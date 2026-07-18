@@ -1,4 +1,4 @@
-import { AITimeoutError } from "@polyglot/core";
+import { AITimeoutError, resetBreakerRegistry } from "@polyglot/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { isRetriableProviderError, retriableReason, setAIFallbackObserver, withModelFailover } from "../failover.js";
 
@@ -55,12 +55,16 @@ describe("withModelFailover", () => {
   };
 
   beforeEach(() => {
+    // The Phase 3 breaker gate is default-ON and its registry is a process-wide
+    // singleton, so reset it between cases to keep these Phase 2 specs isolated.
+    resetBreakerRegistry();
     observer.mockClear();
     setAIFallbackObserver(observer);
   });
 
   afterEach(() => {
     setAIFallbackObserver(null);
+    resetBreakerRegistry();
   });
 
   it("runs the primary once with primaryBudgetMs and never falls back on success", async () => {

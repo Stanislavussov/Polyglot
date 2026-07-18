@@ -1,6 +1,7 @@
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import { type BotError, GrammyError, HttpError } from "grammy";
 import type { BotContext } from "./types.js";
+import { isUserFacingTimeout } from "./utils/long-op.js";
 
 type BotErrorType = "telegram" | "network" | "application";
 
@@ -59,9 +60,12 @@ export async function handleBotError(err: BotError<BotContext>): Promise<void> {
     }
 
     // Best-effort user notice so no loader hangs. Skip when the failure was
-    // itself a Telegram API error — the reply would just fail again.
+    // itself a Telegram API error — the reply would just fail again. A
+    // user-facing timeout / open circuit (Phase 3) surfaces the softer "try
+    // again shortly" notice instead of the hard generic error.
     if (errorType !== "telegram") {
-      await ctx.reply(t("genericError", safeLang(ctx))).catch(() => {});
+      const key = isUserFacingTimeout(cause) ? "loadingTimeout" : "genericError";
+      await ctx.reply(t(key, safeLang(ctx))).catch(() => {});
     }
   } catch (handlerErr) {
     // The error handler itself must never throw.

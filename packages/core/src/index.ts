@@ -134,6 +134,17 @@ export {
   extractionResultSchema,
   extractPhrasesFromTranscript,
 } from "./modules/video-vocabulary/index.js";
+export {
+  type AICircuitEvent,
+  type AICircuitObserver,
+  BreakerRegistry,
+  getBreaker,
+  resetBreakerRegistry,
+  setAICircuitObserver,
+} from "./resilience/breaker-registry.js";
+export type { CircuitBreakerConfig, CircuitState } from "./resilience/circuit-breaker.js";
+// Resilience — per-model circuit breaker (Phase 3)
+export { CircuitBreaker } from "./resilience/circuit-breaker.js";
 // Shared
 export * from "./shared/errors.js";
 export { isFinitePositive } from "./shared/numbers.js";
