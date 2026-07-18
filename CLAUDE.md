@@ -87,4 +87,9 @@ Run these steps **when there are related code changes** (a change isn't done unt
 - **Stack**: TypeScript, Biome (lint/format), Vitest (tests), dependency-cruiser
 - **Database**: PostgreSQL via Drizzle ORM (`packages/adapters/db`)
 - **Documentation**: `@docs/` is the canonical documentation directory. Do not create or write to a top-level `docs/` directory.
-- **Agent guidance**: `@docs/agents/` is the canonical harness-neutral agent guidance. `.pi/skills/` contains only thin Pi-specific adapters.
+- **Agent guidance**: `@docs/agents/` is the canonical, harness-neutral agent guidance — read it before editing.
+  - `@docs/agents/architecture.md` — repository layout, boundaries, and the **Module Contracts** (stable per-module design invariants: AI/db adapters, i18n, validation, translation, topics, dictionary-pipeline, notifications, bot).
+  - `@docs/agents/quality-gate.md` — required checks after changes.
+  - `@docs/agents/workflows.md` — planning, implementation, review, and documentation flows.
+  - `@docs/agents/testing-strategy-tdd.md` — spec-first TDD and test strategy.
+  - `@docs/agents/skills.md` — compact role index for domain-specific work.

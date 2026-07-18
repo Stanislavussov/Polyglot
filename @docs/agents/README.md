@@ -2,8 +2,8 @@
 
 This directory is the harness-neutral source of truth for AI agents working on Polyglot.
 
-Use these files before reading harness-specific adapters such as `.pi/skills/*/SKILL.md`,
-`AGENTS.md`, or `CLAUDE.md`.
+Read these files before editing. The harness entrypoints (`AGENTS.md`, `CLAUDE.md`) carry
+the hard rules and point here for the detailed, stable guidance.
 
 ## Canonical Sources
 
