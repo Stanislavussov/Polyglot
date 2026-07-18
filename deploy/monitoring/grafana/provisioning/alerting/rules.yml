@@ -173,3 +173,85 @@ groups:
                 - evaluator:
                     type: gt
                     params: [1]
+
+      # 6. Self-healing Phase 4: host disk is running low (warning). The whole
+      #    stack shares one VPS with a single root filesystem, and the monitoring
+      #    bind-mounts live under /opt/monitoring/data/* on it, so an unbounded
+      #    log/metric spill can fill the disk and take down EVERYTHING. Metric
+      #    source: node-exporter's `node_filesystem_*` (already scraped by this
+      #    stack's node-exporter job, prometheus.yml). node-exporter runs with
+      #    `--path.rootfs=/host` (docker-compose.monitoring.yml), which strips the
+      #    /host prefix so the host root reports as `mountpoint="/"` — the exact
+      #    selector `{mountpoint="/", fstype!="rootfs"}` used by this stack's
+      #    provisioned Host dashboard root-FS gauge (host.json), so it is a
+      #    proven-working selector here, not a guess. `fstype!="rootfs"` drops the
+      #    legacy pseudo-fs; `mountpoint="/"` targets the real data filesystem
+      #    (single VPS, /opt is not a separate mount). Ratio of avail/size < 0.15
+      #    = under 15% free. No `or vector(0)` needed (node-exporter always
+      #    reports these series); noDataState: OK matches the siblings and avoids
+      #    paging on a transient scrape gap.
+      - uid: polyglot_host_disk_low
+        title: Host disk space low
+        condition: C
+        for: 5m
+        noDataState: OK
+        labels:
+          severity: warning
+        annotations:
+          summary: The host root filesystem has less than 15% free space (log/metric growth may fill the disk).
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: node_filesystem_avail_bytes{mountpoint="/", fstype!="rootfs"} / node_filesystem_size_bytes{mountpoint="/", fstype!="rootfs"}
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [0.15]
+
+      # 7. Self-healing Phase 4: host disk is critically low (critical). Same
+      #    metric/selector rationale as rule #6, tighter threshold: avail/size
+      #    < 0.05 = under 5% free, the point at which writes start failing and
+      #    the stack is at imminent risk. Kept as a separate rule (mirrors the
+      #    siblings' one-threshold-per-rule pattern) so warning and critical page
+      #    distinctly.
+      - uid: polyglot_host_disk_critical
+        title: Host disk space critical
+        condition: C
+        for: 5m
+        noDataState: OK
+        labels:
+          severity: critical
+        annotations:
+          summary: The host root filesystem has less than 5% free space (writes may start failing; the whole stack is at risk).
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: node_filesystem_avail_bytes{mountpoint="/", fstype!="rootfs"} / node_filesystem_size_bytes{mountpoint="/", fstype!="rootfs"}
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [0.05]
