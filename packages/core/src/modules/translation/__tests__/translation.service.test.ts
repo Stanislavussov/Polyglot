@@ -2,8 +2,21 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Logger } from "../../../logger.js";
 import { setLogger } from "../../../logger.js";
 import { MINIMAL_OUTPUT, SENTENCE_OUTPUT } from "../../../shared/translation-output.presets.js";
-import { parseResponse, sanitizeEmoji, translate, translateBatch, translateOne } from "../translation.service.js";
-import type { TranslateInput, TranslateOutput, TranslationDecision, TranslationResult } from "../types.js";
+import {
+  buildJudgePrompt,
+  parseResponse,
+  sanitizeEmoji,
+  translate,
+  translateBatch,
+  translateOne,
+} from "../translation.service.js";
+import type {
+  TranslateInput,
+  TranslateOutput,
+  TranslationDecision,
+  TranslationRequest,
+  TranslationResult,
+} from "../types.js";
 
 function unwrap(d: TranslationDecision): TranslateOutput {
   if (!("output" in d)) throw new Error(`Unexpected needs_clarification: ${d.ambiguity.message}`);
@@ -1581,5 +1594,49 @@ describe("unrecognized-word guard (Task 70)", () => {
     const asWritten = decision.ambiguity.options?.find((o) => o.kind === "translate_as_written");
     expect(asWritten).toBeDefined();
     expect(asWritten?.label).toBeUndefined();
+  });
+});
+
+describe("buildJudgePrompt", () => {
+  const request: TranslationRequest = {
+    text: "hello",
+    sourceLang: "en",
+    targetLangs: ["cs"],
+    nativeLang: "ru",
+    inputType: "word",
+  };
+
+  it("keeps the judge-detection phrase used by the pipeline and tests", () => {
+    // The service and its mocks identify the judge call by this exact substring.
+    expect(buildJudgePrompt(request, makeValidResult())).toContain("translation quality judge");
+  });
+
+  it("whitelists the designed output-schema fields so the judge never flags them as pollution", () => {
+    const prompt = buildJudgePrompt(request, makeValidResult());
+
+    // Regression guard for the schema-confusion artifact: a lite judge model was
+    // marking legitimate structured fields as "metadata not present in the source"
+    // and driving every full-output translation to needs_review.
+    for (const field of ["emoji", "nativeMeaning", "sourceUsage", "nativeSynonyms"]) {
+      expect(prompt).toContain(`"${field}"`);
+    }
+    expect(prompt).toMatch(/never flag them as pollution|REQUIRED and intentional/i);
+  });
+
+  it("scopes the pollution rule to the translated text string, not the structured fields", () => {
+    const prompt = buildJudgePrompt(request, makeValidResult());
+
+    // The emoji/label/explanation pollution rule must target translations.<lang>.text,
+    // and must explicitly exclude the structured schema fields.
+    expect(prompt).toMatch(/only to the translated "text" string|never to the structured schema fields/i);
+  });
+
+  it("still asks for the genuine factual and immutable-token blocking rules", () => {
+    const prompt = buildJudgePrompt(request, makeValidResult());
+
+    expect(prompt).toMatch(/wrong main meaning/i);
+    expect(prompt).toMatch(/negation/i);
+    expect(prompt).toMatch(/immutable tokens/i);
+    expect(prompt).toMatch(/placeholders/i);
   });
 });

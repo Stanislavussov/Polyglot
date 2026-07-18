@@ -288,7 +288,11 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain('Include top-level "sourceUsage"');
     expect(prompt).toContain("meaning, nuance, register, and when a learner should use or avoid this word");
     expect(prompt).toContain("2-3 close synonyms in Czech");
-    expect(prompt).toContain('exactly 3 short Czech sentences using "kudlanka"');
+    expect(prompt).toContain('exactly 3 realistic usage examples for "kudlanka"');
+    // The source-usage example sentence must land in "target" as a full sentence,
+    // not collapse to the bare headword (the "nevertheless (Russian sentence)" bug).
+    expect(prompt).toContain('"target" MUST be a complete Czech sentence, never just the word "kudlanka"');
+    expect(prompt).toContain('natural Russian translation of that Czech sentence into the "native" field');
     expect(prompt).toContain("collocations or lexical chunks");
   });
 

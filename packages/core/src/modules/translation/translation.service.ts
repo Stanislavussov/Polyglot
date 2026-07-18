@@ -1166,7 +1166,7 @@ function modelFamily(model: string): string {
   return model.split("/")[0] ?? model;
 }
 
-function buildJudgePrompt(request: TranslationRequest, result: TranslationResult): string {
+export function buildJudgePrompt(request: TranslationRequest, result: TranslationResult): string {
   return `You are a translation quality judge.
 
 Source text: ${JSON.stringify(request.text)}
@@ -1179,12 +1179,16 @@ ${request.inputType ? `Input type: ${request.inputType}` : ""}
 Candidate translation JSON:
 ${JSON.stringify(result, null, 2)}
 
-Review each translation block and optional metadata.
-Return blocking issues for:
-- wrong main meaning, negation, entities, dates, numbers, or other factual content
+The candidate JSON follows a fixed output schema. The following structured fields are REQUIRED and intentional — never flag them as pollution, "extra metadata", "unexpected fields", or "not present in the source":
+- top level: "emoji", "nativeMeaning", "sourceUsage" (with "headword", "explanation", "synonyms", "examples"), "nativeSynonyms"
+- inside each "translations".<lang> block: "text", "synonyms", "examples", "expressionType", "equivalentNote", "usageNote", "alternatives", "connotationWarning"
+Judge only the linguistic quality of these values, never the presence of the fields themselves.
+
+Return blocking issues only for:
+- wrong main meaning, negation, entities, dates, numbers, or other factual content in a "translations".<lang>."text" value
 - unsupported factual assumptions
-- broken immutable tokens such as placeholders, URLs, Markdown, dates, and numbers
-- target text polluted with emoji, labels, explanations, or metadata that were not in the source
+- broken immutable tokens such as placeholders, URLs, Markdown, dates, and numbers inside a "translations".<lang>."text" value
+- a "translations".<lang>."text" string that is itself polluted with emoji, bracketed labels, or inline explanations that were not in the source sentence — this pollution rule applies ONLY to the translated "text" string, never to the structured schema fields listed above
 
 Do NOT return blocking issues for acceptable stylistic variants, word-order differences, or valid polite constructions when the meaning, register, and facts are preserved.
 If wording is merely less idiomatic but still correct, return a warning instead of blocking.

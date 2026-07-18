@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateExamples } from "../validators/example.validator.js";
+import { validateExamples, validateSourceUsageExamples } from "../validators/example.validator.js";
 
 describe("validateExamples", () => {
   it("returns valid for well-formed examples", () => {
@@ -196,5 +196,47 @@ describe("validateExamples", () => {
       expect(result.valid).toBe(false);
       expect(result.errors.some((e) => e.field === "examples.0.target")).toBe(true);
     });
+  });
+});
+
+describe("validateSourceUsageExamples", () => {
+  it("accepts full source-language sentences that use the headword", () => {
+    const result = validateSourceUsageExamples(
+      [
+        { context: "neutral", target: "The weather was cold; nevertheless, we went for a walk.", native: "…" },
+        {
+          context: "formal",
+          target: "The results were disappointing; nevertheless, the team pressed on.",
+          native: "…",
+        },
+      ],
+      "nevertheless",
+    );
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects an example whose target is just the bare headword (the collapsed-example bug)", () => {
+    const result = validateSourceUsageExamples(
+      [{ context: "neutral", target: "nevertheless", native: "Тем не менее…" }],
+      "nevertheless",
+    );
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((error) => error.field === "sourceUsage.examples.0.target")).toBe(true);
+  });
+
+  it("rejects the headword echoed with only punctuation and no other words", () => {
+    const result = validateSourceUsageExamples(
+      [{ context: "neutral", target: "nevertheless.", native: "…" }],
+      "nevertheless",
+    );
+    expect(result.valid).toBe(false);
+  });
+
+  it("accepts an inflected multi-word headword when the sentence adds real content", () => {
+    const result = validateSourceUsageExamples(
+      [{ context: "neutral", target: "Break a leg tonight at the show!", native: "…" }],
+      "break a leg",
+    );
+    expect(result.valid).toBe(true);
   });
 });

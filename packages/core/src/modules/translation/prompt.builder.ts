@@ -37,7 +37,7 @@ function buildSourceUsageRule(
   * "headword": the canonical dictionary/citation form of "${text}" in ${sourceLangName} — add only the markers ${sourceLangName} convention requires (e.g. a German noun's article + capitalization, "die Arbeit"), WITHOUT changing the word itself; when nothing needs normalizing, repeat "${text}" unchanged.
   * "explanation": written in ${nativeLangName ?? "the user's native language"}; explain the meaning, nuance, register, and when a learner should use or avoid this word.
   * "synonyms": 2-3 close synonyms in ${sourceLangName}, not translations into another language.
-  * "examples": exactly 3 short ${sourceLangName} sentences using "${text}" or its normal inflected form in realistic contexts.${nativeLangName ? ` Each example MUST include "native": a natural ${nativeLangName} translation.` : ""}
+  * "examples": exactly 3 realistic usage examples for "${text}". For each example put the FULL ${sourceLangName} sentence that uses "${text}" (or its normal inflected form) into the "target" field — "target" MUST be a complete ${sourceLangName} sentence, never just the word "${text}" on its own or a translation into another language.${nativeLangName ? ` Put a natural ${nativeLangName} translation of that ${sourceLangName} sentence into the "native" field.` : ""}
   * Prefer collocations or lexical chunks that show how the word naturally combines with other words.${traitLine}`;
 }
 

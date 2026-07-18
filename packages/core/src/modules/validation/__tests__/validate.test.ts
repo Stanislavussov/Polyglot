@@ -63,6 +63,39 @@ describe("validate (orchestrator)", () => {
     expect(result.errors).toHaveLength(0);
   });
 
+  it("flags a sourceUsage example collapsed to the bare headword", () => {
+    const raw = {
+      ...makeValidResponse("nevertheless"),
+      sourceUsage: {
+        explanation: "A formal contrastive conjunction.",
+        synonyms: [{ text: "nonetheless" }],
+        examples: [
+          { context: "neutral", target: "nevertheless", native: "Тем не менее, мы пошли на прогулку." },
+          { context: "neutral", target: "The results were poor; nevertheless, the team pressed on.", native: "…" },
+        ],
+      },
+    };
+    const result = validate(raw, translationResultSchema, "nevertheless", ["cs"]);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.field === "sourceUsage.examples.0.target")).toBe(true);
+  });
+
+  it("accepts sourceUsage examples that are full source sentences", () => {
+    const raw = {
+      ...makeValidResponse("nevertheless"),
+      sourceUsage: {
+        explanation: "A formal contrastive conjunction.",
+        synonyms: [{ text: "nonetheless" }],
+        examples: [
+          { context: "neutral", target: "The weather was cold; nevertheless, we went for a walk.", native: "…" },
+          { context: "neutral", target: "He was tired; nevertheless, he finished the report.", native: "…" },
+        ],
+      },
+    };
+    const result = validate(raw, translationResultSchema, "nevertheless", ["cs"]);
+    expect(result.errors.some((e) => e.field?.startsWith("sourceUsage.examples"))).toBe(false);
+  });
+
   it("fails on schema validation errors", () => {
     const raw = { emoji: "👋" }; // missing required fields
     const result = validate(raw, translationResultSchema, "hello", ["cs"]);
