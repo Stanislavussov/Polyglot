@@ -17,6 +17,14 @@ import { getLogger } from "../../logger.js";
 import type { GenerateObjectFn } from "../../ports/ai.port.js";
 import { analyzeInput } from "../input-analysis/input-analyzer.js";
 import { validate } from "../validation/validation.service.js";
+import {
+  createTranslationBudget,
+  MIN_JUDGE_BUDGET_MS,
+  RESERVED_JUDGE_MS,
+  runWithTimeBox,
+  spendableBeforeJudgeReserve,
+  type TranslationBudget,
+} from "./budget.js";
 import { PREFLIGHT_DEFAULTS } from "./preflight.config.js";
 import { buildPreflightPrompt } from "./preflight.prompt.js";
 import { type PreflightResult, preflightResultSchema } from "./preflight.schema.js";
@@ -43,8 +51,10 @@ import type {
   TranslateOutput,
   TranslationAmbiguity,
   TranslationDecision,
+  TranslationHooks,
   TranslationModelRoutingPolicy,
   TranslationOutputConfig,
+  TranslationPhase,
   TranslationRequest,
   TranslationResult,
 } from "./types.js";
@@ -80,13 +90,15 @@ const HIGH_RISK_POS = new Set(["idiom", "phrase", "proverb", "interjection"]);
  * new phase is adding a step to the array and its function — never editing an
  * existing step body (open/closed).
  *
- * @param input - Word, source/target languages, model ID
+ * @param input - Word, source/target languages, model ID, optional `deadlineAt`
  * @param generateObjectFn - AI generation function (injected)
+ * @param hooks - Optional pure observation hooks (phase timings). No-op when absent.
  * @returns TranslationDecision — accepted, needs_clarification, or needs_review
  */
 export async function translate(
   input: TranslateInput,
   generateObjectFn: GenerateObjectFn,
+  hooks?: TranslationHooks,
 ): Promise<TranslationDecision> {
   const analysis = analyzeInput(input.word);
   const ctx: PipelineContext = {
@@ -96,10 +108,18 @@ export async function translate(
     unverified: false,
     issues: [],
     attemptCount: 0,
+    judgeRan: false,
+    preflightRan: false,
+    budget: createTranslationBudget(input.deadlineAt, input.now),
   };
 
   for (const step of TRANSLATION_PIPELINE) {
+    const phase = PHASE_BY_STEP.get(step);
+    const phaseStartedAt = phase === undefined ? 0 : ctx.budget.now();
     const outcome = await step(ctx, generateObjectFn);
+    if (phase !== undefined && phaseDidWork(phase, ctx)) {
+      reportPhase(hooks, phase, ctx.budget.now() - phaseStartedAt);
+    }
     if (outcome.kind === "exit") {
       return outcome.decision;
     }
@@ -157,6 +177,20 @@ interface PipelineContext {
   /** Generation model after risk re-routing. */
   routedGenerationModel?: string;
   judgeResult?: SemanticJudgeResult;
+  /**
+   * Whether the semantic judge actually ran (answered, failed, or blew its time
+   * box). False when the judge step no-opped because the risk was not high or
+   * blocking issues short-circuited it — see {@link phaseDidWork}.
+   */
+  judgeRan: boolean;
+  /**
+   * Whether the AI preflight actually reached the model. False on the common
+   * path, where confident language detection lets it short-circuit before any
+   * round-trip — see {@link phaseDidWork}.
+   */
+  preflightRan: boolean;
+  /** Remaining-time view for this call. Unbounded when no `deadlineAt` was given. */
+  readonly budget: TranslationBudget;
 }
 
 /** A step either continues (context updated in place) or exits with a decision. */
@@ -176,6 +210,61 @@ const TRANSLATION_PIPELINE: PipelineStep[] = [
   judgeStep,
   finalizeStep,
 ];
+
+/**
+ * Steps that are reported to {@link TranslationHooks.onPhase}. Keeping the
+ * mapping out here means adding an observed phase never edits a step body
+ * (open/closed), and steps stay unaware that anyone is watching.
+ */
+const PHASE_BY_STEP = new Map<PipelineStep, TranslationPhase>([
+  [aiPreflightStep, "preflight"],
+  [generateStep, "generate"],
+  [validateAndRepairStep, "validate"],
+  [judgeStep, "judge"],
+]);
+
+/**
+ * Whether a mapped phase actually did work on this run.
+ *
+ * A phase that no-opped must NOT be observed at all. `judgeStep` only invokes
+ * the judge on `riskLevel === "high"`, while most interactive traffic is medium:
+ * reporting it unconditionally would flood the `judge` histogram with ~0ms
+ * samples and drag its quantiles toward zero, hiding the very tail the metric
+ * exists to bound. An absent observation is the honest signal — never a zero.
+ *
+ * `preflight` is the same story: it only reaches the model when detection
+ * confidence is low, and short-circuits otherwise.
+ *
+ * `generate` and `validate` always do work when their step runs (generation
+ * always calls the AI; deterministic validation always runs), so they are always
+ * reported.
+ */
+function phaseDidWork(phase: TranslationPhase, ctx: PipelineContext): boolean {
+  switch (phase) {
+    case "judge":
+      return ctx.judgeRan;
+    case "preflight":
+      return ctx.preflightRan;
+    default:
+      return true;
+  }
+}
+
+/** Report a phase timing, never letting a misbehaving observer break translation. */
+function reportPhase(hooks: TranslationHooks | undefined, phase: TranslationPhase, elapsedMs: number): void {
+  const onPhase = hooks?.onPhase;
+  if (onPhase === undefined) {
+    return;
+  }
+  try {
+    onPhase(phase, elapsedMs);
+  } catch (error) {
+    getLogger().warn(
+      { phase, observerError: error instanceof Error ? error.message : String(error) },
+      "translation phase observer threw; ignored",
+    );
+  }
+}
 
 /**
  * Narrow the context to the fields the generation step guarantees. Throws if a
@@ -218,6 +307,11 @@ function structuralPreflightStep(ctx: PipelineContext): StepOutcome {
 
 /** Step 2 — AI preflight: clarify source language / meaning / typo, or silently correct. */
 async function aiPreflightStep(ctx: PipelineContext, generateObjectFn: GenerateObjectFn): Promise<StepOutcome> {
+  // The preflight only reaches the model for low-confidence detection; recording
+  // whether it did keeps its phase timing off the metric on the common path where
+  // it short-circuits (see `phaseDidWork`). `shouldRunAIPreflight` is pure, so
+  // asking it here costs nothing and keeps the decision explicit at the step.
+  ctx.preflightRan = shouldRunAIPreflight(ctx.input);
   const preflight = await runAIPreflight(ctx.input, generateObjectFn);
   if (preflight.kind === "clarify") {
     return { kind: "exit", decision: { status: "needs_clarification", ambiguity: preflight.ambiguity } };
@@ -387,7 +481,10 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
         "AI generation failed",
       );
 
-      if (attempt === MAX_FULL_RETRIES) {
+      // Task 2.5b — a whole-batch retry is only started while the budget still
+      // leaves the judge its reserved window. With no budget this is always
+      // true, so the retry count is unchanged.
+      if (attempt === MAX_FULL_RETRIES || !ctx.budget.allows(RESERVED_JUDGE_MS)) {
         throw generationError;
       }
 
@@ -414,6 +511,13 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
 
     lastErrors = validation.errors.map((e) => `[${e.rule}] ${e.field ? `${e.field}: ` : ""}${e.message}`);
     if (validation.valid || !validation.errors.some((error) => error.rule === "schema")) {
+      break;
+    }
+
+    // Task 2.5b — stop re-generating the whole batch once only the reserved
+    // judge window remains; the result so far still goes through validation and
+    // targeted repair downstream.
+    if (!ctx.budget.allows(RESERVED_JUDGE_MS)) {
       break;
     }
 
@@ -495,6 +599,7 @@ async function validateAndRepairStep(ctx: PipelineContext, generateObjectFn: Gen
       generateObjectFn,
       ctx.attemptCount,
       generationModel,
+      ctx.budget,
       isClarifyRerun(normalizedInput) ? MAX_TARGETED_REPAIRS_ON_RERUN : MAX_TARGETED_REPAIRS,
     );
     ctx.result = repaired.result;
@@ -524,14 +629,36 @@ async function judgeStep(ctx: PipelineContext, generateObjectFn: GenerateObjectF
   let attemptCount = ctx.attemptCount;
 
   if (!hasBlockingIssues(issues) && ctx.riskLevel === "high") {
-    const judged = await judgeTranslation(
+    // From here the judge phase genuinely happened (it answered, failed, or blew
+    // its time box), so its timing is worth observing. See {@link phaseDidWork}.
+    ctx.judgeRan = true;
+    const judged = await runJudgeWithinBudget(
       result,
       normalizedInput,
       request,
       generateObjectFn,
       attemptCount,
       routedGenerationModel,
+      ctx.budget,
     );
+
+    if (judged.timedOut) {
+      // Task 2.5a / Amendment 2 — the time box expired (or the window was too
+      // short to even start), so NO semantic gate was obtained on a high-risk
+      // input. Ship the already-validated pre-judge result rather than blocking
+      // the user, but never as a silently `accepted` card: the blocking issue
+      // below routes it to needs_review through the normal finalize path.
+      // A judge that answers in time is untouched — only the clock falls back.
+      getLogger().warn(
+        { original: normalizedInput.word, judgeBudgetMs: judged.budgetMs },
+        "semantic judge exceeded its time budget; returning the validated pre-judge result as needs_review",
+      );
+      ctx.result = result;
+      ctx.issues = [...issues, buildJudgeTimeoutIssue()];
+      ctx.attemptCount = attemptCount;
+      return CONTINUE;
+    }
+
     ctx.judgeResult = judged.judgeResult;
     attemptCount = judged.attemptCount;
 
@@ -548,20 +675,28 @@ async function judgeStep(ctx: PipelineContext, generateObjectFn: GenerateObjectF
           generateObjectFn,
           attemptCount,
           routedGenerationModel,
+          ctx.budget,
         );
         result = repaired.result;
         attemptCount = repaired.attemptCount;
         issues = repaired.issues;
 
         if (!hasBlockingIssues(issues)) {
-          const reJudged = await judgeTranslation(
+          const reJudged = await runJudgeWithinBudget(
             result,
             normalizedInput,
             request,
             generateObjectFn,
             attemptCount,
             routedGenerationModel,
+            ctx.budget,
           );
+          if (reJudged.timedOut) {
+            ctx.result = result;
+            ctx.issues = [...issues, buildJudgeTimeoutIssue()];
+            ctx.attemptCount = attemptCount;
+            return CONTINUE;
+          }
           ctx.judgeResult = reJudged.judgeResult;
           attemptCount = reJudged.attemptCount;
           issues = [...issues, ...reJudged.issues];
@@ -574,6 +709,64 @@ async function judgeStep(ctx: PipelineContext, generateObjectFn: GenerateObjectF
   ctx.issues = issues;
   ctx.attemptCount = attemptCount;
   return CONTINUE;
+}
+
+/** Outcome of a time-boxed judge run. */
+type BudgetedJudgeOutcome =
+  | { timedOut: true; budgetMs: number }
+  | { timedOut: false; judgeResult?: SemanticJudgeResult; issues: QualityIssue[]; attemptCount: number };
+
+/**
+ * Task 2.5a — run the semantic judge under the remaining budget.
+ *
+ * With no budget this awaits {@link judgeTranslation} exactly as before. With a
+ * budget, the judge gets whatever is left (the reservation upstream guarantees
+ * that is at least roughly {@link RESERVED_JUDGE_MS}); a window shorter than
+ * {@link MIN_JUDGE_BUDGET_MS} is treated as an immediate expiry instead of
+ * burning the remainder on a round-trip that cannot land.
+ *
+ * Only the CLOCK falls back. A judge that answers within its box keeps every
+ * correction it produced.
+ */
+async function runJudgeWithinBudget(
+  result: TranslationResult,
+  input: TranslateInput,
+  request: TranslationRequest,
+  generateObjectFn: GenerateObjectFn,
+  initialAttemptCount: number,
+  generationModel: string,
+  budget: TranslationBudget,
+): Promise<BudgetedJudgeOutcome> {
+  const judgeBudgetMs = budget.remainingMs();
+
+  if (judgeBudgetMs !== undefined && judgeBudgetMs < MIN_JUDGE_BUDGET_MS) {
+    return { timedOut: true, budgetMs: Math.max(0, judgeBudgetMs) };
+  }
+
+  const boxed = await runWithTimeBox(
+    judgeTranslation(result, input, request, generateObjectFn, initialAttemptCount, generationModel),
+    judgeBudgetMs,
+  );
+
+  if (boxed.timedOut) {
+    return { timedOut: true, budgetMs: judgeBudgetMs ?? 0 };
+  }
+
+  return { timedOut: false, ...boxed.value };
+}
+
+/**
+ * The blocking issue that turns a judge time-box expiry into `needs_review`
+ * (Amendment 2). The judge only ever runs on `riskLevel === "high"`, so every
+ * judge timeout is by construction a high-risk timeout.
+ */
+function buildJudgeTimeoutIssue(): QualityIssue {
+  return {
+    fieldPath: "",
+    severity: "blocking",
+    message:
+      "[judge_timeout] semantic judge exceeded its time budget on a high-risk translation; no semantic gate was obtained",
+  };
 }
 
 /** Step 7 — finalize: accepted when no blocking issues remain, else needs_review. */
@@ -640,6 +833,7 @@ function finalizeStep(ctx: PipelineContext): StepOutcome {
 export async function translateOne(
   input: TranslateInput & { targetLang: string },
   generateObjectFn: GenerateObjectFn,
+  hooks?: TranslationHooks,
 ): Promise<TranslationDecision> {
   return translate(
     {
@@ -656,8 +850,11 @@ export async function translateOne(
       detectionConfidence: input.detectionConfidence,
       modelRouting: input.modelRouting,
       correctionPolicy: input.correctionPolicy,
+      deadlineAt: input.deadlineAt,
+      now: input.now,
     },
     generateObjectFn,
+    hooks,
   );
 }
 
@@ -964,6 +1161,7 @@ async function repairTranslationBlocks(
   generateObjectFn: GenerateObjectFn,
   initialAttemptCount: number,
   fallbackGenerationModel: string,
+  budget: TranslationBudget,
   maxTargetedRepairs: number = MAX_TARGETED_REPAIRS,
 ): Promise<{ result: TranslationResult; issues: QualityIssue[]; attemptCount: number }> {
   const languages = uniqueRepairLanguages(sourceIssues);
@@ -984,24 +1182,58 @@ async function repairTranslationBlocks(
     if (langIssues.length === 0) continue;
 
     for (let attempt = 0; attempt < maxTargetedRepairs; attempt++) {
-      const repairedBlock = await generateObjectFn(
-        buildRepairPrompt(request, lang, workingResult.translations[lang], langIssues),
-        buildLanguageTranslationSchema(
-          input.outputConfig,
-          input.nativeLang !== undefined && lang !== input.nativeLang,
-          input.nativeLang !== undefined &&
-            input.inputType !== "sentence" &&
-            input.outputConfig?.includeUsageNote !== false,
-          input.nativeLang !== undefined && input.sourceLang !== input.nativeLang && lang === input.nativeLang,
-        ) as import("zod").ZodSchema<LanguageTranslation>,
-        repairModel,
-        {
-          frequencyPenalty: 0,
-          ...(input.userId !== undefined ? { userId: input.userId } : {}),
-        },
+      // Task 2.5b / Amendment 3 — a repair round may CONSUME at most
+      // "remaining − RESERVED_JUDGE_MS". A start-gate alone would be strictly
+      // weaker: a round admitted with a hair over the reservation could then run
+      // for the AI adapter's full per-request timeout (~10s, 2.5x the reserve)
+      // and eat the reservation the judge is owed. Time-boxing the call itself
+      // subsumes the gate — a window that is already gone yields a non-positive
+      // box, i.e. an immediate expiry. Unbounded budgets produce an `undefined`
+      // box, which awaits the call unchanged with no timer created, so
+      // `maxTargetedRepairs` (including the clarify-rerun cap) remains the sole
+      // limit when no `deadlineAt` was supplied.
+      const repairWindowMs = spendableBeforeJudgeReserve(budget);
+      if (repairWindowMs !== undefined && repairWindowMs <= 0) {
+        getLogger().warn(
+          { original: input.word, remainingMs: budget.remainingMs(), reserveMs: RESERVED_JUDGE_MS },
+          "translation repair budget exhausted; returning the best validated result so far",
+        );
+        return { result: workingResult, issues: sourceIssues, attemptCount };
+      }
+
+      const boxedRepair = await runWithTimeBox(
+        generateObjectFn(
+          buildRepairPrompt(request, lang, workingResult.translations[lang], langIssues),
+          buildLanguageTranslationSchema(
+            input.outputConfig,
+            input.nativeLang !== undefined && lang !== input.nativeLang,
+            input.nativeLang !== undefined &&
+              input.inputType !== "sentence" &&
+              input.outputConfig?.includeUsageNote !== false,
+            input.nativeLang !== undefined && input.sourceLang !== input.nativeLang && lang === input.nativeLang,
+          ) as import("zod").ZodSchema<LanguageTranslation>,
+          repairModel,
+          {
+            frequencyPenalty: 0,
+            ...(input.userId !== undefined ? { userId: input.userId } : {}),
+          },
+        ),
+        repairWindowMs,
       );
+
+      if (boxedRepair.timedOut) {
+        // The round overran its share of the clock. Its late answer is discarded
+        // (it cannot be cancelled) and the best already-validated result so far
+        // is handed back, leaving the judge reservation intact.
+        getLogger().warn(
+          { original: input.word, remainingMs: budget.remainingMs(), repairWindowMs },
+          "translation repair exceeded its time box; returning the best validated result so far",
+        );
+        return { result: workingResult, issues: sourceIssues, attemptCount };
+      }
+
       attemptCount++;
-      const repairedTranslation = extractLanguageTranslation(repairedBlock, lang);
+      const repairedTranslation = extractLanguageTranslation(boxedRepair.value, lang);
 
       workingResult = {
         ...workingResult,
@@ -1166,7 +1398,7 @@ function modelFamily(model: string): string {
   return model.split("/")[0] ?? model;
 }
 
-function buildJudgePrompt(request: TranslationRequest, result: TranslationResult): string {
+export function buildJudgePrompt(request: TranslationRequest, result: TranslationResult): string {
   return `You are a translation quality judge.
 
 Source text: ${JSON.stringify(request.text)}
@@ -1179,12 +1411,16 @@ ${request.inputType ? `Input type: ${request.inputType}` : ""}
 Candidate translation JSON:
 ${JSON.stringify(result, null, 2)}
 
-Review each translation block and optional metadata.
-Return blocking issues for:
-- wrong main meaning, negation, entities, dates, numbers, or other factual content
+The candidate JSON follows a fixed output schema. The following structured fields are REQUIRED and intentional — never flag them as pollution, "extra metadata", "unexpected fields", or "not present in the source":
+- top level: "emoji", "nativeMeaning", "sourceUsage" (with "headword", "explanation", "synonyms", "examples"), "nativeSynonyms"
+- inside each "translations".<lang> block: "text", "synonyms", "examples", "expressionType", "equivalentNote", "usageNote", "alternatives", "connotationWarning"
+Judge only the linguistic quality of these values, never the presence of the fields themselves.
+
+Return blocking issues only for:
+- wrong main meaning, negation, entities, dates, numbers, or other factual content in a "translations".<lang>."text" value
 - unsupported factual assumptions
-- broken immutable tokens such as placeholders, URLs, Markdown, dates, and numbers
-- target text polluted with emoji, labels, explanations, or metadata that were not in the source
+- broken immutable tokens such as placeholders, URLs, Markdown, dates, and numbers inside a "translations".<lang>."text" value
+- a "translations".<lang>."text" string that is itself polluted with emoji, bracketed labels, or inline explanations that were not in the source sentence — this pollution rule applies ONLY to the translated "text" string, never to the structured schema fields listed above
 
 Do NOT return blocking issues for acceptable stylistic variants, word-order differences, or valid polite constructions when the meaning, register, and facts are preserved.
 If wording is merely less idiomatic but still correct, return a warning instead of blocking.

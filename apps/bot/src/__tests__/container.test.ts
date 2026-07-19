@@ -134,6 +134,7 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateText: vi.fn().mockResolvedValue("test"),
   generateChat: vi.fn().mockResolvedValue("test"),
   setAIApiKey: vi.fn(),
+  setAICircuitBreakerEnabled: vi.fn(),
   setAIFallbackObserver: vi.fn(),
   setAIGenerationDefaultsProvider: vi.fn(),
   setAIModelPriceProvider: vi.fn(),

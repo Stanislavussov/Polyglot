@@ -14,7 +14,7 @@ pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm
 - Do not defer fixes to "later"
 - Keep user-facing and operational changes under `## [Unreleased]` in `CHANGELOG.md`
 - `pnpm db:push` is the final step — applies schema changes to local/dev database
-- Run the test catalog script (`pnpm test:catalog`, output `apps/admin/public/reports/test-catalog.*`) and commit its artifacts **only when test files changed**; otherwise leave any spurious regeneration out of the commit (`git restore apps/admin/public/reports/test-catalog.*`)
+- Run the test catalog script (`pnpm test:catalog`, output `apps/admin/reports-data/test-catalog.*`) and commit its artifacts **only when test files changed**; otherwise leave any spurious regeneration out of the commit (`git restore apps/admin/reports-data/test-catalog.*`). (The reports directory was moved out of `apps/admin/public/` in Fable T09 so the reports are no longer served anonymously; they are now behind the cookie-gated SSR endpoint `apps/admin/src/pages/reports/[...file].ts`.)
 
 **Exception — Documentation-only changes:** When the only files touched are Markdown (`.md`), task specs, readmes, or changelogs, skip the quality gate. Running `pnpm build`, `pnpm lint`, and `pnpm test` is useless if no source code changed. In that case, only verify that the Markdown renders correctly and `CHANGELOG.md` is updated if needed.
 
@@ -87,4 +87,9 @@ Run these steps **when there are related code changes** (a change isn't done unt
 - **Stack**: TypeScript, Biome (lint/format), Vitest (tests), dependency-cruiser
 - **Database**: PostgreSQL via Drizzle ORM (`packages/adapters/db`)
 - **Documentation**: `@docs/` is the canonical documentation directory. Do not create or write to a top-level `docs/` directory.
-- **Agent guidance**: `@docs/agents/` is the canonical harness-neutral agent guidance. `.pi/skills/` contains only thin Pi-specific adapters.
+- **Agent guidance**: `@docs/agents/` is the canonical, harness-neutral agent guidance — read it before editing.
+  - `@docs/agents/architecture.md` — repository layout, boundaries, and the **Module Contracts** (stable per-module design invariants: AI/db adapters, i18n, validation, translation, topics, dictionary-pipeline, notifications, bot).
+  - `@docs/agents/quality-gate.md` — required checks after changes.
+  - `@docs/agents/workflows.md` — planning, implementation, review, and documentation flows.
+  - `@docs/agents/testing-strategy-tdd.md` — spec-first TDD and test strategy.
+  - `@docs/agents/skills.md` — compact role index for domain-specific work.

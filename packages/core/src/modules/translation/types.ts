@@ -203,6 +203,62 @@ export interface TranslateInput {
    * hit signal and the input-correction / existence-assessment toggles.
    */
   correctionPolicy?: TranslationCorrectionPolicy;
+  /**
+   * ABSOLUTE wall-clock deadline (ms on the {@link now} time base, i.e. an
+   * epoch timestamp by default) for this translate() call.
+   *
+   * Deliberately a deadline rather than a duration: the caller stamps it once at
+   * the TRUE start of the operation it is guarding, so anything it does before
+   * reaching `translate()` (a dictionary-context lookup, quota checks) is spent
+   * out of the same window. A duration would let core re-anchor its clock on
+   * arrival and silently push the effective deadline past the caller's own hard
+   * timeout — turning graceful degradation into a user-facing error.
+   *
+   * When supplied, the post-generation tail bounds itself against the remaining
+   * time: the whole-batch retry stops starting new rounds once only the reserved
+   * judge window is left, each targeted repair round runs under a time box that
+   * cannot consume that reservation, and the semantic judge runs under a time
+   * box (falling back to the already-validated pre-judge result, flagged
+   * `needs_review` because no semantic gate was obtained).
+   *
+   * ABSENT — or `NaN`/`Infinity`/`0`/negative — means **unbounded**: every phase
+   * behaves exactly as it did before budgets existed, with no timer created at
+   * all. Core never invents a deadline of its own.
+   */
+  deadlineAt?: number;
+  /**
+   * Injected clock (ms) backing {@link deadlineAt} and the phase timings reported
+   * to {@link TranslationHooks.onPhase}. Defaults to `Date.now`. A TEST SEAM
+   * only — production callers pass just the deadline — so budget arithmetic is
+   * deterministic under test without fake timers.
+   */
+  now?: () => number;
+}
+
+/**
+ * Internal pipeline phases a caller can observe.
+ *
+ * `generate` and the post-generation phases `validate` (deterministic
+ * validation + targeted repair) and `judge` (semantic judge + repair-and-re-judge)
+ * live entirely inside core, so without this seam they are unmeasurable from the
+ * outside.
+ */
+export type TranslationPhase = "preflight" | "generate" | "validate" | "judge";
+
+/**
+ * Sink for internal phase timings. Deliberately a plain callback: core reports
+ * numbers and knows nothing about metrics, Prometheus, or the channel. A
+ * throwing observer never affects the translation.
+ */
+export type TranslationPhaseObserver = (phase: TranslationPhase, elapsedMs: number) => void;
+
+/**
+ * Optional observation hooks for a translate() call. Every field is optional and
+ * a no-op when absent; hooks may only observe, never influence, the pipeline.
+ */
+export interface TranslationHooks {
+  /** Invoked as each internal phase completes, with its wall-clock duration. */
+  onPhase?: TranslationPhaseObserver;
 }
 
 /**

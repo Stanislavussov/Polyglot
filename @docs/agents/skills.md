@@ -1,7 +1,9 @@
 # Skill Role Index
 
-Harness skill files are thin adapters. They should point here and to active `@docs/`
-documents instead of carrying long, drifting domain descriptions.
+A compact index of the roles/concerns that make up the project, for orienting work.
+It points to `@docs/agents/` and active `@docs/` documents rather than carrying long,
+drifting domain descriptions — for per-module design invariants see the Module Contracts
+in `@docs/agents/architecture.md`.
 
 ## Business Roles
 

@@ -3,12 +3,34 @@
  * bound them with a timeout so the user never stares at an endless loader,
  * and show a typing indicator during silent pre-phases.
  */
-import { AITimeoutError, type SupportedLang, t } from "@polyglot/core";
+import { AICircuitOpenError, AITimeoutError, type SupportedLang, t } from "@polyglot/core";
 import type { InlineKeyboardMarkup } from "grammy/types";
 import type { BotContext } from "../types.js";
 
 /** How long a user-facing operation may run before we give up and say so. */
 export const LONG_OP_TIMEOUT_MS = 20_000;
+
+/**
+ * Wall-clock budget handed to the translation pipeline, which the caller turns
+ * into `TranslateInput.deadlineAt`.
+ *
+ * Deliberately below {@link LONG_OP_TIMEOUT_MS}. The outer `withTimeout` guard is
+ * a hard stop that abandons the request and shows the user an error; the pipeline
+ * budget is a *graceful* bound that lets the post-generation tail (whole-batch
+ * retry, targeted repair, semantic judge) stop starting new work and hand back the
+ * best already-validated result instead. That degradation is only reachable if the
+ * pipeline finishes *first*, so the gap between the two is the headroom the
+ * pipeline needs to wind down — abandon an in-flight repair, fall back to the
+ * validated result, and return — before the hard guard fires.
+ *
+ * The caller turns this into an ABSOLUTE deadline anchored at the same instant it
+ * starts the `withTimeout` guard, so both clocks run from one origin. Note the
+ * card-rendering round-trips happen *after* `withTimeout` resolves and are outside
+ * the guard entirely; they are not what this margin is for.
+ *
+ * Invariant: `TRANSLATION_BUDGET_MS < LONG_OP_TIMEOUT_MS`.
+ */
+export const TRANSLATION_BUDGET_MS = LONG_OP_TIMEOUT_MS - 3_000;
 
 /**
  * Safety margin between the AI request budget and the outer op guard (B8). The
@@ -70,12 +92,15 @@ export async function withTimeout<T>(work: Promise<T>, timeoutMs: number): Promi
 
 /**
  * True when `err` should surface the friendly "taking longer, try again"
- * fallback rather than a hard error — either the op-level guard fired
- * (OperationTimeoutError) or the AI adapter aborted a call that blew its time
- * budget (AITimeoutError, thrown before this guard since its budget is lower).
+ * fallback rather than a hard error — the op-level guard fired
+ * (OperationTimeoutError), the AI adapter aborted a call that blew its time
+ * budget (AITimeoutError, thrown before this guard since its budget is lower), or
+ * the Phase 3 circuit breaker fast-failed a request because a provider is already
+ * down (AICircuitOpenError). All three warrant the same "try again shortly" notice
+ * rather than a hard error message.
  */
 export function isUserFacingTimeout(err: unknown): boolean {
-  return err instanceof OperationTimeoutError || err instanceof AITimeoutError;
+  return err instanceof OperationTimeoutError || err instanceof AITimeoutError || err instanceof AICircuitOpenError;
 }
 
 /**

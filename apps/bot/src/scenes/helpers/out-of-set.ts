@@ -15,6 +15,7 @@ import {
   t,
 } from "@polyglot/core";
 import { MAX_LEARNING_LANGS } from "../../constants.js";
+import { clearRequestSettings } from "../../middlewares/request-settings.js";
 import type { BotContext } from "../../types.js";
 import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { editMessageReplyMarkupOrIgnore } from "./edit-message.helper.js";
@@ -87,6 +88,11 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
     try {
       await ctx.services.userRepository.updateLearningLangs(ctx.user.id, nextLangs);
       effectiveLearning = nextLangs;
+      // This update continues into `handleMistypeConfirmCallback` below, which
+      // re-reads the settings. Drop the request memo (warmed by the auth
+      // middleware before this write) so that read sees the language just added
+      // instead of re-classifying it as out-of-set and re-offering it.
+      clearRequestSettings(ctx);
     } catch (err) {
       logger.warn({ err, sourceLang }, "Failed to add out-of-set language");
       await ctx.answerCallbackQuery({ text: t("translationError", lang), show_alert: true });

@@ -18,6 +18,7 @@ import { handleVideoVocabularyUrl } from "../scenes/helpers/video-vocabulary.hel
 import type { BotContext } from "../types.js";
 import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
+import { getRequestSettings } from "./request-settings.js";
 
 /**
  * Resolve the user's interface language from DB settings.
@@ -26,7 +27,7 @@ import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.
 async function resolveInterfaceLang(ctx: BotContext): Promise<SupportedLang> {
   const user = ctx.user;
   if (!user) return "en";
-  const settings = await ctx.services.userRepository.getSettings(user.id);
+  const settings = await getRequestSettings(ctx, user.id);
   const rawLang = settings?.interfaceLang ?? "en";
   return isSupported(rawLang) ? rawLang : "en";
 }
@@ -130,7 +131,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       }
 
       // Non-onboarded user — show hint to start onboarding
-      const settings = user ? await ctx.services.userRepository.getSettings(user.id) : null;
+      const settings = user ? await getRequestSettings(ctx, user.id) : null;
       const rawLang = settings?.interfaceLang ?? "en";
       const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
       const msg = await ctx.reply(t("welcome", lang));

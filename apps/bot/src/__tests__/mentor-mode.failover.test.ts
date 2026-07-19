@@ -13,6 +13,7 @@
  * the container is what wires it into ctx.services for real traffic.
  */
 import { setAIFallbackObserver, withModelFailover } from "@polyglot/adapter-ai";
+import { resetBreakerRegistry } from "@polyglot/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockUserRepository, mockSettings, mockTranslationRequestRepository } = vi.hoisted(() => ({
@@ -81,12 +82,14 @@ describe("handleMentorText with failover", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    resetBreakerRegistry();
     observer.mockClear();
     setAIFallbackObserver(observer);
   });
 
   afterEach(() => {
     setAIFallbackObserver(null);
+    resetBreakerRegistry();
   });
 
   it("delivers a fallback coaching reply when the primary model 429s", async () => {

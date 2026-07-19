@@ -22,13 +22,16 @@ change is user-facing or operational.
 
 ## Test Catalog
 
-`apps/admin/public/reports/test-catalog.{json,html}` is generated from the test files
+`apps/admin/reports-data/test-catalog.{json,html}` is generated from the test files
 (scenario extraction) and is also rewritten as a side effect of `pnpm reports:sync-admin`.
+(The reports directory was moved out of `apps/admin/public/` in Fable T09, so reports are
+no longer served anonymously; they sit behind the cookie-gated SSR endpoint
+`apps/admin/src/pages/reports/[...file].ts`.)
 
 - Run `pnpm test:catalog` and commit the regenerated artifacts **only when test files
   changed**.
 - If they show as modified but no tests changed (spurious regeneration), keep them out of
-  the commit: `git restore apps/admin/public/reports/test-catalog.*`.
+  the commit: `git restore apps/admin/reports-data/test-catalog.*`.
 
 ## Changelog
 

@@ -5,7 +5,7 @@
 import { createServer, type Server } from "node:http";
 import { pingDatabase } from "@polyglot/adapter-db";
 import { logger } from "@polyglot/core";
-import { Counter, collectDefaultMetrics, Histogram, register } from "prom-client";
+import { Counter, collectDefaultMetrics, Gauge, Histogram, register } from "prom-client";
 import { checkLiveness, checkReadiness } from "./health.js";
 
 // ── Default Node.js metrics (CPU, memory, event-loop, GC) ───────────
@@ -23,6 +23,45 @@ export const translationDuration = new Histogram({
   name: "bot_translation_duration_seconds",
   help: "Translation request duration in seconds",
   buckets: [0.5, 1, 2, 5, 10, 30],
+});
+
+/**
+ * The fixed, bounded label set for {@link translationPhaseDuration}. Keeping the
+ * values enumerated here (rather than passing free-form strings at the call
+ * site) is what keeps the metric's cardinality bounded — never add a
+ * user/word/model dimension to this histogram.
+ *
+ * `pre_ai`, `detection` and `post_ai` are measured here; `preflight`, `generate`,
+ * `validate` and `judge` happen inside the pure-core pipeline and arrive through
+ * the `onPhase` sink handed to `translateWithContext`.
+ *
+ * A phase that did no work is NOT observed — `preflight` short-circuits on
+ * confident detection and `judge` only runs on high-risk input, so emitting a
+ * zero for them would drag those quantiles toward zero and hide the tail the
+ * metric exists to expose. Absent is the honest signal.
+ *
+ * These do not sum exactly to `bot_translation_duration_seconds`: the dictionary
+ * context lookup that runs inside `translateWithContext` before the pipeline
+ * starts carries no label of its own. It is a single SELECT, so the residual is
+ * small — but do not read the phases as an exhaustive partition.
+ */
+export const TRANSLATION_PHASES = [
+  "pre_ai",
+  "detection",
+  "preflight",
+  "generate",
+  "validate",
+  "judge",
+  "post_ai",
+] as const;
+
+export type TranslationPhase = (typeof TRANSLATION_PHASES)[number];
+
+export const translationPhaseDuration = new Histogram({
+  name: "bot_translation_phase_duration_seconds",
+  help: "Per-phase breakdown of the translate path in seconds (pre_ai, detection, preflight, generate, validate, judge, post_ai) — complements bot_translation_duration_seconds by showing where the wall-clock time goes. Phases that did no work on a request are not observed at all.",
+  labelNames: ["phase"] as const,
+  buckets: [0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 30],
 });
 
 export const inputCorrectionCounter = new Counter({
@@ -77,6 +116,18 @@ export const aiFallbackCounter = new Counter({
   name: "bot_ai_fallback_total",
   help: "AI fallback-model failovers (Phase 2): a retriable failure on the primary model succeeded on the fallback",
   labelNames: ["from_model", "to_model", "reason"] as const,
+});
+
+export const aiCircuitStateGauge = new Gauge({
+  name: "bot_ai_circuit_state",
+  help: "AI per-model circuit breaker state (Phase 3): 0=closed, 1=half-open, 2=open",
+  labelNames: ["model"] as const,
+});
+
+export const aiCircuitTransitionsCounter = new Counter({
+  name: "bot_ai_circuit_transitions_total",
+  help: "AI circuit breaker state transitions (Phase 3), by target state (bounded labels)",
+  labelNames: ["model", "to_state"] as const,
 });
 
 export const activeUsersGauge = new Counter({

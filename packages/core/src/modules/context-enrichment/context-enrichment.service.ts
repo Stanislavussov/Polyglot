@@ -30,6 +30,7 @@ export async function translateWithContext(
       dictionaryContext: context,
     },
     deps.generateObjectFn,
+    { onPhase: deps.onPhase },
   );
 }
 
@@ -45,6 +46,7 @@ export async function translateOneWithContext(
       dictionaryContext: context,
     },
     deps.generateObjectFn,
+    { onPhase: deps.onPhase },
   );
 }
 

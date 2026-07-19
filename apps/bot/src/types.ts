@@ -236,6 +236,13 @@ export interface SessionData {
 export interface CustomContextProps {
   user: User & { settings?: UserLanguageSettings | null };
   services: ServiceContainer;
+  /**
+   * Request-scoped memo of the user's settings, populated lazily by
+   * {@link getRequestSettings} (middlewares/request-settings.ts). Lives for one
+   * Telegram update only. Read it through that helper, never directly — and
+   * never via `ctx.user.settings`, which is always `undefined`.
+   */
+  settingsMemo?: { userId: number; promise: Promise<UserLanguageSettings | null> };
 }
 
 /** Context type used in the outside middleware tree (has ConversationFlavor + Session) */

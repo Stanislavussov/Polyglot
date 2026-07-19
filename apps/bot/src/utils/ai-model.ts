@@ -5,13 +5,27 @@ import { type AIFailover, isFinitePositive, type SettingsPort } from "@polyglot/
  * set no DB default, and Phase 2 failover uses it as the second model tried after
  * a retriable failure on the primary (admin-configured) model.
  *
- * Set to the full (non-lite) `gemini-3.1-flash`: the production primary is
- * `gemini-3.1-flash-lite`, whose dominant failure mode is malformed/truncated
- * structured output rather than a provider outage, so failing over to the more
- * capable sibling model recovers those cases. (Tradeoff: same provider family, so
- * this fallback does not add resilience against a Google/OpenRouter outage.)
+ * Cross-family on purpose. The incidents that make a fallback worth having are
+ * availability failures — the NaN-budget outage, the `:free` model 429 freeze, and
+ * the 2026-07-17 timeout below — and against those a *different provider family*
+ * is what actually recovers: if Gemini is degraded, an OpenAI-family model still
+ * answers. Same-family was considered and rejected; it only protects
+ * malformed-output recovery, which is not the observed failure mode and is already
+ * handled by the validator/judge/repair path.
+ *
+ * This constant previously held `google/gemini-3.1-flash`, a slug OpenRouter
+ * rejects as "not a valid model ID" — so every primary timeout hard-failed instead
+ * of recovering (Loki, 2026-07-17: primary `google/gemini-3.1-flash-lite` timed out
+ * at 10000ms, the failover attempt was rejected in 13ms, `bot_ai_fallback_total
+ * {reason="timeout"}=1`). Verified against the live OpenRouter catalog on
+ * 2026-07-19: `openai/gpt-5-nano` VALID, `google/gemini-3.1-flash` INVALID,
+ * `google/gemini-3.1-flash-lite` (the production primary) VALID.
+ *
+ * Any change here must name a model in the known-model catalog — see the guard in
+ * `ai-model.test.ts`. This constant is shared with the self-healing plan; both must
+ * land on the same value.
  */
-export const FALLBACK_AI_MODEL = "google/gemini-3.1-flash";
+export const FALLBACK_AI_MODEL = "openai/gpt-5-nano";
 
 /**
  * Ideal budget (ms) reserved for the fallback attempt in the failover split. With

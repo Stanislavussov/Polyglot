@@ -1,7 +1,7 @@
 import type { ZodSchema } from "zod";
 import type { InputType, ValidateOptions, ValidationError, ValidationResult } from "./types.js";
-import type { ExpressionType } from "./validators/example.validator.js";
-import { validateExamples } from "./validators/example.validator.js";
+import type { ExampleInput, ExpressionType } from "./validators/example.validator.js";
+import { validateExamples, validateSourceUsageExamples } from "./validators/example.validator.js";
 import { validateNativeFields } from "./validators/field-language.validator.js";
 import { validateImmutableContent } from "./validators/immutable.validator.js";
 import { validateSchema } from "./validators/schema.validator.js";
@@ -38,6 +38,15 @@ export function validate(
         field: "nativeMeaning",
       });
     }
+  }
+
+  // Top-level sourceUsage examples (learning-source flow) must be full source-language
+  // sentences, not the bare headword echoed back — a lite-model failure that otherwise
+  // rendered as "💬 nevertheless (…)" instead of a real sentence.
+  const sourceUsage = parsed.sourceUsage as { examples?: unknown } | undefined | null;
+  if (sourceUsage && Array.isArray(sourceUsage.examples) && options?.includeExamples !== false) {
+    const sourceUsageResult = validateSourceUsageExamples(sourceUsage.examples as ExampleInput[], original);
+    allErrors.push(...sourceUsageResult.errors);
   }
 
   const translations = parsed.translations as Record<string, Record<string, unknown>> | undefined;

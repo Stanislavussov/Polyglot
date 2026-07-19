@@ -6,6 +6,7 @@
  * — not just in arithmetic. The headline test is load-bearing: it fails on a naive
  * impl that gives each attempt its own full budget.
  */
+import { resetBreakerRegistry } from "@polyglot/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockLogRequest = vi.fn();
@@ -40,11 +41,13 @@ function hangUntilAbort(opts: { abortSignal?: AbortSignal }): Promise<never> {
 describe("failover budget split (generate boundary)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resetBreakerRegistry();
   });
 
   afterEach(() => {
     vi.useRealTimers();
     setAIRequestTimeoutProvider(null);
+    resetBreakerRegistry();
   });
 
   it("HEADLINE: a hung primary is aborted at primaryBudgetMs and BOTH attempts fit inside B", async () => {

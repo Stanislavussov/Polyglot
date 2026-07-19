@@ -2,8 +2,8 @@
 
 Runs OpenRouter models through:
 
-- 31 translation-quality scenarios using the production translation, validation, judge, and targeted-repair pipeline;
-- 72 source-language detection scenarios covering homographs, candidate ordering, close languages, code-switching, brands, transliteration, typos, and acronyms.
+- 49 translation-quality scenarios using the production translation, validation, judge, and targeted-repair pipeline, covering all 11 menu languages (en, ru, cs, de, fr, es, it, pt, uk, pl, kk) plus false friends, idioms, pronoun-gender anaphora, number preservation, and long German compounds;
+- 89 source-language detection scenarios covering homographs, candidate ordering, close languages (incl. kk↔ru, pl↔cs), code-switching, brands, transliteration, typos, and acronyms.
 
 No API request is made until the command is run explicitly:
 

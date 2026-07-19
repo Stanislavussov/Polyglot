@@ -30,6 +30,15 @@ vi.mock("../repositories/dictionary-lookup-log.repository.js", () => ({
   },
 }));
 
+vi.mock("@polyglot/core", async () => {
+  const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
+  return {
+    ...actual,
+    logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
+  };
+});
+
+import { logger } from "@polyglot/core";
 import { createContextLookup } from "../context-lookup.js";
 
 beforeEach(() => {
@@ -385,5 +394,62 @@ describe("createContextLookup", () => {
 
     expect(result).toHaveLength(1);
     expect(result[0]?.context.word).toBe("apple");
+  });
+
+  describe("fire-and-forget audit logging (success path)", () => {
+    it("returns candidates without waiting for the recordLookup write to settle", async () => {
+      mockFindByWordAndLangCode.mockResolvedValue([]);
+      // Never resolves/rejects during this test — if the lookup awaited it,
+      // the `await lookup(...)` below would hang and the test would time out.
+      mockRecordLookup.mockReturnValue(new Promise(() => {}));
+
+      const lookup = createContextLookup();
+      const result = await lookup("apple", "en");
+
+      expect(result).toEqual([]);
+      expect(mockRecordLookup).toHaveBeenCalledTimes(1);
+    });
+
+    it("still attempts the write, and logs (not throws) when it rejects", async () => {
+      mockFindByWordAndLangCode.mockResolvedValue([]);
+      const writeError = new Error("log table unavailable");
+      mockRecordLookup.mockRejectedValue(writeError);
+
+      const lookup = createContextLookup();
+      const result = await lookup("apple", "en");
+      // Let the detached promise's rejection handler run.
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(result).toEqual([]);
+      expect(mockRecordLookup).toHaveBeenCalledTimes(1);
+      expect(logger.warn).toHaveBeenCalledWith({ err: writeError }, "Failed to record dictionary lookup audit log");
+    });
+  });
+
+  describe("fire-and-forget audit logging (error path)", () => {
+    it("returns an empty array without waiting for the recordLookup write to settle", async () => {
+      mockFindByWordAndLangCode.mockRejectedValue(new Error("DB connection failed"));
+      mockRecordLookup.mockReturnValue(new Promise(() => {}));
+
+      const lookup = createContextLookup();
+      const result = await lookup("hello", "en");
+
+      expect(result).toEqual([]);
+      expect(mockRecordLookup).toHaveBeenCalledTimes(1);
+    });
+
+    it("still attempts the write, and logs (not throws) when it rejects", async () => {
+      mockFindByWordAndLangCode.mockRejectedValue(new Error("DB connection failed"));
+      const writeError = new Error("log table unavailable");
+      mockRecordLookup.mockRejectedValue(writeError);
+
+      const lookup = createContextLookup();
+      const result = await lookup("hello", "en");
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(result).toEqual([]);
+      expect(mockRecordLookup).toHaveBeenCalledTimes(1);
+      expect(logger.warn).toHaveBeenCalledWith({ err: writeError }, "Failed to record dictionary lookup audit log");
+    });
   });
 });

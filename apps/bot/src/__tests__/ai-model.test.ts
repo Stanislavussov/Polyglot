@@ -10,8 +10,27 @@
  *   - reservedFallbackMs <= RESERVED_FALLBACK_MS (never exceeds the ideal cap)
  * Below MIN_FAILOVER_BUDGET_MS the split is deliberately disabled (undefined).
  */
+import { FALLBACK_AI_MODELS } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
 import { buildAiFailover, FALLBACK_AI_MODEL, MIN_FAILOVER_BUDGET_MS, RESERVED_FALLBACK_MS } from "../utils/ai-model.js";
+
+describe("FALLBACK_AI_MODEL", () => {
+  it("is a non-empty, provider-prefixed model id", () => {
+    expect(FALLBACK_AI_MODEL.length).toBeGreaterThan(0);
+    expect(FALLBACK_AI_MODEL).toMatch(/^[a-z0-9-]+\/\S+$/);
+  });
+
+  it("names a model the system actually knows, so a timeout can recover instead of hard-failing", () => {
+    // Regression for the 2026-07-17 production incident: the constant held
+    // "google/gemini-3.1-flash", a slug OpenRouter rejects as "not a valid model
+    // ID". Every primary timeout therefore failed over to a model that errored in
+    // ~13ms, turning a slow request into a hard failure. That slug was never in
+    // the known-model catalog either — this invariant is what would have caught it.
+    // The constant is also `resolveDefaultAIModel`'s no-DB-default return, so an
+    // unknown slug breaks that path too.
+    expect(FALLBACK_AI_MODELS.map((model) => model.id)).toContain(FALLBACK_AI_MODEL);
+  });
+});
 
 describe("buildAiFailover", () => {
   it("gives the full 5s reservation and the remainder to the primary at the default budget", () => {

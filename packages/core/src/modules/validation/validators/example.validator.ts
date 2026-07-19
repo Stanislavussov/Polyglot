@@ -63,6 +63,42 @@ export function validateExamples(
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Validates the top-level `sourceUsage.examples` (the source-language usage
+ * examples shown when translating FROM a learning language).
+ *
+ * Each example's `target` must be a real source-language sentence, not the bare
+ * headword echoed back. A lite model sometimes collapsed the example to just the
+ * word (e.g. target "nevertheless" with the whole sentence pushed into `native`),
+ * which rendered as "💬 nevertheless (…)" instead of a full sentence. This guard
+ * makes that a blocking validation error so the pipeline repairs it deterministically.
+ *
+ * "Collapsed" = the target contributes no token beyond the headword's own tokens.
+ *
+ * Pure function — no side effects.
+ */
+export function validateSourceUsageExamples(examples: ExampleInput[], headword: string): ValidationResult {
+  const errors: ValidationError[] = [];
+  const headwordTokens = new Set(tokenize(headword));
+
+  for (let i = 0; i < examples.length; i++) {
+    const target = examples[i]?.target ?? "";
+    const targetTokens = tokenize(target);
+    if (targetTokens.length === 0) continue; // empty target is caught by the shared empty-target rule
+
+    const addsNewWords = targetTokens.some((token) => !headwordTokens.has(token));
+    if (!addsNewWords) {
+      errors.push({
+        rule: "examples",
+        message: `Source-usage example ${i} must be a full sentence using "${headword}", not just the word itself`,
+        field: `sourceUsage.examples.${i}.target`,
+      });
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 function shouldValidateFirstExampleHeadword(word: string, expressionType?: ExpressionType): boolean {
   if (expressionType === "idiomatic_equivalent") return false;
   return tokenize(word).some((token) => token.length >= 3);
