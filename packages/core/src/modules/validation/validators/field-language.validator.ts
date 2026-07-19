@@ -151,13 +151,33 @@ function validateExpectedScript(value: unknown, nativeLang: string, field: strin
   });
 }
 
+/**
+ * Near-zero-Cyrillic floor.
+ *
+ * A Russian field only counts as romanized when it is *essentially* free of
+ * Cyrillic. Anything above this share has a real Cyrillic body and is merely
+ * quoting a foreign head-word, an annotated German noun, or an idiom.
+ *
+ * Pinned by the tightest legitimate corpus case, the annotated German noun
+ * "der Stuhl, die Stühle — стул" (4 Cyrillic / 21 letters = 0.19): the floor
+ * must sit below it. The closest true romanization in the corpus reaches only
+ * 0.05, so 0.15 separates the two classes with margin on both sides.
+ *
+ * A higher threshold (the previous 0.5) mistook short Russian glosses that
+ * quote their Latin head-word for romanization, which forced needless AI
+ * repair rounds and pushed valid translations into needs_review.
+ */
+const MIN_CYRILLIC_SHARE = 0.15;
+
 function hasSufficientCyrillic(value: string): boolean {
   const cyrillicCount = value.match(/\p{Script=Cyrillic}/gu)?.length ?? 0;
   const latinCount = value.match(/\p{Script=Latin}/gu)?.length ?? 0;
   const relevantLetters = cyrillicCount + latinCount;
 
   if (relevantLetters === 0) return true;
-  return cyrillicCount >= 2 && cyrillicCount / relevantLetters >= 0.5;
+  // Fully-romanized text needs no separate branch: zero Cyrillic gives a share of
+  // zero, which is already below the floor.
+  return cyrillicCount / relevantLetters >= MIN_CYRILLIC_SHARE;
 }
 
 function sameText(left: string, right: string): boolean {

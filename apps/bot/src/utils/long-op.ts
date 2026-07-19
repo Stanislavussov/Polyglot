@@ -11,6 +11,28 @@ import type { BotContext } from "../types.js";
 export const LONG_OP_TIMEOUT_MS = 20_000;
 
 /**
+ * Wall-clock budget handed to the translation pipeline, which the caller turns
+ * into `TranslateInput.deadlineAt`.
+ *
+ * Deliberately below {@link LONG_OP_TIMEOUT_MS}. The outer `withTimeout` guard is
+ * a hard stop that abandons the request and shows the user an error; the pipeline
+ * budget is a *graceful* bound that lets the post-generation tail (whole-batch
+ * retry, targeted repair, semantic judge) stop starting new work and hand back the
+ * best already-validated result instead. That degradation is only reachable if the
+ * pipeline finishes *first*, so the gap between the two is the headroom the
+ * pipeline needs to wind down — abandon an in-flight repair, fall back to the
+ * validated result, and return — before the hard guard fires.
+ *
+ * The caller turns this into an ABSOLUTE deadline anchored at the same instant it
+ * starts the `withTimeout` guard, so both clocks run from one origin. Note the
+ * card-rendering round-trips happen *after* `withTimeout` resolves and are outside
+ * the guard entirely; they are not what this margin is for.
+ *
+ * Invariant: `TRANSLATION_BUDGET_MS < LONG_OP_TIMEOUT_MS`.
+ */
+export const TRANSLATION_BUDGET_MS = LONG_OP_TIMEOUT_MS - 3_000;
+
+/**
  * Safety margin between the AI request budget and the outer op guard (B8). The
  * AI adapter's per-request budget is admin-managed (DB `ai.defaults`), so it can
  * be raised above {@link LONG_OP_TIMEOUT_MS}. If it were, the outer `withTimeout`

@@ -158,6 +158,7 @@ describe("translateWithContext", () => {
         dictionaryContext: ctx,
       }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 
@@ -181,6 +182,7 @@ describe("translateWithContext", () => {
         dictionaryContext: undefined,
       }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 
@@ -196,6 +198,7 @@ describe("translateWithContext", () => {
         dictionaryContext: undefined,
       }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 
@@ -211,6 +214,7 @@ describe("translateWithContext", () => {
         dictionaryContext: undefined,
       }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 
@@ -230,7 +234,17 @@ describe("translateWithContext", () => {
 
     await translateWithContext(baseInput, deps);
 
-    expect(translate).toHaveBeenCalledWith(expect.anything(), deps.generateObjectFn);
+    expect(translate).toHaveBeenCalledWith(expect.anything(), deps.generateObjectFn, { onPhase: undefined });
+  });
+
+  it("forwards an onPhase observer to translate() so core's internal phases are measurable", async () => {
+    const onPhase = vi.fn();
+    const deps: ContextEnrichmentDeps = { ...createMockDeps(undefined), onPhase };
+    vi.mocked(translate).mockResolvedValue(makeAcceptedDecision(makeTranslateOutput("apple", ["cs", "de"])));
+
+    await translateWithContext(baseInput, deps);
+
+    expect(translate).toHaveBeenCalledWith(expect.anything(), deps.generateObjectFn, { onPhase });
   });
 
   it("preserves all input fields (topic, userId) in translate call", async () => {
@@ -251,6 +265,7 @@ describe("translateWithContext", () => {
         userId: 42,
       }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 
@@ -270,6 +285,7 @@ describe("translateWithContext", () => {
     expect(translate).toHaveBeenCalledWith(
       expect.objectContaining({ word: "stroha", dictionaryContext: undefined }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 
@@ -290,6 +306,7 @@ describe("translateWithContext", () => {
     expect(translate).toHaveBeenCalledWith(
       expect.objectContaining({ word: "bank", dictionaryContext: undefined }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 
@@ -302,6 +319,7 @@ describe("translateWithContext", () => {
     expect(translate).toHaveBeenCalledWith(
       expect.objectContaining({ dictionaryContext: undefined }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 });
@@ -340,6 +358,7 @@ describe("translateOneWithContext", () => {
         dictionaryContext: ctx,
       }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 
@@ -354,6 +373,7 @@ describe("translateOneWithContext", () => {
         dictionaryContext: undefined,
       }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 
@@ -368,6 +388,7 @@ describe("translateOneWithContext", () => {
         dictionaryContext: undefined,
       }),
       deps.generateObjectFn,
+      { onPhase: undefined },
     );
   });
 

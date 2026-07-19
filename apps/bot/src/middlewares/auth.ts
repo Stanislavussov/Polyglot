@@ -1,6 +1,7 @@
 import { logger } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { type BotContext, USER_MODES, type UserMode } from "../types.js";
+import { getRequestSettings } from "./request-settings.js";
 
 /** Derived from the single source of truth so it can never drift from UserMode. */
 const VALID_MODES = new Set<UserMode>(USER_MODES);
@@ -42,7 +43,7 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
   // Hydrate session activeMode from DB if user has settings.
   // This ensures the mode survives bot restarts.
   if (user.onboarded) {
-    const settings = await ctx.services.userRepository.getSettings(user.id);
+    const settings = await getRequestSettings(ctx, user.id);
     if (settings?.activeMode) {
       const dbMode = settings.activeMode;
       ctx.session.activeMode = VALID_MODES.has(dbMode as UserMode) ? (dbMode as UserMode) : "translate";

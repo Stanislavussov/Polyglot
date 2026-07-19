@@ -7,7 +7,9 @@
  *
  * Fail-open: catches errors, returns an empty candidate array.
  */
+
 import type { ContextLookupFn, DictionaryContextCandidate, DictionaryContextMatchType } from "@polyglot/core";
+import { logger } from "@polyglot/core";
 import { dictionaryLookupLogRepository } from "./repositories/dictionary-lookup-log.repository.js";
 import { wordContextRepository } from "./repositories/word-context.repository.js";
 
@@ -56,13 +58,17 @@ function compareCandidates(left: DictionaryContextCandidate, right: DictionaryCo
   );
 }
 
-async function recordLookup(input: {
+interface LookupAuditEntry {
   lookupInput: string;
   normalizedInput: string;
   langCode: string;
   candidates: DictionaryContextCandidate[];
   error?: string;
-}): Promise<void> {
+}
+
+const AUDIT_WRITE_FAILED = "Failed to record dictionary lookup audit log";
+
+async function recordLookup(input: LookupAuditEntry): Promise<void> {
   const topCandidate = input.candidates[0];
   try {
     await dictionaryLookupLogRepository.record({
@@ -77,9 +83,24 @@ async function recordLookup(input: {
       matchedGlosses: topCandidate?.context.glosses,
       error: input.error,
     });
-  } catch {
+  } catch (err) {
     // Lookup audit logs are operational telemetry and must never block translation.
+    logger.warn({ err }, AUDIT_WRITE_FAILED);
   }
+}
+
+/**
+ * Start the audit write without waiting for it, so it never gates the candidates
+ * returned to the caller.
+ *
+ * `recordLookup` already swallows its own failures; the `.catch` here is a
+ * standing guard so that if it ever stops doing so, a detached write still
+ * cannot surface as an unhandled rejection.
+ */
+function detachRecordLookup(entry: LookupAuditEntry): void {
+  recordLookup(entry).catch((err: unknown) => {
+    logger.warn({ err }, AUDIT_WRITE_FAILED);
+  });
 }
 
 function errorMessage(err: unknown): string {
@@ -124,16 +145,11 @@ export function createContextLookup(): ContextLookupFn {
         )
         .sort(compareCandidates);
 
-      await recordLookup({
-        lookupInput: word,
-        normalizedInput: normalizedWord,
-        langCode,
-        candidates,
-      });
+      detachRecordLookup({ lookupInput: word, normalizedInput: normalizedWord, langCode, candidates });
 
       return candidates;
     } catch (err) {
-      await recordLookup({
+      detachRecordLookup({
         lookupInput: word,
         normalizedInput: normalizedWord,
         langCode,

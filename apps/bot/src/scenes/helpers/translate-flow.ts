@@ -40,10 +40,13 @@ import {
 import { InlineKeyboard } from "grammy";
 import {
   inputCorrectionCounter,
+  type TranslationPhase,
   translationCounter,
   translationDuration,
+  translationPhaseDuration,
   unrecognizedWordCounter,
 } from "../../metrics.js";
+import { getRequestSettings } from "../../middlewares/request-settings.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -57,6 +60,7 @@ import {
   LONG_OP_TIMEOUT_MS,
   sendTypingIndicator,
   startTypingKeepalive,
+  TRANSLATION_BUDGET_MS,
   withTimeout,
 } from "../../utils/long-op.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
@@ -290,6 +294,16 @@ async function showTranslationClarification(
 }
 
 /**
+ * Records one phase of the translate path. Timer-only and fire-and-forget by
+ * construction — prom-client observation is synchronous, so instrumentation
+ * never adds awaited I/O to the request path. The `TranslationPhase` parameter
+ * type is what keeps the metric's label cardinality bounded to the declared set.
+ */
+function observeTranslationPhase(phase: TranslationPhase, elapsedMs: number): void {
+  translationPhaseDuration.observe({ phase }, elapsedMs / 1000);
+}
+
+/**
  * Handles a text message in translate mode.
  * Translates the text and shows the result with Save/Skip buttons.
  */
@@ -301,7 +315,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   sendTypingIndicator(ctx);
 
   // Get user settings
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const settings = await getRequestSettings(ctx, ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
@@ -367,6 +381,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   // AI-arbitration escalation below, not the candidate set.
   const isMultiWord = cleanWord.trim().split(/\s+/).filter(Boolean).length > 1;
   const syncCandidates = isMultiWord ? candidatesWithEnglish : allCandidates;
+  const detectionStart = Date.now();
   let detection: DetectionResult = detectLanguageWithConfidence(cleanWord, syncCandidates);
 
   // Escalate to async (dictionary sweep + Wiktionary + AI) when sync is
@@ -392,6 +407,11 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       aiGenerate,
     });
   }
+  // `detection` spans the sync pass plus the optional async escalation
+  // (dictionary sweep + Wiktionary + AI), i.e. the whole cost of deciding the
+  // source language. Kept as a value so `pre_ai` can subtract it out below.
+  const detectionMs = Date.now() - detectionStart;
+  observeTranslationPhase("detection", detectionMs);
 
   logger.debug(
     {
@@ -622,7 +642,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     detectionConfidence: detection.confidence,
     detectedLang,
     withInlineGrammar: true,
-    timing: { preflightMs, totalStart },
+    timing: { preflightMs, totalStart, detectionMs },
   });
 }
 
@@ -630,6 +650,12 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
  * Whether the translated headword already exists in the user's default
  * dictionary. Shared by both translation entry points (T22/B2) — identical FK
  * resolution + duplicate lookup that was previously copied per handler.
+ *
+ * The two SELECTs below are DATA-DEPENDENT and must stay sequential: the row
+ * returned by `findByOriginalAndSource` supplies the `existing.id` that
+ * `entryBelongsToDefault` takes as input (and when there is no row, the second
+ * query must not run at all). They look like an obvious `Promise.all` candidate
+ * — they are not.
  */
 async function resolveIsAlreadySaved(ctx: BotContext, output: TranslateOutput, isSentence: boolean): Promise<boolean> {
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
@@ -750,7 +776,7 @@ async function runTranslationPipeline(
     /** Main flow offers inline grammar for phrases; the mistype flow never does. */
     withInlineGrammar: boolean;
     /** Main flow records request-timing telemetry; the mistype flow does not. */
-    timing?: { preflightMs: number; totalStart: number };
+    timing?: { preflightMs: number; totalStart: number; detectionMs: number };
   },
 ): Promise<void> {
   const {
@@ -777,14 +803,41 @@ async function runTranslationPipeline(
   let dbLookupMs = 0;
   let aiRequestMs = 0;
   try {
-    model = await resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan);
-
-    // Load user's template for template-aware output resolution (Task 32)
+    // The default-model resolution and the user's template (Task 32, for
+    // template-aware output resolution) are independent reads — neither feeds
+    // the other — so they run concurrently instead of back to back.
+    //
+    // `Promise.all` rejects on the first rejection, which matches the previous
+    // sequential behaviour: either failure throws out of this try block into the
+    // catch below and yields the same user-facing error.
+    //
+    // `model` is assigned twice on purpose. The tap publishes it as soon as it
+    // resolves, so the error path can still report `modelId` when the template
+    // read is what rejected; the reassignment from the resolved tuple is what
+    // narrows it back to `string` for the call below, which a write inside a
+    // closure cannot do.
     const dbLookupStart = Date.now();
-    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
+    const [resolvedModel, savedTemplate] = await Promise.all([
+      resolveDefaultAIModel(ctx.services?.settings, subscriptionPlan).then((resolved) => {
+        model = resolved;
+        return resolved;
+      }),
+      ctx.services.translationTemplateRepository.getByUserId(ctx.user.id),
+    ]);
+    model = resolvedModel;
     const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
     const outputConfig = resolveOutputConfig(userTpl, classification.type, word.length);
     const effectiveTemplate = resolveTemplate(userTpl);
+    // `pre_ai` = everything from the update arriving to the AI call, minus
+    // `detection`. Observed HERE rather than earlier so it actually covers the
+    // whole pre-AI stretch — including the loading-message round-trip and the
+    // concurrent model/template reads just above, which a boundary drawn before
+    // this block would leave attributed to no phase at all. Only the main flow
+    // passes `timing`; the mistype-confirm entry point is a separate update that
+    // has already done its own pre-AI work.
+    if (timing) {
+      observeTranslationPhase("pre_ai", Date.now() - timing.totalStart - timing.detectionMs);
+    }
     dbLookupMs = Date.now() - dbLookupStart;
 
     // For sentences, skip dictionary context lookup (no learnable word to enrich)
@@ -814,16 +867,29 @@ async function runTranslationPipeline(
             assessSourceExistence: true,
             ...(skipInputCorrection ? { skipInputCorrection: true } : {}),
           },
+          // An ABSOLUTE deadline anchored at `aiStart` — the same instant the
+          // outer `withTimeout` guard below starts counting. Core never
+          // re-anchors, so the dictionary lookup that runs inside
+          // `translateWithContext` before the pipeline begins is spent from this
+          // budget rather than silently pushing the deadline out past the guard.
+          deadlineAt: aiStart + TRANSLATION_BUDGET_MS,
         },
         {
           lookupContext: lookupContextFn,
           generateObjectFn: ctx.services.ai.generateObject,
+          // `generate`/`validate`/`judge` happen inside the pipeline and are
+          // invisible from here; core reports them through this sink. Deliberately
+          // NOT also timed on this side — that would double-count `generate`.
+          onPhase: observeTranslationPhase,
         },
       ),
       LONG_OP_TIMEOUT_MS,
     ).finally(stopTyping);
     aiRequestMs = Date.now() - aiStart;
     stopTimer();
+    // Everything from here on is post-AI: the request log, the duplicate-lookup
+    // SELECTs and the Telegram round-trips that render the card.
+    const postAiStart = Date.now();
 
     if (decision.status === "needs_clarification") {
       await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
@@ -906,6 +972,8 @@ async function runTranslationPipeline(
       detectedLang,
       withInlineGrammar,
     });
+
+    observeTranslationPhase("post_ai", Date.now() - postAiStart);
   } catch (err) {
     translationCounter.inc({ status: "error" });
     logger.error({ err, word }, "Translation failed");
@@ -959,7 +1027,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   // the clarification flow may already have answered it.
   await ctx.answerCallbackQuery().catch(() => {});
 
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const settings = await getRequestSettings(ctx, ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
@@ -1040,7 +1108,7 @@ export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void
       });
   }
 
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const settings = await getRequestSettings(ctx, ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 

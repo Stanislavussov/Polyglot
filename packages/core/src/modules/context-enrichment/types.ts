@@ -14,7 +14,7 @@
  */
 
 import type { GenerateObjectFn } from "../../ports/ai.port.js";
-import type { DictionaryContext, TranslateInput } from "../translation/types.js";
+import type { DictionaryContext, TranslateInput, TranslationPhaseObserver } from "../translation/types.js";
 
 export type DictionaryContextMatchType = "exact_expression" | "known_form" | "lemma";
 
@@ -42,6 +42,16 @@ export interface ContextEnrichmentDeps {
   lookupContext: ContextLookupFn;
   /** AI generation function — passed through to translate() */
   generateObjectFn: GenerateObjectFn;
+  /**
+   * Optional sink for core's internal phase timings (`generate`, `validate`,
+   * `judge`). `validate` and `judge` happen entirely inside the pipeline, so
+   * without this seam a caller cannot measure them at all.
+   *
+   * Core stays pure: it emits numbers into whatever sink it is handed and knows
+   * nothing about metrics. Absent → no-op; a throwing observer is logged and
+   * ignored, never affecting the translation.
+   */
+  onPhase?: TranslationPhaseObserver;
 }
 
 /**

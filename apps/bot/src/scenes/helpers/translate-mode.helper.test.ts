@@ -138,6 +138,7 @@ import {
 } from "@polyglot/core";
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import { inputCorrectionCounter } from "../../metrics.js";
+import { getRequestSettings } from "../../middlewares/request-settings.js";
 import type { BotContext, SessionData } from "../../types.js";
 import { handleEtymologyCallback, handleRegenCallback } from "./card-actions.js";
 import { handleTranslationClarificationCallback, handleTranslationClarificationContextText } from "./clarification.js";
@@ -1080,6 +1081,29 @@ describe("out-of-set add-and-translate (Phase 1)", () => {
       expect.anything(),
     );
     expect(ctx.session.pendingOutOfSet).toEqual({});
+  });
+
+  it("re-reads settings after adding a language, so the rest of the update sees it", async () => {
+    // Regression: the auth middleware warms the request-scoped settings memo
+    // BEFORE this handler writes `updateLearningLangs`, and the same update then
+    // continues into the translation pipeline, which re-reads settings. Without
+    // invalidating the memo that read returns the pre-write value, so the language
+    // the user just added still looks out-of-set and can be offered again.
+    const stored = { interfaceLang: "en", nativeLang: "ru", learningLangs: ["cs", "de"] as string[] };
+    mockUserRepository.getSettings.mockImplementation(async () => ({ ...stored }));
+    mockUserRepository.updateLearningLangs.mockImplementation(async (_id: number, langs: string[]) => {
+      stored.learningLangs = langs;
+    });
+
+    const ctx = createMockCtx({ pendingOutOfSet: { "1": { lang: "pl", word: "przepraszam" } } }, "tr:oos:add:pl");
+    // Warm the memo exactly as the auth middleware does, before the write.
+    await getRequestSettings(ctx, ctx.user.id);
+
+    await handleOutOfSetCallback(ctx);
+
+    expect(mockUserRepository.updateLearningLangs).toHaveBeenCalledWith(1, ["cs", "de", "pl"]);
+    const afterWrite = await getRequestSettings(ctx, ctx.user.id);
+    expect(afterWrite?.learningLangs).toContain("pl");
   });
 
   it("tr:oos:once translates without persisting the language", async () => {
