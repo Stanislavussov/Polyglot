@@ -46,6 +46,7 @@ import type {
   InputCorrection,
   LanguageTranslation,
   QualityIssue,
+  QualityIssueSeverity,
   RiskLevel,
   TranslateInput,
   TranslateOutput,
@@ -399,6 +400,11 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
     requiresNativeOutput,
     assessExistence,
   );
+  // Sentence output disables every top-level metadata field (emoji, nativeMeaning,
+  // sourceUsage, nativeSynonyms, existence), leaving a property-less schema. Sending
+  // an empty-object schema to the live provider is a wasted round-trip and a provider
+  // rejection risk, so skip the metadata call entirely and synthesize an empty result.
+  const metadataHasFields = Object.keys(metadataSchema.shape).length > 0;
 
   const isLearningSource =
     normalizedInput.nativeLang !== undefined && normalizedInput.sourceLang !== normalizedInput.nativeLang;
@@ -433,7 +439,9 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
       ctx.attemptCount++;
 
       const [metadataResult, ...langResults] = await Promise.all([
-        generateObjectFn(metadataPrompt, metadataSchema, generationModel, generateOptions),
+        metadataHasFields
+          ? generateObjectFn(metadataPrompt, metadataSchema, generationModel, generateOptions)
+          : Promise.resolve({} as Record<string, never>),
         ...languageTasks.map((task) =>
           generateObjectFn(
             languagePrompts.get(task.lang) as string,
@@ -450,7 +458,10 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
       }
 
       result = {
-        emoji: metadataResult.emoji,
+        // Guard the read: the metadata schema omits emoji when includeEmoji is
+        // false (sentence output), so metadataResult may not carry it — mirror
+        // the nativeMeaning guard below rather than reading an absent field.
+        emoji: "emoji" in metadataResult ? (metadataResult.emoji as string) : undefined,
         nativeMeaning: "nativeMeaning" in metadataResult ? (metadataResult.nativeMeaning as string) : undefined,
         sourceUsage:
           "sourceUsage" in metadataResult
@@ -780,6 +791,21 @@ function finalizeStep(ctx: PipelineContext): StepOutcome {
   const { issues } = ctx;
 
   if (!hasBlockingIssues(issues)) {
+    // Observability: an accepted card may still carry advisory (non-blocking)
+    // issues. Emit a distinct info line so advisory acceptance is separable in
+    // logs/metrics from both a clean accept (no line) and a blocking
+    // needs_review (the error line below) — the metric the plan asks for.
+    const advisoryIssues = issues.filter((issue) => issue.severity === "advisory");
+    if (advisoryIssues.length > 0) {
+      getLogger().info(
+        {
+          original: normalizedInput.word,
+          advisoryCount: advisoryIssues.length,
+          advisoryReasons: advisoryIssues.map((issue) => issue.message).join(" | "),
+        },
+        "translation accepted with advisory (non-blocking) issues",
+      );
+    }
     return {
       kind: "exit",
       decision: {
@@ -858,10 +884,28 @@ export async function translateOne(
   );
 }
 
+/**
+ * Deterministic validator rules whose failures are ADVISORY (non-blocking).
+ *
+ * Only the single-word first-example demonstration check ("first-example") lives
+ * here: it is a low-confidence heuristic that over-rejects correct inflected core
+ * vocabulary (see example.validator.ts), so a false failure must NOT force
+ * needs_review, must NOT trigger repair, and must NOT suppress the semantic
+ * judge. Every other rule — including the multi-word "at least half", no-examples,
+ * and empty-target checks that still report rule "examples" — stays blocking.
+ * Down-ranking is scoped to this one self-documenting rule on purpose: a broader
+ * advisory set would risk silently accepting a genuinely bad translation.
+ */
+const ADVISORY_RULES = new Set<string>(["first-example"]);
+
+function severityForRule(rule: string): QualityIssueSeverity {
+  return ADVISORY_RULES.has(rule) ? "advisory" : "blocking";
+}
+
 function collectQualityIssues(validation: ReturnType<typeof validate>): QualityIssue[] {
   return validation.errors.map((error) => ({
     fieldPath: error.field ?? "",
-    severity: "blocking",
+    severity: severityForRule(error.rule),
     message: `[${error.rule}] ${error.message}`,
     repairInstruction: buildRepairInstruction(error),
   }));
@@ -932,7 +976,12 @@ function scoreBlockingSignals(
 ): number {
   let score = 0;
 
-  if (issues.length > 0) score += HIGH_RISK_SCORE;
+  // Only BLOCKING issues raise the risk. An advisory issue is a low-confidence
+  // false-positive signal we deliberately de-emphasize (see collectQualityIssues):
+  // it must neither manufacture risk (escalating an otherwise-low-risk word to the
+  // judge) nor — via the blocking-issues gate — suppress the judge. Before advisory
+  // existed every validation issue was blocking, so this preserves prior behavior.
+  if (issues.some((issue) => issue.severity === "blocking")) score += HIGH_RISK_SCORE;
   if (input.inputType === "sentence") score += HIGH_RISK_SCORE;
   if (input.inputType === "phrase") score += HIGH_RISK_SCORE;
   if (features.hasPlaceholders) score += HIGH_RISK_SCORE;
@@ -1543,18 +1592,23 @@ function toOutput(
 ): TranslateOutput {
   const translations = stripDisabledFields(result.translations, input.outputConfig);
 
-  const emoji = sanitizeEmoji(result.emoji);
-  if (emoji !== result.emoji) {
-    getLogger().warn(
-      { original: input.word, rawEmoji: result.emoji, sanitized: emoji },
-      "AI returned non-emoji string in emoji field, replaced with fallback",
-    );
+  // Emoji is optional: sentence output (includeEmoji: false) produces none, so
+  // only sanitize and attach it when the result actually carries one.
+  let emoji: string | undefined;
+  if (result.emoji !== undefined) {
+    emoji = sanitizeEmoji(result.emoji);
+    if (emoji !== result.emoji) {
+      getLogger().warn(
+        { original: input.word, rawEmoji: result.emoji, sanitized: emoji },
+        "AI returned non-emoji string in emoji field, replaced with fallback",
+      );
+    }
   }
 
   const output: TranslateOutput = {
     original: input.word,
     sourceLang: input.sourceLang,
-    emoji,
+    ...(emoji !== undefined ? { emoji } : {}),
     ...(input.nativeLang && result.nativeMeaning ? { nativeMeaning: result.nativeMeaning } : {}),
     ...(input.nativeLang && result.sourceUsage ? { sourceUsage: result.sourceUsage } : {}),
     nativeSynonyms: input.outputConfig?.includeNativeSynonyms === false ? [] : (result.nativeSynonyms ?? []),

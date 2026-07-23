@@ -747,8 +747,8 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("accepted");
-    // 2 parallel + 1 judge = 3 calls
-    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    // Sentence output skips the empty metadata call: 1 language + 1 judge = 2 calls.
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
   it("runs the semantic judge for high-risk sentence translations", async () => {
@@ -785,12 +785,12 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("accepted");
-    // 2 parallel + 1 judge = 3 calls
-    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    // Sentence output skips the empty metadata call: 1 language + 1 judge = 2 calls.
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
     // No judgeModel configured and no cross-family routing model → judge with the
     // generator itself (core no longer hardcodes a judge model id — Fable T21/A2).
-    expect(mockGenerate.mock.calls[2]?.[2]).toBe("openai/gpt-4o");
-    expect(mockGenerate.mock.calls[2]?.[0]).toContain("acceptable stylistic variants");
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("openai/gpt-4o");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("acceptable stylistic variants");
   });
 
   it("keeps an ordinary unbacked word on the medium-risk path without judge", async () => {
@@ -866,6 +866,95 @@ describe("translate", () => {
 
     // All parallel calls use the same options
     expect(mockGenerate.mock.calls[0][3]).toEqual({ frequencyPenalty: 0 });
+  });
+
+  // ─── WI-A: advisory severity for the single-word first-example check ───
+  describe("advisory severity (single-word first-example)", () => {
+    /** A cs block whose FIRST example does not demonstrate the single-word translation "ahoj". */
+    const advisoryBlock = {
+      text: "ahoj",
+      synonyms: [{ text: "čau" }],
+      examples: [
+        { context: "neutral", target: "Dobrý den, jak se daří?" },
+        { context: "colloquial", target: "Ahoj, co je?" },
+        { context: "professional", target: "Ahoj, vítejte na schůzce." },
+      ],
+      expressionType: null,
+      equivalentNote: null,
+      alternatives: null,
+      connotationWarning: null,
+    };
+
+    it("accepts a word whose ONLY issue is the single-word first-example mismatch, without repair or judge", async () => {
+      const mockGenerate = createTranslateMock(makeValidResult({ translations: { cs: advisoryBlock } }));
+
+      const result = await translate(defaultInput, mockGenerate);
+
+      expect(result.status).toBe("accepted");
+      if (result.status === "accepted") {
+        // The issue survives as advisory (recorded, non-blocking), not blocking.
+        const advisory = result.quality.issues.filter((issue) => issue.severity === "advisory");
+        expect(advisory).toHaveLength(1);
+        expect(advisory[0].message).toContain("[first-example]");
+        expect(result.quality.issues.some((issue) => issue.severity === "blocking")).toBe(false);
+      }
+      // Advisory does not trigger repair, and a medium-risk word runs no judge:
+      // exactly 1 metadata + 1 language call.
+      expect(mockGenerate).toHaveBeenCalledTimes(2);
+    });
+
+    it("still runs the high-risk semantic judge when the only deterministic issue is advisory", async () => {
+      const judgeResult = { issues: [], summary: "Meaning and register are acceptable." };
+      const mockGenerate = createTranslateMock(makeValidResult({ translations: { cs: advisoryBlock } }), judgeResult);
+
+      const result = await translate({ ...defaultInput, word: "break a leg", inputType: "phrase" }, mockGenerate);
+
+      expect(result.status).toBe("accepted");
+      if (result.status === "accepted") {
+        expect(result.quality.riskLevel).toBe("high");
+        // The judge was NOT suppressed by the advisory issue — it ran and answered.
+        expect(result.quality.judgeResult).toEqual(judgeResult);
+        expect(result.quality.issues.some((issue) => issue.severity === "advisory")).toBe(true);
+      }
+      // 1 metadata + 1 language + 1 judge — the judge ran despite the advisory issue.
+      expect(mockGenerate).toHaveBeenCalledTimes(3);
+      expect(mockGenerate.mock.calls[2]?.[0]).toContain("translation quality judge");
+    });
+
+    it("does NOT let a real semantic defect slip through: advisory + judge-blocking → needs_review", async () => {
+      // The retention gate ('Auto se courá' shape): deterministic validation finds
+      // only the advisory first-example issue, but the semantic judge catches a real
+      // meaning error. The judge runs (advisory does not suppress it) and its blocking
+      // issue routes the card to needs_review rather than a silent accept.
+      const judgeResult = {
+        issues: [
+          {
+            fieldPath: "translations.cs.text",
+            severity: "blocking" as const,
+            message: "Main meaning is wrong: the translation does not match the source.",
+          },
+        ],
+        summary: "Meaning mismatch.",
+      };
+      const mockGenerate = createTranslateMock(makeValidResult({ translations: { cs: advisoryBlock } }), judgeResult);
+
+      const result = await translate(
+        {
+          ...defaultInput,
+          word: "break a leg",
+          inputType: "phrase",
+          // Clarify-rerun: settle to needs_review without the extra repair/re-judge cycle.
+          correctionPolicy: { skipInputCorrection: true },
+        },
+        mockGenerate,
+      );
+
+      expect(result.status).toBe("needs_review");
+      if (result.status === "needs_review") {
+        expect(result.issues.some((issue) => issue.severity === "blocking")).toBe(true);
+        expect(result.issues.some((issue) => issue.severity === "advisory")).toBe(true);
+      }
+    });
   });
 
   it("handles multi-language translations", async () => {

@@ -308,7 +308,9 @@ describe("validate (orchestrator)", () => {
     };
     const result = validate(raw, translationResultSchema, "hello", ["cs"]);
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
+    // Single-word first-example mismatch now carries the distinct "first-example"
+    // rule (mapped to advisory severity by the service), not the blocking "examples".
+    expect(result.errors.some((e) => e.rule === "first-example")).toBe(true);
   });
 
   it("passes when a same-language learning block changes the source expression", () => {
@@ -1388,6 +1390,7 @@ describe("validate — minimal native target block (learning-language source)", 
       sourceLang: "cs",
     });
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
+    // Single-word first-example mismatch → distinct "first-example" rule.
+    expect(result.errors.some((e) => e.rule === "first-example")).toBe(true);
   });
 });

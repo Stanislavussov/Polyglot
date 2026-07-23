@@ -414,7 +414,9 @@ export function evaluateTranslationQualityChecks(
 
   const pipelineIssues = decision.status === "accepted" ? decision.quality.issues : decision.issues;
   for (const issue of pipelineIssues) {
-    if (issue.severity !== "info") {
+    // Advisory issues are non-blocking by design (they never forced needs_review),
+    // so — like info — they must not count as a benchmark quality failure.
+    if (issue.severity !== "info" && issue.severity !== "advisory") {
       checks.push(
         failedCheck(
           issueDimension(issue.fieldPath, issue.message),

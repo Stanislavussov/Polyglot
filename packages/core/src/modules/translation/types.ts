@@ -137,7 +137,8 @@ export interface TranslationRequest {
  * Contains translations for all requested target languages in a single object.
  */
 export interface TranslationResult {
-  emoji: string;
+  /** Card-header emoji. Optional: sentence output omits it (includeEmoji: false). */
+  emoji?: string;
   nativeMeaning?: string | null;
   sourceUsage?: SourceUsage | null;
   nativeSynonyms: Synonym[];
@@ -282,7 +283,8 @@ export interface InputCorrection {
 export interface TranslateOutput {
   original: string;
   sourceLang: string;
-  emoji: string;
+  /** Card-header emoji. Optional: sentence output omits it (includeEmoji: false). */
+  emoji?: string;
   nativeMeaning?: string;
   sourceUsage?: SourceUsage;
   nativeSynonyms: Synonym[];
@@ -399,8 +401,19 @@ export interface TranslationAmbiguity {
   options?: TranslationAmbiguityOption[];
 }
 
-/** Severity of a quality issue found during validation or judging */
-export type QualityIssueSeverity = "blocking" | "warning" | "info";
+/**
+ * Severity of a quality issue found during validation or judging.
+ *
+ * - `blocking` — must be fixed before acceptance; forces needs_review, triggers
+ *   targeted repair, and suppresses the high-risk semantic judge.
+ * - `warning` / `info` — recorded but never blocking.
+ * - `advisory` — a non-blocking severity for self-documenting, low-confidence
+ *   deterministic rules (currently only the single-word first-example check).
+ *   It never forces needs_review, never triggers repair, and — the point of the
+ *   distinction — does NOT suppress the semantic judge, so a high-risk word with
+ *   only an advisory issue still gets its real semantic gate.
+ */
+export type QualityIssueSeverity = "blocking" | "warning" | "advisory" | "info";
 
 /**
  * A single quality issue with location, severity, and optional repair guidance.
