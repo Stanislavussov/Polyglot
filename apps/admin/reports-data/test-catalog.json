@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-23T18:39:12.564Z",
+  "generatedAt": "2026-07-23T18:52:45.710Z",
   "summary": {
     "total": 2313,
     "business": 0,
@@ -11819,10 +11819,10 @@
       "description": "Protects the translation benchmark run Translation Benchmark behavior so runs the real translation and validation pipeline and writes an analysis ready report."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-171-runtranslationbenchmark-records-a-failed-case-after-pipeline-retries-and-continues-with-the-next-case",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-168-runtranslationbenchmark-records-a-failed-case-after-pipeline-retries-and-continues-with-the-next-case",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 171,
+      "sourceLine": 168,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11835,10 +11835,10 @@
       "description": "Protects the translation benchmark run Translation Benchmark behavior: records a failed case after pipeline retries and continues with the next case."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-222-renderbenchmarkreportmarkdown-escapes-table-separators-in-detection-input",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-220-renderbenchmarkreportmarkdown-escapes-table-separators-in-detection-input",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 222,
+      "sourceLine": 220,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11851,10 +11851,10 @@
       "description": "Protects the translation benchmark render Benchmark Report Markdown behavior: escapes table separators in detection input."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-286-benchmark-regression-controls-runs-stochastic-cases-repeatedly-and-aggregates-request-cost",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-284-benchmark-regression-controls-runs-stochastic-cases-repeatedly-and-aggregates-request-cost",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 286,
+      "sourceLine": 284,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11867,10 +11867,10 @@
       "description": "Protects the translation benchmark benchmark regression controls behavior so runs stochastic cases repeatedly and aggregates request cost."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-323-benchmark-regression-controls-flags-statistically-significant-language-pair-regressions",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-321-benchmark-regression-controls-flags-statistically-significant-language-pair-regressions",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 323,
+      "sourceLine": 321,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11883,10 +11883,10 @@
       "description": "Protects the translation benchmark benchmark regression controls behavior so flags statistically significant language pair regressions."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-357-evaluatetranslationquality-reports-clarification-and-immutable-token-failures",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-355-evaluatetranslationquality-reports-clarification-and-immutable-token-failures",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 357,
+      "sourceLine": 355,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11899,10 +11899,10 @@
       "description": "Protects the translation benchmark evaluate Translation Quality behavior: reports clarification and immutable token failures."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-388-evaluatetranslationquality-checks-forbidden-meanings-and-required-metadata",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-386-evaluatetranslationquality-checks-forbidden-meanings-and-required-metadata",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 388,
+      "sourceLine": 386,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -30299,10 +30299,10 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so passes input Type through to prompt builder and validation."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-432-translate-with-sentence-output-and-inputtype-sentence-sentence-translation-strips-disabled-fields-from-ai-response",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-435-translate-with-sentence-output-and-inputtype-sentence-sentence-translation-strips-disabled-fields-from-ai-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 432,
+      "sourceLine": 435,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30315,10 +30315,10 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so sentence translation strips disabled fields from AI response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-470-translate-with-sentence-output-and-inputtype-sentence-omits-emoji-and-nativemeaning-for-sentence-output-and-never-requests-an-emoji",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-473-translate-with-sentence-output-and-inputtype-sentence-omits-emoji-and-nativemeaning-for-sentence-output-and-never-requests-an-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 470,
+      "sourceLine": 473,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30331,10 +30331,10 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior: omits emoji and native Meaning for sentence output and never requests an emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-507-translate-with-sentence-output-and-inputtype-sentence-keeps-the-emoji-for-a-word-translation-word-phrase-unchanged",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-512-translate-with-sentence-output-and-inputtype-sentence-keeps-the-emoji-for-a-word-translation-word-phrase-unchanged",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 507,
+      "sourceLine": 512,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

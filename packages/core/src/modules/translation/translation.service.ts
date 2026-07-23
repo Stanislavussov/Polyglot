@@ -400,6 +400,11 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
     requiresNativeOutput,
     assessExistence,
   );
+  // Sentence output disables every top-level metadata field (emoji, nativeMeaning,
+  // sourceUsage, nativeSynonyms, existence), leaving a property-less schema. Sending
+  // an empty-object schema to the live provider is a wasted round-trip and a provider
+  // rejection risk, so skip the metadata call entirely and synthesize an empty result.
+  const metadataHasFields = Object.keys(metadataSchema.shape).length > 0;
 
   const isLearningSource =
     normalizedInput.nativeLang !== undefined && normalizedInput.sourceLang !== normalizedInput.nativeLang;
@@ -434,7 +439,9 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
       ctx.attemptCount++;
 
       const [metadataResult, ...langResults] = await Promise.all([
-        generateObjectFn(metadataPrompt, metadataSchema, generationModel, generateOptions),
+        metadataHasFields
+          ? generateObjectFn(metadataPrompt, metadataSchema, generationModel, generateOptions)
+          : Promise.resolve({} as Record<string, never>),
         ...languageTasks.map((task) =>
           generateObjectFn(
             languagePrompts.get(task.lang) as string,

@@ -415,8 +415,11 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
 
     const output = await translate(input, mockGenerate);
 
-    // Verify the language prompt uses sentence-style intro
-    const langPrompt = mockGenerate.mock.calls[1][0] as string;
+    // Verify the language prompt uses sentence-style intro. The metadata call is
+    // skipped for sentence output (empty metadata schema), so locate the language
+    // call by content rather than a fixed parallel index.
+    const prompts = mockGenerate.mock.calls.map((call) => call[0] as string);
+    const langPrompt = prompts.find((prompt) => prompt.includes('translation block for language "de"')) ?? "";
     expect(langPrompt).toContain("Translate the following sentence");
     expect(langPrompt).not.toContain('"synonyms"');
     expect(langPrompt).not.toContain('"alternatives"');
@@ -499,9 +502,11 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
     expect(unwrap(output).emoji).toBeUndefined();
     expect(unwrap(output).nativeMeaning).toBeUndefined();
 
-    // The metadata prompt (first parallel call) must not ask for an emoji.
-    const metadataPrompt = mockGenerate.mock.calls[0][0] as string;
-    expect(metadataPrompt).not.toContain("one relevant emoji");
+    // The metadata schema is empty for sentence output, so the metadata AI call is
+    // skipped entirely: no call is the metadata prompt, and none requests an emoji.
+    const prompts = mockGenerate.mock.calls.map((call) => call[0] as string);
+    expect(prompts.some((prompt) => prompt.includes("Do NOT include any translations"))).toBe(false);
+    expect(prompts.every((prompt) => !prompt.includes("one relevant emoji"))).toBe(true);
   });
 
   it("keeps the emoji for a word translation (word/phrase unchanged)", async () => {

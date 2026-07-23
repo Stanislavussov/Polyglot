@@ -151,21 +151,18 @@ describe("runTranslationBenchmark", () => {
         },
       },
     });
-    // With parallel calls, attempt 1 is metadata, attempt 2 is the language block.
-    // For sentence output the metadata schema requests neither emoji nor
-    // nativeMeaning (WI-B), so the parsed metadata response is empty.
+    // Sentence output disables every top-level metadata field (WI-B), leaving the
+    // metadata schema empty — so the metadata AI call is skipped entirely. The only
+    // calls are the single language block and then the high-risk semantic judge.
     expect(report.results[0]?.attempts[0]).toMatchObject({
       attempt: 1,
-      response: {},
-    });
-    expect(report.results[0]?.attempts[1]).toMatchObject({
-      attempt: 2,
       response: {
         text: "Это корректное русское предложение.",
       },
     });
-    // 2 parallel (metadata + ru) + 1 judge = 3 attempts
-    expect(report.results[0]?.attempts).toHaveLength(3);
+    // 1 language block + 1 judge = 2 attempts (no metadata call for sentences)
+    expect(report.results[0]?.attempts).toHaveLength(2);
+    expect(report.results[0]?.attempts[1]?.prompt).toContain("translation quality judge");
   });
 
   it("records a failed case after pipeline retries and continues with the next case", async () => {
@@ -208,8 +205,9 @@ describe("runTranslationBenchmark", () => {
       status: "failed",
       error: "simulated provider failure",
     });
-    // 3 retries × 2 parallel calls (metadata + language) = 6 tracked attempts
-    expect(report.results[0].attempts).toHaveLength(6);
+    // Sentence output skips the empty metadata call, so each round is 1 language
+    // call: 3 retries × 1 call = 3 tracked attempts.
+    expect(report.results[0].attempts).toHaveLength(3);
     expect(report.results[1]).toMatchObject({
       status: "completed",
       case: { id: "success-after-failure" },

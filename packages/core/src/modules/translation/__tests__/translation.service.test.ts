@@ -747,8 +747,8 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("accepted");
-    // 2 parallel + 1 judge = 3 calls
-    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    // Sentence output skips the empty metadata call: 1 language + 1 judge = 2 calls.
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
   it("runs the semantic judge for high-risk sentence translations", async () => {
@@ -785,12 +785,12 @@ describe("translate", () => {
     );
 
     expect(result.status).toBe("accepted");
-    // 2 parallel + 1 judge = 3 calls
-    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    // Sentence output skips the empty metadata call: 1 language + 1 judge = 2 calls.
+    expect(mockGenerate).toHaveBeenCalledTimes(2);
     // No judgeModel configured and no cross-family routing model → judge with the
     // generator itself (core no longer hardcodes a judge model id — Fable T21/A2).
-    expect(mockGenerate.mock.calls[2]?.[2]).toBe("openai/gpt-4o");
-    expect(mockGenerate.mock.calls[2]?.[0]).toContain("acceptable stylistic variants");
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("openai/gpt-4o");
+    expect(mockGenerate.mock.calls[1]?.[0]).toContain("acceptable stylistic variants");
   });
 
   it("keeps an ordinary unbacked word on the medium-risk path without judge", async () => {
