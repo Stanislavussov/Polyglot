@@ -165,13 +165,24 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
     ...overrides,
   };
 
+  const callbackQuery = callbackData ? { data: callbackData, message: { message_id: callbackMsgId } } : undefined;
+
   return {
     from: { id: 123456789 },
     chat: { id: 123456789 },
     session,
-    callbackQuery: callbackData ? { data: callbackData, message: { message_id: callbackMsgId } } : undefined,
+    callbackQuery,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
-    answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
+    // Faithful to grammy: answerCallbackQuery throws SYNCHRONOUSLY (orThrow) when
+    // there is no callback query on the update, so a text-path caller that reaches
+    // it crashes. Mirroring that here is what lets these tests catch the class of
+    // bug where a callback-only helper is reused on the text path.
+    answerCallbackQuery: vi.fn(() => {
+      if (!callbackQuery) {
+        throw new Error("Missing information for API call to answerCallbackQuery");
+      }
+      return Promise.resolve(undefined);
+    }),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
     api: {
@@ -648,6 +659,35 @@ describe("handleTranslateText — context enrichment", () => {
     );
     expect(ctx.session.pendingClarification).toBeUndefined();
     expect(ctx.session.awaitingTranslationClarificationContext).toBeUndefined();
+  });
+
+  it("does not crash when clarification context arrives with no callback query", async () => {
+    // Regression (prod incident): the user picks "add context" on a clarification
+    // and types a word. That text update routes through handleMistypeConfirmCallback,
+    // which is shared with the tr:mistype:confirm callback and answered the (absent)
+    // callback query — grammy's answerCallbackQuery throws synchronously with no
+    // callback present, so every "add context" translation surfaced "⚠️ Something
+    // went wrong". The handler must complete the translation instead of throwing.
+    const ctx = createMockCtx({
+      pendingClarification: {
+        word: "Dabihga",
+        sourceLang: "en",
+        targetLangs: ["cs"],
+        inputType: "word",
+        reason: "unrecognized_word",
+      },
+      awaitingTranslationClarificationContext: true,
+    });
+    // The text update carries no callback query — the faithful mock throws if answered.
+    expect(ctx.callbackQuery).toBeUndefined();
+
+    await expect(handleTranslationClarificationContextText(ctx, "some context")).resolves.toBeUndefined();
+
+    expect(ctx.answerCallbackQuery).not.toHaveBeenCalled();
+    expect(translateWithContext).toHaveBeenCalledWith(
+      expect.objectContaining({ word: "Dabihga", topic: "some context" }),
+      expect.anything(),
+    );
   });
 
   it("retries with the selected source language and user-language targets", async () => {

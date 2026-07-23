@@ -99,6 +99,27 @@ const TRANSLATION_CASES = [
     },
   },
   {
+    id: "idiom-kakat-kirpichami",
+    category: "idiom",
+    description: "A vulgar Russian idiom that tempts the model into inventing a word-for-word target equivalent.",
+    expectedMeaning: "To be terrified — extreme fear, in crude register.",
+    qualityRisks: [
+      "calqued target idiom no native speaker uses",
+      "examples drifting to synonyms instead of the translation",
+      "register collapse from vulgar to neutral",
+      "notes asserting an invented form is commonly used",
+    ],
+    input: {
+      word: "какать кирпичами",
+      sourceLang: "ru",
+      targetLangs: ["en", "cs"],
+      nativeLang: "ru",
+      topic: "Describing extreme fear in crude, informal speech.",
+      inputType: "phrase",
+      outputConfig: FULL_OUTPUT,
+    },
+  },
+  {
     id: "slang-lit-party",
     category: "slang",
     description: "Contemporary positive slang in a short sentence.",
@@ -809,6 +830,29 @@ const QUALITY_ASSERTIONS: Readonly<Partial<Record<string, TranslationBenchmarkCa
     expectedAction: "translate",
     forbiddenSubstrings: { en: ["skeleton in the closet"] },
     requiredMetadata: ["nativeMeaning", "sourceUsage"],
+  },
+  // "kadit cihly" is a word-for-word calque of the English "shit bricks" that Czech
+  // speakers do not use (real forms: "podělat se strachy", "mít nahnáno"). Recorded as
+  // an explicit regression guard after the model produced exactly that headword while
+  // its own examples used the genuine idiom. The Czech judgement here is an editorial
+  // call and is worth reconfirming against a corpus before it is treated as settled.
+  "idiom-kakat-kirpichami": {
+    expectedAction: "translate",
+    forbiddenSubstrings: { cs: ["kadit cihly"] },
+    requiredMetadata: ["nativeMeaning"],
+  },
+  "idiom-break-a-leg": {
+    expectedAction: "translate",
+    forbiddenSubstrings: { ru: ["слома", "ногу"] },
+  },
+  // "in the hat", not bare "hat" — the latter is a substring of "that"/"what".
+  "idiom-delo-v-shlyape": {
+    expectedAction: "translate",
+    forbiddenSubstrings: { en: ["in the hat"] },
+  },
+  "idiom-byty-baydyky": {
+    expectedAction: "translate",
+    forbiddenSubstrings: { en: ["baydyky", "байдики"] },
   },
   "ambiguous-duck": {
     expectedAction: "needs_clarification",

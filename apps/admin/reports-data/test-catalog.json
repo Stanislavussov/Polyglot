@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-19T14:41:21.071Z",
+  "generatedAt": "2026-07-23T05:20:21.653Z",
   "summary": {
-    "total": 2295,
+    "total": 2304,
     "business": 0,
-    "technical": 2295,
+    "technical": 2304,
     "workspaces": [
       "apps",
       "packages"
@@ -8699,10 +8699,10 @@
       "description": "Protects the bot handle Regen Loop behavior so passes input Type to mock Vocabulary Repository create."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-221-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-232-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 221,
+      "sourceLine": 232,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8715,10 +8715,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: calls translate With Context with correct input and deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-242-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-253-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 242,
+      "sourceLine": 253,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8731,10 +8731,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: logs one credit after successful incoming translation request."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-256-handletranslatetext-context-enrichment-does-not-call-ai-when-the-monthly-translation-limit-is-exhausted",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-267-handletranslatetext-context-enrichment-does-not-call-ai-when-the-monthly-translation-limit-is-exhausted",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 256,
+      "sourceLine": 267,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8747,10 +8747,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not call AI when the monthly translation limit is exhausted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-269-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-280-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 269,
+      "sourceLine": 280,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8763,10 +8763,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes learner friendly default output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-286-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-297-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 286,
+      "sourceLine": 297,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8779,10 +8779,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes lookup Context from create Context Lookup to deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-294-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-305-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 294,
+      "sourceLine": 305,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8795,10 +8795,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not include dictionary Context in input (layer fills it)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-302-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-313-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 302,
+      "sourceLine": 313,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8811,10 +8811,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: includes user Id in translate With Context input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-314-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-325-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 314,
+      "sourceLine": 325,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8827,10 +8827,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes clean text and context hint to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-327-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-338-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 327,
+      "sourceLine": 338,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8843,10 +8843,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: records the routed translation model in request timing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-363-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-374-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 363,
+      "sourceLine": 374,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8859,10 +8859,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes free form context description to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-376-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-387-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 376,
+      "sourceLine": 387,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8875,10 +8875,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not request a native language translation block for native source text."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-397-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-408-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 397,
+      "sourceLine": 408,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8891,10 +8891,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: stores context hint in translation Map for regeneration."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-404-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-415-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 404,
+      "sourceLine": 415,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8907,10 +8907,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: rejects marker only input before calling AI."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-412-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-423-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 412,
+      "sourceLine": 423,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8923,10 +8923,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback is a stub that just answers the callback query."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-445-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-456-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 445,
+      "sourceLine": 456,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8939,10 +8939,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback does not call AI even when credits are available."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-478-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-489-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 478,
+      "sourceLine": 489,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8955,10 +8955,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: shows clarification UI instead of generic translation error."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-513-handletranslatetext-context-enrichment-localizes-a-structured-unrecognized-word-reason-via-t-core-sends-no-ui-strings",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-524-handletranslatetext-context-enrichment-localizes-a-structured-unrecognized-word-reason-via-t-core-sends-no-ui-strings",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 513,
+      "sourceLine": 524,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8971,10 +8971,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so localizes a structured unrecognized word reason via t() (core sends no UI strings)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-550-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-561-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 550,
+      "sourceLine": 561,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8987,10 +8987,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not add source language buttons to meaning clarification."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-573-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-584-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 573,
+      "sourceLine": 584,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9003,10 +9003,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses only core source language options when source language ambiguity is returned."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-606-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-617-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 606,
+      "sourceLine": 617,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9019,10 +9019,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so sets awaiting state when clarification context is requested."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-626-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-637-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 626,
+      "sourceLine": 637,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9035,10 +9035,26 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the next text message as clarification context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-653-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-664-handletranslatetext-context-enrichment-does-not-crash-when-clarification-context-arrives-with-no-callback-query",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 653,
+      "sourceLine": 664,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — context enrichment"
+      ],
+      "title": "does not crash when clarification context arrives with no callback query",
+      "rawTitle": "does not crash when clarification context arrives with no callback query",
+      "name": "Bot handle Translate Text — context enrichment does not crash when clarification context arrives with no callback query",
+      "value": "Protects the bot handle Translate Text — context enrichment behavior: does not crash when clarification context arrives with no callback query.",
+      "description": "Protects the bot handle Translate Text — context enrichment behavior: does not crash when clarification context arrives with no callback query."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-693-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 693,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9051,10 +9067,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with the selected source language and user language targets."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-679-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-719-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 679,
+      "sourceLine": 719,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9067,10 +9083,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with a source language option from core preflight."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-714-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-754-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 714,
+      "sourceLine": 754,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9083,10 +9099,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with corrected text when a typo option is selected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-755-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-795-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 755,
+      "sourceLine": 795,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9099,10 +9115,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the corrected text language when a typo option includes lang Code."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-791-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-831-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 791,
+      "sourceLine": 831,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9115,10 +9131,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses ambiguity option as context hint when no structured pipeline field exists."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-820-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-860-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 820,
+      "sourceLine": 860,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9131,10 +9147,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so clears pending clarification on a stale cancel callback."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-865-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-not-a-silent-translation-for-a-supported-out-of-set-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-905-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-not-a-silent-translation-for-a-supported-out-of-set-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 865,
+      "sourceLine": 905,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9147,10 +9163,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate (not a silent translation) for a supported out of set language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-890-handletranslatetext-out-of-set-language-detection-catches-a-letter-marked-out-of-set-word-via-alphabet-exclusion-no-async-signal-needed",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-930-handletranslatetext-out-of-set-language-detection-catches-a-letter-marked-out-of-set-word-via-alphabet-exclusion-no-async-signal-needed",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 890,
+      "sourceLine": 930,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9163,10 +9179,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so catches a letter marked out of set word via alphabet exclusion (no async signal needed)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-906-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-when-a-task-70-correction-is-in-an-unstudied-language-kazakh",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-946-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-when-a-task-70-correction-is-in-an-unstudied-language-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 906,
+      "sourceLine": 946,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9179,10 +9195,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate when a Task 70 correction is in an unstudied language (Kazakh)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-937-handletranslatetext-out-of-set-language-detection-keeps-the-spelling-correction-for-a-same-alphabet-typo-no-false-out-of-set",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-977-handletranslatetext-out-of-set-language-detection-keeps-the-spelling-correction-for-a-same-alphabet-typo-no-false-out-of-set",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 937,
+      "sourceLine": 977,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9195,10 +9211,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the spelling correction for a same alphabet typo (no false out of set)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-969-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1009-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 969,
+      "sourceLine": 1009,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9211,10 +9227,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the plain block for an UNSUPPORTED out of set language (can't be added)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-984-handletranslatetext-out-of-set-language-detection-does-not-let-franc-out-of-set-override-a-confident-in-set-detection-czech-not-blocked-as-croatian",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1024-handletranslatetext-out-of-set-language-detection-does-not-let-franc-out-of-set-override-a-confident-in-set-detection-czech-not-blocked-as-croatian",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 984,
+      "sourceLine": 1024,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9227,10 +9243,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not let franc out of set override a confident in set detection (Czech not blocked as Croatian)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1009-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1049-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1009,
+      "sourceLine": 1049,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9243,10 +9259,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so re verifies a confident heuristic only diacritic detection via the async path."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1035-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1075-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1035,
+      "sourceLine": 1075,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9259,10 +9275,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not re verify confident ASCII detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1043-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1083-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1043,
+      "sourceLine": 1083,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9275,10 +9291,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: records a 'detected' telemetry event for confident detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1074-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1114-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1074,
+      "sourceLine": 1114,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9291,10 +9307,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:add adds the language to the learning set and then translates."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1086-out-of-set-add-and-translate-phase-1-re-reads-settings-after-adding-a-language-so-the-rest-of-the-update-sees-it",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1126-out-of-set-add-and-translate-phase-1-re-reads-settings-after-adding-a-language-so-the-rest-of-the-update-sees-it",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1086,
+      "sourceLine": 1126,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9307,10 +9323,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so re reads settings after adding a language, so the rest of the update sees it."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1109-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1149-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1109,
+      "sourceLine": 1149,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9323,10 +9339,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:once translates without persisting the language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1120-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1160-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1120,
+      "sourceLine": 1160,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9339,10 +9355,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:cancel dismisses without translating."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1129-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1169-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1129,
+      "sourceLine": 1169,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9355,10 +9371,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: keeps two consecutive prompts from cross wiring lang word (single slot race, T02)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1155-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1195-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1155,
+      "sourceLine": 1195,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9371,10 +9387,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: rejects a stale button whose language no longer matches its stored entry."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1165-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1205-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1165,
+      "sourceLine": 1205,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9387,10 +9403,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: shows a generic error (not 'max languages') when the DB write fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1182-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1222-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1182,
+      "sourceLine": 1222,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9403,10 +9419,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: reports the language limit without calling the DB when already at MAX LEARNING LANGS."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1199-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1239-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1199,
+      "sourceLine": 1239,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9419,10 +9435,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so localizes the stale session alert via t() (no hardcoded English)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1213-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1253-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1213,
+      "sourceLine": 1253,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9435,10 +9451,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so gates the clarify source language option: tapping an out of set language offers add and translate (incident: Kazakh)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1257-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1297-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1257,
+      "sourceLine": 1297,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9451,10 +9467,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so annotates the card with a ✏️ Fixed line when the input was auto corrected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1287-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1327-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1287,
+      "sourceLine": 1327,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9467,10 +9483,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior: renders language choices as flag + code buttons with a hint, not language names."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1319-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1359-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1319,
+      "sourceLine": 1359,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9483,10 +9499,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so re runs verbatim with skip Input Correction when the user picks 'translate as written'."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1352-isetymologyeligible-is-eligible-for-a-learning-language-word",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1392-isetymologyeligible-is-eligible-for-a-learning-language-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1352,
+      "sourceLine": 1392,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9499,10 +9515,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1356-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1396-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1356,
+      "sourceLine": 1396,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9515,10 +9531,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1360-isetymologyeligible-is-not-eligible-for-sentences",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1400-isetymologyeligible-is-not-eligible-for-sentences",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1360,
+      "sourceLine": 1400,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9531,10 +9547,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible for sentences."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1364-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1404-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1364,
+      "sourceLine": 1404,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9547,10 +9563,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible when the source term is in the native language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1402-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1442-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1402,
+      "sourceLine": 1442,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9563,10 +9579,10 @@
       "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior: keeps a loading button on the card and answers the tap only when the section is rendered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1415-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1455-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1415,
+      "sourceLine": 1455,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -33499,116 +33515,228 @@
       "description": "Protects the core domain build Judge Prompt behavior so still asks for the genuine factual and immutable token blocking rules."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-24-validateexamples-expressiontype-parameter-accepts-expressiontype-literal-validates-normally",
+      "id": "packages-core-src-modules-validation-tests-example-validator-coverage-test-ts-24-validateexamples-headword-coverage-flags-an-idiom-illustrated-mostly-by-synonyms-the-observed-en-defect",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.coverage.test.ts",
+      "sourceLine": 24,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples — headword coverage"
+      ],
+      "title": "flags an idiom illustrated mostly by synonyms (the observed EN defect)",
+      "rawTitle": "flags an idiom illustrated mostly by synonyms (the observed EN defect)",
+      "name": "Core domain validate Examples — headword coverage flags an idiom illustrated mostly by synonyms (the observed EN defect)",
+      "value": "Protects the core domain validate Examples — headword coverage behavior so flags an idiom illustrated mostly by synonyms (the observed EN defect).",
+      "description": "Protects the core domain validate Examples — headword coverage behavior so flags an idiom illustrated mostly by synonyms (the observed EN defect)."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-coverage-test-ts-39-validateexamples-headword-coverage-flags-a-calqued-headword-whose-examples-use-the-real-idiom-the-observed-cs-defect",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.coverage.test.ts",
+      "sourceLine": 39,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples — headword coverage"
+      ],
+      "title": "flags a calqued headword whose examples use the real idiom (the observed CS defect)",
+      "rawTitle": "flags a calqued headword whose examples use the real idiom (the observed CS defect)",
+      "name": "Core domain validate Examples — headword coverage flags a calqued headword whose examples use the real idiom (the observed CS defect)",
+      "value": "Protects the core domain validate Examples — headword coverage behavior so flags a calqued headword whose examples use the real idiom (the observed CS defect).",
+      "description": "Protects the core domain validate Examples — headword coverage behavior so flags a calqued headword whose examples use the real idiom (the observed CS defect)."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-coverage-test-ts-56-validateexamples-headword-coverage-leaves-single-word-translations-to-the-first-example-rule",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.coverage.test.ts",
+      "sourceLine": 56,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples — headword coverage"
+      ],
+      "title": "leaves single-word translations to the first-example rule",
+      "rawTitle": "leaves single-word translations to the first-example rule",
+      "name": "Core domain validate Examples — headword coverage leaves single word translations to the first example rule",
+      "value": "Protects the core domain validate Examples — headword coverage behavior so leaves single word translations to the first example rule.",
+      "description": "Protects the core domain validate Examples — headword coverage behavior so leaves single word translations to the first example rule."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-coverage-test-ts-73-validateexamples-headword-coverage-accepts-an-idiom-demonstrated-by-a-majority-of-examples",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.coverage.test.ts",
+      "sourceLine": 73,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples — headword coverage"
+      ],
+      "title": "accepts an idiom demonstrated by a majority of examples",
+      "rawTitle": "accepts an idiom demonstrated by a majority of examples",
+      "name": "Core domain validate Examples — headword coverage accepts an idiom demonstrated by a majority of examples",
+      "value": "Protects the core domain validate Examples — headword coverage behavior: accepts an idiom demonstrated by a majority of examples.",
+      "description": "Protects the core domain validate Examples — headword coverage behavior: accepts an idiom demonstrated by a majority of examples."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-coverage-test-ts-87-validateexamples-headword-coverage-tolerates-inflection-and-dropped-function-words",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.coverage.test.ts",
+      "sourceLine": 87,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples — headword coverage"
+      ],
+      "title": "tolerates inflection and dropped function words",
+      "rawTitle": "tolerates inflection and dropped function words",
+      "name": "Core domain validate Examples — headword coverage tolerates inflection and dropped function words",
+      "value": "Protects the core domain validate Examples — headword coverage behavior so tolerates inflection and dropped function words.",
+      "description": "Protects the core domain validate Examples — headword coverage behavior so tolerates inflection and dropped function words."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-coverage-test-ts-102-validateexamples-headword-coverage-does-not-run-the-coverage-check-when-the-translation-has-no-significant-token",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.coverage.test.ts",
+      "sourceLine": 102,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples — headword coverage"
+      ],
+      "title": "does not run the coverage check when the translation has no significant token",
+      "rawTitle": "does not run the coverage check when the translation has no significant token",
+      "name": "Core domain validate Examples — headword coverage does not run the coverage check when the translation has no significant token",
+      "value": "Protects the core domain validate Examples — headword coverage behavior: does not run the coverage check when the translation has no significant token.",
+      "description": "Protects the core domain validate Examples — headword coverage behavior: does not run the coverage check when the translation has no significant token."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-24-validateexamples-idiomatic-equivalents-accepts-a-literal-translation-demonstrated-by-its-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.idiomatic.test.ts",
       "sourceLine": 24,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "validateExamples — expressionType parameter"
+        "validateExamples — idiomatic equivalents"
       ],
-      "title": "accepts expressionType 'literal' — validates normally",
-      "rawTitle": "accepts expressionType 'literal' — validates normally",
-      "name": "Core domain validate Examples — expression Type parameter accepts expression Type 'literal' — validates normally",
-      "value": "Protects the core domain validate Examples — expression Type parameter behavior: accepts expression Type 'literal' — validates normally.",
-      "description": "Protects the core domain validate Examples — expression Type parameter behavior: accepts expression Type 'literal' — validates normally."
+      "title": "accepts a literal translation demonstrated by its examples",
+      "rawTitle": "accepts a literal translation demonstrated by its examples",
+      "name": "Core domain validate Examples — idiomatic equivalents accepts a literal translation demonstrated by its examples",
+      "value": "Protects the core domain validate Examples — idiomatic equivalents behavior: accepts a literal translation demonstrated by its examples.",
+      "description": "Protects the core domain validate Examples — idiomatic equivalents behavior: accepts a literal translation demonstrated by its examples."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-30-validateexamples-expressiontype-parameter-accepts-expressiontype-idiomatic-equivalent-validates-normally",
+      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-30-validateexamples-idiomatic-equivalents-accepts-an-idiomatic-equivalent-demonstrated-by-its-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.idiomatic.test.ts",
       "sourceLine": 30,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "validateExamples — expressionType parameter"
+        "validateExamples — idiomatic equivalents"
       ],
-      "title": "accepts expressionType 'idiomatic_equivalent' — validates normally",
-      "rawTitle": "accepts expressionType 'idiomatic_equivalent' — validates normally",
-      "name": "Core domain validate Examples — expression Type parameter accepts expression Type 'idiomatic equivalent' — validates normally",
-      "value": "Protects the core domain validate Examples — expression Type parameter behavior: accepts expression Type 'idiomatic equivalent' — validates normally.",
-      "description": "Protects the core domain validate Examples — expression Type parameter behavior: accepts expression Type 'idiomatic equivalent' — validates normally."
+      "title": "accepts an idiomatic equivalent demonstrated by its examples",
+      "rawTitle": "accepts an idiomatic equivalent demonstrated by its examples",
+      "name": "Core domain validate Examples — idiomatic equivalents accepts an idiomatic equivalent demonstrated by its examples",
+      "value": "Protects the core domain validate Examples — idiomatic equivalents behavior: accepts an idiomatic equivalent demonstrated by its examples.",
+      "description": "Protects the core domain validate Examples — idiomatic equivalents behavior: accepts an idiomatic equivalent demonstrated by its examples."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-36-validateexamples-expressiontype-parameter-works-without-expressiontype-backward-compatible",
+      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-36-validateexamples-idiomatic-equivalents-accepts-a-single-word-translation-repeated-across-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.idiomatic.test.ts",
       "sourceLine": 36,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "validateExamples — expressionType parameter"
+        "validateExamples — idiomatic equivalents"
       ],
-      "title": "works without expressionType (backward compatible)",
-      "rawTitle": "works without expressionType (backward compatible)",
-      "name": "Core domain validate Examples — expression Type parameter works without expression Type (backward compatible)",
-      "value": "Protects the core domain validate Examples — expression Type parameter behavior so works without expression Type (backward compatible).",
-      "description": "Protects the core domain validate Examples — expression Type parameter behavior so works without expression Type (backward compatible)."
+      "title": "accepts a single-word translation repeated across examples",
+      "rawTitle": "accepts a single-word translation repeated across examples",
+      "name": "Core domain validate Examples — idiomatic equivalents accepts a single word translation repeated across examples",
+      "value": "Protects the core domain validate Examples — idiomatic equivalents behavior: accepts a single word translation repeated across examples.",
+      "description": "Protects the core domain validate Examples — idiomatic equivalents behavior: accepts a single word translation repeated across examples."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-42-validateexamples-expressiontype-parameter-still-fails-for-empty-examples-with-idiomatic-equivalent",
+      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-42-validateexamples-idiomatic-equivalents-still-fails-when-there-are-no-examples-at-all",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.idiomatic.test.ts",
       "sourceLine": 42,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "validateExamples — expressionType parameter"
+        "validateExamples — idiomatic equivalents"
       ],
-      "title": "still fails for empty examples with idiomatic_equivalent",
-      "rawTitle": "still fails for empty examples with idiomatic_equivalent",
-      "name": "Core domain validate Examples — expression Type parameter still fails for empty examples with idiomatic equivalent",
-      "value": "Protects the core domain validate Examples — expression Type parameter behavior so still fails for empty examples with idiomatic equivalent.",
-      "description": "Protects the core domain validate Examples — expression Type parameter behavior so still fails for empty examples with idiomatic equivalent."
+      "title": "still fails when there are no examples at all",
+      "rawTitle": "still fails when there are no examples at all",
+      "name": "Core domain validate Examples — idiomatic equivalents still fails when there are no examples at all",
+      "value": "Protects the core domain validate Examples — idiomatic equivalents behavior so still fails when there are no examples at all.",
+      "description": "Protects the core domain validate Examples — idiomatic equivalents behavior so still fails when there are no examples at all."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-48-validateexamples-expressiontype-parameter-still-fails-for-empty-target-with-idiomatic-equivalent",
+      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-48-validateexamples-idiomatic-equivalents-still-fails-when-an-example-target-is-empty",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.idiomatic.test.ts",
       "sourceLine": 48,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "validateExamples — expressionType parameter"
+        "validateExamples — idiomatic equivalents"
       ],
-      "title": "still fails for empty target with idiomatic_equivalent",
-      "rawTitle": "still fails for empty target with idiomatic_equivalent",
-      "name": "Core domain validate Examples — expression Type parameter still fails for empty target with idiomatic equivalent",
-      "value": "Protects the core domain validate Examples — expression Type parameter behavior so still fails for empty target with idiomatic equivalent.",
-      "description": "Protects the core domain validate Examples — expression Type parameter behavior so still fails for empty target with idiomatic equivalent."
+      "title": "still fails when an example target is empty",
+      "rawTitle": "still fails when an example target is empty",
+      "name": "Core domain validate Examples — idiomatic equivalents still fails when an example target is empty",
+      "value": "Protects the core domain validate Examples — idiomatic equivalents behavior so still fails when an example target is empty.",
+      "description": "Protects the core domain validate Examples — idiomatic equivalents behavior so still fails when an example target is empty."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-54-validateexamples-expressiontype-parameter-idiomatic-examples-that-don-t-repeat-the-phrase-verbatim-still-pass",
+      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-54-validateexamples-idiomatic-equivalents-idiomatic-examples-that-don-t-repeat-the-phrase-verbatim-still-pass",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.idiomatic.test.ts",
       "sourceLine": 54,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "validateExamples — expressionType parameter"
+        "validateExamples — idiomatic equivalents"
       ],
       "title": "idiomatic examples that don't repeat the phrase verbatim still pass",
       "rawTitle": "idiomatic examples that don't repeat the phrase verbatim still pass",
-      "name": "Core domain validate Examples — expression Type parameter idiomatic examples that don't repeat the phrase verbatim still pass",
-      "value": "Protects the core domain validate Examples — expression Type parameter behavior so idiomatic examples that don't repeat the phrase verbatim still pass.",
-      "description": "Protects the core domain validate Examples — expression Type parameter behavior so idiomatic examples that don't repeat the phrase verbatim still pass."
+      "name": "Core domain validate Examples — idiomatic equivalents idiomatic examples that don't repeat the phrase verbatim still pass",
+      "value": "Protects the core domain validate Examples — idiomatic equivalents behavior so idiomatic examples that don't repeat the phrase verbatim still pass.",
+      "description": "Protects the core domain validate Examples — idiomatic equivalents behavior so idiomatic examples that don't repeat the phrase verbatim still pass."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-71-validateexamples-expressiontype-parameter-literal-examples-that-don-t-contain-simple-words-fail-conservatively",
+      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-72-validateexamples-idiomatic-equivalents-rejects-idiomatic-examples-that-never-demonstrate-the-equivalent",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.idiomatic.test.ts",
-      "sourceLine": 71,
+      "sourceLine": 72,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "validateExamples — expressionType parameter"
+        "validateExamples — idiomatic equivalents"
+      ],
+      "title": "rejects idiomatic examples that never demonstrate the equivalent",
+      "rawTitle": "rejects idiomatic examples that never demonstrate the equivalent",
+      "name": "Core domain validate Examples — idiomatic equivalents rejects idiomatic examples that never demonstrate the equivalent",
+      "value": "Protects the core domain validate Examples — idiomatic equivalents behavior: rejects idiomatic examples that never demonstrate the equivalent.",
+      "description": "Protects the core domain validate Examples — idiomatic equivalents behavior: rejects idiomatic examples that never demonstrate the equivalent."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-idiomatic-test-ts-89-validateexamples-idiomatic-equivalents-literal-examples-that-don-t-contain-simple-words-fail-conservatively",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.idiomatic.test.ts",
+      "sourceLine": 89,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples — idiomatic equivalents"
       ],
       "title": "literal examples that don't contain simple words fail conservatively",
       "rawTitle": "literal examples that don't contain simple words fail conservatively",
-      "name": "Core domain validate Examples — expression Type parameter literal examples that don't contain simple words fail conservatively",
-      "value": "Protects the core domain validate Examples — expression Type parameter behavior so literal examples that don't contain simple words fail conservatively.",
-      "description": "Protects the core domain validate Examples — expression Type parameter behavior so literal examples that don't contain simple words fail conservatively."
+      "name": "Core domain validate Examples — idiomatic equivalents literal examples that don't contain simple words fail conservatively",
+      "value": "Protects the core domain validate Examples — idiomatic equivalents behavior so literal examples that don't contain simple words fail conservatively.",
+      "description": "Protects the core domain validate Examples — idiomatic equivalents behavior so literal examples that don't contain simple words fail conservatively."
     },
     {
       "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-5-validateexamples-returns-valid-for-well-formed-examples",
@@ -34895,7 +35023,7 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so passes for a response with expression Type 'idiomatic equivalent'."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-770-validate-idiomatic-equivalents-task-10-passes-for-idiomatic-equivalent-where-examples-don-t-repeat-the-phrase-verbatim",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-770-validate-idiomatic-equivalents-task-10-passes-for-idiomatic-equivalent-where-the-example-inflects-rather-than-repeats-verbatim",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
       "sourceLine": 770,
@@ -34904,17 +35032,33 @@
       "suitePath": [
         "validate — idiomatic equivalents (Task 10)"
       ],
-      "title": "passes for idiomatic equivalent where examples don't repeat the phrase verbatim",
-      "rawTitle": "passes for idiomatic equivalent where examples don't repeat the phrase verbatim",
-      "name": "Core domain validate — idiomatic equivalents (Task 10) passes for idiomatic equivalent where examples don't repeat the phrase verbatim",
-      "value": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so passes for idiomatic equivalent where examples don't repeat the phrase verbatim.",
-      "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so passes for idiomatic equivalent where examples don't repeat the phrase verbatim."
+      "title": "passes for idiomatic equivalent where the example inflects rather than repeats verbatim",
+      "rawTitle": "passes for idiomatic equivalent where the example inflects rather than repeats verbatim",
+      "name": "Core domain validate — idiomatic equivalents (Task 10) passes for idiomatic equivalent where the example inflects rather than repeats verbatim",
+      "value": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so passes for idiomatic equivalent where the example inflects rather than repeats verbatim.",
+      "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so passes for idiomatic equivalent where the example inflects rather than repeats verbatim."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-788-validate-idiomatic-equivalents-task-10-passes-for-literal-expressiontype-with-normal-examples",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-788-validate-idiomatic-equivalents-task-10-fails-an-idiomatic-equivalent-whose-examples-never-demonstrate-it",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
       "sourceLine": 788,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validate — idiomatic equivalents (Task 10)"
+      ],
+      "title": "fails an idiomatic equivalent whose examples never demonstrate it",
+      "rawTitle": "fails an idiomatic equivalent whose examples never demonstrate it",
+      "name": "Core domain validate — idiomatic equivalents (Task 10) fails an idiomatic equivalent whose examples never demonstrate it",
+      "value": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so fails an idiomatic equivalent whose examples never demonstrate it.",
+      "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so fails an idiomatic equivalent whose examples never demonstrate it."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-809-validate-idiomatic-equivalents-task-10-passes-for-literal-expressiontype-with-normal-examples",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
+      "sourceLine": 809,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34927,10 +35071,10 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so passes for literal expression Type with normal examples."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-796-validate-idiomatic-equivalents-task-10-still-fails-for-idiomatic-equivalent-with-empty-examples",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-817-validate-idiomatic-equivalents-task-10-still-fails-for-idiomatic-equivalent-with-empty-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 796,
+      "sourceLine": 817,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34943,10 +35087,10 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so still fails for idiomatic equivalent with empty examples."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-819-validate-idiomatic-equivalents-task-10-accepts-response-without-expressiontype-backward-compatible",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-840-validate-idiomatic-equivalents-task-10-accepts-response-without-expressiontype-backward-compatible",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 819,
+      "sourceLine": 840,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34959,10 +35103,10 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior: accepts response without expression Type (backward compatible)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-844-validate-alternatives-semantic-validation-passes-for-valid-alternatives",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-865-validate-alternatives-semantic-validation-passes-for-valid-alternatives",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 844,
+      "sourceLine": 865,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34975,10 +35119,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so passes for valid alternatives."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-870-validate-alternatives-semantic-validation-passes-when-alternatives-field-is-absent-backward-compatible",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-891-validate-alternatives-semantic-validation-passes-when-alternatives-field-is-absent-backward-compatible",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 870,
+      "sourceLine": 891,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34991,10 +35135,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so passes when alternatives field is absent (backward compatible)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-877-validate-alternatives-semantic-validation-passes-when-alternatives-array-is-empty",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-898-validate-alternatives-semantic-validation-passes-when-alternatives-array-is-empty",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 877,
+      "sourceLine": 898,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35007,10 +35151,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so passes when alternatives array is empty."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-894-validate-alternatives-semantic-validation-fails-when-alternative-text-equals-original",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-915-validate-alternatives-semantic-validation-fails-when-alternative-text-equals-original",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 894,
+      "sourceLine": 915,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35023,10 +35167,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so fails when alternative text equals original."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-921-validate-alternatives-semantic-validation-fails-when-alternative-contains-hallucination-pattern",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-942-validate-alternatives-semantic-validation-fails-when-alternative-contains-hallucination-pattern",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 921,
+      "sourceLine": 942,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35039,10 +35183,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so fails when alternative contains hallucination pattern."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-944-validate-alternatives-semantic-validation-reports-correct-field-path-for-alternative-errors",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-965-validate-alternatives-semantic-validation-reports-correct-field-path-for-alternative-errors",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 944,
+      "sourceLine": 965,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35055,10 +35199,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior: reports correct field path for alternative errors."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-995-validate-sentence-inputtype-task-27-skips-semantic-validation-when-inputtype-is-sentence-translation-equals-original-passes",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1016-validate-sentence-inputtype-task-27-skips-semantic-validation-when-inputtype-is-sentence-translation-equals-original-passes",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 995,
+      "sourceLine": 1016,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35071,10 +35215,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior: skips semantic validation when input Type is 'sentence' — translation equals original passes."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1012-validate-sentence-inputtype-task-27-still-rejects-hallucination-patterns-when-inputtype-is-sentence",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1033-validate-sentence-inputtype-task-27-still-rejects-hallucination-patterns-when-inputtype-is-sentence",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1012,
+      "sourceLine": 1033,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35087,10 +35231,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so still rejects hallucination patterns when input Type is 'sentence'."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1028-validate-sentence-inputtype-task-27-still-runs-schema-validation-for-sentences",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1049-validate-sentence-inputtype-task-27-still-runs-schema-validation-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1028,
+      "sourceLine": 1049,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35103,10 +35247,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so still runs schema validation for sentences."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1035-validate-sentence-inputtype-task-27-still-reports-missing-language-translations-for-sentences",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1056-validate-sentence-inputtype-task-27-still-reports-missing-language-translations-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1035,
+      "sourceLine": 1056,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35119,10 +35263,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so still reports missing language translations for sentences."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1052-validate-sentence-inputtype-task-27-skips-alternatives-semantic-validation-for-sentences",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1073-validate-sentence-inputtype-task-27-skips-alternatives-semantic-validation-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1052,
+      "sourceLine": 1073,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35135,10 +35279,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior: skips alternatives semantic validation for sentences."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1074-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-absent-backward-compatible",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1095-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-absent-backward-compatible",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1074,
+      "sourceLine": 1095,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35151,10 +35295,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so runs full semantic validation when input Type is absent (backward compatible)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1091-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-word",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1112-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-word",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1091,
+      "sourceLine": 1112,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35167,10 +35311,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so runs full semantic validation when input Type is 'word'."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1107-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-phrase",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1128-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-phrase",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1107,
+      "sourceLine": 1128,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35183,10 +35327,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so runs full semantic validation when input Type is 'phrase'."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1123-validate-sentence-inputtype-task-27-passes-valid-sentence-translation-with-multiple-languages",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1144-validate-sentence-inputtype-task-27-passes-valid-sentence-translation-with-multiple-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1123,
+      "sourceLine": 1144,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35199,10 +35343,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so passes valid sentence translation with multiple languages."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1170-validate-with-validateoptions-skips-example-validation-when-includeexamples-is-false",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1191-validate-with-validateoptions-skips-example-validation-when-includeexamples-is-false",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1170,
+      "sourceLine": 1191,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35215,10 +35359,10 @@
       "description": "Protects the core domain validate with Validate Options behavior: skips example validation when include Examples is false."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1191-validate-with-validateoptions-still-validates-examples-when-includeexamples-is-not-set-defaults-to-true",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1212-validate-with-validateoptions-still-validates-examples-when-includeexamples-is-not-set-defaults-to-true",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1191,
+      "sourceLine": 1212,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35231,10 +35375,10 @@
       "description": "Protects the core domain validate with Validate Options behavior so still validates examples when include Examples is not set (defaults to true)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1207-validate-with-validateoptions-skips-alternatives-validation-when-includealternatives-is-false",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1228-validate-with-validateoptions-skips-alternatives-validation-when-includealternatives-is-false",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1207,
+      "sourceLine": 1228,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35247,10 +35391,10 @@
       "description": "Protects the core domain validate with Validate Options behavior: skips alternatives validation when include Alternatives is false."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1224-validate-with-validateoptions-passes-when-alternatives-are-absent-optional-field",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1245-validate-with-validateoptions-passes-when-alternatives-are-absent-optional-field",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1224,
+      "sourceLine": 1245,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35263,10 +35407,10 @@
       "description": "Protects the core domain validate with Validate Options behavior so passes when alternatives are absent (optional field)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1240-validate-with-validateoptions-skips-both-examples-and-alternatives-when-both-are-disabled",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1261-validate-with-validateoptions-skips-both-examples-and-alternatives-when-both-are-disabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1240,
+      "sourceLine": 1261,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35279,10 +35423,10 @@
       "description": "Protects the core domain validate with Validate Options behavior: skips both examples and alternatives when both are disabled."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1259-validate-with-validateoptions-semantic-validation-still-runs-even-when-examples-alternatives-are-disabled",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1280-validate-with-validateoptions-semantic-validation-still-runs-even-when-examples-alternatives-are-disabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1259,
+      "sourceLine": 1280,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35295,10 +35439,10 @@
       "description": "Protects the core domain validate with Validate Options behavior so semantic validation still runs even when examples alternatives are disabled."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1322-validate-minimal-native-target-block-learning-language-source-skips-example-validation-for-the-native-target-block-when-source-is-a-learning-language",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1343-validate-minimal-native-target-block-learning-language-source-skips-example-validation-for-the-native-target-block-when-source-is-a-learning-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1322,
+      "sourceLine": 1343,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35311,10 +35455,10 @@
       "description": "Protects the core domain validate — minimal native target block (learning language source) behavior: skips example validation for the native target block when source is a learning language."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1347-validate-minimal-native-target-block-learning-language-source-still-validates-examples-for-non-native-targets-when-source-is-a-learning-language",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1368-validate-minimal-native-target-block-learning-language-source-still-validates-examples-for-non-native-targets-when-source-is-a-learning-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1347,
+      "sourceLine": 1368,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

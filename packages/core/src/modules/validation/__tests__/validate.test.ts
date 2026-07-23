@@ -767,7 +767,28 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
     expect(result.errors).toHaveLength(0);
   });
 
-  it("passes for idiomatic equivalent where examples don't repeat the phrase verbatim", () => {
+  it("passes for idiomatic equivalent where the example inflects rather than repeats verbatim", () => {
+    const raw = {
+      emoji: "🐦",
+      translations: {
+        cs: {
+          text: "Ranní ptáče dál doskáče",
+          expressionType: "idiomatic_equivalent" as const,
+          equivalentNote: "Czech equivalent proverb about the value of waking early.",
+          synonyms: [],
+          examples: [{ context: "neutral" as const, target: "Vstával brzy, protože ranní ptáče dál doskáče." }],
+        },
+      },
+    };
+    const result = validate(raw, translationResultSchema, "The early bird catches the worm", ["cs"]);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("fails an idiomatic equivalent whose examples never demonstrate it", () => {
+    // Regression guard for the RU "какать кирпичами" defect: idiomatic blocks used
+    // to skip example validation entirely, so a card could teach one expression and
+    // illustrate it with another.
     const raw = {
       emoji: "🐦",
       translations: {
@@ -781,8 +802,8 @@ describe("validate — idiomatic equivalents (Task 10)", () => {
       },
     };
     const result = validate(raw, translationResultSchema, "The early bird catches the worm", ["cs"]);
-    expect(result.valid).toBe(true);
-    expect(result.errors).toHaveLength(0);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.rule === "examples")).toBe(true);
   });
 
   it("passes for literal expressionType with normal examples", () => {

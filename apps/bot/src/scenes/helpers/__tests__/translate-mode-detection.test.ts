@@ -139,6 +139,10 @@ function createMockCtx(): BotContext {
     from: { id: 123456789 },
     chat: { id: 123456789 },
     session,
+    // Present because the mistype confirm/cancel handlers are callback handlers —
+    // a real tr:mistype:* update always carries a callback query, and the handlers
+    // now guard answerCallbackQuery on it (it throws synchronously when absent).
+    callbackQuery: { id: "cbq-1", data: "tr:mistype:confirm", message: { message_id: 1 } },
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),

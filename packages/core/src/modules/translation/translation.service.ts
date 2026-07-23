@@ -874,7 +874,11 @@ function buildRepairInstruction(error: { rule: string; message: string }): strin
     case "semantic":
       return "Keep the meaning intact and avoid repeating the original text verbatim unless the source is intentionally unchanged.";
     case "examples":
-      return "Make each example use the assigned translation naturally and keep it aligned with the main translation.";
+      // Deliberately does not say "every example": the validator requires at least half,
+      // and it can also report that the examples agree on a *different* expression, in
+      // which case replacing the translation is the correct repair rather than rewriting
+      // the examples around a wrong headword.
+      return "Make the examples demonstrate the assigned translation naturally, or — if the examples agree on a different expression that is the one native speakers actually use — replace the main translation with that expression.";
     case "language":
       return "Write the field in the required language/script and remove transliteration or copied target text.";
     case "duplication":

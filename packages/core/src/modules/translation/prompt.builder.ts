@@ -193,7 +193,8 @@ Rules:
   }${
     cfg.includeExamples
       ? `
-- Provide exactly 3 example sentences per language. Keep each sentence SHORT — one sentence only.`
+- Provide exactly 3 example sentences per language. Keep each sentence SHORT — one sentence only.
+- The example sentences must DEMONSTRATE the translation in "text" — at least 2 of the 3 must actually use it, inflected as the sentence requires. Do not illustrate the entry with a synonym of the translation instead.`
       : ""
   }${
     cfg.includeUsageNote && nativeLangName && !isSentence
@@ -227,7 +228,15 @@ Idiomatic & Proverb Rule:
 - If a direct translation exists and is natural, set expressionType to "literal"
   (or omit it).
 - NEVER return a meaningless word-for-word rendering of an idiomatic expression
-  when a functional equivalent exists.`
+  when a functional equivalent exists.
+- The expression you return MUST be one that native speakers of that language
+  actually use. NEVER invent an expression by translating the source idiom
+  word-for-word (a calque), even if the result looks plausible or is
+  understandable. A calque that no native speaker says is a WRONG answer.
+- If the language genuinely has no established idiom for this meaning, do NOT
+  manufacture one: give the most natural plain-language wording instead and set
+  expressionType to "literal".
+- Never claim in any note that an expression is commonly used unless it really is.`
       : ""
   }`;
 }

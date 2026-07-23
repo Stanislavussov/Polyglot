@@ -9,7 +9,7 @@ import { validateExamples } from "../validators/example.validator.js";
  * and behaves correctly for both literal and idiomatic_equivalent.
  */
 
-describe("validateExamples — expressionType parameter", () => {
+describe("validateExamples — idiomatic equivalents", () => {
   const validExamples = [
     {
       context: "neutral" as const,
@@ -21,39 +21,57 @@ describe("validateExamples — expressionType parameter", () => {
     },
   ];
 
-  it("accepts expressionType 'literal' — validates normally", () => {
-    const result = validateExamples(validExamples, "cake", "literal");
-    expect(result.valid).toBe(true);
-    expect(result.errors).toHaveLength(0);
-  });
-
-  it("accepts expressionType 'idiomatic_equivalent' — validates normally", () => {
-    const result = validateExamples(validExamples, "Having your cake and eating it too", "idiomatic_equivalent");
-    expect(result.valid).toBe(true);
-    expect(result.errors).toHaveLength(0);
-  });
-
-  it("works without expressionType (backward compatible)", () => {
+  it("accepts a literal translation demonstrated by its examples", () => {
     const result = validateExamples(validExamples, "cake");
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
 
-  it("still fails for empty examples with idiomatic_equivalent", () => {
-    const result = validateExamples([], "idiom", "idiomatic_equivalent");
+  it("accepts an idiomatic equivalent demonstrated by its examples", () => {
+    const result = validateExamples(validExamples, "Having your cake and eating it too");
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("accepts a single-word translation repeated across examples", () => {
+    const result = validateExamples(validExamples, "cake");
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("still fails when there are no examples at all", () => {
+    const result = validateExamples([], "idiom");
     expect(result.valid).toBe(false);
     expect(result.errors[0].message).toContain("No examples");
   });
 
-  it("still fails for empty target with idiomatic_equivalent", () => {
-    const result = validateExamples([{ context: "neutral", target: "" }], "idiom", "idiomatic_equivalent");
+  it("still fails when an example target is empty", () => {
+    const result = validateExamples([{ context: "neutral", target: "" }], "idiom");
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.field?.includes("target"))).toBe(true);
   });
 
   it("idiomatic examples that don't repeat the phrase verbatim still pass", () => {
-    // This is the key scenario: an idiomatic equivalent used in context
-    // may not repeat the full idiom verbatim
+    // An idiomatic equivalent used in context may not repeat the full idiom
+    // verbatim, and one of the examples may paraphrase it entirely. Coverage is
+    // a majority rule, not an every-example rule, so this stays valid.
+    const idiomaticExamples = [
+      {
+        context: "neutral" as const,
+        target: "In this negotiation, she had her cake and ate it too.",
+      },
+      {
+        context: "colloquial" as const,
+        target: "She managed to get the best of both worlds.",
+      },
+    ];
+    const result = validateExamples(idiomaticExamples, "Having your cake and eating it too");
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects idiomatic examples that never demonstrate the equivalent", () => {
+    // Previously skipped outright for idiomatic_equivalent, which let an idiom
+    // card be illustrated entirely by other expressions.
     const idiomaticExamples = [
       {
         context: "neutral" as const,
@@ -64,8 +82,8 @@ describe("validateExamples — expressionType parameter", () => {
         target: "She managed to get the best of both worlds.",
       },
     ];
-    const result = validateExamples(idiomaticExamples, "Having your cake and eating it too", "idiomatic_equivalent");
-    expect(result.valid).toBe(true);
+    const result = validateExamples(idiomaticExamples, "Having your cake and eating it too");
+    expect(result.valid).toBe(false);
   });
 
   it("literal examples that don't contain simple words fail conservatively", () => {
@@ -75,7 +93,7 @@ describe("validateExamples — expressionType parameter", () => {
         target: "This is a completely different sentence.",
       },
     ];
-    const result = validateExamples(examples, "hello", "literal");
+    const result = validateExamples(examples, "hello");
     expect(result.valid).toBe(false);
   });
 });
