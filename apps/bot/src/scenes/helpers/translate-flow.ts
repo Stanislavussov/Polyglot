@@ -1015,17 +1015,31 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   const pendingDirection = ctx.session.pendingDirection;
 
   if (!pendingWord || !pendingDirection) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    // Guard with `ctx.callbackQuery`: this runs on the text path too (the
+    // clarification "add context" reply routes here via runClarifiedTranslation),
+    // where there is no callback query. `ctx.answerCallbackQuery()` throws
+    // synchronously in that case (grammy's orThrow), so a `.catch()` cannot save
+    // it — the guard must come first.
+    if (ctx.callbackQuery) {
+      await ctx
+        .answerCallbackQuery({
+          text: "⚠️ Session expired. Please translate the word again.",
+          show_alert: true,
+        })
+        .catch(() => {});
+    }
     return;
   }
 
   // Answer the callback up front, before the multi-second translation pipeline,
-  // so Telegram does not expire the query ("query is too old"). Defensive catch:
-  // the clarification flow may already have answered it.
-  await ctx.answerCallbackQuery().catch(() => {});
+  // so Telegram does not expire the query ("query is too old"). Only meaningful
+  // on the callback path — this same function also runs on the text path (the
+  // "add context" clarification reply), which has no callback query. Answering it
+  // there throws synchronously (grammy's orThrow), and because the throw precedes
+  // the promise, `.catch()` never attaches — hence the `ctx.callbackQuery` guard.
+  if (ctx.callbackQuery) {
+    await ctx.answerCallbackQuery().catch(() => {});
+  }
 
   const settings = await getRequestSettings(ctx, ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";

@@ -3,6 +3,9 @@ import type { ValidationError, ValidationResult } from "../types.js";
 /** Expression type — literal or idiomatic equivalent */
 export type ExpressionType = "literal" | "idiomatic_equivalent";
 
+/** Shortest token that counts as carrying meaning when matching a translation. */
+const MIN_SIGNIFICANT_TOKEN = 3;
+
 /**
  * A structured example with target sentence.
  */
@@ -18,12 +21,13 @@ export interface ExampleInput {
  * Rules:
  * - At least one example must be present
  * - Each example must have non-empty target text
+ * - The examples must demonstrate `translationText` (see `checkHeadwordDemonstration`)
  *
  * Pure function — no side effects.
  */
 export function validateExamples(
   examples: ExampleInput[],
-  word: string,
+  translationText: string,
   expressionType?: ExpressionType,
 ): ValidationResult {
   const errors: ValidationError[] = [];
@@ -49,18 +53,78 @@ export function validateExamples(
     }
   }
 
-  if (shouldValidateFirstExampleHeadword(word, expressionType)) {
-    const firstTarget = examples[0]?.target ?? "";
-    if (!sharesExpressionToken(firstTarget, word)) {
-      errors.push({
-        rule: "examples",
-        message: `First example should demonstrate the main translation "${word}"`,
-        field: "examples.0.target",
-      });
-    }
-  }
+  errors.push(...checkHeadwordDemonstration(examples, translationText, expressionType));
 
   return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Checks that the examples actually demonstrate the translation.
+ *
+ * Two regimes, split by how many significant tokens the translation has, because the
+ * token matcher is only trustworthy on the multi-word side:
+ *
+ * - **Multi-word** (>= 2 significant tokens): at least half the examples must demonstrate
+ *   it. This is the rule that catches the observed defect — on RU "какать кирпичами" the
+ *   English block used "to shit bricks" once and then drifted to "scared stiff" and
+ *   "petrified", and the Czech block put the calque "kadit cihly" in the headword while its
+ *   own examples used the real idiom. Idiomatic equivalents used to skip this check
+ *   entirely, so an idiom card got no example validation at all.
+ *
+ * - **Single word**: only the first example is checked, and idiomatic equivalents are
+ *   skipped — the pre-existing rule, deliberately left alone. Extending coverage here
+ *   would reject large classes of correct output, because `sameStem` needs an exact match
+ *   below 5 characters and a shared 4-character prefix above it. Measured failures on
+ *   correct translations: de "anrufen" (0/3 — separable prefix splits off in every finite
+ *   clause), pl "iść" (0/3), kk "бару" (0/3), ru "спать" (1/3), it "essere" (1/3). That is
+ *   core vocabulary, and over-rejecting it is what drove ~36% of translations into
+ *   needs_review once before. Fixing it needs real stemming, not a wider threshold.
+ *
+ * "At least half" rather than "all" is also deliberate: a functional equivalent may be
+ * paraphrased in one example, and matching is per-token by stem (see
+ * `sharesExpressionToken`) so inflection and dropped function words still pass.
+ */
+function checkHeadwordDemonstration(
+  examples: ExampleInput[],
+  translationText: string,
+  expressionType?: ExpressionType,
+): ValidationError[] {
+  const significantTokens = tokenize(translationText).filter((token) => token.length >= MIN_SIGNIFICANT_TOKEN);
+  if (significantTokens.length === 0) return [];
+
+  const indexed = examples
+    .map((example, index) => ({ example, index }))
+    .filter(({ example }) => (example.target ?? "").trim().length > 0);
+  if (indexed.length === 0) return [];
+
+  if (significantTokens.length < 2) {
+    if (expressionType === "idiomatic_equivalent") return [];
+    const first = indexed[0];
+    if (first.index !== 0 || sharesExpressionToken(first.example.target, translationText)) return [];
+    return [
+      {
+        rule: "examples",
+        message: `First example should demonstrate the main translation "${translationText}"`,
+        field: "examples.0.target",
+      },
+    ];
+  }
+
+  const uncovered = indexed.filter(({ example }) => !sharesExpressionToken(example.target, translationText));
+  const covered = indexed.length - uncovered.length;
+  if (covered >= Math.ceil(indexed.length / 2)) return [];
+
+  // The message deliberately does not try to name the expression the examples used
+  // instead. Identifying it means guessing which shared words form a real expression, and
+  // every cheap heuristic for that reassembles function words into phrases nobody said
+  // ("было очень", "that when") — which, quoted back as the expression natives supposedly
+  // use, would corrupt a headword that was merely mis-illustrated. Deciding whether a
+  // headword is an unattested calque is a knowledge question, and belongs to the semantic
+  // judge rather than to token arithmetic.
+  const message = `Only ${covered} of ${indexed.length} examples demonstrate the translation "${translationText}" — at least half must use it rather than a synonym. If the examples are right and the translation is the odd one out, replace the translation instead of rewriting them.`;
+
+  // Anchor on the first example that fails so the repair step gets a concrete location.
+  return [{ rule: "examples", message, field: `examples.${uncovered[0].index}.target` }];
 }
 
 /**
@@ -99,18 +163,13 @@ export function validateSourceUsageExamples(examples: ExampleInput[], headword: 
   return { valid: errors.length === 0, errors };
 }
 
-function shouldValidateFirstExampleHeadword(word: string, expressionType?: ExpressionType): boolean {
-  if (expressionType === "idiomatic_equivalent") return false;
-  return tokenize(word).some((token) => token.length >= 3);
-}
-
 /**
- * True when the first example demonstrates the translation — i.e. it shares at
+ * True when an example demonstrates the translation — i.e. it shares at
  * least one significant (>= 3 char) token of the translation, matched by stem so
  * inflected forms count.
  *
  * Deliberately "at least one significant token", not "every token". Requiring
- * every token to appear verbatim over-rejected correct output: a first example
+ * every token to appear verbatim over-rejected correct output: an example
  * naturally inflects or reorders a multi-word translation and drops/changes
  * function words, so a leading article ("der Spott, -e" demonstrated by "den
  * Spott …") or an idiom's particles ("etwas auf dem Kasten haben" shown as "…
