@@ -71,7 +71,8 @@ export interface CreateVocabularyInput {
   original: string;
   sourceLangId: number;
   inputType: "word" | "phrase" | "sentence";
-  emoji: string;
+  /** Card-header emoji. Optional: sentence entries omit it (persisted as null). */
+  emoji?: string;
   nativeMeaning?: string;
   sourceUsage?: SourceUsage;
   source?: VocabularySource;

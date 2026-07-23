@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-23T05:20:21.653Z",
+  "generatedAt": "2026-07-23T18:39:12.564Z",
   "summary": {
-    "total": 2304,
+    "total": 2313,
     "business": 0,
-    "technical": 2304,
+    "technical": 2313,
     "workspaces": [
       "apps",
       "packages"
@@ -7403,10 +7403,10 @@
       "description": "Protects the bot translate pre AI reads resolve Is Already Saved stays sequential behavior so feeds the found entry id into the second SELECT."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-186-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-190-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 186,
+      "sourceLine": 190,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7419,10 +7419,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with user Id and word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-198-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-202-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 198,
+      "sourceLine": 202,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7435,10 +7435,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: detects language from clean text without trailing context marker."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-205-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-209-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 205,
+      "sourceLine": 209,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7451,10 +7451,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with correct model and output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-214-handletranslatetext-auto-detect-language-direction-logs-debug-info-about-resolved-direction",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-218-handletranslatetext-auto-detect-language-direction-logs-debug-info-about-resolved-direction",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 214,
+      "sourceLine": 218,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7467,10 +7467,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: logs debug info about resolved direction."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-226-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-230-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 226,
+      "sourceLine": 230,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7483,10 +7483,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: handles Russian (Cyrillic) input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-236-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-240-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 236,
+      "sourceLine": 240,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7499,10 +7499,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: falls back to native→learning for ambiguous input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-286-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-includes-english-among-the-sync-detection-candidates-for-a-multi-word-phrase",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-290-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-includes-english-among-the-sync-detection-candidates-for-a-multi-word-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 286,
+      "sourceLine": 290,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7515,10 +7515,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: includes English among the sync detection candidates for a multi word phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-293-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-does-not-add-english-to-the-sync-candidates-for-a-single-word",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-297-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-does-not-add-english-to-the-sync-candidates-for-a-single-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 293,
+      "sourceLine": 297,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7531,10 +7531,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: does NOT add English to the sync candidates for a single word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-302-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-translates-a-franc-identified-english-phrase-as-english-source-targeting-the-studied-language",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-306-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-translates-a-franc-identified-english-phrase-as-english-source-targeting-the-studied-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 302,
+      "sourceLine": 306,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7547,10 +7547,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: translates a franc identified English phrase as English source, targeting the studied language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-328-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-332-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 328,
+      "sourceLine": 332,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7563,10 +7563,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: shows mistype warning when detect Language returns undefined."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-339-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-343-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 339,
+      "sourceLine": 343,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7579,10 +7579,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores pending state in session when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-348-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-352-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 348,
+      "sourceLine": 352,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7595,10 +7595,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores clean pending word and context hint when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-356-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-360-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 356,
+      "sourceLine": 360,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7611,10 +7611,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not call translate With Context when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-363-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-367-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 363,
+      "sourceLine": 367,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7627,10 +7627,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior so asks for source language when fast has dictionary evidence in English and German."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-396-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-400-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 396,
+      "sourceLine": 400,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7643,10 +7643,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not ask for source language for weak shared script ambiguity only."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-456-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-460-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 456,
+      "sourceLine": 460,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7659,10 +7659,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior so proceeds with translation when confirm callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-472-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-476-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 472,
+      "sourceLine": 476,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7675,10 +7675,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior: shows session expired alert when no pending state."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-493-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-497-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 493,
+      "sourceLine": 497,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7691,10 +7691,10 @@
       "description": "Protects the bot handle Mistype Cancel Callback — Task 58 behavior so clears pending state when cancel callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-506-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-510-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 506,
+      "sourceLine": 510,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11819,10 +11819,10 @@
       "description": "Protects the translation benchmark run Translation Benchmark behavior so runs the real translation and validation pipeline and writes an analysis ready report."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-172-runtranslationbenchmark-records-a-failed-case-after-pipeline-retries-and-continues-with-the-next-case",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-171-runtranslationbenchmark-records-a-failed-case-after-pipeline-retries-and-continues-with-the-next-case",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 172,
+      "sourceLine": 171,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11835,10 +11835,10 @@
       "description": "Protects the translation benchmark run Translation Benchmark behavior: records a failed case after pipeline retries and continues with the next case."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-223-renderbenchmarkreportmarkdown-escapes-table-separators-in-detection-input",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-222-renderbenchmarkreportmarkdown-escapes-table-separators-in-detection-input",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 223,
+      "sourceLine": 222,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11851,10 +11851,10 @@
       "description": "Protects the translation benchmark render Benchmark Report Markdown behavior: escapes table separators in detection input."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-287-benchmark-regression-controls-runs-stochastic-cases-repeatedly-and-aggregates-request-cost",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-286-benchmark-regression-controls-runs-stochastic-cases-repeatedly-and-aggregates-request-cost",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 287,
+      "sourceLine": 286,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11867,10 +11867,10 @@
       "description": "Protects the translation benchmark benchmark regression controls behavior so runs stochastic cases repeatedly and aggregates request cost."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-324-benchmark-regression-controls-flags-statistically-significant-language-pair-regressions",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-323-benchmark-regression-controls-flags-statistically-significant-language-pair-regressions",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 324,
+      "sourceLine": 323,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11883,10 +11883,10 @@
       "description": "Protects the translation benchmark benchmark regression controls behavior so flags statistically significant language pair regressions."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-358-evaluatetranslationquality-reports-clarification-and-immutable-token-failures",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-357-evaluatetranslationquality-reports-clarification-and-immutable-token-failures",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 358,
+      "sourceLine": 357,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -11899,10 +11899,10 @@
       "description": "Protects the translation benchmark evaluate Translation Quality behavior: reports clarification and immutable token failures."
     },
     {
-      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-389-evaluatetranslationquality-checks-forbidden-meanings-and-required-metadata",
+      "id": "apps-translation-benchmark-src-benchmark-runner-test-ts-388-evaluatetranslationquality-checks-forbidden-meanings-and-required-metadata",
       "kind": "technical",
       "filePath": "apps/translation-benchmark/src/benchmark-runner.test.ts",
-      "sourceLine": 389,
+      "sourceLine": 388,
       "workspace": "apps",
       "packageName": "translation-benchmark",
       "suitePath": [
@@ -29819,10 +29819,10 @@
       "description": "Protects the core domain presets behavior so defines output presets without transcription fields."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-131-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-examples-key-in-json-template",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-133-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-examples-key-in-json-template",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 133,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29835,10 +29835,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Examples: false → prompt has no 'examples' key in JSON template."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-136-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-variety-in-examples-is-mandatory",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-138-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-variety-in-examples-is-mandatory",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 136,
+      "sourceLine": 138,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29851,10 +29851,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Examples: false → prompt has no 'VARIETY IN EXAMPLES IS MANDATORY'."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-141-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-3-example-sentences",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-143-buildtranslationprompt-with-outputconfig-includeexamples-false-prompt-has-no-3-example-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 141,
+      "sourceLine": 143,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29867,10 +29867,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Examples: false → prompt has no '3 example sentences'."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-146-buildtranslationprompt-with-outputconfig-prompt-never-requests-transcription-and-explicitly-forbids-pronunciation-metadata",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-148-buildtranslationprompt-with-outputconfig-prompt-never-requests-transcription-and-explicitly-forbids-pronunciation-metadata",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 146,
+      "sourceLine": 148,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29883,10 +29883,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so prompt never requests transcription and explicitly forbids pronunciation metadata."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-153-buildtranslationprompt-with-outputconfig-includesynonyms-false-prompt-has-no-synonyms-in-language-block",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-155-buildtranslationprompt-with-outputconfig-includesynonyms-false-prompt-has-no-synonyms-in-language-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 153,
+      "sourceLine": 155,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29899,10 +29899,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Synonyms: false → prompt has no 'synonyms' in language block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-158-buildtranslationprompt-with-outputconfig-includesynonyms-false-prompt-has-no-provide-2-3-synonyms-rule",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-160-buildtranslationprompt-with-outputconfig-includesynonyms-false-prompt-has-no-provide-2-3-synonyms-rule",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 158,
+      "sourceLine": 160,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29915,10 +29915,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Synonyms: false → prompt has no 'Provide 2–3 synonyms' rule."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-163-buildtranslationprompt-with-outputconfig-includealternatives-false-prompt-has-no-alternatives-in-language-block",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-165-buildtranslationprompt-with-outputconfig-includealternatives-false-prompt-has-no-alternatives-in-language-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 163,
+      "sourceLine": 165,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29931,10 +29931,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Alternatives: false → prompt has no 'alternatives' in language block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-168-buildtranslationprompt-with-outputconfig-includealternatives-false-prompt-has-no-2-alternative-translations-rule",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-170-buildtranslationprompt-with-outputconfig-includealternatives-false-prompt-has-no-2-alternative-translations-rule",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 168,
+      "sourceLine": 170,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29947,10 +29947,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Alternatives: false → prompt has no '2 alternative translations' rule."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-173-buildtranslationprompt-with-outputconfig-includeequivalentnote-false-prompt-has-no-expressiontype-in-language-block",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-175-buildtranslationprompt-with-outputconfig-includeequivalentnote-false-prompt-has-no-expressiontype-in-language-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 173,
+      "sourceLine": 175,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29963,10 +29963,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Equivalent Note: false → prompt has no 'expression Type' in language block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-178-buildtranslationprompt-with-outputconfig-includeequivalentnote-false-prompt-has-no-idiomatic-proverb-rule-block",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-180-buildtranslationprompt-with-outputconfig-includeequivalentnote-false-prompt-has-no-idiomatic-proverb-rule-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 178,
+      "sourceLine": 180,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29979,10 +29979,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Equivalent Note: false → prompt has no 'Idiomatic & Proverb Rule' block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-183-buildtranslationprompt-with-outputconfig-empty-config-prompt-is-identical-to-no-config-call-all-sections-present",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-185-buildtranslationprompt-with-outputconfig-empty-config-prompt-is-identical-to-no-config-call-all-sections-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 183,
+      "sourceLine": 185,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29995,10 +29995,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so empty config {} → prompt is identical to no config call (all sections present)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-189-buildtranslationprompt-with-outputconfig-undefined-config-prompt-is-identical-to-no-config-call-all-sections-present",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-191-buildtranslationprompt-with-outputconfig-undefined-config-prompt-is-identical-to-no-config-call-all-sections-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 189,
+      "sourceLine": 191,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30011,10 +30011,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so undefined config → prompt is identical to no config call (all sections present)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-195-buildtranslationprompt-with-outputconfig-minimal-output-preset-prompt-includes-only-translation-text",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-197-buildtranslationprompt-with-outputconfig-minimal-output-preset-prompt-includes-only-translation-text",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 195,
+      "sourceLine": 197,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30027,10 +30027,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so MINIMAL OUTPUT preset → prompt includes only translation text."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-206-buildtranslationprompt-with-outputconfig-full-output-preset-prompt-includes-examples-connotationwarning-and-all-enabled-sections",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-208-buildtranslationprompt-with-outputconfig-full-output-preset-prompt-includes-examples-connotationwarning-and-all-enabled-sections",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 206,
+      "sourceLine": 208,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30043,10 +30043,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so FULL OUTPUT preset → prompt includes examples, connotation Warning, and all enabled sections."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-217-buildtranslationprompt-with-outputconfig-includeconnotationwarning-false-prompt-has-no-connotationwarning-field",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-219-buildtranslationprompt-with-outputconfig-includeconnotationwarning-false-prompt-has-no-connotationwarning-field",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 217,
+      "sourceLine": 219,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30059,10 +30059,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Connotation Warning: false → prompt has no 'connotation Warning' field."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-223-buildtranslationprompt-with-outputconfig-includeconnotationwarning-true-prompt-has-connotationwarning-field-and-warning-rule",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-225-buildtranslationprompt-with-outputconfig-includeconnotationwarning-true-prompt-has-connotationwarning-field-and-warning-rule",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 223,
+      "sourceLine": 225,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30075,10 +30075,10 @@
       "description": "Protects the core domain build Translation Prompt with output Config behavior so include Connotation Warning: true → prompt has 'connotation Warning' field and warning rule."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-233-buildstrictprompt-with-outputconfig-includeexamples-false-strict-prompt-omits-example-variety-check",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-235-buildstrictprompt-with-outputconfig-includeexamples-false-strict-prompt-omits-example-variety-check",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 233,
+      "sourceLine": 235,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30091,10 +30091,10 @@
       "description": "Protects the core domain build Strict Prompt with output Config behavior so include Examples: false → strict prompt omits example variety check."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-238-buildstrictprompt-with-outputconfig-includeequivalentnote-false-strict-prompt-omits-idiomatic-expression-check",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-240-buildstrictprompt-with-outputconfig-includeequivalentnote-false-strict-prompt-omits-idiomatic-expression-check",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 238,
+      "sourceLine": 240,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30107,10 +30107,10 @@
       "description": "Protects the core domain build Strict Prompt with output Config behavior so include Equivalent Note: false → strict prompt omits idiomatic expression check."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-245-buildstrictprompt-with-outputconfig-includeconnotationwarning-false-strict-prompt-omits-connotation-warning-check",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-247-buildstrictprompt-with-outputconfig-includeconnotationwarning-false-strict-prompt-omits-connotation-warning-check",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 245,
+      "sourceLine": 247,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30123,10 +30123,10 @@
       "description": "Protects the core domain build Strict Prompt with output Config behavior so include Connotation Warning: false → strict prompt omits connotation warning check."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-252-buildstrictprompt-with-outputconfig-includeconnotationwarning-true-strict-prompt-includes-connotation-warning-check",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-254-buildstrictprompt-with-outputconfig-includeconnotationwarning-true-strict-prompt-includes-connotation-warning-check",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 252,
+      "sourceLine": 254,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30139,10 +30139,10 @@
       "description": "Protects the core domain build Strict Prompt with output Config behavior so include Connotation Warning: true → strict prompt includes connotation warning check."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-263-buildtranslationresultschema-with-config-includeexamples-false-schema-accepts-missing-examples",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-265-buildtranslationresultschema-with-config-includeexamples-false-schema-accepts-missing-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 263,
+      "sourceLine": 265,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30155,10 +30155,10 @@
       "description": "Protects the core domain build Translation Result Schema with config behavior so include Examples: false → schema accepts missing examples."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-277-buildtranslationresultschema-with-config-includeexamples-false-schema-still-rejects-missing-text-field",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-279-buildtranslationresultschema-with-config-includeexamples-false-schema-still-rejects-missing-text-field",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 277,
+      "sourceLine": 279,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30171,10 +30171,10 @@
       "description": "Protects the core domain build Translation Result Schema with config behavior so include Examples: false → schema still rejects missing 'text' field."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-289-buildtranslationresultschema-with-config-includesynonyms-false-schema-accepts-missing-synonyms",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-291-buildtranslationresultschema-with-config-includesynonyms-false-schema-accepts-missing-synonyms",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 289,
+      "sourceLine": 291,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30187,10 +30187,10 @@
       "description": "Protects the core domain build Translation Result Schema with config behavior so include Synonyms: false → schema accepts missing synonyms."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-303-buildtranslationresultschema-with-config-default-no-config-schema-still-requires-non-empty-examples-array-min-1",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-305-buildtranslationresultschema-with-config-default-no-config-schema-still-requires-non-empty-examples-array-min-1",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 303,
+      "sourceLine": 305,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30203,10 +30203,10 @@
       "description": "Protects the core domain build Translation Result Schema with config behavior so default (no config) → schema still requires non empty examples array (min 1)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-317-buildlanguagetranslationschema-default-requires-at-least-1-example",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-319-buildlanguagetranslationschema-default-requires-at-least-1-example",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 317,
+      "sourceLine": 319,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30219,10 +30219,10 @@
       "description": "Protects the core domain build Language Translation Schema behavior so default → requires at least 1 example."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-323-buildlanguagetranslationschema-includeexamples-false-accepts-missing-examples",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-325-buildlanguagetranslationschema-includeexamples-false-accepts-missing-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 323,
+      "sourceLine": 325,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30235,10 +30235,10 @@
       "description": "Protects the core domain build Language Translation Schema behavior so include Examples: false → accepts missing examples."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-331-buildlanguagetranslationschema-includesynonyms-false-accepts-missing-synonyms",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-333-buildlanguagetranslationschema-includesynonyms-false-accepts-missing-synonyms",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 331,
+      "sourceLine": 333,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30251,10 +30251,10 @@
       "description": "Protects the core domain build Language Translation Schema behavior so include Synonyms: false → accepts missing synonyms."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-339-buildlanguagetranslationschema-connotationwarning-is-optional-in-schema-always",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-341-buildlanguagetranslationschema-connotationwarning-is-optional-in-schema-always",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 339,
+      "sourceLine": 341,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30267,10 +30267,10 @@
       "description": "Protects the core domain build Language Translation Schema behavior so connotation Warning is optional in schema (always)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-353-translate-with-outputconfig-passes-outputconfig-through-to-prompt-and-schema-builders",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-355-translate-with-outputconfig-passes-outputconfig-through-to-prompt-and-schema-builders",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 353,
+      "sourceLine": 355,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30283,10 +30283,10 @@
       "description": "Protects the core domain translate() with output Config behavior so passes output Config through to prompt and schema builders."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-390-translate-with-sentence-output-and-inputtype-sentence-passes-inputtype-through-to-prompt-builder-and-validation",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-392-translate-with-sentence-output-and-inputtype-sentence-passes-inputtype-through-to-prompt-builder-and-validation",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 390,
+      "sourceLine": 392,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30299,10 +30299,10 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so passes input Type through to prompt builder and validation."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-430-translate-with-sentence-output-and-inputtype-sentence-sentence-translation-strips-disabled-fields-from-ai-response",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-432-translate-with-sentence-output-and-inputtype-sentence-sentence-translation-strips-disabled-fields-from-ai-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 430,
+      "sourceLine": 432,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -30313,6 +30313,38 @@
       "name": "Core domain translate() with SENTENCE OUTPUT and input Type=sentence sentence translation strips disabled fields from AI response",
       "value": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so sentence translation strips disabled fields from AI response.",
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so sentence translation strips disabled fields from AI response."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-470-translate-with-sentence-output-and-inputtype-sentence-omits-emoji-and-nativemeaning-for-sentence-output-and-never-requests-an-emoji",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
+      "sourceLine": 470,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate() with SENTENCE_OUTPUT and inputType=sentence"
+      ],
+      "title": "omits emoji and nativeMeaning for sentence output and never requests an emoji",
+      "rawTitle": "omits emoji and nativeMeaning for sentence output and never requests an emoji",
+      "name": "Core domain translate() with SENTENCE OUTPUT and input Type=sentence omits emoji and native Meaning for sentence output and never requests an emoji",
+      "value": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior: omits emoji and native Meaning for sentence output and never requests an emoji.",
+      "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior: omits emoji and native Meaning for sentence output and never requests an emoji."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-507-translate-with-sentence-output-and-inputtype-sentence-keeps-the-emoji-for-a-word-translation-word-phrase-unchanged",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
+      "sourceLine": 507,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate() with SENTENCE_OUTPUT and inputType=sentence"
+      ],
+      "title": "keeps the emoji for a word translation (word/phrase unchanged)",
+      "rawTitle": "keeps the emoji for a word translation (word/phrase unchanged)",
+      "name": "Core domain translate() with SENTENCE OUTPUT and input Type=sentence keeps the emoji for a word translation (word phrase unchanged)",
+      "value": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior: keeps the emoji for a word translation (word phrase unchanged).",
+      "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior: keeps the emoji for a word translation (word phrase unchanged)."
     },
     {
       "id": "packages-core-src-modules-translation-tests-preflight-schema-test-ts-12-preflightresultschema-accepts-the-new-proceed-with-correction-outcome-with-correctedtext",
@@ -32859,10 +32891,61 @@
       "description": "Protects the core domain translate behavior: uses translation safe generation settings."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-871-translate-handles-multi-language-translations",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-888-translate-advisory-severity-single-word-first-example-accepts-a-word-whose-only-issue-is-the-single-word-first-example-mismatch-without-repair-or-judge",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 871,
+      "sourceLine": 888,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate",
+        "advisory severity (single-word first-example)"
+      ],
+      "title": "accepts a word whose ONLY issue is the single-word first-example mismatch, without repair or judge",
+      "rawTitle": "accepts a word whose ONLY issue is the single-word first-example mismatch, without repair or judge",
+      "name": "Core domain translate advisory severity (single word first example) accepts a word whose ONLY issue is the single word first example mismatch, without repair or judge",
+      "value": "Protects the core domain translate advisory severity (single word first example) behavior: accepts a word whose ONLY issue is the single word first example mismatch, without repair or judge.",
+      "description": "Protects the core domain translate advisory severity (single word first example) behavior: accepts a word whose ONLY issue is the single word first example mismatch, without repair or judge."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-906-translate-advisory-severity-single-word-first-example-still-runs-the-high-risk-semantic-judge-when-the-only-deterministic-issue-is-advisory",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 906,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate",
+        "advisory severity (single-word first-example)"
+      ],
+      "title": "still runs the high-risk semantic judge when the only deterministic issue is advisory",
+      "rawTitle": "still runs the high-risk semantic judge when the only deterministic issue is advisory",
+      "name": "Core domain translate advisory severity (single word first example) still runs the high risk semantic judge when the only deterministic issue is advisory",
+      "value": "Protects the core domain translate advisory severity (single word first example) behavior so still runs the high risk semantic judge when the only deterministic issue is advisory.",
+      "description": "Protects the core domain translate advisory severity (single word first example) behavior so still runs the high risk semantic judge when the only deterministic issue is advisory."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-924-translate-advisory-severity-single-word-first-example-does-not-let-a-real-semantic-defect-slip-through-advisory-judge-blocking-needs-review",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 924,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate",
+        "advisory severity (single-word first-example)"
+      ],
+      "title": "does NOT let a real semantic defect slip through: advisory + judge-blocking → needs_review",
+      "rawTitle": "does NOT let a real semantic defect slip through: advisory + judge-blocking → needs_review",
+      "name": "Core domain translate advisory severity (single word first example) does NOT let a real semantic defect slip through: advisory + judge blocking → needs review",
+      "value": "Protects the core domain translate advisory severity (single word first example) behavior: does NOT let a real semantic defect slip through: advisory + judge blocking → needs review.",
+      "description": "Protects the core domain translate advisory severity (single word first example) behavior: does NOT let a real semantic defect slip through: advisory + judge blocking → needs review."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-960-translate-handles-multi-language-translations",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
+      "sourceLine": 960,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32875,10 +32958,10 @@
       "description": "Protects the core domain translate behavior: handles multi language translations."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-902-translate-preserves-source-usage-for-learning-language-source-words",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-991-translate-preserves-source-usage-for-learning-language-source-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 902,
+      "sourceLine": 991,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32891,10 +32974,10 @@
       "description": "Protects the core domain translate behavior: preserves source usage for learning language source words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-945-translate-retries-when-a-target-block-connotation-warning-is-written-in-the-target-language",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1034-translate-retries-when-a-target-block-connotation-warning-is-written-in-the-target-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 945,
+      "sourceLine": 1034,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32907,10 +32990,10 @@
       "description": "Protects the core domain translate behavior so retries when a target block connotation warning is written in the target language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-987-translate-accepts-phase-out-examples-without-a-redundant-native-field-in-the-native-target-block",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1076-translate-accepts-phase-out-examples-without-a-redundant-native-field-in-the-native-target-block",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 987,
+      "sourceLine": 1076,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32923,10 +33006,10 @@
       "description": "Protects the core domain translate behavior: accepts phase out examples without a redundant native field in the native target block."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1058-translate-propagates-ai-adapter-errors",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1147-translate-propagates-ai-adapter-errors",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1058,
+      "sourceLine": 1147,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32939,10 +33022,10 @@
       "description": "Protects the core domain translate behavior so propagates AI adapter errors."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1064-translate-sanitizes-non-emoji-string-in-emoji-field-to-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1153-translate-sanitizes-non-emoji-string-in-emoji-field-to-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1064,
+      "sourceLine": 1153,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32955,10 +33038,10 @@
       "description": "Protects the core domain translate behavior so sanitizes non emoji string in emoji field to fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1078-translate-preserves-valid-emoji-from-ai-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1167-translate-preserves-valid-emoji-from-ai-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1078,
+      "sourceLine": 1167,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32971,10 +33054,10 @@
       "description": "Protects the core domain translate behavior: preserves valid emoji from AI response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1088-translateone-calls-translate-with-single-element-targetlangs",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1177-translateone-calls-translate-with-single-element-targetlangs",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1088,
+      "sourceLine": 1177,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32987,10 +33070,10 @@
       "description": "Protects the core domain translate One behavior: calls translate() with single element target Langs."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1100-translateone-returns-the-languagetranslation-for-the-requested-language",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1189-translateone-returns-the-languagetranslation-for-the-requested-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1100,
+      "sourceLine": 1189,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33003,10 +33086,10 @@
       "description": "Protects the core domain translate One behavior: returns the Language Translation for the requested language."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1113-translateone-propagates-errors-from-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1202-translateone-propagates-errors-from-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1113,
+      "sourceLine": 1202,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33019,10 +33102,10 @@
       "description": "Protects the core domain translate One behavior so propagates errors from translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1124-translateone-passes-topic-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1213-translateone-passes-topic-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1124,
+      "sourceLine": 1213,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33035,10 +33118,10 @@
       "description": "Protects the core domain translate One behavior so passes topic through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1144-translateone-passes-nativelang-and-inputtype-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1233-translateone-passes-nativelang-and-inputtype-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1144,
+      "sourceLine": 1233,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33051,10 +33134,10 @@
       "description": "Protects the core domain translate One behavior so passes native Lang and input Type through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1189-translateone-passes-userid-through-to-translate",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1278-translateone-passes-userid-through-to-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1189,
+      "sourceLine": 1278,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33067,10 +33150,10 @@
       "description": "Protects the core domain translate One behavior so passes user Id through to translate()."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1204-translateone-works-with-needsreview-results-validation-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1293-translateone-works-with-needsreview-results-validation-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1204,
+      "sourceLine": 1293,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33083,10 +33166,10 @@
       "description": "Protects the core domain translate One behavior so works with needs Review results (validation exhausted)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1237-translatebatch-translates-multiple-words",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1326-translatebatch-translates-multiple-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1237,
+      "sourceLine": 1326,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33099,10 +33182,10 @@
       "description": "Protects the core domain translate Batch behavior: translates multiple words."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1272-translatebatch-returns-empty-array-for-empty-input",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1361-translatebatch-returns-empty-array-for-empty-input",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1272,
+      "sourceLine": 1361,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33115,10 +33198,10 @@
       "description": "Protects the core domain translate Batch behavior: returns empty array for empty input."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1281-translatebatch-calls-translate-sequentially-not-in-parallel",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1370-translatebatch-calls-translate-sequentially-not-in-parallel",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1281,
+      "sourceLine": 1370,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33131,10 +33214,10 @@
       "description": "Protects the core domain translate Batch behavior: calls translate sequentially, not in parallel."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1312-validation-logging-calls-logger-warn-on-each-failed-validation-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1401-validation-logging-calls-logger-warn-on-each-failed-validation-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1312,
+      "sourceLine": 1401,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33147,10 +33230,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger warn on each failed validation attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1339-validation-logging-calls-logger-error-after-all-retries-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1428-validation-logging-calls-logger-error-after-all-retries-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1339,
+      "sourceLine": 1428,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33163,10 +33246,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger error after all retries exhausted."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1364-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1453-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1364,
+      "sourceLine": 1453,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33179,10 +33262,10 @@
       "description": "Protects the core domain validation logging behavior: does not log when validation passes on first attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1373-validation-logging-logs-warn-but-not-error-when-repair-succeeds",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1462-validation-logging-logs-warn-but-not-error-when-repair-succeeds",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1373,
+      "sourceLine": 1462,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33195,10 +33278,10 @@
       "description": "Protects the core domain validation logging behavior: logs warn but not error when repair succeeds."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1411-validation-logging-includes-failreason-with-validation-error-details",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1500-validation-logging-includes-failreason-with-validation-error-details",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1411,
+      "sourceLine": 1500,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33211,10 +33294,10 @@
       "description": "Protects the core domain validation logging behavior: includes fail Reason with validation error details."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1441-parseresponse-parses-a-valid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1530-parseresponse-parses-a-valid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1441,
+      "sourceLine": 1530,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33227,10 +33310,10 @@
       "description": "Protects the core domain parse Response behavior: parses a valid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1449-parseresponse-throws-on-invalid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1538-parseresponse-throws-on-invalid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1449,
+      "sourceLine": 1538,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33243,10 +33326,10 @@
       "description": "Protects the core domain parse Response behavior: throws on invalid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1453-parseresponse-throws-on-missing-required-fields",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1542-parseresponse-throws-on-missing-required-fields",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1453,
+      "sourceLine": 1542,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33259,10 +33342,10 @@
       "description": "Protects the core domain parse Response behavior: throws on missing required fields."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1462-parseresponse-throws-on-empty-translations-record",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1551-parseresponse-throws-on-empty-translations-record",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1462,
+      "sourceLine": 1551,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33275,10 +33358,10 @@
       "description": "Protects the core domain parse Response behavior: throws on empty translations record."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1471-sanitizeemoji-passes-through-valid-single-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1560-sanitizeemoji-passes-through-valid-single-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1471,
+      "sourceLine": 1560,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33291,10 +33374,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through valid single emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1477-sanitizeemoji-passes-through-zwj-sequences",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1566-sanitizeemoji-passes-through-zwj-sequences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1477,
+      "sourceLine": 1566,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33307,10 +33390,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through ZWJ sequences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1481-sanitizeemoji-passes-through-flag-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1570-sanitizeemoji-passes-through-flag-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1481,
+      "sourceLine": 1570,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33323,10 +33406,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through flag emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1485-sanitizeemoji-replaces-plain-words-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1574-sanitizeemoji-replaces-plain-words-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1485,
+      "sourceLine": 1574,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33339,10 +33422,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so replaces plain words with fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1491-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1580-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1491,
+      "sourceLine": 1580,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33355,10 +33438,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so replaces empty looking strings with fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1526-unrecognized-word-guard-task-70-returns-an-unrecognized-word-clarification-not-a-card-with-the-correction-offered",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1615-unrecognized-word-guard-task-70-returns-an-unrecognized-word-clarification-not-a-card-with-the-correction-offered",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1526,
+      "sourceLine": 1615,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33371,10 +33454,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior: returns an unrecognized word clarification (not a card) with the correction offered."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1541-unrecognized-word-guard-task-70-offers-only-translate-as-written-when-there-is-no-confident-correction",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1630-unrecognized-word-guard-task-70-offers-only-translate-as-written-when-there-is-no-confident-correction",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1541,
+      "sourceLine": 1630,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33387,10 +33470,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior so offers only 'translate as written' when there is no confident correction."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1552-unrecognized-word-guard-task-70-translates-as-written-and-flags-the-result-unverified-once-the-user-overrides",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1641-unrecognized-word-guard-task-70-translates-as-written-and-flags-the-result-unverified-once-the-user-overrides",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1552,
+      "sourceLine": 1641,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33403,10 +33486,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior: translates as written and flags the result unverified once the user overrides."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1564-unrecognized-word-guard-task-70-produces-a-normal-card-not-flagged-when-the-word-is-recognized",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1653-unrecognized-word-guard-task-70-produces-a-normal-card-not-flagged-when-the-word-is-recognized",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1564,
+      "sourceLine": 1653,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33419,10 +33502,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior so produces a normal card (not flagged) when the word is recognized."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1573-unrecognized-word-guard-task-70-does-not-gate-when-the-caller-opts-out-of-the-existence-assessment",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1662-unrecognized-word-guard-task-70-does-not-gate-when-the-caller-opts-out-of-the-existence-assessment",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1573,
+      "sourceLine": 1662,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33435,10 +33518,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior: does not gate when the caller opts out of the existence assessment."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1582-unrecognized-word-guard-task-70-returns-a-structured-reason-no-localized-ui-string-for-the-channel-to-render-a13",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1671-unrecognized-word-guard-task-70-returns-a-structured-reason-no-localized-ui-string-for-the-channel-to-render-a13",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1582,
+      "sourceLine": 1671,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33451,10 +33534,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior: returns a STRUCTURED reason (no localized UI string) for the channel to render (A13)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1609-buildjudgeprompt-keeps-the-judge-detection-phrase-used-by-the-pipeline-and-tests",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1698-buildjudgeprompt-keeps-the-judge-detection-phrase-used-by-the-pipeline-and-tests",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1609,
+      "sourceLine": 1698,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33467,10 +33550,10 @@
       "description": "Protects the core domain build Judge Prompt behavior: keeps the judge detection phrase used by the pipeline and tests."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1614-buildjudgeprompt-whitelists-the-designed-output-schema-fields-so-the-judge-never-flags-them-as-pollution",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1703-buildjudgeprompt-whitelists-the-designed-output-schema-fields-so-the-judge-never-flags-them-as-pollution",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1614,
+      "sourceLine": 1703,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33483,10 +33566,10 @@
       "description": "Protects the core domain build Judge Prompt behavior so whitelists the designed output schema fields so the judge never flags them as pollution."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1626-buildjudgeprompt-scopes-the-pollution-rule-to-the-translated-text-string-not-the-structured-fields",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1715-buildjudgeprompt-scopes-the-pollution-rule-to-the-translated-text-string-not-the-structured-fields",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1626,
+      "sourceLine": 1715,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33499,10 +33582,10 @@
       "description": "Protects the core domain build Judge Prompt behavior so scopes the pollution rule to the translated text string, not the structured fields."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1634-buildjudgeprompt-still-asks-for-the-genuine-factual-and-immutable-token-blocking-rules",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1723-buildjudgeprompt-still-asks-for-the-genuine-factual-and-immutable-token-blocking-rules",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1634,
+      "sourceLine": 1723,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34015,10 +34098,78 @@
       "description": "Protects the core domain validate Examples shares a significant token (not every token) behavior so still rejects a first example that shares no token with the translation."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-203-validatesourceusageexamples-accepts-full-source-language-sentences-that-use-the-headword",
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-206-validateexamples-rule-distinction-for-severity-mapping-tags-a-single-word-first-example-mismatch-with-the-distinct-first-example-rule",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
-      "sourceLine": 203,
+      "sourceLine": 206,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples",
+        "rule distinction for severity mapping"
+      ],
+      "title": "tags a single-word first-example mismatch with the distinct 'first-example' rule",
+      "rawTitle": "tags a single-word first-example mismatch with the distinct 'first-example' rule",
+      "name": "Core domain validate Examples rule distinction for severity mapping tags a single word first example mismatch with the distinct 'first example' rule",
+      "value": "Protects the core domain validate Examples rule distinction for severity mapping behavior so tags a single word first example mismatch with the distinct 'first example' rule.",
+      "description": "Protects the core domain validate Examples rule distinction for severity mapping behavior so tags a single word first example mismatch with the distinct 'first example' rule."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-213-validateexamples-rule-distinction-for-severity-mapping-keeps-the-blocking-examples-rule-for-a-multi-word-half-miss",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
+      "sourceLine": 213,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples",
+        "rule distinction for severity mapping"
+      ],
+      "title": "keeps the blocking 'examples' rule for a multi-word half-miss",
+      "rawTitle": "keeps the blocking 'examples' rule for a multi-word half-miss",
+      "name": "Core domain validate Examples rule distinction for severity mapping keeps the blocking 'examples' rule for a multi word half miss",
+      "value": "Protects the core domain validate Examples rule distinction for severity mapping behavior: keeps the blocking 'examples' rule for a multi word half miss.",
+      "description": "Protects the core domain validate Examples rule distinction for severity mapping behavior: keeps the blocking 'examples' rule for a multi word half miss."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-223-validateexamples-rule-distinction-for-severity-mapping-keeps-the-blocking-examples-rule-for-no-examples-and-empty-target-failures",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
+      "sourceLine": 223,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples",
+        "rule distinction for severity mapping"
+      ],
+      "title": "keeps the blocking 'examples' rule for no-examples and empty-target failures",
+      "rawTitle": "keeps the blocking 'examples' rule for no-examples and empty-target failures",
+      "name": "Core domain validate Examples rule distinction for severity mapping keeps the blocking 'examples' rule for no examples and empty target failures",
+      "value": "Protects the core domain validate Examples rule distinction for severity mapping behavior: keeps the blocking 'examples' rule for no examples and empty target failures.",
+      "description": "Protects the core domain validate Examples rule distinction for severity mapping behavior: keeps the blocking 'examples' rule for no examples and empty target failures."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-230-validateexamples-rule-distinction-for-severity-mapping-does-not-fire-for-a-single-word-idiomatic-equivalent-unchanged",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
+      "sourceLine": 230,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "validateExamples",
+        "rule distinction for severity mapping"
+      ],
+      "title": "does not fire for a single-word idiomatic equivalent (unchanged)",
+      "rawTitle": "does not fire for a single-word idiomatic equivalent (unchanged)",
+      "name": "Core domain validate Examples rule distinction for severity mapping does not fire for a single word idiomatic equivalent (unchanged)",
+      "value": "Protects the core domain validate Examples rule distinction for severity mapping behavior: does not fire for a single word idiomatic equivalent (unchanged).",
+      "description": "Protects the core domain validate Examples rule distinction for severity mapping behavior: does not fire for a single word idiomatic equivalent (unchanged)."
+    },
+    {
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-242-validatesourceusageexamples-accepts-full-source-language-sentences-that-use-the-headword",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
+      "sourceLine": 242,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34031,10 +34182,10 @@
       "description": "Protects the core domain validate Source Usage Examples behavior: accepts full source language sentences that use the headword."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-218-validatesourceusageexamples-rejects-an-example-whose-target-is-just-the-bare-headword-the-collapsed-example-bug",
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-257-validatesourceusageexamples-rejects-an-example-whose-target-is-just-the-bare-headword-the-collapsed-example-bug",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
-      "sourceLine": 218,
+      "sourceLine": 257,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34047,10 +34198,10 @@
       "description": "Protects the core domain validate Source Usage Examples behavior: rejects an example whose target is just the bare headword (the collapsed example bug)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-227-validatesourceusageexamples-rejects-the-headword-echoed-with-only-punctuation-and-no-other-words",
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-266-validatesourceusageexamples-rejects-the-headword-echoed-with-only-punctuation-and-no-other-words",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 266,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34063,10 +34214,10 @@
       "description": "Protects the core domain validate Source Usage Examples behavior: rejects the headword echoed with only punctuation and no other words."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-235-validatesourceusageexamples-accepts-an-inflected-multi-word-headword-when-the-sentence-adds-real-content",
+      "id": "packages-core-src-modules-validation-tests-example-validator-test-ts-274-validatesourceusageexamples-accepts-an-inflected-multi-word-headword-when-the-sentence-adds-real-content",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/example.validator.test.ts",
-      "sourceLine": 235,
+      "sourceLine": 274,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34719,10 +34870,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior so fails examples when first target example does not contain a simple main translation."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-314-validate-orchestrator-passes-when-a-same-language-learning-block-changes-the-source-expression",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-316-validate-orchestrator-passes-when-a-same-language-learning-block-changes-the-source-expression",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 314,
+      "sourceLine": 316,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34735,10 +34886,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior so passes when a same language learning block changes the source expression."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-334-validate-orchestrator-fails-when-a-same-language-learning-block-repeats-the-original-expression",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-336-validate-orchestrator-fails-when-a-same-language-learning-block-repeats-the-original-expression",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 334,
+      "sourceLine": 336,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34751,10 +34902,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior so fails when a same language learning block repeats the original expression."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-356-validate-orchestrator-validates-hallucination-patterns",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-358-validate-orchestrator-validates-hallucination-patterns",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 356,
+      "sourceLine": 358,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34767,10 +34918,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior: validates hallucination patterns."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-372-validate-orchestrator-prefixes-error-fields-with-language-path",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-374-validate-orchestrator-prefixes-error-fields-with-language-path",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 372,
+      "sourceLine": 374,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34783,10 +34934,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior so prefixes error fields with language path."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-388-validate-orchestrator-fails-when-nativemeaning-is-missing-for-nativelang",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-390-validate-orchestrator-fails-when-nativemeaning-is-missing-for-nativelang",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 388,
+      "sourceLine": 390,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34799,10 +34950,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior so fails when native Meaning is missing for native Lang."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-417-validate-orchestrator-rejects-a-connotation-warning-written-in-the-target-language-instead-of-the-native-language",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-419-validate-orchestrator-rejects-a-connotation-warning-written-in-the-target-language-instead-of-the-native-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 417,
+      "sourceLine": 419,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34815,10 +34966,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior: rejects a connotation warning written in the target language instead of the native language."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-440-validate-orchestrator-rejects-a-usage-note-written-in-the-target-language-instead-of-the-native-language",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-442-validate-orchestrator-rejects-a-usage-note-written-in-the-target-language-instead-of-the-native-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 440,
+      "sourceLine": 442,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34831,10 +34982,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior: rejects a usage note written in the target language instead of the native language."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-461-validate-orchestrator-rejects-a-native-example-that-duplicates-the-target-sentence",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-463-validate-orchestrator-rejects-a-native-example-that-duplicates-the-target-sentence",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 461,
+      "sourceLine": 463,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34847,10 +34998,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior: rejects a native example that duplicates the target sentence."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-494-validate-orchestrator-rejects-latin-romanization-in-a-russian-native-example",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-496-validate-orchestrator-rejects-latin-romanization-in-a-russian-native-example",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 494,
+      "sourceLine": 496,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34863,10 +35014,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior: rejects Latin romanization in a Russian native example."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-527-validate-orchestrator-rejects-a-non-russian-nativemeaning-when-nativelang-is-russian",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-529-validate-orchestrator-rejects-a-non-russian-nativemeaning-when-nativelang-is-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 527,
+      "sourceLine": 529,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34879,10 +35030,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior: rejects a non Russian native Meaning when native Lang is Russian."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-560-validate-orchestrator-rejects-embedded-ipa-pronunciation-in-an-ordinary-response-field",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-562-validate-orchestrator-rejects-embedded-ipa-pronunciation-in-an-ordinary-response-field",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 560,
+      "sourceLine": 562,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34895,10 +35046,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior: rejects embedded IPA pronunciation in an ordinary response field."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-587-validate-orchestrator-rejects-an-identical-note-copied-across-target-language-blocks",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-589-validate-orchestrator-rejects-an-identical-note-copied-across-target-language-blocks",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 587,
+      "sourceLine": 589,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34911,10 +35062,10 @@
       "description": "Protects the core domain validate (orchestrator) behavior: rejects an identical note copied across target language blocks."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-631-validate-single-language-partial-regeneration-passes-for-a-valid-single-language-response",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-633-validate-single-language-partial-regeneration-passes-for-a-valid-single-language-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 631,
+      "sourceLine": 633,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34927,10 +35078,10 @@
       "description": "Protects the core domain validate — single language (partial regeneration) behavior so passes for a valid single language response."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-638-validate-single-language-partial-regeneration-passes-when-response-contains-extra-languages-beyond-the-expected-one",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-640-validate-single-language-partial-regeneration-passes-when-response-contains-extra-languages-beyond-the-expected-one",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 638,
+      "sourceLine": 640,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34943,10 +35094,10 @@
       "description": "Protects the core domain validate — single language (partial regeneration) behavior so passes when response contains extra languages beyond the expected one."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-660-validate-single-language-partial-regeneration-detects-semantic-error-in-a-single-language-response",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-662-validate-single-language-partial-regeneration-detects-semantic-error-in-a-single-language-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 660,
+      "sourceLine": 662,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34959,10 +35110,10 @@
       "description": "Protects the core domain validate — single language (partial regeneration) behavior: detects semantic error in a single language response."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-678-validate-single-language-partial-regeneration-detects-hallucination-in-a-single-language-response",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-680-validate-single-language-partial-regeneration-detects-hallucination-in-a-single-language-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 678,
+      "sourceLine": 680,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34975,10 +35126,10 @@
       "description": "Protects the core domain validate — single language (partial regeneration) behavior: detects hallucination in a single language response."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-695-validate-single-language-partial-regeneration-reports-missing-language-when-single-expected-language-is-absent",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-697-validate-single-language-partial-regeneration-reports-missing-language-when-single-expected-language-is-absent",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 695,
+      "sourceLine": 697,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34991,10 +35142,10 @@
       "description": "Protects the core domain validate — single language (partial regeneration) behavior: reports missing language when single expected language is absent."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-716-validate-single-language-partial-regeneration-validates-examples-in-a-single-language-response-with-empty-examples",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-718-validate-single-language-partial-regeneration-validates-examples-in-a-single-language-response-with-empty-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 716,
+      "sourceLine": 718,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35007,10 +35158,10 @@
       "description": "Protects the core domain validate — single language (partial regeneration) behavior: validates examples in a single language response with empty examples."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-746-validate-idiomatic-equivalents-task-10-passes-for-a-response-with-expressiontype-idiomatic-equivalent",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-748-validate-idiomatic-equivalents-task-10-passes-for-a-response-with-expressiontype-idiomatic-equivalent",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 746,
+      "sourceLine": 748,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35023,10 +35174,10 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so passes for a response with expression Type 'idiomatic equivalent'."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-770-validate-idiomatic-equivalents-task-10-passes-for-idiomatic-equivalent-where-the-example-inflects-rather-than-repeats-verbatim",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-772-validate-idiomatic-equivalents-task-10-passes-for-idiomatic-equivalent-where-the-example-inflects-rather-than-repeats-verbatim",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 770,
+      "sourceLine": 772,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35039,10 +35190,10 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so passes for idiomatic equivalent where the example inflects rather than repeats verbatim."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-788-validate-idiomatic-equivalents-task-10-fails-an-idiomatic-equivalent-whose-examples-never-demonstrate-it",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-790-validate-idiomatic-equivalents-task-10-fails-an-idiomatic-equivalent-whose-examples-never-demonstrate-it",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 788,
+      "sourceLine": 790,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35055,10 +35206,10 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so fails an idiomatic equivalent whose examples never demonstrate it."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-809-validate-idiomatic-equivalents-task-10-passes-for-literal-expressiontype-with-normal-examples",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-811-validate-idiomatic-equivalents-task-10-passes-for-literal-expressiontype-with-normal-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 809,
+      "sourceLine": 811,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35071,10 +35222,10 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so passes for literal expression Type with normal examples."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-817-validate-idiomatic-equivalents-task-10-still-fails-for-idiomatic-equivalent-with-empty-examples",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-819-validate-idiomatic-equivalents-task-10-still-fails-for-idiomatic-equivalent-with-empty-examples",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 817,
+      "sourceLine": 819,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35087,10 +35238,10 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior so still fails for idiomatic equivalent with empty examples."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-840-validate-idiomatic-equivalents-task-10-accepts-response-without-expressiontype-backward-compatible",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-842-validate-idiomatic-equivalents-task-10-accepts-response-without-expressiontype-backward-compatible",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 840,
+      "sourceLine": 842,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35103,10 +35254,10 @@
       "description": "Protects the core domain validate — idiomatic equivalents (Task 10) behavior: accepts response without expression Type (backward compatible)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-865-validate-alternatives-semantic-validation-passes-for-valid-alternatives",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-867-validate-alternatives-semantic-validation-passes-for-valid-alternatives",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 865,
+      "sourceLine": 867,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35119,10 +35270,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so passes for valid alternatives."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-891-validate-alternatives-semantic-validation-passes-when-alternatives-field-is-absent-backward-compatible",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-893-validate-alternatives-semantic-validation-passes-when-alternatives-field-is-absent-backward-compatible",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 891,
+      "sourceLine": 893,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35135,10 +35286,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so passes when alternatives field is absent (backward compatible)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-898-validate-alternatives-semantic-validation-passes-when-alternatives-array-is-empty",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-900-validate-alternatives-semantic-validation-passes-when-alternatives-array-is-empty",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 898,
+      "sourceLine": 900,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35151,10 +35302,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so passes when alternatives array is empty."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-915-validate-alternatives-semantic-validation-fails-when-alternative-text-equals-original",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-917-validate-alternatives-semantic-validation-fails-when-alternative-text-equals-original",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 915,
+      "sourceLine": 917,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35167,10 +35318,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so fails when alternative text equals original."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-942-validate-alternatives-semantic-validation-fails-when-alternative-contains-hallucination-pattern",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-944-validate-alternatives-semantic-validation-fails-when-alternative-contains-hallucination-pattern",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 942,
+      "sourceLine": 944,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35183,10 +35334,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior so fails when alternative contains hallucination pattern."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-965-validate-alternatives-semantic-validation-reports-correct-field-path-for-alternative-errors",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-967-validate-alternatives-semantic-validation-reports-correct-field-path-for-alternative-errors",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 965,
+      "sourceLine": 967,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35199,10 +35350,10 @@
       "description": "Protects the core domain validate — alternatives semantic validation behavior: reports correct field path for alternative errors."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1016-validate-sentence-inputtype-task-27-skips-semantic-validation-when-inputtype-is-sentence-translation-equals-original-passes",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1018-validate-sentence-inputtype-task-27-skips-semantic-validation-when-inputtype-is-sentence-translation-equals-original-passes",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1016,
+      "sourceLine": 1018,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35215,10 +35366,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior: skips semantic validation when input Type is 'sentence' — translation equals original passes."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1033-validate-sentence-inputtype-task-27-still-rejects-hallucination-patterns-when-inputtype-is-sentence",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1035-validate-sentence-inputtype-task-27-still-rejects-hallucination-patterns-when-inputtype-is-sentence",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1033,
+      "sourceLine": 1035,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35231,10 +35382,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so still rejects hallucination patterns when input Type is 'sentence'."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1049-validate-sentence-inputtype-task-27-still-runs-schema-validation-for-sentences",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1051-validate-sentence-inputtype-task-27-still-runs-schema-validation-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1049,
+      "sourceLine": 1051,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35247,10 +35398,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so still runs schema validation for sentences."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1056-validate-sentence-inputtype-task-27-still-reports-missing-language-translations-for-sentences",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1058-validate-sentence-inputtype-task-27-still-reports-missing-language-translations-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1056,
+      "sourceLine": 1058,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35263,10 +35414,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so still reports missing language translations for sentences."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1073-validate-sentence-inputtype-task-27-skips-alternatives-semantic-validation-for-sentences",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1075-validate-sentence-inputtype-task-27-skips-alternatives-semantic-validation-for-sentences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1073,
+      "sourceLine": 1075,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35279,10 +35430,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior: skips alternatives semantic validation for sentences."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1095-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-absent-backward-compatible",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1097-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-absent-backward-compatible",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1095,
+      "sourceLine": 1097,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35295,10 +35446,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so runs full semantic validation when input Type is absent (backward compatible)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1112-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-word",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1114-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-word",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1112,
+      "sourceLine": 1114,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35311,10 +35462,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so runs full semantic validation when input Type is 'word'."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1128-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-phrase",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1130-validate-sentence-inputtype-task-27-runs-full-semantic-validation-when-inputtype-is-phrase",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1128,
+      "sourceLine": 1130,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35327,10 +35478,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so runs full semantic validation when input Type is 'phrase'."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1144-validate-sentence-inputtype-task-27-passes-valid-sentence-translation-with-multiple-languages",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1146-validate-sentence-inputtype-task-27-passes-valid-sentence-translation-with-multiple-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1144,
+      "sourceLine": 1146,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35343,10 +35494,10 @@
       "description": "Protects the core domain validate — sentence input Type (Task 27) behavior so passes valid sentence translation with multiple languages."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1191-validate-with-validateoptions-skips-example-validation-when-includeexamples-is-false",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1193-validate-with-validateoptions-skips-example-validation-when-includeexamples-is-false",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1191,
+      "sourceLine": 1193,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35359,10 +35510,10 @@
       "description": "Protects the core domain validate with Validate Options behavior: skips example validation when include Examples is false."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1212-validate-with-validateoptions-still-validates-examples-when-includeexamples-is-not-set-defaults-to-true",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1214-validate-with-validateoptions-still-validates-examples-when-includeexamples-is-not-set-defaults-to-true",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1212,
+      "sourceLine": 1214,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35375,10 +35526,10 @@
       "description": "Protects the core domain validate with Validate Options behavior so still validates examples when include Examples is not set (defaults to true)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1228-validate-with-validateoptions-skips-alternatives-validation-when-includealternatives-is-false",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1230-validate-with-validateoptions-skips-alternatives-validation-when-includealternatives-is-false",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1228,
+      "sourceLine": 1230,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35391,10 +35542,10 @@
       "description": "Protects the core domain validate with Validate Options behavior: skips alternatives validation when include Alternatives is false."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1245-validate-with-validateoptions-passes-when-alternatives-are-absent-optional-field",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1247-validate-with-validateoptions-passes-when-alternatives-are-absent-optional-field",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1245,
+      "sourceLine": 1247,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35407,10 +35558,10 @@
       "description": "Protects the core domain validate with Validate Options behavior so passes when alternatives are absent (optional field)."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1261-validate-with-validateoptions-skips-both-examples-and-alternatives-when-both-are-disabled",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1263-validate-with-validateoptions-skips-both-examples-and-alternatives-when-both-are-disabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1261,
+      "sourceLine": 1263,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35423,10 +35574,10 @@
       "description": "Protects the core domain validate with Validate Options behavior: skips both examples and alternatives when both are disabled."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1280-validate-with-validateoptions-semantic-validation-still-runs-even-when-examples-alternatives-are-disabled",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1282-validate-with-validateoptions-semantic-validation-still-runs-even-when-examples-alternatives-are-disabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1280,
+      "sourceLine": 1282,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35439,10 +35590,10 @@
       "description": "Protects the core domain validate with Validate Options behavior so semantic validation still runs even when examples alternatives are disabled."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1343-validate-minimal-native-target-block-learning-language-source-skips-example-validation-for-the-native-target-block-when-source-is-a-learning-language",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1345-validate-minimal-native-target-block-learning-language-source-skips-example-validation-for-the-native-target-block-when-source-is-a-learning-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1343,
+      "sourceLine": 1345,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35455,10 +35606,10 @@
       "description": "Protects the core domain validate — minimal native target block (learning language source) behavior: skips example validation for the native target block when source is a learning language."
     },
     {
-      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1368-validate-minimal-native-target-block-learning-language-source-still-validates-examples-for-non-native-targets-when-source-is-a-learning-language",
+      "id": "packages-core-src-modules-validation-tests-validate-test-ts-1370-validate-minimal-native-target-block-learning-language-source-still-validates-examples-for-non-native-targets-when-source-is-a-learning-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/validation/__tests__/validate.test.ts",
-      "sourceLine": 1368,
+      "sourceLine": 1370,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

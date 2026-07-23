@@ -64,6 +64,8 @@ function resolveConfig(config?: TranslationOutputConfig): Required<TranslationOu
     includeConnotationWarning: config?.includeConnotationWarning !== false,
     includeNativeSynonyms: config?.includeNativeSynonyms !== false,
     includeGrammarBreakdown: config?.includeGrammarBreakdown === true,
+    includeEmoji: config?.includeEmoji !== false,
+    includeNativeMeaning: config?.includeNativeMeaning !== false,
   };
 }
 
@@ -117,7 +119,9 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
         : "target-side connotation note only when relevant",
     );
   }
-  if (nativeLangName) requestedFields.push(`nativeMeaning: a concise meaning/explanation in ${nativeLangName}`);
+  if (nativeLangName && cfg.includeNativeMeaning) {
+    requestedFields.push(`nativeMeaning: a concise meaning/explanation in ${nativeLangName}`);
+  }
   if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
   if (isLearningSource && !isSentence) {
     requestedFields.push(
@@ -131,13 +135,12 @@ export function buildTranslationPrompt(request: TranslationRequest): string {
   return `${intro}${topicHint}${negativeHint}${dictionaryHint}
 
 Return ONLY valid JSON matching the provided schema. No markdown, no explanation, no code fences.
-For each target language (${targetLangs.join(", ")}), provide: ${requestedFields.join("; ")}.
-Also include one relevant emoji.
+For each target language (${targetLangs.join(", ")}), provide: ${requestedFields.join("; ")}.${cfg.includeEmoji ? "\nAlso include one relevant emoji." : ""}
 Prefer ONE natural, accurate main translation. Do not invent extra nuance in the main translation.
 
 Rules:
 - Include all grammatically essential markers that a learner needs to use the translated word correctly — such as articles, grammatical gender, verb aspect, or other conventions specific to each target language.${buildLanguageTraitsHint(targetLangs)}${
-    nativeLangName
+    nativeLangName && cfg.includeNativeMeaning
       ? `
 - Include top-level "nativeMeaning" written in ${nativeLangName}. It must explain the original expression's meaning naturally in the user's native language, independent of the target-language translation blocks.`
       : ""
@@ -334,8 +337,11 @@ export function buildMetadataPrompt(request: TranslationRequest, assessExistence
     ? `${USER_INPUT_INJECTION_GUARD}\nThe user is translating the following sentence from ${sourceLangName} to ${targetLangNames}:\n"${text}"`
     : `${USER_INPUT_INJECTION_GUARD}\nThe user is translating "${text}" from ${sourceLangName} to ${targetLangNames}.`;
 
-  const requestedFields = ["one relevant emoji"];
-  if (nativeLangName) requestedFields.push(`nativeMeaning: a concise meaning/explanation in ${nativeLangName}`);
+  const requestedFields: string[] = [];
+  if (cfg.includeEmoji) requestedFields.push("one relevant emoji");
+  if (nativeLangName && cfg.includeNativeMeaning) {
+    requestedFields.push(`nativeMeaning: a concise meaning/explanation in ${nativeLangName}`);
+  }
   if (cfg.includeNativeSynonyms && nativeLangName) requestedFields.push(`2-3 source synonyms in ${nativeLangName}`);
   if (isLearningSource && !isSentence) {
     requestedFields.push(
@@ -362,7 +368,7 @@ Provide ONLY: ${requestedFields.join("; ")}.
 Do NOT include any translations block.
 
 Rules:${
-    nativeLangName
+    nativeLangName && cfg.includeNativeMeaning
       ? `
 - Include top-level "nativeMeaning" written in ${nativeLangName}. It must explain the original expression's meaning naturally in the user's native language, independent of any target-language translations.`
       : ""

@@ -211,9 +211,11 @@ export function buildTranslationResultSchema(
   }
 
   const includeNativeSynonyms = config?.includeNativeSynonyms !== false;
+  const includeEmoji = config?.includeEmoji !== false;
+  const includeNativeMeaning = config?.includeNativeMeaning !== false;
   return z.object({
-    emoji: z.string().min(1, "Emoji is required"),
-    ...(requireNative && { nativeMeaning: z.string().min(1, "Native meaning is required") }),
+    ...(includeEmoji && { emoji: z.string().min(1, "Emoji is required") }),
+    ...(requireNative && includeNativeMeaning && { nativeMeaning: z.string().min(1, "Native meaning is required") }),
     ...(requireSourceUsage && { sourceUsage: buildSourceUsageSchema(config, requireNative) }),
     ...(includeNativeSynonyms && { nativeSynonyms: z.array(synonymSchema) }),
     translations: z.object(langEntries),
@@ -235,9 +237,11 @@ export function buildMetadataSchema(
   assessExistence = false,
 ) {
   const includeNativeSynonyms = config?.includeNativeSynonyms !== false;
+  const includeEmoji = config?.includeEmoji !== false;
+  const includeNativeMeaning = config?.includeNativeMeaning !== false;
   return z.object({
-    emoji: z.string().min(1, "Emoji is required"),
-    ...(requireNative && { nativeMeaning: z.string().min(1, "Native meaning is required") }),
+    ...(includeEmoji && { emoji: z.string().min(1, "Emoji is required") }),
+    ...(requireNative && includeNativeMeaning && { nativeMeaning: z.string().min(1, "Native meaning is required") }),
     ...(requireSourceUsage && { sourceUsage: buildSourceUsageSchema(config, requireExampleNative) }),
     ...(includeNativeSynonyms && { nativeSynonyms: z.array(synonymSchema) }),
     ...(assessExistence && {

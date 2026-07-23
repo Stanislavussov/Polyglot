@@ -197,6 +197,45 @@ describe("validateExamples", () => {
       expect(result.errors.some((e) => e.field === "examples.0.target")).toBe(true);
     });
   });
+
+  // Severity spine (WI-A): only the low-confidence single-word first-example
+  // check carries the distinct "first-example" rule, so the service can map it —
+  // and nothing else — to advisory severity. Every other example failure keeps
+  // the blocking "examples" rule.
+  describe("rule distinction for severity mapping", () => {
+    it("tags a single-word first-example mismatch with the distinct 'first-example' rule", () => {
+      const result = validateExamples([{ context: "neutral", target: "Completely unrelated sentence." }], "ahoj");
+      expect(result.valid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].rule).toBe("first-example");
+    });
+
+    it("keeps the blocking 'examples' rule for a multi-word half-miss", () => {
+      const result = validateExamples(
+        [{ context: "neutral", target: "Vláda chce omezit používání plastů." }],
+        "postupně ukončit",
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors.every((e) => e.rule === "examples")).toBe(true);
+      expect(result.errors.some((e) => e.rule === "first-example")).toBe(false);
+    });
+
+    it("keeps the blocking 'examples' rule for no-examples and empty-target failures", () => {
+      expect(validateExamples([], "ahoj").errors.every((e) => e.rule === "examples")).toBe(true);
+      expect(
+        validateExamples([{ context: "neutral", target: "" }], "ahoj").errors.every((e) => e.rule === "examples"),
+      ).toBe(true);
+    });
+
+    it("does not fire for a single-word idiomatic equivalent (unchanged)", () => {
+      const result = validateExamples(
+        [{ context: "neutral", target: "Completely unrelated sentence." }],
+        "ahoj",
+        "idiomatic_equivalent",
+      );
+      expect(result.valid).toBe(true);
+    });
+  });
 });
 
 describe("validateSourceUsageExamples", () => {

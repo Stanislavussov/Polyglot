@@ -19,6 +19,15 @@ function esc(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/**
+ * Header emoji prefix. Optional: sentence translations omit the emoji
+ * (includeEmoji: false), so render an escaped "emoji " prefix when present and
+ * nothing (no dangling space) when absent.
+ */
+function emojiPrefix(emoji: string | undefined): string {
+  return emoji ? `${esc(emoji)} ` : "";
+}
+
 /** Resolve a string to SupportedLang with "en" fallback */
 function toLang(lang?: string): SupportedLang {
   return lang && isSupported(lang) ? lang : "en";
@@ -51,7 +60,7 @@ function renderSourceUsageBlock(
   // Prefer the canonical citation form (e.g. German "die Arbeit") when the model
   // supplied one; the raw input stays in output.original for save/dedup.
   const headword = usage.headword?.trim() ? usage.headword : output.original;
-  lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(headword)}</b>${synonyms}`);
+  lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(headword)}</b>${synonyms}`);
 
   const nativeTranslation = nativeLang ? output.translations[nativeLang] : undefined;
 
@@ -128,7 +137,7 @@ export function renderTranslation(
   if (sourceUsageLines.length > 0) {
     lines.push(...sourceUsageLines);
   } else if (!hideSourceText) {
-    lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(output.original)}</b>${nativeSyns}`);
+    lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>${nativeSyns}`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
@@ -295,7 +304,7 @@ export function renderSentenceTranslation(
 
   const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
   if (!hideSourceText) {
-    lines.push(`${esc(output.emoji)} ${sourceFlag} <b>${esc(output.original)}</b>`);
+    lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;

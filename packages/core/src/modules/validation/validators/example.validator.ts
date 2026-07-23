@@ -101,9 +101,16 @@ function checkHeadwordDemonstration(
     if (expressionType === "idiomatic_equivalent") return [];
     const first = indexed[0];
     if (first.index !== 0 || sharesExpressionToken(first.example.target, translationText)) return [];
+    // Distinct rule ("first-example", not the generic "examples") so the service
+    // can down-rank ONLY this low-confidence single-word check to advisory
+    // severity. `sameStem` needs an exact match below 5 chars and a shared
+    // 4-char prefix above it, so it over-rejects correct inflected core
+    // vocabulary (de "anrufen", pl "iść", kk "бару", ru "спать", it "essere") —
+    // a false failure here must not force needs_review. The multi-word,
+    // no-examples, and empty-target checks keep the blocking "examples" rule.
     return [
       {
-        rule: "examples",
+        rule: "first-example",
         message: `First example should demonstrate the main translation "${translationText}"`,
         field: "examples.0.target",
       },

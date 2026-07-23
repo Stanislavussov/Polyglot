@@ -121,6 +121,8 @@ describe("presets", () => {
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
       includeGrammarBreakdown: false,
+      includeEmoji: false,
+      includeNativeMeaning: false,
     });
   });
 });
@@ -462,5 +464,64 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
     expect(unwrap(output).translations.de.equivalentNote).toBeNull();
     expect(unwrap(output).translations.de.expressionType).toBeNull();
     // Transcription is still included (not disabled)
+  });
+
+  // ─── WI-B: sentences omit emoji and nativeMeaning ───
+  it("omits emoji and nativeMeaning for sentence output and never requests an emoji", async () => {
+    // Mirror a schema-constrained AI: with includeEmoji/includeNativeMeaning false
+    // the metadata schema carries neither field, so the model returns neither.
+    const mockResult = {
+      translations: {
+        de: {
+          text: "Wo ist die nächste Apotheke?",
+          synonyms: [],
+          examples: [],
+          expressionType: "literal" as const,
+        },
+      },
+    };
+
+    const mockGenerate = createTranslateMock(mockResult);
+
+    const input: TranslateInput = {
+      word: "Where is the nearest pharmacy?",
+      sourceLang: "en",
+      targetLangs: ["de"],
+      nativeLang: "ru",
+      model: "openai/gpt-4o",
+      outputConfig: SENTENCE_OUTPUT,
+      inputType: "sentence",
+    };
+
+    const output = await translate(input, mockGenerate);
+
+    // No emoji and no nativeMeaning leak onto the sentence card.
+    expect(unwrap(output).emoji).toBeUndefined();
+    expect(unwrap(output).nativeMeaning).toBeUndefined();
+
+    // The metadata prompt (first parallel call) must not ask for an emoji.
+    const metadataPrompt = mockGenerate.mock.calls[0][0] as string;
+    expect(metadataPrompt).not.toContain("one relevant emoji");
+  });
+
+  it("keeps the emoji for a word translation (word/phrase unchanged)", async () => {
+    const mockResult = {
+      emoji: "👋",
+      translations: {
+        cs: {
+          text: "ahoj",
+          synonyms: [],
+          examples: [{ context: "neutral", target: "Ahoj, jak se máš?" }],
+          expressionType: "literal" as const,
+        },
+      },
+    };
+
+    const output = await translate(
+      { word: "hello", sourceLang: "en", targetLangs: ["cs"], model: "openai/gpt-4o" },
+      createTranslateMock(mockResult),
+    );
+
+    expect(unwrap(output).emoji).toBe("👋");
   });
 });

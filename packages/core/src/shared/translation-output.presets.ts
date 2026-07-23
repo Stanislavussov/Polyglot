@@ -61,7 +61,7 @@ export const NOTIFICATION_OUTPUT: TranslationOutputConfig = {
   includeGrammarBreakdown: false,
 };
 
-/** Sentence translation — just translation text, no learning metadata */
+/** Sentence translation — just translation text, no learning metadata, no emoji/nativeMeaning */
 export const SENTENCE_OUTPUT: TranslationOutputConfig = {
   includeExamples: false,
   includeSynonyms: false,
@@ -71,4 +71,6 @@ export const SENTENCE_OUTPUT: TranslationOutputConfig = {
   includeConnotationWarning: false,
   includeNativeSynonyms: false,
   includeGrammarBreakdown: false,
+  includeEmoji: false,
+  includeNativeMeaning: false,
 };

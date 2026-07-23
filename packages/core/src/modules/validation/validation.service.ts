@@ -29,7 +29,10 @@ export function validate(
   }
 
   const parsed = raw as Record<string, unknown>;
-  if (options?.nativeLang) {
+  // nativeMeaning is required only when it was actually requested. Sentence
+  // output disables it (includeNativeMeaning: false), so requiring it there
+  // would turn a deliberately-omitted field into a blocking schema error.
+  if (options?.nativeLang && options?.includeNativeMeaning !== false) {
     const nativeMeaning = parsed.nativeMeaning;
     if (typeof nativeMeaning !== "string" || nativeMeaning.trim().length === 0) {
       allErrors.push({

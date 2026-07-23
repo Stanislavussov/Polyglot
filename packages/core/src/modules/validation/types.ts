@@ -17,6 +17,8 @@ export interface ValidateOptions {
   includeAlternatives?: boolean;
   /** When false, skip connotation warning validation. Default: true */
   includeConnotationWarning?: boolean;
+  /** When false, nativeMeaning is not required even when nativeLang is set. Default: true */
+  includeNativeMeaning?: boolean;
   /** User's native language, used for native-language-only fields. */
   nativeLang?: string;
   /** Source language, used to validate same-language learning blocks. */

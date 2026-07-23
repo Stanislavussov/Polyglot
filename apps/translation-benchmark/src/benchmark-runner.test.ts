@@ -151,13 +151,12 @@ describe("runTranslationBenchmark", () => {
         },
       },
     });
-    // With parallel calls, attempt 1 is metadata, attempt 2 is the language block
+    // With parallel calls, attempt 1 is metadata, attempt 2 is the language block.
+    // For sentence output the metadata schema requests neither emoji nor
+    // nativeMeaning (WI-B), so the parsed metadata response is empty.
     expect(report.results[0]?.attempts[0]).toMatchObject({
       attempt: 1,
-      response: {
-        emoji: "✅",
-        nativeMeaning: "České vysvětlení významu.",
-      },
+      response: {},
     });
     expect(report.results[0]?.attempts[1]).toMatchObject({
       attempt: 2,
