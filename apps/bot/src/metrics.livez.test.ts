@@ -101,4 +101,16 @@ describe("/livez endpoint (Phase 1a)", () => {
     const { values } = await runnerDeathCounter.get();
     expect(values[0]?.value).toBe(1);
   });
+
+  it("responds 200 even when the injected DB ping rejects — /livez must never depend on the database (Neon auto-suspend)", async () => {
+    const rejectingDb = () => Promise.reject(new Error("db down"));
+    setRunnerHandle({ isRunning: () => true });
+    server = startMetricsServer(rejectingDb, 0);
+    const port = await listeningPort(server);
+
+    const res = await httpGet(`http://127.0.0.1:${port}/livez`);
+
+    expect(res.status).toBe(200);
+    expect(JSON.parse(res.body)).toMatchObject({ status: "ok" });
+  });
 });

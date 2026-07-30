@@ -213,8 +213,9 @@ export function startMetricsServer(pingDb: () => Promise<void> = pingDatabase, p
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify(result));
     } else if (req.url === "/livez") {
-      // Liveness for autoheal (Phase 1a): 503 only on a dead runner or a dead DB.
-      const result = await checkLiveness(pingDb);
+      // Liveness for autoheal (Phase 1a): 503 only on a dead runner. DB-independent
+      // by design so Neon serverless Postgres can auto-suspend between probes.
+      const result = await checkLiveness();
       if (result.status === "ok") {
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
