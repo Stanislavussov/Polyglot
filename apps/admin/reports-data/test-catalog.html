@@ -175,7 +175,7 @@
   </head>
   <body>
     <header>
-      <p class="generated">Generated 2026-07-23T18:52:45.710Z</p>
+      <p class="generated">Generated 2026-07-30T19:42:59.928Z</p>
       <h1>Polyglot Test Catalog</h1>
       <p class="summary">
         Business-readable inventory of automated scenarios. Open a scenario to see the suite, source file, and the behavior it protects.
@@ -2184,55 +2184,55 @@
           <td><code>apps/bot/src/health.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-332">Bot bot liveness ( livez, Phase 1a) stays healthy on a single DB failure but trips after LIVEZ DB FAIL STREAK consecutive failures</a></td>
+          <td><a href="#scenario-332">Bot bot liveness ( livez, Phase 1a) is DB independent: a running runner is healthy with no DB ever injected (Neon can auto suspend)</a></td>
           <td>technical</td>
           <td>bot liveness (/livez, Phase 1a)</td>
           <td><code>apps/bot/src/health.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-333">Bot bot liveness ( livez, Phase 1a) resets the DB failure streak on any success mid streak</a></td>
+          <td><a href="#scenario-333">Bot bot liveness ( livez, Phase 1a) flags the first runner dead check as a new death (edge trigger for bot runner death detected total)</a></td>
           <td>technical</td>
           <td>bot liveness (/livez, Phase 1a)</td>
           <td><code>apps/bot/src/health.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-334">Bot bot liveness ( livez, Phase 1a) flags the first runner dead check as a new death (edge trigger for bot runner death detected total)</a></td>
+          <td><a href="#scenario-334">Bot bot liveness ( livez, Phase 1a) does not flag a second consecutive runner dead check as a new death (still dead, not a second death)</a></td>
           <td>technical</td>
           <td>bot liveness (/livez, Phase 1a)</td>
           <td><code>apps/bot/src/health.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-335">Bot bot liveness ( livez, Phase 1a) does not flag a second consecutive runner dead check as a new death (still dead, not a second death)</a></td>
+          <td><a href="#scenario-335">Bot bot liveness ( livez, Phase 1a) flags a new death again after recovering and dying a second time</a></td>
           <td>technical</td>
           <td>bot liveness (/livez, Phase 1a)</td>
           <td><code>apps/bot/src/health.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-336">Bot bot liveness ( livez, Phase 1a) flags a new death again after recovering and dying a second time</a></td>
-          <td>technical</td>
-          <td>bot liveness (/livez, Phase 1a)</td>
-          <td><code>apps/bot/src/health.test.ts</code></td>
-        </tr>
-        <tr class="technical">
-          <td><a href="#scenario-337">Bot livez endpoint (Phase 1a) responds 503 when the injected runner reports it has stopped running (dead poller)</a></td>
+          <td><a href="#scenario-336">Bot livez endpoint (Phase 1a) responds 503 when the injected runner reports it has stopped running (dead poller)</a></td>
           <td>technical</td>
           <td>/livez endpoint (Phase 1a)</td>
           <td><code>apps/bot/src/metrics.livez.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-338">Bot livez endpoint (Phase 1a) responds 200 when the runner is running and idle</a></td>
+          <td><a href="#scenario-337">Bot livez endpoint (Phase 1a) responds 200 when the runner is running and idle</a></td>
           <td>technical</td>
           <td>/livez endpoint (Phase 1a)</td>
           <td><code>apps/bot/src/metrics.livez.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-339">Bot livez endpoint (Phase 1a) responds 200 before any runner handle is set (booting) without a 500</a></td>
+          <td><a href="#scenario-338">Bot livez endpoint (Phase 1a) responds 200 before any runner handle is set (booting) without a 500</a></td>
           <td>technical</td>
           <td>/livez endpoint (Phase 1a)</td>
           <td><code>apps/bot/src/metrics.livez.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-340">Bot livez endpoint (Phase 1a) increments bot runner death detected total once per death, not once per probe while still dead</a></td>
+          <td><a href="#scenario-339">Bot livez endpoint (Phase 1a) increments bot runner death detected total once per death, not once per probe while still dead</a></td>
+          <td>technical</td>
+          <td>/livez endpoint (Phase 1a)</td>
+          <td><code>apps/bot/src/metrics.livez.test.ts</code></td>
+        </tr>
+        <tr class="technical">
+          <td><a href="#scenario-340">Bot livez endpoint (Phase 1a) responds 200 even when the injected DB ping rejects — livez must never depend on the database (Neon auto suspend)</a></td>
           <td>technical</td>
           <td>/livez endpoint (Phase 1a)</td>
           <td><code>apps/bot/src/metrics.livez.test.ts</code></td>
@@ -17065,19 +17065,10 @@
                     <code>apps/bot/src/health.test.ts</code>
                     <span>bot liveness (/livez, Phase 1a)</span>
                   </div>
-                  <h3>Bot bot liveness ( livez, Phase 1a) stays healthy on a single DB failure but trips after LIVEZ DB FAIL STREAK consecutive failures</h3>
-                  <p>Protects the bot bot liveness ( livez, Phase 1a) behavior so stays healthy on a single DB failure but trips after LIVEZ DB FAIL STREAK consecutive failures.</p>
+                  <h3>Bot bot liveness ( livez, Phase 1a) is DB independent: a running runner is healthy with no DB ever injected (Neon can auto suspend)</h3>
+                  <p>Protects the bot bot liveness ( livez, Phase 1a) behavior so is DB independent: a running runner is healthy with no DB ever injected (Neon can auto suspend).</p>
                 </article>
                 <article id="scenario-333" class="scenario">
-                  <div class="scenario-meta">
-                    <strong>technical</strong>
-                    <code>apps/bot/src/health.test.ts</code>
-                    <span>bot liveness (/livez, Phase 1a)</span>
-                  </div>
-                  <h3>Bot bot liveness ( livez, Phase 1a) resets the DB failure streak on any success mid streak</h3>
-                  <p>Protects the bot bot liveness ( livez, Phase 1a) behavior so resets the DB failure streak on any success mid streak.</p>
-                </article>
-                <article id="scenario-334" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>apps/bot/src/health.test.ts</code>
@@ -17086,7 +17077,7 @@
                   <h3>Bot bot liveness ( livez, Phase 1a) flags the first runner dead check as a new death (edge trigger for bot runner death detected total)</h3>
                   <p>Protects the bot bot liveness ( livez, Phase 1a) behavior so flags the first runner dead check as a new death (edge trigger for bot runner death detected total).</p>
                 </article>
-                <article id="scenario-335" class="scenario">
+                <article id="scenario-334" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>apps/bot/src/health.test.ts</code>
@@ -17095,7 +17086,7 @@
                   <h3>Bot bot liveness ( livez, Phase 1a) does not flag a second consecutive runner dead check as a new death (still dead, not a second death)</h3>
                   <p>Protects the bot bot liveness ( livez, Phase 1a) behavior: does not flag a second consecutive runner dead check as a new death (still dead, not a second death).</p>
                 </article>
-                <article id="scenario-336" class="scenario">
+                <article id="scenario-335" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>apps/bot/src/health.test.ts</code>
@@ -17104,7 +17095,7 @@
                   <h3>Bot bot liveness ( livez, Phase 1a) flags a new death again after recovering and dying a second time</h3>
                   <p>Protects the bot bot liveness ( livez, Phase 1a) behavior so flags a new death again after recovering and dying a second time.</p>
                 </article>
-                <article id="scenario-337" class="scenario">
+                <article id="scenario-336" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>apps/bot/src/metrics.livez.test.ts</code>
@@ -17113,7 +17104,7 @@
                   <h3>Bot livez endpoint (Phase 1a) responds 503 when the injected runner reports it has stopped running (dead poller)</h3>
                   <p>Protects the bot livez endpoint (Phase 1a) behavior so responds 503 when the injected runner reports it has stopped running (dead poller).</p>
                 </article>
-                <article id="scenario-338" class="scenario">
+                <article id="scenario-337" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>apps/bot/src/metrics.livez.test.ts</code>
@@ -17122,7 +17113,7 @@
                   <h3>Bot livez endpoint (Phase 1a) responds 200 when the runner is running and idle</h3>
                   <p>Protects the bot livez endpoint (Phase 1a) behavior so responds 200 when the runner is running and idle.</p>
                 </article>
-                <article id="scenario-339" class="scenario">
+                <article id="scenario-338" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>apps/bot/src/metrics.livez.test.ts</code>
@@ -17131,7 +17122,7 @@
                   <h3>Bot livez endpoint (Phase 1a) responds 200 before any runner handle is set (booting) without a 500</h3>
                   <p>Protects the bot livez endpoint (Phase 1a) behavior so responds 200 before any runner handle is set (booting) without a 500.</p>
                 </article>
-                <article id="scenario-340" class="scenario">
+                <article id="scenario-339" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>apps/bot/src/metrics.livez.test.ts</code>
@@ -17139,6 +17130,15 @@
                   </div>
                   <h3>Bot livez endpoint (Phase 1a) increments bot runner death detected total once per death, not once per probe while still dead</h3>
                   <p>Protects the bot livez endpoint (Phase 1a) behavior so increments bot runner death detected total once per death, not once per probe while still dead.</p>
+                </article>
+                <article id="scenario-340" class="scenario">
+                  <div class="scenario-meta">
+                    <strong>technical</strong>
+                    <code>apps/bot/src/metrics.livez.test.ts</code>
+                    <span>/livez endpoint (Phase 1a)</span>
+                  </div>
+                  <h3>Bot livez endpoint (Phase 1a) responds 200 even when the injected DB ping rejects — livez must never depend on the database (Neon auto suspend)</h3>
+                  <p>Protects the bot livez endpoint (Phase 1a) behavior so responds 200 even when the injected DB ping rejects — livez must never depend on the database (Neon auto suspend).</p>
                 </article>
                 <article id="scenario-341" class="scenario">
                   <div class="scenario-meta">

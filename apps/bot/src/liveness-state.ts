@@ -1,7 +1,7 @@
 /**
  * Threshold-free liveness state (Phase 1a). A leaf module holding the raw
- * signals `/livez` reads: the grammY runner handle (null until boot), the
- * shutting-down flag, and the consecutive DB-probe failure streak.
+ * signals `/livez` reads: the grammY runner handle (null until boot) and the
+ * shutting-down flag.
  *
  * It imports nothing from health/metrics/index/shutdown so it can never close an
  * import cycle — every other module depends on it, not the other way round.
@@ -14,7 +14,6 @@ export interface LivenessRunner {
 
 let runnerHandle: LivenessRunner | null = null;
 let shuttingDown = false;
-let dbFailStreak = 0;
 
 /** Records the runner handle once the runner has been started (see index.ts). */
 export function setRunnerHandle(handle: LivenessRunner): void {
@@ -35,23 +34,7 @@ export function isShuttingDown(): boolean {
   return shuttingDown;
 }
 
-/**
- * Records a DB-probe outcome and returns the current consecutive-failure streak.
- * A success resets the streak to zero; a failure increments it. Callers compare
- * the returned streak against a threshold to decide whether the DB is dead.
- *
- * Assumes a single liveness prober (the Docker HEALTHCHECK hitting `/livez` on
- * its own cadence). The "N consecutive" semantics are not safe under concurrent
- * probers — two callers racing `recordDbProbe` would interleave and corrupt the
- * streak (e.g. a genuine 3-in-a-row failure could be masked by an interleaved
- * success from the other prober, or vice versa).
- */
-export function recordDbProbe(ok: boolean): number {
-  dbFailStreak = ok ? 0 : dbFailStreak + 1;
-  return dbFailStreak;
-}
-
-type LivenessReason = "ok" | "runner_dead" | "db_dead";
+type LivenessReason = "ok" | "runner_dead";
 
 let lastLivenessReason: LivenessReason = "ok";
 
@@ -72,6 +55,5 @@ export function recordLivenessReason(reason: LivenessReason): boolean {
 export function resetLivenessState(): void {
   runnerHandle = null;
   shuttingDown = false;
-  dbFailStreak = 0;
   lastLivenessReason = "ok";
 }
