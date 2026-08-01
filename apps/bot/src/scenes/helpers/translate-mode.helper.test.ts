@@ -690,6 +690,36 @@ describe("handleTranslateText — context enrichment", () => {
     );
   });
 
+  it("post-clarify: sends the re-translation as a NEW card and never edits the previous card in place", async () => {
+    const ctx = createMockCtx({
+      pendingPostTranslationClarifyMsgId: 55,
+      translationMap: {
+        "55": {
+          output: {
+            original: "bank",
+            sourceLang: "en",
+            nativeSynonyms: [],
+            translations: { cs: { text: "banka", synonyms: [], examples: [] } },
+          },
+          inputType: "word",
+          addedAt: 1,
+        },
+      } as never,
+    });
+
+    await handleTranslationClarificationContextText(ctx, "money");
+
+    // The clarified translation is a new card; the previous card (id 55) is left
+    // untouched as a snapshot (no in-place editMessageText).
+    expect(ctx.reply).toHaveBeenCalled();
+    expect(ctx.api.editMessageText).not.toHaveBeenCalled();
+    const ids = Object.keys(ctx.session.translationMap ?? {});
+    expect(ids).toContain("55");
+    // The mock reply resolves to message_id 1 → a new snapshot entry is stored.
+    expect(ids).toContain("1");
+    expect(ctx.session.pendingPostTranslationClarifyMsgId).toBeUndefined();
+  });
+
   it("retries with the selected source language and user-language targets", async () => {
     const ctx = createMockCtx(
       {
