@@ -203,6 +203,30 @@ describe("onboarding", () => {
       expect(repo.updateActiveMode).toHaveBeenCalledWith(1, "translate");
     });
 
+    it("completes without crashing when ctx.session is undefined (replayed/re-entered context)", async () => {
+      const { conversation, ctx } = setup([
+        cb("lang:ru"),
+        cb("learn:cs"),
+        cb("learn:done"),
+        cb("level:cs:B1"),
+        txt("hello"),
+      ]);
+      // Simulate a re-entered/replayed conversation context (e.g. stale-onboarding
+      // recovery) where the outer session middleware never populated ctx.session.
+      // The tail of onboarding() mutates ctx.session directly and used to crash
+      // with "Cannot set properties of undefined (setting 'activeMode')",
+      // aborting completion right before the DB persist and completion log.
+      ctx.session = undefined;
+
+      await expect(onboarding(conversation, ctx)).resolves.toBeUndefined();
+
+      // Completion still reaches the DB (the source of truth) — the in-memory
+      // session write is skipped but the mode is persisted and re-hydrated by
+      // authMiddleware on the next update.
+      expect(repo.markOnboarded).toHaveBeenCalledWith(1);
+      expect(repo.updateActiveMode).toHaveBeenCalledWith(1, "translate");
+    });
+
     it("demo step shows result immediately without Save/Skip prompt", async () => {
       const { conversation, ctx } = setup([
         cb("lang:en"),

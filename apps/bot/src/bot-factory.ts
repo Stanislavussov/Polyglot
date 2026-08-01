@@ -84,6 +84,7 @@ import {
   handleSrsRestart,
   handleSrsReveal,
 } from "./scenes/helpers/srs.helper.js";
+import { handleStaleOnboardingCallback } from "./scenes/helpers/stale-onboarding.helper.js";
 import { handleBuyPlanCallback, handleUpgradePromptCallback } from "./scenes/helpers/subscription.helper.js";
 import {
   handleBackCallback,
@@ -162,7 +163,11 @@ async function exitActiveConversations(ctx: BotContext, next: NextFunction): Pro
   if (ctx.callbackQuery?.data) {
     const data = ctx.callbackQuery.data;
     const isConversationCallback =
-      data.startsWith("report:") || data.startsWith("onb:") || data.startsWith("learn:") || data.startsWith("lang:");
+      data.startsWith("report:") ||
+      data.startsWith("onb:") ||
+      data.startsWith("learn:") ||
+      data.startsWith("lang:") ||
+      data.startsWith("level:");
     if (!isConversationCallback) {
       for (const id of Object.keys(active)) {
         await ctx.conversation.exit(id);
@@ -280,6 +285,11 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   // Inert loading button shown while a long operation runs.
   bot.callbackQuery(NOOP_CALLBACK, (ctx) => ctx.answerCallbackQuery());
+
+  // Recover onboarding buttons whose conversation already ended (wait timeout /
+  // force-exit). A live onboarding consumes these first; this only fires for a
+  // dead dialog, where the tap would otherwise match nothing and hang forever.
+  bot.callbackQuery(/^(?:lang|learn|onb|level):/, handleStaleOnboardingCallback);
 
   bot.callbackQuery("set:native", handleSetNativeCallback);
   bot.callbackQuery(/^set:native:/, handleSetNativeSelectCallback);
