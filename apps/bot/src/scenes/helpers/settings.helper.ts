@@ -125,10 +125,7 @@ export async function handleSetLearningCallback(ctx: BotContext): Promise<void> 
     .getSupportedLangs()
     .map((l) => l.code)
     .filter((code) => code !== nativeLang);
-  logger.info(
-    { userId: ctx.user.id, nativeLang, selected, offered },
-    "Settings: learning language picker opened",
-  );
+  logger.info({ userId: ctx.user.id, nativeLang, selected, offered }, "Settings: learning language picker opened");
 
   const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
   await editMessageTextOrReply(ctx, t("settingsChooseLearning", lang), {
