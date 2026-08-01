@@ -54,7 +54,11 @@ import {
   handleFcReveal,
   handleFcStart,
 } from "./scenes/helpers/flashcard.helper.js";
-import { handleLangSelectCallback, handleOutOfSetCallback } from "./scenes/helpers/out-of-set.js";
+import {
+  handleLangSelectCallback,
+  handleOutOfSetCallback,
+  handleSrcLangOverrideCallback,
+} from "./scenes/helpers/out-of-set.js";
 import {
   handleSetBackCallback,
   handleSetCloseCallback,
@@ -330,6 +334,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery(/^plan:buy:/, handleBuyPlanCallback);
   bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
   bot.callbackQuery(/^tr:langselect:/, handleLangSelectCallback);
+  bot.callbackQuery(/^tr:srclang:/, handleSrcLangOverrideCallback);
   bot.callbackQuery(/^tr:oos:/, handleOutOfSetCallback);
   bot.callbackQuery(/^tr:clarify:/, handleTranslationClarificationCallback);
 

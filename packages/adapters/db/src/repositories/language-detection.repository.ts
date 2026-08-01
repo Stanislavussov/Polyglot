@@ -17,7 +17,14 @@ function isMissingTableError(err: unknown): boolean {
 
 export interface RecordLanguageDetectionEventInput {
   userId?: number;
-  eventType: "warning_shown" | "confirmed" | "cancelled" | "detected" | "out_of_set";
+  eventType:
+    | "warning_shown"
+    | "confirmed"
+    | "cancelled"
+    | "detected"
+    | "out_of_set"
+    | "override_shown"
+    | "override_used";
   word: string;
   sourceLang?: string;
   targetLangs?: string[];

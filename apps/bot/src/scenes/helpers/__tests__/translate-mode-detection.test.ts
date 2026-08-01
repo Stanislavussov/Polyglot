@@ -148,6 +148,7 @@ function createMockCtx(): BotContext {
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
       deleteMessage: vi.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
     },
     user: { id: 1, telegramId: 123456789 },
     services: {
@@ -243,6 +244,52 @@ describe("handleTranslateText — auto-detect language direction", () => {
     await handleTranslateText(ctx, "123 🎉");
 
     expect(translateWithContext).toHaveBeenCalled();
+  });
+
+  // Feature 2 — doubtful-source override menu. Only the rare heuristic-fallback
+  // cases attach the "translate from" flag buttons; the common confident path
+  // must not.
+  const overrideCallbacks = (ctx: BotContext): string[] =>
+    vi
+      .mocked(ctx.api.editMessageReplyMarkup)
+      .mock.calls.flatMap((call) => {
+        const markup = (call[2] as { reply_markup?: { inline_keyboard?: { callback_data?: string }[][] } } | undefined)
+          ?.reply_markup;
+        return (markup?.inline_keyboard ?? []).flat();
+      })
+      .map((btn) => btn.callback_data ?? "")
+      .filter((data) => data.startsWith("tr:srclang:"));
+
+  it("attaches the source-override menu when detection is a weak-ambiguity guess", async () => {
+    const ambiguous = {
+      language: undefined,
+      confidence: 0,
+      ambiguousCandidates: ["cs", "en"],
+      evidence: [{ strategy: "franc", candidate: "cs", score: 0.5, reason: "mock" }],
+    };
+    vi.mocked(detectLanguageWithConfidence).mockReturnValueOnce(ambiguous);
+    vi.mocked(detectLanguageWithConfidenceAsync).mockResolvedValueOnce(ambiguous);
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "pero");
+
+    const overrides = overrideCallbacks(ctx);
+    expect(overrides.length).toBeGreaterThan(0);
+    // Offers the user's other languages (native ru + learning cs/en) as forced
+    // sources, and records the "shown" telemetry event.
+    expect(vi.mocked(ctx.services.languageDetectionRepository.record)).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: "override_shown" }),
+    );
+  });
+
+  it("does NOT attach the source-override menu on a confident detection", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "привет");
+
+    expect(overrideCallbacks(ctx)).toHaveLength(0);
+    expect(vi.mocked(ctx.services.languageDetectionRepository.record)).not.toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: "override_shown" }),
+    );
   });
 });
 

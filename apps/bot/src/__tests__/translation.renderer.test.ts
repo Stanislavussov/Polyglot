@@ -535,6 +535,42 @@ describe("buildTranslationKeyboard", () => {
     const kb = buildTranslationKeyboard("en");
     expect(cbData(lastRow(kb)[0])).toBe("tr:save:0");
   });
+
+  it("omits the source-override rows when no override languages are given", () => {
+    const kb = buildTranslationKeyboard("en", 42);
+    const hasOverride = kb.inline_keyboard.some((row) => row.some((b) => cbData(b)?.startsWith("tr:srclang:")));
+    expect(hasOverride).toBe(false);
+  });
+
+  it("omits the source-override rows when the override language list is empty", () => {
+    const kb = buildTranslationKeyboard("en", 42, false, false, false, false, []);
+    const hasOverride = kb.inline_keyboard.some((row) => row.some((b) => cbData(b)?.startsWith("tr:srclang:")));
+    expect(hasOverride).toBe(false);
+  });
+
+  it("renders a 'translate from' header and one flag button per override language", () => {
+    const kb = buildTranslationKeyboard("en", 42, false, false, false, false, ["de", "fr"]);
+    const flat = kb.inline_keyboard.flat();
+    // The header is a non-actionable NOOP button labelled from the interface locale.
+    const header = flat.find((b) => cbData(b) === "noop");
+    expect(header?.text).toContain("Translate from");
+    expect(cbData(flat.find((b) => (b as { text?: string }).text?.includes("DE")))).toBe("tr:srclang:de:42");
+    expect(cbData(flat.find((b) => (b as { text?: string }).text?.includes("FR")))).toBe("tr:srclang:fr:42");
+  });
+
+  it("keeps the save button last even with the source-override rows present", () => {
+    const kb = buildTranslationKeyboard("en", 42, false, false, false, false, ["de", "fr"]);
+    const saveRow = lastRow(kb);
+    expect(saveRow).toHaveLength(1);
+    expect(cbData(saveRow[0])).toBe("tr:save:42");
+  });
+
+  it("wraps override flag buttons into rows of at most four", () => {
+    const kb = buildTranslationKeyboard("en", 42, false, false, false, false, ["de", "fr", "es", "it", "pl"]);
+    const flagRows = kb.inline_keyboard.filter((row) => row.every((b) => cbData(b)?.startsWith("tr:srclang:")));
+    expect(flagRows[0]).toHaveLength(4);
+    expect(flagRows[1]).toHaveLength(1);
+  });
 });
 
 describe("renderTranslation — etymology section", () => {

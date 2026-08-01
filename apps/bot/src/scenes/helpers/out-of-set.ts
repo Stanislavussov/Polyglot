@@ -203,3 +203,61 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
 
   await handleMistypeConfirmCallback(ctx);
 }
+
+/**
+ * Handles the doubtful-source override callback (tr:srclang:<code>:<mid>).
+ *
+ * Shown only on cards whose source language was a heuristic guess. The user taps
+ * a flag to force the source language; we recover the original text from the
+ * card's session entry, resolve the direction from the forced source, and hand
+ * off to the mistype-confirm pipeline — which sends a NEW card (leaving the
+ * doubtful card as a snapshot) and never re-shows the override menu.
+ */
+export async function handleSrcLangOverrideCallback(ctx: BotContext): Promise<void> {
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const forcedSource = parts[2] ?? "";
+  const msgId = parts[3] ?? "";
+
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+
+  const entry = ctx.session.translationMap?.[msgId];
+  if (!entry) {
+    await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true });
+    return;
+  }
+
+  const nativeLang = settings?.nativeLang ?? "en";
+  const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
+  const direction = resolveDirectionFromSource({ sourceLang: forcedSource, nativeLang, learningLangs });
+
+  // Defensive: the offered flags are drawn from the user's own native + learning
+  // set, so a null direction should not happen — but never crash if it does.
+  if (!direction) {
+    await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true });
+    return;
+  }
+
+  ctx.services.languageDetectionRepository
+    .record({
+      userId: ctx.user.id,
+      eventType: "override_used",
+      word: entry.output.original,
+      sourceLang: direction.sourceLang,
+      targetLangs: direction.targetLangs,
+    })
+    .catch((err: unknown) => {
+      logger.warn({ err }, "Failed to record language detection event");
+    });
+
+  ctx.session.pendingDetectedLang = undefined;
+  ctx.session.pendingWord = entry.output.original;
+  ctx.session.pendingContextHint = entry.contextHint;
+  ctx.session.pendingDirection = {
+    sourceLang: direction.sourceLang,
+    targetLangs: direction.targetLangs,
+  };
+
+  await handleMistypeConfirmCallback(ctx);
+}
