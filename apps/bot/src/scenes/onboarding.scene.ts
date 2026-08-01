@@ -58,6 +58,8 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
   let nativeLang: SupportedLang = "en";
   let learningLangs: string[] = [];
 
+  logger.info({ userId, telegramId, telegramLocale }, "Onboarding started");
+
   while (step <= 4) {
     switch (step) {
       case 1: {
@@ -65,17 +67,20 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
         // Step 1 has no back — always moves forward
         nativeLang = result;
         interfaceLang = inferInterfaceLang(nativeLang, telegramLocale);
+        logger.info({ userId, nativeLang, interfaceLang, telegramLocale }, "Onboarding: native language selected");
         await conversation.external(() => ctx.services.userRepository.updateOnboardingStep(userId, 1));
         step = 2;
         break;
       }
       case 2: {
-        const result = await stepChooseLearningLangs(conversation, ctx, interfaceLang, nativeLang);
+        const result = await stepChooseLearningLangs(conversation, ctx, interfaceLang, nativeLang, userId);
         if (result === BACK) {
+          logger.info({ userId }, "Onboarding: back from learning to native step");
           step = 1;
           break;
         }
         learningLangs = result;
+        logger.info({ userId, nativeLang, learningLangs }, "Onboarding: learning languages selected");
         await conversation.external(() => ctx.services.userRepository.updateOnboardingStep(userId, 2));
         await conversation.external(() =>
           ctx.services.userRepository.updateSettings(userId, {
@@ -91,6 +96,7 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
       case 3: {
         const result = await stepChooseProficiencyLevels(conversation, ctx, interfaceLang, learningLangs, userId);
         if (result === BACK) {
+          logger.info({ userId }, "Onboarding: back from proficiency to learning step");
           step = 2;
           break;
         }
@@ -100,6 +106,7 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
       case 4: {
         const result = await stepDemoTranslation(conversation, ctx, interfaceLang);
         if (result === BACK) {
+          logger.info({ userId }, "Onboarding: back from demo to proficiency step");
           step = 3;
           break;
         }
@@ -114,9 +121,18 @@ export async function onboarding(conversation: OnboardingConversation, ctx: Conv
   // Clean up technical onboarding messages
   await cleanupTechnicalMessages(ctx);
 
-  // Activate translate mode and persist to DB so it survives restarts
-  ctx.session.activeMode = "translate";
-  ctx.session.nextSourceLang = null; // Clear on re-onboard (Task 36)
+  // Activate translate mode and persist to DB so it survives restarts.
+  // In a re-entered/replayed conversation context (e.g. after stale-onboarding
+  // recovery, 2026-08-01) ctx.session can be undefined — guard the direct
+  // mutation so completion doesn't crash with "Cannot set properties of
+  // undefined (setting 'activeMode')" (which aborted onboarding right before the
+  // completion log). The mode is persisted to the DB below and re-hydrated by
+  // authMiddleware on the next update, so this session write is a best-effort
+  // fast-path, not the source of truth.
+  if (ctx.session) {
+    ctx.session.activeMode = "translate";
+    ctx.session.nextSourceLang = null; // Clear on re-onboard (Task 36)
+  }
   await conversation.external(() => ctx.services.userRepository.updateActiveMode(userId, "translate"));
 
   // Set user-specific bot commands in their chosen interface language
@@ -179,6 +195,7 @@ async function stepChooseLearningLangs(
   ctx: ConversationContext,
   interfaceLang: SupportedLang,
   nativeLang: SupportedLang,
+  userId: number,
 ): Promise<string[] | BackAction> {
   const selected: string[] = [];
 
@@ -196,6 +213,14 @@ async function stepChooseLearningLangs(
     keyboard.text(`⬅️ ${t("back", interfaceLang)}`, "learn:back").row();
     return keyboard;
   }
+
+  // The learning list hides the native language; log the exact set offered so a
+  // future "language X is missing" report can be traced to the excluded native.
+  const offered = ctx.services.languageCache
+    .getSupportedLangs()
+    .map((l) => l.code)
+    .filter((code) => code !== nativeLang);
+  logger.info({ userId, nativeLang, offered }, "Onboarding: learning keyboard shown");
 
   const promptText = t("chooseLearningLangs", interfaceLang);
   const msg = await ctx.reply(promptText, { reply_markup: buildKeyboard() });
@@ -324,6 +349,7 @@ async function stepChooseProficiencyLevels(
     await response.answerCallbackQuery();
     await editMessageTextOrReply(response, `${promptText}\n\n✅ ${LEVEL_LABELS[selectedLevel] ?? selectedLevel}`);
 
+    logger.info({ userId, langCode, level: selectedLevel }, "Onboarding: proficiency level selected");
     await conversation.external(() => ctx.services.userRepository.setLanguageLevel(userId, langCode, selectedLevel));
   }
 

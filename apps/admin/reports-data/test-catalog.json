@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-30T19:42:59.928Z",
+  "generatedAt": "2026-08-01T10:29:15.760Z",
   "summary": {
-    "total": 2313,
+    "total": 2317,
     "business": 0,
-    "technical": 2313,
+    "technical": 2317,
     "workspaces": [
       "apps",
       "packages"
@@ -2202,10 +2202,27 @@
       "description": "Protects the bot onboarding forward only flow behavior: persists active Mode to DB after completion."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-206-onboarding-forward-only-flow-demo-step-shows-result-immediately-without-save-skip-prompt",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-206-onboarding-forward-only-flow-completes-without-crashing-when-ctx-session-is-undefined-replayed-re-entered-context",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
       "sourceLine": 206,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "onboarding",
+        "forward-only flow"
+      ],
+      "title": "completes without crashing when ctx.session is undefined (replayed/re-entered context)",
+      "rawTitle": "completes without crashing when ctx.session is undefined (replayed/re-entered context)",
+      "name": "Bot onboarding forward only flow completes without crashing when ctx session is undefined (replayed re entered context)",
+      "value": "Protects the bot onboarding forward only flow behavior so completes without crashing when ctx session is undefined (replayed re entered context).",
+      "description": "Protects the bot onboarding forward only flow behavior so completes without crashing when ctx session is undefined (replayed re entered context)."
+    },
+    {
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-230-onboarding-forward-only-flow-demo-step-shows-result-immediately-without-save-skip-prompt",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
+      "sourceLine": 230,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2219,10 +2236,10 @@
       "description": "Protects the bot onboarding forward only flow behavior so demo step shows result immediately without Save Skip prompt."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-234-onboarding-interface-language-inference-infers-interface-language-from-native-language",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-258-onboarding-interface-language-inference-infers-interface-language-from-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 234,
+      "sourceLine": 258,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2236,10 +2253,10 @@
       "description": "Protects the bot onboarding interface language inference behavior so infers interface language from native language."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-253-onboarding-interface-language-inference-uses-native-language-over-telegram-locale",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-277-onboarding-interface-language-inference-uses-native-language-over-telegram-locale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 253,
+      "sourceLine": 277,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2253,10 +2270,10 @@
       "description": "Protects the bot onboarding interface language inference behavior: uses native language over Telegram locale."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-280-onboarding-user-not-found-replies-with-error-and-does-not-proceed",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-304-onboarding-user-not-found-replies-with-error-and-does-not-proceed",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 280,
+      "sourceLine": 304,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2270,10 +2287,10 @@
       "description": "Protects the bot onboarding user not found behavior so replies with error and does not proceed."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-294-onboarding-back-navigation-back-from-step-2-returns-to-step-1-and-completes-with-new-choice",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-318-onboarding-back-navigation-back-from-step-2-returns-to-step-1-and-completes-with-new-choice",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 294,
+      "sourceLine": 318,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2287,10 +2304,10 @@
       "description": "Protects the bot onboarding back navigation behavior so back from step 2 returns to step 1 and completes with new choice."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-316-onboarding-back-navigation-back-from-step-3-returns-to-step-2-and-completes-with-new-choice",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-340-onboarding-back-navigation-back-from-step-3-returns-to-step-2-and-completes-with-new-choice",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 316,
+      "sourceLine": 340,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2304,10 +2321,10 @@
       "description": "Protects the bot onboarding back navigation behavior so back from step 3 returns to step 2 and completes with new choice."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-340-onboarding-back-navigation-supports-multiple-consecutive-backs-3-2-1-and-completes",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-364-onboarding-back-navigation-supports-multiple-consecutive-backs-3-2-1-and-completes",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 340,
+      "sourceLine": 364,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2321,10 +2338,10 @@
       "description": "Protects the bot onboarding back navigation behavior so supports multiple consecutive backs (3 → 2 → 1) and completes."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-365-onboarding-back-navigation-back-from-step-2-resets-learning-language-selection",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-389-onboarding-back-navigation-back-from-step-2-resets-learning-language-selection",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 365,
+      "sourceLine": 389,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2338,10 +2355,10 @@
       "description": "Protects the bot onboarding back navigation behavior so back from step 2 resets learning language selection."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-392-onboarding-db-calls-during-back-navigation-does-not-call-updateonboardingstep-when-going-back",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-416-onboarding-db-calls-during-back-navigation-does-not-call-updateonboardingstep-when-going-back",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 392,
+      "sourceLine": 416,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2355,10 +2372,10 @@
       "description": "Protects the bot onboarding DB calls during back navigation behavior: does not call update Onboarding Step when going back."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-413-onboarding-db-calls-during-back-navigation-calls-updatesettings-again-after-back-from-step-2-5-and-re-completing-step-2",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-437-onboarding-db-calls-during-back-navigation-calls-updatesettings-again-after-back-from-step-2-5-and-re-completing-step-2",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 413,
+      "sourceLine": 437,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2372,10 +2389,10 @@
       "description": "Protects the bot onboarding DB calls during back navigation behavior: calls update Settings again after back from step 2 5 and re completing step 2."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-442-onboarding-db-calls-during-back-navigation-calls-markonboarded-exactly-once-at-the-end",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-466-onboarding-db-calls-during-back-navigation-calls-markonboarded-exactly-once-at-the-end",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 442,
+      "sourceLine": 466,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2389,10 +2406,10 @@
       "description": "Protects the bot onboarding DB calls during back navigation behavior: calls mark Onboarded exactly once at the end."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-472-onboarding-back-button-presence-in-keyboards-step-1-keyboard-does-not-have-a-back-button",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-496-onboarding-back-button-presence-in-keyboards-step-1-keyboard-does-not-have-a-back-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 472,
+      "sourceLine": 496,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2406,10 +2423,10 @@
       "description": "Protects the bot onboarding back button presence in keyboards behavior so step 1 keyboard does NOT have a back button."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-480-onboarding-back-button-presence-in-keyboards-step-2-keyboard-has-a-back-button",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-504-onboarding-back-button-presence-in-keyboards-step-2-keyboard-has-a-back-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 480,
+      "sourceLine": 504,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2423,10 +2440,10 @@
       "description": "Protects the bot onboarding back button presence in keyboards behavior so step 2 keyboard HAS a back button."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-487-onboarding-back-button-presence-in-keyboards-step-4-enter-word-prompt-has-a-back-button",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-511-onboarding-back-button-presence-in-keyboards-step-4-enter-word-prompt-has-a-back-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 487,
+      "sourceLine": 511,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2440,10 +2457,10 @@
       "description": "Protects the bot onboarding back button presence in keyboards behavior so step 4 (enter word) prompt HAS a back button."
     },
     {
-      "id": "apps-bot-src-tests-onboarding-scene-test-ts-494-onboarding-back-button-presence-in-keyboards-step-4-demo-result-does-not-have-save-skip-buttons",
+      "id": "apps-bot-src-tests-onboarding-scene-test-ts-518-onboarding-back-button-presence-in-keyboards-step-4-demo-result-does-not-have-save-skip-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/onboarding.scene.test.ts",
-      "sourceLine": 494,
+      "sourceLine": 518,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8697,6 +8714,54 @@
       "name": "Bot handle Regen Loop passes input Type to mock Vocabulary Repository create",
       "value": "Protects the bot handle Regen Loop behavior so passes input Type to mock Vocabulary Repository create.",
       "description": "Protects the bot handle Regen Loop behavior so passes input Type to mock Vocabulary Repository create."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-stale-onboarding-helper-test-ts-23-handlestaleonboardingcallback-acknowledges-the-tap-and-re-enters-onboarding-for-a-not-yet-onboarded-user",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/stale-onboarding.helper.test.ts",
+      "sourceLine": 23,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleStaleOnboardingCallback"
+      ],
+      "title": "acknowledges the tap and re-enters onboarding for a not-yet-onboarded user",
+      "rawTitle": "acknowledges the tap and re-enters onboarding for a not-yet-onboarded user",
+      "name": "Bot handle Stale Onboarding Callback acknowledges the tap and re enters onboarding for a not yet onboarded user",
+      "value": "Protects the bot handle Stale Onboarding Callback behavior so acknowledges the tap and re enters onboarding for a not yet onboarded user.",
+      "description": "Protects the bot handle Stale Onboarding Callback behavior so acknowledges the tap and re enters onboarding for a not yet onboarded user."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-stale-onboarding-helper-test-ts-34-handlestaleonboardingcallback-only-clears-the-spinner-for-an-already-onboarded-user-no-re-entry",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/stale-onboarding.helper.test.ts",
+      "sourceLine": 34,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleStaleOnboardingCallback"
+      ],
+      "title": "only clears the spinner for an already-onboarded user (no re-entry)",
+      "rawTitle": "only clears the spinner for an already-onboarded user (no re-entry)",
+      "name": "Bot handle Stale Onboarding Callback only clears the spinner for an already onboarded user (no re entry)",
+      "value": "Protects the bot handle Stale Onboarding Callback behavior so only clears the spinner for an already onboarded user (no re entry).",
+      "description": "Protects the bot handle Stale Onboarding Callback behavior so only clears the spinner for an already onboarded user (no re entry)."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-stale-onboarding-helper-test-ts-43-handlestaleonboardingcallback-does-not-re-enter-onboarding-when-there-is-no-resolved-user",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/stale-onboarding.helper.test.ts",
+      "sourceLine": 43,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleStaleOnboardingCallback"
+      ],
+      "title": "does not re-enter onboarding when there is no resolved user",
+      "rawTitle": "does not re-enter onboarding when there is no resolved user",
+      "name": "Bot handle Stale Onboarding Callback does not re enter onboarding when there is no resolved user",
+      "value": "Protects the bot handle Stale Onboarding Callback behavior: does not re enter onboarding when there is no resolved user.",
+      "description": "Protects the bot handle Stale Onboarding Callback behavior: does not re enter onboarding when there is no resolved user."
     },
     {
       "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-232-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",

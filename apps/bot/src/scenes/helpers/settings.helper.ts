@@ -6,6 +6,7 @@ import {
   formatNotificationTime,
   getDailyWindowStart,
   isSupported,
+  logger,
   NOTIFICATION_TYPES,
   type NotificationType,
   parseNotificationMinutes,
@@ -102,6 +103,7 @@ export async function handleSetNativeSelectCallback(ctx: BotContext): Promise<vo
   const lang = await getLang(ctx);
 
   await ctx.services.userRepository.updateNativeLang(ctx.user.id, code);
+  logger.info({ userId: ctx.user.id, nativeLang: code }, "Settings: native language changed");
   await ctx.answerCallbackQuery({
     text: t("settingsNativeUpdated", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
   });
@@ -116,6 +118,17 @@ export async function handleSetLearningCallback(ctx: BotContext): Promise<void> 
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
   const selected = settings?.learningLangs ?? [];
+
+  // The picker hides the native language; log the exact offered set so a future
+  // "language X is missing" report can be traced to the excluded native.
+  const offered = ctx.services.languageCache
+    .getSupportedLangs()
+    .map((l) => l.code)
+    .filter((code) => code !== nativeLang);
+  logger.info(
+    { userId: ctx.user.id, nativeLang, selected, offered },
+    "Settings: learning language picker opened",
+  );
 
   const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
   await editMessageTextOrReply(ctx, t("settingsChooseLearning", lang), {
@@ -177,6 +190,10 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
     // Already a learning language → remove it immediately.
     selected.splice(idx, 1);
     await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
+    logger.info(
+      { userId: ctx.user.id, langCode: code, action: "remove", learningLangs: selected },
+      "Settings: learning language removed",
+    );
     await ctx.answerCallbackQuery({
       text: t("langRemoved", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
     });
@@ -230,6 +247,10 @@ export async function handleSetLearnLevelCallback(ctx: BotContext): Promise<void
     await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
   }
   await ctx.services.userRepository.setLanguageLevel(ctx.user.id, code, level);
+  logger.info(
+    { userId: ctx.user.id, langCode: code, level, learningLangs: selected },
+    "Settings: learning language added",
+  );
 
   await ctx.answerCallbackQuery({
     text: t("langAdded", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
