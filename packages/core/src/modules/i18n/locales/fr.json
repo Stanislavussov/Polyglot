@@ -15,7 +15,7 @@
   "enterWord": "✨ Super ! Saisis maintenant n'importe quel mot ou expression pour voir une traduction de démo :",
   "demoResult": "Voici ta carte de traduction :\n\n🔤 *{word}*\n\n_(la traduction IA apparaîtra ici une fois connectée)_",
   "onboardingComplete": "🎉 Configuration terminée ! Tout est prêt.\n\nUtilise /translate pour traduire des mots et des expressions.",
-  "welcomeBack": "👋 Content de te revoir ! Utilise le menu pour commencer.\n\n/translate — Traduire un mot ou une expression\n/dictionary — Dictionnaire personnel\n/settings — Paramètres de langue et de notifications",
+  "welcomeBack": "👋 Content de te revoir ! Utilise le menu pour commencer.\n\n🔤 /translate — Traduire un mot ou une expression\n📖 /dictionary — Dictionnaire personnel\n⚙️ /settings — Paramètres de langue et de notifications",
   "maxLangsReached": "⚠️ Tu peux sélectionner jusqu'à {max} langues.",
   "selectAtLeastOne": "Sélectionne au moins une langue.",
   "langAdded": "Ajouté : {lang}",
@@ -312,5 +312,9 @@
   "upgradePro": "💎 Pro",
   "subscriptionActivated": "✅ {plan} est actif jusqu'au {date}",
   "checkoutFailed": "⚠️ Impossible de démarrer le paiement. Veuillez réessayer plus tard.",
-  "upgradePrompt": "⭐ <b>Améliorez votre offre</b>\n\n<b>Free</b> : 20 traductions/mois · 3 vidéos au total\n<b>Plus</b> : traductions illimitées · 10 vidéos/mois\n<b>Pro</b> : traductions illimitées · vidéos illimitées\n\nChoisissez une offre ci-dessous. Tarifs bientôt disponibles."
+  "upgradePrompt": "⭐ <b>Améliorez votre offre</b>\n\n<b>Free</b> : 20 traductions/mois · 3 vidéos au total\n<b>Plus</b> : traductions illimitées · 10 vidéos/mois\n<b>Pro</b> : traductions illimitées · vidéos illimitées\n\nChoisissez une offre ci-dessous. Tarifs bientôt disponibles.",
+  "menuBtnDictionary": "Mots",
+  "menuBtnFlashcards": "Cartes",
+  "menuBtnVideos": "Vidéos",
+  "mainMenuHint": "☰ Le menu rapide est sous le champ de saisie : Dictionnaire, Cartes et Vidéos."
 }

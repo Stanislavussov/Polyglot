@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-01T12:23:03.367Z",
+  "generatedAt": "2026-08-04T18:47:59.393Z",
   "summary": {
-    "total": 2354,
+    "total": 2369,
     "business": 0,
-    "technical": 2354,
+    "technical": 2369,
     "workspaces": [
       "apps",
       "packages"
@@ -5281,10 +5281,42 @@
       "description": "Protects the bot bot commands behavior so exposes changes when requested for privileged audience groups."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-17-bot-commands-sets-changes-for-admin-chats-only",
+      "id": "apps-bot-src-commands-commands-test-ts-17-bot-commands-keeps-the-everyday-entry-points-out-of-the-command-list-they-live-on-the-reply-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
       "sourceLine": 17,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot commands"
+      ],
+      "title": "keeps the everyday entry points out of the command list — they live on the reply keyboard",
+      "rawTitle": "keeps the everyday entry points out of the command list — they live on the reply keyboard",
+      "name": "Bot bot commands keeps the everyday entry points out of the command list — they live on the reply keyboard",
+      "value": "Protects the bot bot commands behavior: keeps the everyday entry points out of the command list — they live on the reply keyboard.",
+      "description": "Protects the bot bot commands behavior: keeps the everyday entry points out of the command list — they live on the reply keyboard."
+    },
+    {
+      "id": "apps-bot-src-commands-commands-test-ts-25-bot-commands-prefixes-every-command-description-with-a-unique-icon",
+      "kind": "technical",
+      "filePath": "apps/bot/src/commands/commands.test.ts",
+      "sourceLine": 25,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot commands"
+      ],
+      "title": "prefixes every command description with a unique icon",
+      "rawTitle": "prefixes every command description with a unique icon",
+      "name": "Bot bot commands prefixes every command description with a unique icon",
+      "value": "Protects the bot bot commands behavior so prefixes every command description with a unique icon.",
+      "description": "Protects the bot bot commands behavior so prefixes every command description with a unique icon."
+    },
+    {
+      "id": "apps-bot-src-commands-commands-test-ts-35-bot-commands-sets-changes-for-admin-chats-only",
+      "kind": "technical",
+      "filePath": "apps/bot/src/commands/commands.test.ts",
+      "sourceLine": 35,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5297,10 +5329,10 @@
       "description": "Protects the bot bot commands behavior so sets changes for admin chats only."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-30-bot-commands-does-not-set-changes-for-product-chats",
+      "id": "apps-bot-src-commands-commands-test-ts-48-bot-commands-does-not-set-changes-for-product-chats",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
-      "sourceLine": 30,
+      "sourceLine": 48,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5313,10 +5345,10 @@
       "description": "Protects the bot bot commands behavior: does not set changes for product chats."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-76-startcommand-sets-activemode-to-translate-for-onboarded-users",
+      "id": "apps-bot-src-commands-start-test-ts-78-startcommand-sets-activemode-to-translate-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 76,
+      "sourceLine": 78,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5329,10 +5361,26 @@
       "description": "Protects the bot start Command behavior so sets active Mode to 'translate' for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-86-startcommand-persists-activemode-to-db-for-onboarded-users",
+      "id": "apps-bot-src-commands-start-test-ts-91-startcommand-re-installs-the-main-menu-keyboard-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 86,
+      "sourceLine": 91,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "startCommand"
+      ],
+      "title": "re-installs the main-menu keyboard for onboarded users",
+      "rawTitle": "re-installs the main-menu keyboard for onboarded users",
+      "name": "Bot start Command re installs the main menu keyboard for onboarded users",
+      "value": "Protects the bot start Command behavior so re installs the main menu keyboard for onboarded users.",
+      "description": "Protects the bot start Command behavior so re installs the main menu keyboard for onboarded users."
+    },
+    {
+      "id": "apps-bot-src-commands-start-test-ts-106-startcommand-persists-activemode-to-db-for-onboarded-users",
+      "kind": "technical",
+      "filePath": "apps/bot/src/commands/start.test.ts",
+      "sourceLine": 106,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5345,10 +5393,10 @@
       "description": "Protects the bot start Command behavior: persists active Mode to DB for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-94-startcommand-enters-onboarding-for-non-onboarded-users-no-mode-change",
+      "id": "apps-bot-src-commands-start-test-ts-114-startcommand-enters-onboarding-for-non-onboarded-users-no-mode-change",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 94,
+      "sourceLine": 114,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5361,10 +5409,10 @@
       "description": "Protects the bot start Command behavior so enters onboarding for non onboarded users (no mode change)."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-104-startcommand-does-nothing-when-user-is-not-in-context",
+      "id": "apps-bot-src-commands-start-test-ts-124-startcommand-does-nothing-when-user-is-not-in-context",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 104,
+      "sourceLine": 124,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5855,6 +5903,102 @@
       "name": "Bot auth Middleware does not block request when update Last Interaction fails",
       "value": "Protects the bot auth Middleware behavior: does not block request when update Last Interaction fails.",
       "description": "Protects the bot auth Middleware behavior: does not block request when update Last Interaction fails."
+    },
+    {
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-43-mainkeyboardmiddleware-sends-the-keyboard-with-a-hint-in-the-user-s-interface-language-on-first-contact",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
+      "sourceLine": 43,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mainKeyboardMiddleware"
+      ],
+      "title": "sends the keyboard with a hint in the user's interface language on first contact",
+      "rawTitle": "sends the keyboard with a hint in the user's interface language on first contact",
+      "name": "Bot main Keyboard Middleware sends the keyboard with a hint in the user's interface language on first contact",
+      "value": "Protects the bot main Keyboard Middleware behavior: sends the keyboard with a hint in the user's interface language on first contact.",
+      "description": "Protects the bot main Keyboard Middleware behavior: sends the keyboard with a hint in the user's interface language on first contact."
+    },
+    {
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-56-mainkeyboardmiddleware-marks-the-chat-so-the-hint-is-never-repeated",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
+      "sourceLine": 56,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mainKeyboardMiddleware"
+      ],
+      "title": "marks the chat so the hint is never repeated",
+      "rawTitle": "marks the chat so the hint is never repeated",
+      "name": "Bot main Keyboard Middleware marks the chat so the hint is never repeated",
+      "value": "Protects the bot main Keyboard Middleware behavior: marks the chat so the hint is never repeated.",
+      "description": "Protects the bot main Keyboard Middleware behavior: marks the chat so the hint is never repeated."
+    },
+    {
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-64-mainkeyboardmiddleware-stays-silent-for-a-chat-that-already-has-the-current-keyboard",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
+      "sourceLine": 64,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mainKeyboardMiddleware"
+      ],
+      "title": "stays silent for a chat that already has the current keyboard",
+      "rawTitle": "stays silent for a chat that already has the current keyboard",
+      "name": "Bot main Keyboard Middleware stays silent for a chat that already has the current keyboard",
+      "value": "Protects the bot main Keyboard Middleware behavior so stays silent for a chat that already has the current keyboard.",
+      "description": "Protects the bot main Keyboard Middleware behavior so stays silent for a chat that already has the current keyboard."
+    },
+    {
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-74-mainkeyboardmiddleware-re-sends-when-the-stored-version-is-older-than-the-current-layout",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
+      "sourceLine": 74,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mainKeyboardMiddleware"
+      ],
+      "title": "re-sends when the stored version is older than the current layout",
+      "rawTitle": "re-sends when the stored version is older than the current layout",
+      "name": "Bot main Keyboard Middleware re sends when the stored version is older than the current layout",
+      "value": "Protects the bot main Keyboard Middleware behavior so re sends when the stored version is older than the current layout.",
+      "description": "Protects the bot main Keyboard Middleware behavior so re sends when the stored version is older than the current layout."
+    },
+    {
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-83-mainkeyboardmiddleware-leaves-users-mid-onboarding-alone-onboarding-installs-the-keyboard-itself",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
+      "sourceLine": 83,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mainKeyboardMiddleware"
+      ],
+      "title": "leaves users mid-onboarding alone — onboarding installs the keyboard itself",
+      "rawTitle": "leaves users mid-onboarding alone — onboarding installs the keyboard itself",
+      "name": "Bot main Keyboard Middleware leaves users mid onboarding alone — onboarding installs the keyboard itself",
+      "value": "Protects the bot main Keyboard Middleware behavior so leaves users mid onboarding alone — onboarding installs the keyboard itself.",
+      "description": "Protects the bot main Keyboard Middleware behavior so leaves users mid onboarding alone — onboarding installs the keyboard itself."
+    },
+    {
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-94-mainkeyboardmiddleware-ignores-non-message-updates-which-cannot-carry-a-reply-keyboard",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
+      "sourceLine": 94,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mainKeyboardMiddleware"
+      ],
+      "title": "ignores non-message updates, which cannot carry a reply keyboard",
+      "rawTitle": "ignores non-message updates, which cannot carry a reply keyboard",
+      "name": "Bot main Keyboard Middleware ignores non message updates, which cannot carry a reply keyboard",
+      "value": "Protects the bot main Keyboard Middleware behavior: ignores non message updates, which cannot carry a reply keyboard.",
+      "description": "Protects the bot main Keyboard Middleware behavior: ignores non message updates, which cannot carry a reply keyboard."
     },
     {
       "id": "apps-bot-src-middlewares-update-metrics-test-ts-50-updatemetricsmiddleware-records-handling-duration-and-delivery-lag-for-a-text-message-update",
@@ -11002,6 +11146,102 @@
       "name": "Bot start Typing Keepalive sends typing immediately and refreshes it on an interval until stopped",
       "value": "Protects the bot start Typing Keepalive behavior: sends typing immediately and refreshes it on an interval until stopped.",
       "description": "Protects the bot start Typing Keepalive behavior: sends typing immediately and refreshes it on an interval until stopped."
+    },
+    {
+      "id": "apps-bot-src-utils-main-menu-test-ts-10-main-menu-keyboard-renders-the-three-entry-points-on-a-single-row-localized-and-icon-prefixed",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/main-menu.test.ts",
+      "sourceLine": 10,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main menu keyboard"
+      ],
+      "title": "renders the three entry points on a single row, localized and icon-prefixed",
+      "rawTitle": "renders the three entry points on a single row, localized and icon-prefixed",
+      "name": "Bot main menu keyboard renders the three entry points on a single row, localized and icon prefixed",
+      "value": "Protects the bot main menu keyboard behavior: renders the three entry points on a single row, localized and icon prefixed.",
+      "description": "Protects the bot main menu keyboard behavior: renders the three entry points on a single row, localized and icon prefixed."
+    },
+    {
+      "id": "apps-bot-src-utils-main-menu-test-ts-19-main-menu-keyboard-stays-open-instead-of-collapsing-behind-the-keyboard-icon",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/main-menu.test.ts",
+      "sourceLine": 19,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main menu keyboard"
+      ],
+      "title": "stays open instead of collapsing behind the keyboard icon",
+      "rawTitle": "stays open instead of collapsing behind the keyboard icon",
+      "name": "Bot main menu keyboard stays open instead of collapsing behind the keyboard icon",
+      "value": "Protects the bot main menu keyboard behavior so stays open instead of collapsing behind the keyboard icon.",
+      "description": "Protects the bot main menu keyboard behavior so stays open instead of collapsing behind the keyboard icon."
+    },
+    {
+      "id": "apps-bot-src-utils-main-menu-test-ts-26-main-menu-keyboard-matches-a-tap-in-every-supported-language-back-to-its-action",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/main-menu.test.ts",
+      "sourceLine": 26,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main menu keyboard"
+      ],
+      "title": "matches a tap in every supported language back to its action",
+      "rawTitle": "matches a tap in every supported language back to its action",
+      "name": "Bot main menu keyboard matches a tap in every supported language back to its action",
+      "value": "Protects the bot main menu keyboard behavior so matches a tap in every supported language back to its action.",
+      "description": "Protects the bot main menu keyboard behavior so matches a tap in every supported language back to its action."
+    },
+    {
+      "id": "apps-bot-src-utils-main-menu-test-ts-34-main-menu-keyboard-still-matches-labels-from-a-language-the-user-has-since-switched-away-from",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/main-menu.test.ts",
+      "sourceLine": 34,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main menu keyboard"
+      ],
+      "title": "still matches labels from a language the user has since switched away from",
+      "rawTitle": "still matches labels from a language the user has since switched away from",
+      "name": "Bot main menu keyboard still matches labels from a language the user has since switched away from",
+      "value": "Protects the bot main menu keyboard behavior so still matches labels from a language the user has since switched away from.",
+      "description": "Protects the bot main menu keyboard behavior so still matches labels from a language the user has since switched away from."
+    },
+    {
+      "id": "apps-bot-src-utils-main-menu-test-ts-41-main-menu-keyboard-does-not-match-an-ordinary-word-the-user-wants-translated",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/main-menu.test.ts",
+      "sourceLine": 41,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main menu keyboard"
+      ],
+      "title": "does not match an ordinary word the user wants translated",
+      "rawTitle": "does not match an ordinary word the user wants translated",
+      "name": "Bot main menu keyboard does not match an ordinary word the user wants translated",
+      "value": "Protects the bot main menu keyboard behavior: does not match an ordinary word the user wants translated.",
+      "description": "Protects the bot main menu keyboard behavior: does not match an ordinary word the user wants translated."
+    },
+    {
+      "id": "apps-bot-src-utils-main-menu-test-ts-47-main-menu-keyboard-exposes-every-label-so-bot-hears-intercepts-taps-before-translate-mode",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/main-menu.test.ts",
+      "sourceLine": 47,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main menu keyboard"
+      ],
+      "title": "exposes every label so bot.hears intercepts taps before translate mode",
+      "rawTitle": "exposes every label so bot.hears intercepts taps before translate mode",
+      "name": "Bot main menu keyboard exposes every label so bot hears intercepts taps before translate mode",
+      "value": "Protects the bot main menu keyboard behavior so exposes every label so bot hears intercepts taps before translate mode.",
+      "description": "Protects the bot main menu keyboard behavior so exposes every label so bot hears intercepts taps before translate mode."
     },
     {
       "id": "apps-bot-src-utils-parse-translate-input-test-ts-14-parsetranslateinput-parses-free-form-multi-word-context-after-a-separator",

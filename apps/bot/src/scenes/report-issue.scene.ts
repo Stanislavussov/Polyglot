@@ -2,6 +2,7 @@ import type { Conversation } from "@grammyjs/conversations";
 import { type IssueType, logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext, ConversationContext } from "../types.js";
+import { matchMainMenuAction } from "../utils/main-menu.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
@@ -72,7 +73,10 @@ async function stepEnterDescription(
     const response = await conversation.waitUntil(
       (ctx) => {
         const text = ctx.message?.text;
+        // Commands and main-menu keyboard taps are entry points, not description
+        // text — reject them so they fall through and exit this dialog instead.
         if (text?.startsWith("/")) return false;
+        if (text !== undefined && matchMainMenuAction(text) !== undefined) return false;
         return !!text || ctx.callbackQuery?.data === "report:back";
       },
       { next: true },

@@ -2,6 +2,7 @@
  * Tests for /start command handler.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MAIN_KEYBOARD_VERSION } from "../middlewares/main-keyboard.js";
 import type { BotContext, SessionData } from "../types.js";
 import { startCommand } from "./start.js";
 
@@ -19,6 +20,7 @@ const { mockLogger } = vi.hoisted(() => ({
 vi.mock("@polyglot/core", () => ({
   t: vi.fn((key: string) => `[${key}]`),
   isSupported: vi.fn(() => true),
+  getSupportedLangs: vi.fn(() => ["en"]),
   logger: mockLogger,
 }));
 
@@ -80,7 +82,25 @@ describe("startCommand", () => {
 
     expect(ctx.session.activeMode).toBe("translate");
     expect(setUserCommands).toHaveBeenCalledWith(ctx.api, 123456789, "en", "tester");
-    expect(ctx.reply).toHaveBeenCalledWith("[welcomeBack]");
+    expect(ctx.reply).toHaveBeenCalledWith(
+      "[welcomeBack]",
+      expect.objectContaining({ reply_markup: expect.objectContaining({ is_persistent: true }) }),
+    );
+  });
+
+  it("re-installs the main-menu keyboard for onboarded users", async () => {
+    const ctx = createMockCtx({ onboarded: true });
+
+    await startCommand(ctx);
+
+    expect(ctx.session.mainKeyboardVersion).toBe(MAIN_KEYBOARD_VERSION);
+    const [, options] = vi.mocked(ctx.reply).mock.calls[0] ?? [];
+    const labels = (options?.reply_markup as { keyboard: { text: string }[][] }).keyboard.flat();
+    expect(labels.map((button) => button.text)).toEqual([
+      "📖 [menuBtnDictionary]",
+      "🎴 [menuBtnFlashcards]",
+      "🎬 [menuBtnVideos]",
+    ]);
   });
 
   it("persists activeMode to DB for onboarded users", async () => {

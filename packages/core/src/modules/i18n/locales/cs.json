@@ -15,7 +15,7 @@
   "enterWord": "✨ Skvělé! Zadejte libovolné slovo nebo frázi pro ukázkový překlad:",
   "demoResult": "Zde je vaše překladová karta:\n\n🔤 *{word}*\n\n_(AI překlad se zobrazí po připojení)_",
   "onboardingComplete": "🎉 Onboarding dokončen! Jste připraveni.\n\nPoužijte /translate pro překlad slov a frází.",
-  "welcomeBack": "👋 Vítejte zpět! Použijte nabídku.\n\n/translate — Přeložit slovo nebo frázi\n/dictionary — Osobní slovník\n/settings — Nastavení jazyků a notifikací",
+  "welcomeBack": "👋 Vítejte zpět! Použijte nabídku.\n\n🔤 /translate — Přeložit slovo nebo frázi\n📖 /dictionary — Osobní slovník\n⚙️ /settings — Nastavení jazyků a notifikací",
   "maxLangsReached": "⚠️ Můžete vybrat maximálně {max} jazyků.",
   "selectAtLeastOne": "Vyberte alespoň jeden jazyk.",
   "langAdded": "Přidáno: {lang}",
@@ -312,5 +312,9 @@
   "upgradePro": "💎 Pro",
   "subscriptionActivated": "✅ {plan} je aktivní do {date}",
   "checkoutFailed": "⚠️ Platbu se nepodařilo zahájit. Zkuste to prosím později.",
-  "upgradePrompt": "⭐ <b>Vylepšete svůj tarif</b>\n\n<b>Free</b>: 20 překladů/měsíc · 3 videa celkem\n<b>Plus</b>: neomezené překlady · 10 videí/měsíc\n<b>Pro</b>: neomezené překlady · neomezená videa\n\nVyberte tarif níže. Ceny brzy."
+  "upgradePrompt": "⭐ <b>Vylepšete svůj tarif</b>\n\n<b>Free</b>: 20 překladů/měsíc · 3 videa celkem\n<b>Plus</b>: neomezené překlady · 10 videí/měsíc\n<b>Pro</b>: neomezené překlady · neomezená videa\n\nVyberte tarif níže. Ceny brzy.",
+  "menuBtnDictionary": "Slovník",
+  "menuBtnFlashcards": "Kartičky",
+  "menuBtnVideos": "Videa",
+  "mainMenuHint": "☰ Rychlé menu je pod polem pro zadávání: Slovník, Kartičky a Videa."
 }

@@ -102,6 +102,12 @@ export interface SessionData {
    */
   needsTranslateReminder?: boolean;
   /**
+   * Version of the persistent main-menu reply keyboard this chat has received.
+   * `undefined` means the keyboard was never sent, so `mainKeyboardMiddleware`
+   * delivers it with a one-time hint. Compared against MAIN_KEYBOARD_VERSION.
+   */
+  mainKeyboardVersion?: number;
+  /**
    * Template constructor wizard state (Task 32).
    * Set when user enters the template customization flow.
    * Cleared on save, cancel, or session loss.

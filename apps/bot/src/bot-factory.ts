@@ -10,6 +10,7 @@ import { startCommand } from "./commands/start.js";
 import { createContainer } from "./container.js";
 import { authMiddleware } from "./middlewares/auth.js";
 import { conversationAuthPlugin } from "./middlewares/conversation-auth.js";
+import { mainKeyboardMiddleware } from "./middlewares/main-keyboard.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { updateMetricsMiddleware } from "./middlewares/update-metrics.js";
 import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notifications/notification.callbacks.js";
@@ -120,6 +121,7 @@ import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, ConversationContext, SessionData } from "./types.js";
 import { NOOP_CALLBACK } from "./utils/long-op.js";
+import { mainMenuLabels, matchMainMenuAction } from "./utils/main-menu.js";
 
 export interface CreatePolyglotBotOptions {
   token: string;
@@ -157,7 +159,11 @@ async function exitActiveConversations(ctx: BotContext, next: NextFunction): Pro
     return next();
   }
 
-  if (ctx.message?.text?.startsWith("/")) {
+  // Main-menu keyboard taps count as external actions too: they are the commands
+  // /dictionary, /flashcard and /videos wearing a button, so they must abandon an
+  // open dialog exactly like a typed command does.
+  const text = ctx.message?.text;
+  if (text?.startsWith("/") || (text !== undefined && matchMainMenuAction(text) !== undefined)) {
     for (const id of Object.keys(active)) {
       await ctx.conversation.exit(id);
     }
@@ -273,6 +279,10 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   );
   bot.use(exitActiveConversations);
 
+  // Runs before the handlers so a user who never saw the reply keyboard gets it
+  // together with the response to the very message they just sent.
+  bot.use(mainKeyboardMiddleware);
+
   bot.command("start", startCommand);
   bot.command("translate", handleTranslateCommand);
   bot.command("mentor", handleMentorCommand);
@@ -285,6 +295,21 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.command("videos", handleVideosCommand);
   bot.command("report", async (ctx) => {
     await ctx.conversation.enter("handleReportIssue");
+  });
+
+  // Main-menu reply-keyboard taps arrive as plain text. They must be matched here,
+  // ahead of modeRouterMiddleware, or translate mode would try to translate the label.
+  bot.hears(mainMenuLabels(), async (ctx) => {
+    switch (matchMainMenuAction(ctx.msg.text ?? "")) {
+      case "dictionary":
+        return handleDictionaryCommand(ctx);
+      case "flashcard":
+        return handleFlashcardCommand(ctx);
+      case "videos":
+        return handleVideosCommand(ctx);
+      default:
+        return;
+    }
   });
 
   // Inert loading button shown while a long operation runs.

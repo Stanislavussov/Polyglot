@@ -15,7 +15,7 @@
   "enterWord": "✨ Great! Now enter any word or phrase to see a demo translation:",
   "demoResult": "Here's your translation card:\n\n🔤 *{word}*\n\n_(AI translation will appear here once connected)_",
   "onboardingComplete": "🎉 Onboarding complete! You're all set.\n\nUse /translate to translate words and phrases.",
-  "welcomeBack": "👋 Welcome back! Use the menu to get started.\n\n/translate — Translate a word or phrase\n/dictionary — Personal dictionary\n/settings — Language & notification settings",
+  "welcomeBack": "👋 Welcome back! Use the menu to get started.\n\n🔤 /translate — Translate a word or phrase\n📖 /dictionary — Personal dictionary\n⚙️ /settings — Language & notification settings",
   "maxLangsReached": "⚠️ You can select up to {max} languages.",
   "selectAtLeastOne": "Please select at least one language.",
   "langAdded": "Added: {lang}",
@@ -312,5 +312,9 @@
   "upgradePro": "💎 Pro",
   "subscriptionActivated": "✅ {plan} is active until {date}",
   "checkoutFailed": "⚠️ Couldn't start checkout. Please try again later.",
-  "upgradePrompt": "⭐ <b>Upgrade your plan</b>\n\n<b>Free</b>: 20 translations/month · 3 videos total\n<b>Plus</b>: unlimited translations · 10 videos/month\n<b>Pro</b>: unlimited translations · unlimited videos\n\nChoose a plan below. Pricing coming soon."
+  "upgradePrompt": "⭐ <b>Upgrade your plan</b>\n\n<b>Free</b>: 20 translations/month · 3 videos total\n<b>Plus</b>: unlimited translations · 10 videos/month\n<b>Pro</b>: unlimited translations · unlimited videos\n\nChoose a plan below. Pricing coming soon.",
+  "menuBtnDictionary": "Dictionary",
+  "menuBtnFlashcards": "Cards",
+  "menuBtnVideos": "Videos",
+  "mainMenuHint": "☰ Quick menu lives under the input field: Dictionary, Cards and Videos."
 }

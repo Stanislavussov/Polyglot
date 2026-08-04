@@ -15,7 +15,7 @@
   "enterWord": "✨ Super! Gib jetzt ein beliebiges Wort oder einen Satz ein, um eine Demo-Übersetzung zu sehen:",
   "demoResult": "Hier ist deine Übersetzungskarte:\n\n🔤 *{word}*\n\n_(Die KI-Übersetzung erscheint hier, sobald sie verbunden ist)_",
   "onboardingComplete": "🎉 Onboarding abgeschlossen! Alles ist bereit.\n\nNutze /translate, um Wörter und Sätze zu übersetzen.",
-  "welcomeBack": "👋 Willkommen zurück! Nutze das Menü, um loszulegen.\n\n/translate — Ein Wort oder einen Satz übersetzen\n/dictionary — Persönliches Wörterbuch\n/settings — Sprach- und Benachrichtigungseinstellungen",
+  "welcomeBack": "👋 Willkommen zurück! Nutze das Menü, um loszulegen.\n\n🔤 /translate — Ein Wort oder einen Satz übersetzen\n📖 /dictionary — Persönliches Wörterbuch\n⚙️ /settings — Sprach- und Benachrichtigungseinstellungen",
   "maxLangsReached": "⚠️ Du kannst bis zu {max} Sprachen auswählen.",
   "selectAtLeastOne": "Bitte wähle mindestens eine Sprache aus.",
   "langAdded": "Hinzugefügt: {lang}",
@@ -312,5 +312,9 @@
   "upgradePro": "💎 Pro",
   "subscriptionActivated": "✅ {plan} ist aktiv bis {date}",
   "checkoutFailed": "⚠️ Zahlung konnte nicht gestartet werden. Bitte versuche es später erneut.",
-  "upgradePrompt": "⭐ <b>Upgrade deinen Tarif</b>\n\n<b>Free</b>: 20 Übersetzungen/Monat · 3 Videos gesamt\n<b>Plus</b>: unbegrenzte Übersetzungen · 10 Videos/Monat\n<b>Pro</b>: unbegrenzte Übersetzungen · unbegrenzte Videos\n\nWähle unten einen Tarif. Preise folgen bald."
+  "upgradePrompt": "⭐ <b>Upgrade deinen Tarif</b>\n\n<b>Free</b>: 20 Übersetzungen/Monat · 3 Videos gesamt\n<b>Plus</b>: unbegrenzte Übersetzungen · 10 Videos/Monat\n<b>Pro</b>: unbegrenzte Übersetzungen · unbegrenzte Videos\n\nWähle unten einen Tarif. Preise folgen bald.",
+  "menuBtnDictionary": "Wörterbuch",
+  "menuBtnFlashcards": "Karten",
+  "menuBtnVideos": "Videos",
+  "mainMenuHint": "☰ Das Schnellmenü ist unter dem Eingabefeld: Wörterbuch, Karten und Videos."
 }

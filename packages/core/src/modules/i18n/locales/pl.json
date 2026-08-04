@@ -15,7 +15,7 @@
   "enterWord": "✨ Świetnie! Teraz wpisz dowolne słowo lub wyrażenie, aby zobaczyć przykładowe tłumaczenie:",
   "demoResult": "Oto Twoja karta tłumaczenia:\n\n🔤 *{word}*\n\n_(Tłumaczenie AI pojawi się tutaj po podłączeniu)_",
   "onboardingComplete": "🎉 Konfiguracja zakończona! Wszystko gotowe.\n\nUżyj /translate, aby tłumaczyć słowa i wyrażenia.",
-  "welcomeBack": "👋 Witaj ponownie! Skorzystaj z menu, aby zacząć.\n\n/translate — Przetłumacz słowo lub wyrażenie\n/dictionary — Osobisty słownik\n/settings — Ustawienia języków i powiadomień",
+  "welcomeBack": "👋 Witaj ponownie! Skorzystaj z menu, aby zacząć.\n\n🔤 /translate — Przetłumacz słowo lub wyrażenie\n📖 /dictionary — Osobisty słownik\n⚙️ /settings — Ustawienia języków i powiadomień",
   "maxLangsReached": "⚠️ Możesz wybrać maksymalnie {max} języków.",
   "selectAtLeastOne": "Wybierz przynajmniej jeden język.",
   "langAdded": "Dodano: {lang}",
@@ -312,5 +312,9 @@
   "upgradePro": "💎 Pro",
   "subscriptionActivated": "✅ {plan} jest aktywny do {date}",
   "checkoutFailed": "⚠️ Nie udało się rozpocząć płatności. Spróbuj ponownie później.",
-  "upgradePrompt": "⭐ <b>Ulepsz swój plan</b>\n\n<b>Free</b>: 20 tłumaczeń/miesiąc · 3 filmy łącznie\n<b>Plus</b>: tłumaczenia bez limitu · 10 filmów/miesiąc\n<b>Pro</b>: tłumaczenia bez limitu · filmy bez limitu\n\nWybierz plan poniżej. Ceny wkrótce."
+  "upgradePrompt": "⭐ <b>Ulepsz swój plan</b>\n\n<b>Free</b>: 20 tłumaczeń/miesiąc · 3 filmy łącznie\n<b>Plus</b>: tłumaczenia bez limitu · 10 filmów/miesiąc\n<b>Pro</b>: tłumaczenia bez limitu · filmy bez limitu\n\nWybierz plan poniżej. Ceny wkrótce.",
+  "menuBtnDictionary": "Słownik",
+  "menuBtnFlashcards": "Fiszki",
+  "menuBtnVideos": "Filmy",
+  "mainMenuHint": "☰ Szybkie menu jest pod polem tekstowym: Słownik, Fiszki i Filmy."
 }
