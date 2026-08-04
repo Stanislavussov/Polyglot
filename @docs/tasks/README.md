@@ -13,14 +13,15 @@
 | 26  | [Diacritics-Aware Translation](./26-diacritics-aware-translation.md) | 🔲 To Do  |
 | 29  | [Require Source Language Before Translation](./29-require-source-lang-before-translate.md) | ❌ Superseded by Task 58 |
 | 35  | [Localized Bot Command Descriptions](./35-localized-bot-commands.md) | 🟡 Partial |
-| 36  | [Fix Onboarding Back-Navigation](./36-fix-onboarding-back-navigation.md) | 🔲 To Do |
+| 36  | [Fix Onboarding Back-Navigation](./36-fix-onboarding-back-navigation.md) | ⛔ Obsolete (Task 72 replaced the flow; there is no back-navigation state left to corrupt) |
 | 37  | [Lite AI Translation Validator](./37-lite-ai-translation-validator.md) | 🟡 Partial (types/schema done, service not wired) |
-| 38  | [Fix Onboarding Demo Translation](./38-fix-onboarding-demo-translation.md) | 🔲 To Do |
+| 38  | [Fix Onboarding Demo Translation](./38-fix-onboarding-demo-translation.md) | ✅ Done via [Task 72](./72-onboarding-conversion-redesign.md) |
 | 39  | [Hide Source Lang Menu Multiple Targets](./39-hide-source-lang-menu-multiple-targets.md) | 🔲 To Do |
 | 40  | [Sync Username on Every Request](./40-sync-username-on-every-request.md) | 🔲 To Do |
 | 57  | [Source Language Examples](./57-source-lang-examples.md) | 🔲 To Do |
 | 58  | [Language Detection Pre-Request](./58-language-detection-pre-request.md) | 🔲 To Do |
 | 60  | [Context Hint Marker Mode](./60-context-hint-marker-mode.md) | ✅ Done |
+| 72  | [Onboarding Conversion Redesign](./72-onboarding-conversion-redesign.md) | ✅ Done (supersedes 38, overlaps 36) |
 
 ## Architecture — Debt Reduction
 

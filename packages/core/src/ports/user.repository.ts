@@ -50,6 +50,26 @@ export interface UserLearningLanguage {
   proficiencyLevel: string;
 }
 
+/**
+ * `notification_history.source` marking the one-off D+1 activation nudge
+ * (Task 72, slice 8).
+ *
+ * Defined once here because it is load-bearing on BOTH sides of the feature:
+ * `findActivationNudgeCandidates` excludes users that already have a row with
+ * this source, and the sweep writes exactly that row after a successful send.
+ * If the two ever drifted apart the nudge would fire on every sweep forever.
+ */
+export const ACTIVATION_NUDGE_SOURCE = "onboarding_nudge";
+
+/** One user due the D+1 activation nudge, with everything the send needs. */
+export interface ActivationNudgeCandidate {
+  userId: number;
+  telegramId: number;
+  interfaceLang: string;
+  nativeLang: string;
+  learningLangs: string[];
+}
+
 export interface UserRepository {
   findById(userId: number): Promise<User | null>;
   create(data: NewUser): Promise<User>;
@@ -83,6 +103,12 @@ export interface UserRepository {
   hasReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<boolean>;
   recordReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<void>;
   markOnboarded(userId: number): Promise<User>;
+  /**
+   * Users due the one-off D+1 activation nudge: onboarded at least 24 h before
+   * `now`, still active, with no translation since they finished and no nudge
+   * already recorded. `limit` caps one sweep's fan-out.
+   */
+  findActivationNudgeCandidates(now: Date, limit?: number): Promise<ActivationNudgeCandidate[]>;
   updateOnboardingStep(userId: number, step: number): Promise<User>;
   getLanguageLevels(userId: number): Promise<UserLearningLanguage[]>;
   setLanguageLevel(userId: number, languageCode: string, proficiencyLevel: string): Promise<void>;

@@ -323,6 +323,27 @@
       "when": 1783263308896,
       "tag": "0045_thick_beyonder",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1785600588177,
+      "tag": "0046_strange_killer_shrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1785601227038,
+      "tag": "0047_greedy_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1785866923689,
+      "tag": "0048_wealthy_speed",
+      "breakpoints": true
     }
   ]
 }

@@ -13,6 +13,7 @@
  * message). A benign "message is not modified" rejection stays a silent no-op.
  */
 import { GrammyError } from "grammy";
+import type { Message } from "grammy/types";
 import type { BotContext, ConversationContext } from "../../types.js";
 
 /**
@@ -58,19 +59,24 @@ function isMessageNotModified(err: unknown): boolean {
  * to edit, send the same text + keyboard as a fresh message instead. A benign
  * "message is not modified" error is swallowed. Any other error is rethrown so
  * the global bot-error handler can see genuine failures.
+ *
+ * Returns the **newly sent** message when it had to fall back, and `undefined`
+ * when the edit succeeded (or was a no-op). Callers that track their prompts for
+ * later cleanup need this: a fallback creates a message id nobody else knows
+ * about, and an untracked prompt is one that can never be swept.
  */
 export async function editMessageTextOrReply(
   ctx: EditableContext,
   text: string,
   options?: EditOrReplyOptions,
-): Promise<void> {
+): Promise<Message.TextMessage | undefined> {
   try {
     await ctx.editMessageText(text, options);
+    return undefined;
   } catch (err) {
-    if (isMessageNotModified(err)) return;
+    if (isMessageNotModified(err)) return undefined;
     if (isEditImpossible(err)) {
-      await ctx.reply(text, options);
-      return;
+      return await ctx.reply(text, options);
     }
     throw err;
   }

@@ -13,6 +13,7 @@ import { aiModelRoutes } from "./routes/ai-models.js";
 import { authRoutes } from "./routes/auth.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
 import { notificationRoutes } from "./routes/notifications.js";
+import { onboardingDemoCardRoutes } from "./routes/onboarding-demo-cards.js";
 import { presetRoutes } from "./routes/presets.js";
 import { rateLimitRoutes } from "./routes/rate-limits.js";
 import { reportedIssueRoutes } from "./routes/reported-issues.js";
@@ -81,6 +82,7 @@ export async function buildAdminApiApp() {
   await app.register(presetRoutes, { prefix: "/api/settings" });
   await app.register(userRoutes, { prefix: "/api" });
   await app.register(reportedIssueRoutes, { prefix: "/api" });
+  await app.register(onboardingDemoCardRoutes, { prefix: "/api" });
   await app.register(statsRoutes, { prefix: "/api" });
 
   return app;

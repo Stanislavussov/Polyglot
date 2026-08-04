@@ -199,6 +199,57 @@ export const requestStats = {
   getUserRequestCounts: (days = 30) => get<UserRequestCountsResponse>(`/api/stats/user-request-counts?days=${days}`),
 };
 
+/** One (furthest step reached, completed?) bucket of the onboarding funnel (Task 72). */
+export interface OnboardingFunnelRow {
+  step: number;
+  onboarded: boolean;
+  count: number;
+}
+
+export const onboardingFunnel = {
+  list: () => get<OnboardingFunnelRow[]>("/api/stats/onboarding-funnel"),
+};
+
+/** A cached onboarding hook card awaiting (or holding) review approval (Task 72). */
+export interface OnboardingDemoCard {
+  id: number;
+  sourceLang: string;
+  nativeLang: string;
+  headword: string;
+  payload: Record<string, unknown>;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface OnboardingDemoCardCounts {
+  cached: number;
+  active: number;
+}
+
+export interface OnboardingDemoCardListResponse {
+  cards: OnboardingDemoCard[];
+  total: number;
+  page: number;
+  limit: number;
+  counts: OnboardingDemoCardCounts;
+}
+
+export const onboardingDemoCards = {
+  list: (page = 1, limit = 20, isActive: "true" | "false" | "" = "", search = "") => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (isActive) params.set("isActive", isActive);
+    if (search) params.set("search", search);
+    return get<OnboardingDemoCardListResponse>(`/api/onboarding-demo-cards?${params.toString()}`);
+  },
+  /**
+   * Publish or un-publish a card. Keyed by the natural triple rather than the row
+   * id — that is what the bot looks up and what the warm-up script writes.
+   */
+  setActive: (card: Pick<OnboardingDemoCard, "sourceLang" | "nativeLang" | "headword">, isActive: boolean) =>
+    put<{ isActive: boolean }>("/api/onboarding-demo-cards/active", { ...card, isActive }),
+};
+
 export interface LanguageDetectionDaySummary {
   date: string;
   warningShown: number;

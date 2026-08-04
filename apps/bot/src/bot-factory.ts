@@ -14,6 +14,14 @@ import { mainKeyboardMiddleware } from "./middlewares/main-keyboard.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { updateMetricsMiddleware } from "./middlewares/update-metrics.js";
 import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notifications/notification.callbacks.js";
+import { handleNudgeCardCallback, NUDGE_CALLBACK_PATTERN } from "./onboarding/activation-nudge.callbacks.js";
+import {
+  handleLegacyOnboardingCallback,
+  handleOnboardingCallback,
+  LEGACY_ONBOARDING_CALLBACK_PATTERN,
+  ONBOARDING_CALLBACK_PATTERN,
+  onboardingTextMiddleware,
+} from "./onboarding/onboarding-handlers.js";
 import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
 import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
 import {
@@ -60,6 +68,7 @@ import {
   handleOutOfSetCallback,
   handleSrcLangOverrideCallback,
 } from "./scenes/helpers/out-of-set.js";
+import { handleRetryCallback } from "./scenes/helpers/retry.helper.js";
 import {
   handleSetBackCallback,
   handleSetCloseCallback,
@@ -89,7 +98,6 @@ import {
   handleSrsRestart,
   handleSrsReveal,
 } from "./scenes/helpers/srs.helper.js";
-import { handleStaleOnboardingCallback } from "./scenes/helpers/stale-onboarding.helper.js";
 import { handleBuyPlanCallback, handleUpgradePromptCallback } from "./scenes/helpers/subscription.helper.js";
 import {
   handleBackCallback,
@@ -111,9 +119,10 @@ import {
   handleVideoSaveAllCallback,
   handleVideoSavePhraseCallback,
   handleVideosCommand,
+  handleVideoTryCallback,
+  VIDEO_TRY_PATTERN,
 } from "./scenes/helpers/video-vocabulary.helper.js";
 import { handleMentorCommand } from "./scenes/mentor.scene.js";
-import { onboarding } from "./scenes/onboarding.scene.js";
 import { handleReportIssue } from "./scenes/report-issue.scene.js";
 import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleReviewCommand } from "./scenes/srs.scene.js";
@@ -122,6 +131,7 @@ import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, ConversationContext, SessionData } from "./types.js";
 import { NOOP_CALLBACK } from "./utils/long-op.js";
 import { mainMenuLabels, matchMainMenuAction } from "./utils/main-menu.js";
+import { RETRY_CALLBACK } from "./utils/retry-action.js";
 
 export interface CreatePolyglotBotOptions {
   token: string;
@@ -172,12 +182,10 @@ async function exitActiveConversations(ctx: BotContext, next: NextFunction): Pro
 
   if (ctx.callbackQuery?.data) {
     const data = ctx.callbackQuery.data;
-    const isConversationCallback =
-      data.startsWith("report:") ||
-      data.startsWith("onb:") ||
-      data.startsWith("learn:") ||
-      data.startsWith("lang:") ||
-      data.startsWith("level:");
+    // Only the report flow is still a grammY conversation; onboarding's `onb:`
+    // taps are ordinary handlers and must force-exit a stale dialog like any
+    // other external action.
+    const isConversationCallback = data.startsWith("report:");
     if (!isConversationCallback) {
       for (const id of Object.keys(active)) {
         await ctx.conversation.exit(id);
@@ -266,12 +274,6 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
     return next();
   };
   bot.use(
-    createConversation(onboarding, {
-      plugins: [injectServicesPlugin],
-      maxMillisecondsToWait: CONVERSATION_WAIT_TIMEOUT_MS,
-    }),
-  );
-  bot.use(
     createConversation(handleReportIssue, {
       plugins: [injectServicesPlugin, conversationAuthPlugin()],
       maxMillisecondsToWait: CONVERSATION_WAIT_TIMEOUT_MS,
@@ -315,10 +317,21 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   // Inert loading button shown while a long operation runs.
   bot.callbackQuery(NOOP_CALLBACK, (ctx) => ctx.answerCallbackQuery());
 
-  // Recover onboarding buttons whose conversation already ended (wait timeout /
-  // force-exit). A live onboarding consumes these first; this only fires for a
-  // dead dialog, where the tap would otherwise match nothing and hang forever.
-  bot.callbackQuery(/^(?:lang|learn|onb|level):/, handleStaleOnboardingCallback);
+  // "🔄 Try again" on a timeout notice — re-runs the operation that timed out.
+  bot.callbackQuery(RETRY_CALLBACK, handleRetryCallback);
+
+  // Onboarding (Task 72) is a set of plain stateless handlers, not a
+  // conversation: every tap re-derives its screen from the database, so a pause
+  // of any length cannot leave a button dead and no dialog can swallow the chat.
+  bot.callbackQuery(ONBOARDING_CALLBACK_PATTERN, handleOnboardingCallback);
+  // Keyboards from the pre-Task-72 conversation flow are still on screen for
+  // anyone mid-onboarding at deploy time; their prefixes now match nothing, so
+  // this puts them back on a live screen instead of letting the button spin.
+  bot.callbackQuery(LEGACY_ONBOARDING_CALLBACK_PATTERN, handleLegacyOnboardingCallback);
+
+  // The D+1 activation nudge needs its own prefix: its recipients are all
+  // `onboarded = true`, and the `onb:` handlers deliberately ignore those taps.
+  bot.callbackQuery(NUDGE_CALLBACK_PATTERN, handleNudgeCardCallback);
 
   bot.callbackQuery("set:native", handleSetNativeCallback);
   bot.callbackQuery(/^set:native:/, handleSetNativeSelectCallback);
@@ -395,6 +408,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery("dict:close", handleDictClose);
   bot.callbackQuery("dict:noop", handleDictNoop);
 
+  // Curated starter video from the empty-state screen (Task 72). Must be
+  // registered before the generic vid: routes below so its prefix wins.
+  bot.callbackQuery(VIDEO_TRY_PATTERN, handleVideoTryCallback);
   bot.callbackQuery(/^vid:confirm:/, handleVideoConfirmCallback);
   bot.callbackQuery(/^vid:cancel:/, handleVideoCancelCallback);
   bot.callbackQuery(/^vid:browse:/, handleVideoBrowseCallback);
@@ -411,6 +427,11 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.callbackQuery("tpl:cancel", handleCancelCallback);
   bot.callbackQuery("tpl:reset", handleResetCallback);
   bot.callbackQuery("tpl:back", handleBackCallback);
+
+  // Free text from a user who has not finished onboarding: the demo screen runs
+  // the real translate path, earlier screens re-render themselves. Anything it
+  // does not consume falls through to the mode router untouched.
+  bot.use(onboardingTextMiddleware);
 
   bot.use(modeRouterMiddleware);
 

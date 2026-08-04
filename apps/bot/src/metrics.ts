@@ -76,6 +76,12 @@ export const unrecognizedWordCounter = new Counter({
   labelNames: ["outcome"] as const,
 });
 
+export const onboardingStepCounter = new Counter({
+  name: "bot_onboarding_step_total",
+  help: "Onboarding screen entries and outcomes (Task 72) — labels are a bounded enum, never free-form",
+  labelNames: ["step", "outcome"] as const,
+});
+
 export const mentorCounter = new Counter({
   name: "bot_mentor_requests_total",
   help: "Total mentor chat requests",

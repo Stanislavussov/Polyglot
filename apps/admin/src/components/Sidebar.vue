@@ -47,6 +47,7 @@ const items = [
   { href: "/request-stats", label: "Request Stats", icon: "📅" },
   { href: "/dictionary-lookups", label: "Dictionary Lookups", icon: "🔎" },
   { href: "/reported-issues", label: "Reports", icon: "📝" },
+  { href: "/onboarding-demo-cards", label: "Demo Cards", icon: "🃏" },
   { href: "/rate-limits", label: "Rate Limits", icon: "⏱️" },
   { href: "/ai-models", label: "AI Models", icon: "🤖" },
   { href: "/test-coverage", label: "Test Coverage", icon: "✅" },

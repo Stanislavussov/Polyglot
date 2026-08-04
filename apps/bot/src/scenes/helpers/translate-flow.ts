@@ -65,6 +65,7 @@ import {
 } from "../../utils/long-op.js";
 import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
+import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
@@ -1046,7 +1047,19 @@ async function runTranslationPipeline(
     }
 
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang));
+
+    // A timeout is transient — the same input usually succeeds on a second
+    // attempt — so the notice carries a one-tap retry instead of asking the user
+    // to retype the word. A hard failure gets the plain error: re-running it
+    // would just fail the same way.
+    if (isUserFacingTimeout(err)) {
+      await replyWithRetry(ctx, t("loadingTimeout", lang), lang, {
+        kind: "translate",
+        text: encodeTranslateRetryText(word, contextHint),
+      });
+      return;
+    }
+    await ctx.reply(t("translationError", lang));
   }
 }
 

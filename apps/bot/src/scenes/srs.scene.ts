@@ -21,7 +21,14 @@ export async function handleReviewCommand(ctx: BotContext): Promise<void> {
   const deck = await ctx.services.vocabularyRepository.findDueForSrs(ctx.user.id, new Date(), SRS_SESSION_LIMIT);
 
   if (deck.length === 0) {
-    await ctx.reply(t("srsEmpty", lang));
+    // "Nothing due" and "nothing saved" are different states that used to share
+    // one message. `srsEmpty` opens with ✅ and reads as "you're all caught up" —
+    // which is right for a returning user, and actively misleading for someone
+    // with an empty dictionary, who is told they finished something they never
+    // started. Onboarding makes that the common case: the final screen offers a
+    // 🎯 Practice button to a user whose dictionary is necessarily empty.
+    const saved = await ctx.services.vocabularyRepository.countByUser(ctx.user.id);
+    await ctx.reply(t(saved === 0 ? "srsNoSavedWords" : "srsEmpty", lang));
     return;
   }
 

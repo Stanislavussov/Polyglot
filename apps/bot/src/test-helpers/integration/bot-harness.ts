@@ -187,7 +187,14 @@ let updateSeq = 0;
  * `bot_command` entity Telegram would attach — grammY's `bot.command()` matches
  * on that entity, not on the raw text.
  */
-export function messageUpdate(opts: { chatId: number; fromId: number; text: string; messageId?: number }): Update {
+export function messageUpdate(opts: {
+  chatId: number;
+  fromId: number;
+  text: string;
+  messageId?: number;
+  /** Telegram client locale (`from.language_code`) — onboarding guesses the native language from it. */
+  languageCode?: string;
+}): Update {
   const command = /^\/[a-zA-Z0-9_]+/.exec(opts.text);
   const entities: MessageEntity[] | undefined = command
     ? [{ type: "bot_command", offset: 0, length: command[0].length }]
@@ -198,7 +205,12 @@ export function messageUpdate(opts: { chatId: number; fromId: number; text: stri
       message_id: opts.messageId ?? 1,
       date: 0,
       chat: { id: opts.chatId, type: "private", first_name: "Test" },
-      from: { id: opts.fromId, is_bot: false, first_name: "Test" },
+      from: {
+        id: opts.fromId,
+        is_bot: false,
+        first_name: "Test",
+        ...(opts.languageCode ? { language_code: opts.languageCode } : {}),
+      },
       text: opts.text,
       ...(entities ? { entities } : {}),
     },
@@ -228,12 +240,24 @@ export function lastRenderedCard(sent: CapturedCall[]): { messageId: number; but
 }
 
 /** Build a callback-query update on an inline button of a prior bot message. */
-export function callbackQueryUpdate(opts: { chatId: number; fromId: number; messageId: number; data: string }): Update {
+export function callbackQueryUpdate(opts: {
+  chatId: number;
+  fromId: number;
+  messageId: number;
+  data: string;
+  /** Telegram client locale (`from.language_code`). */
+  languageCode?: string;
+}): Update {
   return {
     update_id: ++updateSeq,
     callback_query: {
       id: `cb-${updateSeq}`,
-      from: { id: opts.fromId, is_bot: false, first_name: "Test" },
+      from: {
+        id: opts.fromId,
+        is_bot: false,
+        first_name: "Test",
+        ...(opts.languageCode ? { language_code: opts.languageCode } : {}),
+      },
       chat_instance: `ci-${updateSeq}`,
       data: opts.data,
       message: {
