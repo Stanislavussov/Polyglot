@@ -182,6 +182,25 @@ export interface SessionData {
       contextHint?: string;
     }
   >;
+  /**
+   * Pending "🔄 Try again" actions, keyed by the message id of the timeout
+   * notice that carries the button (mirrors {@link SessionData.translationMap}).
+   * A timeout notice cannot carry its input in `callback_data` (64-byte cap), so
+   * the payload lives here; entries are one-shot and capped by
+   * `setRetryAction`. An entry lost to a restart or eviction resolves to the
+   * usual "session expired" guard.
+   */
+  pendingRetries?: Record<
+    string,
+    {
+      /** Which flow to re-run: the translate text flow or a mentor turn. */
+      kind: "translate" | "mentor";
+      /** The original user input, verbatim as the flow's entry point takes it. */
+      text: string;
+      /** Monotonic insertion stamp used for recency-based eviction. */
+      addedAt?: number;
+    }
+  >;
   /** True when the next text message should be used as translation context clarification. */
   awaitingTranslationClarificationContext?: boolean;
   /** Message ID of the translation card awaiting post-translation clarification context. */

@@ -327,6 +327,7 @@
   "chooseProficiencyLevel": "{lang} тіліндегі деңгейіңіз қандай?",
   "loading": "⏳ Жүктелуде...",
   "loadingTimeout": "⌛ Күткеннен ұзағырақ болды. Қайталап көріңіз.",
+  "retryButton": "🔄 Қайталап көру",
   "upgradeCta": "⭐ Plus немесе Pro қосу",
   "upgradePlus": "⭐ Plus",
   "upgradePro": "💎 Pro",

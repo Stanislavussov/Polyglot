@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-04T18:33:40.571Z",
+  "generatedAt": "2026-08-04T18:39:24.740Z",
   "summary": {
-    "total": 2460,
+    "total": 2482,
     "business": 0,
-    "technical": 2460,
+    "technical": 2482,
     "workspaces": [
       "apps",
       "packages"
@@ -8441,6 +8441,70 @@
       "description": "Protects the bot translate pre AI reads resolve Is Already Saved stays sequential behavior so feeds the found entry id into the second SELECT."
     },
     {
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-timeout-retry-test-ts-143-translate-flow-user-facing-timeout-offers-a-retry-button-on-the-timeout-notice",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-timeout-retry.test.ts",
+      "sourceLine": 143,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translate flow — user-facing timeout"
+      ],
+      "title": "offers a retry button on the timeout notice",
+      "rawTitle": "offers a retry button on the timeout notice",
+      "name": "Bot translate flow — user facing timeout offers a retry button on the timeout notice",
+      "value": "Protects the bot translate flow — user facing timeout behavior so offers a retry button on the timeout notice.",
+      "description": "Protects the bot translate flow — user facing timeout behavior so offers a retry button on the timeout notice."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-timeout-retry-test-ts-154-translate-flow-user-facing-timeout-stores-the-original-input-behind-the-button-keyed-by-the-notice-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-timeout-retry.test.ts",
+      "sourceLine": 154,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translate flow — user-facing timeout"
+      ],
+      "title": "stores the original input behind the button, keyed by the notice message",
+      "rawTitle": "stores the original input behind the button, keyed by the notice message",
+      "name": "Bot translate flow — user facing timeout stores the original input behind the button, keyed by the notice message",
+      "value": "Protects the bot translate flow — user facing timeout behavior: stores the original input behind the button, keyed by the notice message.",
+      "description": "Protects the bot translate flow — user facing timeout behavior: stores the original input behind the button, keyed by the notice message."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-timeout-retry-test-ts-163-translate-flow-user-facing-timeout-preserves-the-context-hint-in-the-retry-payload",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-timeout-retry.test.ts",
+      "sourceLine": 163,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translate flow — user-facing timeout"
+      ],
+      "title": "preserves the context hint in the retry payload",
+      "rawTitle": "preserves the context hint in the retry payload",
+      "name": "Bot translate flow — user facing timeout preserves the context hint in the retry payload",
+      "value": "Protects the bot translate flow — user facing timeout behavior: preserves the context hint in the retry payload.",
+      "description": "Protects the bot translate flow — user facing timeout behavior: preserves the context hint in the retry payload."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-timeout-retry-test-ts-175-translate-flow-user-facing-timeout-keeps-the-plain-error-with-no-retry-button-for-a-hard-failure",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-timeout-retry.test.ts",
+      "sourceLine": 175,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translate flow — user-facing timeout"
+      ],
+      "title": "keeps the plain error — with no retry button — for a hard failure",
+      "rawTitle": "keeps the plain error — with no retry button — for a hard failure",
+      "name": "Bot translate flow — user facing timeout keeps the plain error — with no retry button — for a hard failure",
+      "value": "Protects the bot translate flow — user facing timeout behavior: keeps the plain error — with no retry button — for a hard failure.",
+      "description": "Protects the bot translate flow — user facing timeout behavior: keeps the plain error — with no retry button — for a hard failure."
+    },
+    {
       "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-191-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
@@ -9481,10 +9545,10 @@
       "description": "Protects the bot edit Message Reply Markup Or Ignore behavior so rethrows unrelated Telegram errors."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-76-handlementortext-calls-generatechat-with-system-prompt-history-and-user-message",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-78-handlementortext-calls-generatechat-with-system-prompt-history-and-user-message",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 76,
+      "sourceLine": 78,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9497,10 +9561,10 @@
       "description": "Protects the bot handle Mentor Text behavior: calls generate Chat with system prompt, history, and user message."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-93-handlementortext-passes-maxtokens-to-limit-response-length",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-95-handlementortext-passes-maxtokens-to-limit-response-length",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 95,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9513,10 +9577,10 @@
       "description": "Protects the bot handle Mentor Text behavior so passes max Tokens to limit response length."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-102-handlementortext-replies-with-the-ai-response-text",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-104-handlementortext-replies-with-the-ai-response-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 102,
+      "sourceLine": 104,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9529,10 +9593,10 @@
       "description": "Protects the bot handle Mentor Text behavior so replies with the AI response text."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-112-handlementortext-deletes-the-loading-indicator-after-success",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-114-handlementortext-deletes-the-loading-indicator-after-success",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 112,
+      "sourceLine": 114,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9545,10 +9609,10 @@
       "description": "Protects the bot handle Mentor Text behavior so deletes the loading indicator after success."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-119-handlementortext-stores-user-and-assistant-messages-in-session-history",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-121-handlementortext-stores-user-and-assistant-messages-in-session-history",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 119,
+      "sourceLine": 121,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9561,10 +9625,10 @@
       "description": "Protects the bot handle Mentor Text behavior: stores user and assistant messages in session history."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-129-handlementortext-includes-previous-history-in-the-messages-array",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-131-handlementortext-includes-previous-history-in-the-messages-array",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 129,
+      "sourceLine": 131,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9577,10 +9641,10 @@
       "description": "Protects the bot handle Mentor Text behavior: includes previous history in the messages array."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-148-handlementortext-trims-history-to-max-mentor-history-entries",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-150-handlementortext-trims-history-to-max-mentor-history-entries",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 148,
+      "sourceLine": 150,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9593,10 +9657,10 @@
       "description": "Protects the bot handle Mentor Text behavior so trims history to MAX MENTOR HISTORY entries."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-165-handlementortext-increments-mentorcounter-with-success-status-on-success",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-167-handlementortext-increments-mentorcounter-with-success-status-on-success",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 165,
+      "sourceLine": 167,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9609,10 +9673,10 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with success status on success."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-172-handlementortext-replies-with-an-error-message-when-ai-call-fails",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-174-handlementortext-replies-with-an-error-message-when-ai-call-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 172,
+      "sourceLine": 174,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9625,10 +9689,10 @@
       "description": "Protects the bot handle Mentor Text behavior so replies with an error message when AI call fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-183-handlementortext-increments-mentorcounter-with-error-status-on-failure",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-185-handlementortext-increments-mentorcounter-with-error-status-on-failure",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 183,
+      "sourceLine": 185,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9641,10 +9705,42 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with error status on failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-191-handlementortext-rejects-input-longer-than-the-max-character-limit",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-193-handlementortext-offers-a-retry-button-carrying-the-same-turn-when-the-ai-call-times-out",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 191,
+      "sourceLine": 193,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText"
+      ],
+      "title": "offers a retry button carrying the same turn when the AI call times out",
+      "rawTitle": "offers a retry button carrying the same turn when the AI call times out",
+      "name": "Bot handle Mentor Text offers a retry button carrying the same turn when the AI call times out",
+      "value": "Protects the bot handle Mentor Text behavior so offers a retry button carrying the same turn when the AI call times out.",
+      "description": "Protects the bot handle Mentor Text behavior so offers a retry button carrying the same turn when the AI call times out."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-205-handlementortext-does-not-offer-a-retry-button-on-a-hard-ai-failure",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
+      "sourceLine": 205,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText"
+      ],
+      "title": "does not offer a retry button on a hard AI failure",
+      "rawTitle": "does not offer a retry button on a hard AI failure",
+      "name": "Bot handle Mentor Text does not offer a retry button on a hard AI failure",
+      "value": "Protects the bot handle Mentor Text behavior: does not offer a retry button on a hard AI failure.",
+      "description": "Protects the bot handle Mentor Text behavior: does not offer a retry button on a hard AI failure."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-216-handlementortext-rejects-input-longer-than-the-max-character-limit",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
+      "sourceLine": 216,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9657,10 +9753,10 @@
       "description": "Protects the bot handle Mentor Text behavior: rejects input longer than the max character limit."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-204-handlementortext-refuses-the-mentor-call-when-the-daily-credit-quota-is-exhausted-t16",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-229-handlementortext-refuses-the-mentor-call-when-the-daily-credit-quota-is-exhausted-t16",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 204,
+      "sourceLine": 229,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9673,10 +9769,10 @@
       "description": "Protects the bot handle Mentor Text behavior so refuses the mentor call when the daily credit quota is exhausted (T16)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-216-handlementortext-bills-a-mentor-turn-against-the-shared-credit-ledger-on-success-t16",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-241-handlementortext-bills-a-mentor-turn-against-the-shared-credit-ledger-on-success-t16",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 216,
+      "sourceLine": 241,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9943,6 +10039,102 @@
       "name": "Bot handle Regen Loop passes input Type to mock Vocabulary Repository create",
       "value": "Protects the bot handle Regen Loop behavior so passes input Type to mock Vocabulary Repository create.",
       "description": "Protects the bot handle Regen Loop behavior so passes input Type to mock Vocabulary Repository create."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-38-handleretrycallback-re-runs-the-translation-with-the-original-input",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
+      "sourceLine": 38,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleRetryCallback"
+      ],
+      "title": "re-runs the translation with the original input",
+      "rawTitle": "re-runs the translation with the original input",
+      "name": "Bot handle Retry Callback re runs the translation with the original input",
+      "value": "Protects the bot handle Retry Callback behavior so re runs the translation with the original input.",
+      "description": "Protects the bot handle Retry Callback behavior so re runs the translation with the original input."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-48-handleretrycallback-re-runs-the-mentor-turn-with-the-original-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
+      "sourceLine": 48,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleRetryCallback"
+      ],
+      "title": "re-runs the mentor turn with the original message",
+      "rawTitle": "re-runs the mentor turn with the original message",
+      "name": "Bot handle Retry Callback re runs the mentor turn with the original message",
+      "value": "Protects the bot handle Retry Callback behavior so re runs the mentor turn with the original message.",
+      "description": "Protects the bot handle Retry Callback behavior so re runs the mentor turn with the original message."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-58-handleretrycallback-acks-the-callback-and-deletes-the-notice-before-re-running",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
+      "sourceLine": 58,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleRetryCallback"
+      ],
+      "title": "acks the callback and deletes the notice before re-running",
+      "rawTitle": "acks the callback and deletes the notice before re-running",
+      "name": "Bot handle Retry Callback acks the callback and deletes the notice before re running",
+      "value": "Protects the bot handle Retry Callback behavior so acks the callback and deletes the notice before re running.",
+      "description": "Protects the bot handle Retry Callback behavior so acks the callback and deletes the notice before re running."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-68-handleretrycallback-does-not-launch-a-second-run-when-the-same-button-is-tapped-twice",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
+      "sourceLine": 68,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleRetryCallback"
+      ],
+      "title": "does not launch a second run when the same button is tapped twice",
+      "rawTitle": "does not launch a second run when the same button is tapped twice",
+      "name": "Bot handle Retry Callback does not launch a second run when the same button is tapped twice",
+      "value": "Protects the bot handle Retry Callback behavior: does not launch a second run when the same button is tapped twice.",
+      "description": "Protects the bot handle Retry Callback behavior: does not launch a second run when the same button is tapped twice."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-78-handleretrycallback-reports-an-expired-session-and-drops-the-dead-button-when-the-action-is-gone",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
+      "sourceLine": 78,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleRetryCallback"
+      ],
+      "title": "reports an expired session and drops the dead button when the action is gone",
+      "rawTitle": "reports an expired session and drops the dead button when the action is gone",
+      "name": "Bot handle Retry Callback reports an expired session and drops the dead button when the action is gone",
+      "value": "Protects the bot handle Retry Callback behavior: reports an expired session and drops the dead button when the action is gone.",
+      "description": "Protects the bot handle Retry Callback behavior: reports an expired session and drops the dead button when the action is gone."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-93-handleretrycallback-survives-a-failing-ack-and-still-re-runs-the-operation",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
+      "sourceLine": 93,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleRetryCallback"
+      ],
+      "title": "survives a failing ack and still re-runs the operation",
+      "rawTitle": "survives a failing ack and still re-runs the operation",
+      "name": "Bot handle Retry Callback survives a failing ack and still re runs the operation",
+      "value": "Protects the bot handle Retry Callback behavior so survives a failing ack and still re runs the operation.",
+      "description": "Protects the bot handle Retry Callback behavior so survives a failing ack and still re runs the operation."
     },
     {
       "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-232-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
@@ -12199,6 +12391,166 @@
       "name": "Bot resolve Plan Limit throws when the settings source has no plans at all",
       "value": "Protects the bot resolve Plan Limit behavior: throws when the settings source has no plans at all.",
       "description": "Protects the bot resolve Plan Limit behavior: throws when the settings source has no plans at all."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-18-retry-action-store-returns-the-action-stored-for-a-notice-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 18,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "retry action store"
+      ],
+      "title": "returns the action stored for a notice message",
+      "rawTitle": "returns the action stored for a notice message",
+      "name": "Bot retry action store returns the action stored for a notice message",
+      "value": "Protects the bot retry action store behavior: returns the action stored for a notice message.",
+      "description": "Protects the bot retry action store behavior: returns the action stored for a notice message."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-25-retry-action-store-keeps-two-concurrent-notices-from-cross-wiring-their-inputs",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 25,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "retry action store"
+      ],
+      "title": "keeps two concurrent notices from cross-wiring their inputs",
+      "rawTitle": "keeps two concurrent notices from cross-wiring their inputs",
+      "name": "Bot retry action store keeps two concurrent notices from cross wiring their inputs",
+      "value": "Protects the bot retry action store behavior: keeps two concurrent notices from cross wiring their inputs.",
+      "description": "Protects the bot retry action store behavior: keeps two concurrent notices from cross wiring their inputs."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-34-retry-action-store-consumes-the-action-so-a-second-tap-cannot-launch-the-same-paid-call-twice",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 34,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "retry action store"
+      ],
+      "title": "consumes the action so a second tap cannot launch the same paid call twice",
+      "rawTitle": "consumes the action so a second tap cannot launch the same paid call twice",
+      "name": "Bot retry action store consumes the action so a second tap cannot launch the same paid call twice",
+      "value": "Protects the bot retry action store behavior so consumes the action so a second tap cannot launch the same paid call twice.",
+      "description": "Protects the bot retry action store behavior so consumes the action so a second tap cannot launch the same paid call twice."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-42-retry-action-store-returns-undefined-for-a-notice-that-was-never-stored",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 42,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "retry action store"
+      ],
+      "title": "returns undefined for a notice that was never stored",
+      "rawTitle": "returns undefined for a notice that was never stored",
+      "name": "Bot retry action store returns undefined for a notice that was never stored",
+      "value": "Protects the bot retry action store behavior: returns undefined for a notice that was never stored.",
+      "description": "Protects the bot retry action store behavior: returns undefined for a notice that was never stored."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-46-retry-action-store-evicts-the-oldest-entries-past-the-cap-keeping-the-newest-usable",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 46,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "retry action store"
+      ],
+      "title": "evicts the oldest entries past the cap, keeping the newest usable",
+      "rawTitle": "evicts the oldest entries past the cap, keeping the newest usable",
+      "name": "Bot retry action store evicts the oldest entries past the cap, keeping the newest usable",
+      "value": "Protects the bot retry action store behavior so evicts the oldest entries past the cap, keeping the newest usable.",
+      "description": "Protects the bot retry action store behavior so evicts the oldest entries past the cap, keeping the newest usable."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-60-retry-action-store-never-evicts-the-entry-just-added-when-message-ids-restart-low",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 60,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "retry action store"
+      ],
+      "title": "never evicts the entry just added when message ids restart low",
+      "rawTitle": "never evicts the entry just added when message ids restart low",
+      "name": "Bot retry action store never evicts the entry just added when message ids restart low",
+      "value": "Protects the bot retry action store behavior so never evicts the entry just added when message ids restart low.",
+      "description": "Protects the bot retry action store behavior so never evicts the entry just added when message ids restart low."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-74-encodetranslateretrytext-round-trips-a-word-without-context-unchanged",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 74,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "encodeTranslateRetryText"
+      ],
+      "title": "round-trips a word without context unchanged",
+      "rawTitle": "round-trips a word without context unchanged",
+      "name": "Bot encode Translate Retry Text round trips a word without context unchanged",
+      "value": "Protects the bot encode Translate Retry Text behavior so round trips a word without context unchanged.",
+      "description": "Protects the bot encode Translate Retry Text behavior so round trips a word without context unchanged."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-78-encodetranslateretrytext-round-trips-a-word-plus-context-hint-through-the-text-parser",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 78,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "encodeTranslateRetryText"
+      ],
+      "title": "round-trips a word plus context hint through the text parser",
+      "rawTitle": "round-trips a word plus context hint through the text parser",
+      "name": "Bot encode Translate Retry Text round trips a word plus context hint through the text parser",
+      "value": "Protects the bot encode Translate Retry Text behavior so round trips a word plus context hint through the text parser.",
+      "description": "Protects the bot encode Translate Retry Text behavior so round trips a word plus context hint through the text parser."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-84-encodetranslateretrytext-round-trips-a-hashtag-derived-context-hint-without-message-entities",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 84,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "encodeTranslateRetryText"
+      ],
+      "title": "round-trips a hashtag-derived context hint without message entities",
+      "rawTitle": "round-trips a hashtag-derived context hint without message entities",
+      "name": "Bot encode Translate Retry Text round trips a hashtag derived context hint without message entities",
+      "value": "Protects the bot encode Translate Retry Text behavior so round trips a hashtag derived context hint without message entities.",
+      "description": "Protects the bot encode Translate Retry Text behavior so round trips a hashtag derived context hint without message entities."
+    },
+    {
+      "id": "apps-bot-src-utils-retry-action-test-ts-94-replywithretry-sends-the-notice-with-a-retry-button-and-remembers-what-to-re-run",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/retry-action.test.ts",
+      "sourceLine": 94,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "replyWithRetry"
+      ],
+      "title": "sends the notice with a retry button and remembers what to re-run",
+      "rawTitle": "sends the notice with a retry button and remembers what to re-run",
+      "name": "Bot reply With Retry sends the notice with a retry button and remembers what to re run",
+      "value": "Protects the bot reply With Retry behavior: sends the notice with a retry button and remembers what to re run.",
+      "description": "Protects the bot reply With Retry behavior: sends the notice with a retry button and remembers what to re run."
     },
     {
       "id": "apps-bot-src-utils-validate-text-input-test-ts-5-isemojionly-returns-true-for-a-single-emoji",

@@ -327,6 +327,7 @@
   "chooseProficiencyLevel": "What is your level in {lang}?",
   "loading": "⏳ Loading...",
   "loadingTimeout": "⌛ This is taking longer than expected. Please try again.",
+  "retryButton": "🔄 Try again",
   "upgradeCta": "⭐ Get Plus or Pro",
   "upgradePlus": "⭐ Plus",
   "upgradePro": "💎 Pro",

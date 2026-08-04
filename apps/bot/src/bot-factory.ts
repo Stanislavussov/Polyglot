@@ -67,6 +67,7 @@ import {
   handleOutOfSetCallback,
   handleSrcLangOverrideCallback,
 } from "./scenes/helpers/out-of-set.js";
+import { handleRetryCallback } from "./scenes/helpers/retry.helper.js";
 import {
   handleSetBackCallback,
   handleSetCloseCallback,
@@ -128,6 +129,7 @@ import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, ConversationContext, SessionData } from "./types.js";
 import { NOOP_CALLBACK } from "./utils/long-op.js";
+import { RETRY_CALLBACK } from "./utils/retry-action.js";
 
 export interface CreatePolyglotBotOptions {
   token: string;
@@ -289,6 +291,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   // Inert loading button shown while a long operation runs.
   bot.callbackQuery(NOOP_CALLBACK, (ctx) => ctx.answerCallbackQuery());
+
+  // "🔄 Try again" on a timeout notice — re-runs the operation that timed out.
+  bot.callbackQuery(RETRY_CALLBACK, handleRetryCallback);
 
   // Onboarding (Task 72) is a set of plain stateless handlers, not a
   // conversation: every tap re-derives its screen from the database, so a pause

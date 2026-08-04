@@ -20,6 +20,7 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
+import { replyWithRetry } from "../../utils/retry-action.js";
 
 /** Maximum output tokens for mentor responses — keeps replies short. */
 const MENTOR_MAX_TOKENS = 300;
@@ -113,6 +114,14 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
 
     // Delete loading indicator and show error
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("mentorError", lang));
+
+    // Transient timeout → offer a one-tap retry of the same turn (the message is
+    // not in session history yet, so re-running it cannot duplicate the turn).
+    // A hard failure gets the plain error.
+    if (isUserFacingTimeout(err)) {
+      await replyWithRetry(ctx, t("loadingTimeout", lang), lang, { kind: "mentor", text });
+      return;
+    }
+    await ctx.reply(t("mentorError", lang));
   }
 }

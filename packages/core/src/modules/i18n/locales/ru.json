@@ -323,6 +323,7 @@
   "chooseProficiencyLevel": "Какой у вас уровень в {lang}?",
   "loading": "⏳ Загружаю...",
   "loadingTimeout": "⌛ Это заняло слишком много времени. Попробуйте ещё раз.",
+  "retryButton": "🔄 Попробовать снова",
   "translationClarifyReasonUnrecognized": "«{word}» не похоже на обычное слово в языке {lang}.",
   "translationTranslateAsWritten": "➡️ Перевести как есть",
   "translationAsWrittenCaveat": "⚠️ Не найдено в стандартных словарях — переведено буквально.",
