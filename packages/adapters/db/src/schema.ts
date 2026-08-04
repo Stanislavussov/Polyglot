@@ -1,3 +1,4 @@
+import type { TranslateOutput } from "@polyglot/core";
 import { sql } from "drizzle-orm";
 import {
   bigint,
@@ -115,6 +116,14 @@ export const users = pgTable("users", {
   subscriptionPlan: text("subscription_plan").default("free").notNull(),
   onboardingStep: integer("onboarding_step").default(0).notNull(),
   onboarded: boolean("onboarded").default(false).notNull(),
+  /**
+   * When onboarding was completed (Task 72, slice 8). Nullable on purpose: rows
+   * that finished onboarding before this column existed carry NULL and are
+   * never backfilled, because there is no way to reconstruct the instant. Every
+   * "since onboarding" query must therefore treat NULL as *not eligible* — a
+   * months-old account has no D+1 window left, and nudging it would be spam.
+   */
+  onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -398,6 +407,36 @@ export const topicTranslationCache = pgTable(
 );
 
 // ─────────────────────────────────────────────
+// Onboarding demo cards — pre-rendered "hook" cards (Task 72)
+// The headword list is the code-side source of truth
+// (packages/core/src/modules/onboarding/hook-words.ts); this table caches the
+// rendered card per (sourceLang, nativeLang, headword) so the onboarding demo
+// costs no AI call on the tap path.
+// ─────────────────────────────────────────────
+export const onboardingDemoCards = pgTable(
+  "onboarding_demo_cards",
+  {
+    id: serial("id").primaryKey(),
+    /** Learning language the headword belongs to (ISO 639-1) */
+    sourceLang: text("source_lang").notNull(),
+    /** Native language the card was rendered for (ISO 639-1) */
+    nativeLang: text("native_lang").notNull(),
+    headword: text("headword").notNull(),
+    /** Serialized TranslateOutput — the exact payload renderTranslation consumes */
+    payload: jsonb("payload").$type<TranslateOutput>().notNull(),
+    /** Ordering within the hook keyboard */
+    sortOrder: integer("sort_order").default(0).notNull(),
+    /** Reviewed and safe to show. Unreviewed cards are never served. */
+    isActive: boolean("is_active").default(false).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("onboarding_demo_cards_key_idx").on(t.sourceLang, t.nativeLang, t.headword)],
+);
+
+export type OnboardingDemoCard = typeof onboardingDemoCards.$inferSelect;
+export type NewOnboardingDemoCard = typeof onboardingDemoCards.$inferInsert;
+
+// ─────────────────────────────────────────────
 // User translation templates — customizable output fields
 // 1-to-1 with users. Controls which sections appear in translation output.
 // ─────────────────────────────────────────────
@@ -574,6 +613,14 @@ export const rateLimitPlans = pgTable("rate_limit_plans", {
   isActive: boolean("is_active").default(true).notNull(),
   /** Users are reassigned here when another plan is deleted. Exactly one default is expected. */
   isDefault: boolean("is_default").default(false).notNull(),
+  /**
+   * The AI model this plan's users are served by. `null` = use the globally
+   * default model (`ai_models.is_default`). This replaced an implicit rule where a
+   * plan's model was "the default model if the plan was allowed to use it,
+   * otherwise the alphabetically first allowed model" — unreadable in the admin
+   * panel and impossible to predict. Routing is now one explicit choice per plan.
+   */
+  aiModelId: varchar("ai_model_id", { length: 255 }).references(() => aiModels.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -691,32 +738,21 @@ export const aiModels = pgTable("ai_models", {
   isEnabled: boolean("is_enabled").default(true).notNull(),
   /** Default cost fallback for unknown models */
   isDefault: boolean("is_default").default(false).notNull(),
+  /**
+   * The model the AI failover retries on when the primary (default) model fails.
+   * Admin-managed here rather than hardcoded in the bot, so a bad fallback can be
+   * swapped without a redeploy. At most one row carries it (see
+   * `aiModelRepository.setFallback`).
+   */
+  isFallback: boolean("is_fallback").default(false).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type AIModelRow = typeof aiModels.$inferSelect;
 
 // ─────────────────────────────────────────────
-// AI model access — which subscription plans can use each model
-// ─────────────────────────────────────────────
-export const aiModelPlanAccess = pgTable(
-  "ai_model_plan_access",
-  {
-    modelId: varchar("model_id", { length: 255 })
-      .notNull()
-      .references(() => aiModels.id, { onDelete: "cascade" }),
-    planName: varchar("plan_name", { length: 50 })
-      .notNull()
-      .references(() => rateLimitPlans.name, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.modelId, t.planName] }), index("ai_model_plan_access_plan_idx").on(t.planName)],
-);
-
-export type AIModelPlanAccess = typeof aiModelPlanAccess.$inferSelect;
-
-// ─────────────────────────────────────────────
 // Plan feature access — which premium features each plan unlocks
-// Mirrors aiModelPlanAccess: a junction gating feature keys per plan.
+// A junction gating feature keys per plan.
 // ─────────────────────────────────────────────
 export const planFeatureAccess = pgTable(
   "plan_feature_access",
@@ -800,6 +836,14 @@ export const videoProcesses = pgTable(
     /** 'pending' | 'processing' | 'completed' | 'failed' */
     status: text("status").$type<"pending" | "processing" | "completed" | "failed">().default("pending").notNull(),
     errorMessage: text("error_message"),
+    /**
+     * The one free video offered from the onboarding suggestions (Task 72). Free
+     * plan allowance is 3 *lifetime*, so spending one on a demo the user has not
+     * yet seen the value of is a third of everything they get. Trial rows are
+     * excluded from both usage counts; one per user, enforced by
+     * `hasCompletedTrial`.
+     */
+    isTrial: boolean("is_trial").default(false).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },

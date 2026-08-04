@@ -12,25 +12,46 @@ export interface BotCommand {
 }
 
 /**
- * Returns the 7 bot commands with descriptions localized to the given language.
- * Uses i18n keys: cmdDescStart, cmdDescTranslate, cmdDescDictionary, cmdDescTemplate, cmdDescSettings, cmdDescFlashcard, cmdDescReview, cmdDescReport.
+ * Emoji prefixed to each command description.
+ *
+ * Telegram forbids emoji in command *names*, so the icon goes at the start of the
+ * description — it renders right next to the command in the menu. Icons are language
+ * independent, which is why they live here instead of in the locale files, and each one
+ * matches the emoji the feature already uses in-bot (📖 dictionary, ⚙️ settings, 🐛 report…).
+ */
+const COMMAND_ICONS = {
+  start: "🚀",
+  translate: "🔤",
+  mentor: "🤖",
+  review: "🔁",
+  template: "📝",
+  settings: "⚙️",
+  report: "🐛",
+  changes: "🆕",
+} as const;
+
+/**
+ * Returns the bot commands with descriptions localized to the given language,
+ * each prefixed with its icon from {@link COMMAND_ICONS}.
+ *
+ * Only rarely used, configuration-style commands are listed. The everyday entry
+ * points — dictionary, flash cards, videos — were moved to the persistent reply
+ * keyboard (`utils/main-menu.ts`) so this list stays short enough to scan. Their
+ * `/`-commands still work; they are just not advertised here.
  */
 export function getLocalizedCommands(lang: SupportedLang, options: { includeChanges?: boolean } = {}): BotCommand[] {
   const commands = [
-    { command: "start", description: t("cmdDescStart", lang) },
-    { command: "translate", description: t("cmdDescTranslate", lang) },
-    // { command: "mentor", description: t("cmdDescMentor", lang) },
-    { command: "flashcard", description: t("cmdDescFlashcard", lang) },
-    // { command: "review", description: t("cmdDescReview", lang) },
-    { command: "dictionary", description: t("cmdDescDictionary", lang) },
-    { command: "template", description: t("cmdDescTemplate", lang) },
-    { command: "videos", description: t("cmdDescVideos", lang) },
-    { command: "settings", description: t("cmdDescSettings", lang) },
-    { command: "report", description: t("cmdDescReport", lang) },
+    { command: "start", description: `${COMMAND_ICONS.start} ${t("cmdDescStart", lang)}` },
+    { command: "translate", description: `${COMMAND_ICONS.translate} ${t("cmdDescTranslate", lang)}` },
+    // { command: "mentor", description: `${COMMAND_ICONS.mentor} ${t("cmdDescMentor", lang)}` },
+    // { command: "review", description: `${COMMAND_ICONS.review} ${t("cmdDescReview", lang)}` },
+    { command: "template", description: `${COMMAND_ICONS.template} ${t("cmdDescTemplate", lang)}` },
+    { command: "settings", description: `${COMMAND_ICONS.settings} ${t("cmdDescSettings", lang)}` },
+    { command: "report", description: `${COMMAND_ICONS.report} ${t("cmdDescReport", lang)}` },
   ];
 
   if (options.includeChanges) {
-    commands.push({ command: "changes", description: t("cmdDescChanges", lang) });
+    commands.push({ command: "changes", description: `${COMMAND_ICONS.changes} ${t("cmdDescChanges", lang)}` });
   }
 
   return commands;

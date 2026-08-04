@@ -775,8 +775,6 @@ describe("i18n — locale consistency", () => {
       "no",
       "chooseNativeLang",
       "chooseLearningLangs",
-      "enterWord",
-      "demoResult",
       "onboardingComplete",
       "welcomeBack",
       "maxLangsReached",

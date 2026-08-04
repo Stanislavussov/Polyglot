@@ -54,6 +54,7 @@ export type {
   TranslationRequestRepository,
 } from "./ports/translation-request.repository.js";
 export type {
+  ActivationNudgeCandidate,
   AudienceGroup,
   NewUser,
   SubscriptionPlan,
@@ -61,6 +62,7 @@ export type {
   UserLanguageSettings,
   UserLearningLanguage,
 } from "./ports/user.repository.js";
+export { ACTIVATION_NUDGE_SOURCE } from "./ports/user.repository.js";
 export type {
   VideoPhrase,
   VideoProcess,
@@ -105,6 +107,16 @@ export * from "./modules/language-detect/index.js";
 export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
 export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
 export * from "./modules/notifications/index.js";
+export type { HookWord, HookWordCategory } from "./modules/onboarding/hook-words.js";
+export { getHookWordLanguages, getHookWords, HOOK_WORDS } from "./modules/onboarding/hook-words.js";
+export type { ResolvedVideoSuggestion, VideoSuggestion } from "./modules/onboarding/video-suggestions.js";
+export {
+  getVideoSuggestionLanguages,
+  getVideoSuggestions,
+  getVideoSuggestionsForLangs,
+  MAX_VIDEO_SUGGESTIONS,
+  resolveVideoSuggestion,
+} from "./modules/onboarding/video-suggestions.js";
 export * from "./modules/rate-limit/index.js";
 export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/settings/ai-defaults.schema.js";
 export * from "./modules/settings/settings.service.js";

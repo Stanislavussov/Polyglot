@@ -102,6 +102,12 @@ export interface SessionData {
    */
   needsTranslateReminder?: boolean;
   /**
+   * Version of the persistent main-menu reply keyboard this chat has received.
+   * `undefined` means the keyboard was never sent, so `mainKeyboardMiddleware`
+   * delivers it with a one-time hint. Compared against MAIN_KEYBOARD_VERSION.
+   */
+  mainKeyboardVersion?: number;
+  /**
    * Template constructor wizard state (Task 32).
    * Set when user enters the template customization flow.
    * Cleared on save, cancel, or session loss.
@@ -180,6 +186,25 @@ export interface SessionData {
       lang: string;
       word: string;
       contextHint?: string;
+    }
+  >;
+  /**
+   * Pending "🔄 Try again" actions, keyed by the message id of the timeout
+   * notice that carries the button (mirrors {@link SessionData.translationMap}).
+   * A timeout notice cannot carry its input in `callback_data` (64-byte cap), so
+   * the payload lives here; entries are one-shot and capped by
+   * `setRetryAction`. An entry lost to a restart or eviction resolves to the
+   * usual "session expired" guard.
+   */
+  pendingRetries?: Record<
+    string,
+    {
+      /** Which flow to re-run: the translate text flow or a mentor turn. */
+      kind: "translate" | "mentor";
+      /** The original user input, verbatim as the flow's entry point takes it. */
+      text: string;
+      /** Monotonic insertion stamp used for recency-based eviction. */
+      addedAt?: number;
     }
   >;
   /** True when the next text message should be used as translation context clarification. */

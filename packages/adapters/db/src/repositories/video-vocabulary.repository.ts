@@ -14,6 +14,8 @@ export interface CreateVideoProcessInput {
   durationSeconds?: number;
   language: string;
   transcriptType?: string;
+  /** The one-off onboarding trial video — excluded from the plan allowance. */
+  isTrial?: boolean;
 }
 
 export interface SaveVideoPhraseInput {
@@ -46,6 +48,7 @@ export const videoVocabularyRepository = {
         durationSeconds: input.durationSeconds,
         language: input.language,
         transcriptType: input.transcriptType,
+        isTrial: input.isTrial ?? false,
         status: "pending",
       })
       .returning();
@@ -138,6 +141,8 @@ export const videoVocabularyRepository = {
         and(
           eq(videoProcesses.userId, userId),
           eq(videoProcesses.status, "completed"),
+          // The onboarding trial is a giveaway, not an allowance draw.
+          eq(videoProcesses.isTrial, false),
           gte(videoProcesses.createdAt, startDate),
           lt(videoProcesses.createdAt, endDate),
         ),
@@ -150,6 +155,28 @@ export const videoVocabularyRepository = {
    * Count successfully completed video analyses for a user since `since`.
    * Used for the free-tier lifetime trial (counts from the feature launch date).
    */
+  /**
+   * Whether the free onboarding video has already been spent. Only a *completed*
+   * trial counts, matching how the plan allowance is measured — a trial that
+   * failed for want of a transcript cost the user nothing and should not silently
+   * consume their giveaway.
+   */
+  async hasCompletedTrial(userId: number): Promise<boolean> {
+    const db = getDb();
+    const rows = await db
+      .select({ id: videoProcesses.id })
+      .from(videoProcesses)
+      .where(
+        and(
+          eq(videoProcesses.userId, userId),
+          eq(videoProcesses.isTrial, true),
+          eq(videoProcesses.status, "completed"),
+        ),
+      )
+      .limit(1);
+    return rows.length > 0;
+  },
+
   async getLifetimeUsageCount(userId: number, since: Date): Promise<number> {
     const db = getDb();
     const [row] = await db
@@ -159,6 +186,7 @@ export const videoVocabularyRepository = {
         and(
           eq(videoProcesses.userId, userId),
           eq(videoProcesses.status, "completed"),
+          eq(videoProcesses.isTrial, false),
           gte(videoProcesses.createdAt, since),
         ),
       );

@@ -8,6 +8,7 @@ import { createPolyglotBot, installBotCommands } from "./bot-factory.js";
 import { setRunnerHandle } from "./liveness-state.js";
 import { closeMetricsServer, startMetricsServer } from "./metrics.js";
 import { wireNotificationScheduler } from "./notifications/notification.wiring.js";
+import { stopActivationNudge, wireActivationNudge } from "./onboarding/activation-nudge.wiring.js";
 import { stopTelemetryRetention, wireTelemetryRetention } from "./retention.wiring.js";
 import { createPostgresSessionStorage } from "./session-storage.js";
 import { createGracefulShutdown } from "./shutdown.js";
@@ -47,6 +48,7 @@ function setupGracefulShutdown(): void {
     steps: [
       { name: "scheduler", run: () => stopScheduler() },
       { name: "telemetryRetention", run: () => stopTelemetryRetention() },
+      { name: "activationNudge", run: () => stopActivationNudge() },
       {
         name: "runner",
         run: async () => {
@@ -81,6 +83,7 @@ async function main(): Promise<void> {
 
   await wireNotificationScheduler(bot.api);
   wireTelemetryRetention();
+  wireActivationNudge(bot.api);
   metricsServer = startMetricsServer();
 
   logger.info({ sessionStorage: "postgres", languageCacheReady: true, pollingMode: "long-polling" }, "Starting bot");

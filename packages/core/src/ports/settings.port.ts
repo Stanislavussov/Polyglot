@@ -76,9 +76,15 @@ export interface SettingsPort {
   getPlanLimit(plan: SubscriptionPlan): Promise<PlanLimitConfig | null>;
   getAIModels(): Promise<AIModel[]>;
   getEnabledAIModels(): Promise<AIModel[]>;
-  getEnabledAIModelsForPlan(plan: SubscriptionPlan): Promise<AIModel[]>;
   getDefaultAIModel(): Promise<string | null>;
+  /** The model explicitly routed to this plan (`rate_limit_plans.ai_model_id`), or null to use the global default. */
   getDefaultAIModelForPlan(plan: SubscriptionPlan): Promise<string | null>;
+  /**
+   * Admin-chosen model the AI failover retries on after the primary fails.
+   * `null` when no enabled model carries the flag — the caller then falls back to
+   * its own emergency constant instead of skipping failover.
+   */
+  getFallbackAIModel(): Promise<string | null>;
   getAIGenerationDefaults(): Promise<AIGenerationDefaults>;
   getSrsConfig(): Promise<SrsConfig>;
   getNotificationDefaults(): Promise<NotificationDefaults>;

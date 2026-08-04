@@ -39,9 +39,11 @@ vi.mock("../../metrics.js", () => ({
   mentorDuration: { startTimer: vi.fn().mockReturnValue(() => undefined) },
 }));
 
-import { MAX_MENTOR_HISTORY } from "@polyglot/core";
+import { AITimeoutError, MAX_MENTOR_HISTORY, t } from "@polyglot/core";
+import type { InlineKeyboardMarkup } from "grammy/types";
 import { mentorCounter } from "../../metrics.js";
 import type { BotContext, SessionData } from "../../types.js";
+import { RETRY_CALLBACK, takeRetryAction } from "../../utils/retry-action.js";
 import { handleMentorText } from "./mentor-mode.helper.js";
 
 function createMockCtx(overrides?: Partial<SessionData>): BotContext {
@@ -186,6 +188,29 @@ describe("handleMentorText", () => {
     await handleMentorText(ctx, "hello");
 
     expect(mentorCounter.inc).toHaveBeenCalledWith({ status: "error" });
+  });
+
+  it("offers a retry button carrying the same turn when the AI call times out", async () => {
+    mockAi.generateChat.mockRejectedValueOnce(new AITimeoutError(15_000));
+    const ctx = createMockCtx();
+
+    await handleMentorText(ctx, "what does banka mean?");
+
+    const [text, extra] = vi.mocked(ctx.reply).mock.calls[1] as [string, { reply_markup?: InlineKeyboardMarkup }];
+    expect(text).toBe(t("loadingTimeout", "en"));
+    expect(extra?.reply_markup?.inline_keyboard[0][0]).toMatchObject({ callback_data: RETRY_CALLBACK });
+    expect(takeRetryAction(ctx.session, 100)).toMatchObject({ kind: "mentor", text: "what does banka mean?" });
+  });
+
+  it("does not offer a retry button on a hard AI failure", async () => {
+    mockAi.generateChat.mockRejectedValueOnce(new Error("API down"));
+    const ctx = createMockCtx();
+
+    await handleMentorText(ctx, "hello");
+
+    const extra = vi.mocked(ctx.reply).mock.calls[1][1];
+    expect(extra).toBeUndefined();
+    expect(ctx.session.pendingRetries).toBeUndefined();
   });
 
   it("rejects input longer than the max character limit", async () => {

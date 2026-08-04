@@ -1,4 +1,4 @@
-import { aiModelCreateSchema, aiModelUpdateSchema } from "@polyglot/admin-contracts";
+import { aiModelCreateSchema, aiModelFallbackSchema, aiModelUpdateSchema } from "@polyglot/admin-contracts";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { requireRole } from "../plugins/auth.js";
@@ -182,6 +182,15 @@ export async function aiModelRoutes(app: FastifyInstance) {
   app.put("/ai-models/:id/set-default", superadminOnly, async (request: FastifyRequest) => {
     const { id } = request.params as { id: string };
     await aiModelService.setDefault(id, request.log, request.adminUser);
+    return { success: true };
+  });
+
+  // Static path, so it must stay distinct from PUT /ai-models/:id. The failover
+  // model is a single global role, hence one endpoint that sets or clears it
+  // rather than a per-model toggle that could leave two winners.
+  app.put("/ai-models/fallback", superadminOnly, async (request: FastifyRequest) => {
+    const { modelId } = aiModelFallbackSchema.parse(request.body);
+    await aiModelService.setFallback(modelId, request.log, request.adminUser);
     return { success: true };
   });
 

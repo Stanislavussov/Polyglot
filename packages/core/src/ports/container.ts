@@ -9,6 +9,7 @@ import type { IdentityRepository } from "./identity.repository.js";
 import type { LanguageCachePort } from "./language-cache.port.js";
 import type { LanguageDetectionRepository } from "./language-detection.repository.js";
 import type { NotificationRepository } from "./notification.repository.js";
+import type { OnboardingDemoCardRepository } from "./onboarding-demo-card.repository.js";
 import type { PaymentPort } from "./payment.port.js";
 import type { ReportedIssueRepository } from "./reported-issue.repository.js";
 import type { RequestTimingRepository } from "./request-timing.repository.js";
@@ -39,6 +40,8 @@ export interface ServiceContainer {
   languageDetectionRepository: LanguageDetectionRepository;
   requestTimingRepository: RequestTimingRepository;
   reportedIssueRepository: ReportedIssueRepository;
+  /** Pre-rendered onboarding hook cards (Task 72). */
+  onboardingDemoCardRepository: OnboardingDemoCardRepository;
   languageCache: LanguageCachePort;
   ai: AIPort;
   settings: SettingsPort;

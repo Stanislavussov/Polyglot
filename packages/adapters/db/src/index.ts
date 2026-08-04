@@ -21,7 +21,7 @@ export {
 } from "./language-cache.js";
 export type { AdminUser } from "./repositories/admin-user.repository.js";
 export { adminUserRepository } from "./repositories/admin-user.repository.js";
-export type { AIModelRow, AIModelWithPlans } from "./repositories/ai-model.repository.js";
+export type { AIModelRow } from "./repositories/ai-model.repository.js";
 export { aiModelRepository } from "./repositories/ai-model.repository.js";
 export type {
   AIRequestKind,
@@ -60,6 +60,13 @@ export {
   notificationRepository,
   parseNotificationMinutes,
 } from "./repositories/notification.repository.js";
+export type {
+  OnboardingDemoCardCounts,
+  OnboardingDemoCardListFilters,
+  OnboardingDemoCardListResult,
+  UpsertOnboardingDemoCardInput,
+} from "./repositories/onboarding-demo-card.repository.js";
+export { onboardingDemoCardRepository } from "./repositories/onboarding-demo-card.repository.js";
 export { planFeatureAccessRepository } from "./repositories/plan-feature-access.repository.js";
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";

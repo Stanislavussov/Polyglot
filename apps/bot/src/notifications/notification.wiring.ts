@@ -27,11 +27,12 @@ import {
   type SupportedLang,
   t,
 } from "@polyglot/core";
-import { type Api, GrammyError, type RawApi } from "grammy";
+import { type Api, type RawApi } from "grammy";
 import { z } from "zod";
 import { mockPaymentAdapter } from "../payment.js";
-import { buildAiFailover, resolveDefaultAIModel } from "../utils/ai-model.js";
+import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
+import { isUserBlocked } from "../utils/telegram-errors.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
 
 const jitTranslationSchema = z.object({
@@ -88,8 +89,11 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
   // redeploy. Returns undefined when the budget is too small to split — then the
   // call runs unsplit, matching container behaviour.
   const resolveFailover = async (): Promise<AIFailover | undefined> => {
-    const budgetMs = clampAiBudgetToOpGuard((await settings.getAIGenerationDefaults()).requestTimeoutMs);
-    return buildAiFailover(budgetMs);
+    const [defaults, fallbackModel] = await Promise.all([
+      settings.getAIGenerationDefaults(),
+      resolveFallbackAIModel(settings),
+    ]);
+    return buildAiFailover(clampAiBudgetToOpGuard(defaults.requestTimeoutMs), fallbackModel);
   };
   const notifService = createNotificationService({
     getUserVocabulary: async (userId: number) => {
@@ -191,8 +195,9 @@ Return translations as JSON array.`;
     getInactiveUsers: () => notificationRepository.getInactiveUsers(),
     disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
     // Telegram 403 = the user blocked the bot: a permanent failure, so the
-    // scheduler stops retrying and disables their notifications (T14).
-    isUserBlocked: (err: unknown) => err instanceof GrammyError && err.error_code === 403,
+    // scheduler stops retrying and disables their notifications (T14). Shared
+    // with the activation nudge so both paths classify failures identically.
+    isUserBlocked,
     getSentWordsSince: (userId: number, since: Date) => notificationRepository.getSentWordsSince(userId, since),
     recordSentWord: (userId: number, original: string, source: string) =>
       notificationRepository.recordSentWord(userId, original, source),

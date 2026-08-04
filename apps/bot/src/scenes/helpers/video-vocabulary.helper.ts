@@ -12,14 +12,17 @@ import {
 import {
   computePhraseTarget,
   extractPhrasesFromTranscript,
+  getVideoSuggestionsForLangs,
   isSupported,
   logger,
   resolveEntitlements,
   resolveOutputConfig,
+  resolveVideoSuggestion,
   type SupportedLang,
   t,
   translateWithContext,
 } from "@polyglot/core";
+import { InlineKeyboard } from "grammy";
 import { videoEnrichmentCounter, videoProcessingCounter, videoProcessingDuration } from "../../metrics.js";
 import {
   buildConfirmationKeyboard,
@@ -216,7 +219,21 @@ async function enrichVideoEntryInBackground(
 /*  Entry point — YouTube URL detected                                 */
 /* ------------------------------------------------------------------ */
 
-export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): Promise<void> {
+export interface VideoVocabularyOptions {
+  /**
+   * This URL came from the onboarding suggestions. If the user has not spent
+   * their giveaway yet, the run skips the plan allowance and is recorded as a
+   * trial. Free plan is 3 videos *lifetime*, so charging one to a demo the user
+   * has not yet seen the value of takes a third of everything they get.
+   */
+  fromOnboarding?: boolean;
+}
+
+export async function handleVideoVocabularyUrl(
+  ctx: BotContext,
+  text: string,
+  options: VideoVocabularyOptions = {},
+): Promise<void> {
   const lang = await resolveInterfaceLang(ctx);
   const userId = ctx.user?.id;
   if (!userId) return;
@@ -254,14 +271,19 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
     planFeatures: [],
   });
 
+  // Resolved before the allowance check so the giveaway can bypass it entirely.
+  const isTrial = options.fromOnboarding
+    ? !(await ctx.services.videoVocabularyRepository.hasCompletedTrial(userId))
+    : false;
+
   let usageCount = 0;
-  if (videoEntitlement.window === "none") {
+  if (!isTrial && videoEntitlement.window === "none") {
     // Video not available on this plan → US-6 attaches the upgrade CTA keyboard here.
     const msg = await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     trackTechnicalMessage(ctx, msg.message_id);
     return;
   }
-  if (videoEntitlement.limit !== null) {
+  if (!isTrial && videoEntitlement.limit !== null) {
     usageCount =
       videoEntitlement.window === "lifetime"
         ? await ctx.services.videoVocabularyRepository.getLifetimeUsageCount(userId, VIDEO_TRIAL_START)
@@ -303,6 +325,7 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
     title: metadata.title,
     durationSeconds: metadata.durationSeconds,
     language: videoLang,
+    isTrial,
   });
 
   metadata.language = videoLang;
@@ -610,6 +633,14 @@ export async function handleVideosCommand(ctx: BotContext): Promise<void> {
   const totalCount = await ctx.services.videoVocabularyRepository.countProcessesByUser(userId, excludeFailed);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
+  // A user who has just finished onboarding has nothing here, and the bare
+  // "send me a YouTube link" that used to fill this screen is a dead end: it
+  // never says what kind of video works. Offer curated starters instead.
+  if (processes.length === 0) {
+    await showVideoSuggestions(ctx, userId, lang);
+    return;
+  }
+
   const text = renderVideoList(processes, page, totalPages, lang);
   const keyboard = buildVideoListKeyboard(processes, page, totalPages, lang);
 
@@ -618,6 +649,80 @@ export async function handleVideosCommand(ctx: BotContext): Promise<void> {
     reply_markup: keyboard,
   });
   trackTechnicalMessage(ctx, msg.message_id);
+}
+
+/**
+ * The empty-state screen: curated starter videos for the languages the user
+ * studies, plus the fallback invitation to paste any link.
+ *
+ * Degrades to the plain invitation when none of the user's learning languages has
+ * a verified pick — better an honest empty screen than a suggestion in the wrong
+ * language.
+ */
+async function showVideoSuggestions(ctx: BotContext, userId: number, lang: SupportedLang): Promise<void> {
+  const settings = await ctx.services.userRepository.getSettings(userId);
+  const suggestions = getVideoSuggestionsForLangs(settings?.learningLangs ?? []);
+
+  const lines = [t("videoNoVideos", lang)];
+  const keyboard = new InlineKeyboard();
+
+  if (suggestions.length > 0) {
+    lines.push("", t("videoTryThese", lang));
+    for (const suggestion of suggestions) {
+      const flag = ctx.services.languageCache.getLangFlag(suggestion.lang);
+      const label = `${flag ? `${flag} ` : ""}${truncateLabel(suggestion.title)}`;
+      keyboard.text(label, `${VIDEO_TRY_PREFIX}${suggestion.lang}:${suggestion.index}`).row();
+    }
+  }
+
+  lines.push("", t("videoOrSendLink", lang));
+
+  const msg = await ctx.reply(lines.join("\n"), { reply_markup: keyboard });
+  trackTechnicalMessage(ctx, msg.message_id);
+}
+
+/** Telegram truncates long button labels unhelpfully; do it ourselves at a word boundary. */
+function truncateLabel(title: string, max = 34): string {
+  if (title.length <= max) return title;
+  const cut = title.slice(0, max);
+  const boundary = cut.lastIndexOf(" ");
+  return `${(boundary > max / 2 ? cut.slice(0, boundary) : cut).trimEnd()}…`;
+}
+
+/** Callback prefix for a tap on a curated starter video. */
+export const VIDEO_TRY_PREFIX = "vid:try:";
+export const VIDEO_TRY_PATTERN = /^vid:try:/;
+
+/**
+ * A curated starter video was tapped. Runs the normal pipeline, flagged as coming
+ * from onboarding so the user's one free trial can absorb it instead of a third
+ * of their lifetime free allowance.
+ */
+export async function handleVideoTryCallback(ctx: BotContext): Promise<void> {
+  await ctx.answerCallbackQuery();
+
+  const data = ctx.callbackQuery?.data;
+  if (!data) return;
+
+  const payload = data.slice(VIDEO_TRY_PREFIX.length);
+  const separator = payload.lastIndexOf(":");
+  if (separator <= 0) return;
+
+  const suggestionLang = payload.slice(0, separator);
+  const index = Number(payload.slice(separator + 1));
+  if (!Number.isInteger(index)) return;
+
+  const suggestion = resolveVideoSuggestion(suggestionLang, index);
+  if (!suggestion) {
+    // A stale keyboard from before the catalogue changed — say so rather than
+    // silently doing nothing.
+    const lang = await resolveInterfaceLang(ctx);
+    const msg = await ctx.reply(t("videoOrSendLink", lang));
+    trackTechnicalMessage(ctx, msg.message_id);
+    return;
+  }
+
+  await handleVideoVocabularyUrl(ctx, suggestion.url, { fromOnboarding: true });
 }
 
 /* ------------------------------------------------------------------ */

@@ -3,16 +3,87 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">AI Models</h1>
-        <p class="mt-1 text-sm text-gray-500">Manage available AI models and set the default</p>
+        <p class="mt-1 text-sm text-gray-500">Choose which model serves each plan, then manage the model catalog.</p>
       </div>
       <AppButton @click="openAdd">Add Model</AppButton>
     </div>
 
-    <div class="mt-6">
-      <AlertMessage v-if="error" type="error" :message="error" />
-      <p v-else-if="loading" class="text-sm text-gray-400">Loading...</p>
-      <p v-else-if="models.length === 0" class="text-sm text-gray-400">No models configured</p>
-      <div v-else class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+    <AlertMessage v-if="error" class="mt-6" type="error" :message="error" />
+    <AlertMessage v-if="routingSaved" class="mt-6" type="success" message="Routing updated" />
+
+    <!-- Routing: the single place that answers "which model is used when?" -->
+    <section class="mt-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-gray-900">Model routing</h2>
+      <p class="mt-1 text-sm text-gray-500">
+        Every request is served by the model of the user's plan. A plan set to
+        <em>Use default model</em> follows the default below.
+      </p>
+
+      <p v-if="loading" class="mt-4 text-sm text-gray-400">Loading...</p>
+      <p v-else-if="enabledModels.length === 0" class="mt-4 text-sm text-gray-400">
+        No enabled models yet — add one below first.
+      </p>
+      <div v-else class="mt-4 space-y-3">
+        <div
+          v-for="plan in plans"
+          :key="plan.name"
+          class="grid grid-cols-[160px_1fr] items-center gap-4 border-b border-gray-100 pb-3 last:border-0 last:pb-0"
+        >
+          <div>
+            <p class="text-sm font-medium text-gray-900">{{ plan.label }}</p>
+            <p class="text-xs text-gray-500">plan</p>
+          </div>
+          <select
+            :id="`plan-model-${plan.name}`"
+            class="w-full max-w-sm rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            :value="plan.aiModelId ?? ''"
+            @change="setPlanModel(plan, ($event.target as HTMLSelectElement).value)"
+          >
+            <option value="">Use default model ({{ defaultModelLabel }})</option>
+            <option v-for="model in enabledModels" :key="model.id" :value="model.id">{{ model.name }}</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-[160px_1fr] items-center gap-4 border-t border-gray-200 pt-4">
+          <div>
+            <p class="text-sm font-medium text-gray-900">Default model</p>
+            <p class="text-xs text-gray-500">plans without their own choice, background jobs</p>
+          </div>
+          <select
+            id="default-model"
+            class="w-full max-w-sm rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            :value="defaultModelId"
+            @change="setDefault(($event.target as HTMLSelectElement).value)"
+          >
+            <option value="" disabled>Not set</option>
+            <option v-for="model in enabledModels" :key="model.id" :value="model.id">{{ model.name }}</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-[160px_1fr] items-center gap-4">
+          <div>
+            <p class="text-sm font-medium text-gray-900">Fallback model</p>
+            <p class="text-xs text-gray-500">retried when the model above fails</p>
+          </div>
+          <select
+            id="fallback-model"
+            class="w-full max-w-sm rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            :value="fallbackModelId"
+            @change="setFallback(($event.target as HTMLSelectElement).value)"
+          >
+            <option value="">No fallback (single attempt)</option>
+            <option v-for="model in enabledModels" :key="model.id" :value="model.id">{{ model.name }}</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <div class="mt-8">
+      <h2 class="text-lg font-semibold text-gray-900">Model catalog</h2>
+      <p class="mt-1 text-sm text-gray-500">Models available for routing. Disabling a model removes it from routing.</p>
+      <p v-if="loading" class="mt-4 text-sm text-gray-400">Loading...</p>
+      <p v-else-if="models.length === 0" class="mt-4 text-sm text-gray-400">No models configured</p>
+      <div v-else class="mt-4 overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
         <table class="min-w-max divide-y divide-gray-200 sm:min-w-full">
           <thead class="bg-gray-50">
             <tr>
@@ -21,9 +92,8 @@
               <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Max Tokens</th>
               <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Cost In</th>
               <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Cost Out</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Plans</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Used for</th>
               <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Status</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Default</th>
               <th class="px-4 py-3 text-right text-xs font-semibold tracking-wide text-gray-600 uppercase">Actions</th>
             </tr>
           </thead>
@@ -38,7 +108,19 @@
               <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-700">
                 {{ formatCost(model.costPer1kOutput) }}
               </td>
-              <td class="max-w-48 px-4 py-3 text-sm text-gray-700">{{ formatPlans(model.allowedPlans) }}</td>
+              <td class="px-4 py-3 text-sm">
+                <div class="flex flex-wrap gap-1">
+                  <span
+                    v-for="role in rolesFor(model)"
+                    :key="role.label"
+                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                    :class="role.class"
+                  >
+                    {{ role.label }}
+                  </span>
+                  <span v-if="rolesFor(model).length === 0" class="text-xs text-gray-400">not used</span>
+                </div>
+              </td>
               <td class="whitespace-nowrap px-4 py-3 text-sm">
                 <span
                   class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
@@ -47,21 +129,9 @@
                   {{ model.isEnabled ? "Enabled" : "Disabled" }}
                 </span>
               </td>
-              <td class="whitespace-nowrap px-4 py-3 text-sm">
-                <span
-                  v-if="model.isDefault"
-                  class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800"
-                >
-                  Default
-                </span>
-              </td>
               <td class="whitespace-nowrap px-4 py-3 text-right text-sm space-x-2">
-                <button
-                  v-if="!model.isDefault"
-                  class="font-medium text-indigo-600 hover:text-indigo-800"
-                  @click="setDefault(model.id)"
-                >
-                  Set Default
+                <button class="font-medium text-indigo-600 hover:text-indigo-800" @click="toggleEnabled(model)">
+                  {{ model.isEnabled ? "Disable" : "Enable" }}
                 </button>
                 <button class="font-medium text-red-600 hover:text-red-800" @click="deletingId = model.id">Delete</button>
               </td>
@@ -113,18 +183,9 @@
             <dd class="mt-1 text-gray-900">{{ formatCost(selectedOpenRouterModel.costPer1kOutput) }}</dd>
           </div>
         </dl>
-        <div v-if="planOptions.length > 0" class="space-y-2">
-          <p class="text-sm font-medium text-gray-700">Subscription Plans</p>
-          <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <CheckboxField
-              v-for="plan in planOptions"
-              :key="plan.value"
-              :model-value="selectedAllowedPlans.includes(plan.value)"
-              :label="plan.label"
-              @update:model-value="togglePlan(plan.value, $event)"
-            />
-          </div>
-        </div>
+        <p class="text-sm text-gray-500">
+          A new model is added to the catalog only. Assign it to a plan in Model routing above.
+        </p>
 
         <div class="flex justify-end gap-3 pt-2">
           <AppButton type="button" variant="secondary" @click="closeForm">Cancel</AppButton>
@@ -148,23 +209,29 @@ import { computed, onMounted, ref } from "vue";
 import AlertMessage from "./ui/AlertMessage.vue";
 import AppButton from "./ui/AppButton.vue";
 import AppModal from "./ui/AppModal.vue";
-import CheckboxField from "./ui/CheckboxField.vue";
 import ComboboxField, { type ComboboxOption } from "./ui/ComboboxField.vue";
-import { type AIModel, type OpenRouterModel, aiModels, rateLimits } from "../lib/api";
+import { type AIModel, type OpenRouterModel, type PlanLimitConfig, aiModels, rateLimits } from "../lib/api";
 import { aiModelCreateSchema, aiModelSelectSchema, zodErrorMessage } from "@polyglot/admin-contracts";
 
 const models = ref<AIModel[]>([]);
+const plans = ref<PlanLimitConfig[]>([]);
 const openRouterModels = ref<OpenRouterModel[]>([]);
 const loading = ref(false);
 const openRouterLoading = ref(false);
 const error = ref("");
+const routingSaved = ref(false);
 const openRouterError = ref("");
 const showForm = ref(false);
 const deletingId = ref<string | null>(null);
 const formError = ref("");
 const selectedModelId = ref("");
-const selectedAllowedPlans = ref<string[]>([]);
-const plans = ref<Array<{ value: string; label: string }>>([]);
+
+const enabledModels = computed(() => models.value.filter((model) => model.isEnabled));
+const defaultModelId = computed(() => models.value.find((model) => model.isDefault)?.id ?? "");
+const fallbackModelId = computed(() => models.value.find((model) => model.isFallback)?.id ?? "");
+const defaultModelLabel = computed(
+  () => models.value.find((model) => model.isDefault)?.name ?? "not set",
+);
 
 const availableOpenRouterModels = computed(() => {
   const configuredIds = new Set(models.value.map((model) => model.id));
@@ -191,25 +258,35 @@ const selectedOpenRouterModel = computed(
 );
 
 const saveDisabled = computed(() => openRouterLoading.value || selectedOpenRouterModel.value === null);
-const planOptions = computed(() => plans.value);
 
 function formatCost(value: number): string {
   return `$${value.toFixed(6)}`;
 }
 
-function formatPlans(values: string[]): string {
-  if (values.length === 0) {
-    return "-";
+/** Every role a model currently holds — this is what "which model is used when" looks like per row. */
+function rolesFor(model: AIModel): Array<{ label: string; class: string }> {
+  const roles: Array<{ label: string; class: string }> = [];
+  if (model.isDefault) {
+    roles.push({ label: "Default", class: "bg-emerald-100 text-emerald-800" });
   }
-  const labels = new Map(plans.value.map((plan) => [plan.value, plan.label]));
-  return values.map((value) => labels.get(value) ?? value).join(", ");
+  if (model.isFallback) {
+    roles.push({ label: "Fallback", class: "bg-amber-100 text-amber-800" });
+  }
+  for (const plan of plans.value) {
+    if (plan.aiModelId === model.id) {
+      roles.push({ label: plan.label, class: "bg-indigo-100 text-indigo-800" });
+    }
+  }
+  return roles;
 }
 
-async function loadModels(): Promise<void> {
+async function loadAll(): Promise<void> {
   loading.value = true;
   error.value = "";
   try {
-    models.value = await aiModels.list();
+    const [modelList, planList] = await Promise.all([aiModels.list(), rateLimits.list()]);
+    models.value = modelList;
+    plans.value = planList.filter((plan) => plan.isActive);
   } catch {
     error.value = "Failed to load models";
   } finally {
@@ -229,20 +306,10 @@ async function loadOpenRouterModels(): Promise<void> {
   }
 }
 
-async function loadPlans(): Promise<void> {
-  try {
-    const allPlans = await rateLimits.list();
-    plans.value = allPlans.filter((plan) => plan.isActive).map((plan) => ({ value: plan.name, label: plan.label }));
-  } catch (err) {
-    formError.value = err instanceof Error ? err.message : "Failed to load plans";
-  }
-}
-
 function openAdd(): void {
   formError.value = "";
   openRouterError.value = "";
   selectedModelId.value = "";
-  selectedAllowedPlans.value = plans.value.map((plan) => plan.value);
   showForm.value = true;
   void loadOpenRouterModels();
 }
@@ -253,12 +320,17 @@ function closeForm(): void {
   openRouterError.value = "";
 }
 
-function togglePlan(plan: string, selected: boolean): void {
-  if (selected) {
-    selectedAllowedPlans.value = Array.from(new Set([...selectedAllowedPlans.value, plan]));
-  } else {
-    selectedAllowedPlans.value = selectedAllowedPlans.value.filter((value) => value !== plan);
+/** Shared post-write path: report the outcome and re-read, so the panel always shows persisted state. */
+async function applyRoutingChange(change: () => Promise<unknown>, failureMessage: string): Promise<void> {
+  error.value = "";
+  routingSaved.value = false;
+  try {
+    await change();
+    routingSaved.value = true;
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : failureMessage;
   }
+  await loadAll();
 }
 
 async function save(): Promise<void> {
@@ -275,11 +347,7 @@ async function save(): Promise<void> {
     return;
   }
 
-  const parsedModel = aiModelCreateSchema.safeParse({
-    ...selectedModel,
-    isEnabled: true,
-    allowedPlans: selectedAllowedPlans.value,
-  });
+  const parsedModel = aiModelCreateSchema.safeParse({ ...selectedModel, isEnabled: true });
   if (!parsedModel.success) {
     formError.value = zodErrorMessage(parsedModel.error);
     return;
@@ -288,34 +356,42 @@ async function save(): Promise<void> {
   try {
     await aiModels.create(parsedModel.data);
     closeForm();
-    await loadModels();
+    await loadAll();
   } catch (err) {
     formError.value = err instanceof Error ? err.message : "Failed to save";
   }
 }
 
-async function setDefault(id: string): Promise<void> {
-  try {
-    await aiModels.setDefault(id);
-    await loadModels();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "Failed to set default";
-  }
+function setPlanModel(plan: PlanLimitConfig, modelId: string): Promise<void> {
+  return applyRoutingChange(
+    () => rateLimits.update({ ...plan, aiModelId: modelId === "" ? null : modelId }),
+    "Failed to update plan model",
+  );
+}
+
+function setDefault(id: string): Promise<void> {
+  return applyRoutingChange(() => aiModels.setDefault(id), "Failed to set default model");
+}
+
+function setFallback(id: string): Promise<void> {
+  return applyRoutingChange(() => aiModels.setFallback(id === "" ? null : id), "Failed to set fallback model");
+}
+
+function toggleEnabled(model: AIModel): Promise<void> {
+  return applyRoutingChange(
+    () => aiModels.update(model.id, { isEnabled: !model.isEnabled }),
+    "Failed to update model",
+  );
 }
 
 async function deleteModel(): Promise<void> {
   if (!deletingId.value) return;
-  try {
-    await aiModels.delete(deletingId.value);
-    deletingId.value = null;
-    await loadModels();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "Failed to delete";
-  }
+  const id = deletingId.value;
+  deletingId.value = null;
+  await applyRoutingChange(() => aiModels.delete(id), "Failed to delete");
 }
 
 onMounted(() => {
-  void loadModels();
-  void loadPlans();
+  void loadAll();
 });
 </script>

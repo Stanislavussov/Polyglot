@@ -19,6 +19,7 @@ import {
 } from "../../renderers/dictionary.renderer.js";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
+import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
@@ -498,10 +499,7 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
   if (targetLangs.length === 0) return;
 
   try {
-    const modelId =
-      (await ctx.services.settings.getDefaultAIModelForPlan(ctx.user.subscriptionPlan)) ??
-      (await ctx.services.settings.getDefaultAIModel()) ??
-      "openai/gpt-5-nano";
+    const modelId = await resolveDefaultAIModel(ctx.services.settings, ctx.user.subscriptionPlan);
 
     // Load user's translation template for output config
     // Use "phrase" context to ensure grammar breakdown is included (if enabled in template)

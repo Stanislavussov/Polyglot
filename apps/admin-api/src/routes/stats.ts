@@ -4,6 +4,7 @@ import {
   languageDetectionRepository,
   requestTimingRepository,
   statsRepository,
+  userRepository,
   userRequestCountRepository,
 } from "@polyglot/adapter-db";
 import type { FastifyInstance } from "fastify";
@@ -40,6 +41,9 @@ export async function statsRoutes(app: FastifyInstance) {
     const outcome = await languageDetectionRepository.getSummaryByOutcome(days);
     return { byDay, outcome };
   });
+
+  // Onboarding funnel (Task 72): users by furthest step reached, split by completion.
+  app.get("/stats/onboarding-funnel", async () => userRepository.getOnboardingFunnel());
 
   app.get("/stats/dictionary-lookups", async (request) => {
     const querySchema = z.object({
