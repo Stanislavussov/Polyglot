@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-04T19:11:49.131Z",
+  "generatedAt": "2026-08-04T19:32:00.376Z",
   "summary": {
-    "total": 2526,
+    "total": 2527,
     "business": 0,
-    "technical": 2526,
+    "technical": 2527,
     "workspaces": [
       "apps",
       "packages"
@@ -15937,10 +15937,10 @@
       "description": "Protects the database adapter user Repository find Activation Nudge Candidates (integration) behavior: returns everything the send path needs, joined from the settings row."
     },
     {
-      "id": "packages-adapters-db-src-tests-bootstrap-integration-test-ts-25-fresh-db-bootstrap-integration-migrations-seeded-the-languages-reference-table",
+      "id": "packages-adapters-db-src-tests-bootstrap-integration-test-ts-28-fresh-db-bootstrap-integration-migrations-seeded-the-languages-reference-table",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/bootstrap.integration.test.ts",
-      "sourceLine": 25,
+      "sourceLine": 28,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -15953,10 +15953,10 @@
       "description": "Protects the database adapter fresh DB bootstrap (integration) behavior so migrations seeded the languages reference table."
     },
     {
-      "id": "packages-adapters-db-src-tests-bootstrap-integration-test-ts-39-fresh-db-bootstrap-integration-bootstrap-seed-created-the-plans-with-a-single-default",
+      "id": "packages-adapters-db-src-tests-bootstrap-integration-test-ts-42-fresh-db-bootstrap-integration-bootstrap-seed-created-the-plans-with-a-single-default",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/bootstrap.integration.test.ts",
-      "sourceLine": 39,
+      "sourceLine": 42,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -15969,10 +15969,10 @@
       "description": "Protects the database adapter fresh DB bootstrap (integration) behavior so bootstrap seed created the plans with a single default."
     },
     {
-      "id": "packages-adapters-db-src-tests-bootstrap-integration-test-ts-51-fresh-db-bootstrap-integration-bootstrap-seed-granted-premium-features-to-paid-plans-only",
+      "id": "packages-adapters-db-src-tests-bootstrap-integration-test-ts-54-fresh-db-bootstrap-integration-bootstrap-seed-granted-premium-features-to-paid-plans-only",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/bootstrap.integration.test.ts",
-      "sourceLine": 51,
+      "sourceLine": 54,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -15983,6 +15983,22 @@
       "name": "Database adapter fresh DB bootstrap (integration) bootstrap seed granted premium features to paid plans only",
       "value": "Protects the database adapter fresh DB bootstrap (integration) behavior so bootstrap seed granted premium features to paid plans only.",
       "description": "Protects the database adapter fresh DB bootstrap (integration) behavior so bootstrap seed granted premium features to paid plans only."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-bootstrap-integration-test-ts-68-fresh-db-bootstrap-integration-bootstrap-seed-left-a-resolvable-default-ai-model",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/bootstrap.integration.test.ts",
+      "sourceLine": 68,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "fresh-DB bootstrap (integration)"
+      ],
+      "title": "bootstrap seed left a resolvable default AI model",
+      "rawTitle": "bootstrap seed left a resolvable default AI model",
+      "name": "Database adapter fresh DB bootstrap (integration) bootstrap seed left a resolvable default AI model",
+      "value": "Protects the database adapter fresh DB bootstrap (integration) behavior so bootstrap seed left a resolvable default AI model.",
+      "description": "Protects the database adapter fresh DB bootstrap (integration) behavior so bootstrap seed left a resolvable default AI model."
     },
     {
       "id": "packages-adapters-db-src-tests-bot-session-repository-test-ts-38-botsessionrepository-returns-a-stored-session-by-key",
