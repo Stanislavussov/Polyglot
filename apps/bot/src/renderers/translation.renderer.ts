@@ -13,6 +13,7 @@ import type {
 } from "@polyglot/core";
 import { getLangFlag, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { NOOP_CALLBACK } from "../utils/long-op.js";
 
 /** Escape HTML special characters for Telegram */
 function esc(text: string): string {
@@ -345,7 +346,13 @@ function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string 
  * Row 1: Clarify meaning + Other meaning
  * Row 2: Grammar + Etymology (learning aids, each shown when enabled — share a row)
  * Row 3: Grammar detail (when expanded)
- * Row 4: Save button (always last)
+ * Row 4: Source-language override (only on doubtful-detection cards — a "translate
+ *        from" header + one flag button per candidate language, `tr:srclang:*`)
+ * Row 5: Save button (always last)
+ *
+ * `sourceOverrideLangs` is populated only when source-language detection was
+ * doubtful (a heuristic fallback rather than a confident resolution); it stays
+ * empty on the common confident path, so the extra rows are rare by construction.
  *
  * Used for all input types (words, phrases, sentences).
  */
@@ -356,6 +363,7 @@ export function buildTranslationKeyboard(
   showGrammarButton?: boolean,
   showGrammarDetailButton?: boolean,
   showEtymologyButton?: boolean,
+  sourceOverrideLangs?: string[],
 ): InlineKeyboard {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
@@ -378,6 +386,22 @@ export function buildTranslationKeyboard(
   if (showGrammarDetailButton) {
     kb.row();
     kb.text(t("grammarDetailButton", lang), `tr:gramdetail:${mid}`);
+  }
+
+  // Source-language override — only on doubtful cards. A non-actionable header
+  // (NOOP) labels the intent, then one flag button per candidate language in
+  // rows of up to four. Tapping a flag re-translates the same original with that
+  // source forced as an AI hint (handled by `tr:srclang:<code>:<mid>`), sent as a
+  // new card so the doubtful card stays as a snapshot.
+  if (sourceOverrideLangs && sourceOverrideLangs.length > 0) {
+    kb.row();
+    kb.text(t("translationSourceFromLabel", lang), NOOP_CALLBACK);
+    for (let i = 0; i < sourceOverrideLangs.length; i += 4) {
+      kb.row();
+      for (const code of sourceOverrideLangs.slice(i, i + 4)) {
+        kb.text(`${getLangFlag(code) ?? "🔤"} ${code.toUpperCase()}`, `tr:srclang:${code}:${mid}`);
+      }
+    }
   }
 
   // Save is always the last row

@@ -53,6 +53,7 @@
   "regenerated": "✅ Tłumaczenie {lang} zaktualizowane",
   "clarifyTranslation": "🎯 Doprecyzuj znaczenie",
   "otherMeaning": "🔄 Inne znaczenie",
+  "translationSourceFromLabel": "🌐 Zły język? Przetłumacz z:",
   "clarifyTranslationPrompt": "Wpisz kontekst lub doprecyzowanie dla tego słowa:",
   "regeneratingAll": "⏳ Generuję alternatywę...",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",

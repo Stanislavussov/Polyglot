@@ -1,3 +1,22 @@
+-- Fresh-replay repair (Task 71): topic_translation_cache was created on live DBs via
+-- `db:push` and never had a CREATE migration, so replaying the chain on an empty
+-- database failed here. Guarded create with the final (timestamptz) shape; a no-op
+-- on live DBs where the table already exists.
+CREATE TABLE IF NOT EXISTS "topic_translation_cache" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"topic_id" text NOT NULL,
+	"original" text NOT NULL,
+	"source_lang" text NOT NULL,
+	"target_lang" text NOT NULL,
+	"content" jsonb NOT NULL,
+	"is_valid" boolean DEFAULT true NOT NULL,
+	"invalid_reason" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "topic_cache_unique_idx" ON "topic_translation_cache" USING btree ("topic_id","original","source_lang","target_lang");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "topic_cache_lookup_idx" ON "topic_translation_cache" USING btree ("topic_id","source_lang","target_lang");--> statement-breakpoint
 CREATE TABLE "user_daily_request_counts" (
 	"user_id" integer NOT NULL,
 	"day" date NOT NULL,

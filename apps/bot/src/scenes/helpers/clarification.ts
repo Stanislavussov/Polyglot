@@ -34,6 +34,7 @@ import {
   normalizeLearningLangs,
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
+import { setTranslationEntry } from "./translation-map.helper.js";
 
 function resolveTargetsForClarifiedSource(
   selectedSource: string,
@@ -286,10 +287,6 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
         throw new Error("Unexpected needs_clarification in post-translation clarify flow");
       }
 
-      entry.output = decision.output;
-      entry.grammarBreakdown = undefined;
-      entry.etymology = undefined;
-
       const cardText = isSentence
         ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
         : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
@@ -297,18 +294,30 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
       const showGrammarButton =
         entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
       const showEtymologyButton = isEtymologyEligible(entry.inputType, decision.output.sourceLang, nativeLang);
+
+      // Append-not-edit: the clarified translation is a NEW card; the previous
+      // card stays put as a snapshot (which also avoids Telegram's 48h edit
+      // limit). Preserve any accumulated "Other meaning" history for the new
+      // card and advance the pending-card pointers to it.
+      const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
       const keyboard = buildTranslationKeyboard(
         lang,
-        postClarifyMsgId,
+        newMsg.message_id,
         undefined,
         showGrammarButton,
         undefined,
         showEtymologyButton,
       );
-      await ctx.api.editMessageText(ctx.chat!.id, postClarifyMsgId, cardText, {
-        reply_markup: keyboard,
-        parse_mode: "HTML",
+      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
+
+      setTranslationEntry(ctx.session, newMsg.message_id, {
+        output: decision.output,
+        inputType: entry.inputType,
+        contextHint: entry.contextHint,
+        previousTranslations: entry.previousTranslations,
       });
+      ctx.session.pendingCardMsgId = newMsg.message_id;
+      ctx.session.pendingTranslation = decision.output;
     } catch (err) {
       logger.error({ err, word: entry.output.original }, "Post-translation clarify failed");
     }

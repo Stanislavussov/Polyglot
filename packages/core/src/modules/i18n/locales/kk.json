@@ -53,6 +53,7 @@
   "regenerated": "✅ {lang} аудармасы жаңартылды",
   "clarifyTranslation": "🎯 Мағынасын нақтылау",
   "otherMeaning": "🔄 Басқа мағына",
+  "translationSourceFromLabel": "🌐 Тіл қате ме? Мына тілден аудару:",
   "clarifyTranslationPrompt": "Осы сөзге арналған контекст немесе нақтылауды жазыңыз:",
   "regeneratingAll": "⏳ Балама жасалуда...",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",

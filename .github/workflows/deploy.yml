@@ -15,6 +15,9 @@ permissions:
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
+    # Explicit pass-through (not `secrets: inherit`) for auditability — repo
+    # secrets do NOT flow through workflow_call automatically. The integration
+    # job needs no secrets: its Postgres is a runner-local service container.
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
@@ -32,7 +35,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26 # prod parity: .nvmrc=26, deploy/Dockerfile* use node:26-alpine
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile

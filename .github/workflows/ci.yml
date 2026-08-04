@@ -22,7 +22,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26 # prod parity: .nvmrc=26, all deploy/Dockerfile* use node:26-alpine
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -47,5 +47,64 @@ jobs:
         with:
           name: test-coverage-catalog
           path: |
-            apps/admin/public/reports/test-catalog.json
-            apps/admin/public/reports/test-catalog.html
+            apps/admin/reports-data/test-catalog.json
+            apps/admin/reports-data/test-catalog.html
+
+  # Real-DB integration lane (Task 71): runs the committed migrations (the prod
+  # path, including the languages data-seed) plus the plans bootstrap seed
+  # against a throwaway Postgres service container, then runs the integration
+  # tests against it. A service container is free runner-local compute — the
+  # lane deliberately consumes ZERO Neon compute-hours on every develop push
+  # (Neon bills by compute time; the Neon branch lane remains available locally
+  # via `pnpm test:integration` with NEON_API_KEY/NEON_PROJECT_ID).
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: polyglot_test
+        ports:
+          - 5432:5432
+        # Job steps run on the host, so wait until the mapped port is genuinely ready.
+        options: >-
+          --health-cmd "pg_isready -U postgres -d polyglot_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Throwaway, runner-local, torn down with the job — safe to inline.
+      CI_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/polyglot_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Build the workspace so the bot e2e tests resolve @polyglot/* from dist
+      # (the same posture the `check` job's tests rely on).
+      - name: Build
+        run: pnpm build
+
+      - name: Apply migrations (prod path, includes the languages data-seed)
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: ${{ env.CI_DATABASE_URL }}
+
+      - name: Bootstrap seed (plans + feature access)
+        run: pnpm admin:seed
+        env:
+          DATABASE_URL: ${{ env.CI_DATABASE_URL }}
+
+      - name: Integration tests
+        run: pnpm test:integration:run
+        env:
+          TEST_DATABASE_URL: ${{ env.CI_DATABASE_URL }}

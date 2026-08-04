@@ -31,6 +31,7 @@ import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout }
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
 import { isEtymologyEligible } from "./translate-mode.shared.js";
+import { setTranslationEntry } from "./translation-map.helper.js";
 
 /**
  * Handles Save callback in translate mode — full FEAT-30 flow.
@@ -185,7 +186,15 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
   }
   entry.previousTranslations = prev;
 
-  await showCardLoading(ctx, lang);
+  // Feedback without touching the previous card: a transient loading message,
+  // removed once the new card is ready. The previous card is left untouched as a
+  // snapshot (append-not-edit) — which also sidesteps Telegram's 48h edit limit.
+  const loadingMsg = await ctx.reply(t("regeneratingAll", lang));
+  const clearLoading = (): Promise<void> =>
+    ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).then(
+      () => {},
+      () => {},
+    );
 
   try {
     const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
@@ -215,7 +224,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
           userId: ctx.user.id,
           outputConfig,
           inputType: entry.inputType,
-          negativeConstraints: entry.previousTranslations,
+          negativeConstraints: prev,
         },
         {
           lookupContext: lookupContextFn,
@@ -225,19 +234,15 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       LONG_OP_TIMEOUT_MS,
     );
 
-    // Unlike the first translation, "Other meaning" is a best-effort extra: if
-    // the pipeline now wants clarification (e.g. no genuinely different sense to
-    // offer), don't surface a scary error — restore the card and tell the user
-    // there are no more meanings.
+    await clearLoading();
+
+    // "Other meaning" is a best-effort extra: if the pipeline now wants
+    // clarification (no genuinely different sense to offer), leave the previous
+    // card untouched and just tell the user there are no more meanings.
     if (decision.status === "needs_clarification") {
-      await reRenderCard(ctx, entry, msgId, lang, nativeLang);
       await ctx.answerCallbackQuery({ text: t("translationNoMoreMeanings", lang), show_alert: true });
       return;
     }
-
-    entry.output = decision.output;
-    entry.grammarBreakdown = undefined;
-    entry.etymology = undefined;
 
     const cardText = isSentence
       ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
@@ -245,27 +250,35 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
 
     const showGrammarButton = entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
     const showEtymologyButton = isEtymologyEligible(entry.inputType, decision.output.sourceLang, nativeLang);
+
+    // Append-not-edit: the new meaning is a NEW card; the previous one stays put
+    // as a snapshot. Carry the accumulated negative constraints forward into the
+    // new card's entry so a further "Other meaning" tap still excludes every
+    // sense shown so far, and point the pending-card pointers at the new card.
+    const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
     const keyboard = buildTranslationKeyboard(
       lang,
-      msgId,
+      newMsg.message_id,
       undefined,
       showGrammarButton,
       undefined,
       showEtymologyButton,
     );
-    await editMessageTextOrReply(ctx, cardText, {
-      reply_markup: keyboard,
-      parse_mode: "HTML",
+    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
+
+    setTranslationEntry(ctx.session, newMsg.message_id, {
+      output: decision.output,
+      inputType: entry.inputType,
+      contextHint: entry.contextHint,
+      previousTranslations: prev,
     });
+    ctx.session.pendingCardMsgId = newMsg.message_id;
+    ctx.session.pendingTranslation = decision.output;
   } catch (err) {
+    await clearLoading();
     logger.error({ err, word: entry.output.original }, "Alt meaning regeneration failed");
-    try {
-      await reRenderCard(ctx, entry, msgId, lang, nativeLang);
-    } catch {
-      // Card restore is best-effort; the alert below explains the failure.
-    }
-    // A timeout is worth surfacing as such; any other regeneration failure on
-    // the secondary "Other meaning" action reads better as "no more meanings".
+    // The previous card is untouched; a timeout is worth surfacing as such, any
+    // other failure on this secondary action reads better as "no more meanings".
     const alertText = isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationNoMoreMeanings", lang);
     await ctx.answerCallbackQuery({ text: alertText, show_alert: true });
     return;

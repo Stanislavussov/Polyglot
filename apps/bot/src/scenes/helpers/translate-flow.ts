@@ -468,6 +468,11 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   let sourceLang: string;
   let targetLangs: string[];
   let detectedLang: string | undefined;
+  // True only when the source language was GUESSED via a heuristic fallback
+  // rather than resolved confidently — i.e. the rare, genuinely-doubtful cases
+  // where a "translate from" override menu is worth offering. Confident
+  // detection (the common path) leaves this false, so the menu stays rare.
+  let sourceLanguageDoubtful = false;
 
   if (detection.language !== undefined) {
     // Language detected with confidence — use it as source
@@ -486,6 +491,8 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       targetLangs = learningLangs;
       detectedLang = "en";
     } else {
+      // Detected a language that is neither native nor a learning language and
+      // is not English — fall back to a script-aware guess. Doubtful.
       const fallback = resolveTranslationDirection({
         text: cleanWord,
         nativeLang,
@@ -494,6 +501,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       sourceLang = fallback.sourceLang;
       targetLangs = fallback.targetLangs;
       detectedLang = fallback.detectedLang;
+      sourceLanguageDoubtful = true;
     }
   } else if (hasActionableLanguageAmbiguity(detection)) {
     // Real language ambiguity with dictionary evidence in multiple languages — ask user to select.
@@ -537,7 +545,8 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     await ctx.reply(promptText, { reply_markup: keyboard });
     return;
   } else if (detection.ambiguousCandidates && detection.ambiguousCandidates.length > 0) {
-    // Weak ambiguity such as shared Latin script is not enough to interrupt the user.
+    // Weak ambiguity such as shared Latin script is not enough to interrupt the
+    // user, but the source is a guess — offer the "translate from" override.
     const fallback = resolveTranslationDirection({
       text: cleanWord,
       nativeLang,
@@ -546,6 +555,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     sourceLang = fallback.sourceLang;
     targetLangs = fallback.targetLangs;
     detectedLang = fallback.detectedLang;
+    sourceLanguageDoubtful = true;
   } else {
     // Truly inconclusive — no candidates scored above zero. Show mistype warning.
     ctx.session.pendingDetectedLang = undefined;
@@ -641,6 +651,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     contextHint,
     detectionConfidence: detection.confidence,
     detectedLang,
+    sourceLanguageDoubtful,
     withInlineGrammar: true,
     timing: { preflightMs, totalStart, detectionMs },
   });
@@ -685,6 +696,8 @@ async function sendTranslationCard(
     output: TranslateOutput;
     lang: SupportedLang;
     nativeLang: string;
+    /** Native + learning set — source of the "translate from" override choices. */
+    learningLangs: string[];
     needsReview: boolean;
     isSentence: boolean;
     inputType: InputType;
@@ -693,6 +706,8 @@ async function sendTranslationCard(
     contextHint?: string;
     /** Main flow only: prefixes a "detected language" banner when it differs from native. */
     detectedLang?: string;
+    /** Main flow only: when true, append the doubtful-source "translate from" override menu. */
+    sourceLanguageDoubtful?: boolean;
     /** Main flow offers inline grammar for phrases; the mistype flow never does. */
     withInlineGrammar: boolean;
   },
@@ -719,6 +734,26 @@ async function sendTranslationCard(
     effectiveTemplate.fields.grammarBreakdown &&
     hasGrammarBreakdownData(output);
   const showEtymologyButton = isEtymologyEligible(inputType, output.sourceLang, nativeLang);
+
+  // Doubtful-source override: offer the user's other languages (native + learning,
+  // minus the guessed source) as forced-source retranslation choices. Only when the
+  // detector fell back to a guess — rare by construction.
+  const sourceOverrideLangs = opts.sourceLanguageDoubtful
+    ? getUserLanguageGroup(nativeLang, opts.learningLangs).filter((code) => code !== output.sourceLang)
+    : undefined;
+  if (sourceOverrideLangs && sourceOverrideLangs.length > 0) {
+    ctx.services.languageDetectionRepository
+      .record({
+        userId: ctx.user.id,
+        eventType: "override_shown",
+        word: output.original,
+        sourceLang: output.sourceLang,
+      })
+      .catch((err: unknown) => {
+        logger.warn({ err }, "Failed to record language detection event");
+      });
+  }
+
   const keyboard = buildTranslationKeyboard(
     lang,
     cardMsg.message_id,
@@ -726,6 +761,7 @@ async function sendTranslationCard(
     showGrammarButton,
     hasInlineGrammar,
     showEtymologyButton,
+    sourceOverrideLangs,
   );
   await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
@@ -773,6 +809,13 @@ async function runTranslationPipeline(
     skipInputCorrection?: boolean;
     /** Main flow only: banner shown when the detected language differs from native. */
     detectedLang?: string;
+    /**
+     * Main flow only: true when the source language was a heuristic guess, so the
+     * card offers a "translate from" override menu. Omitted (false) on the mistype
+     * / override retranslation path — a user-forced source is never doubtful, which
+     * also prevents the override menu from looping.
+     */
+    sourceLanguageDoubtful?: boolean;
     /** Main flow offers inline grammar for phrases; the mistype flow never does. */
     withInlineGrammar: boolean;
     /** Main flow records request-timing telemetry; the mistype flow does not. */
@@ -795,6 +838,7 @@ async function runTranslationPipeline(
     detectionConfidence,
     skipInputCorrection,
     detectedLang,
+    sourceLanguageDoubtful,
     withInlineGrammar,
     timing,
   } = params;
@@ -963,6 +1007,7 @@ async function runTranslationPipeline(
       output,
       lang,
       nativeLang,
+      learningLangs,
       needsReview,
       isSentence,
       inputType: classification.type,
@@ -970,6 +1015,7 @@ async function runTranslationPipeline(
       isAlreadySaved,
       contextHint,
       detectedLang,
+      sourceLanguageDoubtful,
       withInlineGrammar,
     });
 

@@ -53,6 +53,7 @@
   "regenerated": "✅ Překlad pro {lang} aktualizován",
   "clarifyTranslation": "🎯 Upřesnit význam",
   "otherMeaning": "🔄 Jiný význam",
+  "translationSourceFromLabel": "🌐 Špatný jazyk? Přeložit z:",
   "clarifyTranslationPrompt": "Napište kontext nebo upřesnění pro toto slovo:",
   "regeneratingAll": "⏳ Generuji alternativu...",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",

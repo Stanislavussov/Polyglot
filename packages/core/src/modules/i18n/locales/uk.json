@@ -53,6 +53,7 @@
   "regenerated": "✅ Переклад на {lang} оновлено",
   "clarifyTranslation": "🎯 Уточнити значення",
   "otherMeaning": "🔄 Інше значення",
+  "translationSourceFromLabel": "🌐 Не та мова? Перекласти з:",
   "clarifyTranslationPrompt": "Напиши контекст або уточнення для цього слова:",
   "regeneratingAll": "⏳ Генерую альтернативу...",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",
