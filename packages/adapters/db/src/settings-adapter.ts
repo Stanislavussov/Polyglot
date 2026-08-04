@@ -103,25 +103,18 @@ export const settingsAdapter: SettingsPort = {
     }));
   },
 
-  async getEnabledAIModelsForPlan(plan: string): Promise<AIModel[]> {
-    const models = await aiModelRepository.findEnabledForPlan(plan);
-    return models.map((m) => ({
-      id: m.id,
-      name: m.name,
-      provider: m.provider,
-      maxTokens: m.maxTokens,
-      costPer1kInput: m.costPer1kInput,
-      costPer1kOutput: m.costPer1kOutput,
-    }));
-  },
-
   async getDefaultAIModel(): Promise<string | null> {
     const model = await aiModelRepository.findDefault();
     return model?.id ?? null;
   },
 
   async getDefaultAIModelForPlan(plan: string): Promise<string | null> {
-    const model = await aiModelRepository.findDefaultForPlan(plan);
+    const model = await aiModelRepository.findForPlan(plan);
+    return model?.id ?? null;
+  },
+
+  async getFallbackAIModel(): Promise<string | null> {
+    const model = await aiModelRepository.findFallback();
     return model?.id ?? null;
   },
 

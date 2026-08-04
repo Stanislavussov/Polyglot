@@ -1,31 +1,22 @@
 import { type AIFailover, isFinitePositive, type SettingsPort } from "@polyglot/core";
 
 /**
- * Hardcoded fallback model. `resolveDefaultAIModel` returns it when the admin has
- * set no DB default, and Phase 2 failover uses it as the second model tried after
- * a retriable failure on the primary (admin-configured) model.
+ * Thrown when no AI model can be resolved from the database — no default model for
+ * the plan, no global default, and no fallback model flagged in the admin panel.
  *
- * Cross-family on purpose. The incidents that make a fallback worth having are
- * availability failures — the NaN-budget outage, the `:free` model 429 freeze, and
- * the 2026-07-17 timeout below — and against those a *different provider family*
- * is what actually recovers: if Gemini is degraded, an OpenAI-family model still
- * answers. Same-family was considered and rejected; it only protects
- * malformed-output recovery, which is not the observed failure mode and is already
- * handled by the validator/judge/repair path.
- *
- * This constant previously held `google/gemini-3.1-flash`, a slug OpenRouter
- * rejects as "not a valid model ID" — so every primary timeout hard-failed instead
- * of recovering (Loki, 2026-07-17: primary `google/gemini-3.1-flash-lite` timed out
- * at 10000ms, the failover attempt was rejected in 13ms, `bot_ai_fallback_total
- * {reason="timeout"}=1`). Verified against the live OpenRouter catalog on
- * 2026-07-19: `openai/gpt-5-nano` VALID, `google/gemini-3.1-flash` INVALID,
- * `google/gemini-3.1-flash-lite` (the production primary) VALID.
- *
- * Any change here must name a model in the known-model catalog — see the guard in
- * `ai-model.test.ts`. This constant is shared with the self-healing plan; both must
- * land on the same value.
+ * There is deliberately NO hardcoded model to fall back on: a constant in the code
+ * is exactly how the 2026-07-17 incident happened (the constant held
+ * `google/gemini-3.1-flash`, a slug OpenRouter rejects as "not a valid model ID",
+ * so every primary timeout hard-failed on a model nobody could fix without a
+ * redeploy). Model ids now live only in `ai_models`, where an admin can repair
+ * them, and an empty table is surfaced as this error rather than papered over.
  */
-export const FALLBACK_AI_MODEL = "openai/gpt-5-nano";
+export class AIModelNotConfiguredError extends Error {
+  constructor() {
+    super("No AI model configured — set a default model in the admin panel (AI Models)");
+    this.name = "AIModelNotConfiguredError";
+  }
+}
 
 /**
  * Ideal budget (ms) reserved for the fallback attempt in the failover split. With
@@ -61,8 +52,17 @@ export const MIN_FAILOVER_BUDGET_MS = 6_000;
  *
  * Invariants when a split is returned: `primaryBudgetMs + reservedFallbackMs <= B`
  * and `primaryBudgetMs >= reservedFallbackMs`.
+ *
+ * `fallbackModel` is the admin-managed model read from the DB via
+ * {@link resolveFallbackAIModel}. `null` means no fallback model is flagged in the
+ * admin panel, and then there is nothing to fail over TO — the split is disabled
+ * and the call runs unsplit on the primary with the whole budget.
  */
-export function buildAiFailover(budgetMs: number): AIFailover | undefined {
+export function buildAiFailover(budgetMs: number, fallbackModel: string | null): AIFailover | undefined {
+  // No admin-configured fallback model — nothing to split the budget with.
+  if (!fallbackModel) {
+    return undefined;
+  }
   // A non-finite/non-positive budget (NaN/Infinity/0/negative) disables the split:
   // `NaN < MIN` is false, so without this guard NaN would flow into the arithmetic
   // below and yield `{ primaryBudgetMs: NaN, reservedFallbackMs: NaN }`, which
@@ -81,23 +81,50 @@ export function buildAiFailover(budgetMs: number): AIFailover | undefined {
   if (primaryBudgetMs < reservedFallbackMs) {
     return undefined;
   }
-  return { fallbackModel: FALLBACK_AI_MODEL, primaryBudgetMs, reservedFallbackMs };
+  return { fallbackModel, primaryBudgetMs, reservedFallbackMs };
 }
 
-export async function resolveDefaultAIModel(
-  settings?: Pick<SettingsPort, "getDefaultAIModel" | "getDefaultAIModelForPlan">,
-  plan?: string,
-): Promise<string> {
+/**
+ * The failover model, read from the admin-managed DB flag (`ai_models.is_fallback`,
+ * set via "Set Fallback" in the admin panel) — the only source there is.
+ *
+ * `null` means the admin has flagged no enabled model, and the caller then runs
+ * without a failover split. A settings read that throws also yields `null`: a DB
+ * blip must not take down the primary call, and inventing a model id here is what
+ * this whole change exists to remove.
+ */
+export async function resolveFallbackAIModel(
+  settings?: Pick<SettingsPort, "getFallbackAIModel">,
+): Promise<string | null> {
   if (!settings) {
-    return FALLBACK_AI_MODEL;
+    return null;
   }
 
   try {
-    if (plan) {
-      return (await settings.getDefaultAIModelForPlan(plan)) ?? FALLBACK_AI_MODEL;
-    }
-    return (await settings.getDefaultAIModel()) ?? FALLBACK_AI_MODEL;
+    return await settings.getFallbackAIModel();
   } catch {
-    return FALLBACK_AI_MODEL;
+    return null;
   }
+}
+
+/**
+ * The primary model for a call: the plan's default, else the global default, else
+ * the admin-set fallback model — all three read from `ai_models`. When the database
+ * names none of them there is no model to call, and that is an
+ * {@link AIModelNotConfiguredError}, not a hardcoded guess.
+ */
+export async function resolveDefaultAIModel(
+  settings?: Pick<SettingsPort, "getDefaultAIModel" | "getDefaultAIModelForPlan" | "getFallbackAIModel">,
+  plan?: string,
+): Promise<string> {
+  if (!settings) {
+    throw new AIModelNotConfiguredError();
+  }
+
+  const preferred = plan ? await settings.getDefaultAIModelForPlan(plan) : await settings.getDefaultAIModel();
+  const model = preferred ?? (await settings.getFallbackAIModel());
+  if (!model) {
+    throw new AIModelNotConfiguredError();
+  }
+  return model;
 }

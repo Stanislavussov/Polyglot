@@ -41,15 +41,21 @@ export const DEFAULT_PLAN_LIMIT: NonNullable<Awaited<ReturnType<ServiceContainer
   isDefault: true,
 };
 
-function createSettingsStub(): ServiceContainer["settings"] {
+/**
+ * Settings stub for hand-built `ctx.services` objects: a CONFIGURED system.
+ * Model resolution now reads every model id from the DB, so a context without a
+ * settings port fails with AIModelNotConfiguredError instead of silently using a
+ * hardcoded model — tests must describe the configured state like production does.
+ */
+export function createSettingsStub(): ServiceContainer["settings"] {
   return {
     getPlanLimits: vi.fn().mockResolvedValue([DEFAULT_PLAN_LIMIT]),
     getPlanLimit: vi.fn().mockResolvedValue(DEFAULT_PLAN_LIMIT),
     getAIModels: vi.fn().mockResolvedValue([]),
     getEnabledAIModels: vi.fn().mockResolvedValue([]),
-    getEnabledAIModelsForPlan: vi.fn().mockResolvedValue([]),
-    getDefaultAIModel: vi.fn().mockResolvedValue(null),
-    getDefaultAIModelForPlan: vi.fn().mockResolvedValue(null),
+    getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-5-nano"),
+    getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-5-nano"),
+    getFallbackAIModel: vi.fn().mockResolvedValue(null),
     getAIGenerationDefaults: vi
       .fn()
       .mockResolvedValue({ maxTokens: 4096, temperature: 0.3, frequencyPenalty: 0.5, maxRetries: 2 }),

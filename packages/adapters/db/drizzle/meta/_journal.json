@@ -323,6 +323,13 @@
       "when": 1783263308896,
       "tag": "0045_thick_beyonder",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1785870235312,
+      "tag": "0046_lyrical_ironclad",
+      "breakpoints": true
     }
   ]
 }

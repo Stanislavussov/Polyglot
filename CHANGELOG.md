@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **AI model routing is now explicit and fully database-driven — no model id is hardcoded anywhere.** The failover ("fallback") model used to be a constant in the bot (`FALLBACK_AI_MODEL`), and the AI Models page offered per-model *plan checkboxes* whose effect on routing was implicit: a plan got the global default model if the plan happened to be allowed to use it, otherwise the alphabetically first allowed model — invisible in the UI and impossible to predict. The plan/model junction (`ai_model_plan_access`) drove nothing else; its only reader was that rule.
+
+  The AI Models page now opens with a **Model routing** panel: one dropdown per subscription plan ("Use default model" or a specific model), one for the **default model** (plans without their own choice, background jobs), and one for the **fallback model** ("No fallback" is a valid choice — the call then runs a single unsplit attempt). The table below is a plain catalog with a "Used for" column listing each model's roles (Default / Fallback / plan labels), plus enable/disable and delete. Resolution order, shown literally by that panel: the plan's model → the default model → the fallback model → `AIModelNotConfiguredError`. Every step is a row an admin can change without a redeploy.
+
+  Guards match the routing model: a disabled model can be neither the default, nor the fallback, nor a plan's model; a model holding any role can be neither deleted nor disabled, and the error names the roles blocking it. Migration `0046` adds `ai_models.is_fallback` and `rate_limit_plans.ai_model_id` (FK, `ON DELETE SET NULL`) and **drops `ai_model_plan_access`** — plans start with no model of their own and follow the default until routed explicitly, which matches how the previous rule behaved for a default model allowed on every plan.
+
+  Behavioral consequence worth knowing: with no hardcoded model left, a database that names no model at all (empty `ai_models`, or all models disabled) now surfaces `AIModelNotConfiguredError` instead of quietly calling a compiled-in slug. That is the failure mode this change is for — the 2026-07-17 outage was a hardcoded fallback holding `google/gemini-3.1-flash`, an id OpenRouter rejects, so every primary timeout hard-failed on a model no admin could fix.
+
 ### Added
 
 - **Post-translation "Clarify meaning" now sends a new card instead of editing the previous one in place.** Adding clarifying context to a rendered card (the 🎯 Clarify meaning button followed by a context message) re-translated correctly but rewrote the original card via `editMessageText`, discarding the pre-clarification result and failing on cards past Telegram's 48-hour edit window. The clarified translation is now posted as a **new** card, leaving the previous one as a snapshot; any accumulated "Other meaning" history is preserved on the new card and the pending-card pointers advance to it. Covered by a test asserting a new card is sent and the previous card is never edited in place.

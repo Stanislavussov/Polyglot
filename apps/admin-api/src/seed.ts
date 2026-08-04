@@ -62,9 +62,11 @@ async function seed() {
     },
   ];
 
-  // Idempotent: upsert every plan (updates columns on re-run) and sync its feature access.
+  // Idempotent: upsert every plan (updates columns on re-run) and sync its feature
+  // access. Seeded plans carry no model of their own — they follow the globally
+  // default model until an admin routes them explicitly in the AI Models page.
   for (const { features, ...plan } of defaultPlans) {
-    await rateLimitPlanRepository.upsert(plan);
+    await rateLimitPlanRepository.upsert({ ...plan, aiModelId: null });
     await planFeatureAccessRepository.setFeaturesForPlan(plan.name, features);
   }
   // biome-ignore lint/suspicious/noConsole: CLI script output

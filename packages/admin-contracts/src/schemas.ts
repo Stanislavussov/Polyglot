@@ -41,6 +41,8 @@ export const rateLimitPlanSchema = z.object({
     .default(1),
   isActive: z.boolean().default(true),
   isDefault: z.boolean().default(false),
+  /** Model this plan's users are served by. null = use the globally default model. */
+  aiModelId: z.string().min(1).max(255).nullable().default(null),
 });
 
 // ── Translation presets ───────────────────────────────────────────────────────
@@ -77,7 +79,7 @@ export const aiModelCreateSchema = z.object({
   costPer1kOutput: z.coerce.number().min(0, "Output cost cannot be negative"),
   isEnabled: z.boolean().default(true),
   isDefault: z.boolean().default(false),
-  allowedPlans: z.array(z.string().min(1).max(50)).min(1, "Choose at least one subscription plan"),
+  isFallback: z.boolean().default(false),
 });
 
 export const aiModelUpdateSchema = z.object({
@@ -88,11 +90,16 @@ export const aiModelUpdateSchema = z.object({
   costPer1kOutput: z.coerce.number().min(0).optional(),
   isEnabled: z.boolean().optional(),
   isDefault: z.boolean().optional(),
-  allowedPlans: z.array(z.string().min(1).max(50)).optional(),
+  isFallback: z.boolean().optional(),
 });
 
 export const aiModelSelectSchema = z.object({
   id: z.string().min(1, "Choose a model"),
+});
+
+/** Body of the "which model is the failover" write. `null` = no failover model. */
+export const aiModelFallbackSchema = z.object({
+  modelId: z.string().min(1).max(255).nullable(),
 });
 
 // ── Settings: AI generation defaults ──────────────────────────────────────────

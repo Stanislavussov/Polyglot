@@ -30,7 +30,7 @@ import {
 import { type Api, GrammyError, type RawApi } from "grammy";
 import { z } from "zod";
 import { mockPaymentAdapter } from "../payment.js";
-import { buildAiFailover, resolveDefaultAIModel } from "../utils/ai-model.js";
+import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
 
@@ -88,8 +88,11 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
   // redeploy. Returns undefined when the budget is too small to split — then the
   // call runs unsplit, matching container behaviour.
   const resolveFailover = async (): Promise<AIFailover | undefined> => {
-    const budgetMs = clampAiBudgetToOpGuard((await settings.getAIGenerationDefaults()).requestTimeoutMs);
-    return buildAiFailover(budgetMs);
+    const [defaults, fallbackModel] = await Promise.all([
+      settings.getAIGenerationDefaults(),
+      resolveFallbackAIModel(settings),
+    ]);
+    return buildAiFailover(clampAiBudgetToOpGuard(defaults.requestTimeoutMs), fallbackModel);
   };
   const notifService = createNotificationService({
     getUserVocabulary: async (userId: number) => {
