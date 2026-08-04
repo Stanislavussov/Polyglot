@@ -13,11 +13,17 @@ export type {
   RecordLanguageDetectionEventInput,
 } from "./language-detection.repository.js";
 export type { NotificationRepository, NotificationType, NotificationUser } from "./notification.repository.js";
+export type {
+  OnboardingDemoCard,
+  OnboardingDemoCardRepository,
+  UpsertOnboardingDemoCardInput,
+} from "./onboarding-demo-card.repository.js";
 export type { IssueType, ReportedIssue, ReportedIssueRepository } from "./reported-issue.repository.js";
 export type { RecordRequestTimingInput, RequestTimingRepository } from "./request-timing.repository.js";
 export type { TranslationRequestRepository } from "./translation-request.repository.js";
 export type { TranslationTemplateRepository } from "./translation-template.repository.js";
 export type {
+  ActivationNudgeCandidate,
   AudienceGroup,
   NewUser,
   SubscriptionPlan,
@@ -25,6 +31,7 @@ export type {
   UserLanguageSettings,
   UserRepository,
 } from "./user.repository.js";
+export { ACTIVATION_NUDGE_SOURCE } from "./user.repository.js";
 export type {
   CreateVideoProcessInput,
   SaveVideoPhraseInput,

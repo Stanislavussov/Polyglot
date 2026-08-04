@@ -40,6 +40,8 @@ export interface CreateVideoProcessInput {
   durationSeconds?: number;
   language: string;
   transcriptType?: string;
+  /** The one-off onboarding trial video — excluded from the plan allowance. */
+  isTrial?: boolean;
 }
 
 export interface SaveVideoPhraseInput {
@@ -69,8 +71,12 @@ export interface VideoVocabularyRepository {
     excludeFailed?: boolean,
   ): Promise<VideoProcess[]>;
   countProcessesByUser(userId: number, excludeFailed?: boolean): Promise<number>;
+  /** Completed videos this month, excluding the onboarding trial. */
   getMonthlyUsageCount(userId: number, yearMonth: string): Promise<number>;
+  /** Completed videos since `since`, excluding the onboarding trial. */
   getLifetimeUsageCount(userId: number, since: Date): Promise<number>;
+  /** Whether the user has already spent their one free onboarding trial video. */
+  hasCompletedTrial(userId: number): Promise<boolean>;
   savePhrases(processId: number, phrases: SaveVideoPhraseInput[]): Promise<void>;
   findPhrasesByProcess(processId: number, offset?: number, limit?: number): Promise<VideoPhrase[]>;
   countPhrasesByProcess(processId: number): Promise<number>;

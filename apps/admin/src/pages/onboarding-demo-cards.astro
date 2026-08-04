@@ -1,0 +1,18 @@
+---
+import AdminLayout from "../layouts/AdminLayout.astro";
+import OnboardingDemoCardsManager from "../components/OnboardingDemoCardsManager.vue";
+---
+
+<AdminLayout title="Onboarding Demo Cards">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Onboarding Demo Cards</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Approve the pre-generated hook cards new users see on their first screen. Generation never publishes — a card is
+        only served once it is approved here.
+      </p>
+    </div>
+  </div>
+
+  <OnboardingDemoCardsManager client:idle />
+</AdminLayout>

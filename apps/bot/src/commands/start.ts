@@ -1,4 +1,5 @@
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
+import { startOnboarding } from "../onboarding/onboarding-handlers.js";
 import type { BotContext } from "../types.js";
 import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { setUserCommands } from "./commands.js";
@@ -6,7 +7,7 @@ import { setUserCommands } from "./commands.js";
 /**
  * /start command handler.
  *
- * - If user is not onboarded → enter the onboarding conversation
+ * - If user is not onboarded → render the onboarding screen they are up to
  * - If user is already onboarded → show the main menu
  */
 export async function startCommand(ctx: BotContext): Promise<void> {
@@ -32,7 +33,8 @@ export async function startCommand(ctx: BotContext): Promise<void> {
     const msg = await ctx.reply(t("welcomeBack", lang));
     trackTechnicalMessage(ctx, msg.message_id);
   } else {
-    // Start onboarding conversation
-    await ctx.conversation.enter("onboarding");
+    // Onboarding is stateless (Task 72): resume on the furthest screen reached,
+    // never restart from screen 0.
+    await startOnboarding(ctx);
   }
 }

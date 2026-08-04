@@ -124,6 +124,23 @@ its layer: no cross-boundary changes.
 - All user-facing text through i18n; modes/languages from DB constants and the cache.
 - One scene per file; keep scenes small and focused.
 
+### Onboarding — `apps/bot/src/onboarding`
+
+- **Stateless by contract (Task 72).** Never introduce a grammY conversation, a session field,
+  or any other in-memory step state here. Every screen is re-derived from the database
+  (`users.onboarding_step` + `user_language_settings` + `user_learning_languages`) on each
+  update. This is what makes the flow immune to the wait-timeout, swallowed-message and
+  replayed-`ctx.session` failure classes — reintroducing held state reintroduces all three.
+- A choice is persisted the moment it is made, so any update can resume from it. A learning
+  language is written to `learningLangs` **only** together with its CEFR level.
+- All callback data lives under the `onb:` prefix, registered as a single handler group.
+  Anything an already-onboarded user can tap (the D+1 nudge) must use a different prefix.
+- Curated hook words are core data (`packages/core/src/modules/onboarding/hook-words.ts`);
+  rendered cards are cache (`onboarding_demo_cards`). Generation never publishes — only the
+  explicit `setActive` review step does, and unreviewed rows are invisible to every read path.
+- The demo tap path must not call an AI adapter. A cache miss falls back to the production
+  translate flow; it never grows a second pipeline.
+
 ## Dependency Direction
 
 `pnpm lint:deps` (dependency-cruiser) enforces import direction and forbids cycles.

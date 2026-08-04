@@ -39,8 +39,14 @@ function queryResult() {
 
 const selectWhereFn = vi.fn(() => queryResult());
 
+// Aggregate reads (getOnboardingFunnel) end in `.groupBy(...).orderBy(...)`,
+// which resolves directly — no `.where()` and no `.limit()`.
+const selectOrderByFn = vi.fn(() => Promise.resolve([...mockRows]));
+const selectGroupByFn = vi.fn(() => ({ orderBy: selectOrderByFn }));
+
 const selectFromFn = vi.fn(() => ({
   where: selectWhereFn,
+  groupBy: selectGroupByFn,
 }));
 
 const selectFn = vi.fn(() => ({ from: selectFromFn }));
@@ -398,8 +404,8 @@ describe("userRepository", () => {
   });
 
   describe("markOnboarded", () => {
-    it("sets onboarded to true and step to 3 (BRD §5 — 3-step onboarding)", async () => {
-      const user = makeUser({ onboarded: true, onboardingStep: 3 });
+    it("sets onboarded to true and step to 4 (Task 72 — 4-screen onboarding)", async () => {
+      const user = makeUser({ onboarded: true, onboardingStep: 4 });
       updateReturningFn.mockResolvedValueOnce([user]);
 
       const result = await userRepository.markOnboarded(1);
@@ -407,8 +413,42 @@ describe("userRepository", () => {
       expect(result).toEqual(user);
       expect(lastUpdateSet).toMatchObject({
         onboarded: true,
-        onboardingStep: 3,
+        onboardingStep: 4,
       });
+    });
+  });
+
+  describe("getOnboardingFunnel", () => {
+    it("groups users by furthest step and completion, with numeric counts", async () => {
+      // Step 3 appears twice: users who abandoned on the Task 72 demo screen and
+      // legacy rows that completed under the old 3-screen flow. Splitting on
+      // `onboarded` is what keeps them apart.
+      mockRows.push(
+        { step: 1, onboarded: false, count: "12" },
+        { step: 3, onboarded: false, count: "4" },
+        { step: 3, onboarded: true, count: "9" },
+        { step: 4, onboarded: true, count: "7" },
+      );
+
+      const result = await userRepository.getOnboardingFunnel();
+
+      expect(result).toEqual([
+        { step: 1, onboarded: false, count: 12 },
+        { step: 3, onboarded: false, count: 4 },
+        { step: 3, onboarded: true, count: 9 },
+        { step: 4, onboarded: true, count: 7 },
+      ]);
+      // Postgres returns bigint counts as strings over the wire; the funnel must
+      // hand the admin panel numbers it can sum, not concatenate.
+      for (const row of result) {
+        expect(typeof row.count).toBe("number");
+      }
+    });
+
+    it("returns an empty funnel when there are no users", async () => {
+      const result = await userRepository.getOnboardingFunnel();
+
+      expect(result).toEqual([]);
     });
   });
 

@@ -37,6 +37,12 @@ vi.mock("@polyglot/adapter-db", () => ({
     getInactiveUsers: vi.fn().mockResolvedValue([]),
     disableNotifications: vi.fn().mockResolvedValue(undefined),
   },
+  onboardingDemoCardRepository: {
+    findActive: vi.fn().mockResolvedValue([]),
+    findOne: vi.fn().mockResolvedValue(null),
+    hasCached: vi.fn().mockResolvedValue(false),
+    upsert: vi.fn().mockResolvedValue(undefined),
+  },
   translationRequestRepository: {
     logTranslationRequest: vi.fn().mockResolvedValue(1),
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
@@ -157,6 +163,7 @@ describe("createContainer", () => {
     expect(container.translationTemplateRepository).toBeDefined();
     expect(container.wordReviewRepository).toBeDefined();
     expect(container.notificationRepository).toBeDefined();
+    expect(container.onboardingDemoCardRepository).toBeDefined();
     expect(container.translationRequestRepository).toBeDefined();
     expect(container.languageDetectionRepository).toBeDefined();
     expect(container.requestTimingRepository).toBeDefined();

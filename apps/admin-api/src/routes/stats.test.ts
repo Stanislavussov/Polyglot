@@ -55,12 +55,21 @@ const mocks = vi.hoisted(() => {
     }),
   );
 
+  const getOnboardingFunnel = vi.fn(() =>
+    Promise.resolve([
+      { step: 1, onboarded: false, count: 12 },
+      { step: 3, onboarded: false, count: 4 },
+      { step: 4, onboarded: true, count: 7 },
+    ]),
+  );
+
   const getSegmentSummaryByDay = vi.fn(() => Promise.resolve([]));
   const getSegmentSummaryByModel = vi.fn(() => Promise.resolve([]));
   const getLanguageDetectionByDay = vi.fn(() => Promise.resolve([]));
   const getLanguageDetectionByOutcome = vi.fn(() => Promise.resolve([]));
 
   return {
+    getOnboardingFunnel,
     getUserRequestCountsByDay,
     getDictionaryLookupSummary,
     listRecentDictionaryLookups,
@@ -86,6 +95,9 @@ vi.mock("@polyglot/adapter-db", () => ({
   languageDetectionRepository: {
     getSummaryByDay: mocks.getLanguageDetectionByDay,
     getSummaryByOutcome: mocks.getLanguageDetectionByOutcome,
+  },
+  userRepository: {
+    getOnboardingFunnel: mocks.getOnboardingFunnel,
   },
 }));
 
@@ -263,6 +275,31 @@ describe("statsRoutes", () => {
     expect(response.statusCode).toBe(400);
     expect(response.json()).toEqual({ error: "Invalid request parameters" });
     expect(mocks.getSegmentSummaryByDay).not.toHaveBeenCalled();
+    await app.close();
+  });
+
+  it("serves the onboarding funnel grouped by step and completion (Task 72)", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: "/stats/onboarding-funnel" });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual([
+      { step: 1, onboarded: false, count: 12 },
+      { step: 3, onboarded: false, count: 4 },
+      { step: 4, onboarded: true, count: 7 },
+    ]);
+    await app.close();
+  });
+
+  it("returns an empty onboarding funnel when there are no users", async () => {
+    mocks.getOnboardingFunnel.mockResolvedValueOnce([]);
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: "/stats/onboarding-funnel" });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual([]);
     await app.close();
   });
 
