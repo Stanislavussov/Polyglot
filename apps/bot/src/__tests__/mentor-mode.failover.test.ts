@@ -46,14 +46,21 @@ vi.mock("../metrics.js", () => ({
 import { mentorCounter } from "../metrics.js";
 import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import type { BotContext, SessionData } from "../types.js";
-import { FALLBACK_AI_MODEL } from "../utils/ai-model.js";
+
+/** The admin-configured failover model this suite routes the second attempt to. */
+const ADMIN_FALLBACK_MODEL = "openai/gpt-5-nano";
 
 /** The provider seam: primary (1st call) 429s; the fallback model (2nd call) succeeds. */
 function buildFailoverAi(provider: (model: string) => Promise<string>) {
   return {
     generateChat: (_messages: unknown, model: string) =>
       withModelFailover(
-        { primaryModel: model, fallbackModel: FALLBACK_AI_MODEL, primaryBudgetMs: 10_000, reservedFallbackMs: 5_000 },
+        {
+          primaryModel: model,
+          fallbackModel: ADMIN_FALLBACK_MODEL,
+          primaryBudgetMs: 10_000,
+          reservedFallbackMs: 5_000,
+        },
         (attemptModel: string) => provider(attemptModel),
       ),
   };
@@ -103,7 +110,7 @@ describe("handleMentorText with failover", () => {
 
     // The primary (openai/gpt-4o) 429d; the fallback model produced the reply.
     expect(provider).toHaveBeenNthCalledWith(1, "openai/gpt-4o");
-    expect(provider).toHaveBeenNthCalledWith(2, FALLBACK_AI_MODEL);
+    expect(provider).toHaveBeenNthCalledWith(2, ADMIN_FALLBACK_MODEL);
 
     // User got the coaching reply (loading indicator first, then the answer) — no error.
     const replies = vi.mocked(ctx.reply).mock.calls;
@@ -114,7 +121,7 @@ describe("handleMentorText with failover", () => {
     // The failover was counted for the metric.
     expect(observer).toHaveBeenCalledWith({
       fromModel: "openai/gpt-4o",
-      toModel: FALLBACK_AI_MODEL,
+      toModel: ADMIN_FALLBACK_MODEL,
       reason: "rate_limit",
     });
   });

@@ -120,6 +120,12 @@ interface PlanForm {
   videoWindow: "none" | "lifetime" | "monthly";
   isActive: boolean;
   isDefault: boolean;
+  /**
+   * Carried through the form untouched. The plan → model routing is edited on the
+   * AI Models page; the upsert body is the whole plan, so dropping this field here
+   * would silently reset the plan to the default model on every unrelated edit.
+   */
+  aiModelId: string | null;
 }
 
 const columns: Column[] = [
@@ -154,6 +160,7 @@ function emptyForm(): PlanForm {
     videoWindow: "none",
     isActive: true,
     isDefault: false,
+    aiModelId: null,
   };
 }
 
@@ -167,6 +174,7 @@ function toForm(plan: PlanLimitConfig): PlanForm {
     videoWindow: plan.videoWindow,
     isActive: plan.isActive,
     isDefault: plan.isDefault,
+    aiModelId: plan.aiModelId,
   };
 }
 
@@ -180,6 +188,7 @@ function toPlan(value: PlanForm): PlanLimitConfig {
     videoWindow: value.videoWindow,
     isActive: value.isActive,
     isDefault: value.isDefault,
+    aiModelId: value.aiModelId,
   };
 }
 

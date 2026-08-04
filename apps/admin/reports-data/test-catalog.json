@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-04T18:50:42.857Z",
+  "generatedAt": "2026-08-04T19:11:49.131Z",
   "summary": {
-    "total": 2497,
+    "total": 2526,
     "business": 0,
-    "technical": 2497,
+    "technical": 2526,
     "workspaces": [
       "apps",
       "packages"
@@ -231,10 +231,10 @@
       "description": "Protects the admin API auth Plugin runtime revocation (T06) behavior: rejects a token for a deleted admin."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-56-ai-model-guards-t11-refuses-to-delete-the-current-default-model-with-409",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-73-ai-model-guards-t11-refuses-to-delete-the-current-default-model-with-409",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 56,
+      "sourceLine": 73,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -247,26 +247,58 @@
       "description": "Protects the admin API AI model guards (T11) behavior so refuses to delete the current default model with 409."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-65-ai-model-guards-t11-deletes-a-non-default-model-with-204",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-82-ai-model-guards-t11-refuses-to-delete-the-current-fallback-model-with-409",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 65,
+      "sourceLine": 82,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
         "AI model guards (T11)"
       ],
-      "title": "deletes a non-default model with 204",
-      "rawTitle": "deletes a non-default model with 204",
-      "name": "Admin API AI model guards (T11) deletes a non default model with 204",
-      "value": "Protects the admin API AI model guards (T11) behavior so deletes a non default model with 204.",
-      "description": "Protects the admin API AI model guards (T11) behavior so deletes a non default model with 204."
+      "title": "refuses to delete the current fallback model with 409",
+      "rawTitle": "refuses to delete the current fallback model with 409",
+      "name": "Admin API AI model guards (T11) refuses to delete the current fallback model with 409",
+      "value": "Protects the admin API AI model guards (T11) behavior so refuses to delete the current fallback model with 409.",
+      "description": "Protects the admin API AI model guards (T11) behavior so refuses to delete the current fallback model with 409."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-74-ai-model-guards-t11-rejects-set-default-on-a-disabled-model-with-409-and-does-not-switch-the-default",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-91-ai-model-guards-t11-refuses-to-delete-a-model-a-plan-is-routed-to-naming-the-plan",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 91,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "refuses to delete a model a plan is routed to, naming the plan",
+      "rawTitle": "refuses to delete a model a plan is routed to, naming the plan",
+      "name": "Admin API AI model guards (T11) refuses to delete a model a plan is routed to, naming the plan",
+      "value": "Protects the admin API AI model guards (T11) behavior so refuses to delete a model a plan is routed to, naming the plan.",
+      "description": "Protects the admin API AI model guards (T11) behavior so refuses to delete a model a plan is routed to, naming the plan."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-103-ai-model-guards-t11-deletes-a-model-that-holds-no-routing-role-with-204",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 103,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "deletes a model that holds no routing role with 204",
+      "rawTitle": "deletes a model that holds no routing role with 204",
+      "name": "Admin API AI model guards (T11) deletes a model that holds no routing role with 204",
+      "value": "Protects the admin API AI model guards (T11) behavior so deletes a model that holds no routing role with 204.",
+      "description": "Protects the admin API AI model guards (T11) behavior so deletes a model that holds no routing role with 204."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-112-ai-model-guards-t11-rejects-set-default-on-a-disabled-model-with-409-and-does-not-switch-the-default",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 112,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -279,10 +311,10 @@
       "description": "Protects the admin API AI model guards (T11) behavior: rejects set default on a disabled model with 409 and does not switch the default."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-83-ai-model-guards-t11-rejects-set-default-on-a-missing-model-with-404",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-121-ai-model-guards-t11-rejects-set-default-on-a-missing-model-with-404",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 83,
+      "sourceLine": 121,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -295,10 +327,10 @@
       "description": "Protects the admin API AI model guards (T11) behavior: rejects set default on a missing model with 404."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-92-ai-model-guards-t11-sets-an-enabled-model-as-default",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-130-ai-model-guards-t11-sets-an-enabled-model-as-default",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 92,
+      "sourceLine": 130,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -311,10 +343,58 @@
       "description": "Protects the admin API AI model guards (T11) behavior so sets an enabled model as default."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-102-ai-model-guards-t11-forbids-a-non-superadmin-from-deleting-a-model-with-403-rbac-t07",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-140-ai-model-guards-t11-sets-an-enabled-model-as-the-failover-model",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 102,
+      "sourceLine": 140,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "sets an enabled model as the failover model",
+      "rawTitle": "sets an enabled model as the failover model",
+      "name": "Admin API AI model guards (T11) sets an enabled model as the failover model",
+      "value": "Protects the admin API AI model guards (T11) behavior so sets an enabled model as the failover model.",
+      "description": "Protects the admin API AI model guards (T11) behavior so sets an enabled model as the failover model."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-151-ai-model-guards-t11-clears-the-failover-model-when-modelid-is-null",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 151,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "clears the failover model when modelId is null",
+      "rawTitle": "clears the failover model when modelId is null",
+      "name": "Admin API AI model guards (T11) clears the failover model when model Id is null",
+      "value": "Protects the admin API AI model guards (T11) behavior so clears the failover model when model Id is null.",
+      "description": "Protects the admin API AI model guards (T11) behavior so clears the failover model when model Id is null."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-160-ai-model-guards-t11-rejects-a-disabled-model-as-the-failover-model-with-409",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 160,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "rejects a disabled model as the failover model with 409",
+      "rawTitle": "rejects a disabled model as the failover model with 409",
+      "name": "Admin API AI model guards (T11) rejects a disabled model as the failover model with 409",
+      "value": "Protects the admin API AI model guards (T11) behavior: rejects a disabled model as the failover model with 409.",
+      "description": "Protects the admin API AI model guards (T11) behavior: rejects a disabled model as the failover model with 409."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-171-ai-model-guards-t11-forbids-a-non-superadmin-from-deleting-a-model-with-403-rbac-t07",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 171,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -327,10 +407,10 @@
       "description": "Protects the admin API AI model guards (T11) behavior so forbids a non superadmin from deleting a model with 403 (RBAC, T07)."
     },
     {
-      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-112-ai-model-guards-t11-forbids-a-non-superadmin-from-changing-the-default-model-with-403",
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-181-ai-model-guards-t11-forbids-a-non-superadmin-from-changing-the-default-model-with-403",
       "kind": "technical",
       "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
-      "sourceLine": 112,
+      "sourceLine": 181,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -341,6 +421,22 @@
       "name": "Admin API AI model guards (T11) forbids a non superadmin from changing the default model with 403",
       "value": "Protects the admin API AI model guards (T11) behavior so forbids a non superadmin from changing the default model with 403.",
       "description": "Protects the admin API AI model guards (T11) behavior so forbids a non superadmin from changing the default model with 403."
+    },
+    {
+      "id": "apps-admin-api-src-routes-ai-models-guards-test-ts-190-ai-model-guards-t11-forbids-a-non-superadmin-from-changing-the-failover-model-with-403",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/ai-models-guards.test.ts",
+      "sourceLine": 190,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "AI model guards (T11)"
+      ],
+      "title": "forbids a non-superadmin from changing the failover model with 403",
+      "rawTitle": "forbids a non-superadmin from changing the failover model with 403",
+      "name": "Admin API AI model guards (T11) forbids a non superadmin from changing the failover model with 403",
+      "value": "Protects the admin API AI model guards (T11) behavior so forbids a non superadmin from changing the failover model with 403.",
+      "description": "Protects the admin API AI model guards (T11) behavior so forbids a non superadmin from changing the failover model with 403."
     },
     {
       "id": "apps-admin-api-src-routes-ai-models-test-ts-42-ai-model-openrouter-routes-reports-openrouter-key-expiration-from-the-current-key-endpoint",
@@ -983,10 +1079,10 @@
       "description": "Protects the admin API user Routes behavior so forbids a non superadmin from changing a user's audience group with 403."
     },
     {
-      "id": "apps-admin-api-src-services-ai-model-service-test-ts-43-aimodelservice-invariants-t11-t27-refuses-to-delete-the-current-default-model-and-never-touches-the-repository",
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-55-aimodelservice-invariants-t11-t27-refuses-to-delete-the-current-default-model-and-never-touches-the-repository",
       "kind": "technical",
       "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
-      "sourceLine": 43,
+      "sourceLine": 55,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -999,26 +1095,58 @@
       "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so refuses to delete the current default model and never touches the repository."
     },
     {
-      "id": "apps-admin-api-src-services-ai-model-service-test-ts-50-aimodelservice-invariants-t11-t27-deletes-a-non-default-model",
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-62-aimodelservice-invariants-t11-t27-refuses-to-delete-the-current-fallback-model",
       "kind": "technical",
       "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
-      "sourceLine": 50,
+      "sourceLine": 62,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
         "aiModelService invariants (T11/T27)"
       ],
-      "title": "deletes a non-default model",
-      "rawTitle": "deletes a non-default model",
-      "name": "Admin API ai Model Service invariants (T11 T27) deletes a non default model",
-      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so deletes a non default model.",
-      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so deletes a non default model."
+      "title": "refuses to delete the current fallback model",
+      "rawTitle": "refuses to delete the current fallback model",
+      "name": "Admin API ai Model Service invariants (T11 T27) refuses to delete the current fallback model",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so refuses to delete the current fallback model.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so refuses to delete the current fallback model."
     },
     {
-      "id": "apps-admin-api-src-services-ai-model-service-test-ts-57-aimodelservice-invariants-t11-t27-rejects-set-default-on-a-disabled-model-and-does-not-switch-the-default",
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-69-aimodelservice-invariants-t11-t27-refuses-to-delete-a-model-a-plan-is-routed-to",
       "kind": "technical",
       "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
-      "sourceLine": 57,
+      "sourceLine": 69,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "refuses to delete a model a plan is routed to",
+      "rawTitle": "refuses to delete a model a plan is routed to",
+      "name": "Admin API ai Model Service invariants (T11 T27) refuses to delete a model a plan is routed to",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so refuses to delete a model a plan is routed to.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so refuses to delete a model a plan is routed to."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-77-aimodelservice-invariants-t11-t27-deletes-a-model-that-holds-no-routing-role",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 77,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "deletes a model that holds no routing role",
+      "rawTitle": "deletes a model that holds no routing role",
+      "name": "Admin API ai Model Service invariants (T11 T27) deletes a model that holds no routing role",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so deletes a model that holds no routing role.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so deletes a model that holds no routing role."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-84-aimodelservice-invariants-t11-t27-rejects-set-default-on-a-disabled-model-and-does-not-switch-the-default",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 84,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -1031,10 +1159,10 @@
       "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects set default on a disabled model and does not switch the default."
     },
     {
-      "id": "apps-admin-api-src-services-ai-model-service-test-ts-66-aimodelservice-invariants-t11-t27-rejects-set-default-on-a-missing-model-with-404",
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-93-aimodelservice-invariants-t11-t27-rejects-set-default-on-a-missing-model-with-404",
       "kind": "technical",
       "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
-      "sourceLine": 66,
+      "sourceLine": 93,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -1047,10 +1175,10 @@
       "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects set default on a missing model with 404."
     },
     {
-      "id": "apps-admin-api-src-services-ai-model-service-test-ts-73-aimodelservice-invariants-t11-t27-sets-an-enabled-model-as-default",
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-100-aimodelservice-invariants-t11-t27-sets-an-enabled-model-as-default",
       "kind": "technical",
       "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
-      "sourceLine": 73,
+      "sourceLine": 100,
       "workspace": "apps",
       "packageName": "admin-api",
       "suitePath": [
@@ -1061,6 +1189,102 @@
       "name": "Admin API ai Model Service invariants (T11 T27) sets an enabled model as default",
       "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so sets an enabled model as default.",
       "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so sets an enabled model as default."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-107-aimodelservice-invariants-t11-t27-rejects-a-disabled-model-as-fallback-failover-must-not-point-at-a-model-we-may-not-call",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 107,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "rejects a disabled model as fallback — failover must not point at a model we may not call",
+      "rawTitle": "rejects a disabled model as fallback — failover must not point at a model we may not call",
+      "name": "Admin API ai Model Service invariants (T11 T27) rejects a disabled model as fallback — failover must not point at a model we may not call",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects a disabled model as fallback — failover must not point at a model we may not call.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects a disabled model as fallback — failover must not point at a model we may not call."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-116-aimodelservice-invariants-t11-t27-rejects-a-missing-model-as-fallback-with-404",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 116,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "rejects a missing model as fallback with 404",
+      "rawTitle": "rejects a missing model as fallback with 404",
+      "name": "Admin API ai Model Service invariants (T11 T27) rejects a missing model as fallback with 404",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects a missing model as fallback with 404.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior: rejects a missing model as fallback with 404."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-123-aimodelservice-invariants-t11-t27-sets-an-enabled-model-as-fallback",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 123,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "sets an enabled model as fallback",
+      "rawTitle": "sets an enabled model as fallback",
+      "name": "Admin API ai Model Service invariants (T11 T27) sets an enabled model as fallback",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so sets an enabled model as fallback.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so sets an enabled model as fallback."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-130-aimodelservice-invariants-t11-t27-clears-the-fallback-without-touching-the-model-lookup",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 130,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "clears the fallback without touching the model lookup",
+      "rawTitle": "clears the fallback without touching the model lookup",
+      "name": "Admin API ai Model Service invariants (T11 T27) clears the fallback without touching the model lookup",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so clears the fallback without touching the model lookup.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so clears the fallback without touching the model lookup."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-137-aimodelservice-invariants-t11-t27-refuses-to-disable-a-model-that-still-holds-a-routing-role",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 137,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "refuses to disable a model that still holds a routing role",
+      "rawTitle": "refuses to disable a model that still holds a routing role",
+      "name": "Admin API ai Model Service invariants (T11 T27) refuses to disable a model that still holds a routing role",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so refuses to disable a model that still holds a routing role.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so refuses to disable a model that still holds a routing role."
+    },
+    {
+      "id": "apps-admin-api-src-services-ai-model-service-test-ts-149-aimodelservice-invariants-t11-t27-disables-a-model-that-holds-no-routing-role",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/services/ai-model.service.test.ts",
+      "sourceLine": 149,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "aiModelService invariants (T11/T27)"
+      ],
+      "title": "disables a model that holds no routing role",
+      "rawTitle": "disables a model that holds no routing role",
+      "name": "Admin API ai Model Service invariants (T11 T27) disables a model that holds no routing role",
+      "value": "Protects the admin API ai Model Service invariants (T11 T27) behavior so disables a model that holds no routing role.",
+      "description": "Protects the admin API ai Model Service invariants (T11 T27) behavior so disables a model that holds no routing role."
     },
     {
       "id": "apps-admin-src-lib-api-test-ts-19-admin-api-client-does-not-send-json-content-type-for-bodyless-delete-requests",
@@ -1239,42 +1463,154 @@
       "description": "Protects the admin UI reports auth middleware (T09) behavior so fails closed (401) when the admin API is unreachable."
     },
     {
-      "id": "apps-bot-src-tests-ai-model-test-ts-18-fallback-ai-model-is-a-non-empty-provider-prefixed-model-id",
+      "id": "apps-bot-src-tests-ai-model-test-ts-33-resolvefallbackaimodel-returns-the-model-an-admin-flagged-in-the-database",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
-      "sourceLine": 18,
+      "sourceLine": 33,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
-        "FALLBACK_AI_MODEL"
+        "resolveFallbackAIModel"
       ],
-      "title": "is a non-empty, provider-prefixed model id",
-      "rawTitle": "is a non-empty, provider-prefixed model id",
-      "name": "Bot FALLBACK AI MODEL is a non empty, provider prefixed model id",
-      "value": "Protects the bot FALLBACK AI MODEL behavior so is a non empty, provider prefixed model id.",
-      "description": "Protects the bot FALLBACK AI MODEL behavior so is a non empty, provider prefixed model id."
+      "title": "returns the model an admin flagged in the database",
+      "rawTitle": "returns the model an admin flagged in the database",
+      "name": "Bot resolve Fallback AIModel returns the model an admin flagged in the database",
+      "value": "Protects the bot resolve Fallback AIModel behavior: returns the model an admin flagged in the database.",
+      "description": "Protects the bot resolve Fallback AIModel behavior: returns the model an admin flagged in the database."
     },
     {
-      "id": "apps-bot-src-tests-ai-model-test-ts-23-fallback-ai-model-names-a-model-the-system-actually-knows-so-a-timeout-can-recover-instead-of-hard-failing",
+      "id": "apps-bot-src-tests-ai-model-test-ts-39-resolvefallbackaimodel-returns-null-when-no-model-is-flagged-so-the-call-runs-without-a-split",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
-      "sourceLine": 23,
+      "sourceLine": 39,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
-        "FALLBACK_AI_MODEL"
+        "resolveFallbackAIModel"
       ],
-      "title": "names a model the system actually knows, so a timeout can recover instead of hard-failing",
-      "rawTitle": "names a model the system actually knows, so a timeout can recover instead of hard-failing",
-      "name": "Bot FALLBACK AI MODEL names a model the system actually knows, so a timeout can recover instead of hard failing",
-      "value": "Protects the bot FALLBACK AI MODEL behavior so names a model the system actually knows, so a timeout can recover instead of hard failing.",
-      "description": "Protects the bot FALLBACK AI MODEL behavior so names a model the system actually knows, so a timeout can recover instead of hard failing."
+      "title": "returns null when no model is flagged, so the call runs without a split",
+      "rawTitle": "returns null when no model is flagged, so the call runs without a split",
+      "name": "Bot resolve Fallback AIModel returns null when no model is flagged, so the call runs without a split",
+      "value": "Protects the bot resolve Fallback AIModel behavior: returns null when no model is flagged, so the call runs without a split.",
+      "description": "Protects the bot resolve Fallback AIModel behavior: returns null when no model is flagged, so the call runs without a split."
     },
     {
-      "id": "apps-bot-src-tests-ai-model-test-ts-36-buildaifailover-gives-the-full-5s-reservation-and-the-remainder-to-the-primary-at-the-default-budget",
+      "id": "apps-bot-src-tests-ai-model-test-ts-45-resolvefallbackaimodel-returns-null-instead-of-inventing-a-model-id-when-the-settings-read-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
-      "sourceLine": 36,
+      "sourceLine": 45,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveFallbackAIModel"
+      ],
+      "title": "returns null instead of inventing a model id when the settings read fails",
+      "rawTitle": "returns null instead of inventing a model id when the settings read fails",
+      "name": "Bot resolve Fallback AIModel returns null instead of inventing a model id when the settings read fails",
+      "value": "Protects the bot resolve Fallback AIModel behavior: returns null instead of inventing a model id when the settings read fails.",
+      "description": "Protects the bot resolve Fallback AIModel behavior: returns null instead of inventing a model id when the settings read fails."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-53-resolvefallbackaimodel-returns-null-when-there-is-no-settings-port-at-all",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 53,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveFallbackAIModel"
+      ],
+      "title": "returns null when there is no settings port at all",
+      "rawTitle": "returns null when there is no settings port at all",
+      "name": "Bot resolve Fallback AIModel returns null when there is no settings port at all",
+      "value": "Protects the bot resolve Fallback AIModel behavior: returns null when there is no settings port at all.",
+      "description": "Protects the bot resolve Fallback AIModel behavior: returns null when there is no settings port at all."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-68-resolvedefaultaimodel-prefers-the-plan-s-default-model-when-a-plan-is-given",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 68,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveDefaultAIModel"
+      ],
+      "title": "prefers the plan's default model when a plan is given",
+      "rawTitle": "prefers the plan's default model when a plan is given",
+      "name": "Bot resolve Default AIModel prefers the plan's default model when a plan is given",
+      "value": "Protects the bot resolve Default AIModel behavior so prefers the plan's default model when a plan is given.",
+      "description": "Protects the bot resolve Default AIModel behavior so prefers the plan's default model when a plan is given."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-72-resolvedefaultaimodel-uses-the-global-default-when-no-plan-is-given",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 72,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveDefaultAIModel"
+      ],
+      "title": "uses the global default when no plan is given",
+      "rawTitle": "uses the global default when no plan is given",
+      "name": "Bot resolve Default AIModel uses the global default when no plan is given",
+      "value": "Protects the bot resolve Default AIModel behavior: uses the global default when no plan is given.",
+      "description": "Protects the bot resolve Default AIModel behavior: uses the global default when no plan is given."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-76-resolvedefaultaimodel-falls-back-to-the-admin-set-fallback-model-when-no-default-is-configured",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 76,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveDefaultAIModel"
+      ],
+      "title": "falls back to the admin-set fallback model when no default is configured",
+      "rawTitle": "falls back to the admin-set fallback model when no default is configured",
+      "name": "Bot resolve Default AIModel falls back to the admin set fallback model when no default is configured",
+      "value": "Protects the bot resolve Default AIModel behavior: falls back to the admin set fallback model when no default is configured.",
+      "description": "Protects the bot resolve Default AIModel behavior: falls back to the admin set fallback model when no default is configured."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-85-resolvedefaultaimodel-throws-when-the-database-names-no-model-at-all-instead-of-guessing-one",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 85,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveDefaultAIModel"
+      ],
+      "title": "throws when the database names no model at all, instead of guessing one",
+      "rawTitle": "throws when the database names no model at all, instead of guessing one",
+      "name": "Bot resolve Default AIModel throws when the database names no model at all, instead of guessing one",
+      "value": "Protects the bot resolve Default AIModel behavior: throws when the database names no model at all, instead of guessing one.",
+      "description": "Protects the bot resolve Default AIModel behavior: throws when the database names no model at all, instead of guessing one."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-95-resolvedefaultaimodel-throws-when-there-is-no-settings-port-to-read-from",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 95,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "resolveDefaultAIModel"
+      ],
+      "title": "throws when there is no settings port to read from",
+      "rawTitle": "throws when there is no settings port to read from",
+      "name": "Bot resolve Default AIModel throws when there is no settings port to read from",
+      "value": "Protects the bot resolve Default AIModel behavior: throws when there is no settings port to read from.",
+      "description": "Protects the bot resolve Default AIModel behavior: throws when there is no settings port to read from."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-101-buildaifailover-gives-the-full-5s-reservation-and-the-remainder-to-the-primary-at-the-default-budget",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 101,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1287,10 +1623,26 @@
       "description": "Protects the bot build Ai Failover behavior so gives the full 5s reservation and the remainder to the primary at the default budget."
     },
     {
-      "id": "apps-bot-src-tests-ai-model-test-ts-45-buildaifailover-scales-the-reservation-down-to-1-3-of-a-mid-range-budget-so-the-primary-keeps-the-larger-share",
+      "id": "apps-bot-src-tests-ai-model-test-ts-110-buildaifailover-uses-whichever-model-the-admin-configured-not-a-built-in-one",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
-      "sourceLine": 45,
+      "sourceLine": 110,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildAiFailover"
+      ],
+      "title": "uses whichever model the admin configured, not a built-in one",
+      "rawTitle": "uses whichever model the admin configured, not a built-in one",
+      "name": "Bot build Ai Failover uses whichever model the admin configured, not a built in one",
+      "value": "Protects the bot build Ai Failover behavior: uses whichever model the admin configured, not a built in one.",
+      "description": "Protects the bot build Ai Failover behavior: uses whichever model the admin configured, not a built in one."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-114-buildaifailover-scales-the-reservation-down-to-1-3-of-a-mid-range-budget-so-the-primary-keeps-the-larger-share",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 114,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1303,10 +1655,26 @@
       "description": "Protects the bot build Ai Failover behavior so scales the reservation down to ~1 3 of a mid range budget so the primary keeps the larger share."
     },
     {
-      "id": "apps-bot-src-tests-ai-model-test-ts-54-buildaifailover-disables-the-split-undefined-for-a-budget-below-the-floor",
+      "id": "apps-bot-src-tests-ai-model-test-ts-123-buildaifailover-disables-the-split-when-no-fallback-model-is-configured-in-the-admin-panel",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
-      "sourceLine": 54,
+      "sourceLine": 123,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildAiFailover"
+      ],
+      "title": "disables the split when no fallback model is configured in the admin panel",
+      "rawTitle": "disables the split when no fallback model is configured in the admin panel",
+      "name": "Bot build Ai Failover disables the split when no fallback model is configured in the admin panel",
+      "value": "Protects the bot build Ai Failover behavior so disables the split when no fallback model is configured in the admin panel.",
+      "description": "Protects the bot build Ai Failover behavior so disables the split when no fallback model is configured in the admin panel."
+    },
+    {
+      "id": "apps-bot-src-tests-ai-model-test-ts-129-buildaifailover-disables-the-split-undefined-for-a-budget-below-the-floor",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
+      "sourceLine": 129,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1319,10 +1687,10 @@
       "description": "Protects the bot build Ai Failover behavior so disables the split (undefined) for a budget below the floor."
     },
     {
-      "id": "apps-bot-src-tests-ai-model-test-ts-58-buildaifailover-disables-the-split-exactly-one-ms-below-the-floor-and-enables-it-at-the-floor",
+      "id": "apps-bot-src-tests-ai-model-test-ts-133-buildaifailover-disables-the-split-exactly-one-ms-below-the-floor-and-enables-it-at-the-floor",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
-      "sourceLine": 58,
+      "sourceLine": 133,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1335,10 +1703,10 @@
       "description": "Protects the bot build Ai Failover behavior so disables the split exactly one ms below the floor and enables it at the floor."
     },
     {
-      "id": "apps-bot-src-tests-ai-model-test-ts-63-buildaifailover-holds-both-budget-invariants-across-the-full-admin-allowed-range",
+      "id": "apps-bot-src-tests-ai-model-test-ts-138-buildaifailover-holds-both-budget-invariants-across-the-full-admin-allowed-range",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
-      "sourceLine": 63,
+      "sourceLine": 138,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1351,10 +1719,10 @@
       "description": "Protects the bot build Ai Failover behavior so holds both budget invariants across the full admin allowed range."
     },
     {
-      "id": "apps-bot-src-tests-ai-model-test-ts-78-buildaifailover-disables-the-split-for-a-non-finite-non-positive-budget-instead-of-returning-a-nan-split",
+      "id": "apps-bot-src-tests-ai-model-test-ts-153-buildaifailover-disables-the-split-for-a-non-finite-non-positive-budget-instead-of-returning-a-nan-split",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/ai-model.test.ts",
-      "sourceLine": 78,
+      "sourceLine": 153,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2103,10 +2471,10 @@
       "description": "Protects the bot translate happy path (integration) behavior: translates a word, renders a save card, and persists vocab on save."
     },
     {
-      "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-95-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
+      "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-102-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/mentor-mode.failover.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 102,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8286,10 +8654,10 @@
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict Confirm Delete validates ownership before deleting."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-229-translate-phase-timing-metrics-observes-every-phase-exactly-once-on-a-happy-path-translate",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-220-translate-phase-timing-metrics-observes-every-phase-exactly-once-on-a-happy-path-translate",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-phase-metrics.test.ts",
-      "sourceLine": 229,
+      "sourceLine": 220,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8302,10 +8670,10 @@
       "description": "Protects the bot translate phase timing metrics behavior so observes every phase exactly once on a happy path translate."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-239-translate-phase-timing-metrics-does-not-also-time-generate-bot-side-which-would-double-count-it",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-230-translate-phase-timing-metrics-does-not-also-time-generate-bot-side-which-would-double-count-it",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-phase-metrics.test.ts",
-      "sourceLine": 239,
+      "sourceLine": 230,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8318,10 +8686,10 @@
       "description": "Protects the bot translate phase timing metrics behavior: does not also time `generate` bot side, which would double count it."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-248-translate-phase-timing-metrics-passes-a-bounded-absolute-deadline-without-which-the-phase-2-5-tail-bound-is-inert",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-239-translate-phase-timing-metrics-passes-a-bounded-absolute-deadline-without-which-the-phase-2-5-tail-bound-is-inert",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-phase-metrics.test.ts",
-      "sourceLine": 248,
+      "sourceLine": 239,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8334,10 +8702,10 @@
       "description": "Protects the bot translate phase timing metrics behavior so passes a bounded absolute deadline, without which the Phase 2 5 tail bound is inert."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-267-translate-phase-timing-metrics-emits-only-labels-from-the-declared-bounded-phase-set",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-258-translate-phase-timing-metrics-emits-only-labels-from-the-declared-bounded-phase-set",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-phase-metrics.test.ts",
-      "sourceLine": 267,
+      "sourceLine": 258,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8350,10 +8718,10 @@
       "description": "Protects the bot translate phase timing metrics behavior so emits only labels from the declared bounded phase set."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-278-translate-phase-timing-metrics-does-not-fabricate-a-core-phase-the-pipeline-never-reported",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-269-translate-phase-timing-metrics-does-not-fabricate-a-core-phase-the-pipeline-never-reported",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-phase-metrics.test.ts",
-      "sourceLine": 278,
+      "sourceLine": 269,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8366,10 +8734,10 @@
       "description": "Protects the bot translate phase timing metrics behavior: does not fabricate a core phase the pipeline never reported."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-293-translate-phase-timing-metrics-carries-no-unbounded-dimension-beyond-phase",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-284-translate-phase-timing-metrics-carries-no-unbounded-dimension-beyond-phase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-phase-metrics.test.ts",
-      "sourceLine": 293,
+      "sourceLine": 284,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8382,10 +8750,10 @@
       "description": "Protects the bot translate phase timing metrics behavior so carries no unbounded dimension beyond `phase`."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-304-translate-phase-timing-metrics-does-not-double-observe-pre-pipeline-phases-when-the-mistype-flow-re-enters-the-pipeline",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-295-translate-phase-timing-metrics-does-not-double-observe-pre-pipeline-phases-when-the-mistype-flow-re-enters-the-pipeline",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-flow-phase-metrics.test.ts",
-      "sourceLine": 304,
+      "sourceLine": 295,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8649,10 +9017,10 @@
       "description": "Protects the bot translate flow — user facing timeout behavior: keeps the plain error — with no retry button — for a hard failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-191-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-182-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 191,
+      "sourceLine": 182,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8665,10 +9033,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with user Id and word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-203-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-194-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 203,
+      "sourceLine": 194,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8681,10 +9049,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: detects language from clean text without trailing context marker."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-210-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-201-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 210,
+      "sourceLine": 201,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8697,10 +9065,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with correct model and output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-219-handletranslatetext-auto-detect-language-direction-logs-debug-info-about-resolved-direction",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-210-handletranslatetext-auto-detect-language-direction-logs-debug-info-about-resolved-direction",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 210,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8713,10 +9081,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: logs debug info about resolved direction."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-231-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-222-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 231,
+      "sourceLine": 222,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8729,10 +9097,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: handles Russian (Cyrillic) input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-241-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-232-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 241,
+      "sourceLine": 232,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8745,10 +9113,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: falls back to native→learning for ambiguous input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-263-handletranslatetext-auto-detect-language-direction-attaches-the-source-override-menu-when-detection-is-a-weak-ambiguity-guess",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-254-handletranslatetext-auto-detect-language-direction-attaches-the-source-override-menu-when-detection-is-a-weak-ambiguity-guess",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 263,
+      "sourceLine": 254,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8761,10 +9129,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior so attaches the source override menu when detection is a weak ambiguity guess."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-285-handletranslatetext-auto-detect-language-direction-does-not-attach-the-source-override-menu-on-a-confident-detection",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-276-handletranslatetext-auto-detect-language-direction-does-not-attach-the-source-override-menu-on-a-confident-detection",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 276,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8777,10 +9145,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: does NOT attach the source override menu on a confident detection."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-337-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-includes-english-among-the-sync-detection-candidates-for-a-multi-word-phrase",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-328-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-includes-english-among-the-sync-detection-candidates-for-a-multi-word-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 337,
+      "sourceLine": 328,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8793,10 +9161,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: includes English among the sync detection candidates for a multi word phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-344-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-does-not-add-english-to-the-sync-candidates-for-a-single-word",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-335-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-does-not-add-english-to-the-sync-candidates-for-a-single-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 344,
+      "sourceLine": 335,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8809,10 +9177,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: does NOT add English to the sync candidates for a single word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-353-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-translates-a-franc-identified-english-phrase-as-english-source-targeting-the-studied-language",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-344-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-translates-a-franc-identified-english-phrase-as-english-source-targeting-the-studied-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 353,
+      "sourceLine": 344,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8825,10 +9193,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: translates a franc identified English phrase as English source, targeting the studied language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-379-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-370-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 379,
+      "sourceLine": 370,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8841,10 +9209,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: shows mistype warning when detect Language returns undefined."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-390-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-381-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 390,
+      "sourceLine": 381,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8857,10 +9225,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores pending state in session when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-399-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-390-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 399,
+      "sourceLine": 390,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8873,10 +9241,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores clean pending word and context hint when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-407-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-398-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 407,
+      "sourceLine": 398,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8889,10 +9257,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not call translate With Context when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-414-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-405-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 414,
+      "sourceLine": 405,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8905,10 +9273,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior so asks for source language when fast has dictionary evidence in English and German."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-447-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-438-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 447,
+      "sourceLine": 438,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8921,10 +9289,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not ask for source language for weak shared script ambiguity only."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-507-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-498-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 507,
+      "sourceLine": 498,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8937,10 +9305,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior so proceeds with translation when confirm callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-523-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-514-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 523,
+      "sourceLine": 514,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8953,10 +9321,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior: shows session expired alert when no pending state."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-544-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-535-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 544,
+      "sourceLine": 535,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8969,10 +9337,10 @@
       "description": "Protects the bot handle Mistype Cancel Callback — Task 58 behavior so clears pending state when cancel callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-557-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-548-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 557,
+      "sourceLine": 548,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8985,10 +9353,10 @@
       "description": "Protects the bot handle Mistype Cancel Callback — Task 58 behavior so replies with translate mode hint after cancel."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-146-persist-source-lang-lazy-hydration-task-36-hydrates-nextsourcelang-from-db-when-session-is-empty",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-137-persist-source-lang-lazy-hydration-task-36-hydrates-nextsourcelang-from-db-when-session-is-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 146,
+      "sourceLine": 137,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9001,10 +9369,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so hydrates next Source Lang from DB when session is empty."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-167-persist-source-lang-lazy-hydration-task-36-session-value-takes-precedence-over-db-value-if-both-present",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-158-persist-source-lang-lazy-hydration-task-36-session-value-takes-precedence-over-db-value-if-both-present",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 167,
+      "sourceLine": 158,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9017,10 +9385,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so session value takes precedence over DB value (if both present)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-188-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-hydrated-value-becomes-invalid-on-resolvedirectionfromsource",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-179-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-hydrated-value-becomes-invalid-on-resolvedirectionfromsource",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 188,
+      "sourceLine": 179,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9033,10 +9401,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so clears from DB when hydrated value becomes invalid on resolve Direction From Source."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-205-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-lastsourcelang-is-null-in-db-first-time-user",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-196-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-lastsourcelang-is-null-in-db-first-time-user",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 205,
+      "sourceLine": 196,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9049,10 +9417,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so clears from DB when last Source Lang is null in DB (first time user)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-220-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-hydrated-value-becomes-invalid-on-resolvedirectionfromsource",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-persist-source-test-ts-211-persist-source-lang-lazy-hydration-task-36-clears-from-db-when-hydrated-value-becomes-invalid-on-resolvedirectionfromsource",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-persist-source.test.ts",
-      "sourceLine": 220,
+      "sourceLine": 211,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9065,10 +9433,10 @@
       "description": "Protects the bot Persist source lang — lazy hydration (Task 36) behavior so clears from DB when hydrated value becomes invalid on resolve Direction From Source."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-169-needstranslatereminder-non-blocking-reminder-task-36-clears-reminder-flag-without-showing-source-lang-menu-task-58",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-160-needstranslatereminder-non-blocking-reminder-task-36-clears-reminder-flag-without-showing-source-lang-menu-task-58",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 169,
+      "sourceLine": 160,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9081,10 +9449,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior so clears reminder flag without showing source lang menu (Task 58)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-192-needstranslatereminder-non-blocking-reminder-task-36-does-not-show-reminder-when-flag-is-false",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-183-needstranslatereminder-non-blocking-reminder-task-36-does-not-show-reminder-when-flag-is-false",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 192,
+      "sourceLine": 183,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9097,10 +9465,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior: does NOT show reminder when flag is false."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-207-needstranslatereminder-non-blocking-reminder-task-36-does-not-show-reminder-when-flag-is-true-but-nextsourcelang-is-null",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-198-needstranslatereminder-non-blocking-reminder-task-36-does-not-show-reminder-when-flag-is-true-but-nextsourcelang-is-null",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 207,
+      "sourceLine": 198,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9113,10 +9481,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior: does NOT show reminder when flag is true but next Source Lang is null."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-219-needstranslatereminder-non-blocking-reminder-task-36-consecutive-translations-don-t-show-reminder-flag-cleared-after-first",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-210-needstranslatereminder-non-blocking-reminder-task-36-consecutive-translations-don-t-show-reminder-flag-cleared-after-first",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 210,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9129,10 +9497,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior so consecutive translations don't show reminder (flag cleared after first)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-239-needstranslatereminder-non-blocking-reminder-task-36-reminder-hydration-fresh-session-hydrates-from-db-no-reminder-menu-per-task-58",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-230-needstranslatereminder-non-blocking-reminder-task-36-reminder-hydration-fresh-session-hydrates-from-db-no-reminder-menu-per-task-58",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 239,
+      "sourceLine": 230,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9145,10 +9513,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior so reminder + hydration: fresh session hydrates from DB (no reminder menu per Task 58)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-265-needstranslatereminder-non-blocking-reminder-task-36-2-language-user-no-source-lang-keyboard-in-reminder-only-hint-text",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-reminder-test-ts-256-needstranslatereminder-non-blocking-reminder-task-36-2-language-user-no-source-lang-keyboard-in-reminder-only-hint-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-reminder.test.ts",
-      "sourceLine": 265,
+      "sourceLine": 256,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9161,10 +9529,10 @@
       "description": "Protects the bot needs Translate Reminder — non blocking reminder (Task 36) behavior so 2 language user: no source lang keyboard in reminder (only hint text)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-137-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-cs",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-139-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-cs",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 137,
+      "sourceLine": 139,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9177,10 +9545,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: uses explicit source when next Source Lang='cs'."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-147-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-ru-native-lang",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-149-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-ru-native-lang",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 147,
+      "sourceLine": 149,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9193,10 +9561,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: uses explicit source when next Source Lang='ru' (native lang)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-155-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-en",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-157-handletranslatetext-nextsourcelang-integration-uses-explicit-source-when-nextsourcelang-en",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 155,
+      "sourceLine": 157,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9209,10 +9577,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: uses explicit source when next Source Lang='en'."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-163-handletranslatetext-nextsourcelang-integration-falls-back-to-auto-detect-when-nextsourcelang-is-null",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-165-handletranslatetext-nextsourcelang-integration-falls-back-to-auto-detect-when-nextsourcelang-is-null",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 163,
+      "sourceLine": 165,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9225,10 +9593,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: falls back to auto detect when next Source Lang is null."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-173-handletranslatetext-nextsourcelang-integration-clears-nextsourcelang-when-source-is-invalid-and-shows-mistype-warning",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-175-handletranslatetext-nextsourcelang-integration-clears-nextsourcelang-when-source-is-invalid-and-shows-mistype-warning",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 173,
+      "sourceLine": 175,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9241,10 +9609,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior so clears next Source Lang when source is invalid and shows mistype warning."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-186-handletranslatetext-nextsourcelang-integration-logs-detectedlang-in-debug-output-when-language-is-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-188-handletranslatetext-nextsourcelang-integration-logs-detectedlang-in-debug-output-when-language-is-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 186,
+      "sourceLine": 188,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9257,10 +9625,10 @@
       "description": "Protects the bot handle Translate Text — next Source Lang integration behavior: logs detected Lang in debug output when language is detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-203-handlesavecallback-feat-30-save-flow-edits-card-in-place-with-savedtodict-text-and-post-save-keyboard",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-205-handlesavecallback-feat-30-save-flow-edits-card-in-place-with-savedtodict-text-and-post-save-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 203,
+      "sourceLine": 205,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9273,10 +9641,10 @@
       "description": "Protects the bot handle Save Callback — FEAT 30 save flow behavior so edits card in place with saved To Dict text and post save keyboard."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-231-handlesavecallback-feat-30-save-flow-sets-savedwordid-in-translation-entry-after-save",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-233-handlesavecallback-feat-30-save-flow-sets-savedwordid-in-translation-entry-after-save",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 231,
+      "sourceLine": 233,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9289,10 +9657,10 @@
       "description": "Protects the bot handle Save Callback — FEAT 30 save flow behavior so sets saved Word Id in translation entry after save."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-265-handleskipcallback-source-lang-menu-answers-callback-query-on-skip-without-editing-message",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-267-handleskipcallback-source-lang-menu-answers-callback-query-on-skip-without-editing-message",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 265,
+      "sourceLine": 267,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9305,10 +9673,10 @@
       "description": "Protects the bot handle Skip Callback — source lang menu behavior so answers callback query on skip without editing message."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-288-handleskipcallback-source-lang-menu-answers-callback-query-without-editing-message-or-keyboard",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-290-handleskipcallback-source-lang-menu-answers-callback-query-without-editing-message-or-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 288,
+      "sourceLine": 290,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9321,10 +9689,10 @@
       "description": "Protects the bot handle Skip Callback — source lang menu behavior so answers callback query without editing message or keyboard."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-311-handleskipcallback-source-lang-menu-answers-callback-query-after-skip",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-source-lang-test-ts-313-handleskipcallback-source-lang-menu-answers-callback-query-after-skip",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-source-lang.test.ts",
-      "sourceLine": 311,
+      "sourceLine": 313,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10281,10 +10649,10 @@
       "description": "Protects the bot handle Retry Callback behavior so survives a failing ack and still re runs the operation."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-232-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-223-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 232,
+      "sourceLine": 223,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10297,10 +10665,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: calls translate With Context with correct input and deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-253-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-244-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 253,
+      "sourceLine": 244,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10313,10 +10681,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: logs one credit after successful incoming translation request."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-267-handletranslatetext-context-enrichment-does-not-call-ai-when-the-monthly-translation-limit-is-exhausted",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-258-handletranslatetext-context-enrichment-does-not-call-ai-when-the-monthly-translation-limit-is-exhausted",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 267,
+      "sourceLine": 258,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10329,10 +10697,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not call AI when the monthly translation limit is exhausted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-280-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-271-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 280,
+      "sourceLine": 271,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10345,10 +10713,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes learner friendly default output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-297-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-288-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 297,
+      "sourceLine": 288,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10361,10 +10729,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes lookup Context from create Context Lookup to deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-305-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-296-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 305,
+      "sourceLine": 296,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10377,10 +10745,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not include dictionary Context in input (layer fills it)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-313-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-304-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 313,
+      "sourceLine": 304,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10393,10 +10761,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: includes user Id in translate With Context input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-325-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-316-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 325,
+      "sourceLine": 316,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10409,10 +10777,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes clean text and context hint to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-338-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-329-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 338,
+      "sourceLine": 329,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10425,10 +10793,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: records the routed translation model in request timing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-374-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-365-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 374,
+      "sourceLine": 365,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10441,10 +10809,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes free form context description to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-387-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-378-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 387,
+      "sourceLine": 378,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10457,10 +10825,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not request a native language translation block for native source text."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-408-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-399-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 408,
+      "sourceLine": 399,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10473,10 +10841,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: stores context hint in translation Map for regeneration."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-415-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-406-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 415,
+      "sourceLine": 406,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10489,10 +10857,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: rejects marker only input before calling AI."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-423-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-414-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 423,
+      "sourceLine": 414,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10505,10 +10873,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback is a stub that just answers the callback query."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-456-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-447-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 456,
+      "sourceLine": 447,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10521,10 +10889,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback does not call AI even when credits are available."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-489-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-480-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 489,
+      "sourceLine": 480,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10537,10 +10905,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: shows clarification UI instead of generic translation error."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-524-handletranslatetext-context-enrichment-localizes-a-structured-unrecognized-word-reason-via-t-core-sends-no-ui-strings",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-515-handletranslatetext-context-enrichment-localizes-a-structured-unrecognized-word-reason-via-t-core-sends-no-ui-strings",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 524,
+      "sourceLine": 515,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10553,10 +10921,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so localizes a structured unrecognized word reason via t() (core sends no UI strings)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-561-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-552-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 561,
+      "sourceLine": 552,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10569,10 +10937,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not add source language buttons to meaning clarification."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-584-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-575-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 584,
+      "sourceLine": 575,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10585,10 +10953,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses only core source language options when source language ambiguity is returned."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-617-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-608-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 617,
+      "sourceLine": 608,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10601,10 +10969,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so sets awaiting state when clarification context is requested."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-637-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-628-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 637,
+      "sourceLine": 628,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10617,10 +10985,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the next text message as clarification context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-664-handletranslatetext-context-enrichment-does-not-crash-when-clarification-context-arrives-with-no-callback-query",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-655-handletranslatetext-context-enrichment-does-not-crash-when-clarification-context-arrives-with-no-callback-query",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 664,
+      "sourceLine": 655,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10633,10 +11001,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not crash when clarification context arrives with no callback query."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-693-handletranslatetext-context-enrichment-post-clarify-sends-the-re-translation-as-a-new-card-and-never-edits-the-previous-card-in-place",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-684-handletranslatetext-context-enrichment-post-clarify-sends-the-re-translation-as-a-new-card-and-never-edits-the-previous-card-in-place",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 693,
+      "sourceLine": 684,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10649,10 +11017,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so post clarify: sends the re translation as a NEW card and never edits the previous card in place."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-723-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-714-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 723,
+      "sourceLine": 714,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10665,10 +11033,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with the selected source language and user language targets."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-749-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-740-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 749,
+      "sourceLine": 740,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10681,10 +11049,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with a source language option from core preflight."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-784-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-775-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 784,
+      "sourceLine": 775,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10697,10 +11065,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with corrected text when a typo option is selected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-825-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-816-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 825,
+      "sourceLine": 816,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10713,10 +11081,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the corrected text language when a typo option includes lang Code."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-861-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-852-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 861,
+      "sourceLine": 852,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10729,10 +11097,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses ambiguity option as context hint when no structured pipeline field exists."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-890-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-881-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 890,
+      "sourceLine": 881,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10745,10 +11113,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so clears pending clarification on a stale cancel callback."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-935-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-not-a-silent-translation-for-a-supported-out-of-set-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-926-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-not-a-silent-translation-for-a-supported-out-of-set-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 935,
+      "sourceLine": 926,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10761,10 +11129,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate (not a silent translation) for a supported out of set language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-960-handletranslatetext-out-of-set-language-detection-catches-a-letter-marked-out-of-set-word-via-alphabet-exclusion-no-async-signal-needed",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-951-handletranslatetext-out-of-set-language-detection-catches-a-letter-marked-out-of-set-word-via-alphabet-exclusion-no-async-signal-needed",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 960,
+      "sourceLine": 951,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10777,10 +11145,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so catches a letter marked out of set word via alphabet exclusion (no async signal needed)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-976-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-when-a-task-70-correction-is-in-an-unstudied-language-kazakh",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-967-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-when-a-task-70-correction-is-in-an-unstudied-language-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 976,
+      "sourceLine": 967,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10793,10 +11161,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate when a Task 70 correction is in an unstudied language (Kazakh)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1007-handletranslatetext-out-of-set-language-detection-keeps-the-spelling-correction-for-a-same-alphabet-typo-no-false-out-of-set",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-998-handletranslatetext-out-of-set-language-detection-keeps-the-spelling-correction-for-a-same-alphabet-typo-no-false-out-of-set",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1007,
+      "sourceLine": 998,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10809,10 +11177,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the spelling correction for a same alphabet typo (no false out of set)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1039-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1030-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1039,
+      "sourceLine": 1030,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10825,10 +11193,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the plain block for an UNSUPPORTED out of set language (can't be added)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1054-handletranslatetext-out-of-set-language-detection-does-not-let-franc-out-of-set-override-a-confident-in-set-detection-czech-not-blocked-as-croatian",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1045-handletranslatetext-out-of-set-language-detection-does-not-let-franc-out-of-set-override-a-confident-in-set-detection-czech-not-blocked-as-croatian",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1054,
+      "sourceLine": 1045,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10841,10 +11209,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not let franc out of set override a confident in set detection (Czech not blocked as Croatian)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1079-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1070-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1079,
+      "sourceLine": 1070,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10857,10 +11225,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so re verifies a confident heuristic only diacritic detection via the async path."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1105-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1096-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1105,
+      "sourceLine": 1096,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10873,10 +11241,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not re verify confident ASCII detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1113-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1104-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1113,
+      "sourceLine": 1104,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10889,10 +11257,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: records a 'detected' telemetry event for confident detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1144-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1135-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1144,
+      "sourceLine": 1135,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10905,10 +11273,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:add adds the language to the learning set and then translates."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1156-out-of-set-add-and-translate-phase-1-re-reads-settings-after-adding-a-language-so-the-rest-of-the-update-sees-it",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1147-out-of-set-add-and-translate-phase-1-re-reads-settings-after-adding-a-language-so-the-rest-of-the-update-sees-it",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1156,
+      "sourceLine": 1147,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10921,10 +11289,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so re reads settings after adding a language, so the rest of the update sees it."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1179-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1170-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1179,
+      "sourceLine": 1170,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10937,10 +11305,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:once translates without persisting the language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1190-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1181-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1190,
+      "sourceLine": 1181,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10953,10 +11321,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:cancel dismisses without translating."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1199-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1190-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1199,
+      "sourceLine": 1190,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10969,10 +11337,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: keeps two consecutive prompts from cross wiring lang word (single slot race, T02)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1225-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1216-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1225,
+      "sourceLine": 1216,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10985,10 +11353,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: rejects a stale button whose language no longer matches its stored entry."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1235-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1226-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1235,
+      "sourceLine": 1226,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11001,10 +11369,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: shows a generic error (not 'max languages') when the DB write fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1252-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1243-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1252,
+      "sourceLine": 1243,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11017,10 +11385,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: reports the language limit without calling the DB when already at MAX LEARNING LANGS."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1269-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1260-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1269,
+      "sourceLine": 1260,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11033,10 +11401,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so localizes the stale session alert via t() (no hardcoded English)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1283-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1274-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1283,
+      "sourceLine": 1274,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11049,10 +11417,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so gates the clarify source language option: tapping an out of set language offers add and translate (incident: Kazakh)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1327-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1318-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1327,
+      "sourceLine": 1318,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11065,10 +11433,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so annotates the card with a ✏️ Fixed line when the input was auto corrected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1357-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1348-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1357,
+      "sourceLine": 1348,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11081,10 +11449,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior: renders language choices as flag + code buttons with a hint, not language names."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1389-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1380-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1389,
+      "sourceLine": 1380,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11097,10 +11465,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so re runs verbatim with skip Input Correction when the user picks 'translate as written'."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1422-isetymologyeligible-is-eligible-for-a-learning-language-word",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1413-isetymologyeligible-is-eligible-for-a-learning-language-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1422,
+      "sourceLine": 1413,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11113,10 +11481,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1426-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1417-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1426,
+      "sourceLine": 1417,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11129,10 +11497,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1430-isetymologyeligible-is-not-eligible-for-sentences",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1421-isetymologyeligible-is-not-eligible-for-sentences",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1430,
+      "sourceLine": 1421,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11145,10 +11513,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible for sentences."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1434-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1425-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1434,
+      "sourceLine": 1425,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11161,10 +11529,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible when the source term is in the native language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1472-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1463-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1472,
+      "sourceLine": 1463,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11177,10 +11545,10 @@
       "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior: keeps a loading button on the card and answers the tap only when the section is rendered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1485-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1476-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1485,
+      "sourceLine": 1476,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -30029,6 +30397,102 @@
       "name": "Core domain parse AIGeneration Defaults always yields a finite, in range request Timeout Ms",
       "value": "Protects the core domain parse AIGeneration Defaults behavior so always yields a finite, in range request Timeout Ms.",
       "description": "Protects the core domain parse AIGeneration Defaults behavior so always yields a finite, in range request Timeout Ms."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-settings-service-model-resolution-test-ts-35-settingsservice-model-resolution-uses-the-model-routed-to-the-plan-when-the-plan-has-one",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/settings.service.model-resolution.test.ts",
+      "sourceLine": 35,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "SettingsService model resolution"
+      ],
+      "title": "uses the model routed to the plan when the plan has one",
+      "rawTitle": "uses the model routed to the plan when the plan has one",
+      "name": "Core domain Settings Service model resolution uses the model routed to the plan when the plan has one",
+      "value": "Protects the core domain Settings Service model resolution behavior: uses the model routed to the plan when the plan has one.",
+      "description": "Protects the core domain Settings Service model resolution behavior: uses the model routed to the plan when the plan has one."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-settings-service-model-resolution-test-ts-46-settingsservice-model-resolution-falls-back-to-the-global-default-for-a-plan-with-no-model-of-its-own",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/settings.service.model-resolution.test.ts",
+      "sourceLine": 46,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "SettingsService model resolution"
+      ],
+      "title": "falls back to the global default for a plan with no model of its own",
+      "rawTitle": "falls back to the global default for a plan with no model of its own",
+      "name": "Core domain Settings Service model resolution falls back to the global default for a plan with no model of its own",
+      "value": "Protects the core domain Settings Service model resolution behavior: falls back to the global default for a plan with no model of its own.",
+      "description": "Protects the core domain Settings Service model resolution behavior: falls back to the global default for a plan with no model of its own."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-settings-service-model-resolution-test-ts-54-settingsservice-model-resolution-falls-back-to-the-admin-set-fallback-model-when-no-default-model-is-flagged",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/settings.service.model-resolution.test.ts",
+      "sourceLine": 54,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "SettingsService model resolution"
+      ],
+      "title": "falls back to the admin-set fallback model when no default model is flagged",
+      "rawTitle": "falls back to the admin-set fallback model when no default model is flagged",
+      "name": "Core domain Settings Service model resolution falls back to the admin set fallback model when no default model is flagged",
+      "value": "Protects the core domain Settings Service model resolution behavior: falls back to the admin set fallback model when no default model is flagged.",
+      "description": "Protects the core domain Settings Service model resolution behavior: falls back to the admin set fallback model when no default model is flagged."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-settings-service-model-resolution-test-ts-62-settingsservice-model-resolution-returns-null-never-a-hardcoded-id-when-the-database-names-no-model-at-all",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/settings.service.model-resolution.test.ts",
+      "sourceLine": 62,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "SettingsService model resolution"
+      ],
+      "title": "returns null — never a hardcoded id — when the database names no model at all",
+      "rawTitle": "returns null — never a hardcoded id — when the database names no model at all",
+      "name": "Core domain Settings Service model resolution returns null — never a hardcoded id — when the database names no model at all",
+      "value": "Protects the core domain Settings Service model resolution behavior: returns null — never a hardcoded id — when the database names no model at all.",
+      "description": "Protects the core domain Settings Service model resolution behavior: returns null — never a hardcoded id — when the database names no model at all."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-settings-service-model-resolution-test-ts-70-settingsservice-model-resolution-re-reads-an-unset-fallback-instead-of-caching-the-unconfigured-state",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/settings.service.model-resolution.test.ts",
+      "sourceLine": 70,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "SettingsService model resolution"
+      ],
+      "title": "re-reads an unset fallback instead of caching the unconfigured state",
+      "rawTitle": "re-reads an unset fallback instead of caching the unconfigured state",
+      "name": "Core domain Settings Service model resolution re reads an unset fallback instead of caching the unconfigured state",
+      "value": "Protects the core domain Settings Service model resolution behavior so re reads an unset fallback instead of caching the unconfigured state.",
+      "description": "Protects the core domain Settings Service model resolution behavior so re reads an unset fallback instead of caching the unconfigured state."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-settings-service-model-resolution-test-ts-80-settingsservice-model-resolution-caches-a-resolved-fallback-model",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/settings.service.model-resolution.test.ts",
+      "sourceLine": 80,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "SettingsService model resolution"
+      ],
+      "title": "caches a resolved fallback model",
+      "rawTitle": "caches a resolved fallback model",
+      "name": "Core domain Settings Service model resolution caches a resolved fallback model",
+      "value": "Protects the core domain Settings Service model resolution behavior so caches a resolved fallback model.",
+      "description": "Protects the core domain Settings Service model resolution behavior so caches a resolved fallback model."
     },
     {
       "id": "packages-core-src-modules-srs-sm2-test-ts-7-sm-2-srs-scheduling-schedules-new-saved-cards-for-first-review-tomorrow",

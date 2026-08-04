@@ -139,6 +139,7 @@ import {
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import { inputCorrectionCounter } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
+import { createSettingsStub } from "../../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../../types.js";
 import { handleEtymologyCallback, handleRegenCallback } from "./card-actions.js";
 import { handleTranslationClarificationCallback, handleTranslationClarificationContextText } from "./clarification.js";
@@ -193,17 +194,6 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
     user: { id: 1, telegramId: 123456789 },
     services: {
       userRepository: mockUserRepository,
-      settings: {
-        getPlanLimit: () =>
-          Promise.resolve({
-            name: "free",
-            label: "Free",
-            translationLimit: 50,
-            creditCost: 1,
-            isActive: true,
-            isDefault: true,
-          }),
-      },
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
       translationRequestRepository: mockTranslationRequestRepository,
@@ -213,6 +203,7 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
       wordLanguageSweep: mockSweepWordLanguages,
       languageCache: mockLanguageCache,
       ai: mockAi,
+      settings: createSettingsStub(),
     },
   } as unknown as BotContext;
 }

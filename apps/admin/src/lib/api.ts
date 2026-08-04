@@ -324,6 +324,8 @@ export interface PlanLimitConfig {
   videoWindow: "none" | "lifetime" | "monthly";
   isActive: boolean;
   isDefault: boolean;
+  /** Model this plan's users are served by. null = use the globally default model. */
+  aiModelId: string | null;
 }
 
 export const rateLimits = {
@@ -343,10 +345,11 @@ export interface AIModel {
   costPer1kOutput: number;
   isEnabled: boolean;
   isDefault?: boolean;
-  allowedPlans: string[];
+  /** Model the bot fails over to when the main model fails. At most one. */
+  isFallback?: boolean;
 }
 
-export type OpenRouterModel = Omit<AIModel, "allowedPlans" | "isDefault" | "isEnabled"> & {
+export type OpenRouterModel = Omit<AIModel, "isDefault" | "isFallback" | "isEnabled"> & {
   purpose: string;
 };
 
@@ -357,7 +360,8 @@ function modelPath(id: string): string {
 export const aiModels = {
   list: () => get<AIModel[]>("/api/settings/ai-models"),
   listOpenRouter: () => get<OpenRouterModel[]>("/api/settings/ai-models/openrouter"),
-  create: (model: Omit<AIModel, "isDefault">) => post<AIModel>("/api/settings/ai-models", model),
+  create: (model: Omit<AIModel, "isDefault" | "isFallback">) => post<AIModel>("/api/settings/ai-models", model),
+  setFallback: (modelId: string | null) => put<void>("/api/settings/ai-models/fallback", { modelId }),
   update: (id: string, model: Partial<AIModel>) => put<AIModel>(`/api/settings/ai-models/${modelPath(id)}`, model),
   delete: (id: string) => del<void>(`/api/settings/ai-models/${modelPath(id)}`),
   setDefault: (id: string) => put<void>(`/api/settings/ai-models/${modelPath(id)}/set-default`, {}),
