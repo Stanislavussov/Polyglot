@@ -26,8 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Images go to Docker Hub (REGISTRY: docker.io) authenticated with
-    # DOCKER_TOKEN, never to GHCR — so `packages: write` was granting a scope
-    # nothing in this workflow uses.
+    # DOCKER_TOKEN, never to GHCR, so the GitHub Packages write scope this job
+    # used to request granted something nothing here uses.
     permissions:
       contents: read
     steps:
@@ -51,6 +51,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
+      # Required for the type=gha cache below: the default `docker` driver has no
+      # cross-run cache export.
+      - uses: docker/setup-buildx-action@v3
+
+      # Exports base/deps/build too, because `production` resolves
+      # `COPY --from=build`. Must stay the FIRST build using scope=bot — see the
+      # note on the migrate build at the bottom of this job.
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -58,6 +65,8 @@ jobs:
           target: production
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-bot:${{ github.sha }}
+          cache-from: type=gha,scope=bot
+          cache-to: type=gha,mode=max,scope=bot
 
       - uses: docker/build-push-action@v6
         with:
@@ -66,6 +75,8 @@ jobs:
           target: production
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ github.sha }}
+          cache-from: type=gha,scope=admin-api
+          cache-to: type=gha,mode=max,scope=admin-api
 
       - uses: docker/build-push-action@v6
         with:
@@ -76,7 +87,11 @@ jobs:
             PUBLIC_API_URL=https://${{ secrets.ADMIN_API_DOMAIN }}
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-admin:${{ github.sha }}
+          cache-from: type=gha,scope=admin
+          cache-to: type=gha,mode=max,scope=admin
 
+      # mode=min: a small static Astro build, not worth a full-layer export
+      # against the repo's shared 10 GB Actions cache budget.
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -84,7 +99,15 @@ jobs:
           target: production
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ github.sha }}
+          cache-from: type=gha,scope=landing
+          cache-to: type=gha,mode=min,scope=landing
 
+      # Reads scope=bot but deliberately does NOT export to it. `migrate` is
+      # `FROM build` plus three metadata-only layers, so everything it needs is
+      # already in the bot export. A second cache-to into scope=bot would write a
+      # newer index that shadows the production one on the next run, evicting the
+      # `pnpm install --frozen-lockfile --prod` layer — the most expensive one in
+      # the image — from the restorable set. That is the opposite of the point.
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -92,6 +115,7 @@ jobs:
           target: migrate
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot:migrate-${{ github.sha }}
+          cache-from: type=gha,scope=bot
 
   deploy:
     needs: push
