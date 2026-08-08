@@ -5,6 +5,7 @@ on:
     branches: [master, develop]
   pull_request:
     branches: [master, develop]
+  workflow_dispatch:
   workflow_call:
     secrets:
       DOCKER_USERNAME:
@@ -12,9 +13,25 @@ on:
       DOCKER_TOKEN:
         required: true
 
+permissions:
+  contents: read
+
+# NOTE: inside a workflow_call invocation the `github` context belongs to the
+# CALLER, so when deploy.yml invokes this workflow the group below resolves to
+# "Deploy to VPS-refs/heads/master". cancel-in-progress must therefore be false
+# on master: cancelling the CI gate of an in-flight production deploy would fail
+# `needs: ci` and kill the release. On develop, collapsing superseded runs is
+# exactly what we want. Push and pull_request runs land in different groups
+# (refs/heads/develop vs refs/pull/N/merge) and so never cancel each other —
+# intentional, since the PR run is the release gate on the merge commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -35,6 +52,40 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      # Ordered after Build to match CLAUDE.md's gate (build -> lint -> lint:deps
+      # -> lint:knip -> test) and because knip resolves workspace deps through
+      # package.json `exports`, which point at ./dist/*.d.ts.
+      - name: Knip
+        run: pnpm lint:knip
+
+      # Migration folder/journal consistency ONLY. This does NOT detect schema
+      # drift: drizzle-kit check passes on a schema.ts table that exists in no
+      # migration. It is also DB-independent — it passes against an unreachable
+      # DATABASE_URL and only needs the variable set, because drizzle.config.ts
+      # throws when it is absent. Hence the placeholder and the placement here
+      # rather than in the integration job.
+      - name: Migration journal consistency
+        run: pnpm db:check
+        env:
+          DATABASE_URL: postgresql://unused:unused@127.0.0.1:1/unused
+
+      # The check that actually catches drift: editing schema.ts without running
+      # db:generate. Re-generating and finding no new files is the only way to
+      # prove the migrations match the schema.
+      - name: Schema drift (schema.ts vs migrations)
+        run: |
+          pnpm db:generate
+          # `git status --porcelain`, not `git diff`: db:generate writes a new
+          # .sql and a new meta/*_snapshot.json as UNTRACKED files, which
+          # `git diff` cannot see at all.
+          if [ -n "$(git status --porcelain -- packages/adapters/db/drizzle)" ]; then
+            echo "::error::schema.ts changed with no generated migration. Run 'pnpm db:generate' and commit the result."
+            git status --porcelain -- packages/adapters/db/drizzle
+            exit 1
+          fi
+        env:
+          DATABASE_URL: postgresql://unused:unused@127.0.0.1:1/unused
 
       - name: Tests
         run: pnpm test
@@ -60,6 +111,7 @@ jobs:
   # cluster, so a fresh checkout or git worktree needs no setup at all.
   integration:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:17
