@@ -12,6 +12,52 @@ separate pipelines** — never conflate them.
   workflow** from a few base secrets (`DOCKER_USERNAME`, the `*_DOMAIN`s, the
   commit SHA). Do not store them as standalone secrets.
 
+### Build cache layout
+
+Each Dockerfile owns a `type=gha` cache scope: `bot`, `admin-api`, `admin`, and
+`landing` (the last with `mode=min` — it is a small static Astro build, and the
+scopes share one 10 GB repo-wide Actions cache with `setup-node`'s pnpm cache in
+`ci.yml`). Check `gh cache list` if builds start missing.
+
+**The bot's two targets share `scope=bot`, and only `production` may write to
+it.** `production` runs first and exports with `mode=max`, which carries
+`base`/`deps`/`build` along because it resolves `COPY --from=build`. `migrate`
+runs last and is `cache-from` only. Giving `migrate` a `cache-to` would write a
+newer index that shadows production's on the next run, evicting the
+`pnpm install --frozen-lockfile --prod` layer — the most expensive one in the
+image — from the restorable set, while caching nothing of value in return
+(`migrate` is `FROM build` plus three metadata-only layers).
+
+Note what does **not** cache: `apps/admin/reports-data` is tracked and not in
+`.dockerignore`, so `COPY apps/ apps/` puts it in the build stage's digest. Its
+`generatedAt` is pinned to the commit date (`scripts/test-catalog.mjs`) so the
+context is stable for a given commit — but across commits the compile stages
+still rebuild, which is correct, since the source changed too.
+
+### Concurrency
+
+`deploy.yml`'s `deploy` job and the whole of `deploy-monitoring.yml` share the
+`vps-host` concurrency group: one mutex on the VPS Docker daemon, since both
+touch the same host and `deploy.yml` has no `paths` filter. It sits on the job
+rather than the workflow so the mutex is held for the ~2 min the host is busy,
+not the ~8 min including `ci` and `push`.
+
+`cancel-in-progress: false` protects the **running** deploy, but GitHub keeps at
+most one **pending** run per group and a newer one evicts the older. Two
+consequences worth knowing:
+
+- Within `deploy.yml`, three merges in quick succession mean the middle commit
+  never deploys on its own — it ships inside the third run's tree, and the
+  release announcement then covers both.
+- Across workflows, an evicted pending `deploy-monitoring` run is **not**
+  absorbed: `deploy.yml` never deploys monitoring. The config change is lost and
+  shows only as a `cancelled` row. Re-run it with `workflow_dispatch`.
+
+`ci.yml` uses `cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}`
+rather than `true`. Inside a `workflow_call` invocation the `github` context
+belongs to the **caller**, so a literal `true` would let a second merge cancel
+the CI gate of an in-flight production deploy and kill the release.
+
 ## 2. Host provisioning (Ansible)
 
 - Playbook: `deploy/ansible/site.yml`, run via the wrapper:
@@ -91,7 +137,15 @@ The app-deploy pipeline (§1) does **not** blindly declare success:
 - **Rollback.** Before pulling new images, the script records the currently
   running image references to `/opt/polyglot/PREVIOUS_RELEASE`. Pruning uses
   `docker image prune -af --filter "until=168h"` (not `-af`), so the previous
-  release image survives for at least a week.
+  release image survives for **7 days from the moment it was built** — a bound,
+  not a guarantee of "always". If more than a week passes between releases, the
+  deploy that creates the need for a rollback is also the one that prunes its
+  target. Pin the image by hand before a long gap, or pull the tag from Docker
+  Hub, where it still exists.
+
+  `deploy-monitoring.yml` prunes **dangling images only** for the same reason: it
+  runs on the same daemon, and a host-wide `-a` prune there deleted the image
+  this rollback depends on.
 
   **To roll back** (on the VPS):
 
@@ -190,7 +244,20 @@ journal entry. Consequences to keep in mind:
   them out of that order and `drizzle-kit migrate` fails with `42703 column … does
   not exist` (see CLAUDE.md Hard Rule #3).
 
-Run `pnpm db:check` (drift check, safe on any branch) after touching migrations —
-it compares `schema.ts` against the journal snapshots and must report
-"Everything's fine". On `develop` use only `db:generate` + `db:push`; a true
-from-scratch `db:migrate` replay is a CI-environment check, never a local one.
+Run `pnpm db:check` (safe on any branch) after touching migrations — it must
+report "Everything's fine". Be precise about what it checks: it validates the
+**migration folder and journal** for collisions and inconsistencies. It does
+**not** compare `schema.ts` against the snapshots, and it is not a drift check —
+a table added to `schema.ts` and present in no migration passes it, and so does
+an unreachable `DATABASE_URL`, because it never opens a connection (it needs the
+variable set only because `drizzle.config.ts` throws when it is absent).
+
+Drift — "someone edited `schema.ts` and forgot `db:generate`" — is caught by the
+**`Schema drift` step in `ci.yml`**, which re-runs `db:generate` and fails if
+anything new appears under `packages/adapters/db/drizzle`. It asserts with
+`git status --porcelain`, not `git diff`, because `db:generate` writes its new
+`.sql` and `meta/*_snapshot.json` as **untracked** files that `git diff` cannot
+see at all.
+
+On `develop` use only `db:generate` + `db:push`; a true from-scratch `db:migrate`
+replay is a CI-environment check, never a local one.
