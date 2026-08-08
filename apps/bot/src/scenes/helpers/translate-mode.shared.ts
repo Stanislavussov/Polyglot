@@ -8,6 +8,7 @@
 import { getLanguageName, type InputType, logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../../types.js";
+import { replyTechnical } from "../../utils/message-cleanup.js";
 
 /**
  * Whether the Etymology button should be offered for this translation.
@@ -60,7 +61,9 @@ export async function showAddLanguagePrompt(
     .row()
     .text(t("mistypeCancel", lang), "tr:oos:cancel");
 
-  const promptMsg = await ctx.reply(t("outOfSetPrompt", lang, { lang: langName }), { reply_markup: keyboard });
+  const promptMsg = await replyTechnical(ctx, t("outOfSetPrompt", lang, { lang: langName }), {
+    reply_markup: keyboard,
+  });
 
   // Key the pending word by the prompt's message id so a later prompt cannot
   // overwrite this one's word (single-slot race, T02).

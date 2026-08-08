@@ -18,7 +18,7 @@ import {
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../types.js";
-import { trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { replyTechnical } from "../utils/message-cleanup.js";
 import { resolvePlanLimit } from "../utils/plan-limit.js";
 
 /** Format a list of "HH:MM" times as a sorted, normalized, comma-separated string ("—" when empty). */
@@ -159,8 +159,7 @@ export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
   );
   const kb = buildSettingsKeyboard(lang);
 
-  const msg = await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
-  trackTechnicalMessage(ctx, msg.message_id);
+  await replyTechnical(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
 }
 
 export function formatPlanUsageFromConfig(plan: PlanLimitConfig, usedCredits: number, lang: SupportedLang): string {

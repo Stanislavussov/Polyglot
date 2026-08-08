@@ -7,6 +7,7 @@ import {
   t,
 } from "@polyglot/core";
 import type { BotContext } from "../types.js";
+import { replyTechnical } from "./message-cleanup.js";
 import { resolvePlanLimit } from "./plan-limit.js";
 
 /**
@@ -53,7 +54,7 @@ export async function ensureAiQuota(
   );
 
   if (!status.allowed) {
-    await ctx.reply(t("rateLimitExceeded", lang));
+    await replyTechnical(ctx, t("rateLimitExceeded", lang));
     return null;
   }
 

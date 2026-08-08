@@ -22,7 +22,7 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
-import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
+import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 const MAX_DICTIONARY_NAME_LENGTH = 32;
@@ -129,32 +129,32 @@ export async function handleDictionaryNameInput(ctx: BotContext): Promise<void> 
   const name = validateDictionaryName(ctx, text, dictionaries, wizard.dictionaryId);
 
   if (!name) {
-    await ctx.reply(t("dictionaryNameInvalid", lang, { max: MAX_DICTIONARY_NAME_LENGTH }));
+    await replyTechnical(ctx, t("dictionaryNameInvalid", lang, { max: MAX_DICTIONARY_NAME_LENGTH }));
     return;
   }
 
   if (wizard.action === "create") {
     const dictionary = await ctx.services.vocabularyDictionaryRepository.create(ctx.user.id, name);
     ctx.session.dictionaryWizard = undefined;
-    await ctx.reply(t("dictionaryCreated", lang, { name: dictionary.name }));
+    await replyTechnical(ctx, t("dictionaryCreated", lang, { name: dictionary.name }));
     await showDictionaryList(ctx, dictionary.id, 1);
     return;
   }
 
   if (!wizard.dictionaryId) {
     ctx.session.dictionaryWizard = undefined;
-    await ctx.reply(t("dictionarySessionExpired", lang));
+    await replyTechnical(ctx, t("dictionarySessionExpired", lang));
     return;
   }
 
   const renamed = await ctx.services.vocabularyDictionaryRepository.rename(ctx.user.id, wizard.dictionaryId, name);
   ctx.session.dictionaryWizard = undefined;
   if (!renamed) {
-    await ctx.reply(t("dictionarySessionExpired", lang));
+    await replyTechnical(ctx, t("dictionarySessionExpired", lang));
     return;
   }
 
-  await ctx.reply(t("dictionaryRenamed", lang, { name: renamed.name }));
+  await replyTechnical(ctx, t("dictionaryRenamed", lang, { name: renamed.name }));
   await showDictionaryList(ctx, renamed.id, ctx.session.dictionary?.currentPage ?? 1);
 }
 

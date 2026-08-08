@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-08T10:16:11.134Z",
+  "generatedAt": "2026-08-08T10:25:57.033Z",
   "summary": {
-    "total": 2534,
+    "total": 2555,
     "business": 0,
-    "technical": 2534,
+    "technical": 2555,
     "workspaces": [
       "apps",
       "packages"
@@ -2485,6 +2485,38 @@
       "name": "Bot start onboarding (integration) resumes on the furthest screen reached instead of restarting from the native question",
       "value": "Protects the bot start onboarding (integration) behavior so resumes on the furthest screen reached instead of restarting from the native question.",
       "description": "Protects the bot start onboarding (integration) behavior so resumes on the furthest screen reached instead of restarting from the native question."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-technical-cleanup-integration-test-ts-52-technical-message-cleanup-integration-keeps-every-translation-card-while-the-user-goes-on-translating",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/technical-cleanup.integration.test.ts",
+      "sourceLine": 52,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "technical-message cleanup (integration)"
+      ],
+      "title": "keeps every translation card while the user goes on translating",
+      "rawTitle": "keeps every translation card while the user goes on translating",
+      "name": "Bot technical message cleanup (integration) keeps every translation card while the user goes on translating",
+      "value": "Protects the bot technical message cleanup (integration) behavior: keeps every translation card while the user goes on translating.",
+      "description": "Protects the bot technical message cleanup (integration) behavior: keeps every translation card while the user goes on translating."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-technical-cleanup-integration-test-ts-74-technical-message-cleanup-integration-clears-a-rejection-notice-on-the-next-message-and-leaves-the-card-that-follows",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/technical-cleanup.integration.test.ts",
+      "sourceLine": 74,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "technical-message cleanup (integration)"
+      ],
+      "title": "clears a rejection notice on the next message and leaves the card that follows",
+      "rawTitle": "clears a rejection notice on the next message and leaves the card that follows",
+      "name": "Bot technical message cleanup (integration) clears a rejection notice on the next message and leaves the card that follows",
+      "value": "Protects the bot technical message cleanup (integration) behavior so clears a rejection notice on the next message and leaves the card that follows.",
+      "description": "Protects the bot technical message cleanup (integration) behavior so clears a rejection notice on the next message and leaves the card that follows."
     },
     {
       "id": "apps-bot-src-tests-integration-translate-flow-integration-test-ts-29-translate-happy-path-integration-translates-a-word-renders-a-save-card-and-persists-vocab-on-save",
@@ -6364,6 +6396,86 @@
       "name": "Bot main Keyboard Middleware ignores non message updates, which cannot carry a reply keyboard",
       "value": "Protects the bot main Keyboard Middleware behavior: ignores non message updates, which cannot carry a reply keyboard.",
       "description": "Protects the bot main Keyboard Middleware behavior: ignores non message updates, which cannot carry a reply keyboard."
+    },
+    {
+      "id": "apps-bot-src-middlewares-technical-cleanup-test-ts-40-technicalcleanupmiddleware-deletes-leftover-technical-messages-when-the-user-sends-a-new-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/technical-cleanup.test.ts",
+      "sourceLine": 40,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "technicalCleanupMiddleware"
+      ],
+      "title": "deletes leftover technical messages when the user sends a new message",
+      "rawTitle": "deletes leftover technical messages when the user sends a new message",
+      "name": "Bot technical Cleanup Middleware deletes leftover technical messages when the user sends a new message",
+      "value": "Protects the bot technical Cleanup Middleware behavior so deletes leftover technical messages when the user sends a new message.",
+      "description": "Protects the bot technical Cleanup Middleware behavior so deletes leftover technical messages when the user sends a new message."
+    },
+    {
+      "id": "apps-bot-src-middlewares-technical-cleanup-test-ts-52-technicalcleanupmiddleware-sweeps-before-the-handler-runs-so-a-notice-sent-for-this-update-survives",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/technical-cleanup.test.ts",
+      "sourceLine": 52,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "technicalCleanupMiddleware"
+      ],
+      "title": "sweeps before the handler runs, so a notice sent for this update survives",
+      "rawTitle": "sweeps before the handler runs, so a notice sent for this update survives",
+      "name": "Bot technical Cleanup Middleware sweeps before the handler runs, so a notice sent for this update survives",
+      "value": "Protects the bot technical Cleanup Middleware behavior so sweeps before the handler runs, so a notice sent for this update survives.",
+      "description": "Protects the bot technical Cleanup Middleware behavior so sweeps before the handler runs, so a notice sent for this update survives."
+    },
+    {
+      "id": "apps-bot-src-middlewares-technical-cleanup-test-ts-67-technicalcleanupmiddleware-leaves-the-menu-alone-on-a-button-tap-the-tap-is-acting-on-a-tracked-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/technical-cleanup.test.ts",
+      "sourceLine": 67,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "technicalCleanupMiddleware"
+      ],
+      "title": "leaves the menu alone on a button tap — the tap is acting on a tracked message",
+      "rawTitle": "leaves the menu alone on a button tap — the tap is acting on a tracked message",
+      "name": "Bot technical Cleanup Middleware leaves the menu alone on a button tap — the tap is acting on a tracked message",
+      "value": "Protects the bot technical Cleanup Middleware behavior so leaves the menu alone on a button tap — the tap is acting on a tracked message.",
+      "description": "Protects the bot technical Cleanup Middleware behavior so leaves the menu alone on a button tap — the tap is acting on a tracked message."
+    },
+    {
+      "id": "apps-bot-src-middlewares-technical-cleanup-test-ts-78-technicalcleanupmiddleware-passes-the-update-on-when-there-is-nothing-to-sweep",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/technical-cleanup.test.ts",
+      "sourceLine": 78,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "technicalCleanupMiddleware"
+      ],
+      "title": "passes the update on when there is nothing to sweep",
+      "rawTitle": "passes the update on when there is nothing to sweep",
+      "name": "Bot technical Cleanup Middleware passes the update on when there is nothing to sweep",
+      "value": "Protects the bot technical Cleanup Middleware behavior so passes the update on when there is nothing to sweep.",
+      "description": "Protects the bot technical Cleanup Middleware behavior so passes the update on when there is nothing to sweep."
+    },
+    {
+      "id": "apps-bot-src-middlewares-technical-cleanup-test-ts-88-technicalcleanupmiddleware-still-runs-the-handler-when-telegram-refuses-to-delete",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/technical-cleanup.test.ts",
+      "sourceLine": 88,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "technicalCleanupMiddleware"
+      ],
+      "title": "still runs the handler when Telegram refuses to delete",
+      "rawTitle": "still runs the handler when Telegram refuses to delete",
+      "name": "Bot technical Cleanup Middleware still runs the handler when Telegram refuses to delete",
+      "value": "Protects the bot technical Cleanup Middleware behavior so still runs the handler when Telegram refuses to delete.",
+      "description": "Protects the bot technical Cleanup Middleware behavior so still runs the handler when Telegram refuses to delete."
     },
     {
       "id": "apps-bot-src-middlewares-update-metrics-test-ts-50-updatemetricsmiddleware-records-handling-duration-and-delivery-lag-for-a-text-message-update",
@@ -10377,10 +10489,10 @@
       "description": "Protects the bot handle Mentor Text behavior so bills a mentor turn against the shared credit ledger on success (T16)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-73-handlesrclangoverridecallback-forces-the-tapped-source-and-hands-off-to-the-retranslation-pipeline",
+      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-72-handlesrclangoverridecallback-forces-the-tapped-source-and-hands-off-to-the-retranslation-pipeline",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/out-of-set.test.ts",
-      "sourceLine": 73,
+      "sourceLine": 72,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10393,10 +10505,10 @@
       "description": "Protects the bot handle Src Lang Override Callback behavior so forces the tapped source and hands off to the retranslation pipeline."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-89-handlesrclangoverridecallback-answers-a-stale-session-alert-and-does-not-retranslate-when-the-card-entry-is-gone",
+      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-88-handlesrclangoverridecallback-answers-a-stale-session-alert-and-does-not-retranslate-when-the-card-entry-is-gone",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/out-of-set.test.ts",
-      "sourceLine": 89,
+      "sourceLine": 88,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10409,10 +10521,10 @@
       "description": "Protects the bot handle Src Lang Override Callback behavior so answers a stale session alert and does not retranslate when the card entry is gone."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-98-handlesrclangoverridecallback-does-not-crash-or-retranslate-when-the-forced-source-cannot-resolve-a-direction",
+      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-97-handlesrclangoverridecallback-does-not-crash-or-retranslate-when-the-forced-source-cannot-resolve-a-direction",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/out-of-set.test.ts",
-      "sourceLine": 98,
+      "sourceLine": 97,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10729,10 +10841,10 @@
       "description": "Protects the bot handle Retry Callback behavior so survives a failing ack and still re runs the operation."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-223-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-224-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 223,
+      "sourceLine": 224,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10745,10 +10857,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: calls translate With Context with correct input and deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-244-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-245-handletranslatetext-context-enrichment-logs-one-credit-after-successful-incoming-translation-request",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 244,
+      "sourceLine": 245,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10761,10 +10873,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: logs one credit after successful incoming translation request."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-258-handletranslatetext-context-enrichment-does-not-call-ai-when-the-monthly-translation-limit-is-exhausted",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-259-handletranslatetext-context-enrichment-does-not-call-ai-when-the-monthly-translation-limit-is-exhausted",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 258,
+      "sourceLine": 259,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10777,10 +10889,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not call AI when the monthly translation limit is exhausted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-271-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-272-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 271,
+      "sourceLine": 272,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10793,10 +10905,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes learner friendly default output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-288-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-289-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 288,
+      "sourceLine": 289,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10809,10 +10921,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes lookup Context from create Context Lookup to deps."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-296-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-297-handletranslatetext-context-enrichment-does-not-include-dictionarycontext-in-input-layer-fills-it",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 296,
+      "sourceLine": 297,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10825,10 +10937,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not include dictionary Context in input (layer fills it)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-304-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-305-handletranslatetext-context-enrichment-includes-userid-in-translatewithcontext-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 304,
+      "sourceLine": 305,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10841,10 +10953,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: includes user Id in translate With Context input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-316-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-317-handletranslatetext-context-enrichment-passes-clean-text-and-context-hint-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 316,
+      "sourceLine": 317,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10857,10 +10969,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes clean text and context hint to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-329-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-330-handletranslatetext-context-enrichment-records-the-routed-translation-model-in-request-timing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 329,
+      "sourceLine": 330,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10873,10 +10985,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: records the routed translation model in request timing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-365-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-366-handletranslatetext-context-enrichment-passes-free-form-context-description-to-translatewithcontext",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 365,
+      "sourceLine": 366,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10889,10 +11001,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so passes free form context description to translate With Context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-378-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-379-handletranslatetext-context-enrichment-does-not-request-a-native-language-translation-block-for-native-source-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 378,
+      "sourceLine": 379,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10905,10 +11017,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not request a native language translation block for native source text."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-399-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-400-handletranslatetext-context-enrichment-stores-context-hint-in-translationmap-for-regeneration",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 399,
+      "sourceLine": 400,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10921,10 +11033,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: stores context hint in translation Map for regeneration."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-406-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-407-handletranslatetext-context-enrichment-rejects-marker-only-input-before-calling-ai",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 406,
+      "sourceLine": 407,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10937,10 +11049,42 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: rejects marker only input before calling AI."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-414-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-415-handletranslatetext-context-enrichment-queues-a-rejection-notice-for-cleanup-so-it-does-not-outlive-the-next-message",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 414,
+      "sourceLine": 415,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — context enrichment"
+      ],
+      "title": "queues a rejection notice for cleanup so it does not outlive the next message",
+      "rawTitle": "queues a rejection notice for cleanup so it does not outlive the next message",
+      "name": "Bot handle Translate Text — context enrichment queues a rejection notice for cleanup so it does not outlive the next message",
+      "value": "Protects the bot handle Translate Text — context enrichment behavior so queues a rejection notice for cleanup so it does not outlive the next message.",
+      "description": "Protects the bot handle Translate Text — context enrichment behavior so queues a rejection notice for cleanup so it does not outlive the next message."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-422-handletranslatetext-context-enrichment-never-queues-the-translation-card-content-stays-on-screen-forever",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 422,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — context enrichment"
+      ],
+      "title": "never queues the translation card — content stays on screen forever",
+      "rawTitle": "never queues the translation card — content stays on screen forever",
+      "name": "Bot handle Translate Text — context enrichment never queues the translation card — content stays on screen forever",
+      "value": "Protects the bot handle Translate Text — context enrichment behavior so never queues the translation card — content stays on screen forever.",
+      "description": "Protects the bot handle Translate Text — context enrichment behavior so never queues the translation card — content stays on screen forever."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-429-handletranslatetext-context-enrichment-handleregencallback-is-a-stub-that-just-answers-the-callback-query",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 429,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10953,10 +11097,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback is a stub that just answers the callback query."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-447-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-462-handletranslatetext-context-enrichment-handleregencallback-does-not-call-ai-even-when-credits-are-available",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 447,
+      "sourceLine": 462,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10969,10 +11113,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so handle Regen Callback does not call AI even when credits are available."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-480-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-495-handletranslatetext-context-enrichment-shows-clarification-ui-instead-of-generic-translation-error",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 480,
+      "sourceLine": 495,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10985,10 +11129,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: shows clarification UI instead of generic translation error."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-515-handletranslatetext-context-enrichment-localizes-a-structured-unrecognized-word-reason-via-t-core-sends-no-ui-strings",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-530-handletranslatetext-context-enrichment-localizes-a-structured-unrecognized-word-reason-via-t-core-sends-no-ui-strings",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 515,
+      "sourceLine": 530,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11001,10 +11145,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so localizes a structured unrecognized word reason via t() (core sends no UI strings)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-552-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-567-handletranslatetext-context-enrichment-does-not-add-source-language-buttons-to-meaning-clarification",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 552,
+      "sourceLine": 567,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11017,10 +11161,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not add source language buttons to meaning clarification."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-575-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-590-handletranslatetext-context-enrichment-uses-only-core-source-language-options-when-source-language-ambiguity-is-returned",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 575,
+      "sourceLine": 590,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11033,10 +11177,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses only core source language options when source language ambiguity is returned."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-608-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-623-handletranslatetext-context-enrichment-sets-awaiting-state-when-clarification-context-is-requested",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 608,
+      "sourceLine": 623,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11049,10 +11193,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so sets awaiting state when clarification context is requested."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-628-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-643-handletranslatetext-context-enrichment-uses-the-next-text-message-as-clarification-context",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 628,
+      "sourceLine": 643,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11065,10 +11209,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the next text message as clarification context."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-655-handletranslatetext-context-enrichment-does-not-crash-when-clarification-context-arrives-with-no-callback-query",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-670-handletranslatetext-context-enrichment-does-not-crash-when-clarification-context-arrives-with-no-callback-query",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 655,
+      "sourceLine": 670,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11081,10 +11225,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not crash when clarification context arrives with no callback query."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-684-handletranslatetext-context-enrichment-post-clarify-sends-the-re-translation-as-a-new-card-and-never-edits-the-previous-card-in-place",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-699-handletranslatetext-context-enrichment-post-clarify-sends-the-re-translation-as-a-new-card-and-never-edits-the-previous-card-in-place",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 684,
+      "sourceLine": 699,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11097,10 +11241,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so post clarify: sends the re translation as a NEW card and never edits the previous card in place."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-714-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-729-handletranslatetext-context-enrichment-retries-with-the-selected-source-language-and-user-language-targets",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 714,
+      "sourceLine": 729,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11113,10 +11257,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with the selected source language and user language targets."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-740-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-755-handletranslatetext-context-enrichment-retries-with-a-source-language-option-from-core-preflight",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 740,
+      "sourceLine": 755,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11129,10 +11273,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with a source language option from core preflight."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-775-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-790-handletranslatetext-context-enrichment-retries-with-corrected-text-when-a-typo-option-is-selected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 775,
+      "sourceLine": 790,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11145,10 +11289,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so retries with corrected text when a typo option is selected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-816-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-831-handletranslatetext-context-enrichment-uses-the-corrected-text-language-when-a-typo-option-includes-langcode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 816,
+      "sourceLine": 831,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11161,10 +11305,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses the corrected text language when a typo option includes lang Code."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-852-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-867-handletranslatetext-context-enrichment-uses-ambiguity-option-as-context-hint-when-no-structured-pipeline-field-exists",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 852,
+      "sourceLine": 867,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11177,10 +11321,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: uses ambiguity option as context hint when no structured pipeline field exists."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-881-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-896-handletranslatetext-context-enrichment-clears-pending-clarification-on-a-stale-cancel-callback",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 881,
+      "sourceLine": 896,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11193,10 +11337,10 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior so clears pending clarification on a stale cancel callback."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-926-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-not-a-silent-translation-for-a-supported-out-of-set-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-941-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-not-a-silent-translation-for-a-supported-out-of-set-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 926,
+      "sourceLine": 941,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11209,10 +11353,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate (not a silent translation) for a supported out of set language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-951-handletranslatetext-out-of-set-language-detection-catches-a-letter-marked-out-of-set-word-via-alphabet-exclusion-no-async-signal-needed",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-966-handletranslatetext-out-of-set-language-detection-catches-a-letter-marked-out-of-set-word-via-alphabet-exclusion-no-async-signal-needed",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 951,
+      "sourceLine": 966,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11225,10 +11369,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so catches a letter marked out of set word via alphabet exclusion (no async signal needed)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-967-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-when-a-task-70-correction-is-in-an-unstudied-language-kazakh",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-982-handletranslatetext-out-of-set-language-detection-offers-add-and-translate-when-a-task-70-correction-is-in-an-unstudied-language-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 967,
+      "sourceLine": 982,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11241,10 +11385,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so offers add and translate when a Task 70 correction is in an unstudied language (Kazakh)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-998-handletranslatetext-out-of-set-language-detection-keeps-the-spelling-correction-for-a-same-alphabet-typo-no-false-out-of-set",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1013-handletranslatetext-out-of-set-language-detection-keeps-the-spelling-correction-for-a-same-alphabet-typo-no-false-out-of-set",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 998,
+      "sourceLine": 1013,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11257,10 +11401,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the spelling correction for a same alphabet typo (no false out of set)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1030-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1045-handletranslatetext-out-of-set-language-detection-keeps-the-plain-block-for-an-unsupported-out-of-set-language-can-t-be-added",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1030,
+      "sourceLine": 1045,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11273,10 +11417,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: keeps the plain block for an UNSUPPORTED out of set language (can't be added)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1045-handletranslatetext-out-of-set-language-detection-does-not-let-franc-out-of-set-override-a-confident-in-set-detection-czech-not-blocked-as-croatian",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1060-handletranslatetext-out-of-set-language-detection-does-not-let-franc-out-of-set-override-a-confident-in-set-detection-czech-not-blocked-as-croatian",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1045,
+      "sourceLine": 1060,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11289,10 +11433,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not let franc out of set override a confident in set detection (Czech not blocked as Croatian)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1070-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1085-handletranslatetext-out-of-set-language-detection-re-verifies-a-confident-heuristic-only-diacritic-detection-via-the-async-path",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1070,
+      "sourceLine": 1085,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11305,10 +11449,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior so re verifies a confident heuristic only diacritic detection via the async path."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1096-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1111-handletranslatetext-out-of-set-language-detection-does-not-re-verify-confident-ascii-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1096,
+      "sourceLine": 1111,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11321,10 +11465,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: does not re verify confident ASCII detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1104-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1119-handletranslatetext-out-of-set-language-detection-records-a-detected-telemetry-event-for-confident-detections",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1104,
+      "sourceLine": 1119,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11337,10 +11481,10 @@
       "description": "Protects the bot handle Translate Text — out of set language detection behavior: records a 'detected' telemetry event for confident detections."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1135-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1150-out-of-set-add-and-translate-phase-1-tr-oos-add-adds-the-language-to-the-learning-set-and-then-translates",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1135,
+      "sourceLine": 1150,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11353,10 +11497,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:add adds the language to the learning set and then translates."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1147-out-of-set-add-and-translate-phase-1-re-reads-settings-after-adding-a-language-so-the-rest-of-the-update-sees-it",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1162-out-of-set-add-and-translate-phase-1-re-reads-settings-after-adding-a-language-so-the-rest-of-the-update-sees-it",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1147,
+      "sourceLine": 1162,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11369,10 +11513,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so re reads settings after adding a language, so the rest of the update sees it."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1170-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1185-out-of-set-add-and-translate-phase-1-tr-oos-once-translates-without-persisting-the-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1170,
+      "sourceLine": 1185,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11385,10 +11529,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:once translates without persisting the language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1181-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1196-out-of-set-add-and-translate-phase-1-tr-oos-cancel-dismisses-without-translating",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1181,
+      "sourceLine": 1196,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11401,10 +11545,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so tr:oos:cancel dismisses without translating."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1190-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1205-out-of-set-add-and-translate-phase-1-keeps-two-consecutive-prompts-from-cross-wiring-lang-word-single-slot-race-t02",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1190,
+      "sourceLine": 1205,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11417,10 +11561,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: keeps two consecutive prompts from cross wiring lang word (single slot race, T02)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1216-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1231-out-of-set-add-and-translate-phase-1-rejects-a-stale-button-whose-language-no-longer-matches-its-stored-entry",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1216,
+      "sourceLine": 1231,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11433,10 +11577,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: rejects a stale button whose language no longer matches its stored entry."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1226-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1241-out-of-set-add-and-translate-phase-1-shows-a-generic-error-not-max-languages-when-the-db-write-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1226,
+      "sourceLine": 1241,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11449,10 +11593,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: shows a generic error (not 'max languages') when the DB write fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1243-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1258-out-of-set-add-and-translate-phase-1-reports-the-language-limit-without-calling-the-db-when-already-at-max-learning-langs",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1243,
+      "sourceLine": 1258,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11465,10 +11609,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior: reports the language limit without calling the DB when already at MAX LEARNING LANGS."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1260-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1275-out-of-set-add-and-translate-phase-1-localizes-the-stale-session-alert-via-t-no-hardcoded-english",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1260,
+      "sourceLine": 1275,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11481,10 +11625,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so localizes the stale session alert via t() (no hardcoded English)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1274-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1289-out-of-set-add-and-translate-phase-1-gates-the-clarify-source-language-option-tapping-an-out-of-set-language-offers-add-and-translate-incident-kazakh",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1274,
+      "sourceLine": 1289,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11497,10 +11641,10 @@
       "description": "Protects the bot out of set add and translate (Phase 1) behavior so gates the clarify source language option: tapping an out of set language offers add and translate (incident: Kazakh)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1318-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1333-input-typo-correction-task-69-annotates-the-card-with-a-fixed-line-when-the-input-was-auto-corrected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1318,
+      "sourceLine": 1333,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11513,10 +11657,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so annotates the card with a ✏️ Fixed line when the input was auto corrected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1348-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1363-input-typo-correction-task-69-renders-language-choices-as-flag-code-buttons-with-a-hint-not-language-names",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1348,
+      "sourceLine": 1363,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11529,10 +11673,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior: renders language choices as flag + code buttons with a hint, not language names."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1380-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1395-input-typo-correction-task-69-re-runs-verbatim-with-skipinputcorrection-when-the-user-picks-translate-as-written",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1380,
+      "sourceLine": 1395,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11545,10 +11689,10 @@
       "description": "Protects the bot input typo correction (Task 69) behavior so re runs verbatim with skip Input Correction when the user picks 'translate as written'."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1413-isetymologyeligible-is-eligible-for-a-learning-language-word",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1428-isetymologyeligible-is-eligible-for-a-learning-language-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1413,
+      "sourceLine": 1428,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11561,10 +11705,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1417-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1432-isetymologyeligible-is-eligible-for-a-learning-language-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1417,
+      "sourceLine": 1432,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11577,10 +11721,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is eligible for a learning language phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1421-isetymologyeligible-is-not-eligible-for-sentences",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1436-isetymologyeligible-is-not-eligible-for-sentences",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1421,
+      "sourceLine": 1436,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11593,10 +11737,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible for sentences."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1425-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1440-isetymologyeligible-is-not-eligible-when-the-source-term-is-in-the-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1425,
+      "sourceLine": 1440,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11609,10 +11753,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible when the source term is in the native language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1463-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1478-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1463,
+      "sourceLine": 1478,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11625,10 +11769,10 @@
       "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior: keeps a loading button on the card and answers the tap only when the section is rendered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1476-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1491-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1476,
+      "sourceLine": 1491,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11639,6 +11783,38 @@
       "name": "Bot handle Etymology Callback — loading feedback on the card restores the card and alerts the user when generation takes too long",
       "value": "Protects the bot handle Etymology Callback — loading feedback on the card behavior so restores the card and alerts the user when generation takes too long.",
       "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior so restores the card and alerts the user when generation takes too long."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1554-translation-cards-survive-the-technical-message-sweep-keeps-the-previous-card-when-the-user-translates-the-next-word",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 1554,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translation cards survive the technical-message sweep"
+      ],
+      "title": "keeps the previous card when the user translates the next word",
+      "rawTitle": "keeps the previous card when the user translates the next word",
+      "name": "Bot translation cards survive the technical message sweep keeps the previous card when the user translates the next word",
+      "value": "Protects the bot translation cards survive the technical message sweep behavior: keeps the previous card when the user translates the next word.",
+      "description": "Protects the bot translation cards survive the technical message sweep behavior: keeps the previous card when the user translates the next word."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1569-translation-cards-survive-the-technical-message-sweep-sweeps-a-rejection-notice-on-the-next-word-without-touching-the-card-that-follows",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
+      "sourceLine": 1569,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translation cards survive the technical-message sweep"
+      ],
+      "title": "sweeps a rejection notice on the next word without touching the card that follows",
+      "rawTitle": "sweeps a rejection notice on the next word without touching the card that follows",
+      "name": "Bot translation cards survive the technical message sweep sweeps a rejection notice on the next word without touching the card that follows",
+      "value": "Protects the bot translation cards survive the technical message sweep behavior so sweeps a rejection notice on the next word without touching the card that follows.",
+      "description": "Protects the bot translation cards survive the technical message sweep behavior so sweeps a rejection notice on the next word without touching the card that follows."
     },
     {
       "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-14-settranslationentry-creates-the-map-on-first-insert",
@@ -12809,10 +12985,138 @@
       "description": "Protects the bot main menu keyboard behavior so exposes every label so bot hears intercepts taps before translate mode."
     },
     {
-      "id": "apps-bot-src-utils-message-cleanup-test-ts-33-cleanuptechnicalmessages-deletes-tracked-messages-and-leaves-the-main-menu-keyboard-installed",
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-42-tracktechnicalmessage-records-the-id-so-the-next-sweep-can-delete-it",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
-      "sourceLine": 33,
+      "sourceLine": 42,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "trackTechnicalMessage"
+      ],
+      "title": "records the id so the next sweep can delete it",
+      "rawTitle": "records the id so the next sweep can delete it",
+      "name": "Bot track Technical Message records the id so the next sweep can delete it",
+      "value": "Protects the bot track Technical Message behavior: records the id so the next sweep can delete it.",
+      "description": "Protects the bot track Technical Message behavior: records the id so the next sweep can delete it."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-51-tracktechnicalmessage-ignores-a-repeated-id-so-one-message-is-never-queued-for-deletion-twice",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 51,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "trackTechnicalMessage"
+      ],
+      "title": "ignores a repeated id so one message is never queued for deletion twice",
+      "rawTitle": "ignores a repeated id so one message is never queued for deletion twice",
+      "name": "Bot track Technical Message ignores a repeated id so one message is never queued for deletion twice",
+      "value": "Protects the bot track Technical Message behavior: ignores a repeated id so one message is never queued for deletion twice.",
+      "description": "Protects the bot track Technical Message behavior: ignores a repeated id so one message is never queued for deletion twice."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-60-tracktechnicalmessage-keeps-only-the-newest-ids-so-a-long-lived-session-cannot-grow-without-bound",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 60,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "trackTechnicalMessage"
+      ],
+      "title": "keeps only the newest ids so a long-lived session cannot grow without bound",
+      "rawTitle": "keeps only the newest ids so a long-lived session cannot grow without bound",
+      "name": "Bot track Technical Message keeps only the newest ids so a long lived session cannot grow without bound",
+      "value": "Protects the bot track Technical Message behavior: keeps only the newest ids so a long lived session cannot grow without bound.",
+      "description": "Protects the bot track Technical Message behavior: keeps only the newest ids so a long lived session cannot grow without bound."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-72-tracktechnicalmessage-is-a-no-op-without-a-session-the-bot-catch-notice-can-fire-before-session-middleware",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 72,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "trackTechnicalMessage"
+      ],
+      "title": "is a no-op without a session — the bot.catch notice can fire before session middleware",
+      "rawTitle": "is a no-op without a session — the bot.catch notice can fire before session middleware",
+      "name": "Bot track Technical Message is a no op without a session — the bot catch notice can fire before session middleware",
+      "value": "Protects the bot track Technical Message behavior so is a no op without a session — the bot catch notice can fire before session middleware.",
+      "description": "Protects the bot track Technical Message behavior so is a no op without a session — the bot catch notice can fire before session middleware."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-84-cleanuptechnicalmessages-deletes-every-tracked-message-and-empties-the-ledger",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 84,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "cleanupTechnicalMessages"
+      ],
+      "title": "deletes every tracked message and empties the ledger",
+      "rawTitle": "deletes every tracked message and empties the ledger",
+      "name": "Bot cleanup Technical Messages deletes every tracked message and empties the ledger",
+      "value": "Protects the bot cleanup Technical Messages behavior so deletes every tracked message and empties the ledger.",
+      "description": "Protects the bot cleanup Technical Messages behavior so deletes every tracked message and empties the ledger."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-96-cleanuptechnicalmessages-clears-the-ledger-even-when-telegram-refuses-a-message-older-than-48h-can-never-be-deleted",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 96,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "cleanupTechnicalMessages"
+      ],
+      "title": "clears the ledger even when Telegram refuses — a message older than 48h can never be deleted",
+      "rawTitle": "clears the ledger even when Telegram refuses — a message older than 48h can never be deleted",
+      "name": "Bot cleanup Technical Messages clears the ledger even when Telegram refuses — a message older than 48h can never be deleted",
+      "value": "Protects the bot cleanup Technical Messages behavior so clears the ledger even when Telegram refuses — a message older than 48h can never be deleted.",
+      "description": "Protects the bot cleanup Technical Messages behavior so clears the ledger even when Telegram refuses — a message older than 48h can never be deleted."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-106-cleanuptechnicalmessages-makes-no-api-call-when-nothing-is-tracked",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 106,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "cleanupTechnicalMessages"
+      ],
+      "title": "makes no API call when nothing is tracked",
+      "rawTitle": "makes no API call when nothing is tracked",
+      "name": "Bot cleanup Technical Messages makes no API call when nothing is tracked",
+      "value": "Protects the bot cleanup Technical Messages behavior so makes no API call when nothing is tracked.",
+      "description": "Protects the bot cleanup Technical Messages behavior so makes no API call when nothing is tracked."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-114-cleanuptechnicalmessages-drops-the-ledger-without-deleting-when-the-chat-is-unknown",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 114,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "cleanupTechnicalMessages"
+      ],
+      "title": "drops the ledger without deleting when the chat is unknown",
+      "rawTitle": "drops the ledger without deleting when the chat is unknown",
+      "name": "Bot cleanup Technical Messages drops the ledger without deleting when the chat is unknown",
+      "value": "Protects the bot cleanup Technical Messages behavior so drops the ledger without deleting when the chat is unknown.",
+      "description": "Protects the bot cleanup Technical Messages behavior so drops the ledger without deleting when the chat is unknown."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-124-cleanuptechnicalmessages-deletes-tracked-messages-and-leaves-the-main-menu-keyboard-installed",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 124,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12825,10 +13129,10 @@
       "description": "Protects the bot cleanup Technical Messages behavior so deletes tracked messages and leaves the main menu keyboard installed."
     },
     {
-      "id": "apps-bot-src-utils-message-cleanup-test-ts-49-cleanuptechnicalmessages-re-arms-keyboard-delivery-when-the-carrier-message-is-swept-up",
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-140-cleanuptechnicalmessages-re-arms-keyboard-delivery-when-the-carrier-message-is-swept-up",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
-      "sourceLine": 49,
+      "sourceLine": 140,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12839,6 +13143,38 @@
       "name": "Bot cleanup Technical Messages re arms keyboard delivery when the carrier message is swept up",
       "value": "Protects the bot cleanup Technical Messages behavior so re arms keyboard delivery when the carrier message is swept up.",
       "description": "Protects the bot cleanup Technical Messages behavior so re arms keyboard delivery when the carrier message is swept up."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-155-replytechnical-sends-the-message-and-tracks-it-in-one-step",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 155,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "replyTechnical"
+      ],
+      "title": "sends the message and tracks it in one step",
+      "rawTitle": "sends the message and tracks it in one step",
+      "name": "Bot reply Technical sends the message and tracks it in one step",
+      "value": "Protects the bot reply Technical behavior: sends the message and tracks it in one step.",
+      "description": "Protects the bot reply Technical behavior: sends the message and tracks it in one step."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-165-replytechnical-leaves-a-plain-ctx-reply-untracked-that-is-how-content-messages-stay-on-screen",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 165,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "replyTechnical"
+      ],
+      "title": "leaves a plain ctx.reply untracked — that is how content messages stay on screen",
+      "rawTitle": "leaves a plain ctx.reply untracked — that is how content messages stay on screen",
+      "name": "Bot reply Technical leaves a plain ctx reply untracked — that is how content messages stay on screen",
+      "value": "Protects the bot reply Technical behavior so leaves a plain ctx reply untracked — that is how content messages stay on screen.",
+      "description": "Protects the bot reply Technical behavior so leaves a plain ctx reply untracked — that is how content messages stay on screen."
     },
     {
       "id": "apps-bot-src-utils-parse-translate-input-test-ts-14-parsetranslateinput-parses-free-form-multi-word-context-after-a-separator",
