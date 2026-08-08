@@ -59,6 +59,11 @@ jobs:
         # holding the prod SSH key — mutable tag pinning is a supply-chain risk.
         uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
         with:
+          # Explicit, and deliberately below this job's timeout-minutes so the
+          # SSH step reports the timeout rather than the job being killed. The
+          # script here is short (pull + up -d + prune), but relying on the
+          # action's implicit 10m default is the same trap deploy.yml fell into.
+          command_timeout: 12m
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}

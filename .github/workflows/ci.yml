@@ -75,7 +75,12 @@ jobs:
       # prove the migrations match the schema.
       - name: Schema drift (schema.ts vs migrations)
         run: |
-          pnpm db:generate
+          # stdin closed on purpose: drizzle-kit prompts when it cannot tell a
+          # rename from a drop+add, and a rename IS a drift case — exactly what
+          # this gate exists to catch. With /dev/null the prompt hits EOF and
+          # fails fast instead of hanging until the job timeout. A prompt here
+          # should fail the gate, not be answered.
+          pnpm db:generate < /dev/null
           # `git status --porcelain`, not `git diff`: db:generate writes a new
           # .sql and a new meta/*_snapshot.json as UNTRACKED files, which
           # `git diff` cannot see at all.
