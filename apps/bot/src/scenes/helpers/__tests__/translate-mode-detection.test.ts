@@ -116,7 +116,12 @@ vi.mock("@polyglot/infra", () => ({
   logger: mockLogger,
 }));
 
-import { detectLanguageWithConfidence, detectLanguageWithConfidenceAsync, translateWithContext } from "@polyglot/core";
+import {
+  detectLanguageWithConfidence,
+  detectLanguageWithConfidenceAsync,
+  setLogger,
+  translateWithContext,
+} from "@polyglot/core";
 import type { BotContext, SessionData } from "../../../types.js";
 import { handleMistypeCancelCallback, handleMistypeConfirmCallback, handleTranslateText } from "../translate-flow.js";
 
@@ -216,16 +221,17 @@ describe("handleTranslateText — auto-detect language direction", () => {
     expect(callArgs).toHaveProperty("outputConfig");
   });
 
-  it("logs debug info about resolved direction", async () => {
+  it("records the resolved translation direction as a queryable event", async () => {
+    setLogger(mockLogger);
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "привет");
 
-    expect(mockLogger.debug).toHaveBeenCalledWith(
-      expect.objectContaining({
-        word: "привет",
-      }),
-      expect.any(String),
-    );
+    const directionEvent = vi
+      .mocked(mockLogger.info)
+      .mock.calls.find(([fields]) => fields.event === "translation.direction_resolved");
+
+    expect(directionEvent).toBeDefined();
+    expect(directionEvent?.[0]).toMatchObject({ word: "привет", sourceLang: expect.any(String) });
   });
 
   it("handles Russian (Cyrillic) input", async () => {

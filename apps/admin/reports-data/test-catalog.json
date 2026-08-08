@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-04T18:50:42.857Z",
+  "generatedAt": "2026-08-08T10:34:03.301Z",
   "summary": {
-    "total": 2497,
+    "total": 2562,
     "business": 0,
-    "technical": 2497,
+    "technical": 2562,
     "workspaces": [
       "apps",
       "packages"
@@ -3015,10 +3015,10 @@
       "description": "Protects the bot handle Back Callback behavior: returns to constructor keyboard from preview."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-90-translate-mode-system-moderoutermiddleware-calls-next-for-commands-text-starting-with",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-93-translate-mode-system-moderoutermiddleware-calls-next-for-commands-text-starting-with",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 90,
+      "sourceLine": 93,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3032,10 +3032,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: calls next() for commands (text starting with )."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-100-translate-mode-system-moderoutermiddleware-calls-next-when-no-message-text",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-103-translate-mode-system-moderoutermiddleware-calls-next-when-no-message-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 100,
+      "sourceLine": 103,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3049,10 +3049,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: calls next() when no message text."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-110-translate-mode-system-moderoutermiddleware-routes-plain-text-to-handletranslatetext-when-in-translate-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-113-translate-mode-system-moderoutermiddleware-routes-plain-text-to-handletranslatetext-when-in-translate-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 110,
+      "sourceLine": 113,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3066,10 +3066,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: routes plain text to handle Translate Text when in translate mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-120-translate-mode-system-moderoutermiddleware-falls-back-to-translation-in-idle-mode-for-onboarded-user",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-123-translate-mode-system-moderoutermiddleware-falls-back-to-translation-in-idle-mode-for-onboarded-user",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 120,
+      "sourceLine": 123,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3083,10 +3083,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: falls back to translation in idle mode for onboarded user."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-136-translate-mode-system-moderoutermiddleware-persists-idle-translate-fallback-to-db-for-onboarded-user",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-139-translate-mode-system-moderoutermiddleware-persists-idle-translate-fallback-to-db-for-onboarded-user",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 136,
+      "sourceLine": 139,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3100,10 +3100,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: persists idle→translate fallback to DB for onboarded user."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-149-translate-mode-system-moderoutermiddleware-shows-hint-for-non-onboarded-user-in-idle-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-152-translate-mode-system-moderoutermiddleware-shows-hint-for-non-onboarded-user-in-idle-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 149,
+      "sourceLine": 152,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3117,10 +3117,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: shows hint for non onboarded user in idle mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-164-translate-mode-system-moderoutermiddleware-falls-back-to-translation-for-unknown-mode-with-onboarded-user",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-167-translate-mode-system-moderoutermiddleware-falls-back-to-translation-for-unknown-mode-with-onboarded-user",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 164,
+      "sourceLine": 167,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3134,10 +3134,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: falls back to translation for unknown mode with onboarded user."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-181-usermode-type-supports-idle-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-184-usermode-type-supports-idle-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 181,
+      "sourceLine": 184,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3150,10 +3150,10 @@
       "description": "Protects the bot User Mode type behavior so supports idle mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-186-usermode-type-supports-translate-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-189-usermode-type-supports-translate-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 186,
+      "sourceLine": 189,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3166,10 +3166,10 @@
       "description": "Protects the bot User Mode type behavior so supports translate mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-193-sessiondata-has-translate-as-default-active-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-196-sessiondata-has-translate-as-default-active-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 193,
+      "sourceLine": 196,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3182,10 +3182,10 @@
       "description": "Protects the bot Session Data behavior so has translate as default active mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-206-sessiondata-can-store-pending-translation",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-209-sessiondata-can-store-pending-translation",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 206,
+      "sourceLine": 209,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6414,6 +6414,470 @@
       "description": "Protects the bot resolve Telegram Chat Id behavior: skips (returns null) only when both the identity and the legacy column are absent."
     },
     {
+      "id": "apps-bot-src-observability-tests-api-log-test-ts-28-api-log-transformer-logs-a-successful-call-with-its-method-target-and-duration",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/api-log.test.ts",
+      "sourceLine": 28,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "api log transformer"
+      ],
+      "title": "logs a successful call with its method, target and duration",
+      "rawTitle": "logs a successful call with its method, target and duration",
+      "name": "Bot api log transformer logs a successful call with its method, target and duration",
+      "value": "Protects the bot api log transformer behavior: logs a successful call with its method, target and duration.",
+      "description": "Protects the bot api log transformer behavior: logs a successful call with its method, target and duration."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-api-log-test-ts-40-api-log-transformer-logs-the-rendered-body-only-at-debug-so-info-stays-readable-but-a-bad-card-is-reproducible",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/api-log.test.ts",
+      "sourceLine": 40,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "api log transformer"
+      ],
+      "title": "logs the rendered body only at debug, so info stays readable but a bad card is reproducible",
+      "rawTitle": "logs the rendered body only at debug, so info stays readable but a bad card is reproducible",
+      "name": "Bot api log transformer logs the rendered body only at debug, so info stays readable but a bad card is reproducible",
+      "value": "Protects the bot api log transformer behavior: logs the rendered body only at debug, so info stays readable but a bad card is reproducible.",
+      "description": "Protects the bot api log transformer behavior: logs the rendered body only at debug, so info stays readable but a bad card is reproducible."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-api-log-test-ts-51-api-log-transformer-surfaces-a-telegram-rejection-that-the-chain-returns-rather-than-throws",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/api-log.test.ts",
+      "sourceLine": 51,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "api log transformer"
+      ],
+      "title": "surfaces a Telegram rejection that the chain returns rather than throws",
+      "rawTitle": "surfaces a Telegram rejection that the chain returns rather than throws",
+      "name": "Bot api log transformer surfaces a Telegram rejection that the chain returns rather than throws",
+      "value": "Protects the bot api log transformer behavior so surfaces a Telegram rejection that the chain returns rather than throws.",
+      "description": "Protects the bot api log transformer behavior so surfaces a Telegram rejection that the chain returns rather than throws."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-api-log-test-ts-68-api-log-transformer-logs-a-transport-failure-and-rethrows-it-untouched",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/api-log.test.ts",
+      "sourceLine": 68,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "api log transformer"
+      ],
+      "title": "logs a transport failure and rethrows it untouched",
+      "rawTitle": "logs a transport failure and rethrows it untouched",
+      "name": "Bot api log transformer logs a transport failure and rethrows it untouched",
+      "value": "Protects the bot api log transformer behavior: logs a transport failure and rethrows it untouched.",
+      "description": "Protects the bot api log transformer behavior: logs a transport failure and rethrows it untouched."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-api-log-test-ts-79-api-log-transformer-handles-a-payload-with-no-chat-or-text-such-as-an-answercallbackquery-ack",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/api-log.test.ts",
+      "sourceLine": 79,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "api log transformer"
+      ],
+      "title": "handles a payload with no chat or text, such as an answerCallbackQuery ack",
+      "rawTitle": "handles a payload with no chat or text, such as an answerCallbackQuery ack",
+      "name": "Bot api log transformer handles a payload with no chat or text, such as an answer Callback Query ack",
+      "value": "Protects the bot api log transformer behavior: handles a payload with no chat or text, such as an answer Callback Query ack.",
+      "description": "Protects the bot api log transformer behavior: handles a payload with no chat or text, such as an answer Callback Query ack."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-21-withhandlerlog-logs-a-start-at-debug-and-a-finish-at-info-with-the-handler-name-and-duration",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 21,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "withHandlerLog"
+      ],
+      "title": "logs a start at debug and a finish at info with the handler name and duration",
+      "rawTitle": "logs a start at debug and a finish at info with the handler name and duration",
+      "name": "Bot with Handler Log logs a start at debug and a finish at info with the handler name and duration",
+      "value": "Protects the bot with Handler Log behavior: logs a start at debug and a finish at info with the handler name and duration.",
+      "description": "Protects the bot with Handler Log behavior: logs a start at debug and a finish at info with the handler name and duration."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-33-withhandlerlog-records-the-handler-on-the-context-so-the-update-summary-can-report-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 33,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "withHandlerLog"
+      ],
+      "title": "records the handler on the context so the update summary can report it",
+      "rawTitle": "records the handler on the context so the update summary can report it",
+      "name": "Bot with Handler Log records the handler on the context so the update summary can report it",
+      "value": "Protects the bot with Handler Log behavior: records the handler on the context so the update summary can report it.",
+      "description": "Protects the bot with Handler Log behavior: records the handler on the context so the update summary can report it."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-41-withhandlerlog-appends-to-the-chain-when-several-wrapped-handlers-run-for-one-update",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 41,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "withHandlerLog"
+      ],
+      "title": "appends to the chain when several wrapped handlers run for one update",
+      "rawTitle": "appends to the chain when several wrapped handlers run for one update",
+      "name": "Bot with Handler Log appends to the chain when several wrapped handlers run for one update",
+      "value": "Protects the bot with Handler Log behavior so appends to the chain when several wrapped handlers run for one update.",
+      "description": "Protects the bot with Handler Log behavior so appends to the chain when several wrapped handlers run for one update."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-50-withhandlerlog-logs-the-failure-and-rethrows-leaving-the-global-error-handler-in-charge",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 50,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "withHandlerLog"
+      ],
+      "title": "logs the failure and rethrows, leaving the global error handler in charge",
+      "rawTitle": "logs the failure and rethrows, leaving the global error handler in charge",
+      "name": "Bot with Handler Log logs the failure and rethrows, leaving the global error handler in charge",
+      "value": "Protects the bot with Handler Log behavior: logs the failure and rethrows, leaving the global error handler in charge.",
+      "description": "Protects the bot with Handler Log behavior: logs the failure and rethrows, leaving the global error handler in charge."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-64-withhandlerlog-passes-next-through-so-wrapping-does-not-change-routing",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 64,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "withHandlerLog"
+      ],
+      "title": "passes next through, so wrapping does not change routing",
+      "rawTitle": "passes next through, so wrapping does not change routing",
+      "name": "Bot with Handler Log passes next through, so wrapping does not change routing",
+      "value": "Protects the bot with Handler Log behavior so passes next through, so wrapping does not change routing.",
+      "description": "Protects the bot with Handler Log behavior so passes next through, so wrapping does not change routing."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-75-withhandlerlog-leaves-no-finish-record-while-the-handler-is-still-running-so-a-hang-shows-as-a-dangling-start",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 75,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "withHandlerLog"
+      ],
+      "title": "leaves no finish record while the handler is still running, so a hang shows as a dangling start",
+      "rawTitle": "leaves no finish record while the handler is still running, so a hang shows as a dangling start",
+      "name": "Bot with Handler Log leaves no finish record while the handler is still running, so a hang shows as a dangling start",
+      "value": "Protects the bot with Handler Log behavior so leaves no finish record while the handler is still running, so a hang shows as a dangling start.",
+      "description": "Protects the bot with Handler Log behavior so leaves no finish record while the handler is still running, so a hang shows as a dangling start."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-90-markhandled-starts-a-chain-on-a-context-that-has-none",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "markHandled"
+      ],
+      "title": "starts a chain on a context that has none",
+      "rawTitle": "starts a chain on a context that has none",
+      "name": "Bot mark Handled starts a chain on a context that has none",
+      "value": "Protects the bot mark Handled behavior so starts a chain on a context that has none.",
+      "description": "Protects the bot mark Handled behavior so starts a chain on a context that has none."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-96-markhandled-reports-an-empty-chain-for-an-untouched-context",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 96,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "markHandled"
+      ],
+      "title": "reports an empty chain for an untouched context",
+      "rawTitle": "reports an empty chain for an untouched context",
+      "name": "Bot mark Handled reports an empty chain for an untouched context",
+      "value": "Protects the bot mark Handled behavior: reports an empty chain for an untouched context.",
+      "description": "Protects the bot mark Handled behavior: reports an empty chain for an untouched context."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-102-handlername-uses-the-function-s-own-name-so-new-routes-are-labelled-without-extra-arguments",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 102,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handlerName"
+      ],
+      "title": "uses the function's own name, so new routes are labelled without extra arguments",
+      "rawTitle": "uses the function's own name, so new routes are labelled without extra arguments",
+      "name": "Bot handler Name uses the function's own name, so new routes are labelled without extra arguments",
+      "value": "Protects the bot handler Name behavior: uses the function's own name, so new routes are labelled without extra arguments.",
+      "description": "Protects the bot handler Name behavior: uses the function's own name, so new routes are labelled without extra arguments."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-handler-log-test-ts-107-handlername-falls-back-to-the-route-pattern-for-an-anonymous-inline-handler",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/handler-log.test.ts",
+      "sourceLine": 107,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handlerName"
+      ],
+      "title": "falls back to the route pattern for an anonymous inline handler",
+      "rawTitle": "falls back to the route pattern for an anonymous inline handler",
+      "name": "Bot handler Name falls back to the route pattern for an anonymous inline handler",
+      "value": "Protects the bot handler Name behavior: falls back to the route pattern for an anonymous inline handler.",
+      "description": "Protects the bot handler Name behavior: falls back to the route pattern for an anonymous inline handler."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-descriptor-test-ts-11-describeupdate-captures-a-typed-command-with-its-full-text",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-descriptor.test.ts",
+      "sourceLine": 11,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "describeUpdate"
+      ],
+      "title": "captures a typed command with its full text",
+      "rawTitle": "captures a typed command with its full text",
+      "name": "Bot describe Update captures a typed command with its full text",
+      "value": "Protects the bot describe Update behavior so captures a typed command with its full text.",
+      "description": "Protects the bot describe Update behavior so captures a typed command with its full text."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-descriptor-test-ts-30-describeupdate-records-the-verbatim-callback-payload-and-its-family-so-a-dead-button-is-identifiable",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-descriptor.test.ts",
+      "sourceLine": 30,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "describeUpdate"
+      ],
+      "title": "records the verbatim callback payload and its family, so a dead button is identifiable",
+      "rawTitle": "records the verbatim callback payload and its family, so a dead button is identifiable",
+      "name": "Bot describe Update records the verbatim callback payload and its family, so a dead button is identifiable",
+      "value": "Protects the bot describe Update behavior: records the verbatim callback payload and its family, so a dead button is identifiable.",
+      "description": "Protects the bot describe Update behavior: records the verbatim callback payload and its family, so a dead button is identifiable."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-descriptor-test-ts-46-describeupdate-keeps-the-message-text-verbatim-so-a-failing-translation-input-can-be-replayed",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-descriptor.test.ts",
+      "sourceLine": 46,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "describeUpdate"
+      ],
+      "title": "keeps the message text verbatim so a failing translation input can be replayed",
+      "rawTitle": "keeps the message text verbatim so a failing translation input can be replayed",
+      "name": "Bot describe Update keeps the message text verbatim so a failing translation input can be replayed",
+      "value": "Protects the bot describe Update behavior: keeps the message text verbatim so a failing translation input can be replayed.",
+      "description": "Protects the bot describe Update behavior: keeps the message text verbatim so a failing translation input can be replayed."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-descriptor-test-ts-58-describeupdate-names-the-attachment-kind-for-a-non-text-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-descriptor.test.ts",
+      "sourceLine": 58,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "describeUpdate"
+      ],
+      "title": "names the attachment kind for a non-text message",
+      "rawTitle": "names the attachment kind for a non-text message",
+      "name": "Bot describe Update names the attachment kind for a non text message",
+      "value": "Protects the bot describe Update behavior so names the attachment kind for a non text message.",
+      "description": "Protects the bot describe Update behavior so names the attachment kind for a non text message."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-descriptor-test-ts-70-describeupdate-describes-an-edited-message-from-the-edit-payload",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-descriptor.test.ts",
+      "sourceLine": 70,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "describeUpdate"
+      ],
+      "title": "describes an edited message from the edit payload",
+      "rawTitle": "describes an edited message from the edit payload",
+      "name": "Bot describe Update describes an edited message from the edit payload",
+      "value": "Protects the bot describe Update behavior so describes an edited message from the edit payload.",
+      "description": "Protects the bot describe Update behavior so describes an edited message from the edit payload."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-descriptor-test-ts-81-describeupdate-reports-an-update-kind-the-bot-has-no-handler-for-by-its-real-telegram-name",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-descriptor.test.ts",
+      "sourceLine": 81,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "describeUpdate"
+      ],
+      "title": "reports an update kind the bot has no handler for by its real Telegram name",
+      "rawTitle": "reports an update kind the bot has no handler for by its real Telegram name",
+      "name": "Bot describe Update reports an update kind the bot has no handler for by its real Telegram name",
+      "value": "Protects the bot describe Update behavior: reports an update kind the bot has no handler for by its real Telegram name.",
+      "description": "Protects the bot describe Update behavior: reports an update kind the bot has no handler for by its real Telegram name."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-descriptor-test-ts-91-describeupdate-survives-an-update-with-no-message-chat-or-sender",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-descriptor.test.ts",
+      "sourceLine": 91,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "describeUpdate"
+      ],
+      "title": "survives an update with no message, chat or sender",
+      "rawTitle": "survives an update with no message, chat or sender",
+      "name": "Bot describe Update survives an update with no message, chat or sender",
+      "value": "Protects the bot describe Update behavior so survives an update with no message, chat or sender.",
+      "description": "Protects the bot describe Update behavior so survives an update with no message, chat or sender."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-trace-middleware-test-ts-29-updatetracemiddleware-brackets-the-update-with-received-finished-records-carrying-duration",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-trace.middleware.test.ts",
+      "sourceLine": 29,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateTraceMiddleware"
+      ],
+      "title": "brackets the update with received/finished records carrying duration",
+      "rawTitle": "brackets the update with received/finished records carrying duration",
+      "name": "Bot update Trace Middleware brackets the update with received finished records carrying duration",
+      "value": "Protects the bot update Trace Middleware behavior so brackets the update with received finished records carrying duration.",
+      "description": "Protects the bot update Trace Middleware behavior so brackets the update with received finished records carrying duration."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-trace-middleware-test-ts-37-updatetracemiddleware-opens-a-trace-that-downstream-code-inherits-identified-by-the-telegram-update",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-trace.middleware.test.ts",
+      "sourceLine": 37,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateTraceMiddleware"
+      ],
+      "title": "opens a trace that downstream code inherits, identified by the Telegram update",
+      "rawTitle": "opens a trace that downstream code inherits, identified by the Telegram update",
+      "name": "Bot update Trace Middleware opens a trace that downstream code inherits, identified by the Telegram update",
+      "value": "Protects the bot update Trace Middleware behavior so opens a trace that downstream code inherits, identified by the Telegram update.",
+      "description": "Protects the bot update Trace Middleware behavior so opens a trace that downstream code inherits, identified by the Telegram update."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-trace-middleware-test-ts-54-updatetracemiddleware-closes-the-trace-so-work-after-the-update-carries-no-stale-identity",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-trace.middleware.test.ts",
+      "sourceLine": 54,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateTraceMiddleware"
+      ],
+      "title": "closes the trace, so work after the update carries no stale identity",
+      "rawTitle": "closes the trace, so work after the update carries no stale identity",
+      "name": "Bot update Trace Middleware closes the trace, so work after the update carries no stale identity",
+      "value": "Protects the bot update Trace Middleware behavior: closes the trace, so work after the update carries no stale identity.",
+      "description": "Protects the bot update Trace Middleware behavior: closes the trace, so work after the update carries no stale identity."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-trace-middleware-test-ts-59-updatetracemiddleware-reports-which-handlers-consumed-the-update",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-trace.middleware.test.ts",
+      "sourceLine": 59,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateTraceMiddleware"
+      ],
+      "title": "reports which handlers consumed the update",
+      "rawTitle": "reports which handlers consumed the update",
+      "name": "Bot update Trace Middleware reports which handlers consumed the update",
+      "value": "Protects the bot update Trace Middleware behavior: reports which handlers consumed the update.",
+      "description": "Protects the bot update Trace Middleware behavior: reports which handlers consumed the update."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-trace-middleware-test-ts-69-updatetracemiddleware-warns-when-no-handler-matched-which-is-what-a-dead-button-from-an-old-keyboard-looks-like",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-trace.middleware.test.ts",
+      "sourceLine": 69,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateTraceMiddleware"
+      ],
+      "title": "warns when no handler matched, which is what a dead button from an old keyboard looks like",
+      "rawTitle": "warns when no handler matched, which is what a dead button from an old keyboard looks like",
+      "name": "Bot update Trace Middleware warns when no handler matched, which is what a dead button from an old keyboard looks like",
+      "value": "Protects the bot update Trace Middleware behavior so warns when no handler matched, which is what a dead button from an old keyboard looks like.",
+      "description": "Protects the bot update Trace Middleware behavior so warns when no handler matched, which is what a dead button from an old keyboard looks like."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-trace-middleware-test-ts-84-updatetracemiddleware-logs-a-failure-with-the-handler-chain-and-rethrows-so-bot-catch-still-runs",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-trace.middleware.test.ts",
+      "sourceLine": 84,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateTraceMiddleware"
+      ],
+      "title": "logs a failure with the handler chain and rethrows so bot.catch still runs",
+      "rawTitle": "logs a failure with the handler chain and rethrows so bot.catch still runs",
+      "name": "Bot update Trace Middleware logs a failure with the handler chain and rethrows so bot catch still runs",
+      "value": "Protects the bot update Trace Middleware behavior: logs a failure with the handler chain and rethrows so bot catch still runs.",
+      "description": "Protects the bot update Trace Middleware behavior: logs a failure with the handler chain and rethrows so bot catch still runs."
+    },
+    {
+      "id": "apps-bot-src-observability-tests-update-trace-middleware-test-ts-101-updatetracemiddleware-gives-concurrently-processed-updates-distinct-trace-ids",
+      "kind": "technical",
+      "filePath": "apps/bot/src/observability/__tests__/update-trace.middleware.test.ts",
+      "sourceLine": 101,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "updateTraceMiddleware"
+      ],
+      "title": "gives concurrently processed updates distinct trace ids",
+      "rawTitle": "gives concurrently processed updates distinct trace ids",
+      "name": "Bot update Trace Middleware gives concurrently processed updates distinct trace ids",
+      "value": "Protects the bot update Trace Middleware behavior so gives concurrently processed updates distinct trace ids.",
+      "description": "Protects the bot update Trace Middleware behavior so gives concurrently processed updates distinct trace ids."
+    },
+    {
       "id": "apps-bot-src-onboarding-tests-activation-nudge-test-ts-68-runactivationnudgesweep-nudges-an-eligible-user-once-and-records-the-delivery",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/activation-nudge.test.ts",
@@ -8649,10 +9113,10 @@
       "description": "Protects the bot translate flow — user facing timeout behavior: keeps the plain error — with no retry button — for a hard failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-191-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-196-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 191,
+      "sourceLine": 196,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8665,10 +9129,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with user Id and word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-203-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-208-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 203,
+      "sourceLine": 208,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8681,10 +9145,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: detects language from clean text without trailing context marker."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-210-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-215-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 210,
+      "sourceLine": 215,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8697,26 +9161,26 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with correct model and output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-219-handletranslatetext-auto-detect-language-direction-logs-debug-info-about-resolved-direction",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-224-handletranslatetext-auto-detect-language-direction-records-the-resolved-translation-direction-as-a-queryable-event",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 224,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleTranslateText — auto-detect language direction"
       ],
-      "title": "logs debug info about resolved direction",
-      "rawTitle": "logs debug info about resolved direction",
-      "name": "Bot handle Translate Text — auto detect language direction logs debug info about resolved direction",
-      "value": "Protects the bot handle Translate Text — auto detect language direction behavior: logs debug info about resolved direction.",
-      "description": "Protects the bot handle Translate Text — auto detect language direction behavior: logs debug info about resolved direction."
+      "title": "records the resolved translation direction as a queryable event",
+      "rawTitle": "records the resolved translation direction as a queryable event",
+      "name": "Bot handle Translate Text — auto detect language direction records the resolved translation direction as a queryable event",
+      "value": "Protects the bot handle Translate Text — auto detect language direction behavior: records the resolved translation direction as a queryable event.",
+      "description": "Protects the bot handle Translate Text — auto detect language direction behavior: records the resolved translation direction as a queryable event."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-231-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-237-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 231,
+      "sourceLine": 237,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8729,10 +9193,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: handles Russian (Cyrillic) input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-241-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-247-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 241,
+      "sourceLine": 247,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8745,10 +9209,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: falls back to native→learning for ambiguous input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-263-handletranslatetext-auto-detect-language-direction-attaches-the-source-override-menu-when-detection-is-a-weak-ambiguity-guess",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-269-handletranslatetext-auto-detect-language-direction-attaches-the-source-override-menu-when-detection-is-a-weak-ambiguity-guess",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 263,
+      "sourceLine": 269,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8761,10 +9225,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior so attaches the source override menu when detection is a weak ambiguity guess."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-285-handletranslatetext-auto-detect-language-direction-does-not-attach-the-source-override-menu-on-a-confident-detection",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-291-handletranslatetext-auto-detect-language-direction-does-not-attach-the-source-override-menu-on-a-confident-detection",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 291,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8777,10 +9241,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: does NOT attach the source override menu on a confident detection."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-337-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-includes-english-among-the-sync-detection-candidates-for-a-multi-word-phrase",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-343-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-includes-english-among-the-sync-detection-candidates-for-a-multi-word-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 337,
+      "sourceLine": 343,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8793,10 +9257,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: includes English among the sync detection candidates for a multi word phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-344-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-does-not-add-english-to-the-sync-candidates-for-a-single-word",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-350-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-does-not-add-english-to-the-sync-candidates-for-a-single-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 344,
+      "sourceLine": 350,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8809,10 +9273,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: does NOT add English to the sync candidates for a single word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-353-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-translates-a-franc-identified-english-phrase-as-english-source-targeting-the-studied-language",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-359-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-translates-a-franc-identified-english-phrase-as-english-source-targeting-the-studied-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 353,
+      "sourceLine": 359,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8825,10 +9289,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: translates a franc identified English phrase as English source, targeting the studied language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-379-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-385-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 379,
+      "sourceLine": 385,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8841,10 +9305,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: shows mistype warning when detect Language returns undefined."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-390-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-396-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 390,
+      "sourceLine": 396,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8857,10 +9321,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores pending state in session when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-399-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-405-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 399,
+      "sourceLine": 405,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8873,10 +9337,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores clean pending word and context hint when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-407-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-413-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 407,
+      "sourceLine": 413,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8889,10 +9353,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not call translate With Context when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-414-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-420-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 414,
+      "sourceLine": 420,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8905,10 +9369,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior so asks for source language when fast has dictionary evidence in English and German."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-447-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-453-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 447,
+      "sourceLine": 453,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8921,10 +9385,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not ask for source language for weak shared script ambiguity only."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-507-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-513-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 507,
+      "sourceLine": 513,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8937,10 +9401,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior so proceeds with translation when confirm callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-523-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-529-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 523,
+      "sourceLine": 529,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8953,10 +9417,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior: shows session expired alert when no pending state."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-544-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-550-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 544,
+      "sourceLine": 550,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8969,10 +9433,10 @@
       "description": "Protects the bot handle Mistype Cancel Callback — Task 58 behavior so clears pending state when cancel callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-557-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-563-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 557,
+      "sourceLine": 563,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15041,10 +15505,10 @@
       "description": "Protects the aI adapter request timeout abort behavior so passes through a non timeout rejection unchanged."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-34-logger-logs-successful-requests-with-info-level",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-23-logger-logs-successful-requests-with-info-level",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 34,
+      "sourceLine": 23,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15057,10 +15521,10 @@
       "description": "Protects the aI adapter logger behavior: logs successful requests with info level."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-55-logger-logs-failed-requests-with-error-level",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-44-logger-logs-failed-requests-with-error-level",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 55,
+      "sourceLine": 44,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15073,10 +15537,10 @@
       "description": "Protects the aI adapter logger behavior: logs failed requests with error level."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-73-logger-rounds-cost-usd-to-6-decimal-places",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-62-logger-rounds-cost-usd-to-6-decimal-places",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 73,
+      "sourceLine": 62,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15089,10 +15553,10 @@
       "description": "Protects the aI adapter logger behavior so rounds cost usd to 6 decimal places."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-87-logger-does-not-call-error-logger-for-successful-requests",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-76-logger-does-not-call-error-logger-for-successful-requests",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 87,
+      "sourceLine": 76,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15105,10 +15569,10 @@
       "description": "Protects the aI adapter logger behavior: does not call error logger for successful requests."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-100-logger-does-not-call-info-logger-for-failed-requests",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-89-logger-does-not-call-info-logger-for-failed-requests",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 100,
+      "sourceLine": 89,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15121,10 +15585,10 @@
       "description": "Protects the aI adapter logger behavior: does not call info logger for failed requests."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-114-logger-includes-userid-in-log-when-provided",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-103-logger-includes-userid-in-log-when-provided",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 114,
+      "sourceLine": 103,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15137,10 +15601,10 @@
       "description": "Protects the aI adapter logger behavior: includes user Id in log when provided."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-129-logger-omits-userid-from-log-when-not-provided",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-118-logger-omits-userid-from-log-when-not-provided",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 129,
+      "sourceLine": 118,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15153,10 +15617,10 @@
       "description": "Protects the aI adapter logger behavior: omits user Id from log when not provided."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-143-logger-includes-userid-in-error-log-when-provided",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-132-logger-includes-userid-in-error-log-when-provided",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 143,
+      "sourceLine": 132,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15169,10 +15633,10 @@
       "description": "Protects the aI adapter logger behavior: includes user Id in error log when provided."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-159-logger-passes-request-logs-to-the-metric-sink",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-148-logger-passes-request-logs-to-the-metric-sink",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 159,
+      "sourceLine": 148,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -15185,10 +15649,10 @@
       "description": "Protects the aI adapter logger behavior so passes request logs to the metric sink."
     },
     {
-      "id": "packages-adapters-ai-src-tests-logger-test-ts-176-logger-logs-a-warning-when-the-metric-sink-fails",
+      "id": "packages-adapters-ai-src-tests-logger-test-ts-165-logger-logs-a-warning-when-the-metric-sink-fails",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/logger.test.ts",
-      "sourceLine": 176,
+      "sourceLine": 165,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -16795,7 +17259,7 @@
       "description": "Protects the database adapter notification Repository get Users For Window behavior: excludes users with an empty notification Times list."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-419-notificationrepository-getusersforwindow-calls-select-with-innerjoin",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-419-notificationrepository-getusersforwindow-screens-out-recently-active-users-inside-one-query-rather-than-per-user",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
       "sourceLine": 419,
@@ -16805,17 +17269,17 @@
         "notificationRepository",
         "getUsersForWindow"
       ],
-      "title": "calls select with innerJoin",
-      "rawTitle": "calls select with innerJoin",
-      "name": "Database adapter notification Repository get Users For Window calls select with inner Join",
-      "value": "Protects the database adapter notification Repository get Users For Window behavior: calls select with inner Join.",
-      "description": "Protects the database adapter notification Repository get Users For Window behavior: calls select with inner Join."
+      "title": "screens out recently-active users inside one query rather than per user",
+      "rawTitle": "screens out recently-active users inside one query rather than per user",
+      "name": "Database adapter notification Repository get Users For Window screens out recently active users inside one query rather than per user",
+      "value": "Protects the database adapter notification Repository get Users For Window behavior so screens out recently active users inside one query rather than per user.",
+      "description": "Protects the database adapter notification Repository get Users For Window behavior so screens out recently active users inside one query rather than per user."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-429-notificationrepository-getinactiveusers-returns-inactive-users-from-db",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-433-notificationrepository-getinactiveusers-returns-inactive-users-from-db",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 429,
+      "sourceLine": 433,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -16829,10 +17293,10 @@
       "description": "Protects the database adapter notification Repository get Inactive Users behavior: returns inactive users from DB."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-439-notificationrepository-getinactiveusers-returns-empty-array-when-no-inactive-users-exist",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-443-notificationrepository-getinactiveusers-returns-empty-array-when-no-inactive-users-exist",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 439,
+      "sourceLine": 443,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -16846,10 +17310,10 @@
       "description": "Protects the database adapter notification Repository get Inactive Users behavior: returns empty array when no inactive users exist."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-449-notificationrepository-disablenotifications-updates-notificationenabled-to-false",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-453-notificationrepository-disablenotifications-updates-notificationenabled-to-false",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 449,
+      "sourceLine": 453,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -16863,10 +17327,10 @@
       "description": "Protects the database adapter notification Repository disable Notifications behavior: updates notification Enabled to false."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-457-notificationrepository-disablenotifications-sets-updatedat-timestamp",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-461-notificationrepository-disablenotifications-sets-updatedat-timestamp",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 457,
+      "sourceLine": 461,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -16880,10 +17344,10 @@
       "description": "Protects the database adapter notification Repository disable Notifications behavior so sets updated At timestamp."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-469-notificationrepository-disablenotifications-only-sets-notificationenabled-and-updatedat",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-473-notificationrepository-disablenotifications-only-sets-notificationenabled-and-updatedat",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 469,
+      "sourceLine": 473,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -16897,10 +17361,10 @@
       "description": "Protects the database adapter notification Repository disable Notifications behavior so only sets notification Enabled and updated At."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-480-notificationrepository-getsentwordssince-returns-the-original-words-sent-since-the-given-instant",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-484-notificationrepository-getsentwordssince-returns-the-original-words-sent-since-the-given-instant",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 480,
+      "sourceLine": 484,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -16914,10 +17378,10 @@
       "description": "Protects the database adapter notification Repository get Sent Words Since behavior: returns the original words sent since the given instant."
     },
     {
-      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-489-notificationrepository-getsentwordssince-returns-an-empty-array-when-nothing-was-sent-in-the-window",
+      "id": "packages-adapters-db-src-tests-notification-repository-test-ts-493-notificationrepository-getsentwordssince-returns-an-empty-array-when-nothing-was-sent-in-the-window",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.test.ts",
-      "sourceLine": 489,
+      "sourceLine": 493,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -20520,10 +20984,10 @@
       "description": "Protects the database adapter word Review Repository get Reviews By Session Type behavior: respects limit parameter."
     },
     {
-      "id": "packages-adapters-notifications-src-dictionary-context-test-ts-41-createnotificationservice-dictionary-only-returns-a-dictionary-word-with-source-srs",
+      "id": "packages-adapters-notifications-src-dictionary-context-test-ts-42-createnotificationservice-dictionary-only-returns-a-dictionary-word-with-source-srs",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/dictionary-context.test.ts",
-      "sourceLine": 41,
+      "sourceLine": 42,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20536,10 +21000,10 @@
       "description": "Protects the notification adapter create Notification Service — dictionary only behavior: returns a dictionary word with source: srs."
     },
     {
-      "id": "packages-adapters-notifications-src-dictionary-context-test-ts-54-createnotificationservice-dictionary-only-has-no-picksuggestedword-method",
+      "id": "packages-adapters-notifications-src-dictionary-context-test-ts-55-createnotificationservice-dictionary-only-has-no-picksuggestedword-method",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/dictionary-context.test.ts",
-      "sourceLine": 54,
+      "sourceLine": 55,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20552,10 +21016,10 @@
       "description": "Protects the notification adapter create Notification Service — dictionary only behavior so has no pick Suggested Word method."
     },
     {
-      "id": "packages-adapters-notifications-src-dictionary-context-test-ts-59-createnotificationservice-dictionary-only-suggestedword-has-no-dictionarycontext",
+      "id": "packages-adapters-notifications-src-dictionary-context-test-ts-60-createnotificationservice-dictionary-only-suggestedword-has-no-dictionarycontext",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/dictionary-context.test.ts",
-      "sourceLine": 59,
+      "sourceLine": 60,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20568,42 +21032,26 @@
       "description": "Protects the notification adapter create Notification Service — dictionary only behavior so Suggested Word has no dictionary Context."
     },
     {
-      "id": "packages-adapters-notifications-src-index-test-ts-33-lognotificationsent-logs-notification-sent-with-userid-type-and-wordid",
+      "id": "packages-adapters-notifications-src-index-test-ts-24-lognotificationsent-emits-a-notification-sent-event-carrying-userid-type-and-wordid",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/index.test.ts",
+      "sourceLine": 24,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "logNotificationSent"
+      ],
+      "title": "emits a notification.sent event carrying userId, type and wordId",
+      "rawTitle": "emits a notification.sent event carrying userId, type and wordId",
+      "name": "Notification adapter log Notification Sent emits a notification sent event carrying user Id, type and word Id",
+      "value": "Protects the notification adapter log Notification Sent behavior so emits a notification sent event carrying user Id, type and word Id.",
+      "description": "Protects the notification adapter log Notification Sent behavior so emits a notification sent event carrying user Id, type and word Id."
+    },
+    {
+      "id": "packages-adapters-notifications-src-index-test-ts-33-lognotificationsent-does-not-throw-on-multiple-calls",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/index.test.ts",
       "sourceLine": 33,
-      "workspace": "packages",
-      "packageName": "adapters/notifications",
-      "suitePath": [
-        "logNotificationSent"
-      ],
-      "title": "logs notification-sent with userId, type, and wordId",
-      "rawTitle": "logs notification-sent with userId, type, and wordId",
-      "name": "Notification adapter log Notification Sent logs notification sent with user Id, type, and word Id",
-      "value": "Protects the notification adapter log Notification Sent behavior: logs notification sent with user Id, type, and word Id.",
-      "description": "Protects the notification adapter log Notification Sent behavior: logs notification sent with user Id, type, and word Id."
-    },
-    {
-      "id": "packages-adapters-notifications-src-index-test-ts-44-lognotificationsent-passes-params-object-directly-to-logger-info",
-      "kind": "technical",
-      "filePath": "packages/adapters/notifications/src/index.test.ts",
-      "sourceLine": 44,
-      "workspace": "packages",
-      "packageName": "adapters/notifications",
-      "suitePath": [
-        "logNotificationSent"
-      ],
-      "title": "passes params object directly to logger.info",
-      "rawTitle": "passes params object directly to logger.info",
-      "name": "Notification adapter log Notification Sent passes params object directly to logger info",
-      "value": "Protects the notification adapter log Notification Sent behavior so passes params object directly to logger info.",
-      "description": "Protects the notification adapter log Notification Sent behavior so passes params object directly to logger info."
-    },
-    {
-      "id": "packages-adapters-notifications-src-index-test-ts-52-lognotificationsent-does-not-throw-on-multiple-calls",
-      "kind": "technical",
-      "filePath": "packages/adapters/notifications/src/index.test.ts",
-      "sourceLine": 52,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20616,10 +21064,10 @@
       "description": "Protects the notification adapter log Notification Sent behavior: does not throw on multiple calls."
     },
     {
-      "id": "packages-adapters-notifications-src-index-test-ts-62-lognotificationsent-handles-large-userid-and-wordid-values",
+      "id": "packages-adapters-notifications-src-index-test-ts-43-lognotificationsent-handles-large-userid-and-wordid-values",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/index.test.ts",
-      "sourceLine": 62,
+      "sourceLine": 43,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20632,10 +21080,10 @@
       "description": "Protects the notification adapter log Notification Sent behavior: handles large user Id and word Id values."
     },
     {
-      "id": "packages-adapters-notifications-src-index-test-ts-74-lognotificationsent-accepts-srs-notification-type-bug-07",
+      "id": "packages-adapters-notifications-src-index-test-ts-55-lognotificationsent-accepts-srs-notification-type-bug-07",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/index.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 55,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20648,26 +21096,77 @@
       "description": "Protects the notification adapter log Notification Sent behavior: accepts 'srs' notification type (BUG 07)."
     },
     {
-      "id": "packages-adapters-notifications-src-index-test-ts-85-lognotificationsent-logs-both-suggested-and-srs-types-correctly",
+      "id": "packages-adapters-notifications-src-index-test-ts-63-lognotificationsent-distinguishes-suggested-from-srs-across-consecutive-sends",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/index.test.ts",
-      "sourceLine": 85,
+      "sourceLine": 63,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
         "logNotificationSent"
       ],
-      "title": "logs both 'suggested' and 'srs' types correctly",
-      "rawTitle": "logs both 'suggested' and 'srs' types correctly",
-      "name": "Notification adapter log Notification Sent logs both 'suggested' and 'srs' types correctly",
-      "value": "Protects the notification adapter log Notification Sent behavior: logs both 'suggested' and 'srs' types correctly.",
-      "description": "Protects the notification adapter log Notification Sent behavior: logs both 'suggested' and 'srs' types correctly."
+      "title": "distinguishes 'suggested' from 'srs' across consecutive sends",
+      "rawTitle": "distinguishes 'suggested' from 'srs' across consecutive sends",
+      "name": "Notification adapter log Notification Sent distinguishes 'suggested' from 'srs' across consecutive sends",
+      "value": "Protects the notification adapter log Notification Sent behavior so distinguishes 'suggested' from 'srs' across consecutive sends.",
+      "description": "Protects the notification adapter log Notification Sent behavior so distinguishes 'suggested' from 'srs' across consecutive sends."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-77-pickdictionaryword-happy-path-returns-a-random-word-from-candidates",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-78-pickdictionaryword-de-dup-and-exhaustion-never-picks-a-word-the-user-was-recently-sent",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 77,
+      "sourceLine": 78,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "de-dup and exhaustion"
+      ],
+      "title": "never picks a word the user was recently sent",
+      "rawTitle": "never picks a word the user was recently sent",
+      "name": "Notification adapter pick Dictionary Word de dup and exhaustion never picks a word the user was recently sent",
+      "value": "Protects the notification adapter pick Dictionary Word de dup and exhaustion behavior so never picks a word the user was recently sent.",
+      "description": "Protects the notification adapter pick Dictionary Word de dup and exhaustion behavior so never picks a word the user was recently sent."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-86-pickdictionaryword-de-dup-and-exhaustion-reports-exhaustion-instead-of-repeating-so-the-caller-can-fall-back-to-a-preset",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 86,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "de-dup and exhaustion"
+      ],
+      "title": "reports exhaustion instead of repeating, so the caller can fall back to a preset",
+      "rawTitle": "reports exhaustion instead of repeating, so the caller can fall back to a preset",
+      "name": "Notification adapter pick Dictionary Word de dup and exhaustion reports exhaustion instead of repeating, so the caller can fall back to a preset",
+      "value": "Protects the notification adapter pick Dictionary Word de dup and exhaustion behavior: reports exhaustion instead of repeating, so the caller can fall back to a preset.",
+      "description": "Protects the notification adapter pick Dictionary Word de dup and exhaustion behavior: reports exhaustion instead of repeating, so the caller can fall back to a preset."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-96-pickdictionaryword-de-dup-and-exhaustion-reports-exhaustion-for-a-one-word-dictionary-already-sent",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 96,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "de-dup and exhaustion"
+      ],
+      "title": "reports exhaustion for a one-word dictionary already sent",
+      "rawTitle": "reports exhaustion for a one-word dictionary already sent",
+      "name": "Notification adapter pick Dictionary Word de dup and exhaustion reports exhaustion for a one word dictionary already sent",
+      "value": "Protects the notification adapter pick Dictionary Word de dup and exhaustion behavior: reports exhaustion for a one word dictionary already sent.",
+      "description": "Protects the notification adapter pick Dictionary Word de dup and exhaustion behavior: reports exhaustion for a one word dictionary already sent."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-108-pickdictionaryword-happy-path-returns-a-random-word-from-candidates",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 108,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20681,10 +21180,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: returns a random word from candidates."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-86-pickdictionaryword-happy-path-includes-translations-resolved-via-getlangcode",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-117-pickdictionaryword-happy-path-includes-translations-resolved-via-getlangcode",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 86,
+      "sourceLine": 117,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20698,10 +21197,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: includes translations resolved via get Lang Code."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-95-pickdictionaryword-happy-path-uses-entry-emoji-when-available",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-126-pickdictionaryword-happy-path-uses-entry-emoji-when-available",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 126,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20715,10 +21214,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: uses entry emoji when available."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-104-pickdictionaryword-happy-path-falls-back-to-book-emoji-when-entry-has-no-emoji",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-135-pickdictionaryword-happy-path-falls-back-to-book-emoji-when-entry-has-no-emoji",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 104,
+      "sourceLine": 135,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20732,10 +21231,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: falls back to book emoji when entry has no emoji."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-122-pickdictionaryword-happy-path-includes-source-srs-in-the-result",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-153-pickdictionaryword-happy-path-includes-source-srs-in-the-result",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 122,
+      "sourceLine": 153,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20749,10 +21248,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: includes source: 'srs' in the result."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-131-pickdictionaryword-happy-path-includes-translationdetails-when-synonyms-are-present",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-162-pickdictionaryword-happy-path-includes-translationdetails-when-synonyms-are-present",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 162,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20766,10 +21265,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: includes translation Details when synonyms are present."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-154-pickdictionaryword-happy-path-omits-translationdetails-when-no-synonyms-exist",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-185-pickdictionaryword-happy-path-omits-translationdetails-when-no-synonyms-exist",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 154,
+      "sourceLine": 185,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20783,10 +21282,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: omits translation Details when no synonyms exist."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-165-pickdictionaryword-edge-cases-returns-null-when-user-has-no-vocabulary",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-196-pickdictionaryword-edge-cases-returns-null-when-user-has-no-vocabulary",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 165,
+      "sourceLine": 196,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20800,10 +21299,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when user has no vocabulary."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-174-pickdictionaryword-edge-cases-returns-null-when-entry-has-no-resolvable-translations",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-205-pickdictionaryword-edge-cases-returns-null-when-entry-has-no-resolvable-translations",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 205,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20817,10 +21316,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when entry has no resolvable translations."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-196-pickdictionaryword-edge-cases-never-selects-an-unverified-entry",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-227-pickdictionaryword-edge-cases-never-selects-an-unverified-entry",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 227,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20834,10 +21333,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior so never selects an unverified entry."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-223-pickdictionaryword-edge-cases-returns-null-when-every-entry-is-unverified",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-254-pickdictionaryword-edge-cases-returns-null-when-every-entry-is-unverified",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 223,
+      "sourceLine": 254,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20851,10 +21350,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when every entry is unverified."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-244-pickdictionaryword-error-handling-returns-null-when-getuservocabulary-throws",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-275-pickdictionaryword-error-handling-returns-null-when-getuservocabulary-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 244,
+      "sourceLine": 275,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20868,10 +21367,10 @@
       "description": "Protects the notification adapter pick Dictionary Word error handling behavior: returns null when get User Vocabulary throws."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-268-pickcontextualword-delegates-to-the-core-prompt-builder-and-returns-a-contextual-word",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-299-pickcontextualword-delegates-to-the-core-prompt-builder-and-returns-a-contextual-word",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 268,
+      "sourceLine": 299,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20884,10 +21383,10 @@
       "description": "Protects the notification adapter pick Contextual Word behavior so delegates to the core prompt builder and returns a contextual word."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-288-pickcontextualword-returns-null-and-never-calls-ai-when-no-contextual-model-is-configured",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-319-pickcontextualword-returns-null-and-never-calls-ai-when-no-contextual-model-is-configured",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 288,
+      "sourceLine": 319,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20900,10 +21399,10 @@
       "description": "Protects the notification adapter pick Contextual Word behavior: returns null (and never calls AI) when no contextual model is configured."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-298-pickcontextualword-returns-null-when-ai-generation-fails",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-329-pickcontextualword-returns-null-when-ai-generation-fails",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 298,
+      "sourceLine": 329,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20916,10 +21415,154 @@
       "description": "Protects the notification adapter pick Contextual Word behavior: returns null when AI generation fails."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-115-buildnotificationpayload-builds-a-payload-with-user-s-preferred-time",
+      "id": "packages-adapters-notifications-src-preset-picker-test-ts-26-presetcandidates-alternates-between-the-learning-languages-instead-of-draining-the-first",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/preset-picker.test.ts",
+      "sourceLine": 26,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "presetCandidates"
+      ],
+      "title": "alternates between the learning languages instead of draining the first",
+      "rawTitle": "alternates between the learning languages instead of draining the first",
+      "name": "Notification adapter preset Candidates alternates between the learning languages instead of draining the first",
+      "value": "Protects the notification adapter preset Candidates behavior so alternates between the learning languages instead of draining the first.",
+      "description": "Protects the notification adapter preset Candidates behavior so alternates between the learning languages instead of draining the first."
+    },
+    {
+      "id": "packages-adapters-notifications-src-preset-picker-test-ts-36-presetcandidates-returns-nothing-for-a-language-with-no-curated-set",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/preset-picker.test.ts",
+      "sourceLine": 36,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "presetCandidates"
+      ],
+      "title": "returns nothing for a language with no curated set",
+      "rawTitle": "returns nothing for a language with no curated set",
+      "name": "Notification adapter preset Candidates returns nothing for a language with no curated set",
+      "value": "Protects the notification adapter preset Candidates behavior: returns nothing for a language with no curated set.",
+      "description": "Protects the notification adapter preset Candidates behavior: returns nothing for a language with no curated set."
+    },
+    {
+      "id": "packages-adapters-notifications-src-preset-picker-test-ts-42-pickpresetword-serves-a-reviewed-cached-card-without-paying-for-an-ai-call",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/preset-picker.test.ts",
+      "sourceLine": 42,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickPresetWord"
+      ],
+      "title": "serves a reviewed cached card without paying for an AI call",
+      "rawTitle": "serves a reviewed cached card without paying for an AI call",
+      "name": "Notification adapter pick Preset Word serves a reviewed cached card without paying for an AI call",
+      "value": "Protects the notification adapter pick Preset Word behavior so serves a reviewed cached card without paying for an AI call.",
+      "description": "Protects the notification adapter pick Preset Word behavior so serves a reviewed cached card without paying for an AI call."
+    },
+    {
+      "id": "packages-adapters-notifications-src-preset-picker-test-ts-53-pickpresetword-never-repeats-a-preset-the-user-was-just-sent",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/preset-picker.test.ts",
+      "sourceLine": 53,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickPresetWord"
+      ],
+      "title": "never repeats a preset the user was just sent",
+      "rawTitle": "never repeats a preset the user was just sent",
+      "name": "Notification adapter pick Preset Word never repeats a preset the user was just sent",
+      "value": "Protects the notification adapter pick Preset Word behavior so never repeats a preset the user was just sent.",
+      "description": "Protects the notification adapter pick Preset Word behavior so never repeats a preset the user was just sent."
+    },
+    {
+      "id": "packages-adapters-notifications-src-preset-picker-test-ts-64-pickpresetword-returns-null-once-every-curated-preset-has-been-sent-rather-than-repeating-one",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/preset-picker.test.ts",
+      "sourceLine": 64,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickPresetWord"
+      ],
+      "title": "returns null once every curated preset has been sent, rather than repeating one",
+      "rawTitle": "returns null once every curated preset has been sent, rather than repeating one",
+      "name": "Notification adapter pick Preset Word returns null once every curated preset has been sent, rather than repeating one",
+      "value": "Protects the notification adapter pick Preset Word behavior: returns null once every curated preset has been sent, rather than repeating one.",
+      "description": "Protects the notification adapter pick Preset Word behavior: returns null once every curated preset has been sent, rather than repeating one."
+    },
+    {
+      "id": "packages-adapters-notifications-src-preset-picker-test-ts-71-pickpresetword-falls-back-to-a-just-in-time-translation-when-no-reviewed-card-covers-the-pair",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/preset-picker.test.ts",
+      "sourceLine": 71,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickPresetWord"
+      ],
+      "title": "falls back to a just-in-time translation when no reviewed card covers the pair",
+      "rawTitle": "falls back to a just-in-time translation when no reviewed card covers the pair",
+      "name": "Notification adapter pick Preset Word falls back to a just in time translation when no reviewed card covers the pair",
+      "value": "Protects the notification adapter pick Preset Word behavior: falls back to a just in time translation when no reviewed card covers the pair.",
+      "description": "Protects the notification adapter pick Preset Word behavior: falls back to a just in time translation when no reviewed card covers the pair."
+    },
+    {
+      "id": "packages-adapters-notifications-src-preset-picker-test-ts-85-pickpresetword-returns-null-when-neither-source-can-resolve-a-word",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/preset-picker.test.ts",
+      "sourceLine": 85,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickPresetWord"
+      ],
+      "title": "returns null when neither source can resolve a word",
+      "rawTitle": "returns null when neither source can resolve a word",
+      "name": "Notification adapter pick Preset Word returns null when neither source can resolve a word",
+      "value": "Protects the notification adapter pick Preset Word behavior: returns null when neither source can resolve a word.",
+      "description": "Protects the notification adapter pick Preset Word behavior: returns null when neither source can resolve a word."
+    },
+    {
+      "id": "packages-adapters-notifications-src-preset-picker-test-ts-91-pickpresetword-survives-a-cache-lookup-that-throws-and-moves-on-to-the-next-source",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/preset-picker.test.ts",
+      "sourceLine": 91,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickPresetWord"
+      ],
+      "title": "survives a cache lookup that throws and moves on to the next source",
+      "rawTitle": "survives a cache lookup that throws and moves on to the next source",
+      "name": "Notification adapter pick Preset Word survives a cache lookup that throws and moves on to the next source",
+      "value": "Protects the notification adapter pick Preset Word behavior so survives a cache lookup that throws and moves on to the next source.",
+      "description": "Protects the notification adapter pick Preset Word behavior so survives a cache lookup that throws and moves on to the next source."
+    },
+    {
+      "id": "packages-adapters-notifications-src-preset-picker-test-ts-100-pickpresetword-returns-null-for-a-user-whose-languages-have-no-curated-presets-at-all",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/preset-picker.test.ts",
+      "sourceLine": 100,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickPresetWord"
+      ],
+      "title": "returns null for a user whose languages have no curated presets at all",
+      "rawTitle": "returns null for a user whose languages have no curated presets at all",
+      "name": "Notification adapter pick Preset Word returns null for a user whose languages have no curated presets at all",
+      "value": "Protects the notification adapter pick Preset Word behavior: returns null for a user whose languages have no curated presets at all.",
+      "description": "Protects the notification adapter pick Preset Word behavior: returns null for a user whose languages have no curated presets at all."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-118-buildnotificationpayload-builds-a-payload-with-user-s-preferred-time",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 115,
+      "sourceLine": 118,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20932,10 +21575,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: builds a payload with user's preferred time."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-127-buildnotificationpayload-derives-the-hour-from-the-current-local-time",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-130-buildnotificationpayload-derives-the-hour-from-the-current-local-time",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 127,
+      "sourceLine": 130,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20948,10 +21591,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior so derives the hour from the current local time."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-136-buildnotificationpayload-defaults-to-hour-8-when-the-timezone-is-invalid",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-139-buildnotificationpayload-defaults-to-hour-8-when-the-timezone-is-invalid",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 136,
+      "sourceLine": 139,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20964,10 +21607,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: defaults to hour 8 when the timezone is invalid."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-143-buildnotificationpayload-uses-user-s-interface-language-for-i18n",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-146-buildnotificationpayload-uses-user-s-interface-language-for-i18n",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 143,
+      "sourceLine": 146,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20980,10 +21623,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: uses user's interface language for i18n."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-150-buildnotificationpayload-uses-notifwordfromdict-label-for-srs-source",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-153-buildnotificationpayload-uses-notifwordfromdict-label-for-srs-source",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 150,
+      "sourceLine": 153,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -20996,10 +21639,122 @@
       "description": "Protects the notification adapter build Notification Payload behavior: uses notif Word From Dict label for srs source."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-169-checkandsend-sends-notifications-to-eligible-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-172-layered-word-selection-prefers-the-user-s-own-dictionary-and-never-reaches-for-a-preset",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 169,
+      "sourceLine": 172,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "layered word selection"
+      ],
+      "title": "prefers the user's own dictionary and never reaches for a preset",
+      "rawTitle": "prefers the user's own dictionary and never reaches for a preset",
+      "name": "Notification adapter layered word selection prefers the user's own dictionary and never reaches for a preset",
+      "value": "Protects the notification adapter layered word selection behavior so prefers the user's own dictionary and never reaches for a preset.",
+      "description": "Protects the notification adapter layered word selection behavior so prefers the user's own dictionary and never reaches for a preset."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-181-layered-word-selection-falls-back-to-a-curated-preset-when-the-dictionary-has-nothing-to-offer",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 181,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "layered word selection"
+      ],
+      "title": "falls back to a curated preset when the dictionary has nothing to offer",
+      "rawTitle": "falls back to a curated preset when the dictionary has nothing to offer",
+      "name": "Notification adapter layered word selection falls back to a curated preset when the dictionary has nothing to offer",
+      "value": "Protects the notification adapter layered word selection behavior: falls back to a curated preset when the dictionary has nothing to offer.",
+      "description": "Protects the notification adapter layered word selection behavior: falls back to a curated preset when the dictionary has nothing to offer."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-200-layered-word-selection-shows-the-empty-dictionary-prompt-only-when-no-layer-can-supply-a-word",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 200,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "layered word selection"
+      ],
+      "title": "shows the empty-dictionary prompt only when no layer can supply a word",
+      "rawTitle": "shows the empty-dictionary prompt only when no layer can supply a word",
+      "name": "Notification adapter layered word selection shows the empty dictionary prompt only when no layer can supply a word",
+      "value": "Protects the notification adapter layered word selection behavior: shows the empty dictionary prompt only when no layer can supply a word.",
+      "description": "Protects the notification adapter layered word selection behavior: shows the empty dictionary prompt only when no layer can supply a word."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-213-layered-word-selection-excludes-the-previous-notification-s-word-even-after-it-aged-out-of-the-de-dup-window",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 213,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "layered word selection"
+      ],
+      "title": "excludes the previous notification's word even after it aged out of the de-dup window",
+      "rawTitle": "excludes the previous notification's word even after it aged out of the de-dup window",
+      "name": "Notification adapter layered word selection excludes the previous notification's word even after it aged out of the de dup window",
+      "value": "Protects the notification adapter layered word selection behavior: excludes the previous notification's word even after it aged out of the de dup window.",
+      "description": "Protects the notification adapter layered word selection behavior: excludes the previous notification's word even after it aged out of the de dup window."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-226-layered-word-selection-does-not-duplicate-the-last-word-when-it-is-already-inside-the-window",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 226,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "layered word selection"
+      ],
+      "title": "does not duplicate the last word when it is already inside the window",
+      "rawTitle": "does not duplicate the last word when it is already inside the window",
+      "name": "Notification adapter layered word selection does not duplicate the last word when it is already inside the window",
+      "value": "Protects the notification adapter layered word selection behavior: does not duplicate the last word when it is already inside the window.",
+      "description": "Protects the notification adapter layered word selection behavior: does not duplicate the last word when it is already inside the window."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-237-layered-word-selection-still-sends-when-the-last-sent-lookup-fails-rather-than-dropping-the-notification",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 237,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "layered word selection"
+      ],
+      "title": "still sends when the last-sent lookup fails, rather than dropping the notification",
+      "rawTitle": "still sends when the last-sent lookup fails, rather than dropping the notification",
+      "name": "Notification adapter layered word selection still sends when the last sent lookup fails, rather than dropping the notification",
+      "value": "Protects the notification adapter layered word selection behavior so still sends when the last sent lookup fails, rather than dropping the notification.",
+      "description": "Protects the notification adapter layered word selection behavior so still sends when the last sent lookup fails, rather than dropping the notification."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-247-layered-word-selection-records-a-preset-send-under-its-own-source-so-the-layers-stay-distinguishable-in-history",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 247,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "layered word selection"
+      ],
+      "title": "records a preset send under its own source, so the layers stay distinguishable in history",
+      "rawTitle": "records a preset send under its own source, so the layers stay distinguishable in history",
+      "name": "Notification adapter layered word selection records a preset send under its own source, so the layers stay distinguishable in history",
+      "value": "Protects the notification adapter layered word selection behavior: records a preset send under its own source, so the layers stay distinguishable in history.",
+      "description": "Protects the notification adapter layered word selection behavior: records a preset send under its own source, so the layers stay distinguishable in history."
+    },
+    {
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-273-checkandsend-sends-notifications-to-eligible-users",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
+      "sourceLine": 273,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21012,10 +21767,10 @@
       "description": "Protects the notification adapter check And Send behavior: sends notifications to eligible users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-179-checkandsend-handles-multiple-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-283-checkandsend-handles-multiple-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 179,
+      "sourceLine": 283,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21028,10 +21783,10 @@
       "description": "Protects the notification adapter check And Send behavior: handles multiple users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-196-checkandsend-returns-zero-sent-when-no-users-are-eligible",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-300-checkandsend-returns-zero-sent-when-no-users-are-eligible",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 300,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21044,10 +21799,10 @@
       "description": "Protects the notification adapter check And Send behavior: returns zero sent when no users are eligible."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-207-checkandsend-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-311-checkandsend-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 207,
+      "sourceLine": 311,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21060,10 +21815,10 @@
       "description": "Protects the notification adapter check And Send behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-227-checkandsend-retries-failed-sends-up-to-3-times-before-giving-up",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-331-checkandsend-retries-failed-sends-up-to-3-times-before-giving-up",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 331,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21076,10 +21831,10 @@
       "description": "Protects the notification adapter check And Send behavior so retries failed sends up to 3 times before giving up."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-237-checkandsend-succeeds-on-retry-when-transient-error-resolves",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-341-checkandsend-succeeds-on-retry-when-transient-error-resolves",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 237,
+      "sourceLine": 341,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21092,10 +21847,10 @@
       "description": "Protects the notification adapter check And Send behavior so succeeds on retry when transient error resolves."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-254-checkandsend-disables-notifications-for-a-user-who-blocked-the-bot-403-without-retrying",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-358-checkandsend-disables-notifications-for-a-user-who-blocked-the-bot-403-without-retrying",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 254,
+      "sourceLine": 358,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21108,10 +21863,10 @@
       "description": "Protects the notification adapter check And Send behavior so disables notifications for a user who blocked the bot (403), without retrying."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-271-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-375-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 271,
+      "sourceLine": 375,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21124,10 +21879,10 @@
       "description": "Protects the notification adapter check And Send behavior: sends empty dictionary prompt when no word could be picked."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-283-checkandsend-returns-error-when-getusersforwindow-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-387-checkandsend-returns-error-when-getusersforwindow-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 283,
+      "sourceLine": 387,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21140,10 +21895,10 @@
       "description": "Protects the notification adapter check And Send behavior: returns error when get Users For Window throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-295-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-399-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 295,
+      "sourceLine": 399,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21157,10 +21912,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: uses pick Dictionary Word for all users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-303-checkandsend-word-picking-strategy-passes-words-sent-in-the-last-24h-to-the-dictionary-picker-for-de-dup",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-407-checkandsend-word-picking-strategy-passes-words-sent-in-the-last-24h-to-the-dictionary-picker-for-de-dup",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 303,
+      "sourceLine": 407,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21174,10 +21929,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior so passes words sent in the last 24h to the dictionary picker for de dup."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-315-checkandsend-word-picking-strategy-routes-a-contextual-user-to-the-contextual-picker",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-419-checkandsend-word-picking-strategy-routes-a-contextual-user-to-the-contextual-picker",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 315,
+      "sourceLine": 419,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21191,10 +21946,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: routes a contextual user to the contextual picker."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-336-checkandsend-word-picking-strategy-falls-back-to-the-dictionary-picker-for-a-contextual-user-with-no-context",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-440-checkandsend-word-picking-strategy-falls-back-to-the-dictionary-picker-for-a-contextual-user-with-no-context",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 336,
+      "sourceLine": 440,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21208,10 +21963,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: falls back to the dictionary picker for a contextual user with no context."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-366-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-470-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 366,
+      "sourceLine": 470,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21224,10 +21979,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: sends re engagement message and disables notifications."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-379-processinactiveusers-processes-multiple-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-483-processinactiveusers-processes-multiple-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 379,
+      "sourceLine": 483,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21240,10 +21995,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: processes multiple inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-397-processinactiveusers-returns-zero-when-no-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-501-processinactiveusers-returns-zero-when-no-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 397,
+      "sourceLine": 501,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21256,10 +22011,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns zero when no inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-405-processinactiveusers-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-509-processinactiveusers-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 405,
+      "sourceLine": 509,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21272,10 +22027,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-418-processinactiveusers-returns-error-when-getinactiveusers-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-522-processinactiveusers-returns-error-when-getinactiveusers-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 418,
+      "sourceLine": 522,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21288,10 +22043,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns error when get Inactive Users throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-429-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-533-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 429,
+      "sourceLine": 533,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21304,10 +22059,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: uses user interface language for re engagement message."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-461-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-565-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 461,
+      "sourceLine": 565,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21320,10 +22075,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so registers a cron job with hourly schedule."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-471-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-575-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 471,
+      "sourceLine": 575,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21336,10 +22091,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior: does not register duplicate cron jobs."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-484-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-588-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 484,
+      "sourceLine": 588,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21352,10 +22107,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler stops the cron task."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-496-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-600-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 496,
+      "sourceLine": 600,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -21672,68 +22427,68 @@
       "description": "Protects the youTube adapter extract Video Id behavior: handles IDs with hyphens and underscores."
     },
     {
-      "id": "packages-core-src-tests-logger-test-ts-20-logger-pii-redaction-t10-redacts-user-message-text-and-username-at-info-level-shipped-to-betterstack",
+      "id": "packages-core-src-tests-logger-test-ts-20-logger-pii-redaction-keeps-user-message-text-so-a-failing-input-can-be-reproduced",
       "kind": "technical",
       "filePath": "packages/core/src/__tests__/logger.test.ts",
       "sourceLine": 20,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "logger PII redaction (T10)"
+        "logger PII redaction"
       ],
-      "title": "redacts user message text and username at info level (shipped to Betterstack)",
-      "rawTitle": "redacts user message text and username at info level (shipped to Betterstack)",
-      "name": "Core domain logger PII redaction (T10) redacts user message text and username at info level (shipped to Betterstack)",
-      "value": "Protects the core domain logger PII redaction (T10) behavior so redacts user message text and username at info level (shipped to Betterstack).",
-      "description": "Protects the core domain logger PII redaction (T10) behavior so redacts user message text and username at info level (shipped to Betterstack)."
+      "title": "keeps user message text so a failing input can be reproduced",
+      "rawTitle": "keeps user message text so a failing input can be reproduced",
+      "name": "Core domain logger PII redaction keeps user message text so a failing input can be reproduced",
+      "value": "Protects the core domain logger PII redaction behavior: keeps user message text so a failing input can be reproduced.",
+      "description": "Protects the core domain logger PII redaction behavior: keeps user message text so a failing input can be reproduced."
     },
     {
-      "id": "packages-core-src-tests-logger-test-ts-32-logger-pii-redaction-t10-redacts-nested-text-username-paths",
+      "id": "packages-core-src-tests-logger-test-ts-30-logger-pii-redaction-redacts-username-at-every-nesting-level-since-ids-already-identify-the-user",
       "kind": "technical",
       "filePath": "packages/core/src/__tests__/logger.test.ts",
-      "sourceLine": 32,
+      "sourceLine": 30,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "logger PII redaction (T10)"
+        "logger PII redaction"
       ],
-      "title": "redacts nested text/username paths",
-      "rawTitle": "redacts nested text/username paths",
-      "name": "Core domain logger PII redaction (T10) redacts nested text username paths",
-      "value": "Protects the core domain logger PII redaction (T10) behavior so redacts nested text username paths.",
-      "description": "Protects the core domain logger PII redaction (T10) behavior so redacts nested text username paths."
+      "title": "redacts username at every nesting level, since ids already identify the user",
+      "rawTitle": "redacts username at every nesting level, since ids already identify the user",
+      "name": "Core domain logger PII redaction redacts username at every nesting level, since ids already identify the user",
+      "value": "Protects the core domain logger PII redaction behavior so redacts username at every nesting level, since ids already identify the user.",
+      "description": "Protects the core domain logger PII redaction behavior so redacts username at every nesting level, since ids already identify the user."
     },
     {
-      "id": "packages-core-src-tests-logger-test-ts-42-logger-pii-redaction-t10-keeps-diagnostic-surrogates-textlength-textpreview-so-diagnostic-value-is-preserved",
+      "id": "packages-core-src-tests-logger-test-ts-40-logger-pii-redaction-keeps-diagnostic-surrogates-textlength-textpreview-so-diagnostic-value-is-preserved",
       "kind": "technical",
       "filePath": "packages/core/src/__tests__/logger.test.ts",
-      "sourceLine": 42,
+      "sourceLine": 40,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "logger PII redaction (T10)"
+        "logger PII redaction"
       ],
       "title": "keeps diagnostic surrogates (textLength, textPreview) so diagnostic value is preserved",
       "rawTitle": "keeps diagnostic surrogates (textLength, textPreview) so diagnostic value is preserved",
-      "name": "Core domain logger PII redaction (T10) keeps diagnostic surrogates (text Length, text Preview) so diagnostic value is preserved",
-      "value": "Protects the core domain logger PII redaction (T10) behavior: keeps diagnostic surrogates (text Length, text Preview) so diagnostic value is preserved.",
-      "description": "Protects the core domain logger PII redaction (T10) behavior: keeps diagnostic surrogates (text Length, text Preview) so diagnostic value is preserved."
+      "name": "Core domain logger PII redaction keeps diagnostic surrogates (text Length, text Preview) so diagnostic value is preserved",
+      "value": "Protects the core domain logger PII redaction behavior: keeps diagnostic surrogates (text Length, text Preview) so diagnostic value is preserved.",
+      "description": "Protects the core domain logger PII redaction behavior: keeps diagnostic surrogates (text Length, text Preview) so diagnostic value is preserved."
     },
     {
-      "id": "packages-core-src-tests-logger-test-ts-52-logger-pii-redaction-t10-redacts-a-password-field-as-defense-in-depth",
+      "id": "packages-core-src-tests-logger-test-ts-50-logger-pii-redaction-redacts-a-password-field-as-defense-in-depth",
       "kind": "technical",
       "filePath": "packages/core/src/__tests__/logger.test.ts",
-      "sourceLine": 52,
+      "sourceLine": 50,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
-        "logger PII redaction (T10)"
+        "logger PII redaction"
       ],
       "title": "redacts a password field as defense-in-depth",
       "rawTitle": "redacts a password field as defense-in-depth",
-      "name": "Core domain logger PII redaction (T10) redacts a password field as defense in depth",
-      "value": "Protects the core domain logger PII redaction (T10) behavior so redacts a password field as defense in depth.",
-      "description": "Protects the core domain logger PII redaction (T10) behavior so redacts a password field as defense in depth."
+      "name": "Core domain logger PII redaction redacts a password field as defense in depth",
+      "value": "Protects the core domain logger PII redaction behavior so redacts a password field as defense in depth.",
+      "description": "Protects the core domain logger PII redaction behavior so redacts a password field as defense in depth."
     },
     {
       "id": "packages-core-src-modules-context-enrichment-tests-context-enrichment-service-test-ts-135-translatewithcontext-calls-lookupcontext-with-word-and-sourcelang",
@@ -29647,10 +30402,10 @@
       "description": "Protects the core domain build Context Sentence Prompt behavior: includes the user's context verbatim."
     },
     {
-      "id": "packages-core-src-modules-onboarding-tests-hook-words-test-ts-24-hook-words-covers-every-supported-language-and-nothing-else",
+      "id": "packages-core-src-modules-onboarding-tests-hook-words-test-ts-57-hook-words-covers-every-supported-language-and-nothing-else",
       "kind": "technical",
       "filePath": "packages/core/src/modules/onboarding/__tests__/hook-words.test.ts",
-      "sourceLine": 24,
+      "sourceLine": 57,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29663,10 +30418,10 @@
       "description": "Protects the core domain hook words behavior so covers every supported language and nothing else."
     },
     {
-      "id": "packages-core-src-modules-onboarding-tests-hook-words-test-ts-28-hook-words-never-repeats-a-headword-within-a-language",
+      "id": "packages-core-src-modules-onboarding-tests-hook-words-test-ts-61-hook-words-never-repeats-a-headword-within-a-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/onboarding/__tests__/hook-words.test.ts",
-      "sourceLine": 28,
+      "sourceLine": 61,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29679,10 +30434,10 @@
       "description": "Protects the core domain hook words behavior so never repeats a headword within a language."
     },
     {
-      "id": "packages-core-src-modules-onboarding-tests-hook-words-test-ts-35-hook-words-gives-every-entry-a-non-empty-headword-and-a-known-category",
+      "id": "packages-core-src-modules-onboarding-tests-hook-words-test-ts-68-hook-words-gives-every-entry-a-non-empty-headword-and-a-known-category",
       "kind": "technical",
       "filePath": "packages/core/src/modules/onboarding/__tests__/hook-words.test.ts",
-      "sourceLine": 35,
+      "sourceLine": 68,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -29695,10 +30450,10 @@
       "description": "Protects the core domain hook words behavior so gives every entry a non empty headword and a known category."
     },
     {
-      "id": "packages-core-src-modules-onboarding-tests-hook-words-test-ts-44-hook-words-returns-an-empty-list-for-an-unknown-language-instead-of-throwing",
+      "id": "packages-core-src-modules-onboarding-tests-hook-words-test-ts-77-hook-words-returns-an-empty-list-for-an-unknown-language-instead-of-throwing",
       "kind": "technical",
       "filePath": "packages/core/src/modules/onboarding/__tests__/hook-words.test.ts",
-      "sourceLine": 44,
+      "sourceLine": 77,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36158,10 +36913,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger warn on each failed validation attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1428-validation-logging-calls-logger-error-after-all-retries-exhausted",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1429-validation-logging-calls-logger-error-after-all-retries-exhausted",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1428,
+      "sourceLine": 1429,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36174,10 +36929,10 @@
       "description": "Protects the core domain validation logging behavior: calls logger error after all retries exhausted."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1453-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1455-validation-logging-does-not-log-when-validation-passes-on-first-attempt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1453,
+      "sourceLine": 1455,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36190,10 +36945,10 @@
       "description": "Protects the core domain validation logging behavior: does not log when validation passes on first attempt."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1462-validation-logging-logs-warn-but-not-error-when-repair-succeeds",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1464-validation-logging-logs-warn-but-not-error-when-repair-succeeds",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1462,
+      "sourceLine": 1464,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36206,10 +36961,10 @@
       "description": "Protects the core domain validation logging behavior: logs warn but not error when repair succeeds."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1500-validation-logging-includes-failreason-with-validation-error-details",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1503-validation-logging-includes-failreason-with-validation-error-details",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1500,
+      "sourceLine": 1503,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36222,10 +36977,10 @@
       "description": "Protects the core domain validation logging behavior: includes fail Reason with validation error details."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1530-parseresponse-parses-a-valid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1533-parseresponse-parses-a-valid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1530,
+      "sourceLine": 1533,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36238,10 +36993,10 @@
       "description": "Protects the core domain parse Response behavior: parses a valid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1538-parseresponse-throws-on-invalid-raw-response",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1541-parseresponse-throws-on-invalid-raw-response",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1538,
+      "sourceLine": 1541,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36254,10 +37009,10 @@
       "description": "Protects the core domain parse Response behavior: throws on invalid raw response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1542-parseresponse-throws-on-missing-required-fields",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1545-parseresponse-throws-on-missing-required-fields",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1542,
+      "sourceLine": 1545,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36270,10 +37025,10 @@
       "description": "Protects the core domain parse Response behavior: throws on missing required fields."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1551-parseresponse-throws-on-empty-translations-record",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1554-parseresponse-throws-on-empty-translations-record",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1551,
+      "sourceLine": 1554,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36286,10 +37041,10 @@
       "description": "Protects the core domain parse Response behavior: throws on empty translations record."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1560-sanitizeemoji-passes-through-valid-single-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1563-sanitizeemoji-passes-through-valid-single-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1560,
+      "sourceLine": 1563,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36302,10 +37057,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through valid single emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1566-sanitizeemoji-passes-through-zwj-sequences",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1569-sanitizeemoji-passes-through-zwj-sequences",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1566,
+      "sourceLine": 1569,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36318,10 +37073,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through ZWJ sequences."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1570-sanitizeemoji-passes-through-flag-emoji",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1573-sanitizeemoji-passes-through-flag-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1570,
+      "sourceLine": 1573,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36334,10 +37089,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so passes through flag emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1574-sanitizeemoji-replaces-plain-words-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1577-sanitizeemoji-replaces-plain-words-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1574,
+      "sourceLine": 1577,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36350,10 +37105,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so replaces plain words with fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1580-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1583-sanitizeemoji-replaces-empty-looking-strings-with-fallback",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1580,
+      "sourceLine": 1583,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36366,10 +37121,10 @@
       "description": "Protects the core domain sanitize Emoji behavior so replaces empty looking strings with fallback."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1615-unrecognized-word-guard-task-70-returns-an-unrecognized-word-clarification-not-a-card-with-the-correction-offered",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1618-unrecognized-word-guard-task-70-returns-an-unrecognized-word-clarification-not-a-card-with-the-correction-offered",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1615,
+      "sourceLine": 1618,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36382,10 +37137,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior: returns an unrecognized word clarification (not a card) with the correction offered."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1630-unrecognized-word-guard-task-70-offers-only-translate-as-written-when-there-is-no-confident-correction",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1633-unrecognized-word-guard-task-70-offers-only-translate-as-written-when-there-is-no-confident-correction",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1630,
+      "sourceLine": 1633,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36398,10 +37153,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior so offers only 'translate as written' when there is no confident correction."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1641-unrecognized-word-guard-task-70-translates-as-written-and-flags-the-result-unverified-once-the-user-overrides",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1644-unrecognized-word-guard-task-70-translates-as-written-and-flags-the-result-unverified-once-the-user-overrides",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1641,
+      "sourceLine": 1644,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36414,10 +37169,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior: translates as written and flags the result unverified once the user overrides."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1653-unrecognized-word-guard-task-70-produces-a-normal-card-not-flagged-when-the-word-is-recognized",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1656-unrecognized-word-guard-task-70-produces-a-normal-card-not-flagged-when-the-word-is-recognized",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1653,
+      "sourceLine": 1656,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36430,10 +37185,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior so produces a normal card (not flagged) when the word is recognized."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1662-unrecognized-word-guard-task-70-does-not-gate-when-the-caller-opts-out-of-the-existence-assessment",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1665-unrecognized-word-guard-task-70-does-not-gate-when-the-caller-opts-out-of-the-existence-assessment",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1662,
+      "sourceLine": 1665,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36446,10 +37201,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior: does not gate when the caller opts out of the existence assessment."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1671-unrecognized-word-guard-task-70-returns-a-structured-reason-no-localized-ui-string-for-the-channel-to-render-a13",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1674-unrecognized-word-guard-task-70-returns-a-structured-reason-no-localized-ui-string-for-the-channel-to-render-a13",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1671,
+      "sourceLine": 1674,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36462,10 +37217,10 @@
       "description": "Protects the core domain unrecognized word guard (Task 70) behavior: returns a STRUCTURED reason (no localized UI string) for the channel to render (A13)."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1698-buildjudgeprompt-keeps-the-judge-detection-phrase-used-by-the-pipeline-and-tests",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1701-buildjudgeprompt-keeps-the-judge-detection-phrase-used-by-the-pipeline-and-tests",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1698,
+      "sourceLine": 1701,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36478,10 +37233,10 @@
       "description": "Protects the core domain build Judge Prompt behavior: keeps the judge detection phrase used by the pipeline and tests."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1703-buildjudgeprompt-whitelists-the-designed-output-schema-fields-so-the-judge-never-flags-them-as-pollution",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1706-buildjudgeprompt-whitelists-the-designed-output-schema-fields-so-the-judge-never-flags-them-as-pollution",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1703,
+      "sourceLine": 1706,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36494,10 +37249,10 @@
       "description": "Protects the core domain build Judge Prompt behavior so whitelists the designed output schema fields so the judge never flags them as pollution."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1715-buildjudgeprompt-scopes-the-pollution-rule-to-the-translated-text-string-not-the-structured-fields",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1718-buildjudgeprompt-scopes-the-pollution-rule-to-the-translated-text-string-not-the-structured-fields",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1715,
+      "sourceLine": 1718,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36510,10 +37265,10 @@
       "description": "Protects the core domain build Judge Prompt behavior so scopes the pollution rule to the translated text string, not the structured fields."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1723-buildjudgeprompt-still-asks-for-the-genuine-factual-and-immutable-token-blocking-rules",
+      "id": "packages-core-src-modules-translation-tests-translation-service-test-ts-1726-buildjudgeprompt-still-asks-for-the-genuine-factual-and-immutable-token-blocking-rules",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/translation.service.test.ts",
-      "sourceLine": 1723,
+      "sourceLine": 1726,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -39780,6 +40535,294 @@
       "name": "Core domain compute Phrase Target never exceeds the bounds even if min > max is misconfigured",
       "value": "Protects the core domain compute Phrase Target behavior so never exceeds the bounds even if min > max is misconfigured.",
       "description": "Protects the core domain compute Phrase Target behavior so never exceeds the bounds even if min > max is misconfigured."
+    },
+    {
+      "id": "packages-core-src-observability-tests-events-test-ts-37-logevent-emits-the-event-name-as-both-a-queryable-field-and-the-message",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/events.test.ts",
+      "sourceLine": 37,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "logEvent"
+      ],
+      "title": "emits the event name as both a queryable field and the message",
+      "rawTitle": "emits the event name as both a queryable field and the message",
+      "name": "Core domain log Event emits the event name as both a queryable field and the message",
+      "value": "Protects the core domain log Event behavior so emits the event name as both a queryable field and the message.",
+      "description": "Protects the core domain log Event behavior so emits the event name as both a queryable field and the message."
+    },
+    {
+      "id": "packages-core-src-observability-tests-events-test-ts-45-logevent-honours-the-requested-level",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/events.test.ts",
+      "sourceLine": 45,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "logEvent"
+      ],
+      "title": "honours the requested level",
+      "rawTitle": "honours the requested level",
+      "name": "Core domain log Event honours the requested level",
+      "value": "Protects the core domain log Event behavior so honours the requested level.",
+      "description": "Protects the core domain log Event behavior so honours the requested level."
+    },
+    {
+      "id": "packages-core-src-observability-tests-events-test-ts-51-logevent-never-throws-when-the-logger-itself-fails-so-logging-cannot-break-a-flow",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/events.test.ts",
+      "sourceLine": 51,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "logEvent"
+      ],
+      "title": "never throws when the logger itself fails, so logging cannot break a flow",
+      "rawTitle": "never throws when the logger itself fails, so logging cannot break a flow",
+      "name": "Core domain log Event never throws when the logger itself fails, so logging cannot break a flow",
+      "value": "Protects the core domain log Event behavior so never throws when the logger itself fails, so logging cannot break a flow.",
+      "description": "Protects the core domain log Event behavior so never throws when the logger itself fails, so logging cannot break a flow."
+    },
+    {
+      "id": "packages-core-src-observability-tests-events-test-ts-66-tracedoperation-brackets-a-successful-operation-with-a-debug-start-and-an-info-finish-carrying-duration",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/events.test.ts",
+      "sourceLine": 66,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "tracedOperation"
+      ],
+      "title": "brackets a successful operation with a debug start and an info finish carrying duration",
+      "rawTitle": "brackets a successful operation with a debug start and an info finish carrying duration",
+      "name": "Core domain traced Operation brackets a successful operation with a debug start and an info finish carrying duration",
+      "value": "Protects the core domain traced Operation behavior so brackets a successful operation with a debug start and an info finish carrying duration.",
+      "description": "Protects the core domain traced Operation behavior so brackets a successful operation with a debug start and an info finish carrying duration."
+    },
+    {
+      "id": "packages-core-src-observability-tests-events-test-ts-76-tracedoperation-merges-result-derived-fields-into-the-finish-record",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/events.test.ts",
+      "sourceLine": 76,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "tracedOperation"
+      ],
+      "title": "merges result-derived fields into the finish record",
+      "rawTitle": "merges result-derived fields into the finish record",
+      "name": "Core domain traced Operation merges result derived fields into the finish record",
+      "value": "Protects the core domain traced Operation behavior so merges result derived fields into the finish record.",
+      "description": "Protects the core domain traced Operation behavior so merges result derived fields into the finish record."
+    },
+    {
+      "id": "packages-core-src-observability-tests-events-test-ts-87-tracedoperation-logs-a-failure-with-the-error-details-and-rethrows-the-original-error",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/events.test.ts",
+      "sourceLine": 87,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "tracedOperation"
+      ],
+      "title": "logs a failure with the error details and rethrows the original error",
+      "rawTitle": "logs a failure with the error details and rethrows the original error",
+      "name": "Core domain traced Operation logs a failure with the error details and rethrows the original error",
+      "value": "Protects the core domain traced Operation behavior: logs a failure with the error details and rethrows the original error.",
+      "description": "Protects the core domain traced Operation behavior: logs a failure with the error details and rethrows the original error."
+    },
+    {
+      "id": "packages-core-src-observability-tests-events-test-ts-101-tracedoperation-leaves-no-finish-record-when-the-operation-never-settles-so-a-hang-is-visible-as-a-dangling-start",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/events.test.ts",
+      "sourceLine": 101,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "tracedOperation"
+      ],
+      "title": "leaves no finish record when the operation never settles, so a hang is visible as a dangling start",
+      "rawTitle": "leaves no finish record when the operation never settles, so a hang is visible as a dangling start",
+      "name": "Core domain traced Operation leaves no finish record when the operation never settles, so a hang is visible as a dangling start",
+      "value": "Protects the core domain traced Operation behavior so leaves no finish record when the operation never settles, so a hang is visible as a dangling start.",
+      "description": "Protects the core domain traced Operation behavior so leaves no finish record when the operation never settles, so a hang is visible as a dangling start."
+    },
+    {
+      "id": "packages-core-src-observability-tests-events-test-ts-115-errorfields-unpacks-an-error-into-message-name-and-stack",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/events.test.ts",
+      "sourceLine": 115,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "errorFields"
+      ],
+      "title": "unpacks an Error into message, name and stack",
+      "rawTitle": "unpacks an Error into message, name and stack",
+      "name": "Core domain error Fields unpacks an Error into message, name and stack",
+      "value": "Protects the core domain error Fields behavior so unpacks an Error into message, name and stack.",
+      "description": "Protects the core domain error Fields behavior so unpacks an Error into message, name and stack."
+    },
+    {
+      "id": "packages-core-src-observability-tests-events-test-ts-123-errorfields-stringifies-a-non-error-throw",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/events.test.ts",
+      "sourceLine": 123,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "errorFields"
+      ],
+      "title": "stringifies a non-Error throw",
+      "rawTitle": "stringifies a non-Error throw",
+      "name": "Core domain error Fields stringifies a non Error throw",
+      "value": "Protects the core domain error Fields behavior so stringifies a non Error throw.",
+      "description": "Protects the core domain error Fields behavior so stringifies a non Error throw."
+    },
+    {
+      "id": "packages-core-src-observability-tests-trace-context-test-ts-5-trace-context-exposes-the-trace-to-code-running-underneath-it-and-nothing-outside",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/trace-context.test.ts",
+      "sourceLine": 5,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "trace context"
+      ],
+      "title": "exposes the trace to code running underneath it, and nothing outside",
+      "rawTitle": "exposes the trace to code running underneath it, and nothing outside",
+      "name": "Core domain trace context exposes the trace to code running underneath it, and nothing outside",
+      "value": "Protects the core domain trace context behavior so exposes the trace to code running underneath it, and nothing outside.",
+      "description": "Protects the core domain trace context behavior so exposes the trace to code running underneath it, and nothing outside."
+    },
+    {
+      "id": "packages-core-src-observability-tests-trace-context-test-ts-18-trace-context-keeps-concurrent-traces-isolated-as-the-grammy-runner-processes-updates-in-parallel",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/trace-context.test.ts",
+      "sourceLine": 18,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "trace context"
+      ],
+      "title": "keeps concurrent traces isolated, as the grammY runner processes updates in parallel",
+      "rawTitle": "keeps concurrent traces isolated, as the grammY runner processes updates in parallel",
+      "name": "Core domain trace context keeps concurrent traces isolated, as the gramm Y runner processes updates in parallel",
+      "value": "Protects the core domain trace context behavior: keeps concurrent traces isolated, as the gramm Y runner processes updates in parallel.",
+      "description": "Protects the core domain trace context behavior: keeps concurrent traces isolated, as the gramm Y runner processes updates in parallel."
+    },
+    {
+      "id": "packages-core-src-observability-tests-trace-context-test-ts-34-trace-context-propagates-a-late-resolved-userid-to-log-lines-emitted-before-auth-ran",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/trace-context.test.ts",
+      "sourceLine": 34,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "trace context"
+      ],
+      "title": "propagates a late-resolved userId to log lines emitted before auth ran",
+      "rawTitle": "propagates a late-resolved userId to log lines emitted before auth ran",
+      "name": "Core domain trace context propagates a late resolved user Id to log lines emitted before auth ran",
+      "value": "Protects the core domain trace context behavior so propagates a late resolved user Id to log lines emitted before auth ran.",
+      "description": "Protects the core domain trace context behavior so propagates a late resolved user Id to log lines emitted before auth ran."
+    },
+    {
+      "id": "packages-core-src-observability-tests-trace-context-test-ts-48-trace-context-ignores-undefined-enrichment-so-a-missing-chat-id-cannot-erase-a-known-one",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/trace-context.test.ts",
+      "sourceLine": 48,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "trace context"
+      ],
+      "title": "ignores undefined enrichment so a missing chat id cannot erase a known one",
+      "rawTitle": "ignores undefined enrichment so a missing chat id cannot erase a known one",
+      "name": "Core domain trace context ignores undefined enrichment so a missing chat id cannot erase a known one",
+      "value": "Protects the core domain trace context behavior: ignores undefined enrichment so a missing chat id cannot erase a known one.",
+      "description": "Protects the core domain trace context behavior: ignores undefined enrichment so a missing chat id cannot erase a known one."
+    },
+    {
+      "id": "packages-core-src-observability-tests-trace-context-test-ts-56-trace-context-is-a-no-op-outside-a-trace-so-background-code-needs-no-guard",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/trace-context.test.ts",
+      "sourceLine": 56,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "trace context"
+      ],
+      "title": "is a no-op outside a trace, so background code needs no guard",
+      "rawTitle": "is a no-op outside a trace, so background code needs no guard",
+      "name": "Core domain trace context is a no op outside a trace, so background code needs no guard",
+      "value": "Protects the core domain trace context behavior so is a no op outside a trace, so background code needs no guard.",
+      "description": "Protects the core domain trace context behavior so is a no op outside a trace, so background code needs no guard."
+    },
+    {
+      "id": "packages-core-src-observability-tests-trace-context-test-ts-60-trace-context-mints-distinct-trace-ids",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/trace-context.test.ts",
+      "sourceLine": 60,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "trace context"
+      ],
+      "title": "mints distinct trace ids",
+      "rawTitle": "mints distinct trace ids",
+      "name": "Core domain trace context mints distinct trace ids",
+      "value": "Protects the core domain trace context behavior so mints distinct trace ids.",
+      "description": "Protects the core domain trace context behavior so mints distinct trace ids."
+    },
+    {
+      "id": "packages-core-src-observability-tests-trace-context-test-ts-67-tracelogfields-what-the-logger-stamps-on-every-record-returns-nothing-outside-a-trace-keeping-startup-and-cli-logs-clean",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/trace-context.test.ts",
+      "sourceLine": 67,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "traceLogFields (what the logger stamps on every record)"
+      ],
+      "title": "returns nothing outside a trace, keeping startup and CLI logs clean",
+      "rawTitle": "returns nothing outside a trace, keeping startup and CLI logs clean",
+      "name": "Core domain trace Log Fields (what the logger stamps on every record) returns nothing outside a trace, keeping startup and CLI logs clean",
+      "value": "Protects the core domain trace Log Fields (what the logger stamps on every record) behavior: returns nothing outside a trace, keeping startup and CLI logs clean.",
+      "description": "Protects the core domain trace Log Fields (what the logger stamps on every record) behavior: returns nothing outside a trace, keeping startup and CLI logs clean."
+    },
+    {
+      "id": "packages-core-src-observability-tests-trace-context-test-ts-71-tracelogfields-what-the-logger-stamps-on-every-record-emits-only-the-identity-fields-that-are-actually-known",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/trace-context.test.ts",
+      "sourceLine": 71,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "traceLogFields (what the logger stamps on every record)"
+      ],
+      "title": "emits only the identity fields that are actually known",
+      "rawTitle": "emits only the identity fields that are actually known",
+      "name": "Core domain trace Log Fields (what the logger stamps on every record) emits only the identity fields that are actually known",
+      "value": "Protects the core domain trace Log Fields (what the logger stamps on every record) behavior so emits only the identity fields that are actually known.",
+      "description": "Protects the core domain trace Log Fields (what the logger stamps on every record) behavior so emits only the identity fields that are actually known."
+    },
+    {
+      "id": "packages-core-src-observability-tests-trace-context-test-ts-82-tracelogfields-what-the-logger-stamps-on-every-record-picks-up-enrichment-so-post-auth-records-carry-the-resolved-userid",
+      "kind": "technical",
+      "filePath": "packages/core/src/observability/__tests__/trace-context.test.ts",
+      "sourceLine": 82,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "traceLogFields (what the logger stamps on every record)"
+      ],
+      "title": "picks up enrichment, so post-auth records carry the resolved userId",
+      "rawTitle": "picks up enrichment, so post-auth records carry the resolved userId",
+      "name": "Core domain trace Log Fields (what the logger stamps on every record) picks up enrichment, so post auth records carry the resolved user Id",
+      "value": "Protects the core domain trace Log Fields (what the logger stamps on every record) behavior so picks up enrichment, so post auth records carry the resolved user Id.",
+      "description": "Protects the core domain trace Log Fields (what the logger stamps on every record) behavior so picks up enrichment, so post auth records carry the resolved user Id."
     },
     {
       "id": "packages-core-src-resilience-tests-breaker-registry-test-ts-24-breakerregistry-returns-the-same-breaker-instance-for-the-same-model-id-caches",

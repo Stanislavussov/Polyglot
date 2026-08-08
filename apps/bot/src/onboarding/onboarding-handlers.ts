@@ -9,7 +9,7 @@
  * its state from the database, so a pause of any length is invisible and an
  * unrecognised update simply falls through to the rest of the middleware chain.
  */
-import { logger, t } from "@polyglot/core";
+import { errorFields, logEvent, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { MAX_LEARNING_LANGS } from "../constants.js";
 import { handleDictionaryCommand } from "../scenes/dictionary.scene.js";
@@ -66,18 +66,16 @@ const FEATURE_HANDLERS: Record<OnboardingFeature, (ctx: BotContext) => Promise<v
 export async function startOnboarding(ctx: BotContext): Promise<void> {
   const state = await loadOnboardingState(ctx);
   if (!state) {
-    logger.error({ telegramId: ctx.from?.id }, "startOnboarding called without a user in context");
+    logEvent("onboarding.start_without_user", {}, "error");
     return;
   }
-  logger.info(
-    { userId: state.userId, step: state.step, telegramLocale: ctx.from?.language_code },
-    "Onboarding started",
-  );
+  logEvent("onboarding.started", { step: state.step, telegramLocale: ctx.from?.language_code });
   await renderCurrentScreen(ctx, state);
 }
 
 /** Render whichever screen the persisted state says the user is on. */
 async function renderCurrentScreen(ctx: BotContext, state: OnboardingState): Promise<void> {
+  logEvent("onboarding.screen_rendered", { step: state.step, learningLangs: state.learningLangs });
   switch (state.step) {
     case ONBOARDING_STEPS.native:
       await showNativeScreen(ctx, state);
@@ -168,7 +166,7 @@ async function handleNativeChosen(ctx: BotContext, state: OnboardingState, code:
     learningLangs,
     lastSourceLang: null, // Cleared on re-onboard (Task 36).
   });
-  logger.info({ userId: state.userId, nativeLang: code, interfaceLang }, "Onboarding: native language selected");
+  logEvent("onboarding.native_lang_selected", { nativeLang: code, interfaceLang });
 
   await showLanguagesScreen(ctx, { ...state, nativeLang: code, interfaceLang, learningLangs }, null);
 }
@@ -236,7 +234,7 @@ async function handleLevelChosen(ctx: BotContext, state: OnboardingState, payloa
   if (!alreadyChosen) {
     await persistLearningLangs(ctx, state, learningLangs);
   }
-  logger.info({ userId: state.userId, langCode: code, level }, "Onboarding: learning language confirmed");
+  logEvent("onboarding.learning_lang_confirmed", { langCode: code, level });
 
   await showLanguagesScreen(ctx, { ...state, learningLangs, levels: { ...state.levels, [code]: level } }, null);
 }
@@ -248,7 +246,7 @@ async function handleLanguagesDone(ctx: BotContext, state: OnboardingState): Pro
     return;
   }
   await ctx.answerCallbackQuery();
-  logger.info({ userId: state.userId, learningLangs: state.learningLangs }, "Onboarding: learning languages selected");
+  logEvent("onboarding.languages_done", { learningLangs: state.learningLangs });
   await showDemoScreen(ctx, state);
 }
 
@@ -408,10 +406,7 @@ export async function handleLegacyOnboardingCallback(ctx: BotContext): Promise<v
   const state = await loadOnboardingState(ctx);
   if (!state) return;
 
-  logger.info(
-    { userId: state.userId, data: ctx.callbackQuery?.data, step: state.step },
-    "Onboarding: recovered a tap on a pre-Task-72 keyboard",
-  );
+  logEvent("onboarding.legacy_keyboard_recovered", { callbackData: ctx.callbackQuery?.data, step: state.step }, "warn");
   // Rendered in place, so the stale keyboard is replaced by a live one rather
   // than left above a duplicate. Past the 48-hour edit window the shared helper
   // falls back to a fresh message and `present` tracks it for cleanup.
@@ -453,7 +448,7 @@ export async function onboardingTextMiddleware(ctx: BotContext, next: NextFuncti
  * the bot.
  */
 async function reportDemoFailure(ctx: BotContext, state: OnboardingState, err: unknown): Promise<void> {
-  logger.error({ err, userId: state.userId }, "Onboarding demo translation failed");
+  logEvent("onboarding.demo_failed", errorFields(err), "error");
   recordOnboardingStep(ONBOARDING_STEPS.demo, "failed");
   await ctx.reply(t("onbDemoFailed", state.interfaceLang));
 }

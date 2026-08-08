@@ -14,7 +14,7 @@
  * steps 1 and 2, which made a CEFR-screen abandon indistinguishable from a demo
  * abandon.
  */
-import { logger, t } from "@polyglot/core";
+import { errorFields, logEvent, t } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../commands/commands.js";
 import { ONBOARDING_SCREENCAST_FILE_ID } from "../constants.js";
@@ -143,7 +143,7 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
     await setUserCommands(ctx.api, chatId, lang, ctx.user.audienceGroup);
   }
 
-  logger.info({ userId: state.userId, learningLangs: state.learningLangs }, "User completed onboarding");
+  logEvent("onboarding.completed", { nativeLang: state.nativeLang, learningLangs: state.learningLangs });
 }
 
 /**
@@ -156,7 +156,7 @@ async function sendScreencast(ctx: BotContext): Promise<void> {
   try {
     await ctx.replyWithAnimation(ONBOARDING_SCREENCAST_FILE_ID);
   } catch (err) {
-    logger.warn({ err }, "Onboarding screencast could not be sent — continuing without it");
+    logEvent("onboarding.screencast_failed", errorFields(err), "warn");
   }
 }
 

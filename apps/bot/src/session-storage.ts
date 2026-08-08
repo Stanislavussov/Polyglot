@@ -1,5 +1,5 @@
 import { BOT_SESSION_VERSION, botSessionRepository } from "@polyglot/adapter-db";
-import { logger } from "@polyglot/core";
+import { logEvent } from "@polyglot/core";
 import type { StorageAdapter } from "grammy";
 import { sessionStorageDuration } from "./metrics.js";
 import { type SessionData, USER_MODES, type UserMode } from "./types.js";
@@ -44,23 +44,54 @@ export function migrateSessionData(value: unknown): SessionData | undefined {
   } as SessionData;
 }
 
+/**
+ * A compact shape of the session, for logs.
+ *
+ * Never the session itself: it holds whole flashcard decks and translation maps
+ * that would dwarf every other record. What actually matters when debugging a
+ * dead button is which pending-state slots exist — a tap whose entry is missing
+ * from `translationMap` is exactly the "session expired" failure users report.
+ */
+function summariseSession(data: SessionData): Record<string, unknown> {
+  return {
+    activeMode: data.activeMode,
+    translationMapSize: Object.keys(data.translationMap ?? {}).length,
+    pendingRetries: Object.keys(data.pendingRetries ?? {}).length,
+    pendingOutOfSet: Object.keys(data.pendingOutOfSet ?? {}).length,
+    flashcardDeckSize: data.flashcard?.deck.length ?? 0,
+    srsDeckSize: data.srs?.deck.length ?? 0,
+    mentorTurns: data.mentor?.history.length ?? 0,
+    hasDictionaryWizard: data.dictionaryWizard !== undefined,
+    hasTemplateWizard: data.templateWizard !== undefined,
+    hasPendingClarification: data.pendingClarification !== undefined,
+  };
+}
+
 export function createPostgresSessionStorage(): StorageAdapter<SessionData> {
   return {
     async read(key) {
       return timed("read", async () => {
         const row = await botSessionRepository.get(key);
-        if (!row) return undefined;
+        if (!row) {
+          // A miss on a callback tap is the signature of the "session expired"
+          // reports: the button is live but the state behind it is gone.
+          logEvent("session.miss", { sessionKey: key }, "debug");
+          return undefined;
+        }
 
-        if (isValidSessionData(row.data)) return row.data;
+        if (isValidSessionData(row.data)) {
+          logEvent("session.loaded", { sessionKey: key, ...summariseSession(row.data) }, "debug");
+          return row.data;
+        }
 
         const repaired = migrateSessionData(row.data);
         if (!repaired) {
-          logger.warn({ sessionKey: key }, "Resetting unrecoverable bot session");
+          logEvent("session.reset", { sessionKey: key, reason: "unrecoverable_payload" }, "warn");
           await botSessionRepository.delete(key);
           return undefined;
         }
 
-        logger.warn({ sessionKey: key }, "Repaired bot session (defaulted invalid activeMode)");
+        logEvent("session.repaired", { sessionKey: key, reason: "invalid_active_mode" }, "warn");
         await botSessionRepository.upsert(key, repaired);
         return repaired;
       });
@@ -68,10 +99,12 @@ export function createPostgresSessionStorage(): StorageAdapter<SessionData> {
 
     async write(key, value) {
       await timed("write", () => botSessionRepository.upsert(key, value));
+      logEvent("session.saved", { sessionKey: key, ...summariseSession(value) }, "debug");
     },
 
     async delete(key) {
       await timed("delete", () => botSessionRepository.delete(key));
+      logEvent("session.deleted", { sessionKey: key });
     },
   };
 }

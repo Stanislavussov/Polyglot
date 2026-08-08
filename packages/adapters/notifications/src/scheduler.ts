@@ -9,7 +9,7 @@
  * 5. Uses core's getLogger() — logger injected at composition root
  */
 
-import { getLogger } from "@polyglot/core";
+import { getLogger, getTraceContext, logEvent, newTraceId, runWithTrace } from "@polyglot/core";
 import cron from "node-cron";
 import { logNotificationSent } from "./log.js";
 import type {
@@ -106,13 +106,33 @@ const WORD_PICKERS: Record<NotificationType, WordPicker> = {
       : deps.pickDictionaryWord(user.userId, recentWords),
 };
 
+/**
+ * Choose what to send, in layers.
+ *
+ * 1. the user's own vocabulary — always the most relevant thing we have;
+ * 2. a curated preset, when the dictionary is empty or every word in it has
+ *    already been sent inside the de-dup window;
+ * 3. nothing, and the caller shows the empty-dictionary prompt.
+ *
+ * `recentWords` carries the rolling de-dup window plus the single last-sent
+ * word, so no layer can repeat the previous notification even when the window
+ * has rolled over — the failure a one-word dictionary would otherwise hit
+ * every single time.
+ */
 async function pickWordForUser(
   user: NotificationUser,
   deps: SchedulerDeps,
   recentWords: string[],
 ): Promise<SuggestedWord | null> {
   const picker = WORD_PICKERS[user.notificationType] ?? pickFromDictionary;
-  return picker(user, deps, recentWords);
+  const fromDictionary = await picker(user, deps, recentWords);
+  if (fromDictionary) return fromDictionary;
+
+  logEvent("notification.dictionary_exhausted", { recentWordCount: recentWords.length });
+  return deps.pickPresetWord(
+    { userId: user.userId, nativeLang: user.nativeLang, learningLangs: user.learningLangs },
+    recentWords,
+  );
 }
 
 /**
@@ -139,9 +159,11 @@ export function buildNotificationPayload(
   const sourceLabel =
     word.source === "srs"
       ? t("notifWordFromDict", lang)
-      : word.source === "contextual"
-        ? t("notifTypeContextual", lang)
-        : t("notifAiSuggested", lang);
+      : word.source === "preset"
+        ? t("notifPresetWord", lang)
+        : word.source === "contextual"
+          ? t("notifTypeContextual", lang)
+          : t("notifAiSuggested", lang);
 
   const translationLines = Object.entries(word.translations)
     .map(([, text]) => `  • ${text}`)
@@ -169,8 +191,21 @@ function escapeHtml(text: string): string {
 /**
  * Process one hourly tick: find eligible users, pick words, send notifications.
  */
+/**
+ * Public seat for one tick. Opens the batch trace so every record the tick
+ * emits — the user query, each delivery, the summary — is correlated, exactly
+ * as a Telegram update is. Without this, a background failure has no thread to
+ * pull: the scheduler runs with no ambient identity at all.
+ */
 export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise<{ sent: number; errors: number }> {
+  return runWithTrace({ traceId: newTraceId(), source: "cron", jobName: "notifications" }, () =>
+    runNotificationBatch(sendFn, deps),
+  );
+}
+
+async function runNotificationBatch(sendFn: SendFn, deps: SchedulerDeps): Promise<{ sent: number; errors: number }> {
   const logger = getLogger();
+  const batchTraceId = getTraceContext()?.traceId;
   const now = Temporal.Now.zonedDateTimeISO("UTC");
   const utcHour = now.hour;
   const utcMinute = now.minute;
@@ -207,56 +242,79 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
 
   logger.info({ utcHour, utcMinute, userCount: users.length }, "Processing notification batch");
 
-  // Step 2: For each user, pick a word and send
+  // Step 2: For each user, pick a word and send. Each delivery gets its own
+  // trace linked to the batch, so one user's failed notification is followable
+  // end to end without wading through the whole tick.
   for (const user of users) {
-    try {
-      logger.info({ userId: user.userId }, "Processing user");
-      const since = new Date(Date.now() - DEDUP_WINDOW_MS);
-      const recentWords = await retryWithBackoff(
-        () => deps.getSentWordsSince(user.userId, since),
-        2,
-        500,
-        "getSentWordsSince",
-      );
-      const word = await pickWordForUser(user, deps, recentWords);
-      if (!word) {
-        logger.info({ userId: user.userId }, "No word picked — sending empty dictionary prompt");
-        await deps.sendDictionaryEmptyPrompt(user.userId, user.interfaceLang);
-        continue;
-      }
-
-      logger.info({ userId: user.userId, word: word.original }, "Word picked, sending notification");
-      const payload = buildNotificationPayload(user, word, deps.t);
-      await sendWithRetry(sendFn, user.userId, payload, deps.isUserBlocked);
-
-      await retryWithBackoff(
-        () => deps.recordSentWord(user.userId, word.original, word.source ?? "suggested"),
-        2,
-        500,
-        "recordSentWord",
-      );
-      logNotificationSent({
+    const outcome = await runWithTrace(
+      {
+        traceId: newTraceId(),
+        source: "cron",
+        jobName: "notifications",
         userId: user.userId,
-        type: word.source ?? "suggested",
-      });
-
-      sent++;
-    } catch (err) {
-      // The user blocked the bot (403): stop mailing them forever — disable
-      // their notifications instead of logging an error every batch (T14).
-      if (deps.isUserBlocked?.(err)) {
-        logger.warn({ userId: user.userId }, "User blocked the bot — disabling notifications");
+        ...(batchTraceId !== undefined && { parentTraceId: batchTraceId }),
+      },
+      async (): Promise<"sent" | "error" | "skipped"> => {
         try {
-          await deps.disableNotifications(user.userId);
-        } catch (disableErr) {
-          logger.error({ err: disableErr, userId: user.userId }, "Failed to disable notifications for blocked user");
+          logger.info({ userId: user.userId }, "Processing user");
+          const since = new Date(Date.now() - DEDUP_WINDOW_MS);
+          const windowWords = await retryWithBackoff(
+            () => deps.getSentWordsSince(user.userId, since),
+            2,
+            500,
+            "getSentWordsSince",
+          );
+          // Age-independent: guarantees "never the same word twice running"
+          // even after the previous send has aged out of the rolling window —
+          // the case a one-word dictionary would otherwise hit every time.
+          const lastSent = await deps.getLastSentWord(user.userId).catch(() => null);
+          const recentWords = lastSent && !windowWords.includes(lastSent) ? [...windowWords, lastSent] : windowWords;
+          const word = await pickWordForUser(user, deps, recentWords);
+          if (!word) {
+            logger.info({ userId: user.userId }, "No word picked — sending empty dictionary prompt");
+            await deps.sendDictionaryEmptyPrompt(user.userId, user.interfaceLang);
+            return "skipped";
+          }
+
+          logger.info({ userId: user.userId, word: word.original }, "Word picked, sending notification");
+          const payload = buildNotificationPayload(user, word, deps.t);
+          await sendWithRetry(sendFn, user.userId, payload, deps.isUserBlocked);
+
+          await retryWithBackoff(
+            () => deps.recordSentWord(user.userId, word.original, word.source ?? "suggested"),
+            2,
+            500,
+            "recordSentWord",
+          );
+          logNotificationSent({
+            userId: user.userId,
+            type: word.source ?? "suggested",
+          });
+
+          return "sent";
+        } catch (err) {
+          // The user blocked the bot (403): stop mailing them forever — disable
+          // their notifications instead of logging an error every batch (T14).
+          if (deps.isUserBlocked?.(err)) {
+            logger.warn({ userId: user.userId }, "User blocked the bot — disabling notifications");
+            try {
+              await deps.disableNotifications(user.userId);
+            } catch (disableErr) {
+              logger.error(
+                { err: disableErr, userId: user.userId },
+                "Failed to disable notifications for blocked user",
+              );
+            }
+          } else {
+            // Rule: log and continue — never stop the scheduler
+            logger.error({ err, userId: user.userId }, "Failed to send notification — continuing");
+          }
+          return "error";
         }
-      } else {
-        // Rule: log and continue — never stop the scheduler
-        logger.error({ err, userId: user.userId }, "Failed to send notification — continuing");
-      }
-      errors++;
-    }
+      },
+    );
+    if (outcome === "sent") sent++;
+    else if (outcome === "error") errors++;
   }
 
   logger.info({ utcHour, utcMinute, sent, errors }, "Notification batch complete");
@@ -270,7 +328,17 @@ export async function processInactiveUsers(
   reEngagementSendFn: ReEngagementSendFn,
   deps: SchedulerDeps,
 ): Promise<{ processed: number; errors: number }> {
+  return runWithTrace({ traceId: newTraceId(), source: "cron", jobName: "re_engagement" }, () =>
+    runInactiveUserSweep(reEngagementSendFn, deps),
+  );
+}
+
+async function runInactiveUserSweep(
+  reEngagementSendFn: ReEngagementSendFn,
+  deps: SchedulerDeps,
+): Promise<{ processed: number; errors: number }> {
   const logger = getLogger();
+  const batchTraceId = getTraceContext()?.traceId;
   let processed = 0;
   let errors = 0;
 
@@ -289,16 +357,29 @@ export async function processInactiveUsers(
   logger.info({ count: inactiveUsers.length }, "Processing inactive users for re-engagement");
 
   for (const user of inactiveUsers) {
-    try {
-      const message = deps.t("notifPaused", user.interfaceLang);
-      await reEngagementSendFn(user.userId, message);
-      await deps.disableNotifications(user.userId);
-      processed++;
-      logger.info({ userId: user.userId }, "Sent re-engagement message and disabled notifications");
-    } catch (err) {
-      logger.error({ err, userId: user.userId }, "Failed to process inactive user — continuing");
-      errors++;
-    }
+    const ok = await runWithTrace(
+      {
+        traceId: newTraceId(),
+        source: "cron",
+        jobName: "re_engagement",
+        userId: user.userId,
+        ...(batchTraceId !== undefined && { parentTraceId: batchTraceId }),
+      },
+      async (): Promise<boolean> => {
+        try {
+          const message = deps.t("notifPaused", user.interfaceLang);
+          await reEngagementSendFn(user.userId, message);
+          await deps.disableNotifications(user.userId);
+          logger.info({ userId: user.userId }, "Sent re-engagement message and disabled notifications");
+          return true;
+        } catch (err) {
+          logger.error({ err, userId: user.userId }, "Failed to process inactive user — continuing");
+          return false;
+        }
+      },
+    );
+    if (ok) processed++;
+    else errors++;
   }
 
   return { processed, errors };

@@ -268,6 +268,13 @@ export interface CustomContextProps {
    * never via `ctx.user.settings`, which is always `undefined`.
    */
   settingsMemo?: { userId: number; promise: Promise<UserLanguageSettings | null> };
+  /**
+   * Names of the handlers that consumed this update, in order. Populated by
+   * `withHandlerLog`/`markHandled` (observability/handler-log.ts) and reported
+   * on the closing `update.finished` record; an empty chain means no route
+   * matched, which is logged as `update.unhandled`.
+   */
+  handledBy?: string[];
 }
 
 /** Context type used in the outside middleware tree (has ConversationFlavor + Session) */

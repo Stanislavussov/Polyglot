@@ -42,12 +42,15 @@ export function createDictionaryWordPicker(deps: DictionaryWordPickerDeps) {
       return null;
     }
 
-    const filtered = verified.filter((e) => !recentWords.includes(e.original));
-    if (filtered.length === 0) {
-      logger.info({ userId }, "pickDictionaryWord: all words recently sent — picking from full set");
+    const candidates = verified.filter((e) => !recentWords.includes(e.original));
+    if (candidates.length === 0) {
+      // Exhausted, not empty. Repeating a word the user just saw is what makes a
+      // reminder feel like spam, so the dictionary declines and the caller falls
+      // through to the curated preset layer instead.
+      logger.info({ userId }, "pickDictionaryWord: every word was recently sent — deferring to the preset layer");
+      return null;
     }
 
-    const candidates = filtered.length > 0 ? filtered : verified;
     const entry = candidates[Math.floor(Math.random() * candidates.length)]!;
 
     let entryTranslations = entry.translations;

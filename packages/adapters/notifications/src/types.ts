@@ -23,6 +23,13 @@ export interface NotificationPayload {
   message: string;
 }
 
+/**
+ * Where a suggested word came from. Deliberately wider than
+ * {@link NotificationType}: `preset` is a fallback source the scheduler picks,
+ * never a delivery type a user can select in settings.
+ */
+export type WordSource = NotificationType | "preset";
+
 /** A word suggested in a notification, with translations per language. */
 export interface SuggestedWord {
   original: string;
@@ -31,8 +38,8 @@ export interface SuggestedWord {
   translations: Record<string, string>; // lang code -> translation text
   /** Per-translation context (synonyms) for richer notification rendering. */
   translationDetails?: Record<string, TranslationBrief>;
-  /** Source of the word: 'srs' (from dictionary). */
-  source?: NotificationType;
+  /** Where the word came from — dictionary, AI context, or a curated preset. */
+  source?: WordSource;
   /** Wiktionary dictionary context for the suggested word (if available). */
   dictionaryContext?: DictionaryContext;
   /** Vocabulary entry ID (for reveal/delete actions in notifications). */
@@ -120,6 +127,29 @@ export interface ContextualWordPickerDeps {
 }
 
 /**
+ * Dependencies for the curated-preset layer.
+ *
+ * The cache lookup is required — it is the free path and the reason the layer
+ * is cheap. The JIT translation is optional: without it the layer simply covers
+ * fewer (learning, native) pairs rather than failing.
+ */
+export interface PresetWordPickerDeps {
+  /** A reviewed, pre-rendered card for this headword, or null when uncached. */
+  findDemoCard: (
+    sourceLang: string,
+    nativeLang: string,
+    headword: string,
+  ) => Promise<{ emoji?: string; nativeMeaning?: string; translations: Record<string, string> } | null>;
+
+  /** Translate a curated headword on demand when no reviewed card covers it. */
+  translateHeadword?: (
+    headword: string,
+    sourceLang: string,
+    nativeLang: string,
+  ) => Promise<{ emoji?: string; nativeMeaning?: string; translations: Record<string, string> } | null>;
+}
+
+/**
  * Full notification service dependencies — the composition of the dictionary and
  * contextual picker deps. Keeps the adapter independent of concrete
  * implementations.
@@ -131,6 +161,24 @@ export type NotificationServiceDeps = DictionaryWordPickerDeps & ContextualWordP
  * Separates scheduling concerns from word-picking concerns.
  */
 export interface SchedulerDeps {
+  /**
+   * Pick a curated preset word for a user whose dictionary cannot supply one.
+   * Returning null means this layer has nothing either, and the scheduler falls
+   * through to the empty-dictionary prompt.
+   */
+  pickPresetWord: (
+    user: { userId: number; nativeLang: string; learningLangs: string[] },
+    recentWords?: string[],
+  ) => Promise<SuggestedWord | null>;
+
+  /**
+   * The single most recently notified word, regardless of age. The rolling
+   * de-dup window already covers the common case; this closes the gap where a
+   * user with one dictionary word would otherwise receive it twice running
+   * once the window rolls over.
+   */
+  getLastSentWord: (userId: number) => Promise<string | null>;
+
   /** Get users eligible for notification at the given UTC hour/minute. */
   getUsersForWindow: (hour: number, minute?: number) => Promise<NotificationUser[]>;
 

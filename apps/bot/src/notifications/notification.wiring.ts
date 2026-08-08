@@ -4,6 +4,7 @@ import {
   getLang,
   identityRepository,
   notificationRepository,
+  onboardingDemoCardRepository,
   settingsAdapter,
   subscriptionRepository,
   userRepository,
@@ -11,6 +12,7 @@ import {
 } from "@polyglot/adapter-db";
 import {
   createNotificationService,
+  createPresetWordPicker,
   type NotificationPayload,
   type SchedulerDeps,
   startScheduler,
@@ -187,8 +189,47 @@ Return translations as JSON array.`;
     await api.sendMessage(telegramId, message, { parse_mode: "HTML" });
   };
 
+  // The preset layer's free source: cards already rendered and human-reviewed
+  // for the onboarding demo. Serving them costs nothing and their quality is
+  // already vetted, so they are tried before any AI call.
+  const presetPicker = createPresetWordPicker({
+    findDemoCard: async (sourceLang, nativeLang, headword) => {
+      const card = await onboardingDemoCardRepository.findOne(sourceLang, nativeLang, headword);
+      if (!card) return null;
+      const translations: Record<string, string> = {};
+      for (const [code, translation] of Object.entries(card.payload.translations)) {
+        translations[code] = translation.text;
+      }
+      return {
+        ...(card.payload.emoji !== undefined && { emoji: card.payload.emoji }),
+        ...(card.payload.nativeMeaning !== undefined && { nativeMeaning: card.payload.nativeMeaning }),
+        translations,
+      };
+    },
+    // Without this the layer would only cover the (learning, native) pairs the
+    // warm-up script has been run for, and would silently do nothing for
+    // everyone else — the exact way the demo cache sat unusable once before.
+    translateHeadword: async (headword, sourceLang, nativeLang) => {
+      const model = contextualModel;
+      if (!model) return null;
+      const prompt = `Translate the word or phrase "${headword}" from ${sourceLang} into ${nativeLang}.
+
+Return translations as JSON array.`;
+      const result = await generateObject(prompt, jitTranslationSchema, model, {
+        failover: await resolveFailover(),
+      });
+      const translations: Record<string, string> = {};
+      for (const tr of result.translations) {
+        translations[tr.languageCode] = tr.text;
+      }
+      return Object.keys(translations).length > 0 ? { translations } : null;
+    },
+  });
+
   const schedulerDeps: SchedulerDeps = {
     getUsersForWindow: (hour: number, minute = 0) => notificationRepository.getUsersForWindow(hour, minute),
+    getLastSentWord: (userId: number) => notificationRepository.getLastSentWord(userId),
+    pickPresetWord: (user, recentWords) => presetPicker(user, recentWords),
     getInactiveUsers: () => notificationRepository.getInactiveUsers(),
     disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
     // Telegram 403 = the user blocked the bot: a permanent failure, so the

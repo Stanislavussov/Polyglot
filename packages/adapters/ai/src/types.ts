@@ -12,6 +12,10 @@ export interface AIRequestLog {
   success: boolean;
   userId?: number;
   error?: string;
+  /** Wall-clock budget this call was given, in ms. */
+  budgetMs?: number;
+  /** True when the budget — not the provider — ended the call. */
+  timedOut?: boolean;
 }
 
 export type AIRequestMetricSink = (log: AIRequestLog) => void | Promise<void>;
