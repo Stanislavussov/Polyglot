@@ -53,6 +53,16 @@
 | 64  | [Application Clustering](./64-application-clustering.md) | 🔲 To Do | 🔴 Critical |
 | 65  | [Dual Database Instance Separation](./65-dual-db-instance-separation.md) | 🔲 To Do | 🔴 Critical |
 
+## Production Review — from [Weekly Grafana Report 2026-08-04](../reports/weekly-grafana/2026-08-04.md)
+
+| #   | Task                                              | Status     | Priority |
+| --- | ------------------------------------------------- | ---------- | -------- |
+| 72  | [Repair the Observability Safety Net](./72-observability-safety-net-repair.md) | 🔲 To Do | 🔴 Critical |
+| 73  | [Make the AI Failover Actually Work](./73-ai-failover-repair.md) | 🔲 To Do | 🔴 Critical |
+| 74  | [Translation Quality Signal](./74-translation-quality-signal.md) | 🔲 To Do | 🟠 High |
+| 75  | [Cut Redundant Polling and Log Noise](./75-cut-redundant-polling-and-log-noise.md) | 🔲 To Do | 🟠 High |
+| 76  | [Translation Latency: 5 AI Calls per Request](./76-translation-latency-pipeline.md) | 🔲 To Do | 🟡 Medium |
+
 ## Finished
 
 | #   | Task                                              |
