@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-08T10:40:54.555Z",
+  "generatedAt": "2026-08-08T10:43:19.377Z",
   "summary": {
-    "total": 2620,
+    "total": 2628,
     "business": 0,
-    "technical": 2620,
+    "technical": 2628,
     "workspaces": [
       "apps",
       "packages"
@@ -17628,6 +17628,134 @@
       "name": "Database adapter escape Like Pattern wraps into a literal pattern that cannot broaden the match",
       "value": "Protects the database adapter escape Like Pattern behavior so wraps into a literal pattern that cannot broaden the match.",
       "description": "Protects the database adapter escape Like Pattern behavior so wraps into a literal pattern that cannot broaden the match."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-66-notificationrepository-getusersforwindow-integration-notifies-a-user-who-has-never-translated",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.integration.test.ts",
+      "sourceLine": 66,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository.getUsersForWindow (integration)"
+      ],
+      "title": "notifies a user who has never translated",
+      "rawTitle": "notifies a user who has never translated",
+      "name": "Database adapter notification Repository get Users For Window (integration) notifies a user who has never translated",
+      "value": "Protects the database adapter notification Repository get Users For Window (integration) behavior so notifies a user who has never translated.",
+      "description": "Protects the database adapter notification Repository get Users For Window (integration) behavior so notifies a user who has never translated."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-73-notificationrepository-getusersforwindow-integration-notifies-a-user-whose-last-translation-is-older-than-the-quiet-window",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.integration.test.ts",
+      "sourceLine": 73,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository.getUsersForWindow (integration)"
+      ],
+      "title": "notifies a user whose last translation is older than the quiet window",
+      "rawTitle": "notifies a user whose last translation is older than the quiet window",
+      "name": "Database adapter notification Repository get Users For Window (integration) notifies a user whose last translation is older than the quiet window",
+      "value": "Protects the database adapter notification Repository get Users For Window (integration) behavior so notifies a user whose last translation is older than the quiet window.",
+      "description": "Protects the database adapter notification Repository get Users For Window (integration) behavior so notifies a user whose last translation is older than the quiet window."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-80-notificationrepository-getusersforwindow-integration-does-not-notify-a-user-who-translated-today",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.integration.test.ts",
+      "sourceLine": 80,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository.getUsersForWindow (integration)"
+      ],
+      "title": "does not notify a user who translated today",
+      "rawTitle": "does not notify a user who translated today",
+      "name": "Database adapter notification Repository get Users For Window (integration) does not notify a user who translated today",
+      "value": "Protects the database adapter notification Repository get Users For Window (integration) behavior: does not notify a user who translated today.",
+      "description": "Protects the database adapter notification Repository get Users For Window (integration) behavior: does not notify a user who translated today."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-88-notificationrepository-getusersforwindow-integration-does-not-notify-a-user-whose-most-recent-translation-is-inside-the-quiet-window",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.integration.test.ts",
+      "sourceLine": 88,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository.getUsersForWindow (integration)"
+      ],
+      "title": "does not notify a user whose most recent translation is inside the quiet window",
+      "rawTitle": "does not notify a user whose most recent translation is inside the quiet window",
+      "name": "Database adapter notification Repository get Users For Window (integration) does not notify a user whose most recent translation is inside the quiet window",
+      "value": "Protects the database adapter notification Repository get Users For Window (integration) behavior: does not notify a user whose most recent translation is inside the quiet window.",
+      "description": "Protects the database adapter notification Repository get Users For Window (integration) behavior: does not notify a user whose most recent translation is inside the quiet window."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-95-notificationrepository-getusersforwindow-integration-judges-on-the-most-recent-translation-not-the-oldest",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.integration.test.ts",
+      "sourceLine": 95,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository.getUsersForWindow (integration)"
+      ],
+      "title": "judges on the most recent translation, not the oldest",
+      "rawTitle": "judges on the most recent translation, not the oldest",
+      "name": "Database adapter notification Repository get Users For Window (integration) judges on the most recent translation, not the oldest",
+      "value": "Protects the database adapter notification Repository get Users For Window (integration) behavior so judges on the most recent translation, not the oldest.",
+      "description": "Protects the database adapter notification Repository get Users For Window (integration) behavior so judges on the most recent translation, not the oldest."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-105-notificationrepository-getusersforwindow-integration-screens-each-user-independently-rather-than-excluding-the-whole-batch",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.integration.test.ts",
+      "sourceLine": 105,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository.getUsersForWindow (integration)"
+      ],
+      "title": "screens each user independently rather than excluding the whole batch",
+      "rawTitle": "screens each user independently rather than excluding the whole batch",
+      "name": "Database adapter notification Repository get Users For Window (integration) screens each user independently rather than excluding the whole batch",
+      "value": "Protects the database adapter notification Repository get Users For Window (integration) behavior so screens each user independently rather than excluding the whole batch.",
+      "description": "Protects the database adapter notification Repository get Users For Window (integration) behavior so screens each user independently rather than excluding the whole batch."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-113-notificationrepository-getusersforwindow-integration-ignores-another-user-s-recent-translation",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.integration.test.ts",
+      "sourceLine": 113,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository.getUsersForWindow (integration)"
+      ],
+      "title": "ignores another user's recent translation",
+      "rawTitle": "ignores another user's recent translation",
+      "name": "Database adapter notification Repository get Users For Window (integration) ignores another user's recent translation",
+      "value": "Protects the database adapter notification Repository get Users For Window (integration) behavior: ignores another user's recent translation.",
+      "description": "Protects the database adapter notification Repository get Users For Window (integration) behavior: ignores another user's recent translation."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-121-notificationrepository-getusersforwindow-integration-still-excludes-a-quiet-user-outside-their-configured-window",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/notification.repository.integration.test.ts",
+      "sourceLine": 121,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "notificationRepository.getUsersForWindow (integration)"
+      ],
+      "title": "still excludes a quiet user outside their configured window",
+      "rawTitle": "still excludes a quiet user outside their configured window",
+      "name": "Database adapter notification Repository get Users For Window (integration) still excludes a quiet user outside their configured window",
+      "value": "Protects the database adapter notification Repository get Users For Window (integration) behavior so still excludes a quiet user outside their configured window.",
+      "description": "Protects the database adapter notification Repository get Users For Window (integration) behavior so still excludes a quiet user outside their configured window."
     },
     {
       "id": "packages-adapters-db-src-tests-notification-repository-test-ts-168-domain-constants-notification-types-contains-valid-type-strategies",
