@@ -331,11 +331,11 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     return;
   }
 
-  // A text message was already swept centrally before any handler ran, and
-  // sweeping again here would delete a technical message sent for THIS update —
-  // the one-time main-menu hint, which mainKeyboardMiddleware attaches to the
-  // very message being translated. Callback-driven entries (retry, activation
-  // nudge) bypass the central sweep, so they still clear the chat here.
+  // A text message was already swept centrally before any handler ran. Sweeping
+  // again mid-handler would delete anything a middleware sent for THIS update —
+  // the class of bug that used to eat the one-time main-menu hint. Callback-driven
+  // entries (retry, activation nudge) bypass the central sweep, so they still
+  // clear the chat here.
   if (!ctx.message) {
     await cleanupTechnicalMessages(ctx);
   }

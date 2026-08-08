@@ -22,6 +22,9 @@ export interface BotCommand {
 const COMMAND_ICONS = {
   start: "🚀",
   translate: "🔤",
+  dictionary: "📖",
+  flashcard: "🎴",
+  videos: "🎬",
   mentor: "🤖",
   review: "🔁",
   template: "📝",
@@ -34,15 +37,20 @@ const COMMAND_ICONS = {
  * Returns the bot commands with descriptions localized to the given language,
  * each prefixed with its icon from {@link COMMAND_ICONS}.
  *
- * Only rarely used, configuration-style commands are listed. The everyday entry
- * points — dictionary, flash cards, videos — were moved to the persistent reply
- * keyboard (`utils/main-menu.ts`) so this list stays short enough to scan. Their
- * `/`-commands still work; they are just not advertised here.
+ * The everyday entry points — dictionary, flash cards, videos — are also on the
+ * persistent reply keyboard (`utils/main-menu.ts`), which is where a user is meant
+ * to tap them. They stay listed here as the fallback path: a reply keyboard lives
+ * on the message that delivered it, so clearing the chat history or deleting that
+ * message takes the menu away, and without these entries the features would be
+ * reachable only by typing the command from memory.
  */
 export function getLocalizedCommands(lang: SupportedLang, options: { includeChanges?: boolean } = {}): BotCommand[] {
   const commands = [
     { command: "start", description: `${COMMAND_ICONS.start} ${t("cmdDescStart", lang)}` },
     { command: "translate", description: `${COMMAND_ICONS.translate} ${t("cmdDescTranslate", lang)}` },
+    { command: "dictionary", description: `${COMMAND_ICONS.dictionary} ${t("cmdDescDictionary", lang)}` },
+    { command: "flashcard", description: `${COMMAND_ICONS.flashcard} ${t("cmdDescFlashcard", lang)}` },
+    { command: "videos", description: `${COMMAND_ICONS.videos} ${t("cmdDescVideos", lang)}` },
     // { command: "mentor", description: `${COMMAND_ICONS.mentor} ${t("cmdDescMentor", lang)}` },
     // { command: "review", description: `${COMMAND_ICONS.review} ${t("cmdDescReview", lang)}` },
     { command: "template", description: `${COMMAND_ICONS.template} ${t("cmdDescTemplate", lang)}` },

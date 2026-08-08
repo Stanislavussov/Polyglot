@@ -5,8 +5,15 @@
  * status, config confirmation) is recorded when sent and deleted on the next
  * sweep. Content messages — translation cards, mentor answers, notifications,
  * video results — never enter this ledger, so they can never be swept.
+ *
+ * One message is neither: the carrier of the persistent main-menu keyboard.
+ * Telegram binds a reply keyboard to the message that delivered it, so deleting
+ * that message takes the menu off the user's screen. The carrier is deliberately
+ * untracked; if it is ever swept up anyway, delivery must re-arm rather than
+ * leave the chat silently without a menu.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MAIN_KEYBOARD_VERSION } from "../middlewares/main-keyboard.js";
 import type { BotContext, SessionData } from "../types.js";
 import {
   cleanupTechnicalMessages,
@@ -15,11 +22,16 @@ import {
   trackTechnicalMessage,
 } from "./message-cleanup.js";
 
-function createCtx(overrides: Partial<{ session: SessionData | undefined; chatId: number | undefined }> = {}) {
+function createCtx(
+  overrides: Partial<{ session: SessionData | undefined; chatId: number | undefined }> & Partial<SessionData> = {},
+) {
+  const { session: sessionOverride, chatId, ...sessionFields } = overrides;
   const session =
-    "session" in overrides ? overrides.session : ({ activeMode: "translate", translationMap: {} } as SessionData);
+    "session" in overrides
+      ? sessionOverride
+      : ({ activeMode: "translate", translationMap: {}, ...sessionFields } as SessionData);
   return {
-    chat: "chatId" in overrides ? (overrides.chatId === undefined ? undefined : { id: overrides.chatId }) : { id: 555 },
+    chat: "chatId" in overrides ? (chatId === undefined ? undefined : { id: chatId }) : { id: 555 },
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 42 }),
     api: { deleteMessage: vi.fn().mockResolvedValue(true) },
@@ -107,6 +119,35 @@ describe("cleanupTechnicalMessages", () => {
 
     expect(ctx.api.deleteMessage).not.toHaveBeenCalled();
     expect(ctx.session.technicalMessages).toEqual([]);
+  });
+
+  it("deletes tracked messages and leaves the main-menu keyboard installed", async () => {
+    const ctx = createCtx({
+      technicalMessages: [10, 11],
+      mainKeyboardVersion: MAIN_KEYBOARD_VERSION,
+      mainKeyboardMessageId: 9,
+    });
+
+    await cleanupTechnicalMessages(ctx);
+
+    expect(ctx.api.deleteMessage).toHaveBeenCalledTimes(2);
+    expect(ctx.api.deleteMessage).not.toHaveBeenCalledWith(555, 9);
+    expect(ctx.session.mainKeyboardVersion).toBe(MAIN_KEYBOARD_VERSION);
+    expect(ctx.session.mainKeyboardMessageId).toBe(9);
+    expect(ctx.session.technicalMessages).toEqual([]);
+  });
+
+  it("re-arms keyboard delivery when the carrier message is swept up", async () => {
+    const ctx = createCtx({
+      technicalMessages: [9, 10],
+      mainKeyboardVersion: MAIN_KEYBOARD_VERSION,
+      mainKeyboardMessageId: 9,
+    });
+
+    await cleanupTechnicalMessages(ctx);
+
+    expect(ctx.session.mainKeyboardVersion).toBeUndefined();
+    expect(ctx.session.mainKeyboardMessageId).toBeUndefined();
   });
 });
 

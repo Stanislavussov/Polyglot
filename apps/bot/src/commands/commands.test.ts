@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { mainMenuLabels, matchMainMenuAction } from "../utils/main-menu.js";
 import { getLocalizedCommands, setUserCommands } from "./commands.js";
 
 describe("bot commands", () => {
@@ -14,12 +15,22 @@ describe("bot commands", () => {
     expect(commands).toContainEqual({ command: "changes", description: "🆕 Show delivered product changes" });
   });
 
-  it("keeps the everyday entry points out of the command list — they live on the reply keyboard", () => {
+  it("lists the everyday entry points, so they stay reachable without the reply keyboard", () => {
     const listed = getLocalizedCommands("en", { includeChanges: true }).map((command) => command.command);
 
-    expect(listed).not.toContain("dictionary");
-    expect(listed).not.toContain("flashcard");
-    expect(listed).not.toContain("videos");
+    expect(listed).toContain("dictionary");
+    expect(listed).toContain("flashcard");
+    expect(listed).toContain("videos");
+  });
+
+  it("gives an entry point the same icon in the command list and on the reply keyboard", () => {
+    const byCommand = new Map(getLocalizedCommands("en").map((command) => [command.command, command.description]));
+
+    for (const label of mainMenuLabels()) {
+      const action = matchMainMenuAction(label);
+      const icon = label.split(" ")[0] ?? "";
+      expect(byCommand.get(action ?? "")?.startsWith(`${icon} `)).toBe(true);
+    }
   });
 
   it("prefixes every command description with a unique icon", () => {
