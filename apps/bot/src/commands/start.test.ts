@@ -96,6 +96,10 @@ describe("startCommand", () => {
     await startCommand(ctx);
 
     expect(ctx.session.mainKeyboardVersion).toBe(MAIN_KEYBOARD_VERSION);
+    // The greeting carries the keyboard, so it must not be queued for deletion —
+    // Telegram drops a reply keyboard together with the message that delivered it.
+    expect(ctx.session.mainKeyboardMessageId).toBe(1);
+    expect(ctx.session.technicalMessages ?? []).not.toContain(1);
     const [, options] = vi.mocked(ctx.reply).mock.calls[0] ?? [];
     const labels = (options?.reply_markup as { keyboard: { text: string }[][] }).keyboard.flat();
     expect(labels.map((button) => button.text)).toEqual([

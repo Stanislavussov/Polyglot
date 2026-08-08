@@ -108,6 +108,13 @@ export interface SessionData {
    */
   mainKeyboardVersion?: number;
   /**
+   * Message id that delivered the main-menu keyboard. Telegram binds a reply
+   * keyboard to its carrier message, so deleting that message wipes the keyboard
+   * off the user's screen — `cleanupTechnicalMessages` uses this to re-arm
+   * delivery if the carrier is ever deleted.
+   */
+  mainKeyboardMessageId?: number;
+  /**
    * Template constructor wizard state (Task 32).
    * Set when user enters the template customization flow.
    * Cleared on save, cancel, or session loss.

@@ -1,11 +1,11 @@
 /**
  * Main menu — the persistent reply keyboard under the input field.
  *
- * Frequently used entry points that used to sit in the Telegram command list
- * (`/dictionary`, `/flashcard`, `/videos`) live here instead: the command list is
- * for rare, configuration-style actions, the keyboard is for the ones a user taps
- * every session. The commands themselves still work — they are simply no longer
- * advertised in the menu (see `commands.ts`).
+ * The entry points a user reaches for every session — `/dictionary`, `/flashcard`,
+ * `/videos` — sit here so they are one tap away instead of buried in the command
+ * list. They remain in the command list too (see `commands.ts`): a reply keyboard
+ * only exists as long as the message that delivered it, so the command menu is the
+ * path that survives a cleared chat history.
  */
 
 import { getSupportedLangs, type I18nKey, type SupportedLang, t } from "@polyglot/core";

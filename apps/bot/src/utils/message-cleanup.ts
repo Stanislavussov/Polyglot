@@ -52,6 +52,17 @@ export async function cleanupTechnicalMessages(ctx: ContextWithSession): Promise
     }),
   );
 
+  // Telegram binds the persistent main-menu keyboard to the message that delivered
+  // it, so deleting that message wipes the menu off the user's screen. The carrier
+  // is never tracked as technical for exactly that reason; if it lands here anyway,
+  // clear the delivery flag so `mainKeyboardMiddleware` re-installs the keyboard on
+  // the next message instead of leaving the chat silently without a menu.
+  const carrierId = ctx.session.mainKeyboardMessageId;
+  if (carrierId !== undefined && ids.includes(carrierId)) {
+    ctx.session.mainKeyboardVersion = undefined;
+    ctx.session.mainKeyboardMessageId = undefined;
+  }
+
   ctx.session.technicalMessages = [];
 }
 

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-04T19:32:00.376Z",
+  "generatedAt": "2026-08-08T10:16:11.134Z",
   "summary": {
-    "total": 2527,
+    "total": 2534,
     "business": 0,
-    "technical": 2527,
+    "technical": 2534,
     "workspaces": [
       "apps",
       "packages"
@@ -2357,6 +2357,38 @@
       "name": "Bot callback regressions (integration) falls back to a reply when Telegram rejects the card edit (48h limit, d9b330f)",
       "value": "Protects the bot callback regressions (integration) behavior: falls back to a reply when Telegram rejects the card edit (48h limit, d9b330f).",
       "description": "Protects the bot callback regressions (integration) behavior: falls back to a reply when Telegram rejects the card edit (48h limit, d9b330f)."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-47-main-menu-keyboard-integration-survives-the-technical-message-cleanup-that-every-translation-runs",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/main-keyboard.integration.test.ts",
+      "sourceLine": 47,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main-menu keyboard (integration)"
+      ],
+      "title": "survives the technical-message cleanup that every translation runs",
+      "rawTitle": "survives the technical-message cleanup that every translation runs",
+      "name": "Bot main menu keyboard (integration) survives the technical message cleanup that every translation runs",
+      "value": "Protects the bot main menu keyboard (integration) behavior so survives the technical message cleanup that every translation runs.",
+      "description": "Protects the bot main menu keyboard (integration) behavior so survives the technical message cleanup that every translation runs."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-82-main-menu-keyboard-integration-re-installs-the-keyboard-on-start-so-a-user-who-lost-it-can-get-it-back",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/main-keyboard.integration.test.ts",
+      "sourceLine": 82,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main-menu keyboard (integration)"
+      ],
+      "title": "re-installs the keyboard on /start so a user who lost it can get it back",
+      "rawTitle": "re-installs the keyboard on /start so a user who lost it can get it back",
+      "name": "Bot main menu keyboard (integration) re installs the keyboard on start so a user who lost it can get it back",
+      "value": "Protects the bot main menu keyboard (integration) behavior so re installs the keyboard on start so a user who lost it can get it back.",
+      "description": "Protects the bot main menu keyboard (integration) behavior so re installs the keyboard on start so a user who lost it can get it back."
     },
     {
       "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-80-start-onboarding-integration-creates-the-user-and-guesses-the-native-language-from-the-telegram-locale",
@@ -5534,10 +5566,10 @@
       "description": "Protects the bot changes Command behavior so replies with delivered changes for testers."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-5-bot-commands-does-not-expose-changes-in-global-commands",
+      "id": "apps-bot-src-commands-commands-test-ts-6-bot-commands-does-not-expose-changes-in-global-commands",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
-      "sourceLine": 5,
+      "sourceLine": 6,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5550,10 +5582,10 @@
       "description": "Protects the bot bot commands behavior: does not expose changes in global commands."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-11-bot-commands-exposes-changes-when-requested-for-privileged-audience-groups",
+      "id": "apps-bot-src-commands-commands-test-ts-12-bot-commands-exposes-changes-when-requested-for-privileged-audience-groups",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
-      "sourceLine": 11,
+      "sourceLine": 12,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5566,26 +5598,42 @@
       "description": "Protects the bot bot commands behavior so exposes changes when requested for privileged audience groups."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-17-bot-commands-keeps-the-everyday-entry-points-out-of-the-command-list-they-live-on-the-reply-keyboard",
+      "id": "apps-bot-src-commands-commands-test-ts-18-bot-commands-lists-the-everyday-entry-points-so-they-stay-reachable-without-the-reply-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
-      "sourceLine": 17,
+      "sourceLine": 18,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "bot commands"
       ],
-      "title": "keeps the everyday entry points out of the command list — they live on the reply keyboard",
-      "rawTitle": "keeps the everyday entry points out of the command list — they live on the reply keyboard",
-      "name": "Bot bot commands keeps the everyday entry points out of the command list — they live on the reply keyboard",
-      "value": "Protects the bot bot commands behavior: keeps the everyday entry points out of the command list — they live on the reply keyboard.",
-      "description": "Protects the bot bot commands behavior: keeps the everyday entry points out of the command list — they live on the reply keyboard."
+      "title": "lists the everyday entry points, so they stay reachable without the reply keyboard",
+      "rawTitle": "lists the everyday entry points, so they stay reachable without the reply keyboard",
+      "name": "Bot bot commands lists the everyday entry points, so they stay reachable without the reply keyboard",
+      "value": "Protects the bot bot commands behavior so lists the everyday entry points, so they stay reachable without the reply keyboard.",
+      "description": "Protects the bot bot commands behavior so lists the everyday entry points, so they stay reachable without the reply keyboard."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-25-bot-commands-prefixes-every-command-description-with-a-unique-icon",
+      "id": "apps-bot-src-commands-commands-test-ts-26-bot-commands-gives-an-entry-point-the-same-icon-in-the-command-list-and-on-the-reply-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
-      "sourceLine": 25,
+      "sourceLine": 26,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "bot commands"
+      ],
+      "title": "gives an entry point the same icon in the command list and on the reply keyboard",
+      "rawTitle": "gives an entry point the same icon in the command list and on the reply keyboard",
+      "name": "Bot bot commands gives an entry point the same icon in the command list and on the reply keyboard",
+      "value": "Protects the bot bot commands behavior so gives an entry point the same icon in the command list and on the reply keyboard.",
+      "description": "Protects the bot bot commands behavior so gives an entry point the same icon in the command list and on the reply keyboard."
+    },
+    {
+      "id": "apps-bot-src-commands-commands-test-ts-36-bot-commands-prefixes-every-command-description-with-a-unique-icon",
+      "kind": "technical",
+      "filePath": "apps/bot/src/commands/commands.test.ts",
+      "sourceLine": 36,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5598,10 +5646,10 @@
       "description": "Protects the bot bot commands behavior so prefixes every command description with a unique icon."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-35-bot-commands-sets-changes-for-admin-chats-only",
+      "id": "apps-bot-src-commands-commands-test-ts-46-bot-commands-sets-changes-for-admin-chats-only",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
-      "sourceLine": 35,
+      "sourceLine": 46,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5614,10 +5662,10 @@
       "description": "Protects the bot bot commands behavior so sets changes for admin chats only."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-48-bot-commands-does-not-set-changes-for-product-chats",
+      "id": "apps-bot-src-commands-commands-test-ts-59-bot-commands-does-not-set-changes-for-product-chats",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
-      "sourceLine": 48,
+      "sourceLine": 59,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5662,10 +5710,10 @@
       "description": "Protects the bot start Command behavior so re installs the main menu keyboard for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-108-startcommand-persists-activemode-to-db-for-onboarded-users",
+      "id": "apps-bot-src-commands-start-test-ts-112-startcommand-persists-activemode-to-db-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 112,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5678,10 +5726,10 @@
       "description": "Protects the bot start Command behavior: persists active Mode to DB for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-116-startcommand-resumes-stateless-onboarding-for-non-onboarded-users-no-mode-change",
+      "id": "apps-bot-src-commands-start-test-ts-120-startcommand-resumes-stateless-onboarding-for-non-onboarded-users-no-mode-change",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 116,
+      "sourceLine": 120,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5694,10 +5742,10 @@
       "description": "Protects the bot start Command behavior so resumes stateless onboarding for non onboarded users (no mode change)."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-126-startcommand-does-nothing-when-user-is-not-in-context",
+      "id": "apps-bot-src-commands-start-test-ts-130-startcommand-does-nothing-when-user-is-not-in-context",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 126,
+      "sourceLine": 130,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6222,10 +6270,42 @@
       "description": "Protects the bot main Keyboard Middleware behavior: marks the chat so the hint is never repeated."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-64-mainkeyboardmiddleware-stays-silent-for-a-chat-that-already-has-the-current-keyboard",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-64-mainkeyboardmiddleware-keeps-the-carrier-message-out-of-the-technical-cleanup-list-which-would-delete-the-keyboard-with-it",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
       "sourceLine": 64,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mainKeyboardMiddleware"
+      ],
+      "title": "keeps the carrier message out of the technical-cleanup list, which would delete the keyboard with it",
+      "rawTitle": "keeps the carrier message out of the technical-cleanup list, which would delete the keyboard with it",
+      "name": "Bot main Keyboard Middleware keeps the carrier message out of the technical cleanup list, which would delete the keyboard with it",
+      "value": "Protects the bot main Keyboard Middleware behavior: keeps the carrier message out of the technical cleanup list, which would delete the keyboard with it.",
+      "description": "Protects the bot main Keyboard Middleware behavior: keeps the carrier message out of the technical cleanup list, which would delete the keyboard with it."
+    },
+    {
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-73-mainkeyboardmiddleware-leaves-the-chat-unmarked-when-the-send-fails-so-the-next-message-retries",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
+      "sourceLine": 73,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mainKeyboardMiddleware"
+      ],
+      "title": "leaves the chat unmarked when the send fails, so the next message retries",
+      "rawTitle": "leaves the chat unmarked when the send fails, so the next message retries",
+      "name": "Bot main Keyboard Middleware leaves the chat unmarked when the send fails, so the next message retries",
+      "value": "Protects the bot main Keyboard Middleware behavior so leaves the chat unmarked when the send fails, so the next message retries.",
+      "description": "Protects the bot main Keyboard Middleware behavior so leaves the chat unmarked when the send fails, so the next message retries."
+    },
+    {
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-82-mainkeyboardmiddleware-stays-silent-for-a-chat-that-already-has-the-current-keyboard",
+      "kind": "technical",
+      "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
+      "sourceLine": 82,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6238,10 +6318,10 @@
       "description": "Protects the bot main Keyboard Middleware behavior so stays silent for a chat that already has the current keyboard."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-74-mainkeyboardmiddleware-re-sends-when-the-stored-version-is-older-than-the-current-layout",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-92-mainkeyboardmiddleware-re-sends-when-the-stored-version-is-older-than-the-current-layout",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 92,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6254,26 +6334,26 @@
       "description": "Protects the bot main Keyboard Middleware behavior so re sends when the stored version is older than the current layout."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-83-mainkeyboardmiddleware-leaves-users-mid-onboarding-alone-onboarding-installs-the-keyboard-itself",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-101-mainkeyboardmiddleware-leaves-users-mid-onboarding-alone-they-get-the-keyboard-once-onboarding-marks-them-done",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
-      "sourceLine": 83,
+      "sourceLine": 101,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "mainKeyboardMiddleware"
       ],
-      "title": "leaves users mid-onboarding alone — onboarding installs the keyboard itself",
-      "rawTitle": "leaves users mid-onboarding alone — onboarding installs the keyboard itself",
-      "name": "Bot main Keyboard Middleware leaves users mid onboarding alone — onboarding installs the keyboard itself",
-      "value": "Protects the bot main Keyboard Middleware behavior so leaves users mid onboarding alone — onboarding installs the keyboard itself.",
-      "description": "Protects the bot main Keyboard Middleware behavior so leaves users mid onboarding alone — onboarding installs the keyboard itself."
+      "title": "leaves users mid-onboarding alone — they get the keyboard once onboarding marks them done",
+      "rawTitle": "leaves users mid-onboarding alone — they get the keyboard once onboarding marks them done",
+      "name": "Bot main Keyboard Middleware leaves users mid onboarding alone — they get the keyboard once onboarding marks them done",
+      "value": "Protects the bot main Keyboard Middleware behavior so leaves users mid onboarding alone — they get the keyboard once onboarding marks them done.",
+      "description": "Protects the bot main Keyboard Middleware behavior so leaves users mid onboarding alone — they get the keyboard once onboarding marks them done."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-94-mainkeyboardmiddleware-ignores-non-message-updates-which-cannot-carry-a-reply-keyboard",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-112-mainkeyboardmiddleware-ignores-non-message-updates-which-cannot-carry-a-reply-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
-      "sourceLine": 94,
+      "sourceLine": 112,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12727,6 +12807,38 @@
       "name": "Bot main menu keyboard exposes every label so bot hears intercepts taps before translate mode",
       "value": "Protects the bot main menu keyboard behavior so exposes every label so bot hears intercepts taps before translate mode.",
       "description": "Protects the bot main menu keyboard behavior so exposes every label so bot hears intercepts taps before translate mode."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-33-cleanuptechnicalmessages-deletes-tracked-messages-and-leaves-the-main-menu-keyboard-installed",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 33,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "cleanupTechnicalMessages"
+      ],
+      "title": "deletes tracked messages and leaves the main-menu keyboard installed",
+      "rawTitle": "deletes tracked messages and leaves the main-menu keyboard installed",
+      "name": "Bot cleanup Technical Messages deletes tracked messages and leaves the main menu keyboard installed",
+      "value": "Protects the bot cleanup Technical Messages behavior so deletes tracked messages and leaves the main menu keyboard installed.",
+      "description": "Protects the bot cleanup Technical Messages behavior so deletes tracked messages and leaves the main menu keyboard installed."
+    },
+    {
+      "id": "apps-bot-src-utils-message-cleanup-test-ts-49-cleanuptechnicalmessages-re-arms-keyboard-delivery-when-the-carrier-message-is-swept-up",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/message-cleanup.test.ts",
+      "sourceLine": 49,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "cleanupTechnicalMessages"
+      ],
+      "title": "re-arms keyboard delivery when the carrier message is swept up",
+      "rawTitle": "re-arms keyboard delivery when the carrier message is swept up",
+      "name": "Bot cleanup Technical Messages re arms keyboard delivery when the carrier message is swept up",
+      "value": "Protects the bot cleanup Technical Messages behavior so re arms keyboard delivery when the carrier message is swept up.",
+      "description": "Protects the bot cleanup Technical Messages behavior so re arms keyboard delivery when the carrier message is swept up."
     },
     {
       "id": "apps-bot-src-utils-parse-translate-input-test-ts-14-parsetranslateinput-parses-free-form-multi-word-context-after-a-separator",
