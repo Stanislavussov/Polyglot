@@ -13,7 +13,7 @@ import {
   renderDictionaryList,
 } from "../renderers/dictionary.renderer.js";
 import type { BotContext } from "../types.js";
-import { trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { replyTechnical } from "../utils/message-cleanup.js";
 
 /** Resolve user's interface language. */
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
@@ -39,8 +39,7 @@ export async function handleDictionaryCommand(ctx: BotContext): Promise<void> {
   const text = renderDictionaryList(entries, 1, totalPages, total, lang, dictionary.name);
   const kb = buildDictionaryListKeyboard(entries, 1, totalPages, lang, dictionary.id);
 
-  const msg = await ctx.reply(text, { parse_mode: "HTML", reply_markup: kb });
-  trackTechnicalMessage(ctx, msg.message_id);
+  const msg = await replyTechnical(ctx, text, { parse_mode: "HTML", reply_markup: kb });
 
   ctx.session.dictionary = {
     currentPage: 1,

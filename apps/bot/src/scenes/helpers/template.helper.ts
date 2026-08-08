@@ -14,7 +14,7 @@ import {
 import { InlineKeyboard } from "grammy";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
-import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
+import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
 import { MOCK_PREVIEW_OUTPUT } from "../template-preview.data.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
@@ -63,7 +63,7 @@ export async function handleCustomizeCallback(ctx: BotContext): Promise<void> {
     await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
     ctx.session.templateWizard.wizardMsgId = ctx.callbackQuery?.message?.message_id;
   } catch {
-    const msg = await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
+    const msg = await replyTechnical(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
     ctx.session.templateWizard.wizardMsgId = msg.message_id;
   }
   await ctx.answerCallbackQuery();

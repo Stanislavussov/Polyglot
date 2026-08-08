@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { logger } from "@polyglot/core";
 import type { BotContext } from "../types.js";
-import { trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { replyTechnical } from "../utils/message-cleanup.js";
 
 const MAX_TELEGRAM_TEXT_LENGTH = 3900;
 
@@ -69,19 +69,17 @@ async function readDeliveredChanges(): Promise<string> {
 export async function changesCommand(ctx: BotContext): Promise<void> {
   const user = ctx.user;
   if (!user || !canUseChangesCommand(user.audienceGroup)) {
-    await ctx.reply("This command is available to testers and admins.");
+    await replyTechnical(ctx, "This command is available to testers and admins.");
     return;
   }
 
   try {
     const message = await readDeliveredChanges();
     for (const chunk of splitTelegramText(message)) {
-      const msg = await ctx.reply(chunk);
-      trackTechnicalMessage(ctx, msg.message_id);
+      await replyTechnical(ctx, chunk);
     }
   } catch (err) {
     logger.error({ err }, "Failed to read delivered changes");
-    const msg = await ctx.reply("Delivered changes are temporarily unavailable.");
-    trackTechnicalMessage(ctx, msg.message_id);
+    await replyTechnical(ctx, "Delivered changes are temporarily unavailable.");
   }
 }

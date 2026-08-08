@@ -5,7 +5,7 @@ import { AI_CALL_WEIGHTS, type AiCallType, ensureAiQuota, recordAiUsage } from "
 function createCtx(usedCredits: number) {
   const getUserCreditsInWindow = vi.fn().mockResolvedValue(usedCredits);
   const logTranslationRequest = vi.fn().mockResolvedValue(1);
-  const reply = vi.fn().mockResolvedValue(undefined);
+  const reply = vi.fn().mockResolvedValue({ message_id: 77 });
   const ctx = {
     user: { id: 1, subscriptionPlan: "free" },
     reply,

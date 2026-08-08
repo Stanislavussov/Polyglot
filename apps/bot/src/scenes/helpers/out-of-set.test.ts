@@ -21,7 +21,6 @@ vi.mock("@polyglot/core", () => ({
 }));
 
 vi.mock("../../middlewares/request-settings.js", () => ({ clearRequestSettings: vi.fn() }));
-vi.mock("../../utils/message-cleanup.js", () => ({ trackTechnicalMessage: vi.fn() }));
 vi.mock("./edit-message.helper.js", () => ({ editMessageReplyMarkupOrIgnore: vi.fn().mockResolvedValue(undefined) }));
 vi.mock("./translate-mode.shared.js", () => ({
   clearPendingClarification: vi.fn(),
