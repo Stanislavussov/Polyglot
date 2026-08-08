@@ -10,7 +10,6 @@ env:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   ci:
@@ -25,9 +24,12 @@ jobs:
   push:
     needs: ci
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Images go to Docker Hub (REGISTRY: docker.io) authenticated with
+    # DOCKER_TOKEN, never to GHCR — so `packages: write` was granting a scope
+    # nothing in this workflow uses.
     permissions:
       contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -94,6 +96,17 @@ jobs:
   deploy:
     needs: push
     runs-on: ubuntu-latest
+    timeout-minutes: 35
+    # Mutex on the VPS Docker daemon, shared with deploy-monitoring.yml, which
+    # declares the identical group. Scoped to this job rather than the whole
+    # workflow on purpose: the host is only touched for the ~2 min this job runs,
+    # not the ~8 min including ci+push. GitHub keeps at most one PENDING run per
+    # group and a newer one evicts the older, so a wider window raises the chance
+    # of silently dropping a queued monitoring deploy (deploy.yml never deploys
+    # monitoring, so such a run is not absorbed — it must be re-dispatched).
+    concurrency:
+      group: vps-host
+      cancel-in-progress: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -174,6 +187,14 @@ jobs:
         # holding the prod SSH key — mutable tag pinning is a supply-chain risk.
         uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
         with:
+          # The action's default is 10m, but this script's worst case is ~19-21m:
+          # `compose pull` of five images over the VPS link (3-5m) + migrate + seed
+          # + `up -d` + the health gate below, which alone allows 180s x 4 services
+          # = 12m. Without this, a slow-but-healthy release is severed AFTER
+          # `docker compose up -d` has already mutated production, leaving no
+          # health-gate verdict. `timeout-minutes` cannot save it — the SSH step
+          # dies first.
+          command_timeout: 30m
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
