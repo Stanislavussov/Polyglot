@@ -57,7 +57,7 @@ import type { ZodSchema } from "zod";
 import { createFeatureAccess } from "./feature-access.js";
 import { aiCircuitStateGauge, aiCircuitTransitionsCounter, aiFallbackCounter } from "./metrics.js";
 import { mockPaymentAdapter } from "./payment.js";
-import { buildAiFailover } from "./utils/ai-model.js";
+import { buildAiFailover, resolveFallbackAIModel } from "./utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
 
 /**
@@ -148,14 +148,18 @@ export function createContainer(): ServiceContainer {
     return model ? { costPer1kInput: model.costPer1kInput, costPer1kOutput: model.costPer1kOutput } : null;
   });
 
-  // Resolves the fixed failover split from the same admin-managed budget the abort
-  // timeout uses (B = clamped requestTimeoutMs). Every bot AI call routes through
-  // this so real traffic gets failover; the model passed to each generate call is
-  // the primary, and the hardcoded fallback is the second model. Returns undefined
-  // when B is too small to reserve a fallback window — then the call runs unsplit.
+  // Resolves the failover split from admin-managed settings: the budget from the
+  // same clamped requestTimeoutMs the abort timeout uses, and the second model from
+  // the DB `ai_models.is_fallback` flag. Every bot AI call routes through this so
+  // real traffic gets failover; the model passed to each generate call is the
+  // primary. Returns undefined when B is too small to reserve a fallback window, or
+  // when no fallback model is configured — then the call runs unsplit.
   const resolveFailover = async (): Promise<AIFailover | undefined> => {
-    const budgetMs = clampAiBudgetToOpGuard((await settings.getAIGenerationDefaults()).requestTimeoutMs);
-    return buildAiFailover(budgetMs);
+    const [defaults, fallbackModel] = await Promise.all([
+      settings.getAIGenerationDefaults(),
+      resolveFallbackAIModel(settings),
+    ]);
+    return buildAiFailover(clampAiBudgetToOpGuard(defaults.requestTimeoutMs), fallbackModel);
   };
   const ai = {
     generateObject: async <T>(prompt: string, schema: ZodSchema<T>, model: string, options?: GenerateOptions) =>

@@ -1,7 +1,7 @@
 import { createSubscriptionService, isSupported, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../../types.js";
-import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
+import { replyTechnical } from "../../utils/message-cleanup.js";
 
 const PLAN_LABELS: Record<string, string> = { plus: "Plus", pro: "Pro" };
 
@@ -25,11 +25,10 @@ async function resolveLang(ctx: BotContext): Promise<SupportedLang> {
 export async function handleUpgradePromptCallback(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
   const lang = await resolveLang(ctx);
-  const msg = await ctx.reply(t("upgradePrompt", lang), {
+  await replyTechnical(ctx, t("upgradePrompt", lang), {
     parse_mode: "HTML",
     reply_markup: buildPlanChoiceKeyboard(lang),
   });
-  trackTechnicalMessage(ctx, msg.message_id);
 }
 
 /** `plan:buy:<plan>` → run the (mock) checkout, upgrade the user, confirm. */
@@ -51,12 +50,10 @@ export async function handleBuyPlanCallback(ctx: BotContext): Promise<void> {
 
   const result = await service.activate(ctx.user.id, plan);
   if (!result.ok || !result.currentPeriodEnd) {
-    const msg = await ctx.reply(t("checkoutFailed", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await replyTechnical(ctx, t("checkoutFailed", lang));
     return;
   }
 
   const date = result.currentPeriodEnd.toISOString().slice(0, 10);
-  const msg = await ctx.reply(t("subscriptionActivated", lang, { plan: PLAN_LABELS[plan] ?? plan, date }));
-  trackTechnicalMessage(ctx, msg.message_id);
+  await replyTechnical(ctx, t("subscriptionActivated", lang, { plan: PLAN_LABELS[plan] ?? plan, date }));
 }

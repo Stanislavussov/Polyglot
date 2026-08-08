@@ -20,6 +20,7 @@ import { authMiddleware } from "./middlewares/auth.js";
 import { conversationAuthPlugin } from "./middlewares/conversation-auth.js";
 import { mainKeyboardMiddleware } from "./middlewares/main-keyboard.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
+import { technicalCleanupMiddleware } from "./middlewares/technical-cleanup.js";
 import { updateMetricsMiddleware } from "./middlewares/update-metrics.js";
 import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notifications/notification.callbacks.js";
 import { createApiLogTransformer } from "./observability/api-log.js";
@@ -310,6 +311,12 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
     }),
   );
   bot.use(exitActiveConversations);
+
+  // Clears the previous interaction's scaffolding before anything answers this
+  // update, so a technical message sent below is never swept by its own sweep.
+  // Placed after the conversation plugin on purpose: a running dialog keeps its
+  // prompts and cleans up when it ends.
+  bot.use(technicalCleanupMiddleware);
 
   // Runs before the handlers so a user who never saw the reply keyboard gets it
   // together with the response to the very message they just sent.

@@ -5,6 +5,7 @@
  */
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
+import { replyTechnical } from "../utils/message-cleanup.js";
 
 /**
  * Handles /translate command — activates translate mode.
@@ -28,7 +29,7 @@ export async function handleTranslateCommand(ctx: BotContext): Promise<void> {
   const toLangs = learningLangs.map((code) => ctx.services.languageCache.getLangDisplay(code)).join(", ") || "—";
 
   // Send confirmation message with language direction
-  await ctx.reply(t("translateModeOn", lang, { fromLang, toLangs }));
+  await replyTechnical(ctx, t("translateModeOn", lang, { fromLang, toLangs }));
   // No source lang menu on /translate (Task 58 — detection happens on first text message)
   ctx.session.needsTranslateReminder = false;
 }

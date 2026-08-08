@@ -64,7 +64,7 @@ import {
   TRANSLATION_BUDGET_MS,
   withTimeout,
 } from "../../utils/long-op.js";
-import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
+import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
@@ -109,7 +109,7 @@ async function ensureTranslationQuota(
     getMonthlyWindowStart(),
   );
   if (usedCredits + creditCost > entitlements.translationsPerMonth) {
-    await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+    await replyTechnical(ctx, t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return null;
   }
 
@@ -304,7 +304,7 @@ async function showTranslationClarification(
     ? `${promptText}\n\n${t("translationClarifyLanguageHint", params.lang)}`
     : promptText;
 
-  await ctx.reply(message, { reply_markup: keyboard });
+  await replyTechnical(ctx, message, { reply_markup: keyboard });
 }
 
 /**
@@ -340,12 +340,18 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const contextHint = parsed.contextHint;
 
   if (cleanWord.length === 0) {
-    await ctx.reply(t("contextMarkerNeedsText", lang));
+    await replyTechnical(ctx, t("contextMarkerNeedsText", lang));
     return;
   }
 
-  // Clean up previous technical messages before starting a new translation
-  await cleanupTechnicalMessages(ctx);
+  // A text message was already swept centrally before any handler ran. Sweeping
+  // again mid-handler would delete anything a middleware sent for THIS update —
+  // the class of bug that used to eat the one-time main-menu hint. Callback-driven
+  // entries (retry, activation nudge) bypass the central sweep, so they still
+  // clear the chat here.
+  if (!ctx.message) {
+    await cleanupTechnicalMessages(ctx);
+  }
 
   const textValidation = validateTranslatableText(cleanWord);
   if (!textValidation.valid) {
@@ -357,12 +363,12 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       digits: "inputRejectedDigits",
       tooLong: "inputRejectedTooLong",
     } as const;
-    await ctx.reply(t(keyByReason[reason], lang, { max: "500" }));
+    await replyTechnical(ctx, t(keyByReason[reason], lang, { max: "500" }));
     return;
   }
 
   if (learningLangs.length === 0) {
-    await ctx.reply(t("translationUnavailable", lang));
+    await replyTechnical(ctx, t("translationUnavailable", lang));
     return;
   }
 
@@ -476,7 +482,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       .catch((err: unknown) => {
         logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
-    await ctx.reply(t("languageNotSelected", lang, { lang: getLanguageName(outOfSetLang, lang) }));
+    await replyTechnical(ctx, t("languageNotSelected", lang, { lang: getLanguageName(outOfSetLang, lang) }));
     return;
   }
 
@@ -557,7 +563,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     }
     keyboard.text(t("mistypeCancel", lang), "tr:langselect:cancel");
 
-    await ctx.reply(promptText, { reply_markup: keyboard });
+    await replyTechnical(ctx, promptText, { reply_markup: keyboard });
     return;
   } else if (detection.ambiguousCandidates && detection.ambiguousCandidates.length > 0) {
     // Weak ambiguity such as shared Latin script is not enough to interrupt the
@@ -606,7 +612,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       .text(t("mistypeConfirm", lang), "tr:mistype:confirm")
       .text(t("mistypeCancel", lang), "tr:mistype:cancel");
 
-    await ctx.reply(warningText, { reply_markup: keyboard });
+    await replyTechnical(ctx, warningText, { reply_markup: keyboard });
     return;
   }
 
@@ -1108,7 +1114,7 @@ async function runTranslationPipeline(
       });
       return;
     }
-    await ctx.reply(t("translationError", lang));
+    await replyTechnical(ctx, t("translationError", lang));
   }
 }
 
@@ -1235,6 +1241,5 @@ export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   await ctx.answerCallbackQuery();
-  const msg = await ctx.reply(t("translateModeHint", lang));
-  trackTechnicalMessage(ctx, msg.message_id);
+  await replyTechnical(ctx, t("translateModeHint", lang));
 }

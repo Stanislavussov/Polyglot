@@ -264,33 +264,42 @@ export class SettingsService implements SettingsPort {
     return result;
   }
 
-  async getEnabledAIModelsForPlan(plan: SubscriptionPlan): Promise<AIModel[]> {
-    const cacheKey = `enabledAIModels:${plan}`;
-    const cached = this.getCached<AIModel[]>(cacheKey);
-    if (cached) return cached;
-    const dbModels = await this.port.getEnabledAIModelsForPlan(plan);
-    const result = dbModels.length > 0 ? dbModels : await this.getEnabledAIModels();
-    this.setCache(cacheKey, result);
-    return result;
-  }
-
+  /**
+   * DB only. When no model is flagged as default the chain continues to the
+   * admin-set fallback model — also a DB row — and ends at `null`. A hardcoded
+   * model id here used to hide an empty/misconfigured `ai_models` table behind a
+   * slug nobody could change without a redeploy; callers now decide what an
+   * unconfigured system means for them.
+   */
   async getDefaultAIModel(): Promise<string | null> {
-    const cached = this.getCached<string | null>("defaultAIModel");
+    const cached = this.getCached<string>("defaultAIModel");
     if (cached) return cached;
-    const dbDefault = await this.port.getDefaultAIModel();
-    const result = dbDefault ?? "openai/gpt-5-nano";
-    this.setCache("defaultAIModel", result);
+    const result = (await this.port.getDefaultAIModel()) ?? (await this.port.getFallbackAIModel());
+    if (result) this.setCache("defaultAIModel", result);
     return result;
   }
 
   async getDefaultAIModelForPlan(plan: SubscriptionPlan): Promise<string | null> {
     const cacheKey = `defaultAIModel:${plan}`;
-    const cached = this.getCached<string | null>(cacheKey);
+    const cached = this.getCached<string>(cacheKey);
     if (cached) return cached;
     const dbDefault = await this.port.getDefaultAIModelForPlan(plan);
     const result = dbDefault ?? (await this.getDefaultAIModel());
-    this.setCache(cacheKey, result);
+    if (result) this.setCache(cacheKey, result);
     return result;
+  }
+
+  /**
+   * Cached like the other model reads. A `null` result (no enabled model flagged
+   * as fallback) is deliberately NOT cached: it is the unconfigured state, and the
+   * next read should pick up an admin flagging one without waiting out the TTL.
+   */
+  async getFallbackAIModel(): Promise<string | null> {
+    const cached = this.getCached<string>("fallbackAIModel");
+    if (cached) return cached;
+    const dbFallback = await this.port.getFallbackAIModel();
+    if (dbFallback) this.setCache("fallbackAIModel", dbFallback);
+    return dbFallback;
   }
 
   async getAIGenerationDefaults(): Promise<AIGenerationDefaults> {

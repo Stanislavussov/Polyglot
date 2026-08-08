@@ -36,6 +36,9 @@ in `@docs/agents/architecture.md`.
 - `test-runner` - quality-gate execution and failure diagnosis.
 - `testing-strategy-tdd` - spec-first TDD, test selection, integration-focused coverage,
   and test anti-pattern review.
+- `bot-testing` - grammY e2e integration tests against a real Postgres and mock-only unit
+  tests: lane choice, DB isolation, the Telegram fake-fetch harness, the assertion triad.
+  Mandatory for any cross-cutting flow (CLAUDE.md Hard Rule #5a).
 
 ## Reading Rule
 

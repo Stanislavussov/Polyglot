@@ -613,6 +613,14 @@ export const rateLimitPlans = pgTable("rate_limit_plans", {
   isActive: boolean("is_active").default(true).notNull(),
   /** Users are reassigned here when another plan is deleted. Exactly one default is expected. */
   isDefault: boolean("is_default").default(false).notNull(),
+  /**
+   * The AI model this plan's users are served by. `null` = use the globally
+   * default model (`ai_models.is_default`). This replaced an implicit rule where a
+   * plan's model was "the default model if the plan was allowed to use it,
+   * otherwise the alphabetically first allowed model" — unreadable in the admin
+   * panel and impossible to predict. Routing is now one explicit choice per plan.
+   */
+  aiModelId: varchar("ai_model_id", { length: 255 }).references(() => aiModels.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -730,32 +738,21 @@ export const aiModels = pgTable("ai_models", {
   isEnabled: boolean("is_enabled").default(true).notNull(),
   /** Default cost fallback for unknown models */
   isDefault: boolean("is_default").default(false).notNull(),
+  /**
+   * The model the AI failover retries on when the primary (default) model fails.
+   * Admin-managed here rather than hardcoded in the bot, so a bad fallback can be
+   * swapped without a redeploy. At most one row carries it (see
+   * `aiModelRepository.setFallback`).
+   */
+  isFallback: boolean("is_fallback").default(false).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type AIModelRow = typeof aiModels.$inferSelect;
 
 // ─────────────────────────────────────────────
-// AI model access — which subscription plans can use each model
-// ─────────────────────────────────────────────
-export const aiModelPlanAccess = pgTable(
-  "ai_model_plan_access",
-  {
-    modelId: varchar("model_id", { length: 255 })
-      .notNull()
-      .references(() => aiModels.id, { onDelete: "cascade" }),
-    planName: varchar("plan_name", { length: 50 })
-      .notNull()
-      .references(() => rateLimitPlans.name, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.modelId, t.planName] }), index("ai_model_plan_access_plan_idx").on(t.planName)],
-);
-
-export type AIModelPlanAccess = typeof aiModelPlanAccess.$inferSelect;
-
-// ─────────────────────────────────────────────
 // Plan feature access — which premium features each plan unlocks
-// Mirrors aiModelPlanAccess: a junction gating feature keys per plan.
+// A junction gating feature keys per plan.
 // ─────────────────────────────────────────────
 export const planFeatureAccess = pgTable(
   "plan_feature_access",

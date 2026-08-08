@@ -20,7 +20,7 @@ import { setUserCommands } from "../commands/commands.js";
 import { ONBOARDING_SCREENCAST_FILE_ID } from "../constants.js";
 import { editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
 import type { BotContext } from "../types.js";
-import { cleanupTechnicalMessages, trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { cleanupTechnicalMessages, replyTechnical, trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { getHookWordsForLangs } from "./hook-cards.js";
 import {
   buildDemoKeyboard,
@@ -47,8 +47,7 @@ async function present(ctx: BotContext, text: string, keyboard: InlineKeyboard):
     if (replacement) trackTechnicalMessage(ctx, replacement.message_id);
     return;
   }
-  const msg = await ctx.reply(text, { reply_markup: keyboard });
-  trackTechnicalMessage(ctx, msg.message_id);
+  await replyTechnical(ctx, text, { reply_markup: keyboard });
 }
 
 /** Screen 0 — the promise, then the native language in one tap. */

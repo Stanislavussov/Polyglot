@@ -17,7 +17,7 @@ import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.j
 import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
 import { handleVideoVocabularyUrl } from "../scenes/helpers/video-vocabulary.helper.js";
 import type { BotContext } from "../types.js";
-import { trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { replyTechnical } from "../utils/message-cleanup.js";
 import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
 import { getRequestSettings } from "./request-settings.js";
 
@@ -57,8 +57,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       markHandled(ctx, "modeRouter:nonText");
       logEvent("mode_router.rejected", { reason: "non_text", contentType: nonTextType });
       const lang = await resolveInterfaceLang(ctx);
-      const msg = await ctx.reply(t("textOnly", lang));
-      trackTechnicalMessage(ctx, msg.message_id);
+      await replyTechnical(ctx, t("textOnly", lang));
       return;
     }
     return next();
@@ -70,8 +69,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       markHandled(ctx, "modeRouter:emojiOnly");
       logEvent("mode_router.rejected", { reason: "emoji_only" });
       const lang = await resolveInterfaceLang(ctx);
-      const msg = await ctx.reply(t("emojiNotSupported", lang));
-      trackTechnicalMessage(ctx, msg.message_id);
+      await replyTechnical(ctx, t("emojiNotSupported", lang));
       return;
     }
     return next();
@@ -107,8 +105,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
     markHandled(ctx, "modeRouter:unsupportedVideoUrl");
     logEvent("mode_router.rejected", { reason: "non_youtube_video_url" });
     const lang = await resolveInterfaceLang(ctx);
-    const msg = await ctx.reply(t("videoOnlyYouTube", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await replyTechnical(ctx, t("videoOnlyYouTube", lang));
     return;
   }
 
@@ -147,8 +144,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       const settings = user ? await getRequestSettings(ctx, user.id) : null;
       const rawLang = settings?.interfaceLang ?? "en";
       const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
-      const msg = await ctx.reply(t("welcome", lang));
-      trackTechnicalMessage(ctx, msg.message_id);
+      await replyTechnical(ctx, t("welcome", lang));
       return;
     }
   }

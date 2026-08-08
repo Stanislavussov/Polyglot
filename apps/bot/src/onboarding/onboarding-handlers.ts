@@ -18,6 +18,7 @@ import { handleVideosCommand } from "../scenes/helpers/video-vocabulary.helper.j
 import { handleSettingsCommand } from "../scenes/settings.scene.js";
 import { handleReviewCommand } from "../scenes/srs.scene.js";
 import type { BotContext } from "../types.js";
+import { replyTechnical } from "../utils/message-cleanup.js";
 import { cacheDemoCard, resolveHookWord, sendCachedDemoCard } from "./hook-cards.js";
 import {
   isOnboardingFeature,
@@ -450,7 +451,7 @@ export async function onboardingTextMiddleware(ctx: BotContext, next: NextFuncti
 async function reportDemoFailure(ctx: BotContext, state: OnboardingState, err: unknown): Promise<void> {
   logEvent("onboarding.demo_failed", errorFields(err), "error");
   recordOnboardingStep(ONBOARDING_STEPS.demo, "failed");
-  await ctx.reply(t("onbDemoFailed", state.interfaceLang));
+  await replyTechnical(ctx, t("onbDemoFailed", state.interfaceLang));
 }
 
 /**

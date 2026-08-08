@@ -139,6 +139,8 @@ import {
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import { inputCorrectionCounter } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
+import { technicalCleanupMiddleware } from "../../middlewares/technical-cleanup.js";
+import { createSettingsStub } from "../../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../../types.js";
 import { handleEtymologyCallback, handleRegenCallback } from "./card-actions.js";
 import { handleTranslationClarificationCallback, handleTranslationClarificationContextText } from "./clarification.js";
@@ -193,17 +195,6 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
     user: { id: 1, telegramId: 123456789 },
     services: {
       userRepository: mockUserRepository,
-      settings: {
-        getPlanLimit: () =>
-          Promise.resolve({
-            name: "free",
-            label: "Free",
-            translationLimit: 50,
-            creditCost: 1,
-            isActive: true,
-            isDefault: true,
-          }),
-      },
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
       translationRequestRepository: mockTranslationRequestRepository,
@@ -213,6 +204,7 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
       wordLanguageSweep: mockSweepWordLanguages,
       languageCache: mockLanguageCache,
       ai: mockAi,
+      settings: createSettingsStub(),
     },
   } as unknown as BotContext;
 }
@@ -418,6 +410,20 @@ describe("handleTranslateText — context enrichment", () => {
 
     expect(ctx.reply).toHaveBeenCalledWith("Enter a word or phrase before the context marker.");
     expect(translateWithContext).not.toHaveBeenCalled();
+  });
+
+  it("queues a rejection notice for cleanup so it does not outlive the next message", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "#finance");
+
+    expect(ctx.session.technicalMessages).toContain(1);
+  });
+
+  it("never queues the translation card — content stays on screen forever", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "hello");
+
+    expect(ctx.session.technicalMessages ?? []).toEqual([]);
   });
 
   it("handleRegenCallback is a stub that just answers the callback query", async () => {
@@ -1503,5 +1509,78 @@ describe("handleEtymologyCallback — loading feedback on the card", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+/**
+ * The sweep must never reach a translation card. These drive the real sequence
+ * a user produces — translate, then translate again — through the real central
+ * middleware, rather than asserting the ledger in isolation.
+ */
+describe("translation cards survive the technical-message sweep", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de"],
+    });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
+  });
+
+  const FIRST_ID = 100;
+
+  /** A ctx whose every reply gets a fresh message id, as Telegram would assign. */
+  function createTextCtx(): BotContext {
+    const ctx = createMockCtx();
+    let nextId = FIRST_ID;
+    vi.mocked(ctx.reply).mockImplementation(() => Promise.resolve({ message_id: nextId++ } as never));
+    return Object.assign(ctx, { message: { message_id: 1, text: "hello" } }) as BotContext;
+  }
+
+  /** Ids of the cards sent so far — the HTML replies, as opposed to plain notices. */
+  function cardIds(ctx: BotContext): number[] {
+    return vi
+      .mocked(ctx.reply)
+      .mock.calls.map((call, index) => ({ id: FIRST_ID + index, html: call[1]?.parse_mode === "HTML" }))
+      .filter((reply) => reply.html)
+      .map((reply) => reply.id);
+  }
+
+  function deletedIds(ctx: BotContext): number[] {
+    return vi.mocked(ctx.api.deleteMessage).mock.calls.map((call) => call[1]);
+  }
+
+  it("keeps the previous card when the user translates the next word", async () => {
+    const ctx = createTextCtx();
+
+    await handleTranslateText(ctx, "hello");
+    await technicalCleanupMiddleware(ctx, vi.fn());
+    await handleTranslateText(ctx, "world");
+
+    // Two cards on screen; the only deletions are the flow's own "translating…"
+    // placeholders, which it removes itself before posting each card.
+    expect(cardIds(ctx)).toHaveLength(2);
+    for (const cardId of cardIds(ctx)) {
+      expect(deletedIds(ctx)).not.toContain(cardId);
+    }
+  });
+
+  it("sweeps a rejection notice on the next word without touching the card that follows", async () => {
+    const ctx = createTextCtx();
+
+    // A rejected input sends one notice and nothing else — the only message here
+    // the sweep is allowed to remove.
+    await handleTranslateText(ctx, "#finance");
+    expect(ctx.session.technicalMessages).toEqual([FIRST_ID]);
+
+    await technicalCleanupMiddleware(ctx, vi.fn());
+    await handleTranslateText(ctx, "hello");
+
+    expect(deletedIds(ctx)).toContain(FIRST_ID);
+    expect(ctx.session.technicalMessages).toEqual([]);
+    const [cardId] = cardIds(ctx);
+    expect(cardId).toBeDefined();
+    expect(deletedIds(ctx)).not.toContain(cardId);
   });
 });

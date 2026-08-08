@@ -20,6 +20,7 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
+import { replyTechnical } from "../../utils/message-cleanup.js";
 import { replyWithRetry } from "../../utils/retry-action.js";
 
 /** Maximum output tokens for mentor responses — keeps replies short. */
@@ -43,7 +44,7 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
 
   // Validate input length
   if (text.length > MENTOR_MAX_INPUT_LENGTH) {
-    await ctx.reply(t("mentorInputTooLong", lang, { max: MENTOR_MAX_INPUT_LENGTH }));
+    await replyTechnical(ctx, t("mentorInputTooLong", lang, { max: MENTOR_MAX_INPUT_LENGTH }));
     return;
   }
 
@@ -122,6 +123,6 @@ export async function handleMentorText(ctx: BotContext, text: string): Promise<v
       await replyWithRetry(ctx, t("loadingTimeout", lang), lang, { kind: "mentor", text });
       return;
     }
-    await ctx.reply(t("mentorError", lang));
+    await replyTechnical(ctx, t("mentorError", lang));
   }
 }

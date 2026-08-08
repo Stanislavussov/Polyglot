@@ -17,7 +17,7 @@ import { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "../../constants.js";
 import type { BotContext } from "../../types.js";
-import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
+import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
 import { resolvePlanLimit } from "../../utils/plan-limit.js";
 import {
   buildNotifSubKeyboard,
@@ -534,8 +534,10 @@ export async function handleNotifContextTextInput(ctx: BotContext): Promise<void
   logEvent("settings.notification_context_changed", { context: text });
 
   const lang = await getLang(ctx);
-  await ctx.reply(t("settingsNotifContextSaved", lang, { context: text }), { parse_mode: "HTML" });
-  await cleanupTechnicalMessages(ctx);
+  // No sweep here: this only ever runs on a text message, which the central
+  // cleanup middleware already swept, and repeating it would delete the
+  // confirmation that was just sent.
+  await replyTechnical(ctx, t("settingsNotifContextSaved", lang, { context: text }), { parse_mode: "HTML" });
   await showNotifSubMenu(ctx);
 }
 

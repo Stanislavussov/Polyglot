@@ -62,6 +62,15 @@ For every feature, bug fix, refactor, or behavior change that touches source cod
 
 If a change is too small to need a new test, explicitly state why existing tests or static checks already cover the behavior.
 
+#### 5a. E2E coverage for cross-cutting features (mandatory)
+
+A flow that crosses layers (bot command/callback/conversation → service → persisted state, or scheduler → delivery) is **not done** without an `*.integration.test.ts` driving it through the real dispatcher against the real Postgres, written per the `bot-testing` skill (`.claude/skills/bot-testing/SKILL.md`) — read it first.
+
+- Bot-facing → `apps/bot/src/__tests__/integration/`; persistence-only → `packages/adapters/db/src/__tests__/`.
+- A mock-only unit test never satisfies this rule.
+- Run `pnpm test:integration` before claiming completion — the standard gate (`pnpm test`) runs the unit lane only.
+- Skip only by naming the existing integration test that covers the flow. "Hard to test" or "later" is a blocker, not a completion.
+
 ### 6. Deployment & Host Provisioning
 
 Two **separate** pipelines — never conflate them. Canonical guidance: `@docs/agents/deployment.md`.
