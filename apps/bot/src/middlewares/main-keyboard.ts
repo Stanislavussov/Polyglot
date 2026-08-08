@@ -12,7 +12,7 @@ import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import type { BotContext } from "../types.js";
 import { buildMainKeyboard } from "../utils/main-menu.js";
-import { trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { replyTechnical } from "../utils/message-cleanup.js";
 import { getRequestSettings } from "./request-settings.js";
 
 /** Bump when the keyboard layout changes so every user is re-sent the new one once. */
@@ -33,8 +33,7 @@ export async function mainKeyboardMiddleware(ctx: BotContext, next: NextFunction
   const rawLang = settings?.interfaceLang ?? "en";
   const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
 
-  const msg = await ctx.reply(t("mainMenuHint", lang), { reply_markup: buildMainKeyboard(lang) });
-  trackTechnicalMessage(ctx, msg.message_id);
+  await replyTechnical(ctx, t("mainMenuHint", lang), { reply_markup: buildMainKeyboard(lang) });
 
   return next();
 }

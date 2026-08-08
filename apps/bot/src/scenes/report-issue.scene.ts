@@ -3,7 +3,7 @@ import { type IssueType, logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext, ConversationContext } from "../types.js";
 import { matchMainMenuAction } from "../utils/main-menu.js";
-import { cleanupTechnicalMessages, trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { cleanupTechnicalMessages, replyTechnical } from "../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
 const BACK = Symbol("back");
@@ -31,10 +31,8 @@ async function stepChooseType(
     .row()
     .text(t("reportOther", lang), "report:type:other");
 
-  const titleMsg = await ctx.reply(t("reportTitle", lang));
-  trackTechnicalMessage(ctx, titleMsg.message_id);
-  const typeMsg = await ctx.reply(t("reportChooseType", lang), { reply_markup: keyboard });
-  trackTechnicalMessage(ctx, typeMsg.message_id);
+  await replyTechnical(ctx, t("reportTitle", lang));
+  await replyTechnical(ctx, t("reportChooseType", lang), { reply_markup: keyboard });
 
   // `next: true` on every wait: an update the predicate rejects must fall
   // through to downstream middleware (exitActiveConversations, mode-router)
@@ -66,8 +64,7 @@ async function stepEnterDescription(
 ): Promise<string | BackAction> {
   const backKeyboard = new InlineKeyboard().text(`⬅️ ${t("back", lang)}`, "report:back");
 
-  const descMsg = await ctx.reply(t("reportEnterDescription", lang), { reply_markup: backKeyboard });
-  trackTechnicalMessage(ctx, descMsg.message_id);
+  await replyTechnical(ctx, t("reportEnterDescription", lang), { reply_markup: backKeyboard });
 
   while (true) {
     const response = await conversation.waitUntil(
@@ -91,7 +88,7 @@ async function stepEnterDescription(
       const text = response.message.text.trim();
 
       if (text.length > MAX_DESCRIPTION_LENGTH) {
-        await ctx.reply(t("reportTooLong", lang));
+        await replyTechnical(ctx, t("reportTooLong", lang));
         continue;
       }
 
@@ -116,8 +113,7 @@ async function stepPreview(
     .row()
     .text(t("reportCancel", lang), "report:cancel");
 
-  const previewMsg = await ctx.reply(preview, { parse_mode: "HTML", reply_markup: keyboard });
-  trackTechnicalMessage(ctx, previewMsg.message_id);
+  await replyTechnical(ctx, preview, { parse_mode: "HTML", reply_markup: keyboard });
 
   const response = await conversation.waitUntil(
     (ctx) => {
@@ -148,7 +144,7 @@ async function stepPreview(
  */
 export async function handleReportIssue(conversation: ReportConversation, ctx: ConversationContext): Promise<void> {
   if (!ctx.user) {
-    await ctx.reply("Please use /start first.");
+    await replyTechnical(ctx, "Please use /start first.");
     return;
   }
   const userId = ctx.user.id;
@@ -166,7 +162,7 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
     const descriptionOrBack = await stepEnterDescription(conversation, ctx, lang);
     if (descriptionOrBack === BACK) {
       await cleanupTechnicalMessages(ctx);
-      await ctx.reply(t("reportCancelled", lang));
+      await replyTechnical(ctx, t("reportCancelled", lang));
       return;
     }
     description = descriptionOrBack;
@@ -175,7 +171,7 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
 
   if (action === "cancel") {
     await cleanupTechnicalMessages(ctx);
-    await ctx.reply(t("reportCancelled", lang));
+    await replyTechnical(ctx, t("reportCancelled", lang));
     return;
   }
 
@@ -184,6 +180,6 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
   await conversation.external(async () => {
     await ctx.services.reportedIssueRepository.create(userId, type, description);
   });
-  await ctx.reply(t("reportSent", lang));
+  await replyTechnical(ctx, t("reportSent", lang));
   logger.info({ userId, type }, "User submitted a report");
 }

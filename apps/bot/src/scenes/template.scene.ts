@@ -5,7 +5,7 @@
 import { isSupported, resolveTemplate, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../types.js";
-import { trackTechnicalMessage } from "../utils/message-cleanup.js";
+import { replyTechnical } from "../utils/message-cleanup.js";
 
 /** /template command handler */
 export async function handleTemplateCommand(ctx: BotContext): Promise<void> {
@@ -28,6 +28,5 @@ export async function handleTemplateCommand(ctx: BotContext): Promise<void> {
   kb.text(t("templateCustomize", lang), "tpl:customize");
   kb.text(t("templateReset", lang), "tpl:reset");
 
-  const msg = await ctx.reply(lines.join("\n"), { reply_markup: kb, parse_mode: "HTML" });
-  trackTechnicalMessage(ctx, msg.message_id);
+  await replyTechnical(ctx, lines.join("\n"), { reply_markup: kb, parse_mode: "HTML" });
 }

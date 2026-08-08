@@ -8,6 +8,7 @@
  */
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
+import { replyTechnical } from "../utils/message-cleanup.js";
 
 /**
  * Handles /mentor command — activates mentor mode.
@@ -28,5 +29,5 @@ export async function handleMentorCommand(ctx: BotContext): Promise<void> {
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   // Send confirmation message
-  await ctx.reply(t("mentorModeOn", lang));
+  await replyTechnical(ctx, t("mentorModeOn", lang));
 }

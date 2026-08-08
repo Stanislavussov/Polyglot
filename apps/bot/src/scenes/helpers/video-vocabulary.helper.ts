@@ -35,7 +35,7 @@ import {
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
-import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
+import { replyTechnical } from "../../utils/message-cleanup.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
@@ -256,8 +256,7 @@ export async function handleVideoVocabularyUrl(
     return;
   }
   if (existing?.status === "processing" || existing?.status === "pending") {
-    const msg = await ctx.reply(t("videoAlreadyProcessing", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await replyTechnical(ctx, t("videoAlreadyProcessing", lang));
     return;
   }
 
@@ -279,8 +278,7 @@ export async function handleVideoVocabularyUrl(
   let usageCount = 0;
   if (!isTrial && videoEntitlement.window === "none") {
     // Video not available on this plan → US-6 attaches the upgrade CTA keyboard here.
-    const msg = await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
-    trackTechnicalMessage(ctx, msg.message_id);
+    await replyTechnical(ctx, t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return;
   }
   if (!isTrial && videoEntitlement.limit !== null) {
@@ -291,8 +289,7 @@ export async function handleVideoVocabularyUrl(
     if (usageCount >= videoEntitlement.limit) {
       // Free trial exhausted (3 lifetime) or Plus monthly cap hit — the prime
       // conversion moment, so surface the upgrade CTA here too.
-      const msg = await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
-      trackTechnicalMessage(ctx, msg.message_id);
+      await replyTechnical(ctx, t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
       return;
     }
   }
@@ -307,8 +304,7 @@ export async function handleVideoVocabularyUrl(
       language: "auto", // will be determined from transcript
     };
   } catch {
-    const msg = await ctx.reply(t("videoMetadataError", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await replyTechnical(ctx, t("videoMetadataError", lang));
     return;
   }
 
@@ -334,11 +330,10 @@ export async function handleVideoVocabularyUrl(
   // Show confirmation
   const text2 = renderConfirmation(metadata, remaining, videoEntitlement.limit, lang);
   const keyboard = buildConfirmationKeyboard(process.id, lang);
-  const msg = await ctx.reply(text2, {
+  await replyTechnical(ctx, text2, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
-  trackTechnicalMessage(ctx, msg.message_id);
 }
 
 /* ------------------------------------------------------------------ */
@@ -644,11 +639,10 @@ export async function handleVideosCommand(ctx: BotContext): Promise<void> {
   const text = renderVideoList(processes, page, totalPages, lang);
   const keyboard = buildVideoListKeyboard(processes, page, totalPages, lang);
 
-  const msg = await ctx.reply(text, {
+  await replyTechnical(ctx, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
-  trackTechnicalMessage(ctx, msg.message_id);
 }
 
 /**
@@ -677,8 +671,7 @@ async function showVideoSuggestions(ctx: BotContext, userId: number, lang: Suppo
 
   lines.push("", t("videoOrSendLink", lang));
 
-  const msg = await ctx.reply(lines.join("\n"), { reply_markup: keyboard });
-  trackTechnicalMessage(ctx, msg.message_id);
+  await replyTechnical(ctx, lines.join("\n"), { reply_markup: keyboard });
 }
 
 /** Telegram truncates long button labels unhelpfully; do it ourselves at a word boundary. */
@@ -717,8 +710,7 @@ export async function handleVideoTryCallback(ctx: BotContext): Promise<void> {
     // A stale keyboard from before the catalogue changed — say so rather than
     // silently doing nothing.
     const lang = await resolveInterfaceLang(ctx);
-    const msg = await ctx.reply(t("videoOrSendLink", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await replyTechnical(ctx, t("videoOrSendLink", lang));
     return;
   }
 
@@ -745,12 +737,11 @@ async function showPhraseBrowser(ctx: BotContext, processId: number, page: numbe
   const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
-  const msg = await ctx.reply(text, {
+  await replyTechnical(ctx, text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
     link_preview_options: { is_disabled: true },
   });
-  trackTechnicalMessage(ctx, msg.message_id);
 }
 
 async function showPhraseBrowserEdit(

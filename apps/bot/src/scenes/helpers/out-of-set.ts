@@ -17,7 +17,7 @@ import {
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import { clearRequestSettings } from "../../middlewares/request-settings.js";
 import type { BotContext } from "../../types.js";
-import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
+import { replyTechnical } from "../../utils/message-cleanup.js";
 import { editMessageReplyMarkupOrIgnore } from "./edit-message.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import { clearPendingClarification, getUserLanguageGroup, normalizeLearningLangs } from "./translate-mode.shared.js";
@@ -53,8 +53,7 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
     settle();
     await ctx.answerCallbackQuery();
     await removeKeyboard();
-    const msg = await ctx.reply(t("translateModeHint", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await replyTechnical(ctx, t("translateModeHint", lang));
     return;
   }
 
@@ -167,8 +166,7 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
     const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
     await ctx.answerCallbackQuery();
-    const msg = await ctx.reply(t("translateModeHint", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await replyTechnical(ctx, t("translateModeHint", lang));
     return;
   }
 
