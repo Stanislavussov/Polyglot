@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T20:59:18.000Z",
+  "generatedAt": "2026-08-13T21:13:15.000Z",
   "summary": {
     "total": 2650,
     "business": 0,
@@ -2391,10 +2391,10 @@
       "description": "Protects the bot main menu keyboard (integration) behavior so re installs the keyboard on start so a user who lost it can get it back."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-130-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-133-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 130,
+      "sourceLine": 133,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2407,10 +2407,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C1: notifies a subscriber who translated today."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-153-scheduled-notification-delivery-integration-c2-delivers-the-scheduled-word-to-a-subscriber-in-their-configured-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-156-scheduled-notification-delivery-integration-c2-delivers-the-scheduled-word-to-a-subscriber-in-their-configured-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 153,
+      "sourceLine": 156,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2423,10 +2423,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C2: delivers the scheduled word to a subscriber in their configured slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-173-scheduled-notification-delivery-integration-c3-sends-nothing-to-a-user-who-has-not-opted-in",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-176-scheduled-notification-delivery-integration-c3-sends-nothing-to-a-user-who-has-not-opted-in",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 173,
+      "sourceLine": 176,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2439,10 +2439,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C3: sends nothing to a user who has not opted in."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-192-scheduled-notification-delivery-integration-c4-sends-nothing-outside-the-user-s-configured-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-195-scheduled-notification-delivery-integration-c4-sends-nothing-outside-the-user-s-configured-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 192,
+      "sourceLine": 195,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2455,10 +2455,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C4: sends nothing outside the user's configured slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-211-scheduled-notification-delivery-integration-c5-sends-the-empty-dictionary-prompt-when-there-is-no-word-to-send",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-214-scheduled-notification-delivery-integration-c5-sends-the-empty-dictionary-prompt-when-there-is-no-word-to-send",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 211,
+      "sourceLine": 214,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2471,10 +2471,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C5: sends the empty dictionary prompt when there is no word to send."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-233-scheduled-notification-delivery-integration-c6-disables-notifications-after-a-403-and-does-not-retry",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-236-scheduled-notification-delivery-integration-c6-disables-notifications-after-a-403-and-does-not-retry",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 233,
+      "sourceLine": 236,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2487,10 +2487,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C6: disables notifications after a 403 and does not retry."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-259-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-262-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 259,
+      "sourceLine": 262,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2503,10 +2503,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C7: seeds the admin configured default the first time a user turns notifications on."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-305-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-308-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 305,
+      "sourceLine": 308,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2519,10 +2519,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C8: never overwrites a schedule the user already chose."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-329-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-332-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 329,
+      "sourceLine": 332,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2535,10 +2535,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C9: refuses to deselect the last remaining slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-363-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-366-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 363,
+      "sourceLine": 366,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

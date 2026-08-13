@@ -18,10 +18,12 @@ export const NOTIFICATION_TYPES = ["suggested", "srs", "contextual"] as const;
  *
  * Note the one case where changing this constant *does* move a user without any
  * write: a row holding an unparseable `notification_times` entry previously
- * matched the 08:00 window and now matches 19:00. Measured before the change and
- * the set was empty (no row has an entry failing `^\d{2}:\d{2}$` with in-range
- * components), which is expected — every writer goes through
- * {@link formatNotificationTime}.
+ * matched the 08:00 window and now matches 19:00. Measured on the **dev**
+ * database (7 rows, after migration `0050`): 0 rows hold an entry failing
+ * `^([01]\d|2[0-3]):[0-5]\d$`. That is the expected result — every writer goes
+ * through {@link formatNotificationTime} — but dev is not production, so the
+ * same read-only query is on the pre-deploy checklist in
+ * `@docs/adr/0001-scheduled-notifications-are-a-subscription.md`.
  */
 export const DEFAULT_NOTIFICATION_TIME = "19:00";
 

@@ -21,6 +21,9 @@ export const DELIVERY_TEST_SLOT_TIME = `${String(DELIVERY_TEST_SLOT_UTC.hour).pa
   DELIVERY_TEST_SLOT_UTC.minute,
 ).padStart(2, "0")}`;
 
+/** The seeded entry's headword — the string a delivery test looks for on the wire. */
+const NOTIFIABLE_HEADWORD = "bridge";
+
 export interface NotifiableUserOptions {
   /** Configured slots, as `HH:MM`. Defaults to the delivery lane's own slot. */
   notificationTimes?: string[];
@@ -28,13 +31,10 @@ export interface NotifiableUserOptions {
   notificationEnabled?: boolean;
   /** Seed a verified vocabulary entry with one resolvable translation. Defaults to true. */
   withVocabulary?: boolean;
-  /** Headword of the seeded entry. Defaults to "bridge". */
-  headword?: string;
 }
 
 export interface NotifiableUser {
   userId: number;
-  telegramId: number;
   headword: string;
 }
 
@@ -56,12 +56,7 @@ export async function arrangeNotifiableUser(
   telegramId: number,
   options: NotifiableUserOptions = {},
 ): Promise<NotifiableUser> {
-  const {
-    notificationTimes = [DELIVERY_TEST_SLOT_TIME],
-    notificationEnabled = true,
-    withVocabulary = true,
-    headword = "bridge",
-  } = options;
+  const { notificationTimes = [DELIVERY_TEST_SLOT_TIME], notificationEnabled = true, withVocabulary = true } = options;
 
   const user = await userRepository.create({ telegramId, username: "notifiable" });
   await userRepository.markOnboarded(user.id);
@@ -72,11 +67,12 @@ export async function arrangeNotifiableUser(
     lastSourceLang: null,
   });
 
-  // `timezone` defaults to "UTC" and `is_active` to true (schema.ts), and a NULL
-  // `last_interaction_at` is explicitly eligible in `getUsersForWindow` — so the
-  // schedule is the only thing this fixture has to state.
-  await notificationRepository.updatePrefs(user.id, { notificationEnabled, notificationTimes });
-
+  // Vocabulary BEFORE the schedule, deliberately. Enabling first would mean a
+  // throw in this block (an unloaded language cache) leaves an enabled subscriber
+  // pinned to the delivery lane's slot in the shared database, with the caller
+  // holding no id to clean up — the row would outlive the run. Seeding first
+  // makes that window impossible rather than merely unlikely: nothing is
+  // notifiable until the last statement below succeeds.
   if (withVocabulary) {
     const sourceLang = getLang("en");
     const targetLang = getLang("cs");
@@ -84,7 +80,7 @@ export async function arrangeNotifiableUser(
       throw new Error("arrangeNotifiableUser: language cache is not loaded (en/cs missing)");
     }
     await vocabularyRepository.create(user.id, {
-      original: headword,
+      original: NOTIFIABLE_HEADWORD,
       sourceLangId: sourceLang.id,
       inputType: "word",
       emoji: "🌉",
@@ -93,15 +89,12 @@ export async function arrangeNotifiableUser(
     });
   }
 
-  return { userId: user.id, telegramId, headword };
-}
+  // `timezone` defaults to "UTC" and `is_active` to true (schema.ts), and a NULL
+  // `last_interaction_at` is explicitly eligible in `getUsersForWindow` — so the
+  // schedule is the only thing this fixture has to state.
+  await notificationRepository.updatePrefs(user.id, { notificationEnabled, notificationTimes });
 
-/**
- * Disable this test's own user so the row stops being eligible for every later
- * file in the shared integration database. Per-test teardown, not truncation.
- */
-export async function disableNotificationsFor(userId: number): Promise<void> {
-  await notificationRepository.disableNotifications(userId);
+  return { userId: user.id, headword: NOTIFIABLE_HEADWORD };
 }
 
 /**

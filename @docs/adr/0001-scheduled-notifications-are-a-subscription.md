@@ -125,6 +125,48 @@ the real re-engagement product decision open instead of pre-empting it with an a
   `[]` times, permanently ineligible — the same "the UI says on and nothing arrives" symptom by another route.
   The architecture contract now says so.
 
+## Pre-deploy checklist
+
+Three read-only queries, run against **production** before this ships. All are cheap; none writes. They were
+each answered on the dev database (7 rows) during implementation, which is not the same as answering them.
+
+1. **Expected magnitude `E`.** `sent > 0` is not an acceptance criterion — it is satisfied by one user, and
+   D3's whole premise is that the unit lane is blind here. Compute `E` = (rows below) × the mean number of
+   entries in `notification_times`, and put it in the PR body. Day-1 `sent` should land in roughly
+   **0.7·E to 1.0·E** — below `E` because of 403-blocked chats and unparseable timezones, never above it. **A
+   day-1 total under ~0.5·E means A1 did not work at the expected scale** and a second filter is still
+   excluding people; investigate rather than accept "notifications resumed". *(Dev: 2 users, mean 2 slots.)*
+
+   ```sql
+   SELECT count(*) FROM user_language_settings
+   WHERE notification_enabled = true AND is_active = true
+     AND (last_interaction_at IS NULL OR last_interaction_at >= now() - interval '14 days');
+   ```
+
+2. **The stranded cohort** — enabled, but with an empty schedule, so permanently ineligible. These users asked
+   for notifications and will still receive none; they are the one group for whom "notifications resumed" is
+   false, and they will not appear in the day-1 `sent` total or reduce `E`. If non-zero, they belong on
+   follow-up 5's list. *(Dev: 0.)*
+
+   ```sql
+   SELECT count(*) FROM user_language_settings
+   WHERE notification_enabled = true AND notification_times = '{}';
+   ```
+
+3. **Malformed stored times.** A row holding an unparseable entry moves from the 08:00 window to 19:00 with no
+   write, because `DEFAULT_NOTIFICATION_TIME` is also the parse fallback. This is the only case where the
+   CHANGELOG's *"changing this value does not move anyone"* is not literally true. If it returns 0, that claim
+   is unconditional. *(Dev: 0 — expected, since every writer goes through `formatNotificationTime`.)*
+
+   ```sql
+   SELECT count(*) FROM user_language_settings, unnest(notification_times) AS t
+   WHERE t !~ '^([01][0-9]|2[0-3]):[0-5][0-9]$';
+   ```
+
+Also capture, before deploying, the `(user_id, notification_times, updated_at)` snapshot that distinguishes
+"seeded by us" from "chosen by them" — it is the only artifact that makes the Step 3 data rollback possible,
+and it cannot be reconstructed afterwards.
+
 ## Follow-ups
 
 1. Spec and build A2 — re-engagement with its own audience, cadence, copy, frequency cap and opt-out.

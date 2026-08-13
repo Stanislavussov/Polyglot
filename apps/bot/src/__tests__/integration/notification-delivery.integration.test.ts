@@ -45,14 +45,17 @@ import { buildNotificationScheduling } from "../../notifications/notification.wi
 import type { NotifiableUser, NotifiableUserOptions } from "../../test-helpers/integration/arrange.js";
 import {
   arrangeNotifiableUser,
+  DELIVERY_TEST_SLOT_TIME,
   DELIVERY_TEST_SLOT_UTC,
-  disableNotificationsFor,
 } from "../../test-helpers/integration/arrange.js";
 import type { BotHarness, CapturedCall } from "../../test-helpers/integration/bot-harness.js";
 import { callbackQueryUpdate, createBotHarness } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
 
 const HOUR_MS = 60 * 60 * 1000;
+
+/** The lane's own slot as the `set:notif:time:{minutes}` payload the picker sends. */
+const DELIVERY_SLOT_CALLBACK = `set:notif:time:${DELIVERY_TEST_SLOT_UTC.hour * 60 + DELIVERY_TEST_SLOT_UTC.minute}`;
 
 interface AiTripwire {
   fn: GenerateObjectFn;
@@ -123,7 +126,7 @@ afterEach(async () => {
   // the wrong test. That matters most for the AI tripwire, which is the one
   // assertion here that is global over the batch rather than chat-scoped.
   const ids = seededUserIds.splice(0);
-  await Promise.all(ids.map((id) => disableNotificationsFor(id)));
+  await Promise.all(ids.map((id) => notificationRepository.disableNotifications(id)));
 });
 
 describe("scheduled notification delivery (integration)", () => {
@@ -331,19 +334,19 @@ describe("notification schedule seeding and the deselect guard (integration)", (
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
     const { userId } = await arrangeTracked(telegramId, {
-      notificationTimes: ["13:00"],
+      notificationTimes: [DELIVERY_TEST_SLOT_TIME],
       withVocabulary: false,
     });
     harness.reset();
 
     // Act
     await harness.dispatch(
-      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 502, data: "set:notif:time:780" }),
+      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 502, data: DELIVERY_SLOT_CALLBACK }),
     );
 
     // Assert — re-read from the database, not from the reply.
     const settings = await userRepository.getSettings(userId);
-    expect(settings?.notificationTimes).toEqual(["13:00"]);
+    expect(settings?.notificationTimes).toEqual([DELIVERY_TEST_SLOT_TIME]);
     // The guard refuses; it never disables. Auto-disabling would park the user at
     // enabled=false with an empty schedule — exactly the state the next toggle-on
     // seeds the admin default into.
@@ -368,18 +371,18 @@ describe("notification schedule seeding and the deselect guard (integration)", (
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
     const { userId } = await arrangeTracked(telegramId, {
-      notificationTimes: ["13:00"],
+      notificationTimes: [DELIVERY_TEST_SLOT_TIME],
       withVocabulary: false,
     });
 
     // Act
-    for (const data of ["set:notif:time:780", "set:notif:toggle", "set:notif:toggle"]) {
+    for (const data of [DELIVERY_SLOT_CALLBACK, "set:notif:toggle", "set:notif:toggle"]) {
       await harness.dispatch(callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 503, data }));
     }
 
     // Assert
     const settings = await userRepository.getSettings(userId);
     expect(settings?.notificationEnabled).toBe(true);
-    expect(settings?.notificationTimes).toEqual(["13:00"]);
+    expect(settings?.notificationTimes).toEqual([DELIVERY_TEST_SLOT_TIME]);
   });
 });
