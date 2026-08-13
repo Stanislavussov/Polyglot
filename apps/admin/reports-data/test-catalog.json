@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-13T20:47:42.000Z",
+  "generatedAt": "2026-08-13T20:54:13.000Z",
   "summary": {
-    "total": 2646,
+    "total": 2650,
     "business": 0,
-    "technical": 2646,
+    "technical": 2650,
     "workspaces": [
       "apps",
       "packages"
@@ -2423,10 +2423,74 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C2: delivers the scheduled word to a subscriber in their configured slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-160-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-158-scheduled-notification-delivery-integration-c3-sends-nothing-to-a-user-who-has-not-opted-in",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 160,
+      "sourceLine": 158,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "scheduled notification delivery (integration)"
+      ],
+      "title": "C3: sends nothing to a user who has not opted in",
+      "rawTitle": "C3: sends nothing to a user who has not opted in",
+      "name": "Bot scheduled notification delivery (integration) C3: sends nothing to a user who has not opted in",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C3: sends nothing to a user who has not opted in.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C3: sends nothing to a user who has not opted in."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-177-scheduled-notification-delivery-integration-c4-sends-nothing-outside-the-user-s-configured-slot",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
+      "sourceLine": 177,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "scheduled notification delivery (integration)"
+      ],
+      "title": "C4: sends nothing outside the user's configured slot",
+      "rawTitle": "C4: sends nothing outside the user's configured slot",
+      "name": "Bot scheduled notification delivery (integration) C4: sends nothing outside the user's configured slot",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C4: sends nothing outside the user's configured slot.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C4: sends nothing outside the user's configured slot."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-199-scheduled-notification-delivery-integration-c5-sends-the-empty-dictionary-prompt-when-there-is-no-word-to-send",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
+      "sourceLine": 199,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "scheduled notification delivery (integration)"
+      ],
+      "title": "C5: sends the empty-dictionary prompt when there is no word to send",
+      "rawTitle": "C5: sends the empty-dictionary prompt when there is no word to send",
+      "name": "Bot scheduled notification delivery (integration) C5: sends the empty dictionary prompt when there is no word to send",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C5: sends the empty dictionary prompt when there is no word to send.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C5: sends the empty dictionary prompt when there is no word to send."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-224-scheduled-notification-delivery-integration-c6-disables-notifications-after-a-403-and-does-not-retry",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
+      "sourceLine": 224,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "scheduled notification delivery (integration)"
+      ],
+      "title": "C6: disables notifications after a 403 and does not retry",
+      "rawTitle": "C6: disables notifications after a 403 and does not retry",
+      "name": "Bot scheduled notification delivery (integration) C6: disables notifications after a 403 and does not retry",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C6: disables notifications after a 403 and does not retry.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C6: disables notifications after a 403 and does not retry."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-250-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
+      "sourceLine": 250,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2439,10 +2503,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C7: seeds the admin configured default the first time a user turns notifications on."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-196-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-286-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 286,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2455,10 +2519,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C8: never overwrites a schedule the user already chose."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-223-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-313-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 223,
+      "sourceLine": 313,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2471,10 +2535,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C9: refuses to deselect the last remaining slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-260-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-350-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 260,
+      "sourceLine": 350,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

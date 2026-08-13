@@ -1,6 +1,7 @@
 import {
   DEFAULT_NOTIFICATION_TIME,
   formatNotificationTime,
+  getLogger,
   NOTIFICATION_TYPES,
   type NotificationType,
   type NotificationUser,
@@ -90,14 +91,30 @@ export const notificationRepository = {
         ),
       );
 
-    return rows.filter((user) => {
+    let droppedByTimezone = 0;
+    const eligible = rows.filter((user) => {
       const localMinutes = getLocalMinutes(user.timezone, utcHour, utcMinute);
-      if (localMinutes < 0) return false;
+      if (localMinutes < 0) {
+        droppedByTimezone++;
+        return false;
+      }
       // Eligible if ANY configured slot falls in the current window. Empty list = not configured.
       return user.notificationTimes.some((time) =>
         isWithinCurrentNotificationSlot(localMinutes, parseNotificationMinutes(time)),
       );
     });
+
+    // An unparseable timezone excludes a subscriber from every window forever,
+    // and until now did so in complete silence — which is precisely how a total
+    // notification outage hides. Counted, not merely returned.
+    if (droppedByTimezone > 0) {
+      getLogger().warn(
+        { droppedByTimezone, utcHour, utcMinute },
+        "Subscribers excluded from the notification window by an unparseable timezone",
+      );
+    }
+
+    return eligible;
   },
 
   /**

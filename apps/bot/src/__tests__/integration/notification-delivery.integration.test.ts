@@ -154,6 +154,96 @@ describe("scheduled notification delivery (integration)", () => {
     // Cleanup
     await disableNotificationsFor(userId);
   });
+
+  it("C3: sends nothing to a user who has not opted in", async () => {
+    // Arrange
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeNotifiableUser(telegramId, { notificationEnabled: false });
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    const since = new Date(Date.now() - HOUR_MS);
+    harness.reset();
+
+    // Act
+    await checkAndSend(sendFn, deps);
+
+    // Assert — "nothing was sent" is the absence of a message to THIS chat, never
+    // a global counter of zero.
+    expect(messagesTo(harness.sent, telegramId)).toHaveLength(0);
+    expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
+    expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C4: sends nothing outside the user's configured slot", async () => {
+    // Arrange — a schedule three hours away from the window the batch runs in.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const offSlot = `${String(DELIVERY_TEST_SLOT_UTC.hour + 3).padStart(2, "0")}:00`;
+    const { userId } = await arrangeNotifiableUser(telegramId, { notificationTimes: [offSlot] });
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    const since = new Date(Date.now() - HOUR_MS);
+    harness.reset();
+
+    // Act
+    await checkAndSend(sendFn, deps);
+
+    // Assert
+    expect(messagesTo(harness.sent, telegramId)).toHaveLength(0);
+    expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
+    expect(ai.wasCalled()).toBe(false);
+
+    // Cleanup
+    await disableNotificationsFor(userId);
+  });
+
+  it("C5: sends the empty-dictionary prompt when there is no word to send", async () => {
+    // Arrange — subscribed, in-slot, but nothing to say. The preset layer is
+    // already nulled on the shared deps, so this exercises the last fall-through.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeNotifiableUser(telegramId, { withVocabulary: false });
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    const since = new Date(Date.now() - HOUR_MS);
+    harness.reset();
+
+    // Act
+    await checkAndSend(sendFn, deps);
+
+    // Assert — a prompt is not a delivery: it must not be recorded as one, or the
+    // de-dup window would start excluding words that were never sent.
+    const mine = messagesTo(harness.sent, telegramId);
+    expect(mine).toHaveLength(1);
+    expect(textOf(mine[0]!)).toContain("Your dictionary is empty");
+    expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
+    expect(ai.wasCalled()).toBe(false);
+
+    // Cleanup
+    await disableNotificationsFor(userId);
+  });
+
+  it("C6: disables notifications after a 403 and does not retry", async () => {
+    // Arrange — the user blocked the bot. This is permanent, not transient: the
+    // retry ladder must not fire, and the subscription must be switched off so the
+    // next tick does not try again forever.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeNotifiableUser(telegramId);
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    const since = new Date(Date.now() - HOUR_MS);
+    harness.reset();
+    harness.failNextSend({ error_code: 403, description: "Forbidden: bot was blocked by the user" });
+
+    // Act
+    await checkAndSend(sendFn, deps);
+
+    // Assert — exactly ONE attempt. `failNextSend` auto-resets, so a retry would
+    // have succeeded and shown up as a second captured call.
+    expect(messagesTo(harness.sent, telegramId)).toHaveLength(1);
+    expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
+    const settings = await userRepository.getSettings(userId);
+    expect(settings?.notificationEnabled).toBe(false);
+    expect(ai.wasCalled()).toBe(false);
+  });
 });
 
 describe("notification schedule seeding and the deselect guard (integration)", () => {
