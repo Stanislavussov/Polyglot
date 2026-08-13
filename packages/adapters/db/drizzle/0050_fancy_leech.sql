@@ -1,0 +1,1 @@
+ALTER TABLE "user_language_settings" ALTER COLUMN "notification_times" SET DEFAULT '{}';

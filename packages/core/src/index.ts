@@ -95,6 +95,13 @@ export { logger } from "./logger.js";
 export type { Logger } from "./logger-interface.js";
 export { getLogger, setLogger } from "./logger-interface.js";
 
+// Observability — ambient trace context and the structured event stream
+
+export type { EventFields, EventLevel } from "./observability/events.js";
+export { errorFields, logEvent, tracedOperation } from "./observability/events.js";
+export type { TraceContext } from "./observability/trace-context.js";
+export { enrichTrace, getTraceContext, newTraceId, runWithTrace } from "./observability/trace-context.js";
+
 // Modules
 
 export * from "./modules/context-enrichment/index.js";

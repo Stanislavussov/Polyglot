@@ -57,6 +57,12 @@ export interface BotHarness {
    * after firing once.
    */
   failNextEdit(): void;
+  /**
+   * When set, the next `sendMessage` call fails with the given Telegram error.
+   * Auto-resets after firing once. Use `error_code: 403` to exercise the
+   * "user blocked the bot" path, which the scheduler treats as permanent.
+   */
+  failNextSend(error: { error_code: number; description: string }): void;
   /** Clear the captured-call buffer. */
   reset(): void;
 }
@@ -120,6 +126,7 @@ export function createBotHarness(options: HarnessOptions = {}): BotHarness {
   const sent: CapturedCall[] = [];
   let messageIdSeq = 1000;
   let editShouldFail = false;
+  let sendFailure: { error_code: number; description: string } | null = null;
 
   const services = createContainer();
   services.ai = { ...rejectingAi(), ...options.ai };
@@ -138,6 +145,17 @@ export function createBotHarness(options: HarnessOptions = {}): BotHarness {
         error_code: 400,
         description: "Bad Request: message to edit not found",
       });
+    }
+
+    if (method === "sendMessage" && sendFailure) {
+      const failure = sendFailure;
+      sendFailure = null;
+      // The attempt still goes in the ledger — a test asserting "exactly one send
+      // attempt, not a retry storm" has to be able to count it. Same shape as the
+      // edit failure above: an error *response*, never a throw, so grammY raises a
+      // real GrammyError that `isUserBlocked` can classify.
+      sent.push(record);
+      return jsonResponse({ ok: false, ...failure });
     }
 
     let result: Message | boolean = true;
@@ -173,6 +191,9 @@ export function createBotHarness(options: HarnessOptions = {}): BotHarness {
     dispatch: (update) => bot.handleUpdate(update),
     failNextEdit: () => {
       editShouldFail = true;
+    },
+    failNextSend: (error) => {
+      sendFailure = error;
     },
     reset: () => {
       sent.length = 0;

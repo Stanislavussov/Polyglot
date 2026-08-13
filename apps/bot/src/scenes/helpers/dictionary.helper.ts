@@ -3,7 +3,7 @@
  */
 
 import type { SupportedLang, VocabularyDictionaryWithCount } from "@polyglot/core";
-import { isSupported, logger, resolveOutputConfig, resolveTemplate, t, translate } from "@polyglot/core";
+import { errorFields, isSupported, logEvent, resolveOutputConfig, resolveTemplate, t, translate } from "@polyglot/core";
 import {
   buildDeleteConfirmKeyboard,
   buildDictionaryChoiceKeyboard,
@@ -135,6 +135,7 @@ export async function handleDictionaryNameInput(ctx: BotContext): Promise<void> 
 
   if (wizard.action === "create") {
     const dictionary = await ctx.services.vocabularyDictionaryRepository.create(ctx.user.id, name);
+    logEvent("dictionary.created", { dictionaryId: dictionary.id, nameLength: name.length });
     ctx.session.dictionaryWizard = undefined;
     await replyTechnical(ctx, t("dictionaryCreated", lang, { name: dictionary.name }));
     await showDictionaryList(ctx, dictionary.id, 1);
@@ -154,6 +155,7 @@ export async function handleDictionaryNameInput(ctx: BotContext): Promise<void> 
     return;
   }
 
+  logEvent("dictionary.renamed", { dictionaryId: renamed.id, nameLength: name.length });
   await replyTechnical(ctx, t("dictionaryRenamed", lang, { name: renamed.name }));
   await showDictionaryList(ctx, renamed.id, ctx.session.dictionary?.currentPage ?? 1);
 }
@@ -250,6 +252,14 @@ export async function handleDictConfirmDelete(ctx: BotContext): Promise<void> {
   if (remainingMemberships === 0) {
     await ctx.services.vocabularyRepository.hardDelete(entryId);
   }
+  // `hardDeleted` distinguishes "removed from this list" from "gone entirely",
+  // which is the difference between a recoverable and an unrecoverable mistake.
+  logEvent("dictionary.entry_removed", {
+    dictionaryId,
+    entryId,
+    remainingMemberships,
+    hardDeleted: remainingMemberships === 0,
+  });
   await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
   await showDictionaryList(ctx, dictionaryId, page);
 }
@@ -333,6 +343,7 @@ export async function handleDictConfirmDeleteDictionary(ctx: BotContext): Promis
   }
   const lang = await getUserLang(ctx);
   const deleted = await ctx.services.vocabularyDictionaryRepository.delete(ctx.user.id, dictionaryId);
+  logEvent("dictionary.deleted", { dictionaryId, deleted });
   await ctx.answerCallbackQuery({ text: deleted ? t("wordDeleted", lang) : t("noResults", lang) });
   await showSwitcher(ctx);
 }
@@ -394,6 +405,7 @@ export async function handleDictAdd(ctx: BotContext): Promise<void> {
   }
 
   await ctx.services.vocabularyDictionaryRepository.addEntry(toDictionaryId, entryId);
+  logEvent("dictionary.entry_added", { fromDictionaryId, toDictionaryId, entryId });
   await ctx.answerCallbackQuery({ text: t("dictionaryEntryAdded", lang, { name: toDictionary.name }) });
   await showDictionaryList(ctx, fromDictionaryId, page);
 }
@@ -422,6 +434,7 @@ export async function handleDictMove(ctx: BotContext): Promise<void> {
     return;
   }
 
+  logEvent("dictionary.entry_moved", { fromDictionaryId, toDictionaryId, entryId });
   await ctx.answerCallbackQuery({ text: t("dictionaryEntryMoved", lang, { name: toDictionary.name }) });
   await showDictionaryList(ctx, fromDictionaryId, page);
 }
@@ -527,7 +540,7 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
     await recordAiUsage(ctx, "dictionaryTranslate", creditCost, sourceLangObj.code, targetLangs);
 
     if (decision.status === "needs_clarification") {
-      logger.warn({ entryId, userId, status: decision.status }, "Dict translate: needs clarification");
+      logEvent("dictionary.translate_needs_clarification", { entryId, status: decision.status }, "warn");
       return;
     }
 
@@ -573,7 +586,7 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
     const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations });
     await editMessageTextOrReply(ctx, translationText, { parse_mode: "HTML", reply_markup: kb });
   } catch (err) {
-    logger.error({ err, entryId, userId }, "Failed to translate dictionary entry");
+    logEvent("dictionary.translate_failed", { entryId, ...errorFields(err) }, "error");
     // Restore the card on error
     const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, { nativeLangId });
     const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations: false });

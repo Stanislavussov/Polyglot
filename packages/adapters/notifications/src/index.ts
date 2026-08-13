@@ -8,6 +8,9 @@ export {
   createNotificationService,
 } from "./notification.service.js";
 
+// Preset (curated hook word) layer
+export { createPresetWordPicker, presetCandidates } from "./preset-picker.js";
+
 // Scheduler
 export {
   buildNotificationPayload,
@@ -25,10 +28,12 @@ export type {
   NotificationServiceDeps,
   NotificationType,
   NotificationUser,
+  PresetWordPickerDeps,
   ReEngagementSendFn,
   SchedulerDeps,
   SendFn,
   SuggestedWord,
   TranslationBrief,
   VocabEntry,
+  WordSource,
 } from "./types.js";

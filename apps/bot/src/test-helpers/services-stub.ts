@@ -62,7 +62,7 @@ export function createSettingsStub(): ServiceContainer["settings"] {
     getSrsConfig: vi.fn().mockResolvedValue({ minEaseFactor: 1.3, defaultEaseFactor: 2.5 }),
     getNotificationDefaults: vi
       .fn()
-      .mockResolvedValue({ defaultTime: "08:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 }),
+      .mockResolvedValue({ defaultTime: "19:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 }),
     getDictionaryConfig: vi.fn().mockResolvedValue({ flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 }),
     getTranslationPresets: vi.fn().mockResolvedValue([]),
     getVideoVocabularyConfig: vi.fn().mockResolvedValue({

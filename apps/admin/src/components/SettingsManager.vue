@@ -117,7 +117,8 @@ const fieldDescriptions: FieldDescriptionMap = {
     requestTimeoutMs: "Wall-clock budget in milliseconds for a single AI call (including retries) before it is aborted and the user sees a 'taking longer' message. Keep below 20000 (the bot's loader timeout) so the request is truly cancelled instead of abandoned.",
   },
   notifications: {
-    defaultTime: "Default local time for scheduled user notifications. Use 24-hour HH:MM format.",
+    defaultTime:
+      "Local time seeded into a user's schedule the first time they enable notifications without having picked a time. Existing users keep the time they already have — changing this value does not move anyone, and has no observable effect at all until the next user opts in. 24-hour HH:MM format.",
     defaultType: "Default notification source for users who have not chosen one: suggested words, SRS reviews, or contextual prompts.",
     inactivityDays: "Number of inactive days after which notification handling treats a user as inactive.",
   },

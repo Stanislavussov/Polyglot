@@ -2,7 +2,15 @@ import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { type ApiClientOptions, Bot, type Middleware, type NextFunction, type StorageAdapter, session } from "grammy";
+import {
+  type ApiClientOptions,
+  Bot,
+  type Middleware,
+  type MiddlewareFn,
+  type NextFunction,
+  type StorageAdapter,
+  session,
+} from "grammy";
 import { handleBotError } from "./bot-error-handler.js";
 import { changesCommand } from "./commands/changes.js";
 import { setBotCommands } from "./commands/commands.js";
@@ -15,6 +23,9 @@ import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { technicalCleanupMiddleware } from "./middlewares/technical-cleanup.js";
 import { updateMetricsMiddleware } from "./middlewares/update-metrics.js";
 import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notifications/notification.callbacks.js";
+import { createApiLogTransformer } from "./observability/api-log.js";
+import { handlerName, withHandlerLog } from "./observability/handler-log.js";
+import { updateTraceMiddleware } from "./observability/update-trace.middleware.js";
 import { handleNudgeCardCallback, NUDGE_CALLBACK_PATTERN } from "./onboarding/activation-nudge.callbacks.js";
 import {
   handleLegacyOnboardingCallback,
@@ -239,6 +250,25 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   // bot.api, which is also the Api passed to the notification scheduler.
   bot.api.config.use(autoRetry());
   bot.api.config.use(apiThrottler());
+  // Outermost transformer, so the logged duration covers the throttler queue and
+  // every auto-retry attempt — i.e. the wait the user actually experienced.
+  bot.api.config.use(createApiLogTransformer());
+
+  /**
+   * Route registration goes through these helpers rather than `bot.command` /
+   * `bot.callbackQuery` / `bot.hears` directly, so every route below is logged
+   * — a new command or button becomes observable with no second edit. The
+   * handler's own function name is the label in Grafana.
+   */
+  const onCommand = (command: string, handler: MiddlewareFn<BotContext>): void => {
+    bot.command(command, withHandlerLog(handlerName(handler, `command:${command}`), handler));
+  };
+  const onCallback = (trigger: string | RegExp, handler: MiddlewareFn<BotContext>): void => {
+    bot.callbackQuery(trigger, withHandlerLog(handlerName(handler, `callback:${String(trigger)}`), handler));
+  };
+
+  // Opens the trace every later record is correlated by — must stay first.
+  bot.use(updateTraceMiddleware);
 
   bot.use(updateMetricsMiddleware);
 
@@ -292,148 +322,151 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   // together with the response to the very message they just sent.
   bot.use(mainKeyboardMiddleware);
 
-  bot.command("start", startCommand);
-  bot.command("translate", handleTranslateCommand);
-  bot.command("mentor", handleMentorCommand);
-  bot.command("template", handleTemplateCommand);
-  bot.command("dictionary", handleDictionaryCommand);
-  bot.command("flashcard", handleFlashcardCommand);
-  bot.command("review", handleReviewCommand);
-  bot.command("settings", handleSettingsCommand);
-  bot.command("changes", changesCommand);
-  bot.command("videos", handleVideosCommand);
-  bot.command("report", async (ctx) => {
+  onCommand("start", startCommand);
+  onCommand("translate", handleTranslateCommand);
+  onCommand("mentor", handleMentorCommand);
+  onCommand("template", handleTemplateCommand);
+  onCommand("dictionary", handleDictionaryCommand);
+  onCommand("flashcard", handleFlashcardCommand);
+  onCommand("review", handleReviewCommand);
+  onCommand("settings", handleSettingsCommand);
+  onCommand("changes", changesCommand);
+  onCommand("videos", handleVideosCommand);
+  onCommand("report", async (ctx) => {
     await ctx.conversation.enter("handleReportIssue");
   });
 
   // Main-menu reply-keyboard taps arrive as plain text. They must be matched here,
   // ahead of modeRouterMiddleware, or translate mode would try to translate the label.
-  bot.hears(mainMenuLabels(), async (ctx) => {
-    switch (matchMainMenuAction(ctx.msg.text ?? "")) {
-      case "dictionary":
-        return handleDictionaryCommand(ctx);
-      case "flashcard":
-        return handleFlashcardCommand(ctx);
-      case "videos":
-        return handleVideosCommand(ctx);
-      default:
-        return;
-    }
-  });
+  bot.hears(
+    mainMenuLabels(),
+    withHandlerLog("mainMenuTap", async (ctx) => {
+      switch (matchMainMenuAction(ctx.msg?.text ?? "")) {
+        case "dictionary":
+          return handleDictionaryCommand(ctx);
+        case "flashcard":
+          return handleFlashcardCommand(ctx);
+        case "videos":
+          return handleVideosCommand(ctx);
+        default:
+          return;
+      }
+    }),
+  );
 
   // Inert loading button shown while a long operation runs.
-  bot.callbackQuery(NOOP_CALLBACK, (ctx) => ctx.answerCallbackQuery());
+  onCallback(NOOP_CALLBACK, (ctx) => ctx.answerCallbackQuery());
 
   // "🔄 Try again" on a timeout notice — re-runs the operation that timed out.
-  bot.callbackQuery(RETRY_CALLBACK, handleRetryCallback);
+  onCallback(RETRY_CALLBACK, handleRetryCallback);
 
   // Onboarding (Task 72) is a set of plain stateless handlers, not a
   // conversation: every tap re-derives its screen from the database, so a pause
   // of any length cannot leave a button dead and no dialog can swallow the chat.
-  bot.callbackQuery(ONBOARDING_CALLBACK_PATTERN, handleOnboardingCallback);
+  onCallback(ONBOARDING_CALLBACK_PATTERN, handleOnboardingCallback);
   // Keyboards from the pre-Task-72 conversation flow are still on screen for
   // anyone mid-onboarding at deploy time; their prefixes now match nothing, so
   // this puts them back on a live screen instead of letting the button spin.
-  bot.callbackQuery(LEGACY_ONBOARDING_CALLBACK_PATTERN, handleLegacyOnboardingCallback);
+  onCallback(LEGACY_ONBOARDING_CALLBACK_PATTERN, handleLegacyOnboardingCallback);
 
   // The D+1 activation nudge needs its own prefix: its recipients are all
   // `onboarded = true`, and the `onb:` handlers deliberately ignore those taps.
-  bot.callbackQuery(NUDGE_CALLBACK_PATTERN, handleNudgeCardCallback);
+  onCallback(NUDGE_CALLBACK_PATTERN, handleNudgeCardCallback);
 
-  bot.callbackQuery("set:native", handleSetNativeCallback);
-  bot.callbackQuery(/^set:native:/, handleSetNativeSelectCallback);
-  bot.callbackQuery("set:learning", handleSetLearningCallback);
-  bot.callbackQuery(/^set:learn:lvl:/, handleSetLearnLevelCallback);
-  bot.callbackQuery(/^set:learn:/, handleSetLearnToggleCallback);
-  bot.callbackQuery("set:interface", handleSetInterfaceCallback);
-  bot.callbackQuery(/^set:iface:/, handleSetIfaceSelectCallback);
-  bot.callbackQuery("set:notif", handleSetNotifCallback);
-  bot.callbackQuery("set:notif:toggle", handleSetNotifToggleCallback);
-  bot.callbackQuery("set:notif:time", handleSetNotifTimeCallback);
-  bot.callbackQuery(/^set:notif:time:/, handleSetNotifTimeSelectCallback);
-  bot.callbackQuery("set:notif:type", handleSetNotifTypeCallback);
-  bot.callbackQuery(/^set:notif:type:/, handleSetNotifTypeSelectCallback);
-  bot.callbackQuery("set:notif:tz", handleSetNotifTzCallback);
-  bot.callbackQuery(/^set:notif:tz:/, handleSetNotifTzSelectCallback);
-  bot.callbackQuery("set:notif:context", handleSetNotifContextCallback);
-  bot.callbackQuery("set:notif:context:cancel", handleSetNotifContextCancelCallback);
-  bot.callbackQuery("set:notif:back", handleSetNotifBackCallback);
-  bot.callbackQuery("set:back", handleSetBackCallback);
-  bot.callbackQuery("set:close", handleSetCloseCallback);
+  onCallback("set:native", handleSetNativeCallback);
+  onCallback(/^set:native:/, handleSetNativeSelectCallback);
+  onCallback("set:learning", handleSetLearningCallback);
+  onCallback(/^set:learn:lvl:/, handleSetLearnLevelCallback);
+  onCallback(/^set:learn:/, handleSetLearnToggleCallback);
+  onCallback("set:interface", handleSetInterfaceCallback);
+  onCallback(/^set:iface:/, handleSetIfaceSelectCallback);
+  onCallback("set:notif", handleSetNotifCallback);
+  onCallback("set:notif:toggle", handleSetNotifToggleCallback);
+  onCallback("set:notif:time", handleSetNotifTimeCallback);
+  onCallback(/^set:notif:time:/, handleSetNotifTimeSelectCallback);
+  onCallback("set:notif:type", handleSetNotifTypeCallback);
+  onCallback(/^set:notif:type:/, handleSetNotifTypeSelectCallback);
+  onCallback("set:notif:tz", handleSetNotifTzCallback);
+  onCallback(/^set:notif:tz:/, handleSetNotifTzSelectCallback);
+  onCallback("set:notif:context", handleSetNotifContextCallback);
+  onCallback("set:notif:context:cancel", handleSetNotifContextCancelCallback);
+  onCallback("set:notif:back", handleSetNotifBackCallback);
+  onCallback("set:back", handleSetBackCallback);
+  onCallback("set:close", handleSetCloseCallback);
 
-  bot.callbackQuery(/^notif:reveal:/, handleNotifRevealCallback);
-  bot.callbackQuery(/^notif:learned:/, handleNotifLearnedCallback);
+  onCallback(/^notif:reveal:/, handleNotifRevealCallback);
+  onCallback(/^notif:learned:/, handleNotifLearnedCallback);
 
-  bot.callbackQuery(/^tr:save:/, handleSaveCallback);
-  bot.callbackQuery(/^tr:skip:/, handleSkipCallback);
-  bot.callbackQuery(/^tr:regen:/, handleRegenCallback);
-  bot.callbackQuery(/^tr:clarifypost:/, handleClarifyPostCallback);
-  bot.callbackQuery(/^tr:altmeaning:/, handleAltMeaningCallback);
-  bot.callbackQuery(/^tr:gramdetail:/, handleGrammarDetailCallback);
-  bot.callbackQuery(/^tr:gramlang:/, handleGrammarLangSelectCallback);
-  bot.callbackQuery(/^tr:grammar:/, handleGrammarBreakdownCallback);
-  bot.callbackQuery(/^tr:etymology:/, handleEtymologyCallback);
-  bot.callbackQuery("tr:mistype:confirm", handleMistypeConfirmCallback);
+  onCallback(/^tr:save:/, handleSaveCallback);
+  onCallback(/^tr:skip:/, handleSkipCallback);
+  onCallback(/^tr:regen:/, handleRegenCallback);
+  onCallback(/^tr:clarifypost:/, handleClarifyPostCallback);
+  onCallback(/^tr:altmeaning:/, handleAltMeaningCallback);
+  onCallback(/^tr:gramdetail:/, handleGrammarDetailCallback);
+  onCallback(/^tr:gramlang:/, handleGrammarLangSelectCallback);
+  onCallback(/^tr:grammar:/, handleGrammarBreakdownCallback);
+  onCallback(/^tr:etymology:/, handleEtymologyCallback);
+  onCallback("tr:mistype:confirm", handleMistypeConfirmCallback);
 
-  bot.callbackQuery("plan:upgrade", handleUpgradePromptCallback);
-  bot.callbackQuery(/^plan:buy:/, handleBuyPlanCallback);
-  bot.callbackQuery("tr:mistype:cancel", handleMistypeCancelCallback);
-  bot.callbackQuery(/^tr:langselect:/, handleLangSelectCallback);
-  bot.callbackQuery(/^tr:srclang:/, handleSrcLangOverrideCallback);
-  bot.callbackQuery(/^tr:oos:/, handleOutOfSetCallback);
-  bot.callbackQuery(/^tr:clarify:/, handleTranslationClarificationCallback);
+  onCallback("plan:upgrade", handleUpgradePromptCallback);
+  onCallback(/^plan:buy:/, handleBuyPlanCallback);
+  onCallback("tr:mistype:cancel", handleMistypeCancelCallback);
+  onCallback(/^tr:langselect:/, handleLangSelectCallback);
+  onCallback(/^tr:srclang:/, handleSrcLangOverrideCallback);
+  onCallback(/^tr:oos:/, handleOutOfSetCallback);
+  onCallback(/^tr:clarify:/, handleTranslationClarificationCallback);
 
-  bot.callbackQuery("fc:start", handleFcStart);
-  bot.callbackQuery("fc:reveal", handleFcReveal);
-  bot.callbackQuery("fc:next", handleFcNext);
-  bot.callbackQuery("fc:done", handleFcDone);
-  bot.callbackQuery("fc:restart", handleFcRestart);
-  bot.callbackQuery("fc:quit", handleFcQuit);
-  bot.callbackQuery("fc:close", handleFcClose);
+  onCallback("fc:start", handleFcStart);
+  onCallback("fc:reveal", handleFcReveal);
+  onCallback("fc:next", handleFcNext);
+  onCallback("fc:done", handleFcDone);
+  onCallback("fc:restart", handleFcRestart);
+  onCallback("fc:quit", handleFcQuit);
+  onCallback("fc:close", handleFcClose);
 
-  bot.callbackQuery("srs:reveal", handleSrsReveal);
-  bot.callbackQuery(/^srs:rate:(again|hard|good|easy)$/, handleSrsRate);
-  bot.callbackQuery("srs:restart", handleSrsRestart);
-  bot.callbackQuery("srs:quit", handleSrsQuit);
-  bot.callbackQuery("srs:close", handleSrsClose);
+  onCallback("srs:reveal", handleSrsReveal);
+  onCallback(/^srs:rate:(again|hard|good|easy)$/, handleSrsRate);
+  onCallback("srs:restart", handleSrsRestart);
+  onCallback("srs:quit", handleSrsQuit);
+  onCallback("srs:close", handleSrsClose);
 
-  bot.callbackQuery(/^dict:page:/, handleDictPage);
-  bot.callbackQuery(/^dict:view:/, handleDictView);
-  bot.callbackQuery(/^dict:delete:/, handleDictDelete);
-  bot.callbackQuery(/^dict:confirm-delete:/, handleDictConfirmDelete);
-  bot.callbackQuery("dict:list", handleDictList);
-  bot.callbackQuery(/^dict:open:/, handleDictOpen);
-  bot.callbackQuery("dict:create", handleDictCreate);
-  bot.callbackQuery(/^dict:rename:/, handleDictRename);
-  bot.callbackQuery(/^dict:delete-dict:/, handleDictDeleteDictionary);
-  bot.callbackQuery(/^dict:confirm-delete-dict:/, handleDictConfirmDeleteDictionary);
-  bot.callbackQuery(/^dict:add-menu:/, handleDictAddMenu);
-  bot.callbackQuery(/^dict:move-menu:/, handleDictMoveMenu);
-  bot.callbackQuery(/^dict:add:/, handleDictAdd);
-  bot.callbackQuery(/^dict:move:/, handleDictMove);
-  bot.callbackQuery(/^dict:translate:/, handleDictTranslate);
-  bot.callbackQuery("dict:close", handleDictClose);
-  bot.callbackQuery("dict:noop", handleDictNoop);
+  onCallback(/^dict:page:/, handleDictPage);
+  onCallback(/^dict:view:/, handleDictView);
+  onCallback(/^dict:delete:/, handleDictDelete);
+  onCallback(/^dict:confirm-delete:/, handleDictConfirmDelete);
+  onCallback("dict:list", handleDictList);
+  onCallback(/^dict:open:/, handleDictOpen);
+  onCallback("dict:create", handleDictCreate);
+  onCallback(/^dict:rename:/, handleDictRename);
+  onCallback(/^dict:delete-dict:/, handleDictDeleteDictionary);
+  onCallback(/^dict:confirm-delete-dict:/, handleDictConfirmDeleteDictionary);
+  onCallback(/^dict:add-menu:/, handleDictAddMenu);
+  onCallback(/^dict:move-menu:/, handleDictMoveMenu);
+  onCallback(/^dict:add:/, handleDictAdd);
+  onCallback(/^dict:move:/, handleDictMove);
+  onCallback(/^dict:translate:/, handleDictTranslate);
+  onCallback("dict:close", handleDictClose);
+  onCallback("dict:noop", handleDictNoop);
 
   // Curated starter video from the empty-state screen (Task 72). Must be
   // registered before the generic vid: routes below so its prefix wins.
-  bot.callbackQuery(VIDEO_TRY_PATTERN, handleVideoTryCallback);
-  bot.callbackQuery(/^vid:confirm:/, handleVideoConfirmCallback);
-  bot.callbackQuery(/^vid:cancel:/, handleVideoCancelCallback);
-  bot.callbackQuery(/^vid:browse:/, handleVideoBrowseCallback);
-  bot.callbackQuery(/^vid:save:/, handleVideoSavePhraseCallback);
-  bot.callbackQuery(/^vid:saveall:/, handleVideoSaveAllCallback);
-  bot.callbackQuery(/^vid:list:/, handleVideoListCallback);
-  bot.callbackQuery("vid:close", handleVideoCloseCallback);
-  bot.callbackQuery(/^vid:noop:/, handleVideoNoopCallback);
+  onCallback(VIDEO_TRY_PATTERN, handleVideoTryCallback);
+  onCallback(/^vid:confirm:/, handleVideoConfirmCallback);
+  onCallback(/^vid:cancel:/, handleVideoCancelCallback);
+  onCallback(/^vid:browse:/, handleVideoBrowseCallback);
+  onCallback(/^vid:save:/, handleVideoSavePhraseCallback);
+  onCallback(/^vid:saveall:/, handleVideoSaveAllCallback);
+  onCallback(/^vid:list:/, handleVideoListCallback);
+  onCallback("vid:close", handleVideoCloseCallback);
+  onCallback(/^vid:noop:/, handleVideoNoopCallback);
 
-  bot.callbackQuery("tpl:customize", handleCustomizeCallback);
-  bot.callbackQuery(/^tpl:toggle:/, handleToggleCallback);
-  bot.callbackQuery("tpl:preview", handlePreviewCallback);
-  bot.callbackQuery("tpl:save", handleSaveTemplateCallback);
-  bot.callbackQuery("tpl:cancel", handleCancelCallback);
-  bot.callbackQuery("tpl:reset", handleResetCallback);
-  bot.callbackQuery("tpl:back", handleBackCallback);
+  onCallback("tpl:customize", handleCustomizeCallback);
+  onCallback(/^tpl:toggle:/, handleToggleCallback);
+  onCallback("tpl:preview", handlePreviewCallback);
+  onCallback("tpl:save", handleSaveTemplateCallback);
+  onCallback("tpl:cancel", handleCancelCallback);
+  onCallback("tpl:reset", handleResetCallback);
+  onCallback("tpl:back", handleBackCallback);
 
   // Free text from a user who has not finished onboarding: the demo screen runs
   // the real translate path, earlier screens re-render themselves. Anything it

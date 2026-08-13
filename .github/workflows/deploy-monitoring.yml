@@ -8,9 +8,25 @@ on:
       - ".github/workflows/deploy-monitoring.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+# Mutex on the VPS Docker daemon, NOT on this workflow. `deploy.yml` has no
+# `paths` filter, so a push to master touching deploy/monitoring/** starts both
+# workflows against the same daemon (both stacks share the external
+# polyglot-network — deploy/docker-compose.yml). Without a shared group, this
+# job's image prune can fire in deploy.yml's window between `compose pull` and
+# `compose up -d`, when the freshly pulled images are referenced by nothing.
+# deploy.yml declares the identical group; `cancel-in-progress: false` because an
+# in-flight deploy must never be cancelled.
+concurrency:
+  group: vps-host
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,6 +59,11 @@ jobs:
         # holding the prod SSH key — mutable tag pinning is a supply-chain risk.
         uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
         with:
+          # Explicit, and deliberately below this job's timeout-minutes so the
+          # SSH step reports the timeout rather than the job being killed. The
+          # script here is short (pull + up -d + prune), but relying on the
+          # action's implicit 10m default is the same trap deploy.yml fell into.
+          command_timeout: 12m
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
@@ -62,5 +83,12 @@ jobs:
 
             docker compose -f docker-compose.monitoring.yml up -d --remove-orphans
 
-            docker image prune -af
+            # Dangling-only. `-a` prunes host-wide and deletes the app stack's
+            # previous release image — the one deploy.yml records in
+            # PREVIOUS_RELEASE for rollback — so this workflow silently undid the
+            # guard deploy.yml's `--filter until=168h` prune was written to give.
+            # Monitoring images are pinned by patch tag, so a bump leaves the old
+            # one tagged-but-unused: slow, bounded-in-practice disk growth rather
+            # than a broken rollback. Watch it via `docker system df`.
+            docker image prune -f
             docker builder prune -af 2>/dev/null || true

@@ -6,12 +6,13 @@
  */
 import {
   defaultFeatureAccess,
+  errorFields,
   generateEtymology,
   generateGrammarBreakdown,
   generateGrammarDetail,
   getLangFlag,
   isSupported,
-  logger,
+  logEvent,
   resolveOutputConfig,
   resolveTemplate,
   type SupportedLang,
@@ -43,7 +44,10 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    logger.warn({ userId: ctx.from?.id, msgId }, "Save clicked but translation entry not found (session lost?)");
+    // The "session expired" report users file: the button is live, the state
+    // behind it is gone. Paired with `session.miss`, this pins down whether the
+    // session was lost or merely evicted from the in-memory map.
+    logEvent("vocabulary.save_state_lost", { msgId }, "warn");
     await ctx.answerCallbackQuery({
       text: "⚠️ Session expired. Please translate the word again.",
       show_alert: true,
@@ -62,7 +66,11 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   // Step 2 — FK resolution
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
   if (!sourceLangEntry) {
-    logger.error({ sourceLang: output.sourceLang }, "Source language not found in cache");
+    logEvent(
+      "vocabulary.save_failed",
+      { reason: "source_language_not_cached", sourceLang: output.sourceLang },
+      "error",
+    );
     await ctx.answerCallbackQuery({ text: t("translationError", lang) });
     return;
   }
@@ -89,6 +97,13 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
 
     await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(ctx.user.id, existing.id);
     entry.savedWordId = existing.id;
+    logEvent("vocabulary.saved", {
+      entryId: existing.id,
+      word: output.original,
+      sourceLang: output.sourceLang,
+      inputType,
+      outcome: "relinked_existing",
+    });
     await showSavedCard(ctx, output, lang, nativeLang, inputType);
     await ctx.answerCallbackQuery();
     return;
@@ -105,6 +120,14 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   // Step 5 — Persist
   const newEntry = await ctx.services.vocabularyRepository.create(ctx.user.id, vocabInput);
   await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(ctx.user.id, newEntry.id);
+  logEvent("vocabulary.saved", {
+    entryId: newEntry.id,
+    word: output.original,
+    sourceLang: output.sourceLang,
+    targetLangs: Object.keys(output.translations),
+    inputType,
+    outcome: "created",
+  });
 
   // Step 6 — Update this entry in the map
   entry.savedWordId = newEntry.id;
@@ -136,6 +159,7 @@ async function showSavedCard(
 
 /** @deprecated Kept for old messages with skip buttons. */
 export async function handleSkipCallback(ctx: BotContext): Promise<void> {
+  logEvent("vocabulary.save_skipped", {});
   await ctx.answerCallbackQuery();
 }
 
@@ -276,7 +300,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
     ctx.session.pendingTranslation = decision.output;
   } catch (err) {
     await clearLoading();
-    logger.error({ err, word: entry.output.original }, "Alt meaning regeneration failed");
+    logEvent("card.alt_meaning_failed", { word: entry.output.original, ...errorFields(err) }, "error");
     // The previous card is untouched; a timeout is worth surfacing as such, any
     // other failure on this secondary action reads better as "no more meanings".
     const alertText = isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationNoMoreMeanings", lang);
@@ -355,7 +379,7 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
     entry.grammarBreakdown = result;
     await reRenderCard(ctx, entry, msgId, lang, nativeLang);
   } catch (err) {
-    logger.error({ err, word: entry.output.original }, "Grammar breakdown generation failed");
+    logEvent("card.grammar_breakdown_failed", { word: entry.output.original, ...errorFields(err) }, "error");
     try {
       await reRenderCard(ctx, entry, msgId, lang, nativeLang);
     } catch {
@@ -430,7 +454,7 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
     entry.etymology = result;
     await reRenderCard(ctx, entry, msgId, lang, nativeLang);
   } catch (err) {
-    logger.error({ err, word: entry.output.original }, "Etymology generation failed");
+    logEvent("card.etymology_failed", { word: entry.output.original, ...errorFields(err) }, "error");
     try {
       await reRenderCard(ctx, entry, msgId, lang, nativeLang);
     } catch {
@@ -611,7 +635,7 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
     const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
   } catch (err) {
-    logger.error({ err, word: entry.output.original, langCode }, "Grammar detail generation failed");
+    logEvent("card.grammar_detail_failed", { word: entry.output.original, langCode, ...errorFields(err) }, "error");
     const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard }).catch(() => {});
     await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });

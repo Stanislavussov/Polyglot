@@ -6,7 +6,8 @@ const { mockLogger, mockChild } = vi.hoisted(() => ({
   mockChild: vi.fn(() => mockLogger),
 }));
 
-vi.mock("@polyglot/core", () => ({
+vi.mock("@polyglot/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@polyglot/core")>()),
   getLogger: vi.fn(() => ({
     info: mockLogger.info,
     warn: mockLogger.warn,

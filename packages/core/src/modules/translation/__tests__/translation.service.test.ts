@@ -1159,8 +1159,8 @@ describe("translate", () => {
 
     expect(unwrap(result).emoji).toBe("🔤");
     expect(mockLogger.warn).toHaveBeenCalledWith(
-      expect.objectContaining({ rawEmoji: "brittle", sanitized: "🔤" }),
-      expect.stringContaining("non-emoji"),
+      expect.objectContaining({ event: "translation.emoji_sanitized", rawEmoji: "brittle", sanitized: "🔤" }),
+      "translation.emoji_sanitized",
     );
   });
 
@@ -1418,10 +1418,11 @@ describe("validation logging", () => {
     // logger.warn is called for the initial validation failure + repair attempts
     expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
+        event: "translation.validation_failed",
         original: "hello",
         failReason: expect.any(String),
       }),
-      "translation validation failed",
+      "translation.validation_failed",
     );
   });
 
@@ -1443,10 +1444,11 @@ describe("validation logging", () => {
     expect(mockLogger.error).toHaveBeenCalledTimes(1);
     expect(mockLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
+        event: "translation.needs_review",
         original: "hello",
         failReason: expect.any(String),
       }),
-      "translation validation failed after all retries — returning needs_review",
+      "translation.needs_review",
     );
   });
 
@@ -1487,10 +1489,11 @@ describe("validation logging", () => {
     // One warn for the validation failure
     expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.objectContaining({
+        event: "translation.validation_failed",
         original: "hello",
         failReason: expect.stringContaining("semantic"),
       }),
-      "translation validation failed",
+      "translation.validation_failed",
     );
 
     // No error since repair succeeded
@@ -1518,7 +1521,7 @@ describe("validation logging", () => {
 
     // The failReason should describe the semantic error
     const warnCalls = (mockLogger.warn as ReturnType<typeof vi.fn>).mock.calls;
-    const validationWarn = warnCalls.find((args: unknown[]) => args[1] === "translation validation failed");
+    const validationWarn = warnCalls.find((args: unknown[]) => args[1] === "translation.validation_failed");
     expect(validationWarn).toBeDefined();
     const logObj = validationWarn![0] as { failReason: string };
     expect(logObj.failReason).toContain("hello");

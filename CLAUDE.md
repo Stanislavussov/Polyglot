@@ -29,7 +29,7 @@ All database schema work goes through `drizzle-kit`, but agents must not run pro
 ```bash
 pnpm db:generate   # generate migrations from schema changes
 pnpm db:push       # push schema changes to the local/dev database
-pnpm db:check      # check for schema drift
+pnpm db:check      # validate the migration folder/journal (NOT a drift check)
 ```
 
 - Edit `packages/adapters/db/src/schema.ts`, then generate migrations
@@ -101,4 +101,5 @@ Run these steps **when there are related code changes** (a change isn't done unt
   - `@docs/agents/quality-gate.md` — required checks after changes.
   - `@docs/agents/workflows.md` — planning, implementation, review, and documentation flows.
   - `@docs/agents/testing-strategy-tdd.md` — spec-first TDD and test strategy.
+  - `@docs/agents/observability.md` — trace context, the event catalogue, and how to add a log line.
   - `@docs/agents/skills.md` — compact role index for domain-specific work.

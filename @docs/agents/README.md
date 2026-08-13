@@ -11,6 +11,7 @@ the hard rules and point here for the detailed, stable guidance.
 - `@docs/agents/architecture.md` - repository boundaries and stable engineering rules.
 - `@docs/agents/workflows.md` - planning, implementation, review, and documentation flows.
 - `@docs/agents/testing-strategy-tdd.md` - spec-first TDD and practical test strategy.
+- `@docs/agents/observability.md` - trace context, the event catalogue, and how to add a log line.
 - `@docs/agents/skills.md` - compact role index for domain-specific work.
 
 ## What Belongs Here

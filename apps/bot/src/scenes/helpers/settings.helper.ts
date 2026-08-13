@@ -6,7 +6,7 @@ import {
   formatNotificationTime,
   getDailyWindowStart,
   isSupported,
-  logger,
+  logEvent,
   NOTIFICATION_TYPES,
   type NotificationType,
   parseNotificationMinutes,
@@ -102,8 +102,11 @@ export async function handleSetNativeSelectCallback(ctx: BotContext): Promise<vo
   const code = data.replace("set:native:", "");
   const lang = await getLang(ctx);
 
+  const previousNative = (await ctx.services.userRepository.getSettings(ctx.user.id))?.nativeLang ?? null;
   await ctx.services.userRepository.updateNativeLang(ctx.user.id, code);
-  logger.info({ userId: ctx.user.id, nativeLang: code }, "Settings: native language changed");
+  // Before/after, because a mis-set native language silently changes every
+  // later translation direction and is invisible from the result alone.
+  logEvent("settings.native_lang_changed", { from: previousNative, to: code });
   await ctx.answerCallbackQuery({
     text: t("settingsNativeUpdated", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
   });
@@ -125,7 +128,7 @@ export async function handleSetLearningCallback(ctx: BotContext): Promise<void> 
     .getSupportedLangs()
     .map((l) => l.code)
     .filter((code) => code !== nativeLang);
-  logger.info({ userId: ctx.user.id, nativeLang, selected, offered }, "Settings: learning language picker opened");
+  logEvent("settings.learning_picker_opened", { nativeLang, selected, offered }, "debug");
 
   const kb = buildLearningKeyboard(ctx, selected, nativeLang, lang);
   await editMessageTextOrReply(ctx, t("settingsChooseLearning", lang), {
@@ -187,10 +190,7 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
     // Already a learning language → remove it immediately.
     selected.splice(idx, 1);
     await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
-    logger.info(
-      { userId: ctx.user.id, langCode: code, action: "remove", learningLangs: selected },
-      "Settings: learning language removed",
-    );
+    logEvent("settings.learning_lang_removed", { langCode: code, learningLangs: selected });
     await ctx.answerCallbackQuery({
       text: t("langRemoved", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
     });
@@ -244,10 +244,7 @@ export async function handleSetLearnLevelCallback(ctx: BotContext): Promise<void
     await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
   }
   await ctx.services.userRepository.setLanguageLevel(ctx.user.id, code, level);
-  logger.info(
-    { userId: ctx.user.id, langCode: code, level, learningLangs: selected },
-    "Settings: learning language added",
-  );
+  logEvent("settings.learning_lang_added", { langCode: code, level, learningLangs: selected });
 
   await ctx.answerCallbackQuery({
     text: t("langAdded", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
@@ -280,6 +277,7 @@ export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<voi
   const code = data.replace("set:iface:", "");
 
   await ctx.services.userRepository.updateInterfaceLang(ctx.user.id, code);
+  logEvent("settings.interface_lang_changed", { to: code });
 
   const newLang = (isSupported(code) ? code : "en") as SupportedLang;
   await ctx.answerCallbackQuery({
@@ -307,9 +305,25 @@ export async function handleSetNotifToggleCallback(ctx: BotContext): Promise<voi
   const currentEnabled = settings?.notificationEnabled ?? false;
   const newEnabled = !currentEnabled;
 
-  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
+  const prefs: { notificationEnabled: boolean; notificationTimes?: string[] } = {
     notificationEnabled: newEnabled,
-  });
+  };
+
+  // Seed the admin-managed default the first time someone turns notifications on
+  // without a schedule. An empty list means "not configured" — this is the only
+  // place it is ever filled in automatically, and only when it is empty, so a
+  // time the user picked is never overwritten. The settings read happens INSIDE
+  // this branch on purpose: it keeps toggle-off free of a settings round trip.
+  if (newEnabled && (settings?.notificationTimes?.length ?? 0) === 0) {
+    const defaults = await ctx.services.settings.getNotificationDefaults();
+    // Canonicalize rather than trusting the stored string: getWithFallback heals
+    // *missing* keys only, so a present-but-malformed admin value would otherwise
+    // land in user data verbatim.
+    prefs.notificationTimes = [formatNotificationTime(parseNotificationMinutes(defaults.defaultTime))];
+  }
+
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, prefs);
+  logEvent("settings.notifications_toggled", { from: currentEnabled, to: newEnabled });
 
   const lang = await getLang(ctx);
   await ctx.answerCallbackQuery({
@@ -374,6 +388,17 @@ export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise
   const timeStr = formatNotificationTime(totalMinutes);
 
   if (selected.has(totalMinutes)) {
+    // Refuse to empty the schedule. An empty list means "not configured", so the
+    // next toggle off→on would seed the admin default — scheduling the user at a
+    // time they never picked. Auto-disabling notifications instead would park
+    // them in exactly that state, so the guard refuses rather than disables, and
+    // points at the toggle that already exists. This must run BEFORE the
+    // `answerCallbackQuery` below: Telegram accepts one answer per query, so
+    // answering twice would show "Removed 08:00" for a slot that was kept.
+    if (selected.size === 1) {
+      await ctx.answerCallbackQuery({ text: t("settingsNotifTimesMin", lang), show_alert: true });
+      return;
+    }
     selected.delete(totalMinutes);
     await ctx.answerCallbackQuery({ text: t("settingsNotifTimeRemoved", lang, { time: timeStr }) });
   } else if (selected.size >= MAX_NOTIFICATION_TIMES) {
@@ -389,6 +414,7 @@ export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise
 
   const times = [...selected].sort((a, b) => a - b).map(formatNotificationTime);
   await ctx.services.notificationRepository.updatePrefs(ctx.user.id, { notificationTimes: times });
+  logEvent("settings.notification_times_changed", { times });
 
   await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotifTimesKeyboard(selected, lang) });
 }
@@ -422,6 +448,7 @@ export async function handleSetNotifTypeSelectCallback(ctx: BotContext): Promise
   await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
     notificationType: type as NotificationType,
   });
+  logEvent("settings.notification_type_changed", { to: type });
 
   const lang = await getLang(ctx);
   await ctx.answerCallbackQuery({
@@ -482,6 +509,7 @@ export async function handleSetNotifTzSelectCallback(ctx: BotContext): Promise<v
     timezone,
     activeMode: settings?.activeMode ?? "translate",
   });
+  logEvent("settings.timezone_changed", { from: settings?.timezone ?? null, to: timezone });
 
   const lang = await getLang(ctx);
   await ctx.answerCallbackQuery({
@@ -529,6 +557,7 @@ export async function handleNotifContextTextInput(ctx: BotContext): Promise<void
   await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
     notificationContext: text,
   });
+  logEvent("settings.notification_context_changed", { context: text });
 
   const lang = await getLang(ctx);
   // No sweep here: this only ever runs on a text message, which the central

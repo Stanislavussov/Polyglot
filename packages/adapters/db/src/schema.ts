@@ -173,8 +173,16 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   lastSourceLang: text("last_source_lang"),
   /** Whether daily word notifications are enabled */
   notificationEnabled: boolean("notification_enabled").default(false).notNull(),
-  /** Preferred notification times in user's local time ("HH:MM" each). Up to 12. Empty = not configured. */
-  notificationTimes: text("notification_times").array().notNull().default(["08:00"]),
+  /**
+   * Preferred notification times in user's local time ("HH:MM" each). Up to 12.
+   *
+   * **Empty = not configured**, and the default is empty precisely so that state
+   * is representable. A non-empty default would make "never opened settings"
+   * indistinguishable from "deliberately picked this hour", which is what forces
+   * a guess later. The schedule is filled in when the user turns notifications
+   * on, from the admin-managed `notifications.defaultTime`.
+   */
+  notificationTimes: text("notification_times").array().notNull().default([]),
   /** Notification word source: 'suggested' (AI) | 'srs' (dictionary review) | 'contextual' (AI + user context) */
   notificationType: text("notification_type").$type<"suggested" | "srs" | "contextual">().default("srs").notNull(),
   /** User-provided context for AI-generated contextual notifications (e.g., "preparing for job interview") */

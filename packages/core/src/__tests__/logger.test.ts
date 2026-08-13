@@ -16,26 +16,24 @@ function capture(level: string) {
   return { log, records: () => lines.map((l) => JSON.parse(l)) };
 }
 
-describe("logger PII redaction (T10)", () => {
-  it("redacts user message text and username at info level (shipped to Betterstack)", () => {
+describe("logger PII redaction", () => {
+  it("keeps user message text so a failing input can be reproduced", () => {
     const { log, records } = capture("info");
 
-    log.info({ text: "hello my secret message", username: "alice_pii", userId: 7 }, "routed");
+    log.info({ text: "hello my secret message", userId: 7 }, "routed");
 
     const [rec] = records();
-    expect(rec.text).toBe("[Redacted]");
-    expect(rec.username).toBe("[Redacted]");
-    // Non-PII identifiers stay for diagnostics.
+    expect(rec.text).toBe("hello my secret message");
     expect(rec.userId).toBe(7);
   });
 
-  it("redacts nested text/username paths", () => {
+  it("redacts username at every nesting level, since ids already identify the user", () => {
     const { log, records } = capture("info");
 
-    log.info({ payload: { text: "secret", username: "bob" } }, "nested");
+    log.info({ username: "alice_pii", payload: { username: "bob" } }, "routed");
 
     const [rec] = records();
-    expect(rec.payload.text).toBe("[Redacted]");
+    expect(rec.username).toBe("[Redacted]");
     expect(rec.payload.username).toBe("[Redacted]");
   });
 

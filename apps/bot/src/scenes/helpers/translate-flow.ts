@@ -16,13 +16,14 @@ import {
   detectLanguageWithConfidenceAsync,
   detectOutOfSetByAlphabet,
   detectOutOfSetLanguage,
+  errorFields,
   getLangFlag,
   getLanguageName,
   getMonthlyWindowStart,
   type InputType,
   isSupported,
   isSupportedLanguage,
-  logger,
+  logEvent,
   needsAiArbitration,
   needsDictionaryVerification,
   resolveDirectionFromSource,
@@ -223,6 +224,18 @@ async function showTranslationClarification(
   };
   ctx.session.awaitingTranslationClarificationContext = undefined;
 
+  // A clarification prompt is a translation that did NOT complete; without this
+  // record the flow looks like it simply stopped halfway.
+  logEvent("translation.clarification_requested", {
+    word: params.word,
+    sourceLang: params.sourceLang,
+    targetLangs: params.targetLangs,
+    inputType: params.inputType,
+    reason: params.ambiguity.reason,
+    optionKinds: (params.ambiguity.options ?? []).map((option) => option.kind),
+    detectionConfidence: params.detectionConfidence,
+  });
+
   if (params.ambiguity.reason === "possible_typo") {
     inputCorrectionCounter.inc({ outcome: "confirm_shown", input_type: params.inputType });
   }
@@ -420,17 +433,18 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const detectionMs = Date.now() - detectionStart;
   observeTranslationPhase("detection", detectionMs);
 
-  logger.debug(
-    {
-      word: cleanWord,
-      detectedLang: detection.language,
-      confidence: detection.confidence,
-      ambiguousCandidates: detection.ambiguousCandidates,
-      outOfSetLanguages: detection.outOfSetLanguages,
-      evidenceCount: detection.evidence.length,
-    },
-    "Language detection result",
-  );
+  // Info, not debug: which language we decided the input was in explains almost
+  // every "it translated the wrong thing" report, and there is one per request.
+  logEvent("translation.language_detected", {
+    word: cleanWord,
+    detectedLang: detection.language,
+    confidence: detection.confidence,
+    ambiguousCandidates: detection.ambiguousCandidates,
+    outOfSetLanguages: detection.outOfSetLanguages,
+    evidenceCount: detection.evidence.length,
+    evidenceStrategies: detection.evidence.map((entry) => entry.strategy),
+    detectionMs,
+  });
 
   // Out-of-set guard: input is confidently in a language the user hasn't configured.
   // The closed-set detector would otherwise coerce it to the nearest candidate (e.g. German
@@ -466,7 +480,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         sourceLang: outOfSetLang,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
     await replyTechnical(ctx, t("languageNotSelected", lang, { lang: getLanguageName(outOfSetLang, lang) }));
     return;
@@ -535,7 +549,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         targetLangs: fallbackDir.targetLangs,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
 
     const promptText = t("langSelectPrompt", lang, {
@@ -588,7 +602,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         targetLangs: fallbackDir.targetLangs,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
 
     const warningText = t("mistypeWarning", lang, {
@@ -613,7 +627,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         targetLangs,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
   }
 
@@ -627,18 +641,18 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   }
   preflightMs = Date.now() - preflightStart;
 
-  logger.debug(
-    {
-      word: cleanWord,
-      contextHint,
-      detectedLang,
-      sourceLang,
-      targetLangs,
-      inputType: classification.type,
-      wordCount: classification.wordCount,
-    },
-    "Resolved translation direction",
-  );
+  logEvent("translation.direction_resolved", {
+    word: cleanWord,
+    contextHint,
+    detectedLang,
+    sourceLang,
+    targetLangs,
+    inputType: classification.type,
+    wordCount: classification.wordCount,
+    plan: subscriptionPlan,
+    creditCost,
+    preflightMs,
+  });
 
   // Show loading message
   const loadingMsg = await ctx.reply(t("translating", lang));
@@ -757,7 +771,7 @@ async function sendTranslationCard(
         sourceLang: output.sourceLang,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
   }
 
@@ -974,6 +988,24 @@ async function runTranslationPipeline(
     const needsReview = decision.status === "needs_review";
     const recordedModelId = decision.status === "accepted" ? decision.quality.modelId : model;
     translationCounter.inc({ status: "success" });
+
+    // The single record that answers "what did the user get, from which model,
+    // how long did it take, and did the validator trust it".
+    logEvent("translation.completed", {
+      word,
+      contextHint,
+      sourceLang,
+      targetLangs,
+      inputType: classification.type,
+      status: decision.status,
+      needsReview,
+      modelId: recordedModelId,
+      requestedModelId: model,
+      corrected: output.correction !== undefined,
+      dbLookupMs,
+      aiRequestMs,
+      ...(timing && { totalMs: Date.now() - timing.totalStart, preflightMs: timing.preflightMs }),
+    });
     if (output.correction) {
       inputCorrectionCounter.inc({ outcome: "auto_corrected", input_type: classification.type });
     }
@@ -1001,7 +1033,7 @@ async function runTranslationPipeline(
           success: true,
         })
         .catch((err: unknown) => {
-          logger.warn({ err }, "Failed to record request timing");
+          logEvent("request_timing.record_failed", errorFields(err), "warn");
         });
     }
 
@@ -1029,7 +1061,24 @@ async function runTranslationPipeline(
     observeTranslationPhase("post_ai", Date.now() - postAiStart);
   } catch (err) {
     translationCounter.inc({ status: "error" });
-    logger.error({ err, word }, "Translation failed");
+    logEvent(
+      "translation.failed",
+      {
+        word,
+        contextHint,
+        sourceLang,
+        targetLangs,
+        inputType: classification.type,
+        modelId: model,
+        // A timeout is the transient case the user is offered a retry for;
+        // separating it here keeps genuine breakage alertable on its own.
+        timedOut: isUserFacingTimeout(err),
+        dbLookupMs,
+        ...(timing && { totalMs: Date.now() - timing.totalStart }),
+        ...errorFields(err),
+      },
+      "error",
+    );
 
     if (timing) {
       ctx.services.requestTimingRepository
@@ -1048,7 +1097,7 @@ async function runTranslationPipeline(
           error: err instanceof Error ? err.message : String(err),
         })
         .catch((timingErr: unknown) => {
-          logger.warn({ err: timingErr }, "Failed to record request timing on error");
+          logEvent("request_timing.record_failed", { ...errorFields(timingErr), afterFailure: true }, "warn");
         });
     }
 
@@ -1129,7 +1178,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
       targetLangs,
     })
     .catch((err: unknown) => {
-      logger.warn({ err }, "Failed to record language detection event");
+      logEvent("language_detection.record_failed", errorFields(err), "warn");
     });
 
   // Classify input type
@@ -1183,7 +1232,7 @@ export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void
         word: pendingWord,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
   }
 

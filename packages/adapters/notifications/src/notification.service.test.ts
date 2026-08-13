@@ -10,7 +10,8 @@ const { mockLogger, mockChild } = vi.hoisted(() => ({
   mockChild: vi.fn(() => mockLogger),
 }));
 
-vi.mock("@polyglot/core", () => ({
+vi.mock("@polyglot/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@polyglot/core")>()),
   getLogger: vi.fn(() => ({
     info: mockLogger.info,
     warn: mockLogger.warn,
@@ -72,6 +73,36 @@ describe("pickDictionaryWord", () => {
       ...overrides,
     };
   }
+
+  describe("de-dup and exhaustion", () => {
+    it("never picks a word the user was recently sent", async () => {
+      const service = createDictionaryWordPicker(buildDeps());
+
+      const result = await service.pickDictionaryWord(1, ["house", "car"]);
+
+      expect(result?.original).toBe("book");
+    });
+
+    it("reports exhaustion instead of repeating, so the caller can fall back to a preset", async () => {
+      // Re-sending a word the user just saw is what makes a reminder read as
+      // spam; the dictionary declines rather than recycling its own history.
+      const service = createDictionaryWordPicker(buildDeps());
+
+      const result = await service.pickDictionaryWord(1, ["house", "car", "book"]);
+
+      expect(result).toBeNull();
+    });
+
+    it("reports exhaustion for a one-word dictionary already sent", async () => {
+      const service = createDictionaryWordPicker(
+        buildDeps({
+          getUserVocabulary: vi.fn().mockResolvedValue([mockVocabEntries[0]]),
+        }),
+      );
+
+      expect(await service.pickDictionaryWord(1, ["house"])).toBeNull();
+    });
+  });
 
   describe("happy path", () => {
     it("returns a random word from candidates", async () => {

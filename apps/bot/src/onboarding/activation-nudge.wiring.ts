@@ -19,9 +19,13 @@ import { notificationRepository, userRepository } from "@polyglot/adapter-db";
 import {
   ACTIVATION_NUDGE_SOURCE,
   type ActivationNudgeCandidate,
+  errorFields,
   getHookWords,
+  getTraceContext,
   isSupported,
-  logger,
+  logEvent,
+  newTraceId,
+  runWithTrace,
   type ServiceContainer,
   type SupportedLang,
   t,
@@ -117,14 +121,11 @@ async function retireUndeliverable(
   } catch (disableErr) {
     // The nudge is already retired by the history row above; a failed disable
     // only leaves the scheduled-notification path to notice on its own.
-    logger.error({ err: disableErr, userId: candidate.userId }, "Failed to disable notifications for blocked user");
+    logEvent("nudge.disable_notifications_failed", errorFields(disableErr), "error");
   }
 
   countNudge("nudge_blocked");
-  logger.warn(
-    { err, userId: candidate.userId },
-    "Activation nudge permanently undeliverable — notifications disabled and nudge retired, no retry",
-  );
+  logEvent("nudge.retired_undeliverable", errorFields(err), "warn");
 }
 
 async function nudgeOne(
@@ -135,10 +136,7 @@ async function nudgeOne(
   const hook = pickNudgeHook(candidate.learningLangs);
   if (!hook) {
     countNudge("nudge_skipped");
-    logger.info(
-      { userId: candidate.userId, learningLangs: candidate.learningLangs },
-      "Activation nudge skipped — no curated hook word for any learning language",
-    );
+    logEvent("nudge.skipped", { reason: "no_hook_word", learningLangs: candidate.learningLangs });
     return;
   }
 
@@ -163,7 +161,7 @@ async function nudgeOne(
   // Only now is the user's single nudge spent.
   await services.notificationRepository.recordSentWord(candidate.userId, hook.headword, ACTIVATION_NUDGE_SOURCE);
   countNudge("nudge_sent");
-  logger.info({ userId: candidate.userId, headword: hook.headword }, "Activation nudge sent");
+  logEvent("nudge.sent", { headword: hook.headword, sourceLang: hook.sourceLang });
 }
 
 /**
@@ -181,15 +179,29 @@ export async function runActivationNudgeSweep(
   const candidates = await services.userRepository.findActivationNudgeCandidates(now);
   if (candidates.length === 0) return;
 
-  logger.info({ count: candidates.length }, "Activation nudge sweep starting");
+  logEvent("nudge.sweep_started", { candidateCount: candidates.length });
+  const sweepTraceId = getTraceContext()?.traceId;
   for (const candidate of candidates) {
-    try {
-      await nudgeOne(api, services, candidate);
-    } catch (err) {
-      countNudge("nudge_failed");
-      // No history row was written, so this user is picked up again tomorrow.
-      logger.warn({ err, userId: candidate.userId }, "Activation nudge send failed — will retry on the next sweep");
-    }
+    // One trace per candidate, linked to the sweep, so a single undelivered
+    // nudge is followable without reading the whole batch.
+    await runWithTrace(
+      {
+        traceId: newTraceId(),
+        source: "cron",
+        jobName: "activation_nudge",
+        userId: candidate.userId,
+        ...(sweepTraceId !== undefined && { parentTraceId: sweepTraceId }),
+      },
+      async () => {
+        try {
+          await nudgeOne(api, services, candidate);
+        } catch (err) {
+          countNudge("nudge_failed");
+          // No history row was written, so this user is picked up again tomorrow.
+          logEvent("nudge.send_failed", errorFields(err), "warn");
+        }
+      },
+    );
   }
 }
 
@@ -199,17 +211,17 @@ export async function runActivationNudgeSweep(
  */
 export function wireActivationNudge(api: Api<RawApi>): void {
   if (nudgeTask) {
-    logger.warn({}, "Activation nudge already scheduled — ignoring duplicate call");
+    logEvent("nudge.schedule_duplicate_ignored", {}, "warn");
     return;
   }
 
   nudgeTask = cron.schedule(ACTIVATION_NUDGE_CRON, () => {
     void runActivationNudgeSweep(api, { userRepository, notificationRepository }).catch((err) => {
       // Never let a failed sweep crash the process — it retries on the next tick.
-      logger.error({ err }, "Activation nudge sweep failed — continuing");
+      logEvent("nudge.sweep_failed", errorFields(err), "error");
     });
   });
-  logger.info({ schedule: ACTIVATION_NUDGE_CRON }, "Activation nudge scheduled");
+  logEvent("nudge.scheduled", { schedule: ACTIVATION_NUDGE_CRON });
 }
 
 /** Stop the activation-nudge cron job gracefully. */
@@ -217,6 +229,6 @@ export function stopActivationNudge(): void {
   if (nudgeTask) {
     nudgeTask.stop();
     nudgeTask = null;
-    logger.info({}, "Activation nudge scheduler stopped");
+    logEvent("nudge.scheduler_stopped", {});
   }
 }

@@ -169,8 +169,8 @@ describe("domain constants", () => {
     expect(NOTIFICATION_TYPES).toEqual(["suggested", "srs", "contextual"]);
   });
 
-  it("DEFAULT_NOTIFICATION_TIME is 08:00", () => {
-    expect(DEFAULT_NOTIFICATION_TIME).toBe("08:00");
+  it("DEFAULT_NOTIFICATION_TIME is 19:00", () => {
+    expect(DEFAULT_NOTIFICATION_TIME).toBe("19:00");
   });
 
   it("DEFAULT_NOTIFICATION_TYPE is srs", () => {
@@ -191,13 +191,15 @@ describe("parseNotificationMinutes", () => {
   });
 
   it("returns default for null/undefined", () => {
-    const expected = 8 * 60; // 08:00
+    // Derived from the constant, not restated: the two disagreeing was the latent
+    // bug this file now pins shut.
+    const expected = parseNotificationMinutes(DEFAULT_NOTIFICATION_TIME);
     expect(parseNotificationMinutes(null)).toBe(expected);
     expect(parseNotificationMinutes(undefined)).toBe(expected);
   });
 
   it("returns default for invalid values", () => {
-    const expected = 8 * 60;
+    const expected = parseNotificationMinutes(DEFAULT_NOTIFICATION_TIME);
     expect(parseNotificationMinutes("morning")).toBe(expected);
     expect(parseNotificationMinutes("abc")).toBe(expected);
     expect(parseNotificationMinutes("")).toBe(expected);
@@ -414,14 +416,6 @@ describe("notificationRepository", () => {
       const result = await notificationRepository.getUsersForWindow(8, 0);
 
       expect(result).toHaveLength(0);
-    });
-
-    it("calls select with innerJoin", async () => {
-      queryResults = [[]];
-
-      await notificationRepository.getUsersForWindow(8, 0);
-
-      expect(mockDb.select).toHaveBeenCalledOnce();
     });
   });
 

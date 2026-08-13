@@ -13,7 +13,7 @@
  * Knows nothing about the user — works only with text and languages.
  */
 
-import { getLogger } from "../../logger.js";
+import { logEvent } from "../../observability/events.js";
 import type { GenerateObjectFn } from "../../ports/ai.port.js";
 import { analyzeInput } from "../input-analysis/input-analyzer.js";
 import { validate } from "../validation/validation.service.js";
@@ -260,9 +260,10 @@ function reportPhase(hooks: TranslationHooks | undefined, phase: TranslationPhas
   try {
     onPhase(phase, elapsedMs);
   } catch (error) {
-    getLogger().warn(
+    logEvent(
+      "translation.phase_observer_failed",
       { phase, observerError: error instanceof Error ? error.message : String(error) },
-      "translation phase observer threw; ignored",
+      "warn",
     );
   }
 }
@@ -350,16 +351,13 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
   };
   ctx.request = request;
 
-  getLogger().info(
-    {
-      original: ctx.rawInput.word,
-      sourceLang: ctx.rawInput.sourceLang,
-      targetLangs: ctx.rawInput.targetLangs,
-      topic: ctx.rawInput.topic,
-      model: ctx.rawInput.model,
-    },
-    "translation request started",
-  );
+  logEvent("translation.pipeline.started", {
+    original: ctx.rawInput.word,
+    sourceLang: ctx.rawInput.sourceLang,
+    targetLangs: ctx.rawInput.targetLangs,
+    topic: ctx.rawInput.topic,
+    model: ctx.rawInput.model,
+  });
 
   const preliminaryRiskLevel = assessRiskLevel(normalizedInput, ctx.analysis.features, []);
   const generationModel = selectGenerationModel(normalizedInput, preliminaryRiskLevel);
@@ -483,13 +481,10 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
     } catch (generationError) {
       const errorMsg = generationError instanceof Error ? generationError.message : String(generationError);
 
-      getLogger().warn(
-        {
-          original: ctx.rawInput.word,
-          retryCount: attempt,
-          failReason: errorMsg,
-        },
-        "AI generation failed",
+      logEvent(
+        "translation.generation_failed",
+        { original: ctx.rawInput.word, retryCount: attempt, failReason: errorMsg },
+        "warn",
       );
 
       // Task 2.5b — a whole-batch retry is only started while the budget still
@@ -532,13 +527,10 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
       break;
     }
 
-    getLogger().warn(
-      {
-        original: ctx.rawInput.word,
-        retryCount: attempt,
-        failReason: lastErrors.join(" | "),
-      },
-      "translation schema validation failed",
+    logEvent(
+      "translation.schema_validation_failed",
+      { original: ctx.rawInput.word, retryCount: attempt, failReason: lastErrors.join(" | ") },
+      "warn",
     );
 
     metadataPrompt = buildMetadataStrictPrompt(request, lastErrors, assessExistence);
@@ -594,13 +586,15 @@ async function validateAndRepairStep(ctx: PipelineContext, generateObjectFn: Gen
   );
 
   if (hasBlockingIssues(issues)) {
-    getLogger().warn(
+    logEvent(
+      "translation.validation_failed",
       {
         original: normalizedInput.word,
         retryCount: 0,
         failReason: issues.map((issue) => issue.message).join(" | "),
+        failedFields: issues.map((issue) => `${issue.severity}:${issue.fieldPath}`),
       },
-      "translation validation failed",
+      "warn",
     );
     const repaired = await repairTranslationBlocks(
       result,
@@ -660,9 +654,10 @@ async function judgeStep(ctx: PipelineContext, generateObjectFn: GenerateObjectF
       // the user, but never as a silently `accepted` card: the blocking issue
       // below routes it to needs_review through the normal finalize path.
       // A judge that answers in time is untouched — only the clock falls back.
-      getLogger().warn(
+      logEvent(
+        "translation.judge_timed_out",
         { original: normalizedInput.word, judgeBudgetMs: judged.budgetMs },
-        "semantic judge exceeded its time budget; returning the validated pre-judge result as needs_review",
+        "warn",
       );
       ctx.result = result;
       ctx.issues = [...issues, buildJudgeTimeoutIssue()];
@@ -797,14 +792,11 @@ function finalizeStep(ctx: PipelineContext): StepOutcome {
     // needs_review (the error line below) — the metric the plan asks for.
     const advisoryIssues = issues.filter((issue) => issue.severity === "advisory");
     if (advisoryIssues.length > 0) {
-      getLogger().info(
-        {
-          original: normalizedInput.word,
-          advisoryCount: advisoryIssues.length,
-          advisoryReasons: advisoryIssues.map((issue) => issue.message).join(" | "),
-        },
-        "translation accepted with advisory (non-blocking) issues",
-      );
+      logEvent("translation.accepted_with_advisories", {
+        original: normalizedInput.word,
+        advisoryCount: advisoryIssues.length,
+        advisoryReasons: advisoryIssues.map((issue) => issue.message).join(" | "),
+      });
     }
     return {
       kind: "exit",
@@ -825,13 +817,15 @@ function finalizeStep(ctx: PipelineContext): StepOutcome {
     };
   }
 
-  getLogger().error(
+  logEvent(
+    "translation.needs_review",
     {
       original: normalizedInput.word,
       retryCount: Math.max(0, ctx.attemptCount - 1),
       failReason: issues.map((issue) => issue.message).join(" | "),
+      failedFields: issues.map((issue) => `${issue.severity}:${issue.fieldPath}`),
     },
-    "translation validation failed after all retries — returning needs_review",
+    "error",
   );
 
   return {
@@ -1247,9 +1241,10 @@ async function repairTranslationBlocks(
       // limit when no `deadlineAt` was supplied.
       const repairWindowMs = spendableBeforeJudgeReserve(budget);
       if (repairWindowMs !== undefined && repairWindowMs <= 0) {
-        getLogger().warn(
+        logEvent(
+          "translation.repair_budget_exhausted",
           { original: input.word, remainingMs: budget.remainingMs(), reserveMs: RESERVED_JUDGE_MS },
-          "translation repair budget exhausted; returning the best validated result so far",
+          "warn",
         );
         return { result: workingResult, issues: sourceIssues, attemptCount };
       }
@@ -1278,9 +1273,10 @@ async function repairTranslationBlocks(
         // The round overran its share of the clock. Its late answer is discarded
         // (it cannot be cancelled) and the best already-validated result so far
         // is handed back, leaving the judge reservation intact.
-        getLogger().warn(
+        logEvent(
+          "translation.repair_timed_out",
           { original: input.word, remainingMs: budget.remainingMs(), repairWindowMs },
-          "translation repair exceeded its time box; returning the best validated result so far",
+          "warn",
         );
         return { result: workingResult, issues: sourceIssues, attemptCount };
       }
@@ -1327,13 +1323,14 @@ async function repairTranslationBlocks(
         break;
       }
 
-      getLogger().warn(
+      logEvent(
+        "translation.repair_validation_failed",
         {
           original: input.word,
           retryCount: attempt + 1,
           failReason: remainingLangIssues.map((issue) => issue.message).join(" | "),
         },
-        "translation validation failed",
+        "warn",
       );
 
       sourceIssues = issues;
@@ -1408,13 +1405,14 @@ async function judgeTranslation(
       attemptCount: initialAttemptCount + 1,
     };
   } catch (error) {
-    getLogger().warn(
+    logEvent(
+      "translation.judge_failed",
       {
         original: input.word,
         model: generationModel,
         judgeError: error instanceof Error ? error.message : String(error),
       },
-      "semantic judge failed; continuing with deterministic validation only",
+      "warn",
     );
 
     return { judgeResult: undefined, issues: [], attemptCount: initialAttemptCount };
@@ -1598,9 +1596,10 @@ function toOutput(
   if (result.emoji !== undefined) {
     emoji = sanitizeEmoji(result.emoji);
     if (emoji !== result.emoji) {
-      getLogger().warn(
+      logEvent(
+        "translation.emoji_sanitized",
         { original: input.word, rawEmoji: result.emoji, sanitized: emoji },
-        "AI returned non-emoji string in emoji field, replaced with fallback",
+        "warn",
       );
     }
   }

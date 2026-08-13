@@ -1,4 +1,4 @@
-import { logger } from "@polyglot/core";
+import { enrichTrace, errorFields, logEvent } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { type BotContext, USER_MODES, type UserMode } from "../types.js";
 import { getRequestSettings } from "./request-settings.js";
@@ -35,10 +35,13 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
       username: ctx.from?.username ?? null,
     });
     await ctx.services.identityRepository.linkIdentity(user.id, "telegram", externalId);
-    logger.info({ telegramId, userId: user.id }, "User resolved and identity linked");
+    logEvent("user.identity_linked", { userId: user.id, onboarded: user.onboarded });
   }
 
   ctx.user = user;
+  // Every record emitted from here on — DB reads, AI calls, outgoing replies —
+  // carries the neutral userId without any call site passing it along.
+  enrichTrace({ userId: user.id });
 
   // Hydrate session activeMode from DB if user has settings.
   // This ensures the mode survives bot restarts.
@@ -47,13 +50,13 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
     if (settings?.activeMode) {
       const dbMode = settings.activeMode;
       ctx.session.activeMode = VALID_MODES.has(dbMode as UserMode) ? (dbMode as UserMode) : "translate";
-      logger.debug({ userId: user.id, activeMode: ctx.session.activeMode }, "Hydrated activeMode from DB");
+      logEvent("session.mode_hydrated", { activeMode: ctx.session.activeMode }, "debug");
     }
 
     // Fire-and-forget: update last interaction timestamp for notification inactivity detection.
     // Never blocks request processing — errors are logged but swallowed.
-    ctx.services.userRepository.updateLastInteraction(user.id).catch((err) => {
-      logger.error({ err, userId: user.id }, "Failed to update last interaction timestamp");
+    ctx.services.userRepository.updateLastInteraction(user.id).catch((err: unknown) => {
+      logEvent("user.last_interaction_failed", errorFields(err), "error");
     });
   }
 

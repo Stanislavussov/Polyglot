@@ -1,5 +1,7 @@
-import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
+import { errorFields, isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
 import { type BotError, GrammyError, HttpError } from "grammy";
+import { handlerChain } from "./observability/handler-log.js";
+import { describeUpdate } from "./observability/update-descriptor.js";
 import type { BotContext } from "./types.js";
 import { isUserFacingTimeout } from "./utils/long-op.js";
 import { replyTechnical } from "./utils/message-cleanup.js";
@@ -41,18 +43,21 @@ export async function handleBotError(err: BotError<BotContext>): Promise<void> {
       activeMode = undefined;
     }
 
-    logger.error(
+    // The full update descriptor is repeated here even though `update.received`
+    // already carries it: a crash report you can act on without first running a
+    // second query is worth the duplicated fields.
+    logEvent(
+      "bot.error",
       {
-        error: cause instanceof Error ? cause.message : String(cause),
+        ...describeUpdate(ctx),
+        ...errorFields(cause),
         errorType,
-        errorCode: cause instanceof GrammyError ? cause.error_code : undefined,
-        userId: ctx.from?.id,
-        command: ctx.message?.text?.split(" ")[0] ?? "unknown",
-        callbackFamily: ctx.callbackQuery?.data?.split(":")[0],
+        ...(cause instanceof GrammyError && { errorCode: cause.error_code, telegramMethod: cause.method }),
+        handledBy: handlerChain(ctx),
         sessionVersion: 1,
         activeMode,
       },
-      "Bot error",
+      "error",
     );
 
     // Stop any pending inline-button spinner.
@@ -70,6 +75,6 @@ export async function handleBotError(err: BotError<BotContext>): Promise<void> {
     }
   } catch (handlerErr) {
     // The error handler itself must never throw.
-    logger.error({ err: handlerErr }, "bot.catch handler failed");
+    logEvent("bot.error_handler_failed", errorFields(handlerErr), "error");
   }
 }
