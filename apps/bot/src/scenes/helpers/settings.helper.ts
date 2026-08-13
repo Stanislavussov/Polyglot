@@ -305,9 +305,24 @@ export async function handleSetNotifToggleCallback(ctx: BotContext): Promise<voi
   const currentEnabled = settings?.notificationEnabled ?? false;
   const newEnabled = !currentEnabled;
 
-  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, {
+  const prefs: { notificationEnabled: boolean; notificationTimes?: string[] } = {
     notificationEnabled: newEnabled,
-  });
+  };
+
+  // Seed the admin-managed default the first time someone turns notifications on
+  // without a schedule. An empty list means "not configured" — this is the only
+  // place it is ever filled in automatically, and only when it is empty, so a
+  // time the user picked is never overwritten. The settings read happens INSIDE
+  // this branch on purpose: it keeps toggle-off free of a settings round trip.
+  if (newEnabled && (settings?.notificationTimes?.length ?? 0) === 0) {
+    const defaults = await ctx.services.settings.getNotificationDefaults();
+    // Canonicalize rather than trusting the stored string: getWithFallback heals
+    // *missing* keys only, so a present-but-malformed admin value would otherwise
+    // land in user data verbatim.
+    prefs.notificationTimes = [formatNotificationTime(parseNotificationMinutes(defaults.defaultTime))];
+  }
+
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, prefs);
   logEvent("settings.notifications_toggled", { from: currentEnabled, to: newEnabled });
 
   const lang = await getLang(ctx);
@@ -373,6 +388,17 @@ export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise
   const timeStr = formatNotificationTime(totalMinutes);
 
   if (selected.has(totalMinutes)) {
+    // Refuse to empty the schedule. An empty list means "not configured", so the
+    // next toggle off→on would seed the admin default — scheduling the user at a
+    // time they never picked. Auto-disabling notifications instead would park
+    // them in exactly that state, so the guard refuses rather than disables, and
+    // points at the toggle that already exists. This must run BEFORE the
+    // `answerCallbackQuery` below: Telegram accepts one answer per query, so
+    // answering twice would show "Removed 08:00" for a slot that was kept.
+    if (selected.size === 1) {
+      await ctx.answerCallbackQuery({ text: t("settingsNotifTimesMin", lang), show_alert: true });
+      return;
+    }
     selected.delete(totalMinutes);
     await ctx.answerCallbackQuery({ text: t("settingsNotifTimeRemoved", lang, { time: timeStr }) });
   } else if (selected.size >= MAX_NOTIFICATION_TIMES) {

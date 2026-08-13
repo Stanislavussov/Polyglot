@@ -1,7 +1,9 @@
 /**
  * Tests for notification settings in the settings scene.
  */
+import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { BotContext } from "../types.js";
 
 const {
   mockLogger,
@@ -91,7 +93,28 @@ const DEFAULT_SETTINGS = {
   notificationContext: null,
 };
 
-function createMockCtx(callbackData?: string) {
+const mockGetNotificationDefaults = vi.fn(() =>
+  Promise.resolve({ defaultTime: "19:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 }),
+);
+
+/**
+ * The hand-built context, typed as a real `BotContext` with the five methods the
+ * assertions inspect narrowed to mocks. The double assertion is unavoidable for a
+ * partial mock, but it buys the thing that matters: passing this to a handler is
+ * now type-checked against the handler's actual parameter, so a context field a
+ * handler starts reading is a compile error here rather than a `TypeError` at run
+ * time (which is exactly how the `getNotificationDefaults` call above would
+ * otherwise have surfaced).
+ */
+type MockCtx = BotContext & {
+  reply: Mock;
+  editMessageText: Mock;
+  editMessageReplyMarkup: Mock;
+  answerCallbackQuery: Mock;
+  deleteMessage: Mock;
+};
+
+function createMockCtx(callbackData?: string): MockCtx {
   return {
     user: { id: 1, subscriptionPlan: "free" },
     session: { activeMode: "translate", awaitingNotifContext: false },
@@ -113,6 +136,7 @@ function createMockCtx(callbackData?: string) {
             isActive: true,
             isDefault: true,
           }),
+        getNotificationDefaults: mockGetNotificationDefaults,
       },
     },
     callbackQuery: callbackData ? { data: callbackData, message: { message_id: 100 } } : undefined,
@@ -121,7 +145,7 @@ function createMockCtx(callbackData?: string) {
     editMessageReplyMarkup: vi.fn().mockResolvedValue({}),
     answerCallbackQuery: vi.fn().mockResolvedValue({}),
     deleteMessage: vi.fn().mockResolvedValue({}),
-  } as any;
+  } as unknown as MockCtx;
 }
 
 beforeEach(() => {
@@ -234,6 +258,62 @@ describe("handleSetNotifToggleCallback", () => {
     await handleSetNotifToggleCallback(ctx);
     expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationEnabled: false });
   });
+
+  it("seeds the admin default when enabling with no schedule", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationTimes: [] } as any);
+    const ctx = createMockCtx("set:notif:toggle");
+
+    await handleSetNotifToggleCallback(ctx);
+
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, {
+      notificationEnabled: true,
+      notificationTimes: ["19:00"],
+    });
+  });
+
+  it("canonicalizes a malformed admin default rather than storing it verbatim", async () => {
+    // getWithFallback heals *missing* keys only, so a present-but-invalid stored
+    // value survives the merge and must not reach user data as written.
+    mockGetNotificationDefaults.mockResolvedValueOnce({
+      defaultTime: "not a time",
+      defaultType: "srs",
+      inactivityDays: 14,
+      notificationTimesLimit: 12,
+    });
+    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationTimes: [] } as any);
+    const ctx = createMockCtx("set:notif:toggle");
+
+    await handleSetNotifToggleCallback(ctx);
+
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, {
+      notificationEnabled: true,
+      notificationTimes: ["19:00"],
+    });
+  });
+
+  it("never overwrites a schedule the user already chose", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationTimes: ["06:00"] } as any);
+    const ctx = createMockCtx("set:notif:toggle");
+
+    await handleSetNotifToggleCallback(ctx);
+
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationEnabled: true });
+    expect(mockGetNotificationDefaults).not.toHaveBeenCalled();
+  });
+
+  it("does not touch the schedule when turning notifications off", async () => {
+    mockUserRepository.getSettings.mockResolvedValue({
+      ...DEFAULT_SETTINGS,
+      notificationEnabled: true,
+      notificationTimes: [],
+    } as any);
+    const ctx = createMockCtx("set:notif:toggle");
+
+    await handleSetNotifToggleCallback(ctx);
+
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationEnabled: false });
+    expect(mockGetNotificationDefaults).not.toHaveBeenCalled();
+  });
 });
 
 describe("handleSetNotifTimeCallback", () => {
@@ -264,9 +344,33 @@ describe("handleSetNotifTimeSelectCallback", () => {
   });
 
   it("removes an already-selected time (toggle off)", async () => {
+    // Two slots, so removing one still leaves a schedule. This is where the
+    // original "toggle off works" coverage lives now that emptying the list is
+    // refused (the case below).
+    mockUserRepository.getSettings.mockResolvedValue({
+      ...DEFAULT_SETTINGS,
+      notificationTimes: ["08:00", "20:00"],
+    } as any);
     const ctx = createMockCtx("set:notif:time:480");
     await handleSetNotifTimeSelectCallback(ctx);
-    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationTimes: [] });
+    expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationTimes: ["20:00"] });
+  });
+
+  it("refuses to remove the last remaining time and does not persist", async () => {
+    // An empty schedule means "not configured", so the next toggle off→on would
+    // seed the admin default — a time the user never picked.
+    const ctx = createMockCtx("set:notif:time:480");
+
+    await handleSetNotifTimeSelectCallback(ctx);
+
+    expect(mockNotificationRepository.updatePrefs).not.toHaveBeenCalled();
+    // Exactly one answer, and it must be the refusal — not the "Removed 08:00"
+    // toast followed by an alert Telegram would silently drop, which would tell
+    // the user their slot was removed while it was in fact kept.
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledTimes(1);
+    const answer = ctx.answerCallbackQuery.mock.calls[0][0] as { text: string; show_alert?: boolean };
+    expect(answer.show_alert).toBe(true);
+    expect(answer.text).not.toContain("Removed");
   });
 
   it("rejects adding a 13th time and does not persist", async () => {

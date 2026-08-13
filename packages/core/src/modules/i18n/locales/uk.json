@@ -225,6 +225,7 @@
   "settingsNotifTimeAdded": "Додано {time}",
   "settingsNotifTimeRemoved": "Видалено {time}",
   "settingsNotifTimesMax": "Щонайбільше {max} разів на день",
+  "settingsNotifTimesMin": "Залиште щонайменше один час або вимкніть сповіщення.",
   "settingsNotifType": "📋 Тип: {type}",
   "settingsNotifTimezone": "🌍 Часовий пояс: {timezone}",
   "settingsNotifToggle": "🔔 Сповіщення",

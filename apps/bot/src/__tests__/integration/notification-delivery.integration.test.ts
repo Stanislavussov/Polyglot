@@ -32,7 +32,12 @@
  * the `notification_history` row instead, scoped to this test's own `userId`.
  * This deviation is deliberate.
  */
-import { notificationRepository, translationRequestRepository } from "@polyglot/adapter-db";
+import {
+  notificationRepository,
+  systemSettingsRepository,
+  translationRequestRepository,
+  userRepository,
+} from "@polyglot/adapter-db";
 import { checkAndSend, type NotificationPayload, type SchedulerDeps } from "@polyglot/adapter-notifications";
 import type { GenerateObjectFn } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
@@ -43,7 +48,7 @@ import {
   disableNotificationsFor,
 } from "../../test-helpers/integration/arrange.js";
 import type { BotHarness, CapturedCall } from "../../test-helpers/integration/bot-harness.js";
-import { createBotHarness } from "../../test-helpers/integration/bot-harness.js";
+import { callbackQueryUpdate, createBotHarness } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -145,6 +150,134 @@ describe("scheduled notification delivery (integration)", () => {
     expect(textOf(mine[0]!)).toContain(headword);
     expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([headword]);
     expect(ai.wasCalled()).toBe(false);
+
+    // Cleanup
+    await disableNotificationsFor(userId);
+  });
+});
+
+describe("notification schedule seeding and the deselect guard (integration)", () => {
+  it("C7: seeds the admin-configured default the first time a user turns notifications on", async () => {
+    // Arrange — write the setting BEFORE building the harness: createContainer()
+    // constructs a fresh SettingsService and its 60s cache starts empty, so the
+    // write is guaranteed visible. If this test ever sees 19:00, the cache is the
+    // first suspect. The row is deleted again in cleanup because it is global to
+    // the database, unlike everything else in this file.
+    await systemSettingsRepository.set("notifications", {
+      defaultTime: "21:30",
+      defaultType: "srs",
+      inactivityDays: 14,
+      notificationTimesLimit: 12,
+    });
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeNotifiableUser(telegramId, {
+      notificationEnabled: false,
+      notificationTimes: [],
+      withVocabulary: false,
+    });
+    harness.reset();
+
+    // Act
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 500, data: "set:notif:toggle" }),
+    );
+
+    // Assert — the admin knob, not a constant, decided the hour.
+    const settings = await userRepository.getSettings(userId);
+    expect(settings?.notificationEnabled).toBe(true);
+    expect(settings?.notificationTimes).toEqual(["21:30"]);
+
+    // Cleanup
+    await systemSettingsRepository.delete("notifications");
+    await disableNotificationsFor(userId);
+  });
+
+  it("C8: never overwrites a schedule the user already chose", async () => {
+    // Arrange
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeNotifiableUser(telegramId, {
+      notificationTimes: ["06:00"],
+      withVocabulary: false,
+    });
+
+    // Act — off, then on again. The round trip is the point: it is the only way a
+    // user with a schedule can reach the seeding branch.
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 501, data: "set:notif:toggle" }),
+    );
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 501, data: "set:notif:toggle" }),
+    );
+
+    // Assert
+    const settings = await userRepository.getSettings(userId);
+    expect(settings?.notificationEnabled).toBe(true);
+    expect(settings?.notificationTimes).toEqual(["06:00"]);
+
+    // Cleanup
+    await disableNotificationsFor(userId);
+  });
+
+  it("C9: refuses to deselect the last remaining slot", async () => {
+    // Arrange — exactly one configured slot, notifications on.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeNotifiableUser(telegramId, {
+      notificationTimes: ["13:00"],
+      withVocabulary: false,
+    });
+    harness.reset();
+
+    // Act
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 502, data: "set:notif:time:780" }),
+    );
+
+    // Assert — re-read from the database, not from the reply.
+    const settings = await userRepository.getSettings(userId);
+    expect(settings?.notificationTimes).toEqual(["13:00"]);
+    // The guard refuses; it never disables. Auto-disabling would park the user at
+    // enabled=false with an empty schedule — exactly the state the next toggle-on
+    // seeds the admin default into.
+    expect(settings?.notificationEnabled).toBe(true);
+
+    // Exactly one answer, and it must be the refusal. Telegram accepts one answer
+    // per query and drops the rest, so an implementation that answered "Removed
+    // 13:00" first and then alerted would leave the user told their slot was
+    // removed while it was in fact kept — and a laxer assertion would pass.
+    const answers = harness.sent.filter((call) => call.method === "answerCallbackQuery");
+    expect(answers).toHaveLength(1);
+    const answer = answers[0]!.payload as { text?: string; show_alert?: boolean };
+    expect(answer.show_alert).toBe(true);
+    expect(String(answer.text)).not.toContain("Removed");
+
+    // Cleanup
+    await disableNotificationsFor(userId);
+  });
+
+  it("C9b: the guard cannot be walked around via toggle off and on", async () => {
+    // Pre-mortem Scenario 2, executed end to end. Deselect the last slot (refused),
+    // then off, then on. This passes only because the schedule was never allowed to
+    // empty — without the guard the user would come back scheduled at a time they
+    // never picked.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeNotifiableUser(telegramId, {
+      notificationTimes: ["13:00"],
+      withVocabulary: false,
+    });
+
+    // Act
+    for (const data of ["set:notif:time:780", "set:notif:toggle", "set:notif:toggle"]) {
+      await harness.dispatch(callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 503, data }));
+    }
+
+    // Assert
+    const settings = await userRepository.getSettings(userId);
+    expect(settings?.notificationEnabled).toBe(true);
+    expect(settings?.notificationTimes).toEqual(["13:00"]);
 
     // Cleanup
     await disableNotificationsFor(userId);

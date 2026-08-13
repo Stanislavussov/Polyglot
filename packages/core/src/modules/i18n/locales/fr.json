@@ -225,6 +225,7 @@
   "settingsNotifTimeAdded": "Ajouté {time}",
   "settingsNotifTimeRemoved": "Retiré {time}",
   "settingsNotifTimesMax": "Maximum {max} fois par jour",
+  "settingsNotifTimesMin": "Gardez au moins une heure, ou désactivez les notifications.",
   "settingsNotifType": "📋 Type : {type}",
   "settingsNotifTimezone": "🌍 Fuseau horaire : {timezone}",
   "settingsNotifToggle": "🔔 Notifications",

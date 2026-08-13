@@ -225,6 +225,7 @@
   "settingsNotifTimeAdded": "Aggiunto {time}",
   "settingsNotifTimeRemoved": "Rimosso {time}",
   "settingsNotifTimesMax": "Massimo {max} orari al giorno",
+  "settingsNotifTimesMin": "Mantieni almeno un orario, oppure disattiva le notifiche.",
   "settingsNotifType": "📋 Tipo: {type}",
   "settingsNotifTimezone": "🌍 Fuso orario: {timezone}",
   "settingsNotifToggle": "🔔 Notifiche",

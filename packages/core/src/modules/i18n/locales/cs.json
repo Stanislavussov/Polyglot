@@ -225,6 +225,7 @@
   "settingsNotifTimeAdded": "Přidáno {time}",
   "settingsNotifTimeRemoved": "Odebráno {time}",
   "settingsNotifTimesMax": "Maximálně {max} časů denně",
+  "settingsNotifTimesMin": "Ponechte alespoň jeden čas, nebo vypněte oznámení.",
   "settingsNotifType": "📋 Typ: {type}",
   "settingsNotifTimezone": "🌍 Časová zóna: {timezone}",
   "settingsNotifToggle": "🔔 Notifikace",

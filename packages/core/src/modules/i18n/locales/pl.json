@@ -225,6 +225,7 @@
   "settingsNotifTimeAdded": "Dodano {time}",
   "settingsNotifTimeRemoved": "Usunięto {time}",
   "settingsNotifTimesMax": "Maksymalnie {max} godzin dziennie",
+  "settingsNotifTimesMin": "Zostaw co najmniej jedną godzinę albo wyłącz powiadomienia.",
   "settingsNotifType": "📋 Typ: {type}",
   "settingsNotifTimezone": "🌍 Strefa czasowa: {timezone}",
   "settingsNotifToggle": "🔔 Powiadomienia",

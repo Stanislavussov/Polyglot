@@ -127,7 +127,7 @@ const FALLBACK_AI_DEFAULTS: AIGenerationDefaults = AI_GENERATION_DEFAULTS;
 const FALLBACK_SRS: SrsConfig = { minEaseFactor: 1.3, defaultEaseFactor: 2.5 };
 
 const FALLBACK_NOTIFICATIONS: NotificationDefaults = {
-  defaultTime: "08:00",
+  defaultTime: "19:00",
   defaultType: "srs",
   inactivityDays: 14,
   notificationTimesLimit: 12,

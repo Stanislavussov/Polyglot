@@ -225,6 +225,7 @@
   "settingsNotifTimeAdded": "Добавлено {time}",
   "settingsNotifTimeRemoved": "Удалено {time}",
   "settingsNotifTimesMax": "Максимум {max} раз в день",
+  "settingsNotifTimesMin": "Оставьте хотя бы одно время или отключите уведомления.",
   "settingsNotifType": "📋 Тип: {type}",
   "settingsNotifTimezone": "🌍 Часовой пояс: {timezone}",
   "settingsNotifToggle": "🔔 Уведомления",

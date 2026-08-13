@@ -225,6 +225,7 @@
   "settingsNotifTimeAdded": "Қосылды {time}",
   "settingsNotifTimeRemoved": "Жойылды {time}",
   "settingsNotifTimesMax": "Күніне ең көбі {max} рет",
+  "settingsNotifTimesMin": "Кемінде бір уақытты қалдырыңыз немесе хабарламаларды өшіріңіз.",
   "settingsNotifType": "📋 Түрі: {type}",
   "settingsNotifTimezone": "🌍 Уақыт белдеуі: {timezone}",
   "settingsNotifToggle": "🔔 Хабарландырулар",

@@ -91,3 +91,43 @@ describe("settingsAdapter.getSrsConfig — getWithFallback shallow-merge (non-ai
     expect(srs.defaultEaseFactor).toBe(2.5); // backfilled from defaults
   });
 });
+
+describe("settingsAdapter.getNotificationDefaults", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns 19:00 when no notifications row has ever been saved", async () => {
+    // The state every fresh database and every integration run starts in: the
+    // only writer of this key is the admin-api notifications route. This value is
+    // what a new user's schedule gets seeded with at their first opt-in, and what
+    // the admin form pre-fills on a fresh install.
+    mockGet.mockResolvedValueOnce(null);
+
+    const notifications = await settingsAdapter.getNotificationDefaults();
+
+    expect(notifications.defaultTime).toBe("19:00");
+  });
+
+  it("preserves an admin-set time and backfills the keys a legacy blob lacks", async () => {
+    mockGet.mockResolvedValueOnce({ defaultTime: "21:30" }); // written before the other three existed
+
+    const notifications = await settingsAdapter.getNotificationDefaults();
+
+    expect(notifications.defaultTime).toBe("21:30"); // admin choice wins over the default
+    expect(notifications.defaultType).toBe("srs");
+    expect(notifications.inactivityDays).toBe(14);
+    expect(notifications.notificationTimesLimit).toBe(12);
+  });
+
+  it("lets a present-but-invalid stored time through — canonicalization is the caller's job", async () => {
+    // getWithFallback heals MISSING keys only. This is not a defect to fix here:
+    // it is why the notification toggle canonicalizes through
+    // parseNotificationMinutes before writing anything into user data.
+    mockGet.mockResolvedValueOnce({ defaultTime: "not a time" });
+
+    const notifications = await settingsAdapter.getNotificationDefaults();
+
+    expect(notifications.defaultTime).toBe("not a time");
+  });
+});
