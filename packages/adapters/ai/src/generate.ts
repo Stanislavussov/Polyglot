@@ -87,6 +87,7 @@ async function withInstrumentedCall<R>(
       duration_ms,
       success: true,
       userId: options?.userId,
+      budgetMs,
     });
 
     return value;
@@ -102,6 +103,8 @@ async function withInstrumentedCall<R>(
       duration_ms,
       success: false,
       userId: options?.userId,
+      budgetMs,
+      timedOut: timeout.timedOut(),
       error: normalizedError instanceof Error ? normalizedError.message : String(normalizedError),
     });
 

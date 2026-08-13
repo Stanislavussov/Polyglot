@@ -23,9 +23,11 @@ export function formatNotificationMessage(payload: NotificationPayload, lang: Su
   const sourceLabel =
     word.source === "srs"
       ? t("notifWordFromDict", lang)
-      : word.source === "contextual"
-        ? t("notifTypeContextual", lang)
-        : t("notifAiSuggested", lang);
+      : word.source === "preset"
+        ? t("notifPresetWord", lang)
+        : word.source === "contextual"
+          ? t("notifTypeContextual", lang)
+          : t("notifAiSuggested", lang);
 
   const translationLines = Object.entries(word.translations)
     .map(([code, text]) => {

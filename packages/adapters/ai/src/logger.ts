@@ -6,7 +6,7 @@
  */
 
 import type { Logger } from "@polyglot/core";
-import { getLogger } from "@polyglot/core";
+import { getLogger, logEvent } from "@polyglot/core";
 import type { AIRequestLog, AIRequestMetricSink } from "./types.js";
 
 let requestMetricSink: AIRequestMetricSink | null = null;
@@ -43,7 +43,7 @@ function persistMetric(log: AIRequestLog, logger: Logger): void {
  * Log a completed AI request (success or failure).
  */
 export function logRequest(log: AIRequestLog): void {
-  const { model, requestKind, tokens, cost_usd, duration_ms, success, userId, error } = log;
+  const { model, requestKind, tokens, cost_usd, duration_ms, success, userId, error, budgetMs, timedOut } = log;
   const logger = getAiLogger();
 
   const base = {
@@ -54,12 +54,16 @@ export function logRequest(log: AIRequestLog): void {
     cost_usd: Number(cost_usd.toFixed(6)),
     duration_ms,
     ...(userId !== undefined && { userId }),
+    // The budget is logged next to the duration because the pair is what makes
+    // an aborted call diagnosable — a duration alone cannot say whether the
+    // provider was slow or the budget was set wrong (the "NaNms" outage class).
+    ...(budgetMs !== undefined && { budgetMs }),
   };
 
   if (success) {
-    logger.info(base, "AI request completed");
+    logEvent("ai.request.completed", base);
   } else {
-    logger.error({ ...base, error }, "AI request failed");
+    logEvent("ai.request.failed", { ...base, error, timedOut: timedOut === true }, "error");
   }
 
   persistMetric(log, logger);

@@ -416,12 +416,16 @@ describe("notificationRepository", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("calls select with innerJoin", async () => {
+    it("screens out recently-active users inside one query rather than per user", async () => {
+      // Two `select` calls, one executed statement: the outer eligibility query
+      // plus the correlated NOT EXISTS that excludes users who translated
+      // recently. A per-user round trip would scale with cohort size.
       queryResults = [[]];
 
       await notificationRepository.getUsersForWindow(8, 0);
 
-      expect(mockDb.select).toHaveBeenCalledOnce();
+      expect(mockDb.select).toHaveBeenCalledTimes(2);
+      expect(queryIndex).toBe(1);
     });
   });
 

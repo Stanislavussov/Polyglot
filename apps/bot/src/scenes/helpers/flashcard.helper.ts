@@ -5,7 +5,7 @@
  * Review logging is best-effort (never blocks UX).
  */
 import type { DictionaryPipelineDeps, SupportedLang } from "@polyglot/core";
-import { createDictionaryPipeline, FLASHCARD_CONFIG, isSupported, logger, t } from "@polyglot/core";
+import { createDictionaryPipeline, FLASHCARD_CONFIG, isSupported, logEvent, logger, t } from "@polyglot/core";
 import {
   buildFlashCardBackKeyboard,
   buildFlashCardDoneKeyboard,
@@ -100,6 +100,7 @@ export async function handleFcStart(ctx: BotContext): Promise<void> {
   const fc = ctx.session.flashcard;
   if (!fc) return void answerExpired(ctx);
 
+  logEvent("flashcard.session_started", { deckSize: fc.deck.length });
   const lang = await getUserLang(ctx);
   const word = fc.deck[0]!;
   const text = renderFlashCardFront(word, 1, fc.deck.length, lang);
@@ -150,6 +151,7 @@ export async function handleFcDone(ctx: BotContext): Promise<void> {
   const fc = ctx.session.flashcard;
   if (!fc) return void answerExpired(ctx);
 
+  logEvent("flashcard.session_finished", { deckSize: fc.deck.length, reviewed: fc.currentIndex + 1 });
   const lang = await getUserLang(ctx);
   const lastWord = fc.deck[fc.currentIndex];
   if (lastWord) logReviewSafe(ctx, lastWord.id);

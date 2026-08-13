@@ -75,6 +75,17 @@ its layer: no cross-boundary changes.
 - Receives a `sendFn` by injection; never imports the bot.
 - Delivery scheduling is injectable; log-and-continue on send errors; respect the user's timezone.
 - Timezone/language defaults come from DB constants, not hardcoded values.
+- **Notifications are re-engagement, not a broadcast.** Only users who have not
+  translated for `QUIET_DAYS` are eligible; the activity signal is the last
+  `translation_requests` row, never `last_interaction_at` (which any tap bumps,
+  including on a notification's own buttons).
+- **Word selection is layered and never repeats:** the user's dictionary → a
+  curated preset when the dictionary is empty *or exhausted* → the
+  empty-dictionary prompt. A picker that has nothing new returns `null` so the
+  next layer runs; it must never re-send a word the user has already received.
+- Preset words come from the curated hook list, served from the reviewed
+  demo-card cache first and translated just-in-time otherwise, so the layer is
+  never silently dead for an uncached language pair.
 
 ### Core modules — `packages/core/*` (general)
 

@@ -1,4 +1,12 @@
-import { applySm2Review, isSupported, logger, type SrsRating, type SupportedLang, t } from "@polyglot/core";
+import {
+  applySm2Review,
+  errorFields,
+  isSupported,
+  logEvent,
+  type SrsRating,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
 import {
   buildSrsBackKeyboard,
   buildSrsDoneKeyboard,
@@ -80,8 +88,21 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
   try {
     await ctx.services.vocabularyRepository.updateSrsState(card.translationId, nextState);
     await ctx.services.wordReviewRepository.logReview(ctx.user.id, card.entryId, "srs");
+    // The scheduling decision itself: a card resurfacing too soon or never
+    // again is only explainable from the interval/ease the rating produced.
+    logEvent("srs.card_rated", {
+      rating,
+      entryId: card.entryId,
+      translationId: card.translationId,
+      previousInterval: card.srsInterval,
+      nextInterval: nextState.interval,
+      easeFactor: nextState.easeFactor,
+      reviewCount: nextState.reviewCount,
+      position: srs.currentIndex + 1,
+      deckSize: srs.deck.length,
+    });
   } catch (err) {
-    logger.error({ err, userId: ctx.user.id, translationId: card.translationId }, "Failed to update SRS review");
+    logEvent("srs.rating_persist_failed", { rating, translationId: card.translationId, ...errorFields(err) }, "error");
   }
 
   const lang = await getUserLang(ctx);
@@ -89,6 +110,7 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
 
   if (srs.currentIndex >= srs.deck.length) {
     const text = t("srsDone", lang, { count: String(srs.deck.length) });
+    logEvent("srs.session_finished", { reviewed: srs.deck.length });
     ctx.session.srs = undefined;
     await cleanupTechnicalMessages(ctx);
     try {

@@ -7,9 +7,10 @@
  * pipeline via `handleMistypeConfirmCallback`.
  */
 import {
+  errorFields,
   isSupported,
   isSupportedLanguage,
-  logger,
+  logEvent,
   resolveDirectionFromSource,
   type SupportedLang,
   t,
@@ -87,13 +88,14 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
     try {
       await ctx.services.userRepository.updateLearningLangs(ctx.user.id, nextLangs);
       effectiveLearning = nextLangs;
+      logEvent("language.added_from_out_of_set", { sourceLang, learningLangs: nextLangs });
       // This update continues into `handleMistypeConfirmCallback` below, which
       // re-reads the settings. Drop the request memo (warmed by the auth
       // middleware before this write) so that read sees the language just added
       // instead of re-classifying it as out-of-set and re-offering it.
       clearRequestSettings(ctx);
     } catch (err) {
-      logger.warn({ err, sourceLang }, "Failed to add out-of-set language");
+      logEvent("language.add_from_out_of_set_failed", { sourceLang, ...errorFields(err) }, "warn");
       await ctx.answerCallbackQuery({ text: t("translationError", lang), show_alert: true });
       return;
     }
@@ -110,7 +112,7 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
       targetLangs,
     })
     .catch((err: unknown) => {
-      logger.warn({ err }, "Failed to record language detection event");
+      logEvent("language_detection.record_failed", errorFields(err), "warn");
     });
 
   const pendingWord = pending.word;
@@ -157,7 +159,7 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
           word: pendingWord,
         })
         .catch((err: unknown) => {
-          logger.warn({ err }, "Failed to record language detection event");
+          logEvent("language_detection.record_failed", errorFields(err), "warn");
         });
     }
 
@@ -246,7 +248,7 @@ export async function handleSrcLangOverrideCallback(ctx: BotContext): Promise<vo
       targetLangs: direction.targetLangs,
     })
     .catch((err: unknown) => {
-      logger.warn({ err }, "Failed to record language detection event");
+      logEvent("language_detection.record_failed", errorFields(err), "warn");
     });
 
   ctx.session.pendingDetectedLang = undefined;

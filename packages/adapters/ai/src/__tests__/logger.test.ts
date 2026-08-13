@@ -1,27 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-// Must use vi.hoisted to avoid the TDZ issue with vi.mock hoisting
-const { mockInfo, mockWarn, mockError, mockChild } = vi.hoisted(() => ({
-  mockInfo: vi.fn(),
-  mockWarn: vi.fn(),
-  mockError: vi.fn(),
-  mockChild: vi.fn(() => ({
-    info: mockInfo,
-    warn: mockWarn,
-    error: mockError,
-  })),
-}));
-
-vi.mock("@polyglot/core", () => ({
-  getLogger: vi.fn(() => ({
-    info: mockInfo,
-    warn: mockWarn,
-    error: mockError,
-    child: mockChild,
-  })),
-}));
-
+import { setLogger } from "@polyglot/core";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { logRequest, setAIRequestMetricSink } from "../logger.js";
+
+const mockInfo = vi.fn();
+const mockWarn = vi.fn();
+const mockError = vi.fn();
+const silent = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} };
 
 describe("logger", () => {
   beforeEach(() => {
@@ -29,6 +13,11 @@ describe("logger", () => {
     mockWarn.mockClear();
     mockError.mockClear();
     setAIRequestMetricSink(null);
+    setLogger({ info: mockInfo, warn: mockWarn, error: mockError, debug: vi.fn() });
+  });
+
+  afterEach(() => {
+    setLogger(silent);
   });
 
   it("logs successful requests with info level", () => {
@@ -43,7 +32,7 @@ describe("logger", () => {
 
     expect(mockInfo).toHaveBeenCalledOnce();
     const [data, msg] = mockInfo.mock.calls[0];
-    expect(msg).toBe("AI request completed");
+    expect(msg).toBe("ai.request.completed");
     expect(data.model).toBe("openai/gpt-4o");
     expect(data.requestKind).toBe("object");
     expect(data.inputTokens).toBe(100);
@@ -65,7 +54,7 @@ describe("logger", () => {
 
     expect(mockError).toHaveBeenCalledOnce();
     const [data, msg] = mockError.mock.calls[0];
-    expect(msg).toBe("AI request failed");
+    expect(msg).toBe("ai.request.failed");
     expect(data.error).toBe("Rate limit exceeded");
     expect(data.model).toBe("openai/gpt-4o");
   });

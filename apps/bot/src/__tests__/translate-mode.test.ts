@@ -25,6 +25,9 @@ vi.mock("@polyglot/core", () => ({
   t: vi.fn((key: string) => `[${key}]`),
   isSupported: vi.fn(() => true),
   logger: mockLogger,
+  logEvent: vi.fn(),
+  errorFields: vi.fn((error: unknown) => ({ error: String(error) })),
+  enrichTrace: vi.fn(),
 }));
 
 vi.mock("@polyglot/infra", () => ({
