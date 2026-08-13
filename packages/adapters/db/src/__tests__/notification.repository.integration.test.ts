@@ -192,8 +192,8 @@ describe("notificationRepository.getUsersForWindow (integration)", () => {
   });
 
   it("excludes a user whose timezone cannot be parsed", async () => {
-    // getLocalMinutes returns -1 and the row is dropped. This exclusion is silent
-    // today, which is why the scheduler counts it — see the drop counter.
+    // getLocalMinutes returns -1 and the row is dropped. The exclusion is
+    // otherwise invisible, which is why getUsersForWindow counts and warns.
     const userId = await seedNotifiableUser({ timezone: "Not/AZone" });
 
     expect(await eligibleAmong([userId])).toEqual([]);

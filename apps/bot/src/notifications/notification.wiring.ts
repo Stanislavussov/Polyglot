@@ -79,15 +79,6 @@ export async function resolveTelegramChatId(
   return legacyTelegramId;
 }
 
-/**
- * Build the three pieces the scheduler runs on — without starting it.
- *
- * Split out of {@link wireNotificationScheduler} so an integration test can drive
- * the *real* delivery pipeline (real repository, real identity resolution with the
- * legacy `telegram_id` fallback, real message formatting, real `api.sendMessage`)
- * by calling `checkAndSend(sendFn, deps)` directly, with no half-hourly cron
- * running inside the test issuing a second, uncounted send.
- */
 export interface NotificationSchedulingOverrides {
   /**
    * Replaces the module-level `generateObject` for BOTH just-in-time AI paths —
@@ -105,6 +96,15 @@ export interface NotificationSchedulingOverrides {
   generateObject?: GenerateObjectFn;
 }
 
+/**
+ * Build the three pieces the scheduler runs on — without starting it.
+ *
+ * Split out of {@link wireNotificationScheduler} so an integration test can drive
+ * the *real* delivery pipeline (real repository, real identity resolution with the
+ * legacy `telegram_id` fallback, real message formatting, real `api.sendMessage`)
+ * by calling `checkAndSend(sendFn, deps)` directly, with no half-hourly cron
+ * running inside the test issuing a second, uncounted send.
+ */
 export async function buildNotificationScheduling(
   api: Api<RawApi>,
   overrides: NotificationSchedulingOverrides = {},

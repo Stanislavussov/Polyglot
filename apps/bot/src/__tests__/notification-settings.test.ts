@@ -1,6 +1,7 @@
 /**
  * Tests for notification settings in the settings scene.
  */
+import type { UserLanguageSettings } from "@polyglot/core";
 import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { BotContext } from "../types.js";
@@ -80,7 +81,15 @@ import {
   handleSettingsCommand,
 } from "../scenes/settings.scene.js";
 
-const DEFAULT_SETTINGS = {
+/**
+ * Typed against the real row shape rather than asserted into place, so every
+ * `getSettings` stub below needs no cast and a column added to
+ * `UserLanguageSettings` surfaces here as a compile error instead of letting
+ * these tests keep asserting against a shape production never returns.
+ */
+const DEFAULT_SETTINGS: UserLanguageSettings = {
+  id: 1,
+  userId: 1,
   interfaceLang: "en",
   nativeLang: "en",
   learningLangs: ["cs", "ru"],
@@ -91,6 +100,9 @@ const DEFAULT_SETTINGS = {
   notificationTimes: ["08:00"],
   notificationType: "srs",
   notificationContext: null,
+  lastInteractionAt: null,
+  isActive: true,
+  updatedAt: new Date("2026-01-01T00:00:00Z"),
 };
 
 const mockGetNotificationDefaults = vi.fn(() =>
@@ -99,12 +111,17 @@ const mockGetNotificationDefaults = vi.fn(() =>
 
 /**
  * The hand-built context, typed as a real `BotContext` with the five methods the
- * assertions inspect narrowed to mocks. The double assertion is unavoidable for a
- * partial mock, but it buys the thing that matters: passing this to a handler is
- * now type-checked against the handler's actual parameter, so a context field a
- * handler starts reading is a compile error here rather than a `TypeError` at run
- * time (which is exactly how the `getNotificationDefaults` call above would
- * otherwise have surfaced).
+ * assertions inspect narrowed to mocks.
+ *
+ * What the return annotation buys: call sites now see a `BotContext` instead of
+ * `any`, so the handlers under test are type-checked against their real
+ * parameter. What it does NOT buy — and this matters, because the opposite is
+ * easy to assume: `as unknown as MockCtx` erases all checking of the object
+ * literal itself, so a **missing** stub is still a runtime `TypeError`, not a
+ * compile error. The `getNotificationDefaults` addition below had to be made by
+ * hand for exactly that reason. Making the literal structurally checked means
+ * building out the rest of `BotContext`, which is a larger change than this file
+ * needs.
  */
 type MockCtx = BotContext & {
   reply: Mock;
@@ -150,7 +167,7 @@ function createMockCtx(callbackData?: string): MockCtx {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockUserRepository.getSettings.mockResolvedValue(DEFAULT_SETTINGS as any);
+  mockUserRepository.getSettings.mockResolvedValue(DEFAULT_SETTINGS);
   mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(10);
 });
 
@@ -253,14 +270,14 @@ describe("handleSetNotifToggleCallback", () => {
   });
 
   it("disables notifications when currently enabled", async () => {
-    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationEnabled: true } as any);
+    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationEnabled: true });
     const ctx = createMockCtx("set:notif:toggle");
     await handleSetNotifToggleCallback(ctx);
     expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationEnabled: false });
   });
 
   it("seeds the admin default when enabling with no schedule", async () => {
-    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationTimes: [] } as any);
+    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationTimes: [] });
     const ctx = createMockCtx("set:notif:toggle");
 
     await handleSetNotifToggleCallback(ctx);
@@ -280,7 +297,7 @@ describe("handleSetNotifToggleCallback", () => {
       inactivityDays: 14,
       notificationTimesLimit: 12,
     });
-    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationTimes: [] } as any);
+    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationTimes: [] });
     const ctx = createMockCtx("set:notif:toggle");
 
     await handleSetNotifToggleCallback(ctx);
@@ -292,7 +309,7 @@ describe("handleSetNotifToggleCallback", () => {
   });
 
   it("never overwrites a schedule the user already chose", async () => {
-    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationTimes: ["06:00"] } as any);
+    mockUserRepository.getSettings.mockResolvedValue({ ...DEFAULT_SETTINGS, notificationTimes: ["06:00"] });
     const ctx = createMockCtx("set:notif:toggle");
 
     await handleSetNotifToggleCallback(ctx);
@@ -306,7 +323,7 @@ describe("handleSetNotifToggleCallback", () => {
       ...DEFAULT_SETTINGS,
       notificationEnabled: true,
       notificationTimes: [],
-    } as any);
+    });
     const ctx = createMockCtx("set:notif:toggle");
 
     await handleSetNotifToggleCallback(ctx);
@@ -350,7 +367,7 @@ describe("handleSetNotifTimeSelectCallback", () => {
     mockUserRepository.getSettings.mockResolvedValue({
       ...DEFAULT_SETTINGS,
       notificationTimes: ["08:00", "20:00"],
-    } as any);
+    });
     const ctx = createMockCtx("set:notif:time:480");
     await handleSetNotifTimeSelectCallback(ctx);
     expect(mockNotificationRepository.updatePrefs).toHaveBeenCalledWith(1, { notificationTimes: ["20:00"] });
@@ -378,7 +395,7 @@ describe("handleSetNotifTimeSelectCallback", () => {
     mockUserRepository.getSettings.mockResolvedValue({
       ...DEFAULT_SETTINGS,
       notificationTimes: twelveTimes,
-    } as any);
+    });
     const ctx = createMockCtx("set:notif:time:870");
     await handleSetNotifTimeSelectCallback(ctx);
     expect(mockNotificationRepository.updatePrefs).not.toHaveBeenCalled();

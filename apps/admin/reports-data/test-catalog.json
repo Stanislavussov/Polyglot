@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-13T20:54:13.000Z",
+  "generatedAt": "2026-08-13T20:59:18.000Z",
   "summary": {
     "total": 2650,
     "business": 0,
@@ -2391,10 +2391,10 @@
       "description": "Protects the bot main menu keyboard (integration) behavior so re installs the keyboard on start so a user who lost it can get it back."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-109-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-130-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 109,
+      "sourceLine": 130,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2407,10 +2407,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C1: notifies a subscriber who translated today."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-135-scheduled-notification-delivery-integration-c2-delivers-the-scheduled-word-to-a-subscriber-in-their-configured-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-153-scheduled-notification-delivery-integration-c2-delivers-the-scheduled-word-to-a-subscriber-in-their-configured-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 135,
+      "sourceLine": 153,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2423,10 +2423,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C2: delivers the scheduled word to a subscriber in their configured slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-158-scheduled-notification-delivery-integration-c3-sends-nothing-to-a-user-who-has-not-opted-in",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-173-scheduled-notification-delivery-integration-c3-sends-nothing-to-a-user-who-has-not-opted-in",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 158,
+      "sourceLine": 173,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2439,10 +2439,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C3: sends nothing to a user who has not opted in."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-177-scheduled-notification-delivery-integration-c4-sends-nothing-outside-the-user-s-configured-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-192-scheduled-notification-delivery-integration-c4-sends-nothing-outside-the-user-s-configured-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 177,
+      "sourceLine": 192,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2455,10 +2455,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C4: sends nothing outside the user's configured slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-199-scheduled-notification-delivery-integration-c5-sends-the-empty-dictionary-prompt-when-there-is-no-word-to-send",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-211-scheduled-notification-delivery-integration-c5-sends-the-empty-dictionary-prompt-when-there-is-no-word-to-send",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 199,
+      "sourceLine": 211,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2471,10 +2471,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C5: sends the empty dictionary prompt when there is no word to send."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-224-scheduled-notification-delivery-integration-c6-disables-notifications-after-a-403-and-does-not-retry",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-233-scheduled-notification-delivery-integration-c6-disables-notifications-after-a-403-and-does-not-retry",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 224,
+      "sourceLine": 233,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2487,10 +2487,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C6: disables notifications after a 403 and does not retry."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-250-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-259-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 250,
+      "sourceLine": 259,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2503,10 +2503,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C7: seeds the admin configured default the first time a user turns notifications on."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-286-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-305-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 286,
+      "sourceLine": 305,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2519,10 +2519,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C8: never overwrites a schedule the user already chose."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-313-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-329-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 313,
+      "sourceLine": 329,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2535,10 +2535,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C9: refuses to deselect the last remaining slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-350-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-363-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 350,
+      "sourceLine": 363,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2711,10 +2711,10 @@
       "description": "Protects the bot handle Mentor Text with failover behavior so delivers a fallback coaching reply when the primary model 429s."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-158-buildsettingstext-shows-notification-status-line",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-175-buildsettingstext-shows-notification-status-line",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 158,
+      "sourceLine": 175,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2727,10 +2727,10 @@
       "description": "Protects the bot build Settings Text behavior: shows notification status line."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-163-buildsettingstext-shows-enabled-status-with-time-and-type",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-180-buildsettingstext-shows-enabled-status-with-time-and-type",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 163,
+      "sourceLine": 180,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2743,10 +2743,10 @@
       "description": "Protects the bot build Settings Text behavior: shows enabled status with time and type."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-171-buildsettingskeyboard-includes-manage-notifications-button",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-188-buildsettingskeyboard-includes-manage-notifications-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 171,
+      "sourceLine": 188,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2759,10 +2759,10 @@
       "description": "Protects the bot build Settings Keyboard behavior: includes Manage notifications button."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-178-buildsettingskeyboard-does-not-show-individual-notif-buttons-in-main-menu",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-195-buildsettingskeyboard-does-not-show-individual-notif-buttons-in-main-menu",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 178,
+      "sourceLine": 195,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2775,10 +2775,10 @@
       "description": "Protects the bot build Settings Keyboard behavior: does not show individual notif buttons in main menu."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-189-buildnotifsubtext-shows-all-notification-details",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-206-buildnotifsubtext-shows-all-notification-details",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 189,
+      "sourceLine": 206,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2791,10 +2791,10 @@
       "description": "Protects the bot build Notif Sub Text behavior: shows all notification details."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-196-buildnotifsubtext-shows-multiple-times-as-a-sorted-list",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-213-buildnotifsubtext-shows-multiple-times-as-a-sorted-list",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 213,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2807,10 +2807,10 @@
       "description": "Protects the bot build Notif Sub Text behavior: shows multiple times as a sorted list."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-201-buildnotifsubtext-shows-context-when-type-is-contextual",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-218-buildnotifsubtext-shows-context-when-type-is-contextual",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 201,
+      "sourceLine": 218,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2823,10 +2823,10 @@
       "description": "Protects the bot build Notif Sub Text behavior: shows context when type is contextual."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-208-buildnotifsubkeyboard-shows-toggle-and-all-settings-when-enabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-225-buildnotifsubkeyboard-shows-toggle-and-all-settings-when-enabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 208,
+      "sourceLine": 225,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2839,10 +2839,10 @@
       "description": "Protects the bot build Notif Sub Keyboard behavior: shows toggle and all settings when enabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-219-buildnotifsubkeyboard-shows-context-button-only-when-type-is-contextual",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-236-buildnotifsubkeyboard-shows-context-button-only-when-type-is-contextual",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 236,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2855,10 +2855,10 @@
       "description": "Protects the bot build Notif Sub Keyboard behavior: shows context button only when type is contextual."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-229-buildnotifsubkeyboard-hides-settings-buttons-when-disabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-246-buildnotifsubkeyboard-hides-settings-buttons-when-disabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 229,
+      "sourceLine": 246,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2871,10 +2871,10 @@
       "description": "Protects the bot build Notif Sub Keyboard behavior: hides settings buttons when disabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-240-handlesettingscommand-shows-settings-with-notification-status",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-257-handlesettingscommand-shows-settings-with-notification-status",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 257,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2887,10 +2887,10 @@
       "description": "Protects the bot handle Settings Command behavior: shows settings with notification status."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-249-handlesetnotiftogglecallback-enables-notifications-when-currently-disabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-266-handlesetnotiftogglecallback-enables-notifications-when-currently-disabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 249,
+      "sourceLine": 266,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2903,10 +2903,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so enables notifications when currently disabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-255-handlesetnotiftogglecallback-disables-notifications-when-currently-enabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-272-handlesetnotiftogglecallback-disables-notifications-when-currently-enabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 255,
+      "sourceLine": 272,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2919,10 +2919,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so disables notifications when currently enabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-262-handlesetnotiftogglecallback-seeds-the-admin-default-when-enabling-with-no-schedule",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-279-handlesetnotiftogglecallback-seeds-the-admin-default-when-enabling-with-no-schedule",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 262,
+      "sourceLine": 279,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2935,10 +2935,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so seeds the admin default when enabling with no schedule."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-274-handlesetnotiftogglecallback-canonicalizes-a-malformed-admin-default-rather-than-storing-it-verbatim",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-291-handlesetnotiftogglecallback-canonicalizes-a-malformed-admin-default-rather-than-storing-it-verbatim",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 274,
+      "sourceLine": 291,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2951,10 +2951,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so canonicalizes a malformed admin default rather than storing it verbatim."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-294-handlesetnotiftogglecallback-never-overwrites-a-schedule-the-user-already-chose",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-311-handlesetnotiftogglecallback-never-overwrites-a-schedule-the-user-already-chose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 294,
+      "sourceLine": 311,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2967,10 +2967,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so never overwrites a schedule the user already chose."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-304-handlesetnotiftogglecallback-does-not-touch-the-schedule-when-turning-notifications-off",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-321-handlesetnotiftogglecallback-does-not-touch-the-schedule-when-turning-notifications-off",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 304,
+      "sourceLine": 321,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2983,10 +2983,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior: does not touch the schedule when turning notifications off."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-320-handlesetnotiftimecallback-shows-a-multi-select-grid-with-the-current-time-checked-and-a-done-button",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-337-handlesetnotiftimecallback-shows-a-multi-select-grid-with-the-current-time-checked-and-a-done-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 320,
+      "sourceLine": 337,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2999,10 +2999,10 @@
       "description": "Protects the bot handle Set Notif Time Callback behavior: shows a multi select grid with the current time checked and a Done button."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-338-handlesetnotiftimeselectcallback-adds-a-new-time-to-the-list-toggle-on",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-355-handlesetnotiftimeselectcallback-adds-a-new-time-to-the-list-toggle-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 338,
+      "sourceLine": 355,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3015,10 +3015,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior: adds a new time to the list (toggle on)."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-346-handlesetnotiftimeselectcallback-removes-an-already-selected-time-toggle-off",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-363-handlesetnotiftimeselectcallback-removes-an-already-selected-time-toggle-off",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 346,
+      "sourceLine": 363,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3031,10 +3031,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior so removes an already selected time (toggle off)."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-359-handlesetnotiftimeselectcallback-refuses-to-remove-the-last-remaining-time-and-does-not-persist",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-376-handlesetnotiftimeselectcallback-refuses-to-remove-the-last-remaining-time-and-does-not-persist",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 359,
+      "sourceLine": 376,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3047,10 +3047,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior so refuses to remove the last remaining time and does not persist."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-376-handlesetnotiftimeselectcallback-rejects-adding-a-13th-time-and-does-not-persist",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-393-handlesetnotiftimeselectcallback-rejects-adding-a-13th-time-and-does-not-persist",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 376,
+      "sourceLine": 393,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3063,10 +3063,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior: rejects adding a 13th time and does not persist."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-388-handlesetnotiftimeselectcallback-rejects-invalid-minute-values",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-405-handlesetnotiftimeselectcallback-rejects-invalid-minute-values",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 388,
+      "sourceLine": 405,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3079,10 +3079,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior: rejects invalid minute values."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-397-handlesetnotiftypecallback-shows-type-picker-with-all-options",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-414-handlesetnotiftypecallback-shows-type-picker-with-all-options",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 397,
+      "sourceLine": 414,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3095,10 +3095,10 @@
       "description": "Protects the bot handle Set Notif Type Callback behavior: shows type picker with all options."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-411-handlesetnotiftypeselectcallback-updates-notification-type",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-428-handlesetnotiftypeselectcallback-updates-notification-type",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 411,
+      "sourceLine": 428,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3111,10 +3111,10 @@
       "description": "Protects the bot handle Set Notif Type Select Callback behavior: updates notification type."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-419-handlesetnotiftzcallback-shows-timezone-picker",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-436-handlesetnotiftzcallback-shows-timezone-picker",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 419,
+      "sourceLine": 436,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3127,10 +3127,10 @@
       "description": "Protects the bot handle Set Notif Tz Callback behavior: shows timezone picker."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-432-handlesetnotiftzselectcallback-updates-timezone-for-a-valid-timezone",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-449-handlesetnotiftzselectcallback-updates-timezone-for-a-valid-timezone",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 432,
+      "sourceLine": 449,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3143,10 +3143,10 @@
       "description": "Protects the bot handle Set Notif Tz Select Callback behavior: updates timezone for a valid timezone."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-441-handlesetnotiftzselectcallback-rejects-invalid-timezone",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-458-handlesetnotiftzselectcallback-rejects-invalid-timezone",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 441,
+      "sourceLine": 458,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

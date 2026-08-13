@@ -15,6 +15,13 @@ export const NOTIFICATION_TYPES = ["suggested", "srs", "contextual"] as const;
  * on; this constant only answers "what does an unparseable stored string mean".
  * The two are kept at the same value so a malformed row does not silently move
  * someone to a different hour than the product intends.
+ *
+ * Note the one case where changing this constant *does* move a user without any
+ * write: a row holding an unparseable `notification_times` entry previously
+ * matched the 08:00 window and now matches 19:00. Measured before the change and
+ * the set was empty (no row has an entry failing `^\d{2}:\d{2}$` with in-range
+ * components), which is expected — every writer goes through
+ * {@link formatNotificationTime}.
  */
 export const DEFAULT_NOTIFICATION_TIME = "19:00";
 

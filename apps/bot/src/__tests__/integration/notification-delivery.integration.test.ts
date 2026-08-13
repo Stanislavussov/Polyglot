@@ -39,9 +39,10 @@ import {
   userRepository,
 } from "@polyglot/adapter-db";
 import { checkAndSend, type NotificationPayload, type SchedulerDeps } from "@polyglot/adapter-notifications";
-import type { GenerateObjectFn } from "@polyglot/core";
-import { describe, expect, it } from "vitest";
+import type { GenerateObjectFn, NotificationDefaults } from "@polyglot/core";
+import { afterEach, describe, expect, it } from "vitest";
 import { buildNotificationScheduling } from "../../notifications/notification.wiring.js";
+import type { NotifiableUser, NotifiableUserOptions } from "../../test-helpers/integration/arrange.js";
 import {
   arrangeNotifiableUser,
   DELIVERY_TEST_SLOT_UTC,
@@ -105,6 +106,26 @@ function textOf(call: CapturedCall): string {
   return String((call.payload as { text?: string }).text ?? "");
 }
 
+/** Users the current test created. Drained unconditionally in `afterEach`. */
+const seededUserIds: number[] = [];
+
+async function arrangeTracked(telegramId: number, options?: NotifiableUserOptions): Promise<NotifiableUser> {
+  const user = await arrangeNotifiableUser(telegramId, options);
+  seededUserIds.push(user.userId);
+  return user;
+}
+
+afterEach(async () => {
+  // Unconditional, deliberately — a teardown line at the end of each `it` only
+  // runs on the success path. A test that fails midway would otherwise leave an
+  // enabled subscriber pinned to this lane's slot in the shared database for the
+  // full 14-day reachability ceiling, and the next run's failure would point at
+  // the wrong test. That matters most for the AI tripwire, which is the one
+  // assertion here that is global over the batch rather than chat-scoped.
+  const ids = seededUserIds.splice(0);
+  await Promise.all(ids.map((id) => disableNotificationsFor(id)));
+});
+
 describe("scheduled notification delivery (integration)", () => {
   it("C1: notifies a subscriber who translated today", async () => {
     // Arrange — an opted-in user who has used the bot today. Before the QUIET_DAYS
@@ -112,7 +133,7 @@ describe("scheduled notification delivery (integration)", () => {
     // while /settings kept rendering "Notifications: on".
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
-    const { userId, headword } = await arrangeNotifiableUser(telegramId);
+    const { userId, headword } = await arrangeTracked(telegramId);
     await translationRequestRepository.logTranslationRequest(userId, "hello", "en", ["cs"]);
     const { sendFn, deps, ai } = await buildDelivery(harness);
     const since = new Date(Date.now() - HOUR_MS);
@@ -127,16 +148,13 @@ describe("scheduled notification delivery (integration)", () => {
     expect(textOf(mine[0]!)).toContain(headword);
     expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([headword]);
     expect(ai.wasCalled()).toBe(false);
-
-    // Cleanup
-    await disableNotificationsFor(userId);
   });
 
   it("C2: delivers the scheduled word to a subscriber in their configured slot", async () => {
     // Arrange
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
-    const { userId, headword } = await arrangeNotifiableUser(telegramId);
+    const { userId, headword } = await arrangeTracked(telegramId);
     const { sendFn, deps, ai } = await buildDelivery(harness);
     const since = new Date(Date.now() - HOUR_MS);
     harness.reset();
@@ -150,16 +168,13 @@ describe("scheduled notification delivery (integration)", () => {
     expect(textOf(mine[0]!)).toContain(headword);
     expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([headword]);
     expect(ai.wasCalled()).toBe(false);
-
-    // Cleanup
-    await disableNotificationsFor(userId);
   });
 
   it("C3: sends nothing to a user who has not opted in", async () => {
     // Arrange
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
-    const { userId } = await arrangeNotifiableUser(telegramId, { notificationEnabled: false });
+    const { userId } = await arrangeTracked(telegramId, { notificationEnabled: false });
     const { sendFn, deps, ai } = await buildDelivery(harness);
     const since = new Date(Date.now() - HOUR_MS);
     harness.reset();
@@ -179,7 +194,7 @@ describe("scheduled notification delivery (integration)", () => {
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
     const offSlot = `${String(DELIVERY_TEST_SLOT_UTC.hour + 3).padStart(2, "0")}:00`;
-    const { userId } = await arrangeNotifiableUser(telegramId, { notificationTimes: [offSlot] });
+    const { userId } = await arrangeTracked(telegramId, { notificationTimes: [offSlot] });
     const { sendFn, deps, ai } = await buildDelivery(harness);
     const since = new Date(Date.now() - HOUR_MS);
     harness.reset();
@@ -191,9 +206,6 @@ describe("scheduled notification delivery (integration)", () => {
     expect(messagesTo(harness.sent, telegramId)).toHaveLength(0);
     expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
     expect(ai.wasCalled()).toBe(false);
-
-    // Cleanup
-    await disableNotificationsFor(userId);
   });
 
   it("C5: sends the empty-dictionary prompt when there is no word to send", async () => {
@@ -201,7 +213,7 @@ describe("scheduled notification delivery (integration)", () => {
     // already nulled on the shared deps, so this exercises the last fall-through.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
-    const { userId } = await arrangeNotifiableUser(telegramId, { withVocabulary: false });
+    const { userId } = await arrangeTracked(telegramId, { withVocabulary: false });
     const { sendFn, deps, ai } = await buildDelivery(harness);
     const since = new Date(Date.now() - HOUR_MS);
     harness.reset();
@@ -216,9 +228,6 @@ describe("scheduled notification delivery (integration)", () => {
     expect(textOf(mine[0]!)).toContain("Your dictionary is empty");
     expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
     expect(ai.wasCalled()).toBe(false);
-
-    // Cleanup
-    await disableNotificationsFor(userId);
   });
 
   it("C6: disables notifications after a 403 and does not retry", async () => {
@@ -227,7 +236,7 @@ describe("scheduled notification delivery (integration)", () => {
     // next tick does not try again forever.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
-    const { userId } = await arrangeNotifiableUser(telegramId);
+    const { userId } = await arrangeTracked(telegramId);
     const { sendFn, deps, ai } = await buildDelivery(harness);
     const since = new Date(Date.now() - HOUR_MS);
     harness.reset();
@@ -248,46 +257,56 @@ describe("scheduled notification delivery (integration)", () => {
 
 describe("notification schedule seeding and the deselect guard (integration)", () => {
   it("C7: seeds the admin-configured default the first time a user turns notifications on", async () => {
-    // Arrange — write the setting BEFORE building the harness: createContainer()
-    // constructs a fresh SettingsService and its 60s cache starts empty, so the
-    // write is guaranteed visible. If this test ever sees 19:00, the cache is the
-    // first suspect. The row is deleted again in cleanup because it is global to
-    // the database, unlike everything else in this file.
-    await systemSettingsRepository.set("notifications", {
-      defaultTime: "21:30",
-      defaultType: "srs",
-      inactivityDays: 14,
-      notificationTimesLimit: 12,
-    });
-    const harness = createBotHarness();
-    const telegramId = uniqueTelegramId();
-    const { userId } = await arrangeNotifiableUser(telegramId, {
-      notificationEnabled: false,
-      notificationTimes: [],
-      withVocabulary: false,
-    });
-    harness.reset();
+    // Arrange — this is the one row in the file that is GLOBAL to the database
+    // rather than scoped to a unique telegram id, so it is captured first and
+    // restored in `finally`: a mid-test failure must not leave every later file,
+    // worker and run reading 21:30, and against a supplied TEST_DATABASE_URL an
+    // unconditional delete would destroy operator state.
+    //
+    // Write it BEFORE building the harness: createContainer() constructs a fresh
+    // SettingsService whose 60s cache starts empty, so the write is guaranteed
+    // visible. If this test ever sees 19:00, that cache is the first suspect.
+    const previous = await systemSettingsRepository.get<NotificationDefaults>("notifications");
+    try {
+      await systemSettingsRepository.set("notifications", {
+        defaultTime: "21:30",
+        defaultType: "srs",
+        inactivityDays: 14,
+        notificationTimesLimit: 12,
+      });
+      const harness = createBotHarness();
+      const telegramId = uniqueTelegramId();
+      const { userId } = await arrangeTracked(telegramId, {
+        notificationEnabled: false,
+        notificationTimes: [],
+        withVocabulary: false,
+      });
+      harness.reset();
 
-    // Act
-    await harness.dispatch(
-      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 500, data: "set:notif:toggle" }),
-    );
+      // Act
+      await harness.dispatch(
+        callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 500, data: "set:notif:toggle" }),
+      );
 
-    // Assert — the admin knob, not a constant, decided the hour.
-    const settings = await userRepository.getSettings(userId);
-    expect(settings?.notificationEnabled).toBe(true);
-    expect(settings?.notificationTimes).toEqual(["21:30"]);
-
-    // Cleanup
-    await systemSettingsRepository.delete("notifications");
-    await disableNotificationsFor(userId);
+      // Assert — the admin knob, not a constant, decided the hour. 21:30 matches
+      // no constant in the codebase, so this cannot pass by reading one.
+      const settings = await userRepository.getSettings(userId);
+      expect(settings?.notificationEnabled).toBe(true);
+      expect(settings?.notificationTimes).toEqual(["21:30"]);
+    } finally {
+      if (previous) {
+        await systemSettingsRepository.set("notifications", previous);
+      } else {
+        await systemSettingsRepository.delete("notifications");
+      }
+    }
   });
 
   it("C8: never overwrites a schedule the user already chose", async () => {
     // Arrange
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
-    const { userId } = await arrangeNotifiableUser(telegramId, {
+    const { userId } = await arrangeTracked(telegramId, {
       notificationTimes: ["06:00"],
       withVocabulary: false,
     });
@@ -305,16 +324,13 @@ describe("notification schedule seeding and the deselect guard (integration)", (
     const settings = await userRepository.getSettings(userId);
     expect(settings?.notificationEnabled).toBe(true);
     expect(settings?.notificationTimes).toEqual(["06:00"]);
-
-    // Cleanup
-    await disableNotificationsFor(userId);
   });
 
   it("C9: refuses to deselect the last remaining slot", async () => {
     // Arrange — exactly one configured slot, notifications on.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
-    const { userId } = await arrangeNotifiableUser(telegramId, {
+    const { userId } = await arrangeTracked(telegramId, {
       notificationTimes: ["13:00"],
       withVocabulary: false,
     });
@@ -342,9 +358,6 @@ describe("notification schedule seeding and the deselect guard (integration)", (
     const answer = answers[0]!.payload as { text?: string; show_alert?: boolean };
     expect(answer.show_alert).toBe(true);
     expect(String(answer.text)).not.toContain("Removed");
-
-    // Cleanup
-    await disableNotificationsFor(userId);
   });
 
   it("C9b: the guard cannot be walked around via toggle off and on", async () => {
@@ -354,7 +367,7 @@ describe("notification schedule seeding and the deselect guard (integration)", (
     // never picked.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
-    const { userId } = await arrangeNotifiableUser(telegramId, {
+    const { userId } = await arrangeTracked(telegramId, {
       notificationTimes: ["13:00"],
       withVocabulary: false,
     });
@@ -368,8 +381,5 @@ describe("notification schedule seeding and the deselect guard (integration)", (
     const settings = await userRepository.getSettings(userId);
     expect(settings?.notificationEnabled).toBe(true);
     expect(settings?.notificationTimes).toEqual(["13:00"]);
-
-    // Cleanup
-    await disableNotificationsFor(userId);
   });
 });

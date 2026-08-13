@@ -133,6 +133,16 @@ the real re-engagement product decision open instead of pre-empting it with an a
 3. Wire or delete the remaining dead knobs: `defaultType`, `inactivityDays`, `notificationTimesLimit`.
 4. Reconsider whether `processInactiveUsers` (the 14-day auto-pause) belongs to the subscription job at all —
    it is the one path that revokes an explicit opt-in without being asked.
-5. Remove the three remaining `as any` in `notification-settings.test.ts`.
-6. Give the notification sub-menu an explicit "no times configured" state.
-7. Add a global notifications kill switch.
+5. **Repair the pre-existing `enabled = true, times = '{}'` cohort.** Removing the gate fixes the large route to
+   "the UI says on and nothing arrives"; this is a second, smaller route to the same symptom, and it predates
+   this change. The new guard stops the cohort growing but repairs nobody already in it. Count it in production
+   (`SELECT count(*) FROM user_language_settings WHERE notification_enabled = true AND notification_times = '{}'`
+   — it is 0 on the dev database), then address it with the one-time prompt of follow-up 2. **Do not bulk
+   `UPDATE` it.**
+6. Remove the remaining untyped `any` in `notification-settings.test.ts` (the `(b: any)` keyboard-button
+   parameters). The `as any` casts are gone; `DEFAULT_SETTINGS` is now typed against `UserLanguageSettings`.
+   Consider turning on Biome's `noExplicitAny`, which is currently `"off"` (`biome.jsonc`) — CLAUDE.md Hard
+   Rule 2 forbids `any`, but nothing enforces it, which is exactly how five new casts slipped into this change
+   and were caught only in review. Repo-wide, so it is its own task.
+7. Give the notification sub-menu an explicit "no times configured" state.
+8. Add a global notifications kill switch.
