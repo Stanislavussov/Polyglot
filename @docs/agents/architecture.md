@@ -75,10 +75,27 @@ its layer: no cross-boundary changes.
 - Receives a `sendFn` by injection; never imports the bot.
 - Delivery scheduling is injectable; log-and-continue on send errors; respect the user's timezone.
 - Timezone/language defaults come from DB constants, not hardcoded values.
-- **Notifications are re-engagement, not a broadcast.** Only users who have not
-  translated for `QUIET_DAYS` are eligible; the activity signal is the last
-  `translation_requests` row, never `last_interaction_at` (which any tap bumps,
-  including on a notification's own buttons).
+- **A scheduled notification is content the user subscribed to, not a nudge.**
+  The user opened the 48-slot grid and picked a time; suppressing that because
+  they are already engaged is like skipping someone's alarm because they woke up
+  yesterday. Scheduled notifications are an explicit opt-in subscription and
+  always fire while enabled. `INACTIVITY_DAYS = 14` is a **reachability ceiling**
+  (stop mailing the abandoned), not targeting. Re-engagement of people who never
+  subscribed is a *different job with a different audience* and is currently
+  unbuilt — no query can reach that audience, because every notification query
+  leads with `notification_enabled = true`.
+  - Standing tension, deliberately deferred: `processInactiveUsers` (the 14-day
+    auto-pause) remains the one path that revokes an explicit opt-in without the
+    user asking. It is not silent — it sends `notifPaused` first — but it sits
+    against the rule that the user's explicit choice is data, not a hint.
+- **The `/settings` toggle is the only path that enables notifications.** Anything
+  that sets `notification_enabled = true` must also carry the "seed the admin
+  default into an empty `notification_times`" rule;
+  `userRepository.updateNotificationPrefs` currently has no production callers and
+  must not silently become a second enable path. (knip cannot warn about this —
+  `knip.json` sets `"exports": "off"`.) An enabled user with an empty schedule is
+  permanently ineligible, which reproduces "the UI says on and nothing arrives"
+  by a different route.
 - **Word selection is layered and never repeats:** the user's dictionary → a
   curated preset when the dictionary is empty *or exhausted* → the
   empty-dictionary prompt. A picker that has nothing new returns `null` so the

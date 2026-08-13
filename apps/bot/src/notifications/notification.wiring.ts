@@ -79,7 +79,40 @@ export async function resolveTelegramChatId(
   return legacyTelegramId;
 }
 
-export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void> {
+/**
+ * Build the three pieces the scheduler runs on — without starting it.
+ *
+ * Split out of {@link wireNotificationScheduler} so an integration test can drive
+ * the *real* delivery pipeline (real repository, real identity resolution with the
+ * legacy `telegram_id` fallback, real message formatting, real `api.sendMessage`)
+ * by calling `checkAndSend(sendFn, deps)` directly, with no half-hourly cron
+ * running inside the test issuing a second, uncounted send.
+ */
+export interface NotificationSchedulingOverrides {
+  /**
+   * Replaces the module-level `generateObject` for BOTH just-in-time AI paths —
+   * `translateEntry` (dictionary entry with no translations) and
+   * `translateHeadword` (preset cache miss). Production passes nothing.
+   *
+   * There is exactly one seam because there are exactly two paths and closing
+   * only one is worse than closing neither: a test that nulls `pickPresetWord`
+   * still reaches `translateEntry` on its own happy path, which would issue a
+   * live, billable model call AND write a translation row to the database. Note
+   * that a *throwing* stub is not self-enforcing here — `pickDictionaryWord`
+   * catches `translateEntry` failures (notification.service.ts) — so a test must
+   * also assert the override was never called.
+   */
+  generateObject?: GenerateObjectFn;
+}
+
+export async function buildNotificationScheduling(
+  api: Api<RawApi>,
+  overrides: NotificationSchedulingOverrides = {},
+): Promise<{
+  sendFn: (userId: number, payload: NotificationPayload) => Promise<void>;
+  reEngagementSendFn: (userId: number, message: string) => Promise<void>;
+  deps: SchedulerDeps;
+}> {
   const settings = new SettingsService(settingsAdapter);
   const contextualModel = await resolveDefaultAIModel(settings);
 
@@ -97,6 +130,10 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
     ]);
     return buildAiFailover(clampAiBudgetToOpGuard(defaults.requestTimeoutMs), fallbackModel);
   };
+
+  // Single AI entry point for both JIT paths — see NotificationSchedulingOverrides.
+  const callAI: GenerateObjectFn = overrides.generateObject ?? generateObject;
+
   const notifService = createNotificationService({
     getUserVocabulary: async (userId: number) => {
       const entries = await vocabularyRepository.findByUser(userId);
@@ -119,7 +156,7 @@ export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void>
       return all.find((l) => l.id === langId)?.code;
     },
     generateObject: (async (prompt, schema, model, options) => {
-      return generateObject(prompt, schema, model, { ...options, failover: await resolveFailover() });
+      return callAI(prompt, schema, model, { ...options, failover: await resolveFailover() });
     }) satisfies GenerateObjectFn,
     contextualModel,
     translateEntry: async (userId: number, entryId: number) => {
@@ -144,7 +181,7 @@ Phrase: "${entry.original}"
 
 Return translations as JSON array.`;
 
-      const result = await generateObject(prompt, jitTranslationSchema, model, {
+      const result = await callAI(prompt, jitTranslationSchema, model, {
         userId,
         failover: await resolveFailover(),
       });
@@ -218,7 +255,7 @@ Return translations as JSON array.`;
       const prompt = `Translate the word or phrase "${headword}" from ${sourceLang} into ${nativeLang}.
 
 Return translations as JSON array.`;
-      const result = await generateObject(prompt, jitTranslationSchema, model, {
+      const result = await callAI(prompt, jitTranslationSchema, model, {
         failover: await resolveFailover(),
       });
       const translations: Record<string, string> = {};
@@ -263,7 +300,12 @@ Return translations as JSON array.`;
       }).processRenewals(),
   };
 
-  startScheduler(sendFn, reEngagementSendFn, schedulerDeps);
+  return { sendFn, reEngagementSendFn, deps: schedulerDeps };
+}
+
+export async function wireNotificationScheduler(api: Api<RawApi>): Promise<void> {
+  const { sendFn, reEngagementSendFn, deps } = await buildNotificationScheduling(api);
+  startScheduler(sendFn, reEngagementSendFn, deps);
   logger.info("Notification scheduler wired and started");
 }
 

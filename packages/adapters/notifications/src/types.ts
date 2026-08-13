@@ -223,4 +223,20 @@ export interface SchedulerDeps {
    * runs in the daily 00:00 UTC tick when provided. Returns per-run counts.
    */
   processSubscriptionRenewals?: () => Promise<{ renewed: number; expired: number }>;
+
+  /**
+   * Injectable UTC clock for the batch window. Defaults to `Temporal.Now`.
+   *
+   * This seam exists because **`vi.setSystemTime` cannot control which window a
+   * batch believes it is in**: `vi.useFakeTimers({ toFake: ["Date"] })` patches
+   * `Date` only, and both `runNotificationBatch` and `getLocalMinutes` read
+   * `Temporal.Now`, which is unaffected (verified by probe on Node v26). Without
+   * an injected clock a delivery test would pass or fail according to the wall
+   * clock hour it happens to run at. Do not delete this in favour of fake timers.
+   *
+   * Note it does NOT make DST deterministic — `{hour, minute}` discards the date,
+   * and `getLocalMinutes` deliberately resolves the offset against *today*. Assert
+   * DST/offset cases against `getUsersForWindow(h, m)` directly, not through the batch.
+   */
+  now?: () => { hour: number; minute: number };
 }

@@ -206,7 +206,12 @@ export async function checkAndSend(sendFn: SendFn, deps: SchedulerDeps): Promise
 async function runNotificationBatch(sendFn: SendFn, deps: SchedulerDeps): Promise<{ sent: number; errors: number }> {
   const logger = getLogger();
   const batchTraceId = getTraceContext()?.traceId;
-  const now = Temporal.Now.zonedDateTimeISO("UTC");
+  // The single default for the injected batch clock (deps.now). Tests own a
+  // dedicated UTC slot through this seam; see SchedulerDeps.now for why
+  // vi.setSystemTime cannot do the job. There is deliberately no second
+  // fallback anywhere else — startScheduler's own Temporal.Now read is the cron
+  // callback's, not this one's, and must not be threaded through deps.
+  const now = deps.now?.() ?? Temporal.Now.zonedDateTimeISO("UTC");
   const utcHour = now.hour;
   const utcMinute = now.minute;
   let sent = 0;
