@@ -14,6 +14,7 @@ import {
 import { InlineKeyboard } from "grammy";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
+import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
 import { MOCK_PREVIEW_OUTPUT } from "../template-preview.data.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
@@ -106,7 +107,14 @@ export async function handlePreviewCallback(ctx: BotContext): Promise<void> {
     return;
   }
   const lang = await getLang(ctx);
-  const card = renderTranslation(MOCK_PREVIEW_OUTPUT, lang, ctx.session.templateWizard.fields);
+  // Preview the mock card in the user's own language order, so the wizard shows
+  // what their real cards will look like.
+  const card = renderTranslation(
+    MOCK_PREVIEW_OUTPUT,
+    await resolveLanguageOrder(ctx),
+    lang,
+    ctx.session.templateWizard.fields,
+  );
   const text = `${t("templatePreviewHeader", lang)}\n\n${card}`;
   const kb = new InlineKeyboard().text(t("templateBack", lang), "tpl:back");
   await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });

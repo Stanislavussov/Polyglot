@@ -15,6 +15,7 @@ import { classifyInput, getHookWords, logger, type SupportedLang } from "@polygl
 import { buildTranslationKeyboard, renderTranslation } from "../renderers/translation.renderer.js";
 import { setTranslationEntry } from "../scenes/helpers/translation-map.helper.js";
 import type { BotContext } from "../types.js";
+import { resolveLanguageOrder } from "../utils/language-order.js";
 
 /**
  * Upper bound on hook buttons across all learning languages. Three headwords ×
@@ -76,7 +77,17 @@ export async function sendCachedDemoCard(
   if (!cached) return false;
 
   const output = cached.payload;
-  const body = renderTranslation(output, opts.interfaceLang, undefined, opts.nativeLang, false);
+  // The demo card's payload is stored as jsonb, so its translation keys come back
+  // alphabetized. Order is taken from the user's saved settings rather than
+  // onboarding state, keeping this re-derived from the DB on every update.
+  const body = renderTranslation(
+    output,
+    await resolveLanguageOrder(ctx),
+    opts.interfaceLang,
+    undefined,
+    opts.nativeLang,
+    false,
+  );
   const cardMsg = await ctx.reply(body, { parse_mode: "HTML" });
 
   const keyboard = buildTranslationKeyboard(opts.interfaceLang, cardMsg.message_id, false);

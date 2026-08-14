@@ -9,7 +9,15 @@
  * 5. Uses core's getLogger() — logger injected at composition root
  */
 
-import { getLogger, getTraceContext, logEvent, newTraceId, runWithTrace } from "@polyglot/core";
+import {
+  createLanguageOrderContext,
+  getLogger,
+  getTraceContext,
+  logEvent,
+  newTraceId,
+  orderRecordEntries,
+  runWithTrace,
+} from "@polyglot/core";
 import cron from "node-cron";
 import { logNotificationSent } from "./log.js";
 import type {
@@ -165,12 +173,24 @@ export function buildNotificationPayload(
           ? t("notifTypeContextual", lang)
           : t("notifAiSuggested", lang);
 
-  const translationLines = Object.entries(word.translations)
-    .map(([, text]) => `  • ${text}`)
-    .join("\n");
+  // Order the translations once, here, and re-key the word itself. Two different
+  // renderers consume this: the message built below, and the bot-side formatter,
+  // which receives `word` by reference from the payload returned at the bottom of
+  // this function. Ordering only the local lines would leave the formatter's card
+  // unordered, so the record itself is rebuilt in the user's language order.
+  const orderedTranslations = orderRecordEntries(
+    word.translations,
+    createLanguageOrderContext({ nativeLang: user.nativeLang, learningLangs: user.learningLangs }),
+  );
+  const orderedWord: SuggestedWord = {
+    ...word,
+    translations: Object.fromEntries(orderedTranslations),
+  };
+
+  const translationLines = orderedTranslations.map(([, text]) => `  • ${text}`).join("\n");
 
   const lines = [
-    `${word.emoji} <b>${escapeHtml(word.original)}</b>`,
+    `${orderedWord.emoji} <b>${escapeHtml(orderedWord.original)}</b>`,
     `<i>${sourceLabel}</i>`,
     "",
     `${title}:`,
@@ -179,7 +199,7 @@ export function buildNotificationPayload(
 
   return {
     hour,
-    word,
+    word: orderedWord,
     message: lines.join("\n"),
   };
 }

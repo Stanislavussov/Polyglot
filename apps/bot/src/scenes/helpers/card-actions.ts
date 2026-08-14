@@ -13,6 +13,7 @@ import {
   getLangFlag,
   isSupported,
   logEvent,
+  orderLangCodes,
   resolveOutputConfig,
   resolveTemplate,
   type SupportedLang,
@@ -28,6 +29,7 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { languageOrderFromSettings, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../../utils/long-op.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
@@ -147,10 +149,11 @@ async function showSavedCard(
   const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
 
+  const order = await resolveLanguageOrder(ctx);
   const isSentence = inputType === "sentence";
   const cardText = isSentence
-    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`
-    : renderTranslation(output, lang, effectiveTemplate.fields, nativeLang);
+    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, order, lang, nativeLang)}`
+    : renderTranslation(output, order, lang, effectiveTemplate.fields, nativeLang);
   const savedCard = `${cardText}\n\n${t("savedToDict", lang)}`;
   await editMessageTextOrReply(ctx, savedCard, {
     parse_mode: "HTML",
@@ -268,9 +271,10 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       return;
     }
 
+    const order = await resolveLanguageOrder(ctx);
     const cardText = isSentence
-      ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
-      : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
+      ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, order, lang, nativeLang)}`
+      : renderTranslation(decision.output, order, lang, effectiveTemplate.fields, nativeLang);
 
     const showGrammarButton = entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
     const showEtymologyButton = isEtymologyEligible(entry.inputType, decision.output.sourceLang, nativeLang);
@@ -483,10 +487,12 @@ async function reRenderCard(
   const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
 
+  const order = await resolveLanguageOrder(ctx);
   const cardText = isSentence
-    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(entry.output, lang, nativeLang, false, entry.grammarBreakdown)}`
+    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(entry.output, order, lang, nativeLang, false, entry.grammarBreakdown)}`
     : renderTranslation(
         entry.output,
+        order,
         lang,
         effectiveTemplate.fields,
         nativeLang,
@@ -553,7 +559,13 @@ export async function handleGrammarDetailCallback(ctx: BotContext): Promise<void
   }
 
   // Show language selection keyboard
-  const langCodes = Object.keys(entry.grammarBreakdown).filter((code) => entry.grammarBreakdown![code]!.length > 0);
+  // Keep the empty-breakdown filter: a button for a language with no grammar data
+  // would be dead. Order what survives, so the buttons do not reshuffle between
+  // taps — the breakdown record comes back from the session alphabetized.
+  const langCodes = orderLangCodes(
+    Object.keys(entry.grammarBreakdown).filter((code) => entry.grammarBreakdown![code]!.length > 0),
+    languageOrderFromSettings(settings),
+  );
 
   const langKeyboard = buildGrammarLangKeyboard(langCodes, lang, msgId);
   await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: langKeyboard });

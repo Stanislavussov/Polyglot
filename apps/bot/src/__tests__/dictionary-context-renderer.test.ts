@@ -6,9 +6,20 @@
  * in the Telegram translation card.
  */
 
-import type { TranslateOutput } from "@polyglot/core";
+import type { TemplateFields, TranslateOutput } from "@polyglot/core";
+import { createLanguageOrderContext } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
-import { renderTranslation } from "../renderers/translation.renderer.js";
+import { renderTranslation as renderTranslationRaw } from "../renderers/translation.renderer.js";
+
+/** These cases assert absence of dictionary context, not language sequence. */
+const NO_ORDER = createLanguageOrderContext({ learningLangs: [] });
+const renderTranslation = (
+  output: TranslateOutput,
+  interfaceLang?: string,
+  templateFields?: TemplateFields,
+  nativeLang?: string,
+  needsReview?: boolean,
+): string => renderTranslationRaw(output, NO_ORDER, interfaceLang, templateFields, nativeLang, needsReview);
 
 const baseOutput: TranslateOutput = {
   original: "hello",

@@ -4,6 +4,7 @@
  */
 
 import type {
+  LanguageOrderContext,
   LanguageTranslation,
   LanguageTranslationEntry,
   SupportedLang,
@@ -11,7 +12,7 @@ import type {
   TopicWord,
   TranslateOutput,
 } from "@polyglot/core";
-import { getLangFlag, isSupported, t } from "@polyglot/core";
+import { getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { NOOP_CALLBACK } from "../utils/long-op.js";
 
@@ -106,6 +107,7 @@ function renderSourceUsageBlock(
  */
 export function renderTranslation(
   output: TranslateOutput,
+  order: LanguageOrderContext,
   interfaceLang?: string,
   templateFields?: TemplateFields,
   nativeLang?: string,
@@ -147,7 +149,7 @@ export function renderTranslation(
   }
   lines.push("");
 
-  for (const [code, translation] of Object.entries(output.translations)) {
+  for (const [code, translation] of orderRecordEntries(output.translations, order)) {
     if (hideSourceText && code === output.sourceLang) continue;
     if (hideSourceText && nativeLang && code === nativeLang && output.sourceUsage) continue;
     lines.push(renderLangBlock(code, translation, lang, templateFields));
@@ -157,7 +159,7 @@ export function renderTranslation(
   // Grammar breakdown section — inline from AI response or cached on-demand
   const gbData = grammarBreakdown ?? collectInlineGrammarBreakdown(output);
   if (gbData && Object.keys(gbData).length > 0 && templateFields?.grammarBreakdown !== false) {
-    lines.push(renderGrammarBreakdownSection(gbData, lang));
+    lines.push(renderGrammarBreakdownSection(gbData, lang, order));
     lines.push("");
   }
 
@@ -188,14 +190,20 @@ function collectInlineGrammarBreakdown(output: TranslateOutput): Record<string, 
 }
 
 /** Render grammar breakdown section */
-function renderGrammarBreakdownSection(breakdown: Record<string, string[]>, lang: SupportedLang): string {
+function renderGrammarBreakdownSection(
+  breakdown: Record<string, string[]>,
+  lang: SupportedLang,
+  order: LanguageOrderContext,
+): string {
   const lines: string[] = [];
   lines.push(`<b>${esc(t("grammarBreakdown", lang))}</b>`);
-  const langCodes = Object.keys(breakdown);
-  for (const code of langCodes) {
-    const items = breakdown[code];
+  // Ordered entries are derived from `breakdown` itself, so the count driving the
+  // per-language header below is unchanged — a breakdown covers only the languages
+  // that have one, which is a strict subset of the translated languages.
+  const orderedEntries = orderRecordEntries(breakdown, order);
+  for (const [code, items] of orderedEntries) {
     if (!items || items.length === 0) continue;
-    if (langCodes.length > 1) {
+    if (orderedEntries.length > 1) {
       const flag = getLangFlag(code) ?? "🔤";
       lines.push(`${flag} ${esc(code.toUpperCase())}:`);
     }
@@ -281,6 +289,7 @@ export function renderTopicWord(word: TopicWord): string {
  */
 export function renderSentenceTranslation(
   output: TranslateOutput,
+  order: LanguageOrderContext,
   interfaceLang?: string,
   nativeLang?: string,
   needsReview?: boolean,
@@ -314,14 +323,14 @@ export function renderSentenceTranslation(
   }
   lines.push("");
 
-  for (const [code, translation] of Object.entries(output.translations)) {
+  for (const [code, translation] of orderRecordEntries(output.translations, order)) {
     if (hideSourceText && code === output.sourceLang) continue;
     lines.push(renderSentenceLangBlock(code, translation));
     lines.push("");
   }
 
   if (grammarBreakdown && Object.keys(grammarBreakdown).length > 0) {
-    lines.push(renderGrammarBreakdownSection(grammarBreakdown, lang));
+    lines.push(renderGrammarBreakdownSection(grammarBreakdown, lang, order));
     lines.push("");
   }
 
@@ -419,7 +428,11 @@ export function buildTranslationKeyboard(
  * Build language selection keyboard for grammar detail.
  * Shows one button per language + cancel.
  */
-export function buildGrammarLangKeyboard(langCodes: string[], interfaceLang?: string, msgId?: number): InlineKeyboard {
+export function buildGrammarLangKeyboard(
+  langCodes: readonly string[],
+  interfaceLang?: string,
+  msgId?: number,
+): InlineKeyboard {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;

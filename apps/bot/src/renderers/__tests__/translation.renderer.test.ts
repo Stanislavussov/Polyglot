@@ -1,6 +1,17 @@
-import type { TranslateOutput } from "@polyglot/core";
+import type { TemplateFields, TranslateOutput } from "@polyglot/core";
+import { createLanguageOrderContext } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
-import { renderTranslation } from "../translation.renderer.js";
+import { renderTranslation as renderTranslationRaw } from "../translation.renderer.js";
+
+/** Single-language fixtures — these assert content, not language sequence. */
+const NO_ORDER = createLanguageOrderContext({ learningLangs: [] });
+const renderTranslation = (
+  output: TranslateOutput,
+  interfaceLang?: string,
+  templateFields?: TemplateFields,
+  nativeLang?: string,
+  needsReview?: boolean,
+): string => renderTranslationRaw(output, NO_ORDER, interfaceLang, templateFields, nativeLang, needsReview);
 
 /** Minimal word-translation output for renderer tests. */
 function makeOutput(overrides?: Partial<TranslateOutput>): TranslateOutput {

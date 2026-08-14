@@ -9,6 +9,7 @@ import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import { renderDictionaryEntry } from "../renderers/dictionary.renderer.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
 import type { BotContext } from "../types.js";
+import { makeLangCodeResolver, resolveLanguageOrder } from "../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../utils/long-op.js";
 import { buildNotificationKeyboard, buildNotificationRevealedKeyboard } from "./notification.formatter.js";
 
@@ -73,9 +74,7 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
       return;
     }
 
-    const getLangCodeById = (id: number): string | undefined =>
-      ctx.services.languageCache.getAllLangs().find((l) => l.id === id)?.code;
-    const text = renderDictionaryEntry(entry, getLangCodeById, lang);
+    const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, await resolveLanguageOrder(ctx));
     const kb = buildNotificationRevealedKeyboard(lang, entryId);
 
     await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });

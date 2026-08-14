@@ -119,12 +119,24 @@ describe("buildNotificationPayload", () => {
     const payload = buildNotificationPayload(mockUser, mockDictWord, mockT);
 
     expect(payload.hour).toBe(8);
-    expect(payload.word).toBe(mockDictWord);
+    // The payload carries a re-keyed copy, not the picker's object: translations
+    // are rebuilt in the user's language order so the bot-side formatter, which
+    // receives this word by reference, renders them in that order too.
+    expect(payload.word).toEqual(mockDictWord);
     expect(payload.message).toContain("🏠");
     expect(payload.message).toContain("<b>house</b>");
     expect(payload.message).toContain("From your dictionary");
     expect(payload.message).toContain("dům");
     expect(payload.message).toContain("Haus");
+  });
+
+  it("orders the payload's translations by the user's learning languages, not alphabetically", () => {
+    // The picker's record is alphabetical (cs, de); this user studies de first.
+    const user = { ...mockUser, nativeLang: "ru", learningLangs: ["de", "cs"] };
+    const payload = buildNotificationPayload(user, mockDictWord, mockT);
+
+    expect(Object.keys(payload.word.translations)).toEqual(["de", "cs"]);
+    expect(payload.message.indexOf("Haus")).toBeLessThan(payload.message.indexOf("dům"));
   });
 
   it("derives the hour from the current local time", () => {

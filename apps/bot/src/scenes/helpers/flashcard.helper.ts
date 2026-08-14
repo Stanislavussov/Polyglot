@@ -14,6 +14,7 @@ import {
   renderFlashCardFront,
 } from "../../renderers/flashcard.renderer.js";
 import type { BotContext } from "../../types.js";
+import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
@@ -119,7 +120,7 @@ export async function handleFcReveal(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
   const word = fc.deck[fc.currentIndex]!;
   const isLast = fc.currentIndex >= fc.deck.length - 1;
-  const text = renderFlashCardBack(word, fc.currentIndex + 1, fc.deck.length, lang);
+  const text = renderFlashCardBack(word, fc.currentIndex + 1, fc.deck.length, lang, await resolveLanguageOrder(ctx));
   const kb = buildFlashCardBackKeyboard(isLast, lang);
 
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });

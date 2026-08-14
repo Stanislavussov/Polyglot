@@ -21,23 +21,12 @@ import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
+import { languageOrderFromSettings, makeLangCodeResolver, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
 import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 const MAX_DICTIONARY_NAME_LENGTH = 32;
-
-function makeLangCodeResolver(ctx: BotContext): (id: number) => string | undefined {
-  return (id) => ctx.services.languageCache.getAllLangs().find((l) => l.id === id)?.code;
-}
-
-async function resolveNativeLangId(ctx: BotContext): Promise<number | undefined> {
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const nativeLangCode = settings?.nativeLang;
-  if (!nativeLangCode) return undefined;
-  const found = ctx.services.languageCache.getAllLangs().find((l) => l.code === nativeLangCode);
-  return found?.id;
-}
 
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
@@ -86,7 +75,16 @@ async function showDictionaryList(ctx: BotContext, dictionaryId: number, page: n
     dictionary.id,
   );
 
-  const text = renderDictionaryList(entries, safePage, totalPages, total, lang, dictionary.name);
+  const text = renderDictionaryList(
+    entries,
+    safePage,
+    totalPages,
+    total,
+    lang,
+    makeLangCodeResolver(ctx),
+    await resolveLanguageOrder(ctx),
+    dictionary.name,
+  );
   const kb = buildDictionaryListKeyboard(entries, safePage, totalPages, lang, dictionary.id);
 
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
@@ -194,8 +192,8 @@ export async function handleDictView(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const nativeLangId = await resolveNativeLangId(ctx);
-  const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, { nativeLangId });
+  const order = await resolveLanguageOrder(ctx);
+  const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, order);
   const hasTranslations = entry.translations.length > 0;
   const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations });
 
@@ -492,8 +490,8 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
   }
 
   // Show loading state in the message itself (persists until translation completes)
-  const nativeLangId = await resolveNativeLangId(ctx);
-  const loadingText = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, { nativeLangId });
+  const order = await resolveLanguageOrder(ctx);
+  const loadingText = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, order);
   await editMessageTextOrReply(ctx, `${loadingText}\n\n⏳ ${t("videoProcessingStarted", lang)}`, {
     parse_mode: "HTML",
     reply_markup: undefined,
@@ -578,7 +576,13 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
 
     // Render using the SAME renderer as normal translate mode — identical output
     const templateFields = resolveTemplate(userTpl).fields;
-    const translationText = renderTranslation(output, lang, templateFields, settings.nativeLang);
+    const translationText = renderTranslation(
+      output,
+      languageOrderFromSettings(settings),
+      lang,
+      templateFields,
+      settings.nativeLang,
+    );
 
     // Update the message with the translation result + dictionary buttons
     const updatedEntry = await ctx.services.vocabularyRepository.findById(entryId);
@@ -588,7 +592,7 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
   } catch (err) {
     logEvent("dictionary.translate_failed", { entryId, ...errorFields(err) }, "error");
     // Restore the card on error
-    const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, { nativeLangId });
+    const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, order);
     const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations: false });
     const failureNote = isUserFacingTimeout(err) ? t("loadingTimeout", lang) : `❌ ${t("videoProcessingFailed", lang)}`;
     await editMessageTextOrReply(ctx, `${text}\n\n${failureNote}`, {
