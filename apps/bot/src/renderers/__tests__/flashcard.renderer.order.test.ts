@@ -18,8 +18,6 @@ const ORDER = createLanguageOrderContext({ nativeLang: "ru", learningLangs: ["de
 const REHYDRATED: WordDisplayData = {
   id: 1,
   original: "house",
-  nativeMeaning: null,
-  sourceUsage: null,
   sourceLang: "en",
   inputType: "word",
   emoji: "🏠",
