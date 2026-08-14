@@ -22,6 +22,7 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext, ConversationContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { languageOrderFromSettings } from "../../utils/language-order.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
@@ -54,9 +55,16 @@ export async function handleRegenLoop(
     output.original.length,
   );
 
+  // Settings — not the context — cross the conversation boundary: the ordering
+  // context holds a Map keyed by a symbol and would not survive replay
+  // serialization. Capturing the context here is safe because ordering is applied
+  // inside the renderer, to whichever output the closure is later called with.
+  const orderSettings = await conversation.external(async () => ctx.services.userRepository.getSettings(userId));
+  const order = languageOrderFromSettings(orderSettings);
+
   const renderCard = isSentence
-    ? (o: TranslateOutput, l: SupportedLang) => renderSentenceTranslation(o, l, nativeLang)
-    : (o: TranslateOutput, l: SupportedLang) => renderTranslation(o, l, effectiveTemplate.fields, nativeLang);
+    ? (o: TranslateOutput, l: SupportedLang) => renderSentenceTranslation(o, order, l, nativeLang)
+    : (o: TranslateOutput, l: SupportedLang) => renderTranslation(o, order, l, effectiveTemplate.fields, nativeLang);
   const buildKeyboard = (_codes: string[], l: SupportedLang) => buildTranslationKeyboard(l);
 
   let card = renderCard(current, lang);

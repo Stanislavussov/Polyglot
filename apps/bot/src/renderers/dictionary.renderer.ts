@@ -6,12 +6,13 @@
  */
 
 import type {
+  LanguageOrderContext,
   SupportedLang,
   VocabTranslationDetails,
   VocabularyDictionaryWithCount,
   VocabularyEntryWithTranslations,
 } from "@polyglot/core";
-import { getLangFlag, isSupported, t } from "@polyglot/core";
+import { getLangFlag, isSupported, orderTranslations, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { formatInputType } from "./input-type-label.js";
 import { renderSourceUsage } from "./source-usage.renderer.js";
@@ -47,6 +48,8 @@ export function renderDictionaryList(
   totalPages: number,
   totalWords: number,
   lang: SupportedLang,
+  langResolver: (id: number) => string | undefined,
+  order: LanguageOrderContext,
   dictionaryName?: string,
 ): string {
   const l = toLang(lang);
@@ -74,8 +77,10 @@ export function renderDictionaryList(
     const emoji = entry.emoji ?? "";
     const original = truncate(entry.original, MAX_WORD_LENGTH);
 
-    // Show up to 2 translation texts, plus "+N" if more
-    const translationTexts = entry.translations.map((tr) => tr.text);
+    // Show up to 2 translation texts, plus "+N" if more. Ordering before the
+    // slice matters: it decides *which* two languages the user sees, so an
+    // unordered read made the preview itself non-deterministic.
+    const translationTexts = orderTranslations(entry.translations, order, langResolver).map((tr) => tr.text);
     let translationSummary: string;
     if (translationTexts.length <= 2) {
       translationSummary = translationTexts.map((t) => esc(t)).join(", ");
@@ -113,8 +118,8 @@ export function renderDictionaryList(
 export function renderDictionaryEntry(
   entry: VocabularyEntryWithTranslations,
   langResolver: (id: number) => string | undefined,
-  lang: SupportedLang = "en",
-  options?: { nativeLangId?: number },
+  lang: SupportedLang,
+  order: LanguageOrderContext,
 ): string {
   const l = toLang(lang);
   const lines: string[] = [];
@@ -137,14 +142,11 @@ export function renderDictionaryEntry(
     lines.push("", ...sourceUsage);
   }
 
-  // Sort translations: native language first, then the rest
-  const sortedTranslations = [...entry.translations].sort((a, b) => {
-    const aIsNative = options?.nativeLangId != null && a.targetLangId === options.nativeLangId;
-    const bIsNative = options?.nativeLangId != null && b.targetLangId === options.nativeLangId;
-    if (aIsNative && !bIsNative) return -1;
-    if (!aIsNative && bIsNative) return 1;
-    return 0;
-  });
+  // Native language first, then the learning languages in the order the user
+  // chose them. The previous comparator returned 0 for every non-native pair, so
+  // — Array.prototype.sort being stable — it preserved whatever order the rows
+  // happened to arrive in.
+  const sortedTranslations = orderTranslations(entry.translations, order, langResolver);
 
   // Translations
   for (const tr of sortedTranslations) {

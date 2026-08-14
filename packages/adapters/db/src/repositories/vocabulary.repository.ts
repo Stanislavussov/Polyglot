@@ -40,6 +40,15 @@ export type {
 
 /**
  * Groups flat translation rows by entryId and attaches them to entries.
+ *
+ * Row order here is whatever the select returned. Every translation select now
+ * carries an explicit `ORDER BY target_lang_id` — not because that is the order
+ * users should see (it is not; display order follows the user's own language
+ * order and is applied at render time), but because without it Postgres is free
+ * to return rows in plan-dependent order, which shifts whenever a tuple is
+ * rewritten. `updateSrsState` writes the indexed `srs_due_date` column, so it is
+ * not HOT-eligible and relocates the row — meaning a card's translation order
+ * drifted after every review. An explicit order makes reads reproducible.
  */
 function assembleEntriesWithTranslations(
   entries: VocabularyEntry[],
@@ -193,7 +202,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(and(eq(vocabularyTranslations.entryId, entry.id), eq(vocabularyTranslations.isActive, true)));
+      .where(and(eq(vocabularyTranslations.entryId, entry.id), eq(vocabularyTranslations.isActive, true)))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return { ...entry, translations };
   },
@@ -236,7 +246,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)));
+      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return assembleEntriesWithTranslations(entries, translations);
   },
@@ -254,7 +265,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(eq(vocabularyTranslations.entryId, entry.id));
+      .where(eq(vocabularyTranslations.entryId, entry.id))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return { ...entry, translations };
   },
@@ -282,7 +294,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)));
+      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return assembleEntriesWithTranslations(entries, translations);
   },
@@ -596,7 +609,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)));
+      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return assembleEntriesWithTranslations(entries, translations);
   },

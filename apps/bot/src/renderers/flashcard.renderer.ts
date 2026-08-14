@@ -3,8 +3,8 @@
  * as HTML messages + inline keyboards.
  */
 
-import type { SupportedLang, WordDisplayData } from "@polyglot/core";
-import { getLangFlag, isSupported, t } from "@polyglot/core";
+import type { LanguageOrderContext, SupportedLang, WordDisplayData } from "@polyglot/core";
+import { getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { formatInputType } from "./input-type-label.js";
 import { renderSourceUsage } from "./source-usage.renderer.js";
@@ -50,6 +50,7 @@ export function renderFlashCardBack(
   cardIndex: number,
   totalCards: number,
   lang: SupportedLang,
+  order: LanguageOrderContext,
 ): string {
   const lines: string[] = [];
 
@@ -69,8 +70,9 @@ export function renderFlashCardBack(
     lines.push(...sourceUsage, "");
   }
 
-  // Translations
-  for (const [code, tr] of Object.entries(word.translations)) {
+  // Translations. The deck is held in the session to render without re-fetching,
+  // so this record has been through jsonb and its keys come back alphabetized.
+  for (const [code, tr] of orderRecordEntries(word.translations, order)) {
     const flag = getLangFlag(code) ?? "🔤";
     const header = `<b>${esc(tr.text)}</b>`;
     lines.push(`${flag} ${header}`);

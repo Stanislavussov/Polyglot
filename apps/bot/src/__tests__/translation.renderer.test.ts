@@ -1,11 +1,12 @@
-import type { TopicWord, TranslateOutput } from "@polyglot/core";
+import type { TemplateFields, TopicWord, TranslateOutput } from "@polyglot/core";
+import { createLanguageOrderContext } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import {
   buildTranslationKeyboard,
   renderQualityWarning,
-  renderSentenceTranslation,
+  renderSentenceTranslation as renderSentenceTranslationRaw,
   renderTopicWord,
-  renderTranslation,
+  renderTranslation as renderTranslationRaw,
 } from "../renderers/translation.renderer.js";
 
 // Mock getLangFlag from @polyglot/core
@@ -28,6 +29,42 @@ vi.mock("@polyglot/core", async () => {
     getLangFlag: vi.fn((code: string) => flagMap[code]),
   };
 });
+
+/**
+ * These cases predate language ordering and assert content, not sequence — most
+ * use a single-language fixture. They render through an empty ordering context so
+ * each call site stays unchanged; ordering itself is covered by the dedicated
+ * suites (core's translation-order tests and the per-surface order tests).
+ */
+const NO_ORDER = createLanguageOrderContext({ learningLangs: [] });
+
+const renderTranslation = (
+  output: TranslateOutput,
+  interfaceLang?: string,
+  templateFields?: TemplateFields,
+  nativeLang?: string,
+  needsReview?: boolean,
+  grammarBreakdown?: Record<string, string[]>,
+  etymology?: string,
+): string =>
+  renderTranslationRaw(
+    output,
+    NO_ORDER,
+    interfaceLang,
+    templateFields,
+    nativeLang,
+    needsReview,
+    grammarBreakdown,
+    etymology,
+  );
+
+const renderSentenceTranslation = (
+  output: TranslateOutput,
+  interfaceLang?: string,
+  nativeLang?: string,
+  needsReview?: boolean,
+  grammarBreakdown?: Record<string, string[]>,
+): string => renderSentenceTranslationRaw(output, NO_ORDER, interfaceLang, nativeLang, needsReview, grammarBreakdown);
 
 const sampleOutput: TranslateOutput = {
   original: "hello",

@@ -24,6 +24,7 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { LONG_OP_TIMEOUT_MS, startTypingKeepalive, withTimeout } from "../../utils/long-op.js";
 import { replyTechnical } from "../../utils/message-cleanup.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
@@ -285,9 +286,10 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
         throw new Error("Unexpected needs_clarification in post-translation clarify flow");
       }
 
+      const order = await resolveLanguageOrder(ctx);
       const cardText = isSentence
-        ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
-        : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
+        ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, order, lang, nativeLang)}`
+        : renderTranslation(decision.output, order, lang, effectiveTemplate.fields, nativeLang);
 
       const showGrammarButton =
         entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);

@@ -19,13 +19,23 @@ vi.mock("@polyglot/core", async () => {
   };
 });
 
+import { createLanguageOrderContext, type SupportedLang } from "@polyglot/core";
 import {
   buildFlashCardBackKeyboard,
   buildFlashCardDoneKeyboard,
   buildFlashCardFrontKeyboard,
-  renderFlashCardBack,
+  renderFlashCardBack as renderFlashCardBackRaw,
   renderFlashCardFront,
 } from "../renderers/flashcard.renderer.js";
+
+/** These cases assert card content, not language sequence. */
+const NO_ORDER = createLanguageOrderContext({ learningLangs: [] });
+const renderFlashCardBack = (
+  word: WordDisplayData,
+  cardIndex: number,
+  totalCards: number,
+  lang: SupportedLang,
+): string => renderFlashCardBackRaw(word, cardIndex, totalCards, lang, NO_ORDER);
 
 /* ── Test data ─────────────────────────────────────────────────── */
 

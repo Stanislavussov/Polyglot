@@ -56,6 +56,7 @@ import {
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
+import { resolveLanguageOrder } from "../../utils/language-order.js";
 import {
   isUserFacingTimeout,
   LONG_OP_TIMEOUT_MS,
@@ -737,9 +738,10 @@ async function sendTranslationCard(
 
   ctx.session.pendingTranslation = output;
 
+  const order = await resolveLanguageOrder(ctx);
   const body = isSentence
-    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`
-    : renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
+    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, order, lang, nativeLang, needsReview)}`
+    : renderTranslation(output, order, lang, effectiveTemplate.fields, nativeLang, needsReview);
   const card =
     opts.detectedLang && opts.detectedLang !== nativeLang
       ? `${t("detectedLang", lang, { lang: getLanguageName(opts.detectedLang, lang) })}\n${body}`

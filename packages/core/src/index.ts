@@ -153,6 +153,14 @@ export {
   extractionResultSchema,
   extractPhrasesFromTranscript,
 } from "./modules/video-vocabulary/index.js";
+export type { LanguageOrderContext } from "./modules/vocabulary/translation-order.js";
+export {
+  createLanguageOrderContext,
+  languageRank,
+  orderLangCodes,
+  orderRecordEntries,
+  orderTranslations,
+} from "./modules/vocabulary/translation-order.js";
 export {
   type AICircuitEvent,
   type AICircuitObserver,

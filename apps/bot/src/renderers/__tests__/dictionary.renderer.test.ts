@@ -2,6 +2,7 @@
  * Tests for dictionary renderer.
  */
 import type { VocabularyEntryWithTranslations } from "@polyglot/adapter-db";
+import { createLanguageOrderContext, type SupportedLang } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 
 // Mock @polyglot/core — keep actual i18n + provide getLangFlag
@@ -23,9 +24,30 @@ import {
   buildDictionaryEntryKeyboard,
   buildDictionaryListKeyboard,
   DICTIONARY_PAGE_SIZE,
-  renderDictionaryEntry,
-  renderDictionaryList,
+  renderDictionaryEntry as renderDictionaryEntryRaw,
+  renderDictionaryList as renderDictionaryListRaw,
 } from "../dictionary.renderer.js";
+
+/**
+ * These cases assert card content, not language sequence. Ordering behaviour has
+ * its own suite in dictionary.renderer.order.test.ts.
+ */
+const NO_ORDER = createLanguageOrderContext({ learningLangs: [] });
+const renderDictionaryEntry = (
+  entry: VocabularyEntryWithTranslations,
+  langResolver: (id: number) => string | undefined,
+  lang: SupportedLang = "en",
+): string => renderDictionaryEntryRaw(entry, langResolver, lang, NO_ORDER);
+
+const renderDictionaryList = (
+  entries: VocabularyEntryWithTranslations[],
+  page: number,
+  totalPages: number,
+  totalWords: number,
+  lang: SupportedLang,
+  dictionaryName?: string,
+): string =>
+  renderDictionaryListRaw(entries, page, totalPages, totalWords, lang, (id) => `l${id}`, NO_ORDER, dictionaryName);
 
 /** Extract callback_data from an inline keyboard button (union type). */
 const cbData = (btn: unknown): string | undefined => (btn as { callback_data?: string }).callback_data;
