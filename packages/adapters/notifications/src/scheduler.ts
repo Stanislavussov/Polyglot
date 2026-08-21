@@ -9,15 +9,7 @@
  * 5. Uses core's getLogger() — logger injected at composition root
  */
 
-import {
-  createLanguageOrderContext,
-  getLogger,
-  getTraceContext,
-  logEvent,
-  newTraceId,
-  orderRecordEntries,
-  runWithTrace,
-} from "@polyglot/core";
+import { getLogger, getTraceContext, logEvent, newTraceId, runWithTrace } from "@polyglot/core";
 import cron from "node-cron";
 import { logNotificationSent } from "./log.js";
 import type {
@@ -146,14 +138,11 @@ async function pickWordForUser(
 /**
  * Build a notification payload for the given user and word.
  *
- * Formats the message using i18n and the user's interface language.
+ * Carries data only. Rendering — including the language order the card is shown
+ * in — belongs to the channel adapter, which derives it from the user's settings
+ * at send time; see `apps/bot/src/notifications/notification.formatter.ts`.
  */
-export function buildNotificationPayload(
-  user: NotificationUser,
-  word: SuggestedWord,
-  t: (key: string, lang: string, params?: Record<string, string>) => string,
-): NotificationPayload {
-  const lang = user.interfaceLang;
+export function buildNotificationPayload(user: NotificationUser, word: SuggestedWord): NotificationPayload {
   // Eligible users have a valid timezone (invalid ones are filtered in getUsersForWindow);
   // derive the send hour from the current local time since there's no single configured time.
   let hour = 8;
@@ -163,49 +152,7 @@ export function buildNotificationPayload(
     // invalid timezone — keep default
   }
 
-  const title = t("notifTitle", lang);
-  const sourceLabel =
-    word.source === "srs"
-      ? t("notifWordFromDict", lang)
-      : word.source === "preset"
-        ? t("notifPresetWord", lang)
-        : word.source === "contextual"
-          ? t("notifTypeContextual", lang)
-          : t("notifAiSuggested", lang);
-
-  // Order the translations once, here, and re-key the word itself. Two different
-  // renderers consume this: the message built below, and the bot-side formatter,
-  // which receives `word` by reference from the payload returned at the bottom of
-  // this function. Ordering only the local lines would leave the formatter's card
-  // unordered, so the record itself is rebuilt in the user's language order.
-  const orderedTranslations = orderRecordEntries(
-    word.translations,
-    createLanguageOrderContext({ nativeLang: user.nativeLang, learningLangs: user.learningLangs }),
-  );
-  const orderedWord: SuggestedWord = {
-    ...word,
-    translations: Object.fromEntries(orderedTranslations),
-  };
-
-  const translationLines = orderedTranslations.map(([, text]) => `  • ${text}`).join("\n");
-
-  const lines = [
-    `${orderedWord.emoji} <b>${escapeHtml(orderedWord.original)}</b>`,
-    `<i>${sourceLabel}</i>`,
-    "",
-    `${title}:`,
-    translationLines,
-  ];
-
-  return {
-    hour,
-    word: orderedWord,
-    message: lines.join("\n"),
-  };
-}
-
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return { hour, word };
 }
 
 /**
@@ -302,7 +249,7 @@ async function runNotificationBatch(sendFn: SendFn, deps: SchedulerDeps): Promis
           }
 
           logger.info({ userId: user.userId, word: word.original }, "Word picked, sending notification");
-          const payload = buildNotificationPayload(user, word, deps.t);
+          const payload = buildNotificationPayload(user, word);
           await sendWithRetry(sendFn, user.userId, payload, deps.isUserBlocked);
 
           await retryWithBackoff(

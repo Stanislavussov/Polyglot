@@ -256,6 +256,43 @@ describe("scheduled notification delivery (integration)", () => {
     expect(settings?.notificationEnabled).toBe(false);
     expect(ai.wasCalled()).toBe(false);
   });
+
+  it("C10: delivers the card with the reader's own language directly under the headword", async () => {
+    // Arrange — a ru-native user studying cs and de, whose entry is seeded
+    // native-LAST. The card must be reordered at render time; a fixture that
+    // already read native-first would prove nothing. This is the assertion the
+    // unit tests cannot make: the ordering context is built inside the real
+    // `sendFn` from the real settings row, so a wiring regression that dropped
+    // it would leave every unit test green.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { headword, nativeTranslation, nativeMeaning, otherTranslation } = await arrangeTracked(telegramId, {
+      richCard: true,
+    });
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    harness.reset();
+
+    // Act
+    await checkAndSend(sendFn, deps);
+
+    // Assert — the delivered text, by line position rather than mere presence.
+    const mine = messagesTo(harness.sent, telegramId);
+    expect(mine).toHaveLength(1);
+    const lines = textOf(mine[0]!)
+      .split("\n")
+      .filter((line) => line.trim() !== "");
+
+    const headwordAt = lines.findIndex((line) => line.includes(headword));
+    const answerAt = lines.findIndex((line) => line.includes(nativeTranslation!));
+    const meaningAt = lines.findIndex((line) => line.includes(nativeMeaning!));
+    const otherAt = lines.findIndex((line) => line.includes(otherTranslation!));
+
+    expect(headwordAt).toBeGreaterThanOrEqual(0);
+    expect(answerAt).toBe(headwordAt + 1);
+    expect(answerAt).toBeLessThan(meaningAt);
+    expect(meaningAt).toBeLessThan(otherAt);
+    expect(ai.wasCalled()).toBe(false);
+  });
 });
 
 describe("notification schedule seeding and the deselect guard (integration)", () => {
