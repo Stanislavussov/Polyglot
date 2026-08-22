@@ -9,6 +9,7 @@ const free: PlanLimitConfig = {
   creditCost: 1,
   videoLimit: 3,
   videoWindow: "lifetime",
+  priceUsdCents: null,
   isActive: true,
   isDefault: true,
 };

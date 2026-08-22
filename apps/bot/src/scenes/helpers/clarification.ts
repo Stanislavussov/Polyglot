@@ -7,6 +7,7 @@
  * text, and drive the post-translation "Clarify" button on a rendered card.
  */
 import {
+  FEATURE_KEYS,
   isSupported,
   isSupportedLanguage,
   logger,
@@ -27,6 +28,7 @@ import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { LONG_OP_TIMEOUT_MS, startTypingKeepalive, withTimeout } from "../../utils/long-op.js";
 import { replyTechnical } from "../../utils/message-cleanup.js";
+import { ensurePaidFeature, resolveLockedFeatures } from "./paid-feature.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import {
   clearPendingClarification,
@@ -79,6 +81,12 @@ export async function handleClarifyPostCallback(ctx: BotContext): Promise<void> 
       text: "⚠️ Session expired. Please translate the word again.",
       show_alert: true,
     });
+    return;
+  }
+
+  // Paid feature: a Free user's tap becomes the upgrade screen, never a prompt
+  // for context that would then be ignored.
+  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.clarification))) {
     return;
   }
 
@@ -303,16 +311,14 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
       const pronounceLangs = await resolvePronounceLangs(ctx, decision.output.translations, entry.inputType, order);
 
       const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
-      const keyboard = buildTranslationKeyboard(
-        lang,
-        newMsg.message_id,
-        undefined,
+      const keyboard = buildTranslationKeyboard({
+        interfaceLang: lang,
+        msgId: newMsg.message_id,
         showGrammarButton,
-        undefined,
         showEtymologyButton,
-        undefined,
         pronounceLangs,
-      );
+        locked: await resolveLockedFeatures(ctx),
+      });
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
 
       setTranslationEntry(ctx.session, newMsg.message_id, {

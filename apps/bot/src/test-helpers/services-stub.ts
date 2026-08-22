@@ -29,14 +29,15 @@ function autoMockObject<T extends object>(): T {
   });
 }
 
-/** Default free-tier plan limit — matches the DB seed default. Override per test as needed. */
+/** Default free-tier plan limit — mirrors the seeded `free` plan. Override per test as needed. */
 export const DEFAULT_PLAN_LIMIT: NonNullable<Awaited<ReturnType<ServiceContainer["settings"]["getPlanLimit"]>>> = {
   name: "free",
   label: "Free",
-  translationLimit: 50,
+  translationLimit: 10,
   creditCost: 1,
-  videoLimit: 3,
-  videoWindow: "lifetime",
+  videoLimit: 0,
+  videoWindow: "none",
+  priceUsdCents: null,
   isActive: true,
   isDefault: true,
 };

@@ -10,9 +10,10 @@
  * `playPronunciation`; this module only supplies the three Telegram/OpenRouter
  * adapters it needs and translates the outcome into a callback answer.
  */
-import { isSupported, logEvent, playPronunciation, type SupportedLang, t } from "@polyglot/core";
+import { FEATURE_KEYS, isSupported, logEvent, playPronunciation, type SupportedLang, t } from "@polyglot/core";
 import { InputFile } from "grammy";
 import type { BotContext } from "../../types.js";
+import { ensurePaidFeature } from "./paid-feature.helper.js";
 
 /** Parses `tr:say:{langCode}:{msgId}`. Returns null when the shape is unexpected. */
 function parseSayCallback(data: string): { langCode: string; msgId: number } | null {
@@ -40,6 +41,11 @@ export async function handlePronounceCallback(ctx: BotContext): Promise<void> {
   if (!entry) {
     logEvent("card.tts_state_lost", { msgId, lang: langCode }, "warn");
     await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true });
+    return;
+  }
+
+  // Audio is the Pro-only feature — gate before any synthesis is even considered.
+  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.pronunciation, lang))) {
     return;
   }
 

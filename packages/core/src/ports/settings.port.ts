@@ -13,6 +13,8 @@ export interface PlanLimitConfig {
   /** Max video analyses within `videoWindow`. null = unlimited */
   videoLimit: number | null;
   videoWindow: VideoWindow;
+  /** Display price in US cents for the upgrade screen. null = not for sale. */
+  priceUsdCents: number | null;
   isActive: boolean;
   isDefault: boolean;
 }

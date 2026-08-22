@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-22T10:24:15.000Z",
+  "generatedAt": "2026-08-22T11:02:57.000Z",
   "summary": {
-    "total": 2754,
+    "total": 2767,
     "business": 0,
-    "technical": 2754,
+    "technical": 2767,
     "workspaces": [
       "apps",
       "packages"
@@ -2871,6 +2871,102 @@
       "description": "Protects the bot start onboarding (integration) behavior so resumes on the furthest screen reached instead of restarting from the native question."
     },
     {
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-96-paid-features-on-a-translation-card-integration-badges-the-paid-buttons-for-a-free-user-and-turns-a-tap-into-the-priced-plan-comparison",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
+      "sourceLine": 96,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "paid features on a translation card (integration)"
+      ],
+      "title": "badges the paid buttons for a Free user and turns a tap into the priced plan comparison",
+      "rawTitle": "badges the paid buttons for a Free user and turns a tap into the priced plan comparison",
+      "name": "Bot paid features on a translation card (integration) badges the paid buttons for a Free user and turns a tap into the priced plan comparison",
+      "value": "Protects the bot paid features on a translation card (integration) behavior so badges the paid buttons for a Free user and turns a tap into the priced plan comparison.",
+      "description": "Protects the bot paid features on a translation card (integration) behavior so badges the paid buttons for a Free user and turns a tap into the priced plan comparison."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-130-paid-features-on-a-translation-card-integration-buys-plus-through-the-test-payment-confirmation-and-unlocks-clarify-but-not-pro-only-audio",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
+      "sourceLine": 130,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "paid features on a translation card (integration)"
+      ],
+      "title": "buys Plus through the test-payment confirmation and unlocks clarify — but not Pro-only audio",
+      "rawTitle": "buys Plus through the test-payment confirmation and unlocks clarify — but not Pro-only audio",
+      "name": "Bot paid features on a translation card (integration) buys Plus through the test payment confirmation and unlocks clarify — but not Pro only audio",
+      "value": "Protects the bot paid features on a translation card (integration) behavior so buys Plus through the test payment confirmation and unlocks clarify — but not Pro only audio.",
+      "description": "Protects the bot paid features on a translation card (integration) behavior so buys Plus through the test payment confirmation and unlocks clarify — but not Pro only audio."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-182-paid-features-on-a-translation-card-integration-upgrading-plus-pro-supersedes-the-old-subscription-and-unlocks-audio",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
+      "sourceLine": 182,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "paid features on a translation card (integration)"
+      ],
+      "title": "upgrading Plus → Pro supersedes the old subscription and unlocks audio",
+      "rawTitle": "upgrading Plus → Pro supersedes the old subscription and unlocks audio",
+      "name": "Bot paid features on a translation card (integration) upgrading Plus → Pro supersedes the old subscription and unlocks audio",
+      "value": "Protects the bot paid features on a translation card (integration) behavior so upgrading Plus → Pro supersedes the old subscription and unlocks audio.",
+      "description": "Protects the bot paid features on a translation card (integration) behavior so upgrading Plus → Pro supersedes the old subscription and unlocks audio."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-211-paid-features-on-a-translation-card-integration-backing-out-of-the-test-payment-leaves-the-user-on-free",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
+      "sourceLine": 211,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "paid features on a translation card (integration)"
+      ],
+      "title": "backing out of the test payment leaves the user on Free",
+      "rawTitle": "backing out of the test payment leaves the user on Free",
+      "name": "Bot paid features on a translation card (integration) backing out of the test payment leaves the user on Free",
+      "value": "Protects the bot paid features on a translation card (integration) behavior so backing out of the test payment leaves the user on Free.",
+      "description": "Protects the bot paid features on a translation card (integration) behavior so backing out of the test payment leaves the user on Free."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-229-paid-features-on-a-translation-card-integration-stops-the-11th-translation-of-the-month-on-free-and-offers-the-upgrade",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
+      "sourceLine": 229,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "paid features on a translation card (integration)"
+      ],
+      "title": "stops the 11th translation of the month on Free and offers the upgrade",
+      "rawTitle": "stops the 11th translation of the month on Free and offers the upgrade",
+      "name": "Bot paid features on a translation card (integration) stops the 11th translation of the month on Free and offers the upgrade",
+      "value": "Protects the bot paid features on a translation card (integration) behavior so stops the 11th translation of the month on Free and offers the upgrade.",
+      "description": "Protects the bot paid features on a translation card (integration) behavior so stops the 11th translation of the month on Free and offers the upgrade."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-248-paid-features-on-a-translation-card-integration-refuses-a-hand-crafted-purchase-of-a-plan-that-is-not-for-sale",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
+      "sourceLine": 248,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "paid features on a translation card (integration)"
+      ],
+      "title": "refuses a hand-crafted purchase of a plan that is not for sale",
+      "rawTitle": "refuses a hand-crafted purchase of a plan that is not for sale",
+      "name": "Bot paid features on a translation card (integration) refuses a hand crafted purchase of a plan that is not for sale",
+      "value": "Protects the bot paid features on a translation card (integration) behavior so refuses a hand crafted purchase of a plan that is not for sale.",
+      "description": "Protects the bot paid features on a translation card (integration) behavior so refuses a hand crafted purchase of a plan that is not for sale."
+    },
+    {
       "id": "apps-bot-src-tests-integration-technical-cleanup-integration-test-ts-52-technical-message-cleanup-integration-keeps-every-translation-card-while-the-user-goes-on-translating",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/technical-cleanup.integration.test.ts",
@@ -4974,10 +5070,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: keeps save last even with grammar and etymology rows present."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-523-buildtranslationkeyboard-has-exactly-2-rows-when-no-learning-aids-are-shown",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-528-buildtranslationkeyboard-has-exactly-2-rows-when-no-learning-aids-are-shown",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 523,
+      "sourceLine": 528,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4990,10 +5086,10 @@
       "description": "Protects the bot build Translation Keyboard behavior so has exactly 2 rows when no learning aids are shown."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-528-buildtranslationkeyboard-places-grammar-and-etymology-together-on-a-shared-row",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-533-buildtranslationkeyboard-places-grammar-and-etymology-together-on-a-shared-row",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 528,
+      "sourceLine": 533,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5006,10 +5102,10 @@
       "description": "Protects the bot build Translation Keyboard behavior so places grammar and etymology together on a shared row."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-536-buildtranslationkeyboard-shows-the-etymology-button-alone-when-grammar-is-hidden-single-word",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-546-buildtranslationkeyboard-shows-the-etymology-button-alone-when-grammar-is-hidden-single-word",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 536,
+      "sourceLine": 546,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5022,10 +5118,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: shows the etymology button alone when grammar is hidden (single word)."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-545-buildtranslationkeyboard-shows-disabled-save-button-when-isalreadysaved-is-true",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-555-buildtranslationkeyboard-shows-disabled-save-button-when-isalreadysaved-is-true",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 545,
+      "sourceLine": 555,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5038,10 +5134,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: shows disabled save button when is Already Saved is true."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-552-buildtranslationkeyboard-shows-active-save-button-when-isalreadysaved-is-false",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-562-buildtranslationkeyboard-shows-active-save-button-when-isalreadysaved-is-false",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 552,
+      "sourceLine": 562,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5054,10 +5150,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: shows active save button when is Already Saved is false."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-559-buildtranslationkeyboard-falls-back-to-en-for-unknown-interface-language",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-569-buildtranslationkeyboard-falls-back-to-en-for-unknown-interface-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 559,
+      "sourceLine": 569,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5070,10 +5166,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: falls back to en for unknown interface language."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-565-buildtranslationkeyboard-uses-russian-labels-for-ru-locale",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-575-buildtranslationkeyboard-uses-russian-labels-for-ru-locale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 565,
+      "sourceLine": 575,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5086,10 +5182,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: uses Russian labels for ru locale."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-571-buildtranslationkeyboard-defaults-msgid-to-0-when-not-provided",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-581-buildtranslationkeyboard-defaults-msgid-to-0-when-not-provided",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 571,
+      "sourceLine": 581,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5102,10 +5198,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: defaults msg Id to 0 when not provided."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-576-buildtranslationkeyboard-omits-the-source-override-rows-when-no-override-languages-are-given",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-586-buildtranslationkeyboard-omits-the-source-override-rows-when-no-override-languages-are-given",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 576,
+      "sourceLine": 586,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5118,10 +5214,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: omits the source override rows when no override languages are given."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-582-buildtranslationkeyboard-omits-the-source-override-rows-when-the-override-language-list-is-empty",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-592-buildtranslationkeyboard-omits-the-source-override-rows-when-the-override-language-list-is-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 582,
+      "sourceLine": 592,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5134,10 +5230,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: omits the source override rows when the override language list is empty."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-588-buildtranslationkeyboard-renders-a-translate-from-header-and-one-flag-button-per-override-language",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-598-buildtranslationkeyboard-renders-a-translate-from-header-and-one-flag-button-per-override-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 588,
+      "sourceLine": 598,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5150,10 +5246,10 @@
       "description": "Protects the bot build Translation Keyboard behavior: renders a 'translate from' header and one flag button per override language."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-598-buildtranslationkeyboard-keeps-the-save-button-last-even-with-the-source-override-rows-present",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-608-buildtranslationkeyboard-keeps-the-save-button-last-even-with-the-source-override-rows-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 598,
+      "sourceLine": 608,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5166,10 +5262,42 @@
       "description": "Protects the bot build Translation Keyboard behavior: keeps the save button last even with the source override rows present."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-605-buildtranslationkeyboard-wraps-override-flag-buttons-into-rows-of-at-most-four",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-615-buildtranslationkeyboard-badges-buttons-the-plan-does-not-include-leaving-their-callback-data-untouched",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 605,
+      "sourceLine": 615,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard"
+      ],
+      "title": "badges buttons the plan does not include, leaving their callback data untouched",
+      "rawTitle": "badges buttons the plan does not include, leaving their callback data untouched",
+      "name": "Bot build Translation Keyboard badges buttons the plan does not include, leaving their callback data untouched",
+      "value": "Protects the bot build Translation Keyboard behavior so badges buttons the plan does not include, leaving their callback data untouched.",
+      "description": "Protects the bot build Translation Keyboard behavior so badges buttons the plan does not include, leaving their callback data untouched."
+    },
+    {
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-639-buildtranslationkeyboard-leaves-every-button-unbadged-when-nothing-is-locked",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
+      "sourceLine": 639,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard"
+      ],
+      "title": "leaves every button unbadged when nothing is locked",
+      "rawTitle": "leaves every button unbadged when nothing is locked",
+      "name": "Bot build Translation Keyboard leaves every button unbadged when nothing is locked",
+      "value": "Protects the bot build Translation Keyboard behavior so leaves every button unbadged when nothing is locked.",
+      "description": "Protects the bot build Translation Keyboard behavior so leaves every button unbadged when nothing is locked."
+    },
+    {
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-650-buildtranslationkeyboard-wraps-override-flag-buttons-into-rows-of-at-most-four",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
+      "sourceLine": 650,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5182,10 +5310,10 @@
       "description": "Protects the bot build Translation Keyboard behavior so wraps override flag buttons into rows of at most four."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-614-rendertranslation-etymology-section-renders-the-etymology-section-when-provided",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-663-rendertranslation-etymology-section-renders-the-etymology-section-when-provided",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 614,
+      "sourceLine": 663,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5198,10 +5326,10 @@
       "description": "Protects the bot render Translation — etymology section behavior: renders the etymology section when provided."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-628-rendertranslation-etymology-section-does-not-render-an-etymology-section-when-absent",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-677-rendertranslation-etymology-section-does-not-render-an-etymology-section-when-absent",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 628,
+      "sourceLine": 677,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5214,10 +5342,10 @@
       "description": "Protects the bot render Translation — etymology section behavior: does not render an etymology section when absent."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-633-rendertranslation-etymology-section-escapes-html-in-etymology-prose",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-682-rendertranslation-etymology-section-escapes-html-in-etymology-prose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 633,
+      "sourceLine": 682,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5230,10 +5358,10 @@
       "description": "Protects the bot render Translation — etymology section behavior: escapes HTML in etymology prose."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-639-rendertranslation-etymology-section-renders-etymology-after-the-grammar-breakdown-section",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-688-rendertranslation-etymology-section-renders-etymology-after-the-grammar-breakdown-section",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 639,
+      "sourceLine": 688,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5246,10 +5374,10 @@
       "description": "Protects the bot render Translation — etymology section behavior: renders etymology after the grammar breakdown section."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-683-rendertranslation-alternatives-renders-alternative-without-synonyms-no-dash",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-732-rendertranslation-alternatives-renders-alternative-without-synonyms-no-dash",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 683,
+      "sourceLine": 732,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5262,10 +5390,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: renders alternative without synonyms (no dash)."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-689-rendertranslation-alternatives-renders-alternatives-after-main-translation-header",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-738-rendertranslation-alternatives-renders-alternatives-after-main-translation-header",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 689,
+      "sourceLine": 738,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5278,10 +5406,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: renders alternatives after main translation header."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-697-rendertranslation-alternatives-does-not-render-alternatives-section-when-not-present",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-746-rendertranslation-alternatives-does-not-render-alternatives-section-when-not-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 697,
+      "sourceLine": 746,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5294,10 +5422,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: does not render alternatives section when not present."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-702-rendertranslation-alternatives-does-not-render-alternatives-section-when-array-is-empty",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-751-rendertranslation-alternatives-does-not-render-alternatives-section-when-array-is-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 702,
+      "sourceLine": 751,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5310,10 +5438,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: does not render alternatives section when array is empty."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-716-rendertranslation-alternatives-escapes-html-in-alternative-text-and-synonyms",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-765-rendertranslation-alternatives-escapes-html-in-alternative-text-and-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 716,
+      "sourceLine": 765,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5326,10 +5454,10 @@
       "description": "Protects the bot render Translation — alternatives behavior: escapes HTML in alternative text and synonyms."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-769-rendertranslation-idiomatic-equivalents-renders-idiomatic-translations-using-the-text-field-as-before",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-818-rendertranslation-idiomatic-equivalents-renders-idiomatic-translations-using-the-text-field-as-before",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 769,
+      "sourceLine": 818,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5342,10 +5470,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: renders idiomatic translations using the text field as before."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-775-rendertranslation-idiomatic-equivalents-renders-the-original-proverb-in-the-header",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-824-rendertranslation-idiomatic-equivalents-renders-the-original-proverb-in-the-header",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 775,
+      "sourceLine": 824,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5358,10 +5486,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: renders the original proverb in the header."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-780-rendertranslation-idiomatic-equivalents-does-not-leak-expressiontype-or-equivalentnote-into-output",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-829-rendertranslation-idiomatic-equivalents-does-not-leak-expressiontype-or-equivalentnote-into-output",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 780,
+      "sourceLine": 829,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5374,10 +5502,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: does not leak expression Type or equivalent Note into output."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-787-rendertranslation-idiomatic-equivalents-renders-examples-from-idiomatic-translations",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-836-rendertranslation-idiomatic-equivalents-renders-examples-from-idiomatic-translations",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 787,
+      "sourceLine": 836,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5390,10 +5518,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: renders examples from idiomatic translations."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-794-rendertranslation-idiomatic-equivalents-handles-mix-of-literal-and-idiomatic-translations",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-843-rendertranslation-idiomatic-equivalents-handles-mix-of-literal-and-idiomatic-translations",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 794,
+      "sourceLine": 843,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5406,10 +5534,10 @@
       "description": "Protects the bot render Translation — idiomatic equivalents behavior: handles mix of literal and idiomatic translations."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-820-rendertopicword-idiomatic-equivalents-renders-topic-word-with-idiomatic-fields-transparently",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-869-rendertopicword-idiomatic-equivalents-renders-topic-word-with-idiomatic-fields-transparently",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 820,
+      "sourceLine": 869,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5422,10 +5550,10 @@
       "description": "Protects the bot render Topic Word — idiomatic equivalents behavior: renders topic word with idiomatic fields transparently."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-844-rendertranslation-connotation-warnings-renders-regular-usage-guidance-with-a-distinct-marker",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-893-rendertranslation-connotation-warnings-renders-regular-usage-guidance-with-a-distinct-marker",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 844,
+      "sourceLine": 893,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5438,10 +5566,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: renders regular usage guidance with a distinct marker."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-862-rendertranslation-connotation-warnings-renders-connotation-warning-when-present",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-911-rendertranslation-connotation-warnings-renders-connotation-warning-when-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 862,
+      "sourceLine": 911,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5454,10 +5582,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: renders connotation warning when present."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-876-rendertranslation-connotation-warnings-does-not-render-connotation-warning-when-absent",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-925-rendertranslation-connotation-warnings-does-not-render-connotation-warning-when-absent",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 876,
+      "sourceLine": 925,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5470,10 +5598,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: does not render connotation warning when absent."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-881-rendertranslation-connotation-warnings-does-not-render-connotation-warning-when-field-is-undefined",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-930-rendertranslation-connotation-warnings-does-not-render-connotation-warning-when-field-is-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 881,
+      "sourceLine": 930,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5486,10 +5614,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: does not render connotation warning when field is undefined."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-895-rendertranslation-connotation-warnings-renders-connotation-warning-after-examples",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-944-rendertranslation-connotation-warnings-renders-connotation-warning-after-examples",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 895,
+      "sourceLine": 944,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5502,10 +5630,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: renders connotation warning after examples."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-911-rendertranslation-connotation-warnings-escapes-html-in-connotation-warning-text",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-960-rendertranslation-connotation-warnings-escapes-html-in-connotation-warning-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 911,
+      "sourceLine": 960,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5518,10 +5646,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: escapes HTML in connotation warning text."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-925-rendertranslation-connotation-warnings-uses-i18n-connotationwarning-key-with-locale",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-974-rendertranslation-connotation-warnings-uses-i18n-connotationwarning-key-with-locale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 925,
+      "sourceLine": 974,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5534,10 +5662,10 @@
       "description": "Protects the bot render Translation — connotation warnings behavior: uses i18n connotation Warning key with locale."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-946-rendertranslation-backward-compat-with-old-examples-gracefully-handles-old-examples-without-register-field",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-995-rendertranslation-backward-compat-with-old-examples-gracefully-handles-old-examples-without-register-field",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 946,
+      "sourceLine": 995,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5550,10 +5678,10 @@
       "description": "Protects the bot render Translation — backward compat with old examples behavior so gracefully handles old examples without register field."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-963-rendertranslation-backward-compat-with-old-examples-renders-native-field-from-examples-when-present",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1012-rendertranslation-backward-compat-with-old-examples-renders-native-field-from-examples-when-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 963,
+      "sourceLine": 1012,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5566,10 +5694,10 @@
       "description": "Protects the bot render Translation — backward compat with old examples behavior: renders native field from examples when present."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-981-rendertranslation-inline-synonyms-shows-synonyms-inline-after-translation-text",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1030-rendertranslation-inline-synonyms-shows-synonyms-inline-after-translation-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 981,
+      "sourceLine": 1030,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5582,10 +5710,10 @@
       "description": "Protects the bot render Translation — inline synonyms behavior: shows synonyms inline after translation text."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-988-rendertranslation-inline-synonyms-shows-no-parenthetical-when-zero-synonyms",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1037-rendertranslation-inline-synonyms-shows-no-parenthetical-when-zero-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 988,
+      "sourceLine": 1037,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5598,10 +5726,10 @@
       "description": "Protects the bot render Translation — inline synonyms behavior: shows no parenthetical when zero synonyms."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1000-rendertranslation-inline-synonyms-shows-single-synonym-in-parenthetical",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1049-rendertranslation-inline-synonyms-shows-single-synonym-in-parenthetical",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1000,
+      "sourceLine": 1049,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5614,10 +5742,10 @@
       "description": "Protects the bot render Translation — inline synonyms behavior: shows single synonym in parenthetical."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1039-rendersentencetranslation-renders-emoji-and-original-sentence-as-bold-header",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1088-rendersentencetranslation-renders-emoji-and-original-sentence-as-bold-header",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1039,
+      "sourceLine": 1088,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5630,10 +5758,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders emoji and original sentence as bold header."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1044-rendersentencetranslation-renders-native-meaning-for-sentence-translations",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1093-rendersentencetranslation-renders-native-meaning-for-sentence-translations",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1044,
+      "sourceLine": 1093,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5646,10 +5774,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders native meaning for sentence translations."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1049-rendersentencetranslation-does-not-render-native-meaning-when-nativelang-equals-sourcelang",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1098-rendersentencetranslation-does-not-render-native-meaning-when-nativelang-equals-sourcelang",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1049,
+      "sourceLine": 1098,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5662,10 +5790,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render native meaning when native Lang equals source Lang."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1055-rendersentencetranslation-renders-translation-text-as-bold-per-language",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1104-rendersentencetranslation-renders-translation-text-as-bold-per-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1055,
+      "sourceLine": 1104,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5678,10 +5806,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders translation text as bold per language."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1061-rendersentencetranslation-renders-sentence-translations-without-transcription",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1110-rendersentencetranslation-renders-sentence-translations-without-transcription",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1061,
+      "sourceLine": 1110,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5694,10 +5822,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders sentence translations without transcription."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1068-rendersentencetranslation-renders-language-flags-from-db",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1117-rendersentencetranslation-renders-language-flags-from-db",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1068,
+      "sourceLine": 1117,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5710,10 +5838,10 @@
       "description": "Protects the bot render Sentence Translation behavior: renders language flags from DB."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1074-rendersentencetranslation-does-not-render-synonyms",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1123-rendersentencetranslation-does-not-render-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1074,
+      "sourceLine": 1123,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5726,10 +5854,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render synonyms."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1079-rendersentencetranslation-does-not-render-examples",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1128-rendersentencetranslation-does-not-render-examples",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1079,
+      "sourceLine": 1128,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5742,10 +5870,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render examples."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1087-rendersentencetranslation-does-not-render-alternatives",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1136-rendersentencetranslation-does-not-render-alternatives",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1087,
+      "sourceLine": 1136,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5758,10 +5886,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render alternatives."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1092-rendersentencetranslation-does-not-render-register-line",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1141-rendersentencetranslation-does-not-render-register-line",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1092,
+      "sourceLine": 1141,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5774,10 +5902,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does NOT render register line."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1097-rendersentencetranslation-shows-needsreview-warning-when-true",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1146-rendersentencetranslation-shows-needsreview-warning-when-true",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1097,
+      "sourceLine": 1146,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5790,10 +5918,10 @@
       "description": "Protects the bot render Sentence Translation behavior: shows needs Review warning when true."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1102-rendersentencetranslation-does-not-show-needsreview-when-false",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1151-rendersentencetranslation-does-not-show-needsreview-when-false",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1102,
+      "sourceLine": 1151,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5806,10 +5934,10 @@
       "description": "Protects the bot render Sentence Translation behavior: does not show needs Review when false."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1107-rendersentencetranslation-escapes-html-special-characters",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1156-rendersentencetranslation-escapes-html-special-characters",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1107,
+      "sourceLine": 1156,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5822,10 +5950,10 @@
       "description": "Protects the bot render Sentence Translation behavior: escapes HTML special characters."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1117-rendersentencetranslation-falls-back-to-en-for-unknown-interfacelang",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1166-rendersentencetranslation-falls-back-to-en-for-unknown-interfacelang",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1117,
+      "sourceLine": 1166,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5838,10 +5966,10 @@
       "description": "Protects the bot render Sentence Translation behavior: falls back to en for unknown interface Lang."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1123-rendersentencetranslation-falls-back-to-when-getlangflag-returns-undefined",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1172-rendersentencetranslation-falls-back-to-when-getlangflag-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1123,
+      "sourceLine": 1172,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5854,10 +5982,10 @@
       "description": "Protects the bot render Sentence Translation behavior: falls back to 🔤 when get Lang Flag returns undefined."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1144-renderqualitywarning-renders-quality-warning-in-english",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1193-renderqualitywarning-renders-quality-warning-in-english",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1144,
+      "sourceLine": 1193,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5870,10 +5998,10 @@
       "description": "Protects the bot render Quality Warning behavior: renders quality warning in English."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1149-renderqualitywarning-renders-quality-warning-in-russian",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1198-renderqualitywarning-renders-quality-warning-in-russian",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1149,
+      "sourceLine": 1198,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5886,10 +6014,10 @@
       "description": "Protects the bot render Quality Warning behavior: renders quality warning in Russian."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1154-renderqualitywarning-renders-quality-warning-in-czech",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1203-renderqualitywarning-renders-quality-warning-in-czech",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1154,
+      "sourceLine": 1203,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5902,10 +6030,10 @@
       "description": "Protects the bot render Quality Warning behavior: renders quality warning in Czech."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1159-renderqualitywarning-falls-back-to-english-for-unknown-lang",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1208-renderqualitywarning-falls-back-to-english-for-unknown-lang",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1159,
+      "sourceLine": 1208,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5918,10 +6046,10 @@
       "description": "Protects the bot render Quality Warning behavior: falls back to English for unknown lang."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1164-renderqualitywarning-escapes-html-in-warning-text",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1213-renderqualitywarning-escapes-html-in-warning-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1164,
+      "sourceLine": 1213,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5934,10 +6062,10 @@
       "description": "Protects the bot render Quality Warning behavior: escapes HTML in warning text."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1169-renderqualitywarning-is-different-from-translationneedsreview-text",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1218-renderqualitywarning-is-different-from-translationneedsreview-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1169,
+      "sourceLine": 1218,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5950,10 +6078,10 @@
       "description": "Protects the bot render Quality Warning behavior so is different from translation Needs Review text."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1180-input-correction-annotations-task-69-shows-a-fixed-line-with-original-corrected-explanation-for-a-word-auto-fix",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1229-input-correction-annotations-task-69-shows-a-fixed-line-with-original-corrected-explanation-for-a-word-auto-fix",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1180,
+      "sourceLine": 1229,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5966,10 +6094,10 @@
       "description": "Protects the bot input correction annotations (Task 69) behavior: shows a ✏️ Fixed line with original → corrected — explanation for a word auto fix."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1196-input-correction-annotations-task-69-renders-no-correction-notice-when-the-input-was-not-corrected",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1245-input-correction-annotations-task-69-renders-no-correction-notice-when-the-input-was-not-corrected",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1196,
+      "sourceLine": 1245,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5982,10 +6110,10 @@
       "description": "Protects the bot input correction annotations (Task 69) behavior: renders no correction notice when the input was not corrected."
     },
     {
-      "id": "apps-bot-src-tests-translation-renderer-test-ts-1200-input-correction-annotations-task-69-shows-the-corrected-sentence-and-error-explanation-on-a-sentence-card",
+      "id": "apps-bot-src-tests-translation-renderer-test-ts-1249-input-correction-annotations-task-69-shows-the-corrected-sentence-and-error-explanation-on-a-sentence-card",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translation.renderer.test.ts",
-      "sourceLine": 1200,
+      "sourceLine": 1249,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6206,10 +6334,10 @@
       "description": "Protects the bot callback restart safety contracts behavior so documents all required callback families."
     },
     {
-      "id": "apps-bot-src-callbacks-contracts-test-ts-18-callback-restart-safety-contracts-keeps-documented-maximum-callback-data-examples-within-telegram-s-64-byte-limit",
+      "id": "apps-bot-src-callbacks-contracts-test-ts-27-callback-restart-safety-contracts-keeps-documented-maximum-callback-data-examples-within-telegram-s-64-byte-limit",
       "kind": "technical",
       "filePath": "apps/bot/src/callbacks/contracts.test.ts",
-      "sourceLine": 18,
+      "sourceLine": 27,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6494,10 +6622,10 @@
       "description": "Protects the bot start Command behavior: does nothing when user is not in context."
     },
     {
-      "id": "apps-bot-src-feature-access-test-ts-41-createfeatureaccess-denies-premium-features-to-free-product-users",
+      "id": "apps-bot-src-feature-access-test-ts-55-createfeatureaccess-denies-premium-features-to-free-product-users",
       "kind": "technical",
       "filePath": "apps/bot/src/feature-access.test.ts",
-      "sourceLine": 41,
+      "sourceLine": 55,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6510,10 +6638,10 @@
       "description": "Protects the bot create Feature Access behavior so denies premium features to free (product) users."
     },
     {
-      "id": "apps-bot-src-feature-access-test-ts-48-createfeatureaccess-grants-premium-features-to-plus-product-users",
+      "id": "apps-bot-src-feature-access-test-ts-62-createfeatureaccess-grants-premium-features-to-plus-product-users",
       "kind": "technical",
       "filePath": "apps/bot/src/feature-access.test.ts",
-      "sourceLine": 48,
+      "sourceLine": 62,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6524,6 +6652,38 @@
       "name": "Bot create Feature Access grants premium features to plus (product) users",
       "value": "Protects the bot create Feature Access behavior so grants premium features to plus (product) users.",
       "description": "Protects the bot create Feature Access behavior so grants premium features to plus (product) users."
+    },
+    {
+      "id": "apps-bot-src-feature-access-test-ts-74-createfeatureaccess-keeps-word-audio-out-of-plus-and-inside-pro",
+      "kind": "technical",
+      "filePath": "apps/bot/src/feature-access.test.ts",
+      "sourceLine": 74,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "createFeatureAccess"
+      ],
+      "title": "keeps word audio out of Plus and inside Pro",
+      "rawTitle": "keeps word audio out of Plus and inside Pro",
+      "name": "Bot create Feature Access keeps word audio out of Plus and inside Pro",
+      "value": "Protects the bot create Feature Access behavior: keeps word audio out of Plus and inside Pro.",
+      "description": "Protects the bot create Feature Access behavior: keeps word audio out of Plus and inside Pro."
+    },
+    {
+      "id": "apps-bot-src-feature-access-test-ts-85-createfeatureaccess-resolves-the-whole-feature-set-in-one-plan-lookup-so-a-card-can-mark-every-button-at-once",
+      "kind": "technical",
+      "filePath": "apps/bot/src/feature-access.test.ts",
+      "sourceLine": 85,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "createFeatureAccess"
+      ],
+      "title": "resolves the whole feature set in one plan lookup, so a card can mark every button at once",
+      "rawTitle": "resolves the whole feature set in one plan lookup, so a card can mark every button at once",
+      "name": "Bot create Feature Access resolves the whole feature set in one plan lookup, so a card can mark every button at once",
+      "value": "Protects the bot create Feature Access behavior: resolves the whole feature set in one plan lookup, so a card can mark every button at once.",
+      "description": "Protects the bot create Feature Access behavior: resolves the whole feature set in one plan lookup, so a card can mark every button at once."
     },
     {
       "id": "apps-bot-src-health-test-ts-18-bot-readiness-t12-is-ok-when-an-update-was-processed-recently-and-the-db-responds",
@@ -10142,10 +10302,26 @@
       "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so gives several eligible languages one compact button each, in the given order."
     },
     {
-      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-63-buildtranslationkeyboard-pronunciation-row-wraps-past-four-languages-instead-of-growing-one-unreadable-row",
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-63-buildtranslationkeyboard-pronunciation-row-badges-the-speaker-for-a-plan-without-audio-in-both-the-single-and-the-compact-layout",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
       "sourceLine": 63,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "badges the speaker for a plan without audio, in both the single and the compact layout",
+      "rawTitle": "badges the speaker for a plan without audio, in both the single and the compact layout",
+      "name": "Bot build Translation Keyboard — pronunciation row badges the speaker for a plan without audio, in both the single and the compact layout",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior so badges the speaker for a plan without audio, in both the single and the compact layout.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so badges the speaker for a plan without audio, in both the single and the compact layout."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-71-buildtranslationkeyboard-pronunciation-row-wraps-past-four-languages-instead-of-growing-one-unreadable-row",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 71,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10158,10 +10334,10 @@
       "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so wraps past four languages instead of growing one unreadable row."
     },
     {
-      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-70-buildtranslationkeyboard-pronunciation-row-keeps-save-as-the-last-row-so-the-card-s-primary-action-does-not-move",
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-78-buildtranslationkeyboard-pronunciation-row-keeps-save-as-the-last-row-so-the-card-s-primary-action-does-not-move",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
-      "sourceLine": 70,
+      "sourceLine": 78,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10174,10 +10350,10 @@
       "description": "Protects the bot build Translation Keyboard — pronunciation row behavior: keeps Save as the last row so the card's primary action does not move."
     },
     {
-      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-76-buildtranslationkeyboard-pronunciation-row-stays-inside-telegram-s-64-byte-callback-limit-for-the-longest-realistic-payload",
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-84-buildtranslationkeyboard-pronunciation-row-stays-inside-telegram-s-64-byte-callback-limit-for-the-longest-realistic-payload",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
-      "sourceLine": 76,
+      "sourceLine": 84,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10190,10 +10366,10 @@
       "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so stays inside Telegram's 64 byte callback limit for the longest realistic payload."
     },
     {
-      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-85-buildtranslationkeyboard-pronunciation-row-labels-a-compact-button-with-the-speaker-and-the-flag-and-nothing-else",
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-93-buildtranslationkeyboard-pronunciation-row-labels-a-compact-button-with-the-speaker-and-the-flag-and-nothing-else",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
-      "sourceLine": 85,
+      "sourceLine": 93,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10206,10 +10382,10 @@
       "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so labels a compact button with the speaker and the flag, and nothing else."
     },
     {
-      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-90-buildtranslationkeyboard-pronunciation-row-carries-no-language-code-once-a-flag-is-available",
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-98-buildtranslationkeyboard-pronunciation-row-carries-no-language-code-once-a-flag-is-available",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
-      "sourceLine": 90,
+      "sourceLine": 98,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10222,10 +10398,10 @@
       "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so carries no language code once a flag is available."
     },
     {
-      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-98-buildtranslationkeyboard-pronunciation-row-falls-back-to-the-language-code-when-a-flag-is-missing-so-buttons-stay-distinct",
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-106-buildtranslationkeyboard-pronunciation-row-falls-back-to-the-language-code-when-a-flag-is-missing-so-buttons-stay-distinct",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
-      "sourceLine": 98,
+      "sourceLine": 106,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11737,10 +11913,10 @@
       "description": "Protects the bot handle Video Save Phrase Callback — native translation attachment behavior: saves no native translation when the user has no native Lang."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-61-onboarding-starter-video-allowance-exemption-records-a-suggestion-started-run-as-a-trial-and-never-reads-the-allowance",
+      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-72-onboarding-starter-video-allowance-exemption-records-a-suggestion-started-run-as-a-trial-and-never-reads-the-allowance",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/video-vocabulary-trial.test.ts",
-      "sourceLine": 61,
+      "sourceLine": 72,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11753,10 +11929,10 @@
       "description": "Protects the bot onboarding starter video — allowance exemption behavior: records a suggestion started run as a trial and never reads the allowance."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-70-onboarding-starter-video-allowance-exemption-runs-the-starter-video-even-when-the-lifetime-allowance-is-already-exhausted",
+      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-81-onboarding-starter-video-allowance-exemption-runs-the-starter-video-even-when-the-lifetime-allowance-is-already-exhausted",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/video-vocabulary-trial.test.ts",
-      "sourceLine": 70,
+      "sourceLine": 81,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11769,10 +11945,10 @@
       "description": "Protects the bot onboarding starter video — allowance exemption behavior so runs the starter video even when the lifetime allowance is already exhausted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-80-onboarding-starter-video-allowance-exemption-gives-the-giveaway-only-once-a-second-suggestion-falls-back-to-the-allowance",
+      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-91-onboarding-starter-video-allowance-exemption-gives-the-giveaway-only-once-a-second-suggestion-falls-back-to-the-allowance",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/video-vocabulary-trial.test.ts",
-      "sourceLine": 80,
+      "sourceLine": 91,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11785,10 +11961,10 @@
       "description": "Protects the bot onboarding starter video — allowance exemption behavior so gives the giveaway only once — a second suggestion falls back to the allowance."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-89-onboarding-starter-video-allowance-exemption-blocks-a-second-suggestion-once-the-allowance-is-also-gone",
+      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-103-onboarding-starter-video-allowance-exemption-blocks-a-second-suggestion-once-the-allowance-is-also-gone",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/video-vocabulary-trial.test.ts",
-      "sourceLine": 89,
+      "sourceLine": 103,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11801,10 +11977,26 @@
       "description": "Protects the bot onboarding starter video — allowance exemption behavior so blocks a second suggestion once the allowance is also gone."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-97-onboarding-starter-video-allowance-exemption-leaves-a-pasted-link-on-the-normal-allowance-path",
+      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-115-onboarding-starter-video-allowance-exemption-refuses-a-pasted-link-on-the-free-plan-and-offers-the-upgrade-instead",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/video-vocabulary-trial.test.ts",
-      "sourceLine": 97,
+      "sourceLine": 115,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "onboarding starter video — allowance exemption"
+      ],
+      "title": "refuses a pasted link on the free plan and offers the upgrade instead",
+      "rawTitle": "refuses a pasted link on the free plan and offers the upgrade instead",
+      "name": "Bot onboarding starter video — allowance exemption refuses a pasted link on the free plan and offers the upgrade instead",
+      "value": "Protects the bot onboarding starter video — allowance exemption behavior so refuses a pasted link on the free plan and offers the upgrade instead.",
+      "description": "Protects the bot onboarding starter video — allowance exemption behavior so refuses a pasted link on the free plan and offers the upgrade instead."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-video-vocabulary-trial-test-ts-130-onboarding-starter-video-allowance-exemption-leaves-a-pasted-link-on-the-normal-allowance-path",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/video-vocabulary-trial.test.ts",
+      "sourceLine": 130,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11817,10 +12009,10 @@
       "description": "Protects the bot onboarding starter video — allowance exemption behavior so leaves a pasted link on the normal allowance path."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-127-handlealtmeaningcallback-append-not-edit-sends-the-new-sense-as-a-new-card-and-never-edits-the-previous-card-in-place",
+      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-131-handlealtmeaningcallback-append-not-edit-sends-the-new-sense-as-a-new-card-and-never-edits-the-previous-card-in-place",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/card-actions.altmeaning.test.ts",
-      "sourceLine": 127,
+      "sourceLine": 131,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11833,10 +12025,10 @@
       "description": "Protects the bot handle Alt Meaning Callback — append not edit behavior: sends the new sense as a NEW card and never edits the previous card in place."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-150-handlealtmeaningcallback-append-not-edit-carries-the-previously-shown-translations-forward-as-negative-constraints-on-the-new-card",
+      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-154-handlealtmeaningcallback-append-not-edit-carries-the-previously-shown-translations-forward-as-negative-constraints-on-the-new-card",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/card-actions.altmeaning.test.ts",
-      "sourceLine": 150,
+      "sourceLine": 154,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11849,10 +12041,10 @@
       "description": "Protects the bot handle Alt Meaning Callback — append not edit behavior so carries the previously shown translations forward as negative constraints on the new card."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-165-handlealtmeaningcallback-append-not-edit-leaves-the-previous-card-untouched-and-reports-no-more-meanings-on-clarification",
+      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-169-handlealtmeaningcallback-append-not-edit-leaves-the-previous-card-untouched-and-reports-no-more-meanings-on-clarification",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/card-actions.altmeaning.test.ts",
-      "sourceLine": 165,
+      "sourceLine": 169,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13513,10 +13705,10 @@
       "description": "Protects the bot is Etymology Eligible behavior so is NOT eligible when the source term is in the native language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1478-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1480-handleetymologycallback-loading-feedback-on-the-card-keeps-a-loading-button-on-the-card-and-answers-the-tap-only-when-the-section-is-rendered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1478,
+      "sourceLine": 1480,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13529,10 +13721,10 @@
       "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior: keeps a loading button on the card and answers the tap only when the section is rendered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1491-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1493-handleetymologycallback-loading-feedback-on-the-card-restores-the-card-and-alerts-the-user-when-generation-takes-too-long",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1491,
+      "sourceLine": 1493,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13545,10 +13737,10 @@
       "description": "Protects the bot handle Etymology Callback — loading feedback on the card behavior so restores the card and alerts the user when generation takes too long."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1554-translation-cards-survive-the-technical-message-sweep-keeps-the-previous-card-when-the-user-translates-the-next-word",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1556-translation-cards-survive-the-technical-message-sweep-keeps-the-previous-card-when-the-user-translates-the-next-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1554,
+      "sourceLine": 1556,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13561,10 +13753,10 @@
       "description": "Protects the bot translation cards survive the technical message sweep behavior: keeps the previous card when the user translates the next word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1569-translation-cards-survive-the-technical-message-sweep-sweeps-a-rejection-notice-on-the-next-word-without-touching-the-card-that-follows",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-1571-translation-cards-survive-the-technical-message-sweep-sweeps-a-rejection-notice-on-the-next-word-without-touching-the-card-that-follows",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
-      "sourceLine": 1569,
+      "sourceLine": 1571,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15145,10 +15337,10 @@
       "description": "Protects the bot parse Translate Input behavior: ignores fallback like text when Telegram did not mark it as a hashtag entity."
     },
     {
-      "id": "apps-bot-src-utils-plan-limit-test-ts-22-resolveplanlimit-returns-the-plan-config-directly-when-the-settings-source-knows-it",
+      "id": "apps-bot-src-utils-plan-limit-test-ts-23-resolveplanlimit-returns-the-plan-config-directly-when-the-settings-source-knows-it",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/plan-limit.test.ts",
-      "sourceLine": 22,
+      "sourceLine": 23,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15161,10 +15353,10 @@
       "description": "Protects the bot resolve Plan Limit behavior: returns the plan config directly when the settings source knows it."
     },
     {
-      "id": "apps-bot-src-utils-plan-limit-test-ts-31-resolveplanlimit-falls-back-to-the-default-plan-when-the-plan-name-is-unknown",
+      "id": "apps-bot-src-utils-plan-limit-test-ts-32-resolveplanlimit-falls-back-to-the-default-plan-when-the-plan-name-is-unknown",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/plan-limit.test.ts",
-      "sourceLine": 31,
+      "sourceLine": 32,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15177,10 +15369,10 @@
       "description": "Protects the bot resolve Plan Limit behavior: falls back to the default plan when the plan name is unknown."
     },
     {
-      "id": "apps-bot-src-utils-plan-limit-test-ts-39-resolveplanlimit-falls-back-to-the-first-plan-when-none-is-marked-default",
+      "id": "apps-bot-src-utils-plan-limit-test-ts-40-resolveplanlimit-falls-back-to-the-first-plan-when-none-is-marked-default",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/plan-limit.test.ts",
-      "sourceLine": 39,
+      "sourceLine": 40,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15193,10 +15385,10 @@
       "description": "Protects the bot resolve Plan Limit behavior: falls back to the first plan when none is marked default."
     },
     {
-      "id": "apps-bot-src-utils-plan-limit-test-ts-48-resolveplanlimit-throws-when-the-settings-source-has-no-plans-at-all",
+      "id": "apps-bot-src-utils-plan-limit-test-ts-49-resolveplanlimit-throws-when-the-settings-source-has-no-plans-at-all",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/plan-limit.test.ts",
-      "sourceLine": 48,
+      "sourceLine": 49,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -25777,42 +25969,58 @@
       "description": "Protects the core domain dictionary pipeline presets behavior so presets satisfy Dictionary Word Config."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-10-resolveentitlements-gives-free-product-20-translations-month-3-lifetime-videos-no-features",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-12-resolveentitlements-gives-free-product-10-translations-month-no-video-no-features",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 10,
+      "sourceLine": 12,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "resolveEntitlements"
       ],
-      "title": "gives free (product) 20 translations/month, 3 lifetime videos, no features",
-      "rawTitle": "gives free (product) 20 translations/month, 3 lifetime videos, no features",
-      "name": "Core domain resolve Entitlements gives free (product) 20 translations month, 3 lifetime videos, no features",
-      "value": "Protects the core domain resolve Entitlements behavior so gives free (product) 20 translations month, 3 lifetime videos, no features.",
-      "description": "Protects the core domain resolve Entitlements behavior so gives free (product) 20 translations month, 3 lifetime videos, no features."
+      "title": "gives free (product) 10 translations/month, no video, no features",
+      "rawTitle": "gives free (product) 10 translations/month, no video, no features",
+      "name": "Core domain resolve Entitlements gives free (product) 10 translations month, no video, no features",
+      "value": "Protects the core domain resolve Entitlements behavior so gives free (product) 10 translations month, no video, no features.",
+      "description": "Protects the core domain resolve Entitlements behavior so gives free (product) 10 translations month, no video, no features."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-17-resolveentitlements-gives-plus-unlimited-translations-10-monthly-videos-premium-features",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-19-resolveentitlements-gives-plus-200-translations-10-monthly-videos-premium-features-clarification",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 17,
+      "sourceLine": 19,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "resolveEntitlements"
       ],
-      "title": "gives plus unlimited translations, 10 monthly videos, premium features",
-      "rawTitle": "gives plus unlimited translations, 10 monthly videos, premium features",
-      "name": "Core domain resolve Entitlements gives plus unlimited translations, 10 monthly videos, premium features",
-      "value": "Protects the core domain resolve Entitlements behavior so gives plus unlimited translations, 10 monthly videos, premium features.",
-      "description": "Protects the core domain resolve Entitlements behavior so gives plus unlimited translations, 10 monthly videos, premium features."
+      "title": "gives plus 200 translations, 10 monthly videos, premium features + clarification",
+      "rawTitle": "gives plus 200 translations, 10 monthly videos, premium features + clarification",
+      "name": "Core domain resolve Entitlements gives plus 200 translations, 10 monthly videos, premium features + clarification",
+      "value": "Protects the core domain resolve Entitlements behavior so gives plus 200 translations, 10 monthly videos, premium features + clarification.",
+      "description": "Protects the core domain resolve Entitlements behavior so gives plus 200 translations, 10 monthly videos, premium features + clarification."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-29-resolveentitlements-gives-pro-unlimited-translations-and-unlimited-videos",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-34-resolveentitlements-gives-pro-the-pronunciation-feature-on-top-of-the-plus-set",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 29,
+      "sourceLine": 34,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "resolveEntitlements"
+      ],
+      "title": "gives pro the pronunciation feature on top of the plus set",
+      "rawTitle": "gives pro the pronunciation feature on top of the plus set",
+      "name": "Core domain resolve Entitlements gives pro the pronunciation feature on top of the plus set",
+      "value": "Protects the core domain resolve Entitlements behavior so gives pro the pronunciation feature on top of the plus set.",
+      "description": "Protects the core domain resolve Entitlements behavior so gives pro the pronunciation feature on top of the plus set."
+    },
+    {
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-45-resolveentitlements-gives-pro-unlimited-translations-and-unlimited-videos",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
+      "sourceLine": 45,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25825,10 +26033,10 @@
       "description": "Protects the core domain resolve Entitlements behavior so gives pro unlimited translations and unlimited videos."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-52-resolveentitlements-falls-back-to-free-entitlements-when-the-plan-config-is-missing",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-68-resolveentitlements-falls-back-to-free-entitlements-when-the-plan-config-is-missing",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 52,
+      "sourceLine": 68,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -25841,10 +26049,10 @@
       "description": "Protects the core domain resolve Entitlements behavior: falls back to free entitlements when the plan config is missing."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-58-resolveentitlements-does-not-grant-plan-features-that-are-role-only-mechanism-present",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-74-resolveentitlements-does-not-grant-plan-features-that-are-role-only-mechanism-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 58,
+      "sourceLine": 74,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

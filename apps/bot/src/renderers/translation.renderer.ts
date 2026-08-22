@@ -4,6 +4,7 @@
  */
 
 import type {
+  FeatureKey,
   LanguageOrderContext,
   LanguageTranslation,
   LanguageTranslationEntry,
@@ -12,9 +13,29 @@ import type {
   TopicWord,
   TranslateOutput,
 } from "@polyglot/core";
-import { getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
+import { FEATURE_KEYS, getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { NOOP_CALLBACK } from "../utils/long-op.js";
+
+/**
+ * Marks a button whose feature the viewer's plan does not include. Deliberately a
+ * bare glyph and not a "premium only" label: the card stays uncluttered, the badge
+ * reads as an invitation, and the explanation lives in the screen the tap opens.
+ */
+const PAID_BADGE = " ⭐";
+
+export interface TranslationKeyboardOptions {
+  interfaceLang?: string;
+  msgId?: number;
+  isAlreadySaved?: boolean;
+  showGrammarButton?: boolean;
+  showGrammarDetailButton?: boolean;
+  showEtymologyButton?: boolean;
+  sourceOverrideLangs?: string[];
+  pronounceLangs?: readonly string[];
+  /** Feature keys this viewer does NOT have — their buttons get the ⭐ badge. */
+  locked?: ReadonlySet<string>;
+}
 
 /** Escape HTML special characters for Telegram */
 function esc(text: string): string {
@@ -364,39 +385,49 @@ function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string 
  * doubtful (a heuristic fallback rather than a confident resolution); it stays
  * empty on the common confident path, so the extra rows are rare by construction.
  *
+ * Buttons for features the viewer's plan does not include are still rendered and
+ * still carry their normal callback data — they only gain a ⭐ badge, and the
+ * handler behind them opens the upgrade screen (Task 79). Keeping the data
+ * identical is what makes the badge purely cosmetic: a card sent before an
+ * upgrade keeps working, and the server-side gate stays the only authority.
+ *
  * Used for all input types (words, phrases, sentences).
  */
-export function buildTranslationKeyboard(
-  interfaceLang?: string,
-  msgId?: number,
-  isAlreadySaved?: boolean,
-  showGrammarButton?: boolean,
-  showGrammarDetailButton?: boolean,
-  showEtymologyButton?: boolean,
-  sourceOverrideLangs?: string[],
-  pronounceLangs?: readonly string[],
-): InlineKeyboard {
+export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {}): InlineKeyboard {
+  const {
+    interfaceLang,
+    msgId,
+    isAlreadySaved,
+    showGrammarButton,
+    showGrammarDetailButton,
+    showEtymologyButton,
+    sourceOverrideLangs,
+    pronounceLangs,
+    locked,
+  } = options;
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
+  /** Label + the paid badge when this viewer's plan does not include the feature. */
+  const label = (text: string, feature: FeatureKey): string => (locked?.has(feature) ? `${text}${PAID_BADGE}` : text);
 
-  kb.text(t("clarifyTranslation", lang), `tr:clarifypost:${mid}`);
-  kb.text(t("otherMeaning", lang), `tr:altmeaning:${mid}`);
+  kb.text(label(t("clarifyTranslation", lang), FEATURE_KEYS.clarification), `tr:clarifypost:${mid}`);
+  kb.text(label(t("otherMeaning", lang), FEATURE_KEYS.clarification), `tr:altmeaning:${mid}`);
 
   // Learning aids share a row, next to each other
   if (showGrammarButton || showEtymologyButton) {
     kb.row();
     if (showGrammarButton) {
-      kb.text(t("grammarBreakdownButton", lang), `tr:grammar:${mid}`);
+      kb.text(label(t("grammarBreakdownButton", lang), FEATURE_KEYS.grammarBreakdown), `tr:grammar:${mid}`);
     }
     if (showEtymologyButton) {
-      kb.text(t("etymology", lang), `tr:etymology:${mid}`);
+      kb.text(label(t("etymology", lang), FEATURE_KEYS.etymology), `tr:etymology:${mid}`);
     }
   }
 
   if (showGrammarDetailButton) {
     kb.row();
-    kb.text(t("grammarDetailButton", lang), `tr:gramdetail:${mid}`);
+    kb.text(label(t("grammarDetailButton", lang), FEATURE_KEYS.grammarDetail), `tr:gramdetail:${mid}`);
   }
 
   // Source-language override — only on doubtful cards. A non-actionable header
@@ -424,7 +455,7 @@ export function buildTranslationKeyboard(
     kb.row();
     if (pronounceLangs.length === 1) {
       const code = pronounceLangs[0]!;
-      kb.text(t("pronounce", lang), `tr:say:${code}:${mid}`);
+      kb.text(label(t("pronounce", lang), FEATURE_KEYS.pronunciation), `tr:say:${code}:${mid}`);
     } else {
       for (let i = 0; i < pronounceLangs.length; i += 4) {
         if (i > 0) kb.row();
@@ -432,7 +463,10 @@ export function buildTranslationKeyboard(
           // Speaker then flag, no language code: the flag alone identifies the
           // language (every supported language has a distinct one), and dropping
           // the code keeps four buttons readable on a narrow screen.
-          kb.text(`🔊 ${getLangFlag(code) ?? code.toUpperCase()}`, `tr:say:${code}:${mid}`);
+          kb.text(
+            label(`🔊 ${getLangFlag(code) ?? code.toUpperCase()}`, FEATURE_KEYS.pronunciation),
+            `tr:say:${code}:${mid}`,
+          );
         }
       }
     }

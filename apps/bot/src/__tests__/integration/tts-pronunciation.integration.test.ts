@@ -71,7 +71,7 @@ describe("word pronunciation (integration)", () => {
   it("offers a pronunciation button for the learning language and speaks it on tap", async () => {
     const { harness, generateSpeech, modelId } = arrangeHarness();
     const id = uniqueTelegramId();
-    await arrangeOnboardedTranslator(id); // native en, learning cs
+    await arrangeOnboardedTranslator(id, { plan: "pro" }); // native en, learning cs; audio is Pro-only
 
     const { messageId: cardMsgId, buttons } = await renderCard(harness, id, "hello");
     // Only the learning language gets a speaker — never the native one.
@@ -106,7 +106,7 @@ describe("word pronunciation (integration)", () => {
   it("serves a second tap from the cache without paying for synthesis again", async () => {
     const { harness, generateSpeech, modelId } = arrangeHarness();
     const id = uniqueTelegramId();
-    await arrangeOnboardedTranslator(id);
+    await arrangeOnboardedTranslator(id, { plan: "pro" });
 
     const { messageId: cardMsgId } = await renderCard(harness, id, "hello");
     const tap = () =>
@@ -132,7 +132,7 @@ describe("word pronunciation (integration)", () => {
   it("heals a file_id Telegram no longer accepts instead of failing the tap", async () => {
     const { harness, generateSpeech } = arrangeHarness();
     const id = uniqueTelegramId();
-    await arrangeOnboardedTranslator(id);
+    await arrangeOnboardedTranslator(id, { plan: "pro" });
 
     const { messageId: cardMsgId } = await renderCard(harness, id, "hello");
     const tap = () =>
@@ -158,7 +158,7 @@ describe("word pronunciation (integration)", () => {
   it("renders no pronunciation button at all while TTS is disabled", async () => {
     const { harness, generateSpeech } = arrangeHarness({ enabled: false });
     const id = uniqueTelegramId();
-    await arrangeOnboardedTranslator(id);
+    await arrangeOnboardedTranslator(id, { plan: "pro" });
 
     const { buttons } = await renderCard(harness, id, "hello");
 
@@ -169,7 +169,7 @@ describe("word pronunciation (integration)", () => {
   it("tells the user the card expired when the session entry is gone", async () => {
     const { harness, generateSpeech } = arrangeHarness();
     const id = uniqueTelegramId();
-    await arrangeOnboardedTranslator(id);
+    await arrangeOnboardedTranslator(id, { plan: "pro" });
 
     // A message id that never carried a card — the "session expired" report shape.
     await harness.dispatch(
