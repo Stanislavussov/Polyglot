@@ -9,6 +9,7 @@ import {
   type AIFallbackEvent,
   generateChat,
   generateObject,
+  generateSpeech,
   generateText,
   setAIApiKey,
   setAICircuitBreakerEnabled,
@@ -45,13 +46,21 @@ import {
   subscriptionRepository,
   translationRequestRepository,
   translationTemplateRepository,
+  ttsCacheRepository,
   userRepository,
   videoVocabularyRepository,
   vocabularyDictionaryRepository,
   vocabularyRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
-import type { AICircuitEvent, AIFailover, ChatMessage, ChatOptions, GenerateOptions } from "@polyglot/core";
+import type {
+  AICircuitEvent,
+  AIFailover,
+  ChatMessage,
+  ChatOptions,
+  GenerateOptions,
+  SpeechOptions,
+} from "@polyglot/core";
 import { type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
 import type { ZodSchema } from "zod";
 import { createFeatureAccess } from "./feature-access.js";
@@ -168,6 +177,9 @@ export function createContainer(): ServiceContainer {
       generateText(prompt, model, { ...options, failover: await resolveFailover() }),
     generateChat: async (messages: ChatMessage[], model: string, options?: ChatOptions) =>
       generateChat(messages, model, { ...options, failover: await resolveFailover() }),
+    // No failover split: a failed pronunciation is a toast, not a broken card, and
+    // the split machinery is shaped around the completion endpoints (Task 77).
+    generateSpeech: (options: SpeechOptions) => generateSpeech(options),
   };
 
   const container: ServiceContainer = {
@@ -201,6 +213,7 @@ export function createContainer(): ServiceContainer {
     ai,
     settings,
     videoVocabularyRepository,
+    ttsCacheRepository,
     featureAccess: createFeatureAccess({ settings, planFeatureAccess: planFeatureAccessRepository }),
     paymentPort: mockPaymentAdapter,
     subscriptionRepository,

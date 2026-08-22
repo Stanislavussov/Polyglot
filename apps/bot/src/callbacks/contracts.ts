@@ -87,6 +87,15 @@ export const callbackContracts = [
   },
   {
     family: "translation",
+    prefix: "tr:say",
+    restartSafety: "session-backed",
+    durableLookupKey: "target language code plus Telegram message_id",
+    dbSource: "session translationMap for the text; tts_cache for the audio file_id",
+    expiryBehavior: "localized stale translation callback and stale callback metric",
+    maxExampleData: "tr:say:zh-Hant:2147483647",
+  },
+  {
+    family: "translation",
     prefix: "tr:mistype",
     restartSafety: "intentionally-ephemeral",
     durableLookupKey: "none",

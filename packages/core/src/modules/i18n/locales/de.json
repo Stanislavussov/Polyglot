@@ -339,5 +339,8 @@
   "menuBtnDictionary": "Wörterbuch",
   "menuBtnFlashcards": "Karten",
   "menuBtnVideos": "Videos",
-  "mainMenuHint": "☰ Das Schnellmenü ist unter dem Eingabefeld: Wörterbuch, Karten und Videos."
+  "mainMenuHint": "☰ Das Schnellmenü ist unter dem Eingabefeld: Wörterbuch, Karten und Videos.",
+  "pronounce": "🔊 Aussprache",
+  "ttsUnavailable": "⚠️ Die Aussprache konnte nicht abgespielt werden. Bitte versuche es erneut.",
+  "ttsTooLong": "⚠️ Dieser Text ist zu lang für die Aussprache."
 }

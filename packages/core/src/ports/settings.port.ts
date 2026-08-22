@@ -71,6 +71,24 @@ export interface VideoVocabularyConfig {
   extractionModelId: string;
 }
 
+/**
+ * Text-to-speech settings for the pronunciation button on translation cards.
+ *
+ * `modelId` lives here rather than in a constant for the reason Task 73 records:
+ * a hardcoded slug OpenRouter rejects is unfixable without a redeploy. An empty
+ * `modelId` is treated the same as `enabled: false` — there is nothing to call.
+ */
+export interface TtsConfig {
+  /** Master switch. The pronunciation button is not rendered when false. */
+  enabled: boolean;
+  /** OpenRouter speech model id, e.g. "google/gemini-3.1-flash-tts-preview". */
+  modelId: string;
+  /** Voice name for models that expose one; empty string when the model has none. */
+  voice: string;
+  /** Hard cap on characters sent for synthesis. Longer text is refused, not truncated. */
+  maxChars: number;
+}
+
 export interface SettingsPort {
   getPlanLimits(): Promise<PlanLimitConfig[]>;
   getPlanLimit(plan: SubscriptionPlan): Promise<PlanLimitConfig | null>;
@@ -91,4 +109,5 @@ export interface SettingsPort {
   getDictionaryConfig(): Promise<DictionaryConfig>;
   getTranslationPresets(): Promise<TranslationPresetConfig[]>;
   getVideoVocabularyConfig(): Promise<VideoVocabularyConfig>;
+  getTtsConfig(): Promise<TtsConfig>;
 }

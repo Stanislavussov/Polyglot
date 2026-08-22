@@ -71,6 +71,11 @@ export function createSettingsStub(): ServiceContainer["settings"] {
       maxPhrases: 40,
       extractionModelId: "google/gemini-3.1-flash-lite",
     }),
+    // Mirrors the shipped default (on, with a working model) so hand-built contexts
+    // describe the configured system the way production is configured.
+    getTtsConfig: vi
+      .fn()
+      .mockResolvedValue({ enabled: true, modelId: "x-ai/grok-voice-tts-1.0", voice: "eve", maxChars: 200 }),
   };
 }
 
@@ -87,6 +92,7 @@ export function createServicesStub(overrides: Partial<ServiceContainer> = {}): S
     vocabularyDictionaryRepository: autoMockObject<ServiceContainer["vocabularyDictionaryRepository"]>(),
     translationTemplateRepository: autoMockObject<ServiceContainer["translationTemplateRepository"]>(),
     wordReviewRepository: autoMockObject<ServiceContainer["wordReviewRepository"]>(),
+    ttsCacheRepository: autoMockObject<ServiceContainer["ttsCacheRepository"]>(),
     notificationRepository: autoMockObject<ServiceContainer["notificationRepository"]>(),
     onboardingDemoCardRepository: autoMockObject<ServiceContainer["onboardingDemoCardRepository"]>(),
     translationRequestRepository: autoMockObject<ServiceContainer["translationRequestRepository"]>(),

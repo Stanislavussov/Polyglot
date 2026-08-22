@@ -151,6 +151,19 @@ export const dictionarySettingsSchema = z.object({
 
 // ── Settings: video vocabulary ─────────────────────────────────────────────────
 
+/**
+ * TTS settings. `voice` may be empty because some speech models expose no voice
+ * concept at all, but `modelId` may not: an enabled config with a blank model
+ * renders no pronunciation button, which reads as a broken feature rather than a
+ * disabled one. Turning it off is what `enabled: false` is for.
+ */
+export const ttsSettingsSchema = z.object({
+  enabled: z.coerce.boolean(),
+  modelId: z.string().min(1, "TTS model is required"),
+  voice: z.string(),
+  maxChars: z.coerce.number().int("Max characters must be an integer").min(1).max(5000),
+});
+
 export const videoVocabularySettingsSchema = z
   .object({
     monthlyLimit: z.coerce.number().int("Monthly limit must be an integer").min(1),

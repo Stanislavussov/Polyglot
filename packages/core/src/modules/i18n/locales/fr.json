@@ -339,5 +339,8 @@
   "menuBtnDictionary": "Mots",
   "menuBtnFlashcards": "Cartes",
   "menuBtnVideos": "Vidéos",
-  "mainMenuHint": "☰ Le menu rapide est sous le champ de saisie : Mots, Cartes et Vidéos."
+  "mainMenuHint": "☰ Le menu rapide est sous le champ de saisie : Mots, Cartes et Vidéos.",
+  "pronounce": "🔊 Prononciation",
+  "ttsUnavailable": "⚠️ Impossible de lire la prononciation. Réessaie.",
+  "ttsTooLong": "⚠️ Ce texte est trop long à prononcer."
 }

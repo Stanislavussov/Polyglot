@@ -412,6 +412,31 @@ export interface VideoVocabularySettings {
   extractionModelId: string;
 }
 
+export interface TtsSettings {
+  enabled: boolean;
+  modelId: string;
+  voice: string;
+  maxChars: number;
+}
+
+/** One OpenRouter speech model, as offered in the TTS model picker. */
+export interface TtsModelOption {
+  id: string;
+  name: string;
+  voices: string[];
+  pricePerMillionChars: number;
+}
+
+/** Outcome of synthesizing one probe word with a candidate model/voice. */
+export interface TtsProbeResult {
+  ok: boolean;
+  durationMs: number;
+  status: number;
+  bytes?: number;
+  contentType?: string;
+  error?: string;
+}
+
 export const settings = {
   aiDefaults: {
     get: () => get<AIDefaults>("/api/settings/ai-defaults"),
@@ -432,6 +457,12 @@ export const settings = {
   videoVocabulary: {
     get: () => get<VideoVocabularySettings>("/api/settings/video-vocabulary"),
     update: (s: VideoVocabularySettings) => put<VideoVocabularySettings>("/api/settings/video-vocabulary", s),
+  },
+  tts: {
+    get: () => get<TtsSettings>("/api/settings/tts"),
+    update: (s: TtsSettings) => put<TtsSettings>("/api/settings/tts", s),
+    models: () => get<TtsModelOption[]>("/api/settings/tts/models"),
+    probe: (modelId: string, voice: string) => post<TtsProbeResult>("/api/settings/tts/probe", { modelId, voice }),
   },
 };
 

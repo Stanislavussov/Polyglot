@@ -33,7 +33,7 @@ import { languageOrderFromSettings, resolveLanguageOrder } from "../../utils/lan
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../../utils/long-op.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
-import { isEtymologyEligible } from "./translate-mode.shared.js";
+import { isEtymologyEligible, resolvePronounceLangs } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
 
 /**
@@ -283,6 +283,8 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
     // as a snapshot. Carry the accumulated negative constraints forward into the
     // new card's entry so a further "Other meaning" tap still excludes every
     // sense shown so far, and point the pending-card pointers at the new card.
+    const pronounceLangs = await resolvePronounceLangs(ctx, decision.output.translations, entry.inputType, order);
+
     const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
     const keyboard = buildTranslationKeyboard(
       lang,
@@ -291,6 +293,8 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       showGrammarButton,
       undefined,
       showEtymologyButton,
+      undefined,
+      pronounceLangs,
     );
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
 
@@ -512,6 +516,8 @@ async function reRenderCard(
   const showEtymologyButton =
     isEtymologyEligible(entry.inputType, entry.output.sourceLang, nativeLang) && !etymologyShown;
 
+  const pronounceLangs = await resolvePronounceLangs(ctx, entry.output.translations, entry.inputType, order);
+
   const keyboard = buildTranslationKeyboard(
     lang,
     msgId,
@@ -519,6 +525,8 @@ async function reRenderCard(
     showGrammarButton,
     showGrammarDetailButton,
     showEtymologyButton,
+    undefined,
+    pronounceLangs,
   );
   await ctx.api.editMessageText(ctx.chat!.id, msgId, cardText, {
     reply_markup: keyboard,
@@ -595,10 +603,28 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
+  // Every keyboard rebuild below is a restore, so the pronunciation row has to be
+  // recomputed too — otherwise the speaker silently disappears once a user opens
+  // the grammar-detail flow on a card.
+  const detailPronounceLangs = await resolvePronounceLangs(
+    ctx,
+    entry.output.translations,
+    entry.inputType,
+    languageOrderFromSettings(settings),
+  );
 
   // Cancel — restore normal keyboard with detail button
   if (langCodeOrCancel === "cancel") {
-    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
+    const keyboard = buildTranslationKeyboard(
+      lang,
+      msgId,
+      undefined,
+      undefined,
+      true,
+      undefined,
+      undefined,
+      detailPronounceLangs,
+    );
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
     await ctx.answerCallbackQuery();
     return;
@@ -644,11 +670,29 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
     await ctx.reply(header + escapeHtml(detailText), { parse_mode: "HTML" });
 
     // Restore keyboard with detail button
-    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
+    const keyboard = buildTranslationKeyboard(
+      lang,
+      msgId,
+      undefined,
+      undefined,
+      true,
+      undefined,
+      undefined,
+      detailPronounceLangs,
+    );
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
   } catch (err) {
     logEvent("card.grammar_detail_failed", { word: entry.output.original, langCode, ...errorFields(err) }, "error");
-    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
+    const keyboard = buildTranslationKeyboard(
+      lang,
+      msgId,
+      undefined,
+      undefined,
+      true,
+      undefined,
+      undefined,
+      detailPronounceLangs,
+    );
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard }).catch(() => {});
     await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
     return;

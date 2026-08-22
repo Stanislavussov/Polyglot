@@ -22,6 +22,8 @@
 | 58  | [Language Detection Pre-Request](./58-language-detection-pre-request.md) | 🔲 To Do |
 | 60  | [Context Hint Marker Mode](./60-context-hint-marker-mode.md) | ✅ Done |
 | 72  | [Onboarding Conversion Redesign](./72-onboarding-conversion-redesign.md) | ✅ Done (supersedes 38, overlaps 36) |
+| 77  | [Word Pronunciation (TTS)](./77-word-pronunciation-tts.md) | ✅ Done (on by default; model configurable at `/settings` → Pronunciation) |
+| 78  | [Cut alert noise to signal only](./78-alert-noise-cleanup.md) | 🔲 To Do |
 
 ## Architecture — Debt Reduction
 

@@ -65,10 +65,30 @@ export interface ChatOptions extends GenerateOptions {
   maxTokens?: number;
 }
 
+/** Input for a single text-to-speech synthesis. */
+export interface SpeechOptions {
+  /** Text to speak. Callers enforce their own length cap before getting here. */
+  text: string;
+  /** OpenRouter speech model id — resolved from settings, never hardcoded. */
+  modelId: string;
+  /** Voice name; models with no voice concept take an empty string. */
+  voice: string;
+  userId?: number;
+}
+
+/** Result of a synthesis: the audio itself plus the provider's tracking id. */
+export interface SpeechResult {
+  bytes: Uint8Array;
+  /** OpenRouter's `X-Generation-Id`, for cost lookup and support debugging. */
+  generationId: string | null;
+}
+
 export interface AIPort {
   generateObject<T>(prompt: string, schema: ZodSchema<T>, model: string, options?: GenerateOptions): Promise<T>;
   generateText(prompt: string, model: string, options?: GenerateOptions): Promise<string>;
   generateChat(messages: ChatMessage[], model: string, options?: ChatOptions): Promise<string>;
+  /** Synthesize speech. Throws on provider failure or budget timeout. */
+  generateSpeech(options: SpeechOptions): Promise<SpeechResult>;
 }
 
 /**

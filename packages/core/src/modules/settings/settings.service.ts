@@ -7,6 +7,7 @@ import type {
   SettingsPort,
   SrsConfig,
   TranslationPresetConfig,
+  TtsConfig,
   VideoVocabularyConfig,
 } from "../../ports/settings.port.js";
 import type { SubscriptionPlan } from "../../ports/user.repository.js";
@@ -131,6 +132,20 @@ const FALLBACK_NOTIFICATIONS: NotificationDefaults = {
   defaultType: "srs",
   inactivityDays: 14,
   notificationTimesLimit: 12,
+};
+
+/**
+ * TTS is on by default. Kept byte-identical to `DEFAULTS.tts` in the db adapter —
+ * this copy is the last-resort fallback when the settings port itself is
+ * unreachable, so the two disagreeing would mean the button silently changes
+ * behaviour during a database blip. The model/format rationale (and why Gemini
+ * TTS is not it) lives with that adapter constant.
+ */
+const FALLBACK_TTS: TtsConfig = {
+  enabled: true,
+  modelId: "x-ai/grok-voice-tts-1.0",
+  voice: "eve",
+  maxChars: 200,
 };
 
 const FALLBACK_DICTIONARY: DictionaryConfig = {
@@ -350,6 +365,14 @@ export class SettingsService implements SettingsPort {
     this.setCache("videoVocabulary", config);
     return config;
   }
+
+  async getTtsConfig(): Promise<TtsConfig> {
+    const cached = this.getCached<TtsConfig>("tts");
+    if (cached) return cached;
+    const config = await this.port.getTtsConfig();
+    this.setCache("tts", config);
+    return config;
+  }
 }
 
 export {
@@ -360,4 +383,5 @@ export {
   FALLBACK_PLAN_LIMITS,
   FALLBACK_PRESETS,
   FALLBACK_SRS,
+  FALLBACK_TTS,
 };
