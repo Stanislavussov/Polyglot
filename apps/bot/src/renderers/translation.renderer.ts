@@ -16,6 +16,7 @@ import type {
 import { FEATURE_KEYS, getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { NOOP_CALLBACK } from "../utils/long-op.js";
+import { expandableSection } from "./card-sections.js";
 
 /**
  * Marks a button whose feature the viewer's plan does not include. Deliberately a
@@ -87,6 +88,9 @@ function renderSourceUsageBlock(
 
   const nativeTranslation = nativeLang ? output.translations[nativeLang] : undefined;
 
+  // With a native translation the explanation is supplementary prose and folds
+  // below the examples; without one it IS the answer, so it stays visible.
+  const details: string[] = [];
   if (nativeTranslation && nativeLang) {
     lines.push("");
     const nativeFlag = getLangFlag(nativeLang) ?? "🔤";
@@ -96,7 +100,7 @@ function renderSourceUsageBlock(
     lines.push(`${nativeLabel}: <b>${esc(nativeTranslation.text)}</b>${nativeSyns}`);
 
     if (usage.explanation) {
-      lines.push(`💡 ${esc(usage.explanation)}`);
+      details.push(`💡 ${esc(usage.explanation)}`);
     }
   } else if (usage.explanation) {
     lines.push("");
@@ -107,11 +111,13 @@ function renderSourceUsageBlock(
 
   if (fields?.examples !== false && usage.examples.length > 0) {
     lines.push("");
-    for (const ex of usage.examples) {
-      const native = ex.native ? ` (${esc(ex.native)})` : "";
-      lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
-    }
+    const [first, ...rest] = usage.examples.map(
+      (ex) => `💬 <i>${esc(ex.target)}</i>${ex.native ? ` (${esc(ex.native)})` : ""}`,
+    );
+    lines.push(first!);
+    details.unshift(...rest);
   }
+  lines.push(...expandableSection(details));
 
   return lines;
 }
@@ -262,22 +268,24 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
     }
   }
 
-  // Examples: omit when fields?.examples === false
+  // One example stays under the word; the rest fold with the prose. Template
+  // gating happens before the fold, so a template that disables everything in
+  // it leaves no empty blockquote behind.
+  const details: string[] = [];
   if (fields?.examples !== false && lt.examples.length > 0) {
-    for (const ex of lt.examples) {
-      const native = ex.native ? ` (${esc(ex.native)})` : "";
-      lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
-    }
+    const [first, ...rest] = lt.examples.map(
+      (ex) => `💬 <i>${esc(ex.target)}</i>${ex.native ? ` (${esc(ex.native)})` : ""}`,
+    );
+    lines.push(first!);
+    details.push(...rest);
   }
-
   if (lt.usageNote) {
-    lines.push(`💡 ${esc(lt.usageNote)}`);
+    details.push(`💡 ${esc(lt.usageNote)}`);
   }
-
-  // Connotation warning: omit when fields?.connotationWarning === false
   if (fields?.connotationWarning !== false && lt.connotationWarning) {
-    lines.push(t("connotationWarning", lang, { warning: esc(lt.connotationWarning) }));
+    details.push(t("connotationWarning", lang, { warning: esc(lt.connotationWarning) }));
   }
+  lines.push(...expandableSection(details));
 
   return lines.join("\n");
 }

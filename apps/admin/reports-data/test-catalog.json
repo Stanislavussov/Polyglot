@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-22T15:59:56.000Z",
+  "generatedAt": "2026-08-22T16:00:19.000Z",
   "summary": {
-    "total": 2772,
+    "total": 2782,
     "business": 0,
-    "technical": 2772,
+    "technical": 2782,
     "workspaces": [
       "apps",
       "packages"
@@ -9358,10 +9358,10 @@
       "description": "Protects the bot send Release Announcement behavior so continues when one Telegram send fails."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-31-assemblecard-emits-sections-in-card-section-order-regardless-of-the-order-the-caller-writes-them",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-32-assemblecard-emits-sections-in-card-section-order-regardless-of-the-order-the-caller-writes-them",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 31,
+      "sourceLine": 32,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9374,10 +9374,10 @@
       "description": "Protects the bot assemble Card behavior so emits sections in CARD SECTION ORDER regardless of the order the caller writes them."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-45-assemblecard-puts-the-answer-directly-after-the-headword-the-rule-the-grammar-exists-to-enforce",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-46-assemblecard-puts-the-answer-directly-after-the-headword-the-rule-the-grammar-exists-to-enforce",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 45,
+      "sourceLine": 46,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9390,10 +9390,10 @@
       "description": "Protects the bot assemble Card behavior so puts the answer directly after the headword — the rule the grammar exists to enforce."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-60-assemblecard-omits-empty-sections-without-leaving-blank-lines-behind",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-61-assemblecard-omits-empty-sections-without-leaving-blank-lines-behind",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 60,
+      "sourceLine": 61,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9406,10 +9406,10 @@
       "description": "Protects the bot assemble Card behavior: omits empty sections without leaving blank lines behind."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-66-assemblecard-returns-an-empty-string-when-every-section-is-empty",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-67-assemblecard-returns-an-empty-string-when-every-section-is-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 66,
+      "sourceLine": 67,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9422,10 +9422,10 @@
       "description": "Protects the bot assemble Card behavior: returns an empty string when every section is empty."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-70-assemblecard-lists-every-section-exactly-once",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-71-assemblecard-lists-every-section-exactly-once",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 70,
+      "sourceLine": 71,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9438,10 +9438,10 @@
       "description": "Protects the bot assemble Card behavior so lists every section exactly once."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-76-langlabel-renders-the-flag-alone-when-one-resolves-the-code-would-say-it-twice",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-77-langlabel-renders-the-flag-alone-when-one-resolves-the-code-would-say-it-twice",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 76,
+      "sourceLine": 77,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9454,10 +9454,10 @@
       "description": "Protects the bot lang Label behavior: renders the flag alone when one resolves — the code would say it twice."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-80-langlabel-keeps-the-code-when-no-flag-resolves-so-the-language-stays-identifiable",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-81-langlabel-keeps-the-code-when-no-flag-resolves-so-the-language-stays-identifiable",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 80,
+      "sourceLine": 81,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9470,10 +9470,10 @@
       "description": "Protects the bot lang Label behavior: keeps the code when no flag resolves, so the language stays identifiable."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-86-line-builders-renders-the-headword-with-a-single-source-flag",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-87-line-builders-renders-the-headword-with-a-single-source-flag",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 86,
+      "sourceLine": 87,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9486,10 +9486,10 @@
       "description": "Protects the bot line builders behavior: renders the headword with a single source flag."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-90-line-builders-omits-the-flag-when-the-surface-has-no-source-language",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-91-line-builders-omits-the-flag-when-the-surface-has-no-source-language",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 90,
+      "sourceLine": 91,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9502,10 +9502,10 @@
       "description": "Protects the bot line builders behavior: omits the flag when the surface has no source language."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-94-line-builders-renders-secondary-languages-unbolded-and-without-synonyms",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-95-line-builders-renders-secondary-languages-unbolded-and-without-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 94,
+      "sourceLine": 95,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9518,10 +9518,10 @@
       "description": "Protects the bot line builders behavior: renders secondary languages unbolded and without synonyms."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-98-line-builders-glosses-an-example-with-its-native-translation",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-99-line-builders-glosses-an-example-with-its-native-translation",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 98,
+      "sourceLine": 99,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9534,10 +9534,10 @@
       "description": "Protects the bot line builders behavior so glosses an example with its native translation."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-102-line-builders-escapes-html-in-every-builder",
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-103-line-builders-escapes-html-in-every-builder",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
-      "sourceLine": 102,
+      "sourceLine": 103,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9548,6 +9548,38 @@
       "name": "Bot line builders escapes HTML in every builder",
       "value": "Protects the bot line builders behavior: escapes HTML in every builder.",
       "description": "Protects the bot line builders behavior: escapes HTML in every builder."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-111-expandablesection-wraps-detail-lines-in-one-expandable-blockquote",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 111,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "expandableSection"
+      ],
+      "title": "wraps detail lines in one expandable blockquote",
+      "rawTitle": "wraps detail lines in one expandable blockquote",
+      "name": "Bot expandable Section wraps detail lines in one expandable blockquote",
+      "value": "Protects the bot expandable Section behavior so wraps detail lines in one expandable blockquote.",
+      "description": "Protects the bot expandable Section behavior so wraps detail lines in one expandable blockquote."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-117-expandablesection-vanishes-when-there-are-no-detail-lines",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 117,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "expandableSection"
+      ],
+      "title": "vanishes when there are no detail lines",
+      "rawTitle": "vanishes when there are no detail lines",
+      "name": "Bot expandable Section vanishes when there are no detail lines",
+      "value": "Protects the bot expandable Section behavior so vanishes when there are no detail lines.",
+      "description": "Protects the bot expandable Section behavior so vanishes when there are no detail lines."
     },
     {
       "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-75-renderdictionaryentry-language-order-renders-native-first-then-learning-languages-in-the-user-s-own-order",
@@ -10126,6 +10158,38 @@
       "description": "Protects the bot DICTIONARY PAGE SIZE behavior so is 15."
     },
     {
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-436-renderdictionaryentry-collapsible-examples-keeps-examples-visible-and-collapses-usage-guidance-into-a-blockquote",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
+      "sourceLine": 436,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderDictionaryEntry — collapsible examples"
+      ],
+      "title": "keeps examples visible and collapses usage guidance into a blockquote",
+      "rawTitle": "keeps examples visible and collapses usage guidance into a blockquote",
+      "name": "Bot render Dictionary Entry — collapsible examples keeps examples visible and collapses usage guidance into a blockquote",
+      "value": "Protects the bot render Dictionary Entry — collapsible examples behavior: keeps examples visible and collapses usage guidance into a blockquote.",
+      "description": "Protects the bot render Dictionary Entry — collapsible examples behavior: keeps examples visible and collapses usage guidance into a blockquote."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-444-renderdictionaryentry-collapsible-examples-collapses-the-source-usage-explanation-below-its-visible-examples",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
+      "sourceLine": 444,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderDictionaryEntry — collapsible examples"
+      ],
+      "title": "collapses the source-usage explanation below its visible examples",
+      "rawTitle": "collapses the source-usage explanation below its visible examples",
+      "name": "Bot render Dictionary Entry — collapsible examples collapses the source usage explanation below its visible examples",
+      "value": "Protects the bot render Dictionary Entry — collapsible examples behavior so collapses the source usage explanation below its visible examples.",
+      "description": "Protects the bot render Dictionary Entry — collapsible examples behavior so collapses the source usage explanation below its visible examples."
+    },
+    {
       "id": "apps-bot-src-renderers-tests-flashcard-renderer-order-test-ts-34-renderflashcardback-language-order-renders-the-user-s-order-from-an-alphabetically-keyed-record",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/flashcard.renderer.order.test.ts",
@@ -10156,6 +10220,38 @@
       "name": "Bot render Flash Card Back — language order keeps a language the user no longer studies, ordered last",
       "value": "Protects the bot render Flash Card Back — language order behavior: keeps a language the user no longer studies, ordered last.",
       "description": "Protects the bot render Flash Card Back — language order behavior: keeps a language the user no longer studies, ordered last."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-flashcard-renderer-test-ts-32-renderflashcardback-collapsible-notes-keeps-the-first-example-visible-and-collapses-the-rest-with-the-usage-note",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/flashcard.renderer.test.ts",
+      "sourceLine": 32,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderFlashCardBack — collapsible notes"
+      ],
+      "title": "keeps the first example visible and collapses the rest with the usage note",
+      "rawTitle": "keeps the first example visible and collapses the rest with the usage note",
+      "name": "Bot render Flash Card Back — collapsible notes keeps the first example visible and collapses the rest with the usage note",
+      "value": "Protects the bot render Flash Card Back — collapsible notes behavior: keeps the first example visible and collapses the rest with the usage note.",
+      "description": "Protects the bot render Flash Card Back — collapsible notes behavior: keeps the first example visible and collapses the rest with the usage note."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-flashcard-renderer-test-ts-42-renderflashcardback-collapsible-notes-renders-no-blockquote-when-the-card-has-no-notes",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/flashcard.renderer.test.ts",
+      "sourceLine": 42,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderFlashCardBack — collapsible notes"
+      ],
+      "title": "renders no blockquote when the card has no notes",
+      "rawTitle": "renders no blockquote when the card has no notes",
+      "name": "Bot render Flash Card Back — collapsible notes renders no blockquote when the card has no notes",
+      "value": "Protects the bot render Flash Card Back — collapsible notes behavior: renders no blockquote when the card has no notes.",
+      "description": "Protects the bot render Flash Card Back — collapsible notes behavior: renders no blockquote when the card has no notes."
     },
     {
       "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-48-rendersrsfront-localizes-the-input-type-label-in-the-review-direction-line",
@@ -10476,6 +10572,70 @@
       "name": "Bot render Translation — canonical source headword (die Arbeit) falls back to the raw input when no headword is present",
       "value": "Protects the bot render Translation — canonical source headword (die Arbeit) behavior: falls back to the raw input when no headword is present.",
       "description": "Protects the bot render Translation — canonical source headword (die Arbeit) behavior: falls back to the raw input when no headword is present."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-test-ts-96-rendertranslation-collapsible-details-expandable-blockquote-keeps-the-first-example-visible-and-collapses-the-rest-with-the-notes",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.test.ts",
+      "sourceLine": 96,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderTranslation — collapsible details (expandable blockquote)"
+      ],
+      "title": "keeps the first example visible and collapses the rest with the notes",
+      "rawTitle": "keeps the first example visible and collapses the rest with the notes",
+      "name": "Bot render Translation — collapsible details (expandable blockquote) keeps the first example visible and collapses the rest with the notes",
+      "value": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: keeps the first example visible and collapses the rest with the notes.",
+      "description": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: keeps the first example visible and collapses the rest with the notes."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-test-ts-106-rendertranslation-collapsible-details-expandable-blockquote-renders-no-blockquote-for-a-single-example-with-no-notes",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.test.ts",
+      "sourceLine": 106,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderTranslation — collapsible details (expandable blockquote)"
+      ],
+      "title": "renders no blockquote for a single example with no notes",
+      "rawTitle": "renders no blockquote for a single example with no notes",
+      "name": "Bot render Translation — collapsible details (expandable blockquote) renders no blockquote for a single example with no notes",
+      "value": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: renders no blockquote for a single example with no notes.",
+      "description": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: renders no blockquote for a single example with no notes."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-test-ts-119-rendertranslation-collapsible-details-expandable-blockquote-renders-no-blockquote-when-the-template-disables-every-collapsed-field",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.test.ts",
+      "sourceLine": 119,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderTranslation — collapsible details (expandable blockquote)"
+      ],
+      "title": "renders no blockquote when the template disables every collapsed field",
+      "rawTitle": "renders no blockquote when the template disables every collapsed field",
+      "name": "Bot render Translation — collapsible details (expandable blockquote) renders no blockquote when the template disables every collapsed field",
+      "value": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: renders no blockquote when the template disables every collapsed field.",
+      "description": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: renders no blockquote when the template disables every collapsed field."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-test-ts-141-rendertranslation-collapsible-details-expandable-blockquote-keeps-source-usage-examples-visible-and-collapses-the-explanation-on-reverse-learning-cards",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.test.ts",
+      "sourceLine": 141,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderTranslation — collapsible details (expandable blockquote)"
+      ],
+      "title": "keeps source-usage examples visible and collapses the explanation on reverse-learning cards",
+      "rawTitle": "keeps source-usage examples visible and collapses the explanation on reverse-learning cards",
+      "name": "Bot render Translation — collapsible details (expandable blockquote) keeps source usage examples visible and collapses the explanation on reverse learning cards",
+      "value": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: keeps source usage examples visible and collapses the explanation on reverse learning cards.",
+      "description": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: keeps source usage examples visible and collapses the explanation on reverse learning cards."
     },
     {
       "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-151-handledictpage-calls-findbyuserpaginated-with-correct-offset",

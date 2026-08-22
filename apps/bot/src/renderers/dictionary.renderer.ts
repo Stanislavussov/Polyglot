@@ -14,6 +14,7 @@ import type {
 } from "@polyglot/core";
 import { getLangFlag, isSupported, orderTranslations, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { expandableSection } from "./card-sections.js";
 import { formatInputType } from "./input-type-label.js";
 import { renderSourceUsage } from "./source-usage.renderer.js";
 
@@ -157,30 +158,26 @@ export function renderDictionaryEntry(
     const codePart = langCode ? ` ${esc(langCode.toUpperCase())}:` : "";
     lines.push(`${flag}${codePart} <b>${esc(tr.text)}</b>`);
 
-    if (tr.usageNote) {
-      lines.push(`💡 ${esc(tr.usageNote)}`);
-    }
-
-    if (tr.connotationWarning) {
-      lines.push(`⚠️ ${esc(tr.connotationWarning)}`);
-    }
-
     // Details from JSONB
     const details = tr.details as VocabTranslationDetails | null;
-    if (details) {
-      // Synonyms
-      if (details.synonyms && details.synonyms.length > 0) {
-        lines.push(`(${details.synonyms.map((s) => esc(s.text)).join(", ")})`);
-      }
-
-      // Examples
-      if (details.examples && details.examples.length > 0) {
-        for (const ex of details.examples) {
-          const native = ex.native ? ` (${esc(ex.native)})` : "";
-          lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
-        }
-      }
+    if (details?.synonyms && details.synonyms.length > 0) {
+      lines.push(`(${details.synonyms.map((s) => esc(s.text)).join(", ")})`);
     }
+    const notes: string[] = [];
+    if (details?.examples && details.examples.length > 0) {
+      const [first, ...rest] = details.examples.map(
+        (ex) => `💬 <i>${esc(ex.target)}</i>${ex.native ? ` (${esc(ex.native)})` : ""}`,
+      );
+      lines.push(first!);
+      notes.push(...rest);
+    }
+    if (tr.usageNote) {
+      notes.push(`💡 ${esc(tr.usageNote)}`);
+    }
+    if (tr.connotationWarning) {
+      notes.push(`⚠️ ${esc(tr.connotationWarning)}`);
+    }
+    lines.push(...expandableSection(notes));
   }
 
   return lines.join("\n").trim();
