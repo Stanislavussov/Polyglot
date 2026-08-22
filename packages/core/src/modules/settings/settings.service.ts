@@ -20,14 +20,16 @@ interface CacheEntry<T> {
   expiresAt: number;
 }
 
+/** Mirrors the seeded plans (`apps/admin-api/src/seed.ts`) — keep the two in step. */
 const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
   {
     name: "free",
     label: "Free",
-    translationLimit: 20,
+    translationLimit: 10,
     creditCost: 1,
-    videoLimit: 3,
-    videoWindow: "lifetime",
+    videoLimit: 0,
+    videoWindow: "none",
+    priceUsdCents: null,
     isActive: true,
     isDefault: true,
   },
@@ -36,8 +38,9 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     label: "Plus",
     translationLimit: null,
     creditCost: 1,
-    videoLimit: 10,
+    videoLimit: 20,
     videoWindow: "monthly",
+    priceUsdCents: 500,
     isActive: true,
     isDefault: false,
   },
@@ -48,6 +51,7 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     creditCost: 1,
     videoLimit: null,
     videoWindow: "monthly",
+    priceUsdCents: 1000,
     isActive: true,
     isDefault: false,
   },
@@ -58,6 +62,7 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     creditCost: 1,
     videoLimit: null,
     videoWindow: "monthly",
+    priceUsdCents: null,
     isActive: true,
     isDefault: false,
   },

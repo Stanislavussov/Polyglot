@@ -84,6 +84,7 @@ export const settingsAdapter: SettingsPort = {
       creditCost: p.creditCost,
       videoLimit: p.videoLimit,
       videoWindow: p.videoWindow,
+      priceUsdCents: p.priceUsdCents,
       isActive: p.isActive,
       isDefault: p.isDefault,
     }));
@@ -99,6 +100,7 @@ export const settingsAdapter: SettingsPort = {
       creditCost: p.creditCost,
       videoLimit: p.videoLimit,
       videoWindow: p.videoWindow,
+      priceUsdCents: p.priceUsdCents,
       isActive: p.isActive,
       isDefault: p.isDefault,
     };

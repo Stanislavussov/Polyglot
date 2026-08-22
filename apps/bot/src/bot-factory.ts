@@ -111,7 +111,12 @@ import {
   handleSrsRestart,
   handleSrsReveal,
 } from "./scenes/helpers/srs.helper.js";
-import { handleBuyPlanCallback, handleUpgradePromptCallback } from "./scenes/helpers/subscription.helper.js";
+import {
+  handleBuyPlanCallback,
+  handleCancelPlanCallback,
+  handleConfirmPlanCallback,
+  handleUpgradePromptCallback,
+} from "./scenes/helpers/subscription.helper.js";
 import {
   handleBackCallback,
   handleCancelCallback,
@@ -425,6 +430,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   onCallback("plan:upgrade", handleUpgradePromptCallback);
   onCallback(/^plan:buy:/, handleBuyPlanCallback);
+  onCallback(/^plan:confirm:/, handleConfirmPlanCallback);
+  onCallback("plan:cancel", handleCancelPlanCallback);
   onCallback("tr:mistype:cancel", handleMistypeCancelCallback);
   onCallback(/^tr:langselect:/, handleLangSelectCallback);
   onCallback(/^tr:srclang:/, handleSrcLangOverrideCallback);

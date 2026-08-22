@@ -104,6 +104,15 @@ export function exampleLine(target: string, native?: string): string {
 }
 
 /**
+ * Wrap detail lines in a Telegram expandable blockquote (Bot API 7.3+): the
+ * client renders them collapsed, so no buttons, no editMessageText, and none of
+ * the 48-hour edit limit that kills button-based reveals on old cards.
+ */
+export function expandableSection(lines: readonly string[]): string[] {
+  return lines.length > 0 ? [`<blockquote expandable>${lines.join("\n")}</blockquote>`] : [];
+}
+
+/**
  * Emit the sections in {@link CARD_SECTION_ORDER}.
  *
  * Empty sections vanish rather than leaving a blank line, so a surface that omits

@@ -21,6 +21,7 @@ import {
   CARD_SECTION_ORDER,
   emptySections,
   exampleLine,
+  expandableSection,
   headwordLine,
   langLabel,
   meaningLine,
@@ -103,5 +104,17 @@ describe("line builders", () => {
     expect(headwordLine("a<b>&c")).toBe("<b>a&lt;b&gt;&amp;c</b>");
     expect(answerLine("ru", "x<y")).toBe("🇷🇺 <b>x&lt;y</b>");
     expect(meaningLine("a & b")).toBe("💡 a &amp; b");
+  });
+});
+
+describe("expandableSection", () => {
+  it("wraps detail lines in one expandable blockquote", () => {
+    expect(expandableSection(["💬 <i>Ein Satz.</i>", "ℹ️ nuance"])).toEqual([
+      "<blockquote expandable>💬 <i>Ein Satz.</i>\nℹ️ nuance</blockquote>",
+    ]);
+  });
+
+  it("vanishes when there are no detail lines", () => {
+    expect(expandableSection([])).toEqual([]);
   });
 });

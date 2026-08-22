@@ -618,6 +618,13 @@ export const rateLimitPlans = pgTable("rate_limit_plans", {
   videoLimit: integer("video_limit"),
   /** Window the video allowance is measured over. `none` = feature disabled for this plan. */
   videoWindow: videoWindowEnum("video_window").default("none").notNull(),
+  /**
+   * Display price in US cents shown on the upgrade screen. `null` = not for sale
+   * (the free plan). Deliberately NOT a billing price: real charges will pin an
+   * immutable `plan_prices` version per subscription (tech-req 16 §4.1), so this
+   * column only drives copy and is safe for an admin to edit at any time.
+   */
+  priceUsdCents: integer("price_usd_cents"),
   isActive: boolean("is_active").default(true).notNull(),
   /** Users are reassigned here when another plan is deleted. Exactly one default is expected. */
   isDefault: boolean("is_default").default(false).notNull(),

@@ -1,5 +1,6 @@
 import type { SourceUsage } from "@polyglot/core";
 import { getLangFlag } from "@polyglot/core";
+import { expandableSection } from "./card-sections.js";
 
 function esc(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -16,14 +17,18 @@ export function renderSourceUsage(
   const synonyms = usage.synonyms.length > 0 ? ` (${usage.synonyms.map((item) => esc(item.text)).join(", ")})` : "";
   const lines = [`${sourceFlag} <b>${esc(original)}</b>${synonyms}`];
 
+  const details: string[] = [];
+  if (usage.examples.length > 0) {
+    const [first, ...rest] = usage.examples.map(
+      (ex) => `💬 <i>${esc(ex.target)}</i>${ex.native ? ` (${esc(ex.native)})` : ""}`,
+    );
+    lines.push(first!);
+    details.push(...rest);
+  }
   if (usage.explanation) {
-    lines.push(`ℹ️ ${esc(usage.explanation)}`);
+    details.push(`ℹ️ ${esc(usage.explanation)}`);
   }
-
-  for (const example of usage.examples) {
-    const native = example.native ? ` (${esc(example.native)})` : "";
-    lines.push(`💬 <i>${esc(example.target)}</i>${native}`);
-  }
+  lines.push(...expandableSection(details));
 
   return lines;
 }

@@ -322,10 +322,14 @@ export interface PlanLimitConfig {
   creditCost: number;
   videoLimit: number | null;
   videoWindow: "none" | "lifetime" | "monthly";
+  /** Display price in US cents (500 = $5/mo). null = not for sale. */
+  priceUsdCents: number | null;
   isActive: boolean;
   isDefault: boolean;
   /** Model this plan's users are served by. null = use the globally default model. */
   aiModelId: string | null;
+  /** Feature keys the plan unlocks (read-only; seeded via `plan_feature_access`). */
+  features?: string[];
 }
 
 export const rateLimits = {

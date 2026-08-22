@@ -429,3 +429,25 @@ describe("DICTIONARY_PAGE_SIZE", () => {
     expect(DICTIONARY_PAGE_SIZE).toBe(15);
   });
 });
+
+describe("renderDictionaryEntry — collapsible examples", () => {
+  const langResolver = (id: number) => ({ 1: "en", 2: "cs", 3: "ru" })[id];
+
+  it("keeps examples visible and collapses usage guidance into a blockquote", () => {
+    const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
+    expect(html).toContain("💬 <i>Я ем яблоко.</i> (I eat an apple.)");
+    expect(html).toContain("💬 <i>This apple is sweet.</i> (Это яблоко сладкое.)");
+    expect(html).not.toContain("blockquote expandable>💬");
+    expect(html).toContain("<blockquote expandable>💡 Нейтральное слово для обозначения фрукта.</blockquote>");
+  });
+
+  it("collapses the source-usage explanation below its visible examples", () => {
+    const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
+    const exampleIdx = html.indexOf("💬 <i>This apple is sweet.</i>");
+    const collapsedIdx = html.indexOf(
+      "<blockquote expandable>ℹ️ Used for the fruit, not the technology company.</blockquote>",
+    );
+    expect(exampleIdx).toBeGreaterThan(-1);
+    expect(collapsedIdx).toBeGreaterThan(exampleIdx);
+  });
+});

@@ -34,6 +34,18 @@ export const rateLimitPlanSchema = z.object({
     .nullable()
     .default(null),
   videoWindow: z.enum(["none", "lifetime", "monthly"]).default("none"),
+  /**
+   * Display price in US cents (500 = $5/mo). `null` = not for sale, which is the
+   * only way to withdraw a plan from the upgrade screen — so `0` is rejected
+   * rather than treated as "free but purchasable", where a typo would publish a
+   * plan anyone can activate for nothing.
+   */
+  priceUsdCents: z.coerce
+    .number()
+    .int("Price must be an integer number of cents")
+    .min(1, "Price must be at least 1 cent — leave empty for a plan that is not for sale")
+    .nullable()
+    .default(null),
   creditCost: z.coerce
     .number()
     .int("Credit cost must be an integer")

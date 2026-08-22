@@ -1,7 +1,15 @@
 export type CallbackRestartSafetyClass = "stateless-restorable" | "session-backed" | "intentionally-ephemeral";
 
 export interface CallbackContract {
-  family: "translation" | "flashcard" | "srs" | "dictionary" | "template" | "settings" | "notification";
+  family:
+    | "translation"
+    | "flashcard"
+    | "srs"
+    | "dictionary"
+    | "template"
+    | "settings"
+    | "notification"
+    | "subscription";
   prefix: string;
   restartSafety: CallbackRestartSafetyClass;
   durableLookupKey: string;
@@ -255,6 +263,42 @@ export const callbackContracts = [
     dbSource: "user_language_settings and notification settings",
     expiryBehavior: "localized settingsSessionExpired when awaiting text context is gone",
     maxExampleData: "set:notif:time:23:59",
+  },
+  {
+    family: "subscription",
+    prefix: "plan:upgrade",
+    restartSafety: "stateless-restorable",
+    durableLookupKey: "none — the screen is rebuilt from the plan catalog",
+    dbSource: "rate_limit_plans and plan_feature_access",
+    expiryBehavior: "re-renders the current plan comparison; never expires",
+    maxExampleData: "plan:upgrade",
+  },
+  {
+    family: "subscription",
+    prefix: "plan:buy",
+    restartSafety: "stateless-restorable",
+    durableLookupKey: "plan name",
+    dbSource: "rate_limit_plans (a plan that is inactive or unpriced is refused)",
+    expiryBehavior: "localized checkoutFailed when the plan is no longer for sale",
+    maxExampleData: "plan:buy:unlimited",
+  },
+  {
+    family: "subscription",
+    prefix: "plan:confirm",
+    restartSafety: "stateless-restorable",
+    durableLookupKey: "plan name",
+    dbSource: "rate_limit_plans, then subscriptions on activation",
+    expiryBehavior: "localized checkoutFailed when the plan is no longer for sale",
+    maxExampleData: "plan:confirm:unlimited",
+  },
+  {
+    family: "subscription",
+    prefix: "plan:cancel",
+    restartSafety: "intentionally-ephemeral",
+    durableLookupKey: "none",
+    dbSource: "none — nothing was written before confirmation",
+    expiryBehavior: "acknowledges and says nothing was charged",
+    maxExampleData: "plan:cancel",
   },
   {
     family: "notification",
