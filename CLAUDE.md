@@ -90,6 +90,18 @@ Run these steps **when there are related code changes** (a change isn't done unt
 - Added/changed an infra var in `.env.prod` that Ansible or the deploy workflow consumes → push it with `gh secret set`, or CI runs with stale values.
 - App-code/container-only changes → none of this applies; the app-deploy pipeline covers it.
 
+### 7. Comments Carry the Why, Not the What
+
+Write a comment only where the code cannot state its own reason: a workaround for an external quirk (Telegram/API/driver behavior), a non-obvious invariant or ordering constraint, a deliberate trade-off, a gotcha that already caused an incident. Name the cause so the comment stays checkable.
+
+Leave everything else uncommented — the names, types, and tests already carry it:
+
+- Functions, hooks, and handlers whose name and signature state their contract need no header, JSDoc, or `@param`/`@returns` block.
+- Lines that restate the code below them (`// increment the counter`), section banners, and step-by-step narration of an obvious flow are noise; delete them on sight when editing nearby code.
+- When a block seems to need a comment explaining *what* it does, extract it into a well-named function instead.
+
+One clear line beats a multi-line explanation. Prefer `//` over block comments.
+
 ## Project Context
 
 - **Monorepo**: pnpm workspaces (`packages/*`, `packages/adapters/*`, `apps/*`)

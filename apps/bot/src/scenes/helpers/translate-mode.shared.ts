@@ -17,6 +17,7 @@ import {
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../../types.js";
 import { replyTechnical } from "../../utils/message-cleanup.js";
+import { setPendingOutOfSet } from "./pending-out-of-set.helper.js";
 
 /**
  * Whether the Etymology button should be offered for this translation.
@@ -95,8 +96,7 @@ export async function showAddLanguagePrompt(
   });
 
   // Key the pending word by the prompt's message id so a later prompt cannot
-  // overwrite this one's word (single-slot race, T02).
-  const store = ctx.session.pendingOutOfSet ?? {};
-  store[String(promptMsg.message_id)] = { lang: outOfSetLang, word, contextHint };
-  ctx.session.pendingOutOfSet = store;
+  // overwrite this one's word (single-slot race, T02). Capped: entries are only
+  // removed on a button tap, so ignored prompts would otherwise pile up forever.
+  setPendingOutOfSet(ctx.session, promptMsg.message_id, { lang: outOfSetLang, word, contextHint });
 }
