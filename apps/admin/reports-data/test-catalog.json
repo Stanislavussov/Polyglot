@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-14T18:34:36.000Z",
+  "generatedAt": "2026-08-21T19:54:58.000Z",
   "summary": {
-    "total": 2697,
+    "total": 2700,
     "business": 0,
-    "technical": 2697,
+    "technical": 2700,
     "workspaces": [
       "apps",
       "packages"
@@ -2709,6 +2709,22 @@
       "name": "Bot translate happy path (integration) translates a word, renders a save card, and persists vocab on save",
       "value": "Protects the bot translate happy path (integration) behavior: translates a word, renders a save card, and persists vocab on save.",
       "description": "Protects the bot translate happy path (integration) behavior: translates a word, renders a save card, and persists vocab on save."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-translate-flow-integration-test-ts-59-translate-happy-path-integration-translates-an-english-phrase-into-the-native-language-even-when-english-is-not-studied",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/translate-flow.integration.test.ts",
+      "sourceLine": 59,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translate happy path (integration)"
+      ],
+      "title": "translates an English phrase into the native language even when English is not studied",
+      "rawTitle": "translates an English phrase into the native language even when English is not studied",
+      "name": "Bot translate happy path (integration) translates an English phrase into the native language even when English is not studied",
+      "value": "Protects the bot translate happy path (integration) behavior: translates an English phrase into the native language even when English is not studied.",
+      "description": "Protects the bot translate happy path (integration) behavior: translates an English phrase into the native language even when English is not studied."
     },
     {
       "id": "apps-bot-src-tests-integration-translation-order-integration-test-ts-85-translation-language-order-integration-renders-the-user-s-language-order-on-the-first-card-the-saved-card-and-the-dictionary-card",
@@ -10553,10 +10569,42 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: translates a franc identified English phrase as English source, targeting the studied language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-376-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-367-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-puts-the-native-language-first-in-the-targets-for-an-english-source-the-user-does-not-study",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 376,
+      "sourceLine": 367,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — English in sync candidates for multi-word input (US-B)"
+      ],
+      "title": "puts the native language first in the targets for an English source the user does not study",
+      "rawTitle": "puts the native language first in the targets for an English source the user does not study",
+      "name": "Bot handle Translate Text — English in sync candidates for multi word input (US B) puts the native language first in the targets for an English source the user does not study",
+      "value": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior so puts the native language first in the targets for an English source the user does not study.",
+      "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior so puts the native language first in the targets for an English source the user does not study."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-375-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-never-targets-the-source-language-itself",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
+      "sourceLine": 375,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleTranslateText — English in sync candidates for multi-word input (US-B)"
+      ],
+      "title": "never targets the source language itself",
+      "rawTitle": "never targets the source language itself",
+      "name": "Bot handle Translate Text — English in sync candidates for multi word input (US B) never targets the source language itself",
+      "value": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior so never targets the source language itself.",
+      "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior so never targets the source language itself."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-399-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
+      "sourceLine": 399,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10569,10 +10617,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: shows mistype warning when detect Language returns undefined."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-387-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-410-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 387,
+      "sourceLine": 410,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10585,10 +10633,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores pending state in session when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-396-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-419-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 396,
+      "sourceLine": 419,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10601,10 +10649,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores clean pending word and context hint when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-404-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-427-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 404,
+      "sourceLine": 427,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10617,10 +10665,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not call translate With Context when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-411-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-434-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 411,
+      "sourceLine": 434,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10633,10 +10681,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior so asks for source language when fast has dictionary evidence in English and German."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-444-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-467-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 444,
+      "sourceLine": 467,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10649,10 +10697,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not ask for source language for weak shared script ambiguity only."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-504-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-527-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 504,
+      "sourceLine": 527,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10665,10 +10713,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior so proceeds with translation when confirm callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-520-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-543-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 520,
+      "sourceLine": 543,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10681,10 +10729,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior: shows session expired alert when no pending state."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-541-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-564-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 541,
+      "sourceLine": 564,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10697,10 +10745,10 @@
       "description": "Protects the bot handle Mistype Cancel Callback — Task 58 behavior so clears pending state when cancel callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-554-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-577-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 554,
+      "sourceLine": 577,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

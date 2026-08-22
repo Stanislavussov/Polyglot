@@ -153,13 +153,17 @@ export async function arrangeNotifiableUser(
  * callback-regression e2e tests, which all need a user the translate flow will
  * route to.
  */
-export async function arrangeOnboardedTranslator(telegramId: number): Promise<number> {
+export async function arrangeOnboardedTranslator(
+  telegramId: number,
+  langs: { nativeLang?: string; learningLangs?: string[] } = {},
+): Promise<number> {
+  const { nativeLang = "en", learningLangs = ["cs"] } = langs;
   const user = await userRepository.create({ telegramId, username: "translator" });
   await userRepository.markOnboarded(user.id);
   await userRepository.updateSettings(user.id, {
     interfaceLang: "en",
-    nativeLang: "en",
-    learningLangs: ["cs"],
+    nativeLang,
+    learningLangs,
     lastSourceLang: null,
   });
   await userRepository.updateActiveMode(user.id, "translate");

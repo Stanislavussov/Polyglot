@@ -39,10 +39,12 @@ export interface SessionData {
   /** Message ID of the card showing the pending translation */
   pendingCardMsgId?: number;
   /**
-   * Explicit source language for the next translation (Task 17).
-   * When set, skips auto-detection and uses this language as source.
-   * null/undefined = auto-detect (default behavior via Task 16).
-   * Session-only — does not persist across bot restarts.
+   * Explicit source language override for the next translation (Task 17).
+   * Vestigial: the simplified detection of Task 58 stopped consulting it, and
+   * no production path reads it today; both remaining writes set it to null
+   * (the initial session, and onboarding handing over to translate mode). It
+   * stays in the shape for backward compatibility with already-persisted
+   * session rows, where it lives in `bot_sessions.data` like every other field.
    */
   nextSourceLang?: string | null;
   /**
@@ -249,10 +251,12 @@ export interface SessionData {
   };
   /**
    * Mentor mode conversation history (Task 66).
-   * Stores the chat messages between user and AI mentor.
-   * Session-only — does not persist across bot restarts.
-   * The active mode itself persists in DB; history resets on restart.
-   * Cleared when the user re-enters /mentor.
+   * Stores the chat messages between user and AI mentor. Persisted with the
+   * rest of the session: the storage adapter writes the whole payload to
+   * `bot_sessions.data`, so these turns outlive a bot restart. They are
+   * bounded by the `MAX_MENTOR_HISTORY` cap applied on every turn, the reset
+   * on each /mentor entry, and the retention sweep that drops sessions left
+   * idle past the horizon.
    */
   mentor?: {
     history: Array<{ role: "user" | "assistant"; content: string }>;
