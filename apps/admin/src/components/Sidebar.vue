@@ -54,6 +54,7 @@ const items = [
   { href: "/architecture", label: "Architecture", icon: "🧭" },
   { href: "/settings", label: "Settings", icon: "⚙️" },
   { href: "/presets", label: "Presets", icon: "🎯" },
+  { href: "/word-picker", label: "Word Picker", icon: "✨" },
 ];
 
 function isActive(href: string): boolean {

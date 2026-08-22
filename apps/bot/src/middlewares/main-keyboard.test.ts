@@ -49,7 +49,7 @@ describe("mainKeyboardMiddleware", () => {
     expect(ctx.reply).toHaveBeenCalledTimes(1);
     const [text, options] = vi.mocked(ctx.reply).mock.calls[0] ?? [];
     expect(text).toContain("Словарь");
-    expect(options?.reply_markup).toMatchObject({ is_persistent: true });
+    expect(options?.reply_markup).toMatchObject({ one_time_keyboard: true });
     expect(next).toHaveBeenCalled();
   });
 

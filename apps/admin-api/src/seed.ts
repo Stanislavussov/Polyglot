@@ -6,7 +6,9 @@ import {
   closeDb,
   planFeatureAccessRepository,
   rateLimitPlanRepository,
+  wordPickerPresetRepository,
 } from "@polyglot/adapter-db";
+import { DEFAULT_WORD_PICKER_PRESETS } from "@polyglot/core";
 import bcrypt from "bcryptjs";
 import { config as dotenvConfig } from "dotenv";
 
@@ -14,16 +16,26 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenvConfig({ path: resolve(__dirname, "../../../.env") });
 
 async function seed() {
-  const PREMIUM_FEATURES = ["grammarBreakdown", "etymology", "grammarDetail"];
+  // Task 79 tier matrix. Free is translation-only; Plus adds the clarify/other-meaning
+  // pair, unmetered translation and monthly video; Pro is the only plan with word
+  // audio (TTS), the most expensive thing on a card. Plus is unmetered on purpose:
+  // the tier is priced on the assumption that a typical subscriber never approaches
+  // a cap, so the heavy user is covered by the many who are not. Numbers are seed
+  // defaults — admins retune them in the panel, and the resolver reads them from the
+  // DB on every check.
+  const GRAMMAR_FEATURES = ["grammarBreakdown", "etymology", "grammarDetail"];
+  const PLUS_FEATURES = [...GRAMMAR_FEATURES, "clarification"];
+  const PRO_FEATURES = [...PLUS_FEATURES, "pronunciation"];
 
   const defaultPlans = [
     {
       name: "free",
       label: "Free",
-      translationLimit: 20,
+      translationLimit: 10,
       creditCost: 1,
-      videoLimit: 3,
-      videoWindow: "lifetime" as const,
+      videoLimit: 0,
+      videoWindow: "none" as const,
+      priceUsdCents: null,
       isActive: true,
       isDefault: true,
       features: [] as string[],
@@ -33,11 +45,12 @@ async function seed() {
       label: "Plus",
       translationLimit: null,
       creditCost: 1,
-      videoLimit: 10,
+      videoLimit: 20,
       videoWindow: "monthly" as const,
+      priceUsdCents: 500,
       isActive: true,
       isDefault: false,
-      features: PREMIUM_FEATURES,
+      features: PLUS_FEATURES,
     },
     {
       name: "pro",
@@ -46,9 +59,10 @@ async function seed() {
       creditCost: 1,
       videoLimit: null,
       videoWindow: "monthly" as const,
+      priceUsdCents: 1000,
       isActive: true,
       isDefault: false,
-      features: PREMIUM_FEATURES,
+      features: PRO_FEATURES,
     },
     {
       name: "unlimited",
@@ -57,15 +71,22 @@ async function seed() {
       creditCost: 1,
       videoLimit: null,
       videoWindow: "monthly" as const,
+      priceUsdCents: null,
       isActive: true,
       isDefault: false,
-      features: PREMIUM_FEATURES,
+      features: PRO_FEATURES,
     },
   ];
 
   // Idempotent: upsert every plan (updates columns on re-run) and sync its feature
   // access. Seeded plans carry no model of their own — they follow the globally
   // default model until an admin routes them explicitly in the AI Models page.
+  //
+  // Note the deliberate asymmetry with the AI-model block below, which only seeds
+  // an EMPTY catalog: plan limits, prices and feature access are re-asserted on
+  // every deploy, so this file — not the admin panel — is the source of truth for
+  // them. An admin edit to a limit or a price survives until the next release and
+  // is then reverted. Changing that means changing this loop, not the panel.
   for (const { features, ...plan } of defaultPlans) {
     await rateLimitPlanRepository.upsert({ ...plan, aiModelId: null });
     await planFeatureAccessRepository.setFeaturesForPlan(plan.name, features);
@@ -105,6 +126,29 @@ async function seed() {
     // biome-ignore lint/suspicious/noConsole: CLI script output
     console.log(`AI model catalog already holds ${existingModels.length} model(s) — left untouched`);
   }
+
+  // Word-picker angles ship as data, not code: the bot reads them from the DB and
+  // the admin panel owns them from then on. Inserted per slug and never updated,
+  // so an angle an admin has rewritten (or deliberately deleted) is not resurrected
+  // or overwritten by the next deploy's seed run.
+  let insertedAngles = 0;
+  for (const preset of DEFAULT_WORD_PICKER_PRESETS) {
+    const inserted = await wordPickerPresetRepository.insertIfMissing({
+      slug: preset.slug,
+      emoji: preset.emoji,
+      title: preset.title,
+      titleI18n: preset.titleI18n,
+      prompt: preset.prompt,
+      learningLangs: [],
+      sortOrder: preset.sortOrder,
+      isActive: true,
+    });
+    if (inserted) insertedAngles++;
+  }
+  // biome-ignore lint/suspicious/noConsole: CLI script output
+  console.log(
+    `Word-picker angles: ${insertedAngles} added, ${DEFAULT_WORD_PICKER_PRESETS.length - insertedAngles} already present`,
+  );
 
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;

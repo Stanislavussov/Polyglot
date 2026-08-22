@@ -1,4 +1,4 @@
-import { aiModelRepository, rateLimitPlanRepository } from "@polyglot/adapter-db";
+import { aiModelRepository, planFeatureAccessRepository, rateLimitPlanRepository } from "@polyglot/adapter-db";
 import { rateLimitPlanSchema } from "@polyglot/admin-contracts";
 import type { FastifyInstance } from "fastify";
 import { requireRole } from "../plugins/auth.js";
@@ -31,7 +31,20 @@ export async function rateLimitRoutes(app: FastifyInstance) {
   registerCrudRoutes(app, {
     resource: "rate-limits",
     keyParam: "name",
-    list: { handler: () => rateLimitPlanRepository.findAll() },
+    // Feature keys ride along with the plan: the panel shows what each tier
+    // actually unlocks in the bot, which is otherwise invisible until a user
+    // taps a ⭐ button. Read-only — the junction is owned by the seed.
+    list: {
+      handler: async () => {
+        const plans = await rateLimitPlanRepository.findAll();
+        return Promise.all(
+          plans.map(async (plan) => ({
+            ...plan,
+            features: await planFeatureAccessRepository.findFeaturesForPlan(plan.name),
+          })),
+        );
+      },
+    },
     upsert: {
       schema: rateLimitPlanSchema,
       preHandler: superadminOnly,

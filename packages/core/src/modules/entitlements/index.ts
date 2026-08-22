@@ -17,6 +17,10 @@ export const FEATURE_KEYS = {
   grammarBreakdown: "grammarBreakdown",
   etymology: "etymology",
   grammarDetail: "grammarDetail",
+  /** "Clarify translation" and "Other meaning" — one key, both re-run the pipeline. */
+  clarification: "clarification",
+  /** Spoken word (TTS) — `tr:say:*`. */
+  pronunciation: "pronunciation",
 } as const;
 
 export type FeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS];
@@ -51,11 +55,15 @@ export interface ResolveEntitlementsInput {
   planFeatures: string[];
 }
 
-/** Conservative fallback when a plan config is missing — treat the user as free. */
+/**
+ * Conservative fallback when a plan config is missing — treat the user as free.
+ * Must mirror the seeded `free` plan (Task 79): translation is the only thing a
+ * free account gets, so a missing config can never accidentally hand out video.
+ */
 const FREE_FALLBACK: PlanEntitlementConfig = {
-  translationLimit: 20,
-  videoLimit: 3,
-  videoWindow: "lifetime",
+  translationLimit: 10,
+  videoLimit: 0,
+  videoWindow: "none",
 };
 
 export function isUnlimitedRole(audienceGroup: AudienceGroup): boolean {

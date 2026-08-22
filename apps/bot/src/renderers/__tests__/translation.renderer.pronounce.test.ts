@@ -40,8 +40,8 @@ function pronounceLabels(keyboard: ReturnType<typeof buildTranslationKeyboard>):
     .map((b) => b.text);
 }
 
-const build = (pronounceLangs?: readonly string[]) =>
-  buildTranslationKeyboard("en", MAX_MSG_ID, false, false, false, false, undefined, pronounceLangs);
+const build = (pronounceLangs?: readonly string[], locked?: ReadonlySet<string>) =>
+  buildTranslationKeyboard({ interfaceLang: "en", msgId: MAX_MSG_ID, pronounceLangs, locked });
 
 describe("buildTranslationKeyboard — pronunciation row", () => {
   it("renders no pronunciation button when no language is eligible", () => {
@@ -58,6 +58,14 @@ describe("buildTranslationKeyboard — pronunciation row", () => {
   it("gives several eligible languages one compact button each, in the given order", () => {
     const rows = pronounceRows(build(["es", "de", "cs"]));
     expect(rows).toEqual([[`tr:say:es:${MAX_MSG_ID}`, `tr:say:de:${MAX_MSG_ID}`, `tr:say:cs:${MAX_MSG_ID}`]]);
+  });
+
+  it("badges the speaker for a plan without audio, in both the single and the compact layout", () => {
+    const locked = new Set(["pronunciation"]);
+    expect(pronounceLabels(build(["de"], locked)).every((label) => label.endsWith("⭐"))).toBe(true);
+    expect(pronounceLabels(build(["de", "es"], locked)).every((label) => label.endsWith("⭐"))).toBe(true);
+    // The buttons stay tappable — the handler, not the keyboard, denies the play.
+    expect(pronounceRows(build(["de"], locked))).toEqual([[`tr:say:de:${MAX_MSG_ID}`]]);
   });
 
   it("wraps past four languages instead of growing one unreadable row", () => {

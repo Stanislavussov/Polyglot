@@ -18,7 +18,11 @@ vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
   return {
     ...actual,
-    defaultFeatureAccess: { checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: true }) },
+    defaultFeatureAccess: {
+      checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: true }),
+      listFeatures: vi.fn().mockResolvedValue(new Set(actual.ALL_FEATURES)),
+      listPlanFeatures: vi.fn().mockResolvedValue(new Set(actual.ALL_FEATURES)),
+    },
     generateEtymology: vi.fn(),
     generateGrammarBreakdown: vi.fn(),
     generateGrammarDetail: vi.fn(),

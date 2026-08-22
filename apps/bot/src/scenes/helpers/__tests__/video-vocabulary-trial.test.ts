@@ -1,16 +1,17 @@
 /**
  * The one free onboarding video (Task 72).
  *
- * The free plan allows **3 videos lifetime**, not per month. A starter video
- * offered on the onboarding empty state would therefore cost a third of
- * everything a new user ever gets, spent before they have seen what the feature
- * does. A run started from those suggestions bypasses the allowance and is
- * recorded as a trial; trial rows are excluded from both usage counts, and each
- * user gets exactly one.
+ * A run started from the onboarding suggestions bypasses the plan's video
+ * allowance entirely and is recorded as a trial; trial rows are excluded from
+ * both usage counts, and each user gets exactly one. Since Task 79 the free plan
+ * has **no** video allowance at all (`videoWindow: "none"`), which makes this
+ * giveaway the only video a free user ever sees — so the exemption below is what
+ * the whole onboarding payoff screen rests on. The allowance-path cases therefore
+ * describe a plan that HAS an allowance, which free no longer does.
  */
-import type { ServiceContainer } from "@polyglot/core";
+import type { PlanLimitConfig, ServiceContainer } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createServicesStub } from "../../../test-helpers/services-stub.js";
+import { createServicesStub, createSettingsStub, DEFAULT_PLAN_LIMIT } from "../../../test-helpers/services-stub.js";
 import type { BotContext } from "../../../types.js";
 
 const { fetchMetadata } = vi.hoisted(() => ({ fetchMetadata: vi.fn() }));
@@ -23,7 +24,9 @@ const { handleVideoVocabularyUrl } = await import("../video-vocabulary.helper.js
 
 const URL = "https://youtu.be/aaaaaaaaaaa";
 
-function createCtx(opts: { plan?: string; lifetimeUsed?: number; trialUsed?: boolean } = {}) {
+function createCtx(
+  opts: { plan?: string; lifetimeUsed?: number; trialUsed?: boolean; planLimit?: Partial<PlanLimitConfig> } = {},
+) {
   const videoVocabularyRepository = {
     expireStaleProcesses: vi.fn().mockResolvedValue(0),
     findProcessByUserAndVideo: vi.fn().mockResolvedValue(null),
@@ -46,6 +49,14 @@ function createCtx(opts: { plan?: string; lifetimeUsed?: number; trialUsed?: boo
         getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en", nativeLang: "en", learningLangs: ["de"] }),
       } as unknown as ServiceContainer["userRepository"],
       videoVocabularyRepository: videoVocabularyRepository as unknown as ServiceContainer["videoVocabularyRepository"],
+      ...(opts.planLimit
+        ? {
+            settings: {
+              ...createSettingsStub(),
+              getPlanLimit: vi.fn().mockResolvedValue({ ...DEFAULT_PLAN_LIMIT, ...opts.planLimit }),
+            },
+          }
+        : {}),
     }),
   } as unknown as BotContext;
 
@@ -78,7 +89,10 @@ describe("onboarding starter video — allowance exemption", () => {
   });
 
   it("gives the giveaway only once — a second suggestion falls back to the allowance", async () => {
-    const { ctx, videoVocabularyRepository } = createCtx({ trialUsed: true });
+    const { ctx, videoVocabularyRepository } = createCtx({
+      trialUsed: true,
+      planLimit: { name: "plus", videoLimit: 3, videoWindow: "lifetime" },
+    });
 
     await handleVideoVocabularyUrl(ctx, URL, { fromOnboarding: true });
 
@@ -87,15 +101,36 @@ describe("onboarding starter video — allowance exemption", () => {
   });
 
   it("blocks a second suggestion once the allowance is also gone", async () => {
-    const { ctx, videoVocabularyRepository } = createCtx({ trialUsed: true, lifetimeUsed: 3 });
+    const { ctx, videoVocabularyRepository } = createCtx({
+      trialUsed: true,
+      lifetimeUsed: 3,
+      planLimit: { name: "plus", videoLimit: 3, videoWindow: "lifetime" },
+    });
 
     await handleVideoVocabularyUrl(ctx, URL, { fromOnboarding: true });
 
     expect(videoVocabularyRepository.createProcess).not.toHaveBeenCalled();
   });
 
-  it("leaves a pasted link on the normal allowance path", async () => {
+  it("refuses a pasted link on the free plan and offers the upgrade instead", async () => {
+    // Free has `videoWindow: "none"` since Task 79 — video is a paid feature, and
+    // the refusal has to carry the way out rather than being a dead end.
     const { ctx, videoVocabularyRepository } = createCtx();
+
+    await handleVideoVocabularyUrl(ctx, URL);
+
+    expect(videoVocabularyRepository.createProcess).not.toHaveBeenCalled();
+    expect(fetchMetadata).not.toHaveBeenCalled();
+    const replyMarkup = vi.mocked(ctx.reply).mock.calls.at(-1)?.[1]?.reply_markup as
+      | { inline_keyboard?: Array<Array<{ callback_data?: string }>> }
+      | undefined;
+    expect(replyMarkup?.inline_keyboard?.flat().map((button) => button.callback_data)).toContain("plan:upgrade");
+  });
+
+  it("leaves a pasted link on the normal allowance path", async () => {
+    const { ctx, videoVocabularyRepository } = createCtx({
+      planLimit: { name: "plus", videoLimit: 3, videoWindow: "lifetime" },
+    });
 
     await handleVideoVocabularyUrl(ctx, URL);
 

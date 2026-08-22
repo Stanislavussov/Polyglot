@@ -6,6 +6,7 @@ import {
   type SupportedLang,
   t,
 } from "@polyglot/core";
+import { buildUpgradeKeyboard } from "../scenes/helpers/subscription.helper.js";
 import type { BotContext } from "../types.js";
 import { replyTechnical } from "./message-cleanup.js";
 import { resolvePlanLimit } from "./plan-limit.js";
@@ -20,6 +21,7 @@ export const AI_CALL_WEIGHTS = {
   mentor: 2,
   dictionaryTranslate: 1,
   video: 5,
+  wordPick: 3,
   grammar: 1,
   etymology: 1,
 } as const;
@@ -54,7 +56,10 @@ export async function ensureAiQuota(
   );
 
   if (!status.allowed) {
-    await replyTechnical(ctx, t("rateLimitExceeded", lang));
+    // Same message and same way out as the translate-flow quota gate: an exhausted
+    // quota is the moment the upgrade offer is worth something, and a bare notice
+    // here would be the one dead end left in the funnel.
+    await replyTechnical(ctx, t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return null;
   }
 

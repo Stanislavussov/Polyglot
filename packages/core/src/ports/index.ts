@@ -50,4 +50,13 @@ export type {
   VocabularySource,
   VocabularyTranslation,
 } from "./vocabulary.repository.js";
+export type {
+  CreateWordPickerRunInput,
+  WordPickerItem,
+  WordPickerItemInput,
+  WordPickerPreset,
+  WordPickerPresetRepository,
+  WordPickerRun,
+  WordPickerRunRepository,
+} from "./word-picker.repository.js";
 export type { WordReviewRepository } from "./word-review.repository.js";

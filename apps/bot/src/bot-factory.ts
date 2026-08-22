@@ -111,7 +111,12 @@ import {
   handleSrsRestart,
   handleSrsReveal,
 } from "./scenes/helpers/srs.helper.js";
-import { handleBuyPlanCallback, handleUpgradePromptCallback } from "./scenes/helpers/subscription.helper.js";
+import {
+  handleBuyPlanCallback,
+  handleCancelPlanCallback,
+  handleConfirmPlanCallback,
+  handleUpgradePromptCallback,
+} from "./scenes/helpers/subscription.helper.js";
 import {
   handleBackCallback,
   handleCancelCallback,
@@ -135,6 +140,16 @@ import {
   handleVideoTryCallback,
   VIDEO_TRY_PATTERN,
 } from "./scenes/helpers/video-vocabulary.helper.js";
+import {
+  handlePickCloseCallback,
+  handlePickLangCallback,
+  handlePickMoreCallback,
+  handlePickNoopCallback,
+  handlePickPresetCallback,
+  handlePickSaveAllCallback,
+  handlePickSaveCallback,
+  handlePickWordsCommand,
+} from "./scenes/helpers/word-picker.helper.js";
 import { handleMentorCommand } from "./scenes/mentor.scene.js";
 import { handleReportIssue } from "./scenes/report-issue.scene.js";
 import { handleSettingsCommand } from "./scenes/settings.scene.js";
@@ -333,6 +348,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCommand("settings", handleSettingsCommand);
   onCommand("changes", changesCommand);
   onCommand("videos", handleVideosCommand);
+  onCommand("pick", handlePickWordsCommand);
   onCommand("report", async (ctx) => {
     await ctx.conversation.enter("handleReportIssue");
   });
@@ -343,6 +359,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
     mainMenuLabels(),
     withHandlerLog("mainMenuTap", async (ctx) => {
       switch (matchMainMenuAction(ctx.msg?.text ?? "")) {
+        case "pick":
+          return handlePickWordsCommand(ctx);
         case "dictionary":
           return handleDictionaryCommand(ctx);
         case "flashcard":
@@ -412,6 +430,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   onCallback("plan:upgrade", handleUpgradePromptCallback);
   onCallback(/^plan:buy:/, handleBuyPlanCallback);
+  onCallback(/^plan:confirm:/, handleConfirmPlanCallback);
+  onCallback("plan:cancel", handleCancelPlanCallback);
   onCallback("tr:mistype:cancel", handleMistypeCancelCallback);
   onCallback(/^tr:langselect:/, handleLangSelectCallback);
   onCallback(/^tr:srclang:/, handleSrcLangOverrideCallback);
@@ -461,6 +481,16 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^vid:list:/, handleVideoListCallback);
   onCallback("vid:close", handleVideoCloseCallback);
   onCallback(/^vid:noop:/, handleVideoNoopCallback);
+
+  // Word picker (curated angles). `wp:s:` and `wp:sa:` differ by the colon, so
+  // the single-item route can never swallow a save-all tap.
+  onCallback(/^wp:p:/, handlePickPresetCallback);
+  onCallback(/^wp:l:/, handlePickLangCallback);
+  onCallback(/^wp:s:/, handlePickSaveCallback);
+  onCallback(/^wp:sa:/, handlePickSaveAllCallback);
+  onCallback(/^wp:m:/, handlePickMoreCallback);
+  onCallback("wp:close", handlePickCloseCallback);
+  onCallback("wp:noop", handlePickNoopCallback);
 
   onCallback("tpl:customize", handleCustomizeCallback);
   onCallback(/^tpl:toggle:/, handleToggleCallback);

@@ -152,12 +152,16 @@ export async function arrangeNotifiableUser(
  * learning Czech) and return its domain id. Used by the translate happy-path and
  * callback-regression e2e tests, which all need a user the translate flow will
  * route to.
+ *
+ * The user lands on the seeded default plan (`free`), which is translation-only
+ * since Task 79 — pass `plan` when the scenario needs a card feature a Free user
+ * cannot use (e.g. `"pro"` for word audio).
  */
 export async function arrangeOnboardedTranslator(
   telegramId: number,
-  langs: { nativeLang?: string; learningLangs?: string[] } = {},
+  langs: { nativeLang?: string; learningLangs?: string[]; plan?: string } = {},
 ): Promise<number> {
-  const { nativeLang = "en", learningLangs = ["cs"] } = langs;
+  const { nativeLang = "en", learningLangs = ["cs"], plan } = langs;
   const user = await userRepository.create({ telegramId, username: "translator" });
   await userRepository.markOnboarded(user.id);
   await userRepository.updateSettings(user.id, {
@@ -167,5 +171,8 @@ export async function arrangeOnboardedTranslator(
     lastSourceLang: null,
   });
   await userRepository.updateActiveMode(user.id, "translate");
+  if (plan) {
+    await userRepository.updateSubscriptionPlan(user.id, plan);
+  }
   return user.id;
 }

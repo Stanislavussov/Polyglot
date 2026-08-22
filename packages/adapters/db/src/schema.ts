@@ -618,6 +618,13 @@ export const rateLimitPlans = pgTable("rate_limit_plans", {
   videoLimit: integer("video_limit"),
   /** Window the video allowance is measured over. `none` = feature disabled for this plan. */
   videoWindow: videoWindowEnum("video_window").default("none").notNull(),
+  /**
+   * Display price in US cents shown on the upgrade screen. `null` = not for sale
+   * (the free plan). Deliberately NOT a billing price: real charges will pin an
+   * immutable `plan_prices` version per subscription (tech-req 16 §4.1), so this
+   * column only drives copy and is safe for an admin to edit at any time.
+   */
+  priceUsdCents: integer("price_usd_cents"),
   isActive: boolean("is_active").default(true).notNull(),
   /** Users are reassigned here when another plan is deleted. Exactly one default is expected. */
   isDefault: boolean("is_default").default(false).notNull(),
@@ -999,3 +1006,87 @@ export const ttsCache = pgTable(
 );
 
 export type TtsCacheRow = typeof ttsCache.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Word picker — curated "angles" on a language, authored in the admin panel
+// and offered to the user as the first step in the main menu.
+// ─────────────────────────────────────────────
+export const wordPickerPresets = pgTable(
+  "word_picker_presets",
+  {
+    id: serial("id").primaryKey(),
+    /** Stable key the seeder matches on, so an admin-edited preset survives re-seeding. */
+    slug: varchar("slug", { length: 64 }).notNull(),
+    emoji: varchar("emoji", { length: 16 }).default("✨").notNull(),
+    /** Shown when the user's interface language has no entry in `titleI18n`. */
+    title: varchar("title", { length: 120 }).notNull(),
+    /** Interface-language code → title. Partial by design; missing codes fall back to `title`. */
+    titleI18n: jsonb("title_i18n").$type<Record<string, string>>().default({}).notNull(),
+    /** The instruction handed to the model — the angle itself. */
+    prompt: text("prompt").notNull(),
+    /** Learning languages this angle is offered for; empty means every language. */
+    learningLangs: text("learning_langs").array().default(sql`ARRAY[]::text[]`).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("wpp_slug_idx").on(t.slug), index("wpp_active_order_idx").on(t.isActive, t.sortOrder)],
+);
+
+export type WordPickerPreset = typeof wordPickerPresets.$inferSelect;
+
+/** One generated set: a user tapped one angle for one learning language. */
+export const wordPickerRuns = pgTable(
+  "word_picker_runs",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /**
+     * The angle this set came from. `set null` rather than cascade: deleting a
+     * preset in the admin panel must not delete word sets users are still
+     * browsing, which is why the title is snapshotted alongside it.
+     */
+    presetId: integer("preset_id").references(() => wordPickerPresets.id, { onDelete: "set null" }),
+    /** Preset title as shown when the set was generated. */
+    presetTitle: varchar("preset_title", { length: 120 }).notNull(),
+    presetEmoji: varchar("preset_emoji", { length: 16 }).default("✨").notNull(),
+    /** Learning language the set was generated in (ISO 639-1). */
+    langCode: text("lang_code").notNull(),
+    nativeLang: text("native_lang").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("wpr_user_preset_idx").on(t.userId, t.presetId, t.langCode)],
+);
+
+export type WordPickerRun = typeof wordPickerRuns.$inferSelect;
+
+export const wordPickerItems = pgTable(
+  "word_picker_items",
+  {
+    id: serial("id").primaryKey(),
+    runId: integer("run_id")
+      .references(() => wordPickerRuns.id, { onDelete: "cascade" })
+      .notNull(),
+    word: text("word").notNull(),
+    nativeTranslation: text("native_translation").notNull(),
+    emoji: varchar("emoji", { length: 16 }),
+    /** 'word' | 'phrase' | 'idiom' | 'collocation' */
+    itemType: text("item_type"),
+    /** CEFR level: A1–C2 */
+    level: varchar("level", { length: 8 }),
+    /** Example sentence in the learning language, with its native translation. */
+    exampleTarget: text("example_target"),
+    exampleNative: text("example_native"),
+    /** What the angle reveals about this item, in the learner's native language. */
+    note: text("note"),
+    sortOrder: integer("sort_order").notNull(),
+    savedEntryId: integer("saved_entry_id").references(() => vocabularyEntries.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("wpi_run_sort_idx").on(t.runId, t.sortOrder)],
+);
+
+export type WordPickerItem = typeof wordPickerItems.$inferSelect;

@@ -722,11 +722,35 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
 
     await h.tap("onb:hook:de:0");
 
-    const final = vi.mocked(h.ctx.reply).mock.calls.at(-1);
+    const final = vi
+      .mocked(h.ctx.reply)
+      .mock.calls.filter(
+        (call) => (call[1] as { reply_markup?: { inline_keyboard?: Keyboard } })?.reply_markup?.inline_keyboard,
+      )
+      .at(-1);
     const markup = (final?.[1] as { reply_markup?: { inline_keyboard?: Keyboard } })?.reply_markup;
     const data = (markup?.inline_keyboard ?? []).flat().map((b) => b.callback_data);
     expect(data).toEqual(["onb:go:dictionary", "onb:go:training", "onb:go:video", "onb:go:settings"]);
     expect(String(final?.[0])).not.toContain("/translate");
+  });
+
+  it("hands over the mode menu and says which icon brings it back", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(null);
+
+    await h.tap("onb:hook:de:0");
+
+    // The menu is not pinned to the screen, so onboarding is the one place the
+    // user is shown it — a hand-off that never happens leaves it undiscoverable.
+    const handover = vi.mocked(h.ctx.reply).mock.calls.at(-1);
+    // Names the icon, not just the menu: the whole point of the hand-off is that a
+    // folded-away keyboard is invisible until the user knows where to tap.
+    expect(String(handover?.[0])).toContain("⌨️");
+    expect(String(handover?.[0])).toContain("Подобрать слова");
+    expect((handover?.[1] as { reply_markup?: { one_time_keyboard?: boolean } })?.reply_markup).toMatchObject({
+      one_time_keyboard: true,
+    });
   });
 
   it("routes each feature button to the existing scene handler", async () => {

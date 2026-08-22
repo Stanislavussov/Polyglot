@@ -159,6 +159,18 @@ export const videoEnrichmentCounter = new Counter({
   labelNames: ["status"] as const,
 });
 
+export const wordPickCounter = new Counter({
+  name: "bot_word_pick_total",
+  help: "Word-picker set generations by outcome (generated / empty / failed)",
+  labelNames: ["status"] as const,
+});
+
+export const wordPickEnrichmentCounter = new Counter({
+  name: "bot_word_pick_enrichment_total",
+  help: "Background enrichment attempts for entries saved from a word-picker set",
+  labelNames: ["status"] as const,
+});
+
 export const updateHandlingDuration = new Histogram({
   name: "bot_update_handling_duration_seconds",
   help: "Time from update receipt to handler completion",

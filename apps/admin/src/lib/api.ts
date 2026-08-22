@@ -322,10 +322,14 @@ export interface PlanLimitConfig {
   creditCost: number;
   videoLimit: number | null;
   videoWindow: "none" | "lifetime" | "monthly";
+  /** Display price in US cents (500 = $5/mo). null = not for sale. */
+  priceUsdCents: number | null;
   isActive: boolean;
   isDefault: boolean;
   /** Model this plan's users are served by. null = use the globally default model. */
   aiModelId: string | null;
+  /** Feature keys the plan unlocks (read-only; seeded via `plan_feature_access`). */
+  features?: string[];
 }
 
 export const rateLimits = {
@@ -485,6 +489,31 @@ export const presets = {
   create: (preset: Omit<Preset, "id">) => post<Preset>("/api/settings/presets", preset),
   update: (id: string, preset: Partial<Preset>) => put<Preset>(`/api/settings/presets/${id}`, preset),
   delete: (id: string) => del<void>(`/api/settings/presets/${id}`),
+};
+
+// Word-picker presets — curated angles offered in the bot's main menu
+export interface WordPickerPreset {
+  id: number;
+  slug: string;
+  emoji: string;
+  title: string;
+  titleI18n: Record<string, string>;
+  prompt: string;
+  learningLangs: string[];
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type WordPickerPresetInput = Omit<WordPickerPreset, "id" | "createdAt" | "updatedAt">;
+
+export const wordPickerPresets = {
+  list: () => get<WordPickerPreset[]>("/api/settings/word-picker-presets"),
+  create: (preset: WordPickerPresetInput) => post<WordPickerPreset>("/api/settings/word-picker-presets", preset),
+  update: (id: number, preset: Partial<WordPickerPresetInput>) =>
+    put<WordPickerPreset>(`/api/settings/word-picker-presets/${id}`, preset),
+  delete: (id: number) => del<void>(`/api/settings/word-picker-presets/${id}`),
 };
 
 // Users

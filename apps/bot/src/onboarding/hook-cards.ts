@@ -13,6 +13,7 @@
  */
 import { classifyInput, getHookWords, logger, type SupportedLang } from "@polyglot/core";
 import { buildTranslationKeyboard, renderTranslation } from "../renderers/translation.renderer.js";
+import { resolveLockedFeatures } from "../scenes/helpers/paid-feature.helper.js";
 import { setTranslationEntry } from "../scenes/helpers/translation-map.helper.js";
 import type { BotContext } from "../types.js";
 import { resolveLanguageOrder } from "../utils/language-order.js";
@@ -90,7 +91,12 @@ export async function sendCachedDemoCard(
   );
   const cardMsg = await ctx.reply(body, { parse_mode: "HTML" });
 
-  const keyboard = buildTranslationKeyboard(opts.interfaceLang, cardMsg.message_id, false);
+  const keyboard = buildTranslationKeyboard({
+    interfaceLang: opts.interfaceLang,
+    msgId: cardMsg.message_id,
+    isAlreadySaved: false,
+    locked: await resolveLockedFeatures(ctx),
+  });
   await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
   if (ctx.session) {

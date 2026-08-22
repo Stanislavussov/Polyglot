@@ -17,6 +17,21 @@
       <template #cell-videoWindow="{ value }">
         <span>{{ value }}</span>
       </template>
+      <template #cell-price="{ value }">
+        <span>{{ value == null ? "—" : formatPrice(Number(value)) }}</span>
+      </template>
+      <template #cell-features="{ row }">
+        <span v-if="!(row.features as string[])?.length" class="text-gray-400">—</span>
+        <span v-else class="flex flex-wrap gap-1">
+          <span
+            v-for="key in (row.features as string[])"
+            :key="key"
+            class="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700"
+          >
+            {{ key }}
+          </span>
+        </span>
+      </template>
       <template #cell-isDefault="{ value }">
         <span
           v-if="value"
@@ -68,6 +83,13 @@
           name="videoLimit"
           placeholder="Leave empty for unlimited"
         />
+        <FormField
+          id="plan-price"
+          v-model="form.priceUsdCents"
+          label="Price, US cents / month"
+          name="priceUsdCents"
+          placeholder="Leave empty if the plan is not for sale (500 = $5)"
+        />
         <label class="block">
           <span class="mb-1 block text-sm font-medium text-gray-700">Video window</span>
           <select
@@ -118,6 +140,8 @@ interface PlanForm {
   creditCost: number;
   videoLimit: string;
   videoWindow: "none" | "lifetime" | "monthly";
+  /** Entered in cents so the stored value is exact; empty means "not for sale". */
+  priceUsdCents: string;
   isActive: boolean;
   isDefault: boolean;
   /**
@@ -134,6 +158,8 @@ const columns: Column[] = [
   { key: "translationLimit", label: "Translations/mo" },
   { key: "videoLimit", label: "Videos" },
   { key: "videoWindow", label: "Video window" },
+  { key: "price", label: "Price" },
+  { key: "features", label: "Unlocks" },
   { key: "creditCost", label: "Credit Cost" },
   { key: "isDefault", label: "Default" },
   { key: "isActive", label: "Status" },
@@ -148,7 +174,15 @@ const editingName = ref<string | null>(null);
 const deletingName = ref<string | null>(null);
 const form = ref<PlanForm>(emptyForm());
 
-const rows = computed<TableRow[]>(() => plans.value.map((plan) => ({ ...plan, actions: plan.name })));
+const rows = computed<TableRow[]>(() =>
+  plans.value.map((plan) => ({ ...plan, price: plan.priceUsdCents, actions: plan.name })),
+);
+
+/** `500` → `$5`, `1050` → `$10.50` — the same shape the bot shows on the upgrade screen. */
+function formatPrice(cents: number): string {
+  const dollars = cents / 100;
+  return `$${Number.isInteger(dollars) ? dollars : dollars.toFixed(2)}`;
+}
 
 function emptyForm(): PlanForm {
   return {
@@ -158,6 +192,7 @@ function emptyForm(): PlanForm {
     creditCost: 1,
     videoLimit: "",
     videoWindow: "none",
+    priceUsdCents: "",
     isActive: true,
     isDefault: false,
     aiModelId: null,
@@ -172,6 +207,7 @@ function toForm(plan: PlanLimitConfig): PlanForm {
     creditCost: plan.creditCost,
     videoLimit: plan.videoLimit === null ? "" : String(plan.videoLimit),
     videoWindow: plan.videoWindow,
+    priceUsdCents: plan.priceUsdCents === null ? "" : String(plan.priceUsdCents),
     isActive: plan.isActive,
     isDefault: plan.isDefault,
     aiModelId: plan.aiModelId,
@@ -186,6 +222,7 @@ function toPlan(value: PlanForm): PlanLimitConfig {
     creditCost: value.creditCost,
     videoLimit: value.videoLimit.trim() === "" ? null : Number(value.videoLimit),
     videoWindow: value.videoWindow,
+    priceUsdCents: value.priceUsdCents.trim() === "" ? null : Number(value.priceUsdCents),
     isActive: value.isActive,
     isDefault: value.isDefault,
     aiModelId: value.aiModelId,

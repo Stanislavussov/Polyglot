@@ -7,24 +7,28 @@ import { describe, expect, it } from "vitest";
 import { buildMainKeyboard, mainMenuLabels, matchMainMenuAction } from "./main-menu.js";
 
 describe("main menu keyboard", () => {
-  it("renders the three entry points on a single row, localized and icon-prefixed", () => {
+  it("gives the picker its own full-width row above the three everyday entry points", () => {
     const rows = buildMainKeyboard("ru")
       .build()
       .map((row) => row.map((button) => (typeof button === "string" ? button : button.text)));
 
-    // One row, no empty trailing row: a persistent keyboard costs chat space per row.
-    expect(rows).toEqual([["📖 Словарь", "🎴 Карточки", "🎬 Видео"]]);
+    // Two rows, no empty trailing row: every row costs chat space while the menu is open.
+    expect(rows).toEqual([["✨ Подобрать слова"], ["📖 Словарь", "🎴 Карточки", "🎬 Видео"]]);
   });
 
-  it("stays open instead of collapsing behind the keyboard icon", () => {
+  it("folds away after use instead of pinning itself to the bottom of the chat", () => {
     const kb = buildMainKeyboard("en");
 
-    expect(kb.is_persistent).toBe(true);
+    // Not persistent: a pinned keyboard costs the user screen space forever. It
+    // lives behind the keyboard icon next to the input field instead.
+    expect(kb.is_persistent).toBeUndefined();
+    expect(kb.one_time_keyboard).toBe(true);
     expect(kb.resize_keyboard).toBe(true);
   });
 
   it("matches a tap in every supported language back to its action", () => {
     for (const lang of getSupportedLangs()) {
+      expect(matchMainMenuAction(`✨ ${t("menuBtnPickWords", lang)}`)).toBe("pick");
       expect(matchMainMenuAction(`📖 ${t("menuBtnDictionary", lang)}`)).toBe("dictionary");
       expect(matchMainMenuAction(`🎴 ${t("menuBtnFlashcards", lang)}`)).toBe("flashcard");
       expect(matchMainMenuAction(`🎬 ${t("menuBtnVideos", lang)}`)).toBe("videos");

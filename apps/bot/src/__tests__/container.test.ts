@@ -96,6 +96,20 @@ vi.mock("@polyglot/adapter-db", () => ({
     cacheTranscript: vi.fn().mockResolvedValue(undefined),
     updateProcessStatus: vi.fn().mockResolvedValue(undefined),
   },
+  wordPickerPresetRepository: {
+    findById: vi.fn().mockResolvedValue(null),
+    findActiveForLangs: vi.fn().mockResolvedValue([]),
+  },
+  wordPickerRunRepository: {
+    createRun: vi.fn().mockResolvedValue({ id: 1 }),
+    saveItems: vi.fn().mockResolvedValue([]),
+    findRunById: vi.fn().mockResolvedValue(null),
+    findItemsByRun: vi.fn().mockResolvedValue([]),
+    findItemById: vi.fn().mockResolvedValue(null),
+    findUnsavedItemsByRun: vi.fn().mockResolvedValue([]),
+    markItemSaved: vi.fn().mockResolvedValue(undefined),
+    findWordsShownTo: vi.fn().mockResolvedValue([]),
+  },
   settingsAdapter: {
     getPlanLimits: vi.fn().mockResolvedValue([]),
     getPlanLimit: vi.fn().mockResolvedValue(null),
