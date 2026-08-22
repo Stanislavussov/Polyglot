@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-22T08:41:04.000Z",
+  "generatedAt": "2026-08-22T08:43:07.000Z",
   "summary": {
-    "total": 2734,
+    "total": 2744,
     "business": 0,
-    "technical": 2734,
+    "technical": 2744,
     "workspaces": [
       "apps",
       "packages"
@@ -949,6 +949,166 @@
       "name": "Admin API stats Routes defaults the language detection window to 7 days",
       "value": "Protects the admin API stats Routes behavior: defaults the language detection window to 7 days.",
       "description": "Protects the admin API stats Routes behavior: defaults the language detection window to 7 days."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-42-get-tts-serves-the-shared-default-when-nothing-is-stored",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 42,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "GET /tts"
+      ],
+      "title": "serves the shared default when nothing is stored",
+      "rawTitle": "serves the shared default when nothing is stored",
+      "name": "Admin API GET tts serves the shared default when nothing is stored",
+      "value": "Protects the admin API GET tts behavior so serves the shared default when nothing is stored.",
+      "description": "Protects the admin API GET tts behavior so serves the shared default when nothing is stored."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-53-get-tts-backfills-fields-missing-from-a-partial-stored-blob",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 53,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "GET /tts"
+      ],
+      "title": "backfills fields missing from a partial stored blob",
+      "rawTitle": "backfills fields missing from a partial stored blob",
+      "name": "Admin API GET tts backfills fields missing from a partial stored blob",
+      "value": "Protects the admin API GET tts behavior so backfills fields missing from a partial stored blob.",
+      "description": "Protects the admin API GET tts behavior so backfills fields missing from a partial stored blob."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-65-put-tts-persists-a-valid-config-under-the-tts-key",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 65,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /tts"
+      ],
+      "title": "persists a valid config under the tts key",
+      "rawTitle": "persists a valid config under the tts key",
+      "name": "Admin API PUT tts persists a valid config under the tts key",
+      "value": "Protects the admin API PUT tts behavior: persists a valid config under the tts key.",
+      "description": "Protects the admin API PUT tts behavior: persists a valid config under the tts key."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-75-put-tts-rejects-an-enabled-config-with-no-model-rather-than-storing-a-dead-feature",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 75,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /tts"
+      ],
+      "title": "rejects an enabled config with no model rather than storing a dead feature",
+      "rawTitle": "rejects an enabled config with no model rather than storing a dead feature",
+      "name": "Admin API PUT tts rejects an enabled config with no model rather than storing a dead feature",
+      "value": "Protects the admin API PUT tts behavior: rejects an enabled config with no model rather than storing a dead feature.",
+      "description": "Protects the admin API PUT tts behavior: rejects an enabled config with no model rather than storing a dead feature."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-90-get-tts-models-returns-speech-models-with-voices-and-a-per-million-character-price",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "GET /tts/models"
+      ],
+      "title": "returns speech models with voices and a per-million-character price",
+      "rawTitle": "returns speech models with voices and a per-million-character price",
+      "name": "Admin API GET tts models returns speech models with voices and a per million character price",
+      "value": "Protects the admin API GET tts models behavior: returns speech models with voices and a per million character price.",
+      "description": "Protects the admin API GET tts models behavior: returns speech models with voices and a per million character price."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-115-post-tts-probe-reports-success-with-the-size-and-content-type-of-what-came-back",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 115,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "POST /tts/probe"
+      ],
+      "title": "reports success with the size and content type of what came back",
+      "rawTitle": "reports success with the size and content type of what came back",
+      "name": "Admin API POST tts probe reports success with the size and content type of what came back",
+      "value": "Protects the admin API POST tts probe behavior: reports success with the size and content type of what came back.",
+      "description": "Protects the admin API POST tts probe behavior: reports success with the size and content type of what came back."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-137-post-tts-probe-surfaces-the-provider-s-own-rejection-instead-of-throwing",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 137,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "POST /tts/probe"
+      ],
+      "title": "surfaces the provider's own rejection instead of throwing",
+      "rawTitle": "surfaces the provider's own rejection instead of throwing",
+      "name": "Admin API POST tts probe surfaces the provider's own rejection instead of throwing",
+      "value": "Protects the admin API POST tts probe behavior so surfaces the provider's own rejection instead of throwing.",
+      "description": "Protects the admin API POST tts probe behavior so surfaces the provider's own rejection instead of throwing."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-155-post-tts-probe-fails-a-200-that-is-not-mp3-those-bytes-cannot-reach-telegram",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 155,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "POST /tts/probe"
+      ],
+      "title": "fails a 200 that is not mp3 — those bytes cannot reach Telegram",
+      "rawTitle": "fails a 200 that is not mp3 — those bytes cannot reach Telegram",
+      "name": "Admin API POST tts probe fails a 200 that is not mp3 — those bytes cannot reach Telegram",
+      "value": "Protects the admin API POST tts probe behavior so fails a 200 that is not mp3 — those bytes cannot reach Telegram.",
+      "description": "Protects the admin API POST tts probe behavior so fails a 200 that is not mp3 — those bytes cannot reach Telegram."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-170-post-tts-probe-omits-the-voice-field-entirely-for-models-that-have-none",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 170,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "POST /tts/probe"
+      ],
+      "title": "omits the voice field entirely for models that have none",
+      "rawTitle": "omits the voice field entirely for models that have none",
+      "name": "Admin API POST tts probe omits the voice field entirely for models that have none",
+      "value": "Protects the admin API POST tts probe behavior: omits the voice field entirely for models that have none.",
+      "description": "Protects the admin API POST tts probe behavior: omits the voice field entirely for models that have none."
+    },
+    {
+      "id": "apps-admin-api-src-routes-tts-test-ts-179-post-tts-probe-reports-a-transport-failure-as-data-rather-than-a-500",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/tts.test.ts",
+      "sourceLine": 179,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "POST /tts/probe"
+      ],
+      "title": "reports a transport failure as data rather than a 500",
+      "rawTitle": "reports a transport failure as data rather than a 500",
+      "name": "Admin API POST tts probe reports a transport failure as data rather than a 500",
+      "value": "Protects the admin API POST tts probe behavior: reports a transport failure as data rather than a 500.",
+      "description": "Protects the admin API POST tts probe behavior: reports a transport failure as data rather than a 500."
     },
     {
       "id": "apps-admin-api-src-routes-users-test-ts-73-userroutes-includes-audiencegroup-in-the-users-list",

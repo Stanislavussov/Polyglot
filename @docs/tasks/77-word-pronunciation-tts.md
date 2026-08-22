@@ -293,9 +293,25 @@ New keys in all 11 locale files under `packages/core/src/modules/i18n/locales/`
    `supported_voices` from the models API would allow a per-language choice.
 4. **Cache eviction** — `last_used_at` is indexed for it, but nothing prunes yet.
    Rows are small (a `file_id` and a word); this is not urgent.
-5. **Admin panel UI** for the `tts` settings blob — overriding the default is a
-   hand-written `system_settings` row today; a form belongs with the rest of the AI
-   settings screen.
+5. ~~**Admin panel UI** for the `tts` settings blob.~~ **Done.** `/settings` →
+   **Pronunciation**, backed by four endpoints under `/api/settings`:
+
+   | endpoint | purpose |
+   |---|---|
+   | `GET /tts` | current config, backfilled from the shared default |
+   | `PUT /tts` | save (rejects an enabled config with a blank model) |
+   | `GET /tts/models` | live OpenRouter speech catalogue with voices and price |
+   | `POST /tts/probe` | synthesize one word and report what actually came back |
+
+   The probe is the point of the screen, not a nicety. The models API cannot tell
+   you whether a model returns mp3 — the one property that decides whether its
+   output can reach Telegram — so without it an admin can only discover a
+   Gemini-style `response_format` rejection by shipping it. A 200 carrying
+   non-mp3 bytes is reported as a failure too, since those bytes are equally
+   unusable. The route reads its default from the shared `FALLBACK_TTS` rather
+   than re-declaring one, unlike `video-vocabulary`, which keeps a fourth copy of
+   its defaults in the route and is exactly the drift
+   `technical-debt-settings-registry.md` describes.
 6. **Gemini 3.1 Flash TTS via PCM.** Its 70+ language coverage and inline tags
    (`[whispers]`) are genuinely better than Grok's, and it is only excluded by the
    mp3 constraint. If ffmpeg ever enters the bot image for another reason, re-probe
