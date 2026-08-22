@@ -42,7 +42,8 @@ export async function ensurePaidFeature(ctx: BotContext, feature: FeatureKey, la
   }
   await ctx.answerCallbackQuery();
   // `lang` is passed by callers that already loaded settings, sparing the upgrade
-  // screen a second read of the same row.
-  await sendUpgradeScreen(ctx, lang);
+  // screen a second read of the same row. The feature travels with it so the offer
+  // can open by naming the button that just refused.
+  await sendUpgradeScreen(ctx, lang, feature);
   return false;
 }

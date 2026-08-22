@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-22T17:15:15.000Z",
+  "generatedAt": "2026-08-22T17:17:53.000Z",
   "summary": {
-    "total": 2793,
+    "total": 2799,
     "business": 0,
-    "technical": 2793,
+    "technical": 2799,
     "workspaces": [
       "apps",
       "packages"
@@ -2887,10 +2887,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so badges the paid buttons for a Free user and turns a tap into the priced plan comparison."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-140-paid-features-on-a-translation-card-integration-buys-plus-through-the-test-payment-confirmation-and-unlocks-clarify-but-not-pro-only-audio",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-143-paid-features-on-a-translation-card-integration-buys-plus-through-the-test-payment-confirmation-and-unlocks-clarify-but-not-pro-only-audio",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 140,
+      "sourceLine": 143,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2903,10 +2903,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so buys Plus through the test payment confirmation and unlocks clarify — but not Pro only audio."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-192-paid-features-on-a-translation-card-integration-upgrading-plus-pro-supersedes-the-old-subscription-and-unlocks-audio",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-200-paid-features-on-a-translation-card-integration-upgrading-plus-pro-supersedes-the-old-subscription-and-unlocks-audio",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 192,
+      "sourceLine": 200,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2919,10 +2919,26 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so upgrading Plus → Pro supersedes the old subscription and unlocks audio."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-221-paid-features-on-a-translation-card-integration-backing-out-of-the-test-payment-leaves-the-user-on-free",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-229-paid-features-on-a-translation-card-integration-tells-a-pro-subscriber-there-is-nothing-left-to-buy-instead-of-an-empty-menu",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 221,
+      "sourceLine": 229,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "paid features on a translation card (integration)"
+      ],
+      "title": "tells a Pro subscriber there is nothing left to buy instead of an empty menu",
+      "rawTitle": "tells a Pro subscriber there is nothing left to buy instead of an empty menu",
+      "name": "Bot paid features on a translation card (integration) tells a Pro subscriber there is nothing left to buy instead of an empty menu",
+      "value": "Protects the bot paid features on a translation card (integration) behavior so tells a Pro subscriber there is nothing left to buy instead of an empty menu.",
+      "description": "Protects the bot paid features on a translation card (integration) behavior so tells a Pro subscriber there is nothing left to buy instead of an empty menu."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-247-paid-features-on-a-translation-card-integration-backing-out-of-the-test-payment-leaves-the-user-on-free",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
+      "sourceLine": 247,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2935,10 +2951,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so backing out of the test payment leaves the user on Free."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-239-paid-features-on-a-translation-card-integration-stops-the-11th-translation-of-the-month-on-free-and-offers-the-upgrade",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-265-paid-features-on-a-translation-card-integration-stops-the-11th-translation-of-the-month-on-free-and-offers-the-upgrade",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 239,
+      "sourceLine": 265,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2951,10 +2967,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so stops the 11th translation of the month on Free and offers the upgrade."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-258-paid-features-on-a-translation-card-integration-refuses-a-hand-crafted-purchase-of-a-plan-that-is-not-for-sale",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-284-paid-features-on-a-translation-card-integration-refuses-a-hand-crafted-purchase-of-a-plan-that-is-not-for-sale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 258,
+      "sourceLine": 284,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10972,6 +10988,86 @@
       "name": "Bot restart recovery and ownership handle Dict Confirm Delete validates ownership before deleting",
       "value": "Protects the bot restart recovery and ownership behavior so handle Dict Confirm Delete validates ownership before deleting.",
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict Confirm Delete validates ownership before deleting."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-79-upgrade-screen-offers-a-plus-subscriber-only-the-rung-above-still-written-as-a-diff-from-plus",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 79,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "offers a Plus subscriber only the rung above, still written as a diff from Plus",
+      "rawTitle": "offers a Plus subscriber only the rung above, still written as a diff from Plus",
+      "name": "Bot upgrade screen offers a Plus subscriber only the rung above, still written as a diff from Plus",
+      "value": "Protects the bot upgrade screen behavior so offers a Plus subscriber only the rung above, still written as a diff from Plus.",
+      "description": "Protects the bot upgrade screen behavior so offers a Plus subscriber only the rung above, still written as a diff from Plus."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-91-upgrade-screen-opens-with-the-feature-that-refused-the-tap-and-the-cheapest-plan-carrying-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 91,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "opens with the feature that refused the tap and the cheapest plan carrying it",
+      "rawTitle": "opens with the feature that refused the tap and the cheapest plan carrying it",
+      "name": "Bot upgrade screen opens with the feature that refused the tap and the cheapest plan carrying it",
+      "value": "Protects the bot upgrade screen behavior so opens with the feature that refused the tap and the cheapest plan carrying it.",
+      "description": "Protects the bot upgrade screen behavior so opens with the feature that refused the tap and the cheapest plan carrying it."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-101-upgrade-screen-falls-back-to-the-generic-prompt-when-no-feature-refused-the-tap",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 101,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "falls back to the generic prompt when no feature refused the tap",
+      "rawTitle": "falls back to the generic prompt when no feature refused the tap",
+      "name": "Bot upgrade screen falls back to the generic prompt when no feature refused the tap",
+      "value": "Protects the bot upgrade screen behavior: falls back to the generic prompt when no feature refused the tap.",
+      "description": "Protects the bot upgrade screen behavior: falls back to the generic prompt when no feature refused the tap."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-110-upgrade-screen-tells-a-top-plan-subscriber-everything-is-unlocked-instead-of-showing-an-empty-menu",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 110,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "tells a top-plan subscriber everything is unlocked instead of showing an empty menu",
+      "rawTitle": "tells a top-plan subscriber everything is unlocked instead of showing an empty menu",
+      "name": "Bot upgrade screen tells a top plan subscriber everything is unlocked instead of showing an empty menu",
+      "value": "Protects the bot upgrade screen behavior so tells a top plan subscriber everything is unlocked instead of showing an empty menu.",
+      "description": "Protects the bot upgrade screen behavior so tells a top plan subscriber everything is unlocked instead of showing an empty menu."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-119-upgrade-screen-stays-calm-when-no-plan-is-priced-yet-a-catalogue-state-the-user-did-not-cause",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 119,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "stays calm when no plan is priced yet — a catalogue state the user did not cause",
+      "rawTitle": "stays calm when no plan is priced yet — a catalogue state the user did not cause",
+      "name": "Bot upgrade screen stays calm when no plan is priced yet — a catalogue state the user did not cause",
+      "value": "Protects the bot upgrade screen behavior so stays calm when no plan is priced yet — a catalogue state the user did not cause.",
+      "description": "Protects the bot upgrade screen behavior so stays calm when no plan is priced yet — a catalogue state the user did not cause."
     },
     {
       "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-220-translate-phase-timing-metrics-observes-every-phase-exactly-once-on-a-happy-path-translate",
