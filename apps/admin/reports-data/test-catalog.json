@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-22T10:24:15.000Z",
+  "generatedAt": "2026-08-22T11:02:57.000Z",
   "summary": {
-    "total": 2754,
+    "total": 2759,
     "business": 0,
-    "technical": 2754,
+    "technical": 2759,
     "workspaces": [
       "apps",
       "packages"
@@ -12295,6 +12295,86 @@
       "name": "Bot handle Src Lang Override Callback does not crash or retranslate when the forced source cannot resolve a direction",
       "value": "Protects the bot handle Src Lang Override Callback behavior: does not crash or retranslate when the forced source cannot resolve a direction.",
       "description": "Protects the bot handle Src Lang Override Callback behavior: does not crash or retranslate when the forced source cannot resolve a direction."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-10-pending-out-of-set-store-stores-the-prompt-s-word-keyed-by-its-message-id",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 10,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "stores the prompt's word keyed by its message id",
+      "rawTitle": "stores the prompt's word keyed by its message id",
+      "name": "Bot pending out of set store stores the prompt's word keyed by its message id",
+      "value": "Protects the bot pending out of set store behavior: stores the prompt's word keyed by its message id.",
+      "description": "Protects the bot pending out of set store behavior: stores the prompt's word keyed by its message id."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-18-pending-out-of-set-store-keeps-two-concurrent-prompts-from-cross-wiring-language-and-word",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 18,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "keeps two concurrent prompts from cross-wiring language and word",
+      "rawTitle": "keeps two concurrent prompts from cross-wiring language and word",
+      "name": "Bot pending out of set store keeps two concurrent prompts from cross wiring language and word",
+      "value": "Protects the bot pending out of set store behavior: keeps two concurrent prompts from cross wiring language and word.",
+      "description": "Protects the bot pending out of set store behavior: keeps two concurrent prompts from cross wiring language and word."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-28-pending-out-of-set-store-evicts-the-oldest-prompts-past-the-cap-so-ignored-prompts-cannot-inflate-the-session-row",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 28,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row",
+      "rawTitle": "evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row",
+      "name": "Bot pending out of set store evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row",
+      "value": "Protects the bot pending out of set store behavior so evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row.",
+      "description": "Protects the bot pending out of set store behavior so evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-43-pending-out-of-set-store-never-evicts-the-prompt-just-added-when-message-ids-restart-low",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 43,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "never evicts the prompt just added when message ids restart low",
+      "rawTitle": "never evicts the prompt just added when message ids restart low",
+      "name": "Bot pending out of set store never evicts the prompt just added when message ids restart low",
+      "value": "Protects the bot pending out of set store behavior so never evicts the prompt just added when message ids restart low.",
+      "description": "Protects the bot pending out of set store behavior so never evicts the prompt just added when message ids restart low."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-56-pending-out-of-set-store-purges-legacy-unstamped-entries-first-so-a-polluted-map-self-heals",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 56,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "purges legacy unstamped entries first so a polluted map self-heals",
+      "rawTitle": "purges legacy unstamped entries first so a polluted map self-heals",
+      "name": "Bot pending out of set store purges legacy unstamped entries first so a polluted map self heals",
+      "value": "Protects the bot pending out of set store behavior so purges legacy unstamped entries first so a polluted map self heals.",
+      "description": "Protects the bot pending out of set store behavior so purges legacy unstamped entries first so a polluted map self heals."
     },
     {
       "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-128-handleregenloop-saves-to-dictionary-on-tr-save-with-normalized-vocabulary-input",
