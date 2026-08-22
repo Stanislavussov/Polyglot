@@ -21,6 +21,7 @@ export interface BotCommand {
  */
 const COMMAND_ICONS = {
   start: "🚀",
+  pick: "✨",
   translate: "🔤",
   dictionary: "📖",
   flashcard: "🎴",
@@ -37,7 +38,7 @@ const COMMAND_ICONS = {
  * Returns the bot commands with descriptions localized to the given language,
  * each prefixed with its icon from {@link COMMAND_ICONS}.
  *
- * The everyday entry points — dictionary, flash cards, videos — are also on the
+ * The everyday entry points — pick words, dictionary, flash cards, videos — are also on the
  * persistent reply keyboard (`utils/main-menu.ts`), which is where a user is meant
  * to tap them. They stay listed here as the fallback path: a reply keyboard lives
  * on the message that delivered it, so clearing the chat history or deleting that
@@ -48,6 +49,7 @@ export function getLocalizedCommands(lang: SupportedLang, options: { includeChan
   const commands = [
     { command: "start", description: `${COMMAND_ICONS.start} ${t("cmdDescStart", lang)}` },
     { command: "translate", description: `${COMMAND_ICONS.translate} ${t("cmdDescTranslate", lang)}` },
+    { command: "pick", description: `${COMMAND_ICONS.pick} ${t("cmdDescPick", lang)}` },
     { command: "dictionary", description: `${COMMAND_ICONS.dictionary} ${t("cmdDescDictionary", lang)}` },
     { command: "flashcard", description: `${COMMAND_ICONS.flashcard} ${t("cmdDescFlashcard", lang)}` },
     { command: "videos", description: `${COMMAND_ICONS.videos} ${t("cmdDescVideos", lang)}` },

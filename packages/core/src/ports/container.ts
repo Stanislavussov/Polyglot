@@ -22,6 +22,7 @@ import type { UserRepository } from "./user.repository.js";
 import type { VideoVocabularyRepository } from "./video-vocabulary.repository.js";
 import type { VocabularyRepository } from "./vocabulary.repository.js";
 import type { VocabularyDictionaryRepository } from "./vocabulary-dictionary.repository.js";
+import type { WordPickerPresetRepository, WordPickerRunRepository } from "./word-picker.repository.js";
 import type { WordReviewRepository } from "./word-review.repository.js";
 
 /**
@@ -55,6 +56,10 @@ export interface ServiceContainer {
   featureAccess?: FeatureAccessPort;
   /** Always populated by the composition root (`container.ts`) — not gated behind a feature flag. */
   videoVocabularyRepository: VideoVocabularyRepository;
+  /** Curated word-picker angles authored in the admin panel. */
+  wordPickerPresetRepository: WordPickerPresetRepository;
+  /** Generated word-picker sets and the items in them. */
+  wordPickerRunRepository: WordPickerRunRepository;
   paymentPort?: PaymentPort;
   subscriptionRepository?: SubscriptionRepository;
 }

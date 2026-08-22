@@ -6,7 +6,9 @@ import {
   closeDb,
   planFeatureAccessRepository,
   rateLimitPlanRepository,
+  wordPickerPresetRepository,
 } from "@polyglot/adapter-db";
+import { DEFAULT_WORD_PICKER_PRESETS } from "@polyglot/core";
 import bcrypt from "bcryptjs";
 import { config as dotenvConfig } from "dotenv";
 
@@ -105,6 +107,29 @@ async function seed() {
     // biome-ignore lint/suspicious/noConsole: CLI script output
     console.log(`AI model catalog already holds ${existingModels.length} model(s) — left untouched`);
   }
+
+  // Word-picker angles ship as data, not code: the bot reads them from the DB and
+  // the admin panel owns them from then on. Inserted per slug and never updated,
+  // so an angle an admin has rewritten (or deliberately deleted) is not resurrected
+  // or overwritten by the next deploy's seed run.
+  let insertedAngles = 0;
+  for (const preset of DEFAULT_WORD_PICKER_PRESETS) {
+    const inserted = await wordPickerPresetRepository.insertIfMissing({
+      slug: preset.slug,
+      emoji: preset.emoji,
+      title: preset.title,
+      titleI18n: preset.titleI18n,
+      prompt: preset.prompt,
+      learningLangs: [],
+      sortOrder: preset.sortOrder,
+      isActive: true,
+    });
+    if (inserted) insertedAngles++;
+  }
+  // biome-ignore lint/suspicious/noConsole: CLI script output
+  console.log(
+    `Word-picker angles: ${insertedAngles} added, ${DEFAULT_WORD_PICKER_PRESETS.length - insertedAngles} already present`,
+  );
 
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
