@@ -83,6 +83,17 @@ jobs:
 
             docker compose -f docker-compose.monitoring.yml up -d --remove-orphans
 
+            # Every config this workflow ships (prometheus.yml, Grafana
+            # provisioning, loki/promtail configs) is bind-mounted and read once
+            # at process startup — and `up -d` does not recreate a container
+            # when only mounted file *contents* changed. A config-only push
+            # (this workflow's main trigger) was therefore a silent no-op for
+            # the running stack: the deleteRules block removing
+            # polyglot_bot_update_silence sat unread on disk while the deleted
+            # rule kept paging (2026-08-22). Restart forces a re-read; it does
+            # not recreate containers, so the env exported above stays intact.
+            docker compose -f docker-compose.monitoring.yml restart
+
             # Dangling-only. `-a` prunes host-wide and deletes the app stack's
             # previous release image — the one deploy.yml records in
             # PREVIOUS_RELEASE for rollback — so this workflow silently undid the
