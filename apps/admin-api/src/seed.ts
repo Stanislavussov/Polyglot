@@ -15,9 +15,12 @@ dotenvConfig({ path: resolve(__dirname, "../../../.env") });
 
 async function seed() {
   // Task 79 tier matrix. Free is translation-only; Plus adds the clarify/other-meaning
-  // pair and monthly video; Pro is the only plan with word audio (TTS), the most
-  // expensive thing on a card. Numbers are seed defaults — admins retune them in the
-  // panel, and the resolver reads them from the DB on every check.
+  // pair, unmetered translation and monthly video; Pro is the only plan with word
+  // audio (TTS), the most expensive thing on a card. Plus is unmetered on purpose:
+  // the tier is priced on the assumption that a typical subscriber never approaches
+  // a cap, so the heavy user is covered by the many who are not. Numbers are seed
+  // defaults — admins retune them in the panel, and the resolver reads them from the
+  // DB on every check.
   const GRAMMAR_FEATURES = ["grammarBreakdown", "etymology", "grammarDetail"];
   const PLUS_FEATURES = [...GRAMMAR_FEATURES, "clarification"];
   const PRO_FEATURES = [...PLUS_FEATURES, "pronunciation"];
@@ -38,9 +41,9 @@ async function seed() {
     {
       name: "plus",
       label: "Plus",
-      translationLimit: 200,
+      translationLimit: null,
       creditCost: 1,
-      videoLimit: 10,
+      videoLimit: 20,
       videoWindow: "monthly" as const,
       priceUsdCents: 500,
       isActive: true,

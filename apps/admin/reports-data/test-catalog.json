@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-22T16:00:19.000Z",
+  "generatedAt": "2026-08-22T16:42:01.000Z",
   "summary": {
     "total": 2782,
     "business": 0,
@@ -2887,10 +2887,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so badges the paid buttons for a Free user and turns a tap into the priced plan comparison."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-130-paid-features-on-a-translation-card-integration-buys-plus-through-the-test-payment-confirmation-and-unlocks-clarify-but-not-pro-only-audio",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-140-paid-features-on-a-translation-card-integration-buys-plus-through-the-test-payment-confirmation-and-unlocks-clarify-but-not-pro-only-audio",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 130,
+      "sourceLine": 140,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2903,10 +2903,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so buys Plus through the test payment confirmation and unlocks clarify — but not Pro only audio."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-182-paid-features-on-a-translation-card-integration-upgrading-plus-pro-supersedes-the-old-subscription-and-unlocks-audio",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-192-paid-features-on-a-translation-card-integration-upgrading-plus-pro-supersedes-the-old-subscription-and-unlocks-audio",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 182,
+      "sourceLine": 192,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2919,10 +2919,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so upgrading Plus → Pro supersedes the old subscription and unlocks audio."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-211-paid-features-on-a-translation-card-integration-backing-out-of-the-test-payment-leaves-the-user-on-free",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-221-paid-features-on-a-translation-card-integration-backing-out-of-the-test-payment-leaves-the-user-on-free",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 211,
+      "sourceLine": 221,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2935,10 +2935,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so backing out of the test payment leaves the user on Free."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-229-paid-features-on-a-translation-card-integration-stops-the-11th-translation-of-the-month-on-free-and-offers-the-upgrade",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-239-paid-features-on-a-translation-card-integration-stops-the-11th-translation-of-the-month-on-free-and-offers-the-upgrade",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 229,
+      "sourceLine": 239,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2951,10 +2951,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so stops the 11th translation of the month on Free and offers the upgrade."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-248-paid-features-on-a-translation-card-integration-refuses-a-hand-crafted-purchase-of-a-plan-that-is-not-for-sale",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-258-paid-features-on-a-translation-card-integration-refuses-a-hand-crafted-purchase-of-a-plan-that-is-not-for-sale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 248,
+      "sourceLine": 258,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -26225,7 +26225,7 @@
       "description": "Protects the core domain resolve Entitlements behavior so gives free (product) 10 translations month, no video, no features."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-19-resolveentitlements-gives-plus-200-translations-10-monthly-videos-premium-features-clarification",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-19-resolveentitlements-gives-plus-unlimited-translations-20-monthly-videos-premium-features-clarification",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
       "sourceLine": 19,
@@ -26234,11 +26234,11 @@
       "suitePath": [
         "resolveEntitlements"
       ],
-      "title": "gives plus 200 translations, 10 monthly videos, premium features + clarification",
-      "rawTitle": "gives plus 200 translations, 10 monthly videos, premium features + clarification",
-      "name": "Core domain resolve Entitlements gives plus 200 translations, 10 monthly videos, premium features + clarification",
-      "value": "Protects the core domain resolve Entitlements behavior so gives plus 200 translations, 10 monthly videos, premium features + clarification.",
-      "description": "Protects the core domain resolve Entitlements behavior so gives plus 200 translations, 10 monthly videos, premium features + clarification."
+      "title": "gives plus unlimited translations, 20 monthly videos, premium features + clarification",
+      "rawTitle": "gives plus unlimited translations, 20 monthly videos, premium features + clarification",
+      "name": "Core domain resolve Entitlements gives plus unlimited translations, 20 monthly videos, premium features + clarification",
+      "value": "Protects the core domain resolve Entitlements behavior so gives plus unlimited translations, 20 monthly videos, premium features + clarification.",
+      "description": "Protects the core domain resolve Entitlements behavior so gives plus unlimited translations, 20 monthly videos, premium features + clarification."
     },
     {
       "id": "packages-core-src-modules-entitlements-entitlements-test-ts-34-resolveentitlements-gives-pro-the-pronunciation-feature-on-top-of-the-plus-set",

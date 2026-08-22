@@ -36,9 +36,9 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
   {
     name: "plus",
     label: "Plus",
-    translationLimit: 200,
+    translationLimit: null,
     creditCost: 1,
-    videoLimit: 10,
+    videoLimit: 20,
     videoWindow: "monthly",
     priceUsdCents: 500,
     isActive: true,

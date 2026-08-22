@@ -17,9 +17,9 @@ const PLAN_CONFIGS: Record<string, PlanLimitConfig> = {
   plus: {
     name: "plus",
     label: "Plus",
-    translationLimit: 200,
+    translationLimit: null,
     creditCost: 1,
-    videoLimit: 10,
+    videoLimit: 20,
     videoWindow: "monthly",
     priceUsdCents: 500,
     isActive: true,

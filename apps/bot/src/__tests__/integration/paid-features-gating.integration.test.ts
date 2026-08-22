@@ -123,6 +123,16 @@ describe("paid features on a translation card (integration)", () => {
     expect(upsell).toContain("$10");
     expect(lastMessageButtons(harness)).toEqual(["plan:buy:plus", "plan:buy:pro"]);
 
+    // The offer reads as a ladder: Plus lists what it includes, Pro only what it
+    // adds on top. Nothing a Plus subscriber already has is restated under Pro.
+    expect(upsell).toContain("Unlimited translations");
+    expect(upsell).toContain("Everything in Plus");
+    expect(upsell).toContain("Word audio");
+    expect(upsell.match(/Grammar and etymology/g)).toHaveLength(1);
+    // Video is sold by what it produces, and no paid tier advertises a quota.
+    expect(upsell).toContain("Vocabulary from YouTube videos");
+    expect(upsell).not.toMatch(/\d+ videos/);
+
     // Assert — nothing was bought by merely looking at the offer.
     expect(await subscriptionRepository.findActiveByUser(userId)).toBeNull();
   });

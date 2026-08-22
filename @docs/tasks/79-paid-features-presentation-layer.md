@@ -17,10 +17,10 @@ Already in place (do not rebuild): `PaymentPort` + `mockPaymentAdapter` (`apps/b
 
 | | **Free** | **Plus — $5/mo** | **Pro — $10/mo** |
 |---|---|---|---|
-| Translations | **10 / month** | 200 / month | unlimited |
+| Translations | **10 / month** | unlimited | unlimited |
 | Save word | ✅ | ✅ | ✅ |
 | Clarify translation / other meaning | 🔒 | ✅ | ✅ |
-| YouTube video vocabulary | 🔒 (0) | ✅ 10 / month | ✅ unlimited |
+| YouTube video vocabulary | 🔒 (0) | ✅ (20 / month, not advertised) | ✅ unlimited |
 | Word pronunciation (TTS audio) | 🔒 | 🔒 | ✅ |
 | Grammar breakdown / etymology / grammar detail | 🔒 | ✅ | ✅ (unchanged from current seed) |
 
@@ -61,7 +61,7 @@ Rules: no handler ever asks "did the user pay?" — only `checkFeatureAccess(sub
 1. Schema: add `priceUsdCents: integer` (nullable; null = free/not for sale) to `rate_limit_plans`. **Display-only** — real billing will use immutable `plan_prices` per tech-req 16 §4.1; this column feeds the upsell screen until then. `pnpm db:generate` → review → `pnpm db:push` (dev), migration applied by CI on master.
 4. Update `apps/admin-api/src/seed.ts` (idempotent upsert):
    - `free`: translationLimit 10, videoLimit 0, videoWindow `none`, price null, features `[]`
-   - `plus`: translationLimit 200, videoLimit 10, videoWindow `monthly`, price 500, features = existing PREMIUM + `clarification`
+   - `plus`: translationLimit null, videoLimit 20, videoWindow `monthly`, price 500, features = existing PREMIUM + `clarification`
    - `pro`: translationLimit null, videoLimit null, price 1000, features = plus + `pronunciation`
    - `unlimited`: unchanged + both new keys.
 3. Note: `db:push` syncs schema only; the seed must be run against dev, and prod picks it up via the deploy path already used for plan seeds.
@@ -101,7 +101,7 @@ Real Stars/fiat payments, renewals UX, refunds, `plan_prices` versioning, dunnin
 
 ## 6. Open items
 
-- Exact Plus limits (200 translations / 10 videos are placeholders — admin-tunable data).
+- Exact Plus limits (unmetered translation, 20 videos — admin-tunable data). The paid tiers state no video quota on the upgrade screen; the cap exists only in the plan data.
 - Whether grammar/etymology stay bundled in both paid tiers (kept as today; revisit with pricing).
 - Copy/tone for "test payment" labeling until Stars go live.
 - **Seed must run for the new plan values to take effect.** `db:push` only adds the column; the tier matrix and prices land when `pnpm admin:seed` runs (CI does this on deploy, `deploy.yml`). Until then an environment keeps its old plan rows and the upgrade screen has no priced plans to offer.

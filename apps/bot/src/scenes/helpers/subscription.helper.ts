@@ -99,7 +99,16 @@ function planPrice(plan: PurchasablePlan, lang: SupportedLang): string {
   return t("planPricePerMonth", lang, { price: formatPrice(plan.priceUsdCents) });
 }
 
-/** What a plan buys, as bullet lines — limits first, then the card features it unlocks. */
+/**
+ * What a plan buys, as bullet lines — limits first, then the card features it
+ * unlocks.
+ *
+ * The video line deliberately carries no number. A paid plan's video allowance is
+ * a ceiling almost nobody reaches, and printing it turns a feature into a budget
+ * the reader starts planning around; what sells the feature is what it produces —
+ * a vocabulary list out of a YouTube video. A plan with no video access still
+ * shows nothing at all.
+ */
 function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
   const bullets: string[] = [
     plan.translationLimit === null
@@ -108,11 +117,7 @@ function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
   ];
 
   if (plan.videoWindow !== "none" && plan.videoLimit !== 0) {
-    bullets.push(
-      plan.videoLimit === null
-        ? t("planLineVideoUnlimited", lang)
-        : t("planLineVideo", lang, { count: String(plan.videoLimit) }),
-    );
+    bullets.push(t("planLineVideo", lang));
   }
 
   if (plan.features.has(FEATURE_KEYS.clarification)) {
@@ -133,10 +138,26 @@ function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
   return bullets;
 }
 
+/**
+ * Plans render cheapest-first, and every plan after the first is written as the
+ * difference from the one below it: "Everything in Plus" plus the lines that plan
+ * does not already have. A reader comparing tiers only wants to know what the
+ * extra money buys, and a second full list makes them diff two paragraphs to find
+ * out. A tier that adds only a limit increase (nothing new to name) collapses to
+ * the inclusion line alone, which is the honest rendering of that tier.
+ */
 function renderUpgradeScreen(plans: PurchasablePlan[], lang: SupportedLang): string {
-  const blocks = plans.map((plan) => {
+  const blocks = plans.map((plan, index) => {
     const header = `${planEmoji(plan.name)} <b>${plan.label}</b> — ${planPrice(plan, lang)}`;
-    return [header, ...planBullets(plan, lang).map((line) => `• ${line}`)].join("\n");
+    const cheaper = plans[index - 1];
+    const bullets = planBullets(plan, lang);
+    const lines = cheaper
+      ? [
+          t("planLineEverythingIn", lang, { plan: cheaper.label }),
+          ...bullets.filter((line) => !planBullets(cheaper, lang).includes(line)),
+        ]
+      : bullets;
+    return [header, ...lines.map((line) => `• ${line}`)].join("\n");
   });
 
   return [t("upgradePrompt", lang), ...blocks, `<i>${t("upgradeTestPaymentNote", lang)}</i>`].join("\n\n");
