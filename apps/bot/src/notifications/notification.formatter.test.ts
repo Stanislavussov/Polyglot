@@ -8,18 +8,33 @@ vi.mock("@polyglot/core", async () => {
   return {
     ...actual,
     getLangFlag: (code: string) => {
-      const flags: Record<string, string> = { en: "🇬🇧", cs: "🇨🇿", ru: "🇷🇺" };
+      const flags: Record<string, string> = { en: "🇬🇧", cs: "🇨🇿", ru: "🇷🇺", de: "🇩🇪" };
       return flags[code];
     },
   };
 });
 
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
+import { createLanguageOrderContext, type LanguageOrderContext } from "@polyglot/core";
 import {
   buildNotificationKeyboard,
   buildNotificationRevealedKeyboard,
   formatNotificationMessage,
 } from "./notification.formatter.js";
+
+/** A `ru`-native user studying Czech, then German. */
+const ruNative: LanguageOrderContext = createLanguageOrderContext({
+  nativeLang: "ru",
+  learningLangs: ["cs", "de"],
+});
+
+/** A user who has chosen nothing — ranks everything by code. */
+const noPreference: LanguageOrderContext = createLanguageOrderContext({ learningLangs: [] });
+
+/** Content lines only; blank separators are layout, not content. */
+function contentLines(msg: string): string[] {
+  return msg.split("\n").filter((l) => l.trim() !== "");
+}
 
 describe("formatNotificationMessage", () => {
   const srsPayload: NotificationPayload = {
@@ -32,7 +47,6 @@ describe("formatNotificationMessage", () => {
       source: "srs",
       entryId: 42,
     },
-    message: "pre-built message",
   };
 
   const suggestedPayload: NotificationPayload = {
@@ -43,36 +57,80 @@ describe("formatNotificationMessage", () => {
       translations: { en: "garden" },
       source: "suggested",
     },
-    message: "pre-built message",
   };
 
   it("renders emoji and original word in bold", () => {
-    const msg = formatNotificationMessage(srsPayload, "en");
+    const msg = formatNotificationMessage(srsPayload, "en", ruNative);
     expect(msg).toContain("🏠 <b>house</b>");
   });
 
   it("shows SRS source label for dictionary words", () => {
-    const msg = formatNotificationMessage(srsPayload, "en");
+    const msg = formatNotificationMessage(srsPayload, "en", ruNative);
     expect(msg).toMatch(/dictionary|dict/i);
   });
 
   it("shows AI source label for suggested words", () => {
-    const msg = formatNotificationMessage(suggestedPayload, "en");
+    const msg = formatNotificationMessage(suggestedPayload, "en", noPreference);
     expect(msg).toMatch(/AI|suggestion/i);
   });
 
-  it("renders translations with flag emojis", () => {
-    const msg = formatNotificationMessage(srsPayload, "en");
-    expect(msg).toContain("🇨🇿 CS: dům");
-    expect(msg).toContain("🇷🇺 RU: дом");
-  });
-
   it("renders persisted native meaning when available", () => {
-    const msg = formatNotificationMessage(srsPayload, "en");
+    const msg = formatNotificationMessage(srsPayload, "en", ruNative);
     expect(msg).toContain("A building where people live.");
   });
 
-  it("renders synonyms under translation when translationDetails present", () => {
+  // ── Section order ──────────────────────────────────────────────
+  // The reported defect: the reader's own language landed on line 6, below the
+  // stored meaning and two lines of chrome, so the card read as "my language
+  // last". These assert the sequence, not mere presence.
+
+  it("puts the native answer directly after the headword, above the meaning", () => {
+    const lines = contentLines(formatNotificationMessage(srsPayload, "en", ruNative));
+    const headword = lines.findIndex((l) => l.includes("house"));
+    const answer = lines.findIndex((l) => l.includes("дом"));
+    const meaning = lines.findIndex((l) => l.includes("A building"));
+
+    expect(answer).toBe(headword + 1);
+    expect(answer).toBeLessThan(meaning);
+  });
+
+  it("orders the whole card headword → answer → meaning → other languages", () => {
+    const lines = contentLines(formatNotificationMessage(srsPayload, "en", ruNative));
+
+    expect(lines.findIndex((l) => l.includes("house"))).toBeLessThan(lines.findIndex((l) => l.includes("дом")));
+    expect(lines.findIndex((l) => l.includes("дом"))).toBeLessThan(lines.findIndex((l) => l.includes("A building")));
+    expect(lines.findIndex((l) => l.includes("A building"))).toBeLessThan(lines.findIndex((l) => l.includes("dům")));
+  });
+
+  it("keeps the provenance label above the headword so it does not compete with the answer", () => {
+    const lines = contentLines(formatNotificationMessage(srsPayload, "en", ruNative));
+    expect(lines.findIndex((l) => /dictionary/i.test(l))).toBeLessThan(lines.findIndex((l) => l.includes("house")));
+  });
+
+  // Migrated from scheduler.test.ts, where it guarded the scheduler's re-keying.
+  // That re-keying is gone: the order is now derived here, at render time, so
+  // this is where the regression must be caught.
+  it("orders by the user's languages even when the record arrives alphabetized", () => {
+    const payload: NotificationPayload = {
+      hour: 8,
+      // As a jsonb round-trip returns it — alphabetical, native last.
+      word: { original: "Haus", emoji: "🏠", translations: { cs: "dům", de: "Haus", ru: "дом" }, source: "srs" },
+    };
+    const lines = contentLines(formatNotificationMessage(payload, "en", ruNative));
+
+    // ru (native) first, then cs, then de — the user's own order, not the record's.
+    expect(lines.findIndex((l) => l.includes("дом"))).toBeLessThan(lines.findIndex((l) => l.includes("dům")));
+    expect(lines.findIndex((l) => l.includes("dům"))).toBeLessThan(lines.findIndex((l) => l.includes("🇩🇪")));
+  });
+
+  it("bolds the answer and leaves secondary languages plain", () => {
+    const msg = formatNotificationMessage(srsPayload, "en", ruNative);
+    expect(msg).toContain("🇷🇺 <b>дом</b>");
+    expect(msg).toContain("🇨🇿 dům");
+    expect(msg).not.toContain("<b>dům</b>");
+  });
+
+  it("renders synonyms inline on the answer", () => {
     const payload: NotificationPayload = {
       hour: 8,
       word: {
@@ -85,27 +143,32 @@ describe("formatNotificationMessage", () => {
         },
         source: "srs",
       },
-      message: "",
     };
-    const msg = formatNotificationMessage(payload, "en");
-    expect(msg).toContain("≈ начинающий, зарождающийся");
-    expect(msg).toContain("≈ nastávající");
+    const msg = formatNotificationMessage(payload, "en", ruNative);
+
+    expect(msg).toContain("🇷🇺 <b>незрелый</b> (начинающий, зарождающийся)");
+    // Secondary languages stay to one line — the detail is a "Reveal" tap away.
+    expect(msg).toContain("🇨🇿 počínající");
+    expect(msg).not.toContain("nastávající");
   });
 
-  it("omits synonym line when no translationDetails for a language", () => {
+  it("keeps the language code when no flag resolves, so the language stays identifiable", () => {
     const payload: NotificationPayload = {
       hour: 8,
-      word: {
-        original: "test",
-        emoji: "📝",
-        translations: { en: "test", ru: "тест" },
-        translationDetails: { ru: { synonyms: ["проверка"] } },
-      },
-      message: "",
+      word: { original: "test", emoji: "📝", translations: { xx: "test" } },
     };
-    const msg = formatNotificationMessage(payload, "en");
-    expect(msg).toContain("≈ проверка");
-    expect(msg).not.toMatch(/≈.*test/);
+    const msg = formatNotificationMessage(payload, "en", noPreference);
+    expect(msg).toContain("🔤 XX: <b>test</b>");
+  });
+
+  it("escapes HTML entities in original word", () => {
+    const payload: NotificationPayload = {
+      hour: 8,
+      word: { original: "a <b> & c", emoji: "📝", translations: { en: "test" } },
+    };
+    const msg = formatNotificationMessage(payload, "en", noPreference);
+    expect(msg).toContain("a &lt;b&gt; &amp; c");
+    expect(msg).not.toContain("<b> &");
   });
 
   it("escapes HTML entities in synonyms", () => {
@@ -117,44 +180,18 @@ describe("formatNotificationMessage", () => {
         translations: { en: "test" },
         translationDetails: { en: { synonyms: ["a <b> & c"] } },
       },
-      message: "",
     };
-    const msg = formatNotificationMessage(payload, "en");
+    const msg = formatNotificationMessage(payload, "en", noPreference);
     expect(msg).toContain("a &lt;b&gt; &amp; c");
   });
 
-  it("uses fallback flag for unknown languages", () => {
+  it("renders a card with no translations without throwing", () => {
     const payload: NotificationPayload = {
       hour: 8,
-      word: {
-        original: "test",
-        emoji: "📝",
-        translations: { xx: "test" },
-      },
-      message: "",
+      word: { original: "orphan", emoji: "📝", translations: {} },
     };
-    const msg = formatNotificationMessage(payload, "en");
-    expect(msg).toContain("🔤 XX: test");
-  });
-
-  it("escapes HTML entities in original word", () => {
-    const payload: NotificationPayload = {
-      hour: 8,
-      word: {
-        original: "a <b> & c",
-        emoji: "📝",
-        translations: { en: "test" },
-      },
-      message: "",
-    };
-    const msg = formatNotificationMessage(payload, "en");
-    expect(msg).toContain("a &lt;b&gt; &amp; c");
-    expect(msg).not.toContain("<b> &");
-  });
-
-  it("includes translations header from i18n", () => {
-    const msg = formatNotificationMessage(srsPayload, "en");
-    expect(msg).toMatch(/translation/i);
+    const msg = formatNotificationMessage(payload, "en", ruNative);
+    expect(msg).toContain("orphan");
   });
 });
 

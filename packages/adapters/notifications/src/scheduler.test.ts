@@ -115,57 +115,29 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
 // ─────────────────────────────────────────────
 
 describe("buildNotificationPayload", () => {
-  it("builds a payload with user's preferred time", () => {
-    const payload = buildNotificationPayload(mockUser, mockDictWord, mockT);
+  it("carries the picked word through unchanged", () => {
+    const payload = buildNotificationPayload(mockUser, mockDictWord);
 
     expect(payload.hour).toBe(8);
-    // The payload carries a re-keyed copy, not the picker's object: translations
-    // are rebuilt in the user's language order so the bot-side formatter, which
-    // receives this word by reference, renders them in that order too.
+    // Data only. Rendering — and the language order it is rendered in — belongs
+    // to the channel adapter, which derives the order from the user's settings
+    // at send time. See notification.formatter.test.ts for that guarantee.
     expect(payload.word).toEqual(mockDictWord);
-    expect(payload.message).toContain("🏠");
-    expect(payload.message).toContain("<b>house</b>");
-    expect(payload.message).toContain("From your dictionary");
-    expect(payload.message).toContain("dům");
-    expect(payload.message).toContain("Haus");
-  });
-
-  it("orders the payload's translations by the user's learning languages, not alphabetically", () => {
-    // The picker's record is alphabetical (cs, de); this user studies de first.
-    const user = { ...mockUser, nativeLang: "ru", learningLangs: ["de", "cs"] };
-    const payload = buildNotificationPayload(user, mockDictWord, mockT);
-
-    expect(Object.keys(payload.word.translations)).toEqual(["de", "cs"]);
-    expect(payload.message.indexOf("Haus")).toBeLessThan(payload.message.indexOf("dům"));
   });
 
   it("derives the hour from the current local time", () => {
     mockTemporalNow.hour = 20;
-    const payload = buildNotificationPayload(mockUser, mockDictWord, mockT);
+    const payload = buildNotificationPayload(mockUser, mockDictWord);
 
     expect(payload.hour).toBe(20);
-    expect(payload.message).toContain("From your dictionary");
     mockTemporalNow.hour = 8;
   });
 
   it("defaults to hour 8 when the timezone is invalid", () => {
     const badUser = { ...mockUser, timezone: "Invalid/TZ" };
-    const payload = buildNotificationPayload(badUser, mockDictWord, mockT);
+    const payload = buildNotificationPayload(badUser, mockDictWord);
 
     expect(payload.hour).toBe(8);
-  });
-
-  it("uses user's interface language for i18n", () => {
-    buildNotificationPayload(mockUser, mockDictWord, mockT);
-
-    expect(mockT).toHaveBeenCalledWith("notifTitle", "en");
-    expect(mockT).toHaveBeenCalledWith("notifWordFromDict", "en");
-  });
-
-  it("uses notifWordFromDict label for srs source", () => {
-    const payload = buildNotificationPayload(mockUser, mockDictWord, mockT);
-
-    expect(payload.message).toContain("From your dictionary");
   });
 });
 

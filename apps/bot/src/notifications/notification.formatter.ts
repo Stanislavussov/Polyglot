@@ -7,18 +7,37 @@
  * 3. No DB access — uses pre-built payload
  */
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
-import { getLangFlag, type SupportedLang, t } from "@polyglot/core";
+import { type LanguageOrderContext, orderRecordEntries, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import {
+  answerLine,
+  assembleCard,
+  emptySections,
+  headwordLine,
+  meaningLine,
+  otherLangLine,
+} from "../renderers/card-sections.js";
 
 /**
  * Format a notification payload as a Telegram HTML message.
  *
- * Layout:
- * - Emoji + original word (bold)
- * - Source label (dictionary or AI)
- * - Translations per language with flag emoji
+ * Sections, per the shared card grammar (`card-sections.ts`):
+ * provenance → headword → answer → meaning → other languages.
+ *
+ * The answer is the line the reader came for, so it sits directly under the
+ * headword. It previously landed on line 6, below the stored meaning and two
+ * lines of chrome, which read as "my own language is last".
+ *
+ * `order` is required rather than derived here: the record arrives from the
+ * scheduler through `jsonb`-shaped data, so its key order carries no meaning and
+ * a caller that has the user's settings must say what the order is. See
+ * `@polyglot/core`'s translation-order module.
  */
-export function formatNotificationMessage(payload: NotificationPayload, lang: SupportedLang): string {
+export function formatNotificationMessage(
+  payload: NotificationPayload,
+  lang: SupportedLang,
+  order: LanguageOrderContext,
+): string {
   const { word } = payload;
   const sourceLabel =
     word.source === "srs"
@@ -29,29 +48,23 @@ export function formatNotificationMessage(payload: NotificationPayload, lang: Su
           ? t("notifTypeContextual", lang)
           : t("notifAiSuggested", lang);
 
-  const translationLines = Object.entries(word.translations)
-    .map(([code, text]) => {
-      const flag = getLangFlag(code) ?? "🔤";
-      const lines = [`  ${flag} ${escapeHtml(code.toUpperCase())}: ${escapeHtml(text)}`];
-      const details = word.translationDetails?.[code];
-      if (details?.synonyms && details.synonyms.length > 0) {
-        const synonymText = details.synonyms.map(escapeHtml).join(", ");
-        lines.push(`    ≈ ${synonymText}`);
-      }
-      return lines.join("\n");
-    })
-    .join("\n");
+  // Ordered here, not trusted from the record: the native language ranks first,
+  // and everything after it follows the user's own choice of learning languages.
+  const ordered = orderRecordEntries(word.translations, order);
+  const [answer, ...others] = ordered;
 
-  const lines = [
-    `${word.emoji} <b>${escapeHtml(word.original)}</b>`,
-    ...(word.nativeMeaning ? [escapeHtml(word.nativeMeaning)] : []),
-    `<i>${sourceLabel}</i>`,
-    "",
-    `${t("notifTranslations", lang)}`,
-    translationLines,
-  ];
-
-  return lines.join("\n");
+  return assembleCard({
+    ...emptySections(),
+    // Above the headword: it labels the whole card ("from your dictionary")
+    // rather than competing with the answer for the reader's attention.
+    provenance: [`<i>${sourceLabel}</i>`],
+    headword: [headwordLine(word.original, { emoji: word.emoji })],
+    answer: answer ? [answerLine(answer[0], answer[1], word.translationDetails?.[answer[0]]?.synonyms ?? [])] : [],
+    meaning: word.nativeMeaning ? [meaningLine(word.nativeMeaning)] : [],
+    // Secondary languages stay to one line each — the card is a nudge, not a
+    // dictionary entry, and the full detail is one "Reveal" tap away.
+    others: others.map(([code, text]) => otherLangLine(code, text)),
+  });
 }
 
 /**
@@ -80,9 +93,4 @@ export function buildNotificationKeyboard(lang: SupportedLang, entryId?: number)
  */
 export function buildNotificationRevealedKeyboard(lang: SupportedLang, entryId: number): InlineKeyboard {
   return new InlineKeyboard().text(t("notifLearned", lang), `notif:learned:${entryId}`);
-}
-
-/** Escape HTML entities in user/AI content */
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }

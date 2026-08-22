@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-14T18:01:33.000Z",
+  "generatedAt": "2026-08-14T18:34:36.000Z",
   "summary": {
-    "total": 2684,
+    "total": 2697,
     "business": 0,
-    "technical": 2684,
+    "technical": 2697,
     "workspaces": [
       "apps",
       "packages"
@@ -2487,10 +2487,26 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C6: disables notifications after a 403 and does not retry."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-262-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-260-scheduled-notification-delivery-integration-c10-delivers-the-card-with-the-reader-s-own-language-directly-under-the-headword",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 262,
+      "sourceLine": 260,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "scheduled notification delivery (integration)"
+      ],
+      "title": "C10: delivers the card with the reader's own language directly under the headword",
+      "rawTitle": "C10: delivers the card with the reader's own language directly under the headword",
+      "name": "Bot scheduled notification delivery (integration) C10: delivers the card with the reader's own language directly under the headword",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C10: delivers the card with the reader's own language directly under the headword.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C10: delivers the card with the reader's own language directly under the headword."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-299-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
+      "sourceLine": 299,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2503,10 +2519,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C7: seeds the admin configured default the first time a user turns notifications on."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-308-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-345-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 308,
+      "sourceLine": 345,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2519,10 +2535,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C8: never overwrites a schedule the user already chose."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-332-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-369-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 332,
+      "sourceLine": 369,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2535,10 +2551,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C9: refuses to deselect the last remaining slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-366-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-403-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 366,
+      "sourceLine": 403,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6958,10 +6974,10 @@
       "description": "Protects the bot handle Notif Learned Callback behavior: handles invalid entry Id gracefully."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-49-formatnotificationmessage-renders-emoji-and-original-word-in-bold",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-62-formatnotificationmessage-renders-emoji-and-original-word-in-bold",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 49,
+      "sourceLine": 62,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6974,10 +6990,10 @@
       "description": "Protects the bot format Notification Message behavior: renders emoji and original word in bold."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-54-formatnotificationmessage-shows-srs-source-label-for-dictionary-words",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-67-formatnotificationmessage-shows-srs-source-label-for-dictionary-words",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 54,
+      "sourceLine": 67,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6990,10 +7006,10 @@
       "description": "Protects the bot format Notification Message behavior: shows SRS source label for dictionary words."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-59-formatnotificationmessage-shows-ai-source-label-for-suggested-words",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-72-formatnotificationmessage-shows-ai-source-label-for-suggested-words",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 59,
+      "sourceLine": 72,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7006,26 +7022,10 @@
       "description": "Protects the bot format Notification Message behavior: shows AI source label for suggested words."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-64-formatnotificationmessage-renders-translations-with-flag-emojis",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-77-formatnotificationmessage-renders-persisted-native-meaning-when-available",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 64,
-      "workspace": "apps",
-      "packageName": "bot",
-      "suitePath": [
-        "formatNotificationMessage"
-      ],
-      "title": "renders translations with flag emojis",
-      "rawTitle": "renders translations with flag emojis",
-      "name": "Bot format Notification Message renders translations with flag emojis",
-      "value": "Protects the bot format Notification Message behavior: renders translations with flag emojis.",
-      "description": "Protects the bot format Notification Message behavior: renders translations with flag emojis."
-    },
-    {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-70-formatnotificationmessage-renders-persisted-native-meaning-when-available",
-      "kind": "technical",
-      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 70,
+      "sourceLine": 77,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7038,55 +7038,71 @@
       "description": "Protects the bot format Notification Message behavior: renders persisted native meaning when available."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-75-formatnotificationmessage-renders-synonyms-under-translation-when-translationdetails-present",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-87-formatnotificationmessage-puts-the-native-answer-directly-after-the-headword-above-the-meaning",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 75,
+      "sourceLine": 87,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "renders synonyms under translation when translationDetails present",
-      "rawTitle": "renders synonyms under translation when translationDetails present",
-      "name": "Bot format Notification Message renders synonyms under translation when translation Details present",
-      "value": "Protects the bot format Notification Message behavior: renders synonyms under translation when translation Details present.",
-      "description": "Protects the bot format Notification Message behavior: renders synonyms under translation when translation Details present."
+      "title": "puts the native answer directly after the headword, above the meaning",
+      "rawTitle": "puts the native answer directly after the headword, above the meaning",
+      "name": "Bot format Notification Message puts the native answer directly after the headword, above the meaning",
+      "value": "Protects the bot format Notification Message behavior so puts the native answer directly after the headword, above the meaning.",
+      "description": "Protects the bot format Notification Message behavior so puts the native answer directly after the headword, above the meaning."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-95-formatnotificationmessage-omits-synonym-line-when-no-translationdetails-for-a-language",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-97-formatnotificationmessage-orders-the-whole-card-headword-answer-meaning-other-languages",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 97,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "omits synonym line when no translationDetails for a language",
-      "rawTitle": "omits synonym line when no translationDetails for a language",
-      "name": "Bot format Notification Message omits synonym line when no translation Details for a language",
-      "value": "Protects the bot format Notification Message behavior: omits synonym line when no translation Details for a language.",
-      "description": "Protects the bot format Notification Message behavior: omits synonym line when no translation Details for a language."
+      "title": "orders the whole card headword → answer → meaning → other languages",
+      "rawTitle": "orders the whole card headword → answer → meaning → other languages",
+      "name": "Bot format Notification Message orders the whole card headword → answer → meaning → other languages",
+      "value": "Protects the bot format Notification Message behavior so orders the whole card headword → answer → meaning → other languages.",
+      "description": "Protects the bot format Notification Message behavior so orders the whole card headword → answer → meaning → other languages."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-111-formatnotificationmessage-escapes-html-entities-in-synonyms",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-105-formatnotificationmessage-keeps-the-provenance-label-above-the-headword-so-it-does-not-compete-with-the-answer",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 111,
+      "sourceLine": 105,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "escapes HTML entities in synonyms",
-      "rawTitle": "escapes HTML entities in synonyms",
-      "name": "Bot format Notification Message escapes HTML entities in synonyms",
-      "value": "Protects the bot format Notification Message behavior: escapes HTML entities in synonyms.",
-      "description": "Protects the bot format Notification Message behavior: escapes HTML entities in synonyms."
+      "title": "keeps the provenance label above the headword so it does not compete with the answer",
+      "rawTitle": "keeps the provenance label above the headword so it does not compete with the answer",
+      "name": "Bot format Notification Message keeps the provenance label above the headword so it does not compete with the answer",
+      "value": "Protects the bot format Notification Message behavior: keeps the provenance label above the headword so it does not compete with the answer.",
+      "description": "Protects the bot format Notification Message behavior: keeps the provenance label above the headword so it does not compete with the answer."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-126-formatnotificationmessage-uses-fallback-flag-for-unknown-languages",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-113-formatnotificationmessage-orders-by-the-user-s-languages-even-when-the-record-arrives-alphabetized",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 113,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "formatNotificationMessage"
+      ],
+      "title": "orders by the user's languages even when the record arrives alphabetized",
+      "rawTitle": "orders by the user's languages even when the record arrives alphabetized",
+      "name": "Bot format Notification Message orders by the user's languages even when the record arrives alphabetized",
+      "value": "Protects the bot format Notification Message behavior so orders by the user's languages even when the record arrives alphabetized.",
+      "description": "Protects the bot format Notification Message behavior so orders by the user's languages even when the record arrives alphabetized."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-126-formatnotificationmessage-bolds-the-answer-and-leaves-secondary-languages-plain",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
       "sourceLine": 126,
@@ -7095,17 +7111,49 @@
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "uses fallback flag for unknown languages",
-      "rawTitle": "uses fallback flag for unknown languages",
-      "name": "Bot format Notification Message uses fallback flag for unknown languages",
-      "value": "Protects the bot format Notification Message behavior: uses fallback flag for unknown languages.",
-      "description": "Protects the bot format Notification Message behavior: uses fallback flag for unknown languages."
+      "title": "bolds the answer and leaves secondary languages plain",
+      "rawTitle": "bolds the answer and leaves secondary languages plain",
+      "name": "Bot format Notification Message bolds the answer and leaves secondary languages plain",
+      "value": "Protects the bot format Notification Message behavior so bolds the answer and leaves secondary languages plain.",
+      "description": "Protects the bot format Notification Message behavior so bolds the answer and leaves secondary languages plain."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-140-formatnotificationmessage-escapes-html-entities-in-original-word",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-133-formatnotificationmessage-renders-synonyms-inline-on-the-answer",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 140,
+      "sourceLine": 133,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "formatNotificationMessage"
+      ],
+      "title": "renders synonyms inline on the answer",
+      "rawTitle": "renders synonyms inline on the answer",
+      "name": "Bot format Notification Message renders synonyms inline on the answer",
+      "value": "Protects the bot format Notification Message behavior: renders synonyms inline on the answer.",
+      "description": "Protects the bot format Notification Message behavior: renders synonyms inline on the answer."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-155-formatnotificationmessage-keeps-the-language-code-when-no-flag-resolves-so-the-language-stays-identifiable",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 155,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "formatNotificationMessage"
+      ],
+      "title": "keeps the language code when no flag resolves, so the language stays identifiable",
+      "rawTitle": "keeps the language code when no flag resolves, so the language stays identifiable",
+      "name": "Bot format Notification Message keeps the language code when no flag resolves, so the language stays identifiable",
+      "value": "Protects the bot format Notification Message behavior: keeps the language code when no flag resolves, so the language stays identifiable.",
+      "description": "Protects the bot format Notification Message behavior: keeps the language code when no flag resolves, so the language stays identifiable."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-164-formatnotificationmessage-escapes-html-entities-in-original-word",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 164,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7118,26 +7166,42 @@
       "description": "Protects the bot format Notification Message behavior: escapes HTML entities in original word."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-155-formatnotificationmessage-includes-translations-header-from-i18n",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-174-formatnotificationmessage-escapes-html-entities-in-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 155,
+      "sourceLine": 174,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "includes translations header from i18n",
-      "rawTitle": "includes translations header from i18n",
-      "name": "Bot format Notification Message includes translations header from i18n",
-      "value": "Protects the bot format Notification Message behavior: includes translations header from i18n.",
-      "description": "Protects the bot format Notification Message behavior: includes translations header from i18n."
+      "title": "escapes HTML entities in synonyms",
+      "rawTitle": "escapes HTML entities in synonyms",
+      "name": "Bot format Notification Message escapes HTML entities in synonyms",
+      "value": "Protects the bot format Notification Message behavior: escapes HTML entities in synonyms.",
+      "description": "Protects the bot format Notification Message behavior: escapes HTML entities in synonyms."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-162-buildnotificationkeyboard-creates-keyboard-with-reveal-and-learned-buttons-when-entryid-provided",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-188-formatnotificationmessage-renders-a-card-with-no-translations-without-throwing",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 162,
+      "sourceLine": 188,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "formatNotificationMessage"
+      ],
+      "title": "renders a card with no translations without throwing",
+      "rawTitle": "renders a card with no translations without throwing",
+      "name": "Bot format Notification Message renders a card with no translations without throwing",
+      "value": "Protects the bot format Notification Message behavior: renders a card with no translations without throwing.",
+      "description": "Protects the bot format Notification Message behavior: renders a card with no translations without throwing."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-199-buildnotificationkeyboard-creates-keyboard-with-reveal-and-learned-buttons-when-entryid-provided",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 199,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7150,10 +7214,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: creates keyboard with Reveal and Learned buttons when entry Id provided."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-170-buildnotificationkeyboard-has-exactly-2-buttons-when-entryid-provided",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-207-buildnotificationkeyboard-has-exactly-2-buttons-when-entryid-provided",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 207,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7166,10 +7230,10 @@
       "description": "Protects the bot build Notification Keyboard behavior so has exactly 2 buttons when entry Id provided."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-176-buildnotificationkeyboard-returns-empty-keyboard-when-no-entryid",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-213-buildnotificationkeyboard-returns-empty-keyboard-when-no-entryid",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 176,
+      "sourceLine": 213,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7182,10 +7246,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: returns empty keyboard when no entry Id."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-184-buildnotificationrevealedkeyboard-creates-keyboard-with-only-learned-button",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-221-buildnotificationrevealedkeyboard-creates-keyboard-with-only-learned-button",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 184,
+      "sourceLine": 221,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8716,6 +8780,198 @@
       "name": "Bot send Release Announcement continues when one Telegram send fails",
       "value": "Protects the bot send Release Announcement behavior so continues when one Telegram send fails.",
       "description": "Protects the bot send Release Announcement behavior so continues when one Telegram send fails."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-31-assemblecard-emits-sections-in-card-section-order-regardless-of-the-order-the-caller-writes-them",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 31,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "assembleCard"
+      ],
+      "title": "emits sections in CARD_SECTION_ORDER regardless of the order the caller writes them",
+      "rawTitle": "emits sections in CARD_SECTION_ORDER regardless of the order the caller writes them",
+      "name": "Bot assemble Card emits sections in CARD SECTION ORDER regardless of the order the caller writes them",
+      "value": "Protects the bot assemble Card behavior so emits sections in CARD SECTION ORDER regardless of the order the caller writes them.",
+      "description": "Protects the bot assemble Card behavior so emits sections in CARD SECTION ORDER regardless of the order the caller writes them."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-45-assemblecard-puts-the-answer-directly-after-the-headword-the-rule-the-grammar-exists-to-enforce",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 45,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "assembleCard"
+      ],
+      "title": "puts the answer directly after the headword — the rule the grammar exists to enforce",
+      "rawTitle": "puts the answer directly after the headword — the rule the grammar exists to enforce",
+      "name": "Bot assemble Card puts the answer directly after the headword — the rule the grammar exists to enforce",
+      "value": "Protects the bot assemble Card behavior so puts the answer directly after the headword — the rule the grammar exists to enforce.",
+      "description": "Protects the bot assemble Card behavior so puts the answer directly after the headword — the rule the grammar exists to enforce."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-60-assemblecard-omits-empty-sections-without-leaving-blank-lines-behind",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 60,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "assembleCard"
+      ],
+      "title": "omits empty sections without leaving blank lines behind",
+      "rawTitle": "omits empty sections without leaving blank lines behind",
+      "name": "Bot assemble Card omits empty sections without leaving blank lines behind",
+      "value": "Protects the bot assemble Card behavior: omits empty sections without leaving blank lines behind.",
+      "description": "Protects the bot assemble Card behavior: omits empty sections without leaving blank lines behind."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-66-assemblecard-returns-an-empty-string-when-every-section-is-empty",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 66,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "assembleCard"
+      ],
+      "title": "returns an empty string when every section is empty",
+      "rawTitle": "returns an empty string when every section is empty",
+      "name": "Bot assemble Card returns an empty string when every section is empty",
+      "value": "Protects the bot assemble Card behavior: returns an empty string when every section is empty.",
+      "description": "Protects the bot assemble Card behavior: returns an empty string when every section is empty."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-70-assemblecard-lists-every-section-exactly-once",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 70,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "assembleCard"
+      ],
+      "title": "lists every section exactly once",
+      "rawTitle": "lists every section exactly once",
+      "name": "Bot assemble Card lists every section exactly once",
+      "value": "Protects the bot assemble Card behavior so lists every section exactly once.",
+      "description": "Protects the bot assemble Card behavior so lists every section exactly once."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-76-langlabel-renders-the-flag-alone-when-one-resolves-the-code-would-say-it-twice",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 76,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "langLabel"
+      ],
+      "title": "renders the flag alone when one resolves — the code would say it twice",
+      "rawTitle": "renders the flag alone when one resolves — the code would say it twice",
+      "name": "Bot lang Label renders the flag alone when one resolves — the code would say it twice",
+      "value": "Protects the bot lang Label behavior: renders the flag alone when one resolves — the code would say it twice.",
+      "description": "Protects the bot lang Label behavior: renders the flag alone when one resolves — the code would say it twice."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-80-langlabel-keeps-the-code-when-no-flag-resolves-so-the-language-stays-identifiable",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 80,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "langLabel"
+      ],
+      "title": "keeps the code when no flag resolves, so the language stays identifiable",
+      "rawTitle": "keeps the code when no flag resolves, so the language stays identifiable",
+      "name": "Bot lang Label keeps the code when no flag resolves, so the language stays identifiable",
+      "value": "Protects the bot lang Label behavior: keeps the code when no flag resolves, so the language stays identifiable.",
+      "description": "Protects the bot lang Label behavior: keeps the code when no flag resolves, so the language stays identifiable."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-86-line-builders-renders-the-headword-with-a-single-source-flag",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 86,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "line builders"
+      ],
+      "title": "renders the headword with a single source flag",
+      "rawTitle": "renders the headword with a single source flag",
+      "name": "Bot line builders renders the headword with a single source flag",
+      "value": "Protects the bot line builders behavior: renders the headword with a single source flag.",
+      "description": "Protects the bot line builders behavior: renders the headword with a single source flag."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-90-line-builders-omits-the-flag-when-the-surface-has-no-source-language",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "line builders"
+      ],
+      "title": "omits the flag when the surface has no source language",
+      "rawTitle": "omits the flag when the surface has no source language",
+      "name": "Bot line builders omits the flag when the surface has no source language",
+      "value": "Protects the bot line builders behavior: omits the flag when the surface has no source language.",
+      "description": "Protects the bot line builders behavior: omits the flag when the surface has no source language."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-94-line-builders-renders-secondary-languages-unbolded-and-without-synonyms",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 94,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "line builders"
+      ],
+      "title": "renders secondary languages unbolded and without synonyms",
+      "rawTitle": "renders secondary languages unbolded and without synonyms",
+      "name": "Bot line builders renders secondary languages unbolded and without synonyms",
+      "value": "Protects the bot line builders behavior: renders secondary languages unbolded and without synonyms.",
+      "description": "Protects the bot line builders behavior: renders secondary languages unbolded and without synonyms."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-98-line-builders-glosses-an-example-with-its-native-translation",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 98,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "line builders"
+      ],
+      "title": "glosses an example with its native translation",
+      "rawTitle": "glosses an example with its native translation",
+      "name": "Bot line builders glosses an example with its native translation",
+      "value": "Protects the bot line builders behavior so glosses an example with its native translation.",
+      "description": "Protects the bot line builders behavior so glosses an example with its native translation."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-card-sections-test-ts-102-line-builders-escapes-html-in-every-builder",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
+      "sourceLine": 102,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "line builders"
+      ],
+      "title": "escapes HTML in every builder",
+      "rawTitle": "escapes HTML in every builder",
+      "name": "Bot line builders escapes HTML in every builder",
+      "value": "Protects the bot line builders behavior: escapes HTML in every builder.",
+      "description": "Protects the bot line builders behavior: escapes HTML in every builder."
     },
     {
       "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-75-renderdictionaryentry-language-order-renders-native-first-then-learning-languages-in-the-user-s-own-order",
@@ -23158,7 +23414,7 @@
       "description": "Protects the notification adapter pick Preset Word behavior: returns null for a user whose languages have no curated presets at all."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-118-buildnotificationpayload-builds-a-payload-with-user-s-preferred-time",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-118-buildnotificationpayload-carries-the-picked-word-through-unchanged",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
       "sourceLine": 118,
@@ -23167,33 +23423,17 @@
       "suitePath": [
         "buildNotificationPayload"
       ],
-      "title": "builds a payload with user's preferred time",
-      "rawTitle": "builds a payload with user's preferred time",
-      "name": "Notification adapter build Notification Payload builds a payload with user's preferred time",
-      "value": "Protects the notification adapter build Notification Payload behavior: builds a payload with user's preferred time.",
-      "description": "Protects the notification adapter build Notification Payload behavior: builds a payload with user's preferred time."
+      "title": "carries the picked word through unchanged",
+      "rawTitle": "carries the picked word through unchanged",
+      "name": "Notification adapter build Notification Payload carries the picked word through unchanged",
+      "value": "Protects the notification adapter build Notification Payload behavior so carries the picked word through unchanged.",
+      "description": "Protects the notification adapter build Notification Payload behavior so carries the picked word through unchanged."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-133-buildnotificationpayload-orders-the-payload-s-translations-by-the-user-s-learning-languages-not-alphabetically",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-128-buildnotificationpayload-derives-the-hour-from-the-current-local-time",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 133,
-      "workspace": "packages",
-      "packageName": "adapters/notifications",
-      "suitePath": [
-        "buildNotificationPayload"
-      ],
-      "title": "orders the payload's translations by the user's learning languages, not alphabetically",
-      "rawTitle": "orders the payload's translations by the user's learning languages, not alphabetically",
-      "name": "Notification adapter build Notification Payload orders the payload's translations by the user's learning languages, not alphabetically",
-      "value": "Protects the notification adapter build Notification Payload behavior so orders the payload's translations by the user's learning languages, not alphabetically.",
-      "description": "Protects the notification adapter build Notification Payload behavior so orders the payload's translations by the user's learning languages, not alphabetically."
-    },
-    {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-142-buildnotificationpayload-derives-the-hour-from-the-current-local-time",
-      "kind": "technical",
-      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 142,
+      "sourceLine": 128,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23206,10 +23446,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior so derives the hour from the current local time."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-151-buildnotificationpayload-defaults-to-hour-8-when-the-timezone-is-invalid",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-136-buildnotificationpayload-defaults-to-hour-8-when-the-timezone-is-invalid",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 151,
+      "sourceLine": 136,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23222,42 +23462,10 @@
       "description": "Protects the notification adapter build Notification Payload behavior: defaults to hour 8 when the timezone is invalid."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-158-buildnotificationpayload-uses-user-s-interface-language-for-i18n",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-156-layered-word-selection-prefers-the-user-s-own-dictionary-and-never-reaches-for-a-preset",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 158,
-      "workspace": "packages",
-      "packageName": "adapters/notifications",
-      "suitePath": [
-        "buildNotificationPayload"
-      ],
-      "title": "uses user's interface language for i18n",
-      "rawTitle": "uses user's interface language for i18n",
-      "name": "Notification adapter build Notification Payload uses user's interface language for i18n",
-      "value": "Protects the notification adapter build Notification Payload behavior: uses user's interface language for i18n.",
-      "description": "Protects the notification adapter build Notification Payload behavior: uses user's interface language for i18n."
-    },
-    {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-165-buildnotificationpayload-uses-notifwordfromdict-label-for-srs-source",
-      "kind": "technical",
-      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 165,
-      "workspace": "packages",
-      "packageName": "adapters/notifications",
-      "suitePath": [
-        "buildNotificationPayload"
-      ],
-      "title": "uses notifWordFromDict label for srs source",
-      "rawTitle": "uses notifWordFromDict label for srs source",
-      "name": "Notification adapter build Notification Payload uses notif Word From Dict label for srs source",
-      "value": "Protects the notification adapter build Notification Payload behavior: uses notif Word From Dict label for srs source.",
-      "description": "Protects the notification adapter build Notification Payload behavior: uses notif Word From Dict label for srs source."
-    },
-    {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-184-layered-word-selection-prefers-the-user-s-own-dictionary-and-never-reaches-for-a-preset",
-      "kind": "technical",
-      "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 184,
+      "sourceLine": 156,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23270,10 +23478,10 @@
       "description": "Protects the notification adapter layered word selection behavior so prefers the user's own dictionary and never reaches for a preset."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-193-layered-word-selection-falls-back-to-a-curated-preset-when-the-dictionary-has-nothing-to-offer",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-165-layered-word-selection-falls-back-to-a-curated-preset-when-the-dictionary-has-nothing-to-offer",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 193,
+      "sourceLine": 165,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23286,10 +23494,10 @@
       "description": "Protects the notification adapter layered word selection behavior: falls back to a curated preset when the dictionary has nothing to offer."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-212-layered-word-selection-shows-the-empty-dictionary-prompt-only-when-no-layer-can-supply-a-word",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-184-layered-word-selection-shows-the-empty-dictionary-prompt-only-when-no-layer-can-supply-a-word",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 212,
+      "sourceLine": 184,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23302,10 +23510,10 @@
       "description": "Protects the notification adapter layered word selection behavior: shows the empty dictionary prompt only when no layer can supply a word."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-225-layered-word-selection-excludes-the-previous-notification-s-word-even-after-it-aged-out-of-the-de-dup-window",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-197-layered-word-selection-excludes-the-previous-notification-s-word-even-after-it-aged-out-of-the-de-dup-window",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 225,
+      "sourceLine": 197,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23318,10 +23526,10 @@
       "description": "Protects the notification adapter layered word selection behavior: excludes the previous notification's word even after it aged out of the de dup window."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-238-layered-word-selection-does-not-duplicate-the-last-word-when-it-is-already-inside-the-window",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-210-layered-word-selection-does-not-duplicate-the-last-word-when-it-is-already-inside-the-window",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 238,
+      "sourceLine": 210,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23334,10 +23542,10 @@
       "description": "Protects the notification adapter layered word selection behavior: does not duplicate the last word when it is already inside the window."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-249-layered-word-selection-still-sends-when-the-last-sent-lookup-fails-rather-than-dropping-the-notification",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-221-layered-word-selection-still-sends-when-the-last-sent-lookup-fails-rather-than-dropping-the-notification",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 249,
+      "sourceLine": 221,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23350,10 +23558,10 @@
       "description": "Protects the notification adapter layered word selection behavior so still sends when the last sent lookup fails, rather than dropping the notification."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-259-layered-word-selection-records-a-preset-send-under-its-own-source-so-the-layers-stay-distinguishable-in-history",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-231-layered-word-selection-records-a-preset-send-under-its-own-source-so-the-layers-stay-distinguishable-in-history",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 259,
+      "sourceLine": 231,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23366,10 +23574,10 @@
       "description": "Protects the notification adapter layered word selection behavior: records a preset send under its own source, so the layers stay distinguishable in history."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-285-checkandsend-sends-notifications-to-eligible-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-257-checkandsend-sends-notifications-to-eligible-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 257,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23382,10 +23590,10 @@
       "description": "Protects the notification adapter check And Send behavior: sends notifications to eligible users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-295-checkandsend-handles-multiple-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-267-checkandsend-handles-multiple-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 295,
+      "sourceLine": 267,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23398,10 +23606,10 @@
       "description": "Protects the notification adapter check And Send behavior: handles multiple users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-312-checkandsend-returns-zero-sent-when-no-users-are-eligible",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-284-checkandsend-returns-zero-sent-when-no-users-are-eligible",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 312,
+      "sourceLine": 284,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23414,10 +23622,10 @@
       "description": "Protects the notification adapter check And Send behavior: returns zero sent when no users are eligible."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-323-checkandsend-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-295-checkandsend-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 323,
+      "sourceLine": 295,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23430,10 +23638,10 @@
       "description": "Protects the notification adapter check And Send behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-343-checkandsend-retries-failed-sends-up-to-3-times-before-giving-up",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-315-checkandsend-retries-failed-sends-up-to-3-times-before-giving-up",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 343,
+      "sourceLine": 315,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23446,10 +23654,10 @@
       "description": "Protects the notification adapter check And Send behavior so retries failed sends up to 3 times before giving up."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-353-checkandsend-succeeds-on-retry-when-transient-error-resolves",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-325-checkandsend-succeeds-on-retry-when-transient-error-resolves",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 353,
+      "sourceLine": 325,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23462,10 +23670,10 @@
       "description": "Protects the notification adapter check And Send behavior so succeeds on retry when transient error resolves."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-370-checkandsend-disables-notifications-for-a-user-who-blocked-the-bot-403-without-retrying",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-342-checkandsend-disables-notifications-for-a-user-who-blocked-the-bot-403-without-retrying",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 370,
+      "sourceLine": 342,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23478,10 +23686,10 @@
       "description": "Protects the notification adapter check And Send behavior so disables notifications for a user who blocked the bot (403), without retrying."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-387-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-359-checkandsend-sends-empty-dictionary-prompt-when-no-word-could-be-picked",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 387,
+      "sourceLine": 359,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23494,10 +23702,10 @@
       "description": "Protects the notification adapter check And Send behavior: sends empty dictionary prompt when no word could be picked."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-399-checkandsend-returns-error-when-getusersforwindow-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-371-checkandsend-returns-error-when-getusersforwindow-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 399,
+      "sourceLine": 371,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23510,10 +23718,10 @@
       "description": "Protects the notification adapter check And Send behavior: returns error when get Users For Window throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-411-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-383-checkandsend-word-picking-strategy-uses-pickdictionaryword-for-all-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 411,
+      "sourceLine": 383,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23527,10 +23735,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: uses pick Dictionary Word for all users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-419-checkandsend-word-picking-strategy-passes-words-sent-in-the-last-24h-to-the-dictionary-picker-for-de-dup",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-391-checkandsend-word-picking-strategy-passes-words-sent-in-the-last-24h-to-the-dictionary-picker-for-de-dup",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 419,
+      "sourceLine": 391,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23544,10 +23752,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior so passes words sent in the last 24h to the dictionary picker for de dup."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-431-checkandsend-word-picking-strategy-routes-a-contextual-user-to-the-contextual-picker",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-403-checkandsend-word-picking-strategy-routes-a-contextual-user-to-the-contextual-picker",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 431,
+      "sourceLine": 403,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23561,10 +23769,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: routes a contextual user to the contextual picker."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-452-checkandsend-word-picking-strategy-falls-back-to-the-dictionary-picker-for-a-contextual-user-with-no-context",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-424-checkandsend-word-picking-strategy-falls-back-to-the-dictionary-picker-for-a-contextual-user-with-no-context",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 452,
+      "sourceLine": 424,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23578,10 +23786,10 @@
       "description": "Protects the notification adapter check And Send word picking strategy behavior: falls back to the dictionary picker for a contextual user with no context."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-482-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-454-processinactiveusers-sends-re-engagement-message-and-disables-notifications",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 482,
+      "sourceLine": 454,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23594,10 +23802,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: sends re engagement message and disables notifications."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-495-processinactiveusers-processes-multiple-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-467-processinactiveusers-processes-multiple-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 495,
+      "sourceLine": 467,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23610,10 +23818,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: processes multiple inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-513-processinactiveusers-returns-zero-when-no-inactive-users",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-485-processinactiveusers-returns-zero-when-no-inactive-users",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 513,
+      "sourceLine": 485,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23626,10 +23834,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns zero when no inactive users."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-521-processinactiveusers-logs-and-continues-on-send-error",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-493-processinactiveusers-logs-and-continues-on-send-error",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 521,
+      "sourceLine": 493,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23642,10 +23850,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: logs and continues on send error."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-534-processinactiveusers-returns-error-when-getinactiveusers-throws",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-506-processinactiveusers-returns-error-when-getinactiveusers-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 534,
+      "sourceLine": 506,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23658,10 +23866,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: returns error when get Inactive Users throws."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-545-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-517-processinactiveusers-uses-user-interface-language-for-re-engagement-message",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 545,
+      "sourceLine": 517,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23674,10 +23882,10 @@
       "description": "Protects the notification adapter process Inactive Users behavior: uses user interface language for re engagement message."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-577-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-549-startscheduler-stopscheduler-registers-a-cron-job-with-hourly-schedule",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 577,
+      "sourceLine": 549,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23690,10 +23898,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so registers a cron job with hourly schedule."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-587-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-559-startscheduler-stopscheduler-does-not-register-duplicate-cron-jobs",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 587,
+      "sourceLine": 559,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23706,10 +23914,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior: does not register duplicate cron jobs."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-600-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-572-startscheduler-stopscheduler-stopscheduler-stops-the-cron-task",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 600,
+      "sourceLine": 572,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -23722,10 +23930,10 @@
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler stops the cron task."
     },
     {
-      "id": "packages-adapters-notifications-src-scheduler-test-ts-612-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
+      "id": "packages-adapters-notifications-src-scheduler-test-ts-584-startscheduler-stopscheduler-stopscheduler-is-safe-to-call-when-not-running",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/scheduler.test.ts",
-      "sourceLine": 612,
+      "sourceLine": 584,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
