@@ -68,6 +68,12 @@ vi.mock("@polyglot/adapter-db", () => ({
     extend: vi.fn().mockResolvedValue(undefined),
     updateStatus: vi.fn().mockResolvedValue(undefined),
   },
+  ttsCacheRepository: {
+    find: vi.fn().mockResolvedValue(null),
+    save: vi.fn().mockResolvedValue(undefined),
+    touch: vi.fn().mockResolvedValue(undefined),
+    remove: vi.fn().mockResolvedValue(undefined),
+  },
   createContextLookup: vi.fn(() => vi.fn().mockResolvedValue([])),
   createWordLanguageSweep: vi.fn(() => vi.fn().mockResolvedValue([])),
   aiRequestLatencyRepository: {

@@ -357,7 +357,8 @@ function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string 
  * Row 3: Grammar detail (when expanded)
  * Row 4: Source-language override (only on doubtful-detection cards — a "translate
  *        from" header + one flag button per candidate language, `tr:srclang:*`)
- * Row 5: Save button (always last)
+ * Row 5: Pronunciation — one 🔊 button per learning language on the card
+ * Row 6: Save button (always last)
  *
  * `sourceOverrideLangs` is populated only when source-language detection was
  * doubtful (a heuristic fallback rather than a confident resolution); it stays
@@ -373,6 +374,7 @@ export function buildTranslationKeyboard(
   showGrammarDetailButton?: boolean,
   showEtymologyButton?: boolean,
   sourceOverrideLangs?: string[],
+  pronounceLangs?: readonly string[],
 ): InlineKeyboard {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
@@ -409,6 +411,29 @@ export function buildTranslationKeyboard(
       kb.row();
       for (const code of sourceOverrideLangs.slice(i, i + 4)) {
         kb.text(`${getLangFlag(code) ?? "🔤"} ${code.toUpperCase()}`, `tr:srclang:${code}:${mid}`);
+      }
+    }
+  }
+
+  // Pronunciation — Telegram has no per-word hit target inside message text, so
+  // the speaker for each learning language lives here rather than beside the word.
+  // Callers pass only learning languages (see `selectPronounceableLangs`); a single
+  // one gets a labelled wide button, several get compact flag buttons so a card
+  // with four target languages does not grow four full-width rows.
+  if (pronounceLangs && pronounceLangs.length > 0) {
+    kb.row();
+    if (pronounceLangs.length === 1) {
+      const code = pronounceLangs[0]!;
+      kb.text(t("pronounce", lang), `tr:say:${code}:${mid}`);
+    } else {
+      for (let i = 0; i < pronounceLangs.length; i += 4) {
+        if (i > 0) kb.row();
+        for (const code of pronounceLangs.slice(i, i + 4)) {
+          // Speaker then flag, no language code: the flag alone identifies the
+          // language (every supported language has a distinct one), and dropping
+          // the code keeps four buttons readable on a narrow screen.
+          kb.text(`🔊 ${getLangFlag(code) ?? code.toUpperCase()}`, `tr:say:${code}:${mid}`);
+        }
       }
     }
   }

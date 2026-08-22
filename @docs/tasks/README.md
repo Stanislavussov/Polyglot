@@ -22,6 +22,7 @@
 | 58  | [Language Detection Pre-Request](./58-language-detection-pre-request.md) | 🔲 To Do |
 | 60  | [Context Hint Marker Mode](./60-context-hint-marker-mode.md) | ✅ Done |
 | 72  | [Onboarding Conversion Redesign](./72-onboarding-conversion-redesign.md) | ✅ Done (supersedes 38, overlaps 36) |
+| 77  | [Word Pronunciation (TTS)](./77-word-pronunciation-tts.md) | ✅ Done (ships dark — needs a `tts` settings row to enable) |
 
 ## Architecture — Debt Reduction
 

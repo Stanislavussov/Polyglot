@@ -644,7 +644,7 @@ export const aiRequestLatencies = pgTable(
     /** OpenRouter model ID, e.g. "openai/gpt-4o" */
     modelId: varchar("model_id", { length: 255 }).notNull(),
     /** AI adapter method that produced the request */
-    requestKind: text("request_kind").$type<"object" | "text" | "chat">().notNull(),
+    requestKind: text("request_kind").$type<"object" | "text" | "chat" | "speech">().notNull(),
     durationMs: integer("duration_ms").notNull(),
     inputTokens: integer("input_tokens").default(0).notNull(),
     outputTokens: integer("output_tokens").default(0).notNull(),
@@ -953,3 +953,49 @@ export const subscriptions = pgTable(
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type SubscriptionStatus = "active" | "past_due" | "canceled" | "expired";
+
+// ─────────────────────────────────────────────
+// TTS cache — synthesized pronunciations, keyed by Telegram file_id
+// ─────────────────────────────────────────────
+/**
+ * One row per successfully synthesized pronunciation. The payload we keep is the
+ * Telegram `file_id`, not the audio: re-sending a `file_id` costs neither an
+ * OpenRouter call nor an upload, which is what makes the button free to press
+ * repeatedly.
+ *
+ * The cache is deliberately global rather than per-user — a `file_id` is scoped to
+ * the bot token, so any row is resendable to any chat this bot serves, and the same
+ * word in the same language sounds the same for everyone.
+ *
+ * `modelId` and `voice` are part of the key so switching either in the admin
+ * settings invalidates the old audio by construction instead of serving a voice the
+ * admin just changed away from.
+ */
+export const ttsCache = pgTable(
+  "tts_cache",
+  {
+    id: serial("id").primaryKey(),
+    /** SHA-256 of the normalized text — keeps the unique index narrow and fixed-width. */
+    textHash: varchar("text_hash", { length: 64 }).notNull(),
+    /** The spoken text itself, kept for debugging and admin inspection. */
+    text: text("text").notNull(),
+    langCode: varchar("lang_code", { length: 16 }).notNull(),
+    /** OpenRouter speech model that produced this audio. */
+    modelId: varchar("model_id", { length: 255 }).notNull(),
+    /** Voice used; empty string for models with no voice concept. */
+    voice: varchar("voice", { length: 64 }).default("").notNull(),
+    telegramFileId: text("telegram_file_id").notNull(),
+    /** Characters billed for this synthesis — the unit OpenRouter charges on. */
+    charCount: integer("char_count").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }).defaultNow().notNull(),
+    useCount: integer("use_count").default(1).notNull(),
+  },
+  (t) => [
+    uniqueIndex("tts_cache_key_idx").on(t.textHash, t.langCode, t.modelId, t.voice),
+    // Supports future least-recently-used eviction; nothing prunes yet by design.
+    index("tts_cache_last_used_idx").on(t.lastUsedAt),
+  ],
+);
+
+export type TtsCacheRow = typeof ttsCache.$inferSelect;

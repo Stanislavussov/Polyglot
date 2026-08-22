@@ -5,7 +5,15 @@
  * they live here and are imported directly — this is a plain helper module, not
  * a barrel (CLAUDE.md Hard Rule #4).
  */
-import { getLanguageName, type InputType, logger, type SupportedLang, t } from "@polyglot/core";
+import {
+  getLanguageName,
+  type InputType,
+  type LanguageOrderContext,
+  logger,
+  type SupportedLang,
+  selectPronounceableLangs,
+  t,
+} from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../../types.js";
 import { replyTechnical } from "../../utils/message-cleanup.js";
@@ -19,6 +27,27 @@ import { replyTechnical } from "../../utils/message-cleanup.js";
  */
 export function isEtymologyEligible(inputType: InputType, sourceLang: string, nativeLang: string): boolean {
   return (inputType === "word" || inputType === "phrase") && sourceLang !== nativeLang;
+}
+
+/**
+ * Languages on this card that get a 🔊 button, or an empty list when there are
+ * none to offer.
+ *
+ * Returns empty — so no row is rendered at all — whenever TTS is off or has no
+ * model configured, and for sentence cards, which are out of scope for v1
+ * (Task 77). Everything else is the "only the words being learned" rule, which
+ * lives in core as {@link selectPronounceableLangs}.
+ */
+export async function resolvePronounceLangs(
+  ctx: BotContext,
+  translations: Readonly<Record<string, { text: string } | undefined>>,
+  inputType: InputType,
+  order: LanguageOrderContext,
+): Promise<readonly string[]> {
+  if (inputType === "sentence") return [];
+  const config = await ctx.services.settings.getTtsConfig();
+  if (!config.enabled || !config.modelId) return [];
+  return selectPronounceableLangs(translations, order);
 }
 
 export function normalizeLearningLangs(nativeLang: string, learningLangs: readonly string[]): string[] {

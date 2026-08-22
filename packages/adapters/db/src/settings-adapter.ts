@@ -7,6 +7,7 @@ import type {
   SettingsPort,
   SrsConfig,
   TranslationPresetConfig,
+  TtsConfig,
   VideoVocabularyConfig,
 } from "@polyglot/core";
 import { parseAIGenerationDefaults } from "@polyglot/core";
@@ -15,11 +16,34 @@ import { rateLimitPlanRepository } from "./repositories/rate-limit-plan.reposito
 import { systemSettingsRepository } from "./repositories/system-settings.repository.js";
 import { translationPresetRepository } from "./repositories/translation-preset.repository.js";
 
+/**
+ * TTS is ON by default (the pronunciation button is offered out of the box).
+ *
+ * Unlike the primary completion model — which Task 73 requires to come from
+ * `ai_models` with NO code-level default, because a bad value there takes
+ * translation down — a bad value here costs a toast on one button. So this
+ * follows the `videoVocabulary.extractionModelId` precedent instead: a working
+ * default in code, overridable by a `tts` row in `system_settings` without a
+ * redeploy.
+ *
+ * Why this model and this format, both verified against the live API on
+ * 2026-08-22 rather than taken from the model card:
+ *   - `response_format: "mp3"` is non-negotiable — Telegram `sendVoice` takes mp3
+ *     directly, so no ffmpeg. Gemini 3.1 Flash TTS, the obvious pick on language
+ *     coverage, REJECTS mp3 outright ("only supports response_format=pcm") and
+ *     would have failed on every call.
+ *   - Grok Voice TTS returned valid `audio/mpeg` for all 11 supported learning
+ *     languages (cs de en es fr it kk pl pt ru uk) in ~0.5-1s, Kazakh included,
+ *     and auto-detects the language, so one voice serves every language. Most
+ *     rivals lock voices to a locale (`de-DE-Klaus`, `en_paul_neutral`), which a
+ *     single global default cannot use.
+ */
 const DEFAULTS: {
   srs: SrsConfig;
   notifications: NotificationDefaults;
   dictionary: DictionaryConfig;
   videoVocabulary: VideoVocabularyConfig;
+  tts: TtsConfig;
 } = {
   srs: { minEaseFactor: 1.3, defaultEaseFactor: 2.5 },
   notifications: { defaultTime: "19:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 },
@@ -30,6 +54,7 @@ const DEFAULTS: {
     maxPhrases: 40,
     extractionModelId: "google/gemini-3.1-flash-lite",
   },
+  tts: { enabled: true, modelId: "x-ai/grok-voice-tts-1.0", voice: "eve", maxChars: 200 },
 };
 
 async function getWithFallback<T>(key: string, fallback: T): Promise<T> {
@@ -148,5 +173,9 @@ export const settingsAdapter: SettingsPort = {
 
   async getVideoVocabularyConfig(): Promise<VideoVocabularyConfig> {
     return getWithFallback<VideoVocabularyConfig>("videoVocabulary", DEFAULTS.videoVocabulary);
+  },
+
+  async getTtsConfig(): Promise<TtsConfig> {
+    return getWithFallback<TtsConfig>("tts", DEFAULTS.tts);
   },
 };

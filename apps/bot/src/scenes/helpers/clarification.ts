@@ -33,6 +33,7 @@ import {
   getUserLanguageGroup,
   isEtymologyEligible,
   normalizeLearningLangs,
+  resolvePronounceLangs,
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
@@ -299,6 +300,8 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
       // card stays put as a snapshot (which also avoids Telegram's 48h edit
       // limit). Preserve any accumulated "Other meaning" history for the new
       // card and advance the pending-card pointers to it.
+      const pronounceLangs = await resolvePronounceLangs(ctx, decision.output.translations, entry.inputType, order);
+
       const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
       const keyboard = buildTranslationKeyboard(
         lang,
@@ -307,6 +310,8 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
         showGrammarButton,
         undefined,
         showEtymologyButton,
+        undefined,
+        pronounceLangs,
       );
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
 

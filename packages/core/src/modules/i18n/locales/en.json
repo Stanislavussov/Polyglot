@@ -339,5 +339,8 @@
   "menuBtnDictionary": "Dictionary",
   "menuBtnFlashcards": "Cards",
   "menuBtnVideos": "Videos",
-  "mainMenuHint": "☰ Quick menu lives under the input field: Dictionary, Cards and Videos."
+  "mainMenuHint": "☰ Quick menu lives under the input field: Dictionary, Cards and Videos.",
+  "pronounce": "🔊 Pronounce",
+  "ttsUnavailable": "⚠️ Could not play the pronunciation. Please try again.",
+  "ttsTooLong": "⚠️ This text is too long to pronounce."
 }

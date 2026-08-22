@@ -80,6 +80,7 @@ import {
   handleOutOfSetCallback,
   handleSrcLangOverrideCallback,
 } from "./scenes/helpers/out-of-set.js";
+import { handlePronounceCallback } from "./scenes/helpers/pronunciation.js";
 import { handleRetryCallback } from "./scenes/helpers/retry.helper.js";
 import {
   handleSetBackCallback,
@@ -406,6 +407,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^tr:gramlang:/, handleGrammarLangSelectCallback);
   onCallback(/^tr:grammar:/, handleGrammarBreakdownCallback);
   onCallback(/^tr:etymology:/, handleEtymologyCallback);
+  onCallback(/^tr:say:/, handlePronounceCallback);
   onCallback("tr:mistype:confirm", handleMistypeConfirmCallback);
 
   onCallback("plan:upgrade", handleUpgradePromptCallback);

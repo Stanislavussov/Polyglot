@@ -75,6 +75,7 @@ import {
   getUserLanguageGroup,
   isEtymologyEligible,
   normalizeLearningLangs,
+  resolvePronounceLangs,
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
@@ -777,6 +778,8 @@ async function sendTranslationCard(
       });
   }
 
+  const pronounceLangs = await resolvePronounceLangs(ctx, output.translations, inputType, order);
+
   const keyboard = buildTranslationKeyboard(
     lang,
     cardMsg.message_id,
@@ -785,6 +788,7 @@ async function sendTranslationCard(
     hasInlineGrammar,
     showEtymologyButton,
     sourceOverrideLangs,
+    pronounceLangs,
   );
   await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 

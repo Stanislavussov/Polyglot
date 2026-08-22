@@ -97,6 +97,7 @@ export type { TranslationRequest } from "./repositories/translation-request.repo
 export { translationRequestRepository } from "./repositories/translation-request.repository.js";
 export type { SavedTranslationTemplate } from "./repositories/translation-template.repository.js";
 export { translationTemplateRepository } from "./repositories/translation-template.repository.js";
+export { ttsCacheRepository } from "./repositories/tts-cache.repository.js";
 export type {
   AudienceGroup,
   NewUser,

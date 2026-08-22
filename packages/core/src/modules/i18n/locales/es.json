@@ -339,5 +339,8 @@
   "menuBtnDictionary": "Diccionario",
   "menuBtnFlashcards": "Tarjetas",
   "menuBtnVideos": "Vídeos",
-  "mainMenuHint": "☰ El menú rápido está debajo del campo de texto: Diccionario, Tarjetas y Vídeos."
+  "mainMenuHint": "☰ El menú rápido está debajo del campo de texto: Diccionario, Tarjetas y Vídeos.",
+  "pronounce": "🔊 Pronunciación",
+  "ttsUnavailable": "⚠️ No se pudo reproducir la pronunciación. Inténtalo de nuevo.",
+  "ttsTooLong": "⚠️ Este texto es demasiado largo para pronunciarlo."
 }

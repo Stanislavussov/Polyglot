@@ -8,6 +8,8 @@ export type {
   ChatOptions,
   GenerateObjectFn,
   GenerateOptions,
+  SpeechOptions,
+  SpeechResult,
 } from "./ports/ai.port.js";
 // Ports — service container for dependency injection
 export type { ServiceContainer } from "./ports/container.js";
@@ -41,6 +43,7 @@ export type {
   SettingsPort,
   SrsConfig,
   TranslationPresetConfig,
+  TtsConfig,
   VideoVocabularyConfig,
 } from "./ports/settings.port.js";
 export type {
@@ -53,6 +56,11 @@ export type {
   TranslationRequest,
   TranslationRequestRepository,
 } from "./ports/translation-request.repository.js";
+export type {
+  TtsCacheHit,
+  TtsCacheKey,
+  TtsCacheRepository,
+} from "./ports/tts-cache.repository.js";
 export type {
   ActivationNudgeCandidate,
   AudienceGroup,
@@ -131,6 +139,15 @@ export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";
+export { selectPronounceableLangs } from "./modules/tts/pronounceable-langs.js";
+export type {
+  PronunciationDeps,
+  PronunciationFailure,
+  PronunciationInput,
+  PronunciationResult,
+  SynthesizedSpeech,
+} from "./modules/tts/pronunciation.service.js";
+export { hashTtsText, normalizeTtsText, playPronunciation } from "./modules/tts/pronunciation.service.js";
 export type {
   ExampleInput,
   ValidateInput,

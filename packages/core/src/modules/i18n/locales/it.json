@@ -339,5 +339,8 @@
   "menuBtnDictionary": "Dizionario",
   "menuBtnFlashcards": "Schede",
   "menuBtnVideos": "Video",
-  "mainMenuHint": "☰ Il menu rapido è sotto il campo di testo: Dizionario, Schede e Video."
+  "mainMenuHint": "☰ Il menu rapido è sotto il campo di testo: Dizionario, Schede e Video.",
+  "pronounce": "🔊 Pronuncia",
+  "ttsUnavailable": "⚠️ Impossibile riprodurre la pronuncia. Riprova.",
+  "ttsTooLong": "⚠️ Questo testo è troppo lungo da pronunciare."
 }

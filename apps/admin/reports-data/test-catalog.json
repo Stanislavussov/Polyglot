@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-14T18:01:33.000Z",
+  "generatedAt": "2026-08-14T18:34:36.000Z",
   "summary": {
-    "total": 2684,
+    "total": 2718,
     "business": 0,
-    "technical": 2684,
+    "technical": 2718,
     "workspaces": [
       "apps",
       "packages"
@@ -1735,10 +1735,10 @@
       "description": "Protects the bot build Ai Failover behavior so disables the split for a non finite non positive budget instead of returning a Na N split."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-156-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-162-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 156,
+      "sourceLine": 162,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1751,10 +1751,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-178-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-184-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 178,
+      "sourceLine": 184,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1767,10 +1767,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-188-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-194-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 188,
+      "sourceLine": 194,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1783,10 +1783,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-196-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-202-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 202,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2725,6 +2725,86 @@
       "name": "Bot translation language order (integration) follows the user's current order for entries saved under a different one",
       "value": "Protects the bot translation language order (integration) behavior so follows the user's current order for entries saved under a different one.",
       "description": "Protects the bot translation language order (integration) behavior so follows the user's current order for entries saved under a different one."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-71-word-pronunciation-integration-offers-a-pronunciation-button-for-the-learning-language-and-speaks-it-on-tap",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
+      "sourceLine": 71,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word pronunciation (integration)"
+      ],
+      "title": "offers a pronunciation button for the learning language and speaks it on tap",
+      "rawTitle": "offers a pronunciation button for the learning language and speaks it on tap",
+      "name": "Bot word pronunciation (integration) offers a pronunciation button for the learning language and speaks it on tap",
+      "value": "Protects the bot word pronunciation (integration) behavior so offers a pronunciation button for the learning language and speaks it on tap.",
+      "description": "Protects the bot word pronunciation (integration) behavior so offers a pronunciation button for the learning language and speaks it on tap."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-106-word-pronunciation-integration-serves-a-second-tap-from-the-cache-without-paying-for-synthesis-again",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
+      "sourceLine": 106,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word pronunciation (integration)"
+      ],
+      "title": "serves a second tap from the cache without paying for synthesis again",
+      "rawTitle": "serves a second tap from the cache without paying for synthesis again",
+      "name": "Bot word pronunciation (integration) serves a second tap from the cache without paying for synthesis again",
+      "value": "Protects the bot word pronunciation (integration) behavior so serves a second tap from the cache without paying for synthesis again.",
+      "description": "Protects the bot word pronunciation (integration) behavior so serves a second tap from the cache without paying for synthesis again."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-132-word-pronunciation-integration-heals-a-file-id-telegram-no-longer-accepts-instead-of-failing-the-tap",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
+      "sourceLine": 132,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word pronunciation (integration)"
+      ],
+      "title": "heals a file_id Telegram no longer accepts instead of failing the tap",
+      "rawTitle": "heals a file_id Telegram no longer accepts instead of failing the tap",
+      "name": "Bot word pronunciation (integration) heals a file id Telegram no longer accepts instead of failing the tap",
+      "value": "Protects the bot word pronunciation (integration) behavior so heals a file id Telegram no longer accepts instead of failing the tap.",
+      "description": "Protects the bot word pronunciation (integration) behavior so heals a file id Telegram no longer accepts instead of failing the tap."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-158-word-pronunciation-integration-renders-no-pronunciation-button-at-all-while-tts-is-disabled",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
+      "sourceLine": 158,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word pronunciation (integration)"
+      ],
+      "title": "renders no pronunciation button at all while TTS is disabled",
+      "rawTitle": "renders no pronunciation button at all while TTS is disabled",
+      "name": "Bot word pronunciation (integration) renders no pronunciation button at all while TTS is disabled",
+      "value": "Protects the bot word pronunciation (integration) behavior: renders no pronunciation button at all while TTS is disabled.",
+      "description": "Protects the bot word pronunciation (integration) behavior: renders no pronunciation button at all while TTS is disabled."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-169-word-pronunciation-integration-tells-the-user-the-card-expired-when-the-session-entry-is-gone",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
+      "sourceLine": 169,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word pronunciation (integration)"
+      ],
+      "title": "tells the user the card expired when the session entry is gone",
+      "rawTitle": "tells the user the card expired when the session entry is gone",
+      "name": "Bot word pronunciation (integration) tells the user the card expired when the session entry is gone",
+      "value": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone.",
+      "description": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone."
     },
     {
       "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-102-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
@@ -9422,6 +9502,150 @@
       "description": "Protects the bot grammar breakdown — language order behavior so orders only the languages present in the breakdown."
     },
     {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-47-buildtranslationkeyboard-pronunciation-row-renders-no-pronunciation-button-when-no-language-is-eligible",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 47,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "renders no pronunciation button when no language is eligible",
+      "rawTitle": "renders no pronunciation button when no language is eligible",
+      "name": "Bot build Translation Keyboard — pronunciation row renders no pronunciation button when no language is eligible",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior: renders no pronunciation button when no language is eligible.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior: renders no pronunciation button when no language is eligible."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-53-buildtranslationkeyboard-pronunciation-row-gives-a-single-eligible-language-one-labelled-button",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 53,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "gives a single eligible language one labelled button",
+      "rawTitle": "gives a single eligible language one labelled button",
+      "name": "Bot build Translation Keyboard — pronunciation row gives a single eligible language one labelled button",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior so gives a single eligible language one labelled button.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so gives a single eligible language one labelled button."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-58-buildtranslationkeyboard-pronunciation-row-gives-several-eligible-languages-one-compact-button-each-in-the-given-order",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 58,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "gives several eligible languages one compact button each, in the given order",
+      "rawTitle": "gives several eligible languages one compact button each, in the given order",
+      "name": "Bot build Translation Keyboard — pronunciation row gives several eligible languages one compact button each, in the given order",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior so gives several eligible languages one compact button each, in the given order.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so gives several eligible languages one compact button each, in the given order."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-63-buildtranslationkeyboard-pronunciation-row-wraps-past-four-languages-instead-of-growing-one-unreadable-row",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 63,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "wraps past four languages instead of growing one unreadable row",
+      "rawTitle": "wraps past four languages instead of growing one unreadable row",
+      "name": "Bot build Translation Keyboard — pronunciation row wraps past four languages instead of growing one unreadable row",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior so wraps past four languages instead of growing one unreadable row.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so wraps past four languages instead of growing one unreadable row."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-70-buildtranslationkeyboard-pronunciation-row-keeps-save-as-the-last-row-so-the-card-s-primary-action-does-not-move",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 70,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "keeps Save as the last row so the card's primary action does not move",
+      "rawTitle": "keeps Save as the last row so the card's primary action does not move",
+      "name": "Bot build Translation Keyboard — pronunciation row keeps Save as the last row so the card's primary action does not move",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior: keeps Save as the last row so the card's primary action does not move.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior: keeps Save as the last row so the card's primary action does not move."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-76-buildtranslationkeyboard-pronunciation-row-stays-inside-telegram-s-64-byte-callback-limit-for-the-longest-realistic-payload",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 76,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "stays inside Telegram's 64-byte callback limit for the longest realistic payload",
+      "rawTitle": "stays inside Telegram's 64-byte callback limit for the longest realistic payload",
+      "name": "Bot build Translation Keyboard — pronunciation row stays inside Telegram's 64 byte callback limit for the longest realistic payload",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior so stays inside Telegram's 64 byte callback limit for the longest realistic payload.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so stays inside Telegram's 64 byte callback limit for the longest realistic payload."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-85-buildtranslationkeyboard-pronunciation-row-labels-a-compact-button-with-the-speaker-and-the-flag-and-nothing-else",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 85,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "labels a compact button with the speaker and the flag, and nothing else",
+      "rawTitle": "labels a compact button with the speaker and the flag, and nothing else",
+      "name": "Bot build Translation Keyboard — pronunciation row labels a compact button with the speaker and the flag, and nothing else",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior so labels a compact button with the speaker and the flag, and nothing else.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so labels a compact button with the speaker and the flag, and nothing else."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-90-buildtranslationkeyboard-pronunciation-row-carries-no-language-code-once-a-flag-is-available",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "carries no language code once a flag is available",
+      "rawTitle": "carries no language code once a flag is available",
+      "name": "Bot build Translation Keyboard — pronunciation row carries no language code once a flag is available",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior so carries no language code once a flag is available.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior so carries no language code once a flag is available."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-translation-renderer-pronounce-test-ts-98-buildtranslationkeyboard-pronunciation-row-falls-back-to-the-language-code-when-a-flag-is-missing-so-buttons-stay-distinct",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.pronounce.test.ts",
+      "sourceLine": 98,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildTranslationKeyboard — pronunciation row"
+      ],
+      "title": "falls back to the language code when a flag is missing, so buttons stay distinct",
+      "rawTitle": "falls back to the language code when a flag is missing, so buttons stay distinct",
+      "name": "Bot build Translation Keyboard — pronunciation row falls back to the language code when a flag is missing, so buttons stay distinct",
+      "value": "Protects the bot build Translation Keyboard — pronunciation row behavior: falls back to the language code when a flag is missing, so buttons stay distinct.",
+      "description": "Protects the bot build Translation Keyboard — pronunciation row behavior: falls back to the language code when a flag is missing, so buttons stay distinct."
+    },
+    {
       "id": "apps-bot-src-renderers-tests-translation-renderer-test-ts-35-rendertranslation-unverified-caveat-task-70-renders-the-caveat-line-for-an-unverified-translate-as-written-card",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/translation.renderer.test.ts",
@@ -10969,10 +11193,10 @@
       "description": "Protects the bot onboarding starter video — allowance exemption behavior so leaves a pasted link on the normal allowance path."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-122-handlealtmeaningcallback-append-not-edit-sends-the-new-sense-as-a-new-card-and-never-edits-the-previous-card-in-place",
+      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-127-handlealtmeaningcallback-append-not-edit-sends-the-new-sense-as-a-new-card-and-never-edits-the-previous-card-in-place",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/card-actions.altmeaning.test.ts",
-      "sourceLine": 122,
+      "sourceLine": 127,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10985,10 +11209,10 @@
       "description": "Protects the bot handle Alt Meaning Callback — append not edit behavior: sends the new sense as a NEW card and never edits the previous card in place."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-145-handlealtmeaningcallback-append-not-edit-carries-the-previously-shown-translations-forward-as-negative-constraints-on-the-new-card",
+      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-150-handlealtmeaningcallback-append-not-edit-carries-the-previously-shown-translations-forward-as-negative-constraints-on-the-new-card",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/card-actions.altmeaning.test.ts",
-      "sourceLine": 145,
+      "sourceLine": 150,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11001,10 +11225,10 @@
       "description": "Protects the bot handle Alt Meaning Callback — append not edit behavior so carries the previously shown translations forward as negative constraints on the new card."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-160-handlealtmeaningcallback-append-not-edit-leaves-the-previous-card-untouched-and-reports-no-more-meanings-on-clarification",
+      "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-165-handlealtmeaningcallback-append-not-edit-leaves-the-previous-card-untouched-and-reports-no-more-meanings-on-clarification",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/card-actions.altmeaning.test.ts",
-      "sourceLine": 160,
+      "sourceLine": 165,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -32497,6 +32721,86 @@
       "description": "Protects the core domain Settings Service model resolution behavior so caches a resolved fallback model."
     },
     {
+      "id": "packages-core-src-modules-settings-tests-tts-defaults-test-ts-12-shipped-tts-default-is-enabled-so-the-pronunciation-button-appears-without-any-settings-row",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/tts-defaults.test.ts",
+      "sourceLine": 12,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped TTS default"
+      ],
+      "title": "is enabled, so the pronunciation button appears without any settings row",
+      "rawTitle": "is enabled, so the pronunciation button appears without any settings row",
+      "name": "Core domain shipped TTS default is enabled, so the pronunciation button appears without any settings row",
+      "value": "Protects the core domain shipped TTS default behavior so is enabled, so the pronunciation button appears without any settings row.",
+      "description": "Protects the core domain shipped TTS default behavior so is enabled, so the pronunciation button appears without any settings row."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-tts-defaults-test-ts-16-shipped-tts-default-names-a-model-and-a-voice-an-enabled-config-without-them-renders-no-button",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/tts-defaults.test.ts",
+      "sourceLine": 16,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped TTS default"
+      ],
+      "title": "names a model and a voice — an enabled config without them renders no button",
+      "rawTitle": "names a model and a voice — an enabled config without them renders no button",
+      "name": "Core domain shipped TTS default names a model and a voice — an enabled config without them renders no button",
+      "value": "Protects the core domain shipped TTS default behavior so names a model and a voice — an enabled config without them renders no button.",
+      "description": "Protects the core domain shipped TTS default behavior so names a model and a voice — an enabled config without them renders no button."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-tts-defaults-test-ts-23-shipped-tts-default-keeps-the-model-verified-against-the-live-api-on-2026-08-22",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/tts-defaults.test.ts",
+      "sourceLine": 23,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped TTS default"
+      ],
+      "title": "keeps the model verified against the live API on 2026-08-22",
+      "rawTitle": "keeps the model verified against the live API on 2026-08-22",
+      "name": "Core domain shipped TTS default keeps the model verified against the live API on 2026 08 22",
+      "value": "Protects the core domain shipped TTS default behavior: keeps the model verified against the live API on 2026 08 22.",
+      "description": "Protects the core domain shipped TTS default behavior: keeps the model verified against the live API on 2026 08 22."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-tts-defaults-test-ts-33-shipped-tts-default-caps-synthesis-length-so-a-long-card-body-can-never-be-sent-for-billing",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/tts-defaults.test.ts",
+      "sourceLine": 33,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped TTS default"
+      ],
+      "title": "caps synthesis length so a long card body can never be sent for billing",
+      "rawTitle": "caps synthesis length so a long card body can never be sent for billing",
+      "name": "Core domain shipped TTS default caps synthesis length so a long card body can never be sent for billing",
+      "value": "Protects the core domain shipped TTS default behavior so caps synthesis length so a long card body can never be sent for billing.",
+      "description": "Protects the core domain shipped TTS default behavior so caps synthesis length so a long card body can never be sent for billing."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-tts-defaults-test-ts-38-shipped-tts-default-serves-the-port-s-stored-config-verbatim-when-one-exists",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/tts-defaults.test.ts",
+      "sourceLine": 38,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped TTS default"
+      ],
+      "title": "serves the port's stored config verbatim when one exists",
+      "rawTitle": "serves the port's stored config verbatim when one exists",
+      "name": "Core domain shipped TTS default serves the port's stored config verbatim when one exists",
+      "value": "Protects the core domain shipped TTS default behavior so serves the port's stored config verbatim when one exists.",
+      "description": "Protects the core domain shipped TTS default behavior so serves the port's stored config verbatim when one exists."
+    },
+    {
       "id": "packages-core-src-modules-srs-sm2-test-ts-7-sm-2-srs-scheduling-schedules-new-saved-cards-for-first-review-tomorrow",
       "kind": "technical",
       "filePath": "packages/core/src/modules/srs/sm2.test.ts",
@@ -38990,6 +39294,246 @@
       "name": "Core domain build Judge Prompt still asks for the genuine factual and immutable token blocking rules",
       "value": "Protects the core domain build Judge Prompt behavior so still asks for the genuine factual and immutable token blocking rules.",
       "description": "Protects the core domain build Judge Prompt behavior so still asks for the genuine factual and immutable token blocking rules."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronounceable-langs-test-ts-9-selectpronounceablelangs-offers-a-speaker-for-each-learning-language-on-the-card",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronounceable-langs.test.ts",
+      "sourceLine": 9,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPronounceableLangs"
+      ],
+      "title": "offers a speaker for each learning language on the card",
+      "rawTitle": "offers a speaker for each learning language on the card",
+      "name": "Core domain select Pronounceable Langs offers a speaker for each learning language on the card",
+      "value": "Protects the core domain select Pronounceable Langs behavior so offers a speaker for each learning language on the card.",
+      "description": "Protects the core domain select Pronounceable Langs behavior so offers a speaker for each learning language on the card."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronounceable-langs-test-ts-17-selectpronounceablelangs-never-offers-one-for-the-native-language-even-when-it-is-on-the-card",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronounceable-langs.test.ts",
+      "sourceLine": 17,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPronounceableLangs"
+      ],
+      "title": "never offers one for the native language, even when it is on the card",
+      "rawTitle": "never offers one for the native language, even when it is on the card",
+      "name": "Core domain select Pronounceable Langs never offers one for the native language, even when it is on the card",
+      "value": "Protects the core domain select Pronounceable Langs behavior so never offers one for the native language, even when it is on the card.",
+      "description": "Protects the core domain select Pronounceable Langs behavior so never offers one for the native language, even when it is on the card."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronounceable-langs-test-ts-22-selectpronounceablelangs-never-offers-one-for-a-language-the-user-is-not-learning",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronounceable-langs.test.ts",
+      "sourceLine": 22,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPronounceableLangs"
+      ],
+      "title": "never offers one for a language the user is not learning",
+      "rawTitle": "never offers one for a language the user is not learning",
+      "name": "Core domain select Pronounceable Langs never offers one for a language the user is not learning",
+      "value": "Protects the core domain select Pronounceable Langs behavior so never offers one for a language the user is not learning.",
+      "description": "Protects the core domain select Pronounceable Langs behavior so never offers one for a language the user is not learning."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronounceable-langs-test-ts-28-selectpronounceablelangs-offers-nothing-when-the-user-studies-no-languages",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronounceable-langs.test.ts",
+      "sourceLine": 28,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPronounceableLangs"
+      ],
+      "title": "offers nothing when the user studies no languages",
+      "rawTitle": "offers nothing when the user studies no languages",
+      "name": "Core domain select Pronounceable Langs offers nothing when the user studies no languages",
+      "value": "Protects the core domain select Pronounceable Langs behavior so offers nothing when the user studies no languages.",
+      "description": "Protects the core domain select Pronounceable Langs behavior so offers nothing when the user studies no languages."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronounceable-langs-test-ts-32-selectpronounceablelangs-skips-a-learning-language-whose-translation-is-missing-or-blank",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronounceable-langs.test.ts",
+      "sourceLine": 32,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPronounceableLangs"
+      ],
+      "title": "skips a learning language whose translation is missing or blank",
+      "rawTitle": "skips a learning language whose translation is missing or blank",
+      "name": "Core domain select Pronounceable Langs skips a learning language whose translation is missing or blank",
+      "value": "Protects the core domain select Pronounceable Langs behavior: skips a learning language whose translation is missing or blank.",
+      "description": "Protects the core domain select Pronounceable Langs behavior: skips a learning language whose translation is missing or blank."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronounceable-langs-test-ts-40-selectpronounceablelangs-follows-the-user-s-language-order-not-the-record-s-key-order",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronounceable-langs.test.ts",
+      "sourceLine": 40,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPronounceableLangs"
+      ],
+      "title": "follows the user's language order, not the record's key order",
+      "rawTitle": "follows the user's language order, not the record's key order",
+      "name": "Core domain select Pronounceable Langs follows the user's language order, not the record's key order",
+      "value": "Protects the core domain select Pronounceable Langs behavior so follows the user's language order, not the record's key order.",
+      "description": "Protects the core domain select Pronounceable Langs behavior so follows the user's language order, not the record's key order."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronunciation-service-test-ts-33-playpronunciation-synthesizes-on-a-cache-miss-delivers-the-audio-and-caches-the-file-id",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronunciation.service.test.ts",
+      "sourceLine": 33,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "playPronunciation"
+      ],
+      "title": "synthesizes on a cache miss, delivers the audio, and caches the file_id",
+      "rawTitle": "synthesizes on a cache miss, delivers the audio, and caches the file_id",
+      "name": "Core domain play Pronunciation synthesizes on a cache miss, delivers the audio, and caches the file id",
+      "value": "Protects the core domain play Pronunciation behavior so synthesizes on a cache miss, delivers the audio, and caches the file id.",
+      "description": "Protects the core domain play Pronunciation behavior so synthesizes on a cache miss, delivers the audio, and caches the file id."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronunciation-service-test-ts-51-playpronunciation-serves-a-cache-hit-without-paying-for-synthesis",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronunciation.service.test.ts",
+      "sourceLine": 51,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "playPronunciation"
+      ],
+      "title": "serves a cache hit without paying for synthesis",
+      "rawTitle": "serves a cache hit without paying for synthesis",
+      "name": "Core domain play Pronunciation serves a cache hit without paying for synthesis",
+      "value": "Protects the core domain play Pronunciation behavior so serves a cache hit without paying for synthesis.",
+      "description": "Protects the core domain play Pronunciation behavior so serves a cache hit without paying for synthesis."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronunciation-service-test-ts-64-playpronunciation-heals-a-stale-file-id-drops-the-row-re-synthesizes-and-still-delivers",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronunciation.service.test.ts",
+      "sourceLine": 64,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "playPronunciation"
+      ],
+      "title": "heals a stale file_id: drops the row, re-synthesizes, and still delivers",
+      "rawTitle": "heals a stale file_id: drops the row, re-synthesizes, and still delivers",
+      "name": "Core domain play Pronunciation heals a stale file id: drops the row, re synthesizes, and still delivers",
+      "value": "Protects the core domain play Pronunciation behavior so heals a stale file id: drops the row, re synthesizes, and still delivers.",
+      "description": "Protects the core domain play Pronunciation behavior so heals a stale file id: drops the row, re synthesizes, and still delivers."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronunciation-service-test-ts-79-playpronunciation-refuses-text-over-the-cap-before-spending-anything",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronunciation.service.test.ts",
+      "sourceLine": 79,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "playPronunciation"
+      ],
+      "title": "refuses text over the cap before spending anything",
+      "rawTitle": "refuses text over the cap before spending anything",
+      "name": "Core domain play Pronunciation refuses text over the cap before spending anything",
+      "value": "Protects the core domain play Pronunciation behavior so refuses text over the cap before spending anything.",
+      "description": "Protects the core domain play Pronunciation behavior so refuses text over the cap before spending anything."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronunciation-service-test-ts-89-playpronunciation-refuses-to-guess-a-model-when-none-is-configured",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronunciation.service.test.ts",
+      "sourceLine": 89,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "playPronunciation"
+      ],
+      "title": "refuses to guess a model when none is configured",
+      "rawTitle": "refuses to guess a model when none is configured",
+      "name": "Core domain play Pronunciation refuses to guess a model when none is configured",
+      "value": "Protects the core domain play Pronunciation behavior so refuses to guess a model when none is configured.",
+      "description": "Protects the core domain play Pronunciation behavior so refuses to guess a model when none is configured."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronunciation-service-test-ts-99-playpronunciation-reports-a-provider-failure-without-caching-anything",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronunciation.service.test.ts",
+      "sourceLine": 99,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "playPronunciation"
+      ],
+      "title": "reports a provider failure without caching anything",
+      "rawTitle": "reports a provider failure without caching anything",
+      "name": "Core domain play Pronunciation reports a provider failure without caching anything",
+      "value": "Protects the core domain play Pronunciation behavior: reports a provider failure without caching anything.",
+      "description": "Protects the core domain play Pronunciation behavior: reports a provider failure without caching anything."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronunciation-service-test-ts-108-playpronunciation-keeps-a-delivered-pronunciation-successful-when-caching-it-loses-the-insert-race",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronunciation.service.test.ts",
+      "sourceLine": 108,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "playPronunciation"
+      ],
+      "title": "keeps a delivered pronunciation successful when caching it loses the insert race",
+      "rawTitle": "keeps a delivered pronunciation successful when caching it loses the insert race",
+      "name": "Core domain play Pronunciation keeps a delivered pronunciation successful when caching it loses the insert race",
+      "value": "Protects the core domain play Pronunciation behavior: keeps a delivered pronunciation successful when caching it loses the insert race.",
+      "description": "Protects the core domain play Pronunciation behavior: keeps a delivered pronunciation successful when caching it loses the insert race."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronunciation-service-test-ts-117-playpronunciation-treats-whitespace-padded-text-as-the-same-cache-entry",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronunciation.service.test.ts",
+      "sourceLine": 117,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "playPronunciation"
+      ],
+      "title": "treats whitespace-padded text as the same cache entry",
+      "rawTitle": "treats whitespace-padded text as the same cache entry",
+      "name": "Core domain play Pronunciation treats whitespace padded text as the same cache entry",
+      "value": "Protects the core domain play Pronunciation behavior so treats whitespace padded text as the same cache entry.",
+      "description": "Protects the core domain play Pronunciation behavior so treats whitespace padded text as the same cache entry."
+    },
+    {
+      "id": "packages-core-src-modules-tts-tests-pronunciation-service-test-ts-128-normalizettstext-collapses-internal-whitespace-and-trims-the-edges",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/tts/__tests__/pronunciation.service.test.ts",
+      "sourceLine": 128,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "normalizeTtsText"
+      ],
+      "title": "collapses internal whitespace and trims the edges",
+      "rawTitle": "collapses internal whitespace and trims the edges",
+      "name": "Core domain normalize Tts Text collapses internal whitespace and trims the edges",
+      "value": "Protects the core domain normalize Tts Text behavior so collapses internal whitespace and trims the edges.",
+      "description": "Protects the core domain normalize Tts Text behavior so collapses internal whitespace and trims the edges."
     },
     {
       "id": "packages-core-src-modules-validation-tests-example-validator-coverage-test-ts-24-validateexamples-headword-coverage-flags-an-idiom-illustrated-mostly-by-synonyms-the-observed-en-defect",

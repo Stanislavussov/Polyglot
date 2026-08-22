@@ -17,6 +17,7 @@ import type { SettingsPort } from "./settings.port.js";
 import type { SubscriptionRepository } from "./subscription.repository.js";
 import type { TranslationRequestRepository } from "./translation-request.repository.js";
 import type { TranslationTemplateRepository } from "./translation-template.repository.js";
+import type { TtsCacheRepository } from "./tts-cache.repository.js";
 import type { UserRepository } from "./user.repository.js";
 import type { VideoVocabularyRepository } from "./video-vocabulary.repository.js";
 import type { VocabularyRepository } from "./vocabulary.repository.js";
@@ -45,6 +46,8 @@ export interface ServiceContainer {
   languageCache: LanguageCachePort;
   ai: AIPort;
   settings: SettingsPort;
+  /** Pronunciation cache — Telegram file_ids for already-synthesized words (Task 77). */
+  ttsCacheRepository: TtsCacheRepository;
   /** Dictionary context lookup used by the translate enrichment layer. */
   contextLookup: ContextLookupFn;
   /** Single-word language sweep used by single-word detection. */

@@ -51,7 +51,12 @@ vi.mock("./edit-message.helper.js", () => ({
   editMessageReplyMarkupOrIgnore: vi.fn().mockResolvedValue(undefined),
   editMessageTextOrReply: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock("./translate-mode.shared.js", () => ({ isEtymologyEligible: vi.fn(() => false) }));
+vi.mock("./translate-mode.shared.js", () => ({
+  isEtymologyEligible: vi.fn(() => false),
+  // No pronunciation row here — this fixture is about append-not-edit, and the
+  // real helper would need a full language-order context to answer.
+  resolvePronounceLangs: vi.fn(async () => []),
+}));
 
 import type { QualityMetadata, TranslateOutput } from "@polyglot/core";
 import { translateWithContext } from "@polyglot/core";

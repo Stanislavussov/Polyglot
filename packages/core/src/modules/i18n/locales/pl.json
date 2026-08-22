@@ -339,5 +339,8 @@
   "menuBtnDictionary": "Słownik",
   "menuBtnFlashcards": "Fiszki",
   "menuBtnVideos": "Filmy",
-  "mainMenuHint": "☰ Szybkie menu jest pod polem tekstowym: Słownik, Fiszki i Filmy."
+  "mainMenuHint": "☰ Szybkie menu jest pod polem tekstowym: Słownik, Fiszki i Filmy.",
+  "pronounce": "🔊 Wymowa",
+  "ttsUnavailable": "⚠️ Nie udało się odtworzyć wymowy. Spróbuj ponownie.",
+  "ttsTooLong": "⚠️ Ten tekst jest zbyt długi do wymówienia."
 }

@@ -339,5 +339,8 @@
   "menuBtnDictionary": "Slovník",
   "menuBtnFlashcards": "Kartičky",
   "menuBtnVideos": "Videa",
-  "mainMenuHint": "☰ Rychlé menu je pod polem pro zadávání: Slovník, Kartičky a Videa."
+  "mainMenuHint": "☰ Rychlé menu je pod polem pro zadávání: Slovník, Kartičky a Videa.",
+  "pronounce": "🔊 Výslovnost",
+  "ttsUnavailable": "⚠️ Výslovnost se nepodařilo přehrát. Zkuste to znovu.",
+  "ttsTooLong": "⚠️ Tento text je na vyslovení příliš dlouhý."
 }
