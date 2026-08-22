@@ -34,6 +34,18 @@ export const rateLimitPlanSchema = z.object({
     .nullable()
     .default(null),
   videoWindow: z.enum(["none", "lifetime", "monthly"]).default("none"),
+  /**
+   * Display price in US cents (500 = $5/mo). `null` = not for sale, which is the
+   * only way to withdraw a plan from the upgrade screen — so `0` is rejected
+   * rather than treated as "free but purchasable", where a typo would publish a
+   * plan anyone can activate for nothing.
+   */
+  priceUsdCents: z.coerce
+    .number()
+    .int("Price must be an integer number of cents")
+    .min(1, "Price must be at least 1 cent — leave empty for a plan that is not for sale")
+    .nullable()
+    .default(null),
   creditCost: z.coerce
     .number()
     .int("Credit cost must be an integer")
@@ -67,6 +79,32 @@ export const presetUpdateSchema = z.object({
   config: presetConfigSchema.optional(),
   isActive: z.boolean().optional(),
 });
+
+// ── Word-picker presets ───────────────────────────────────────────────────────
+
+/**
+ * A curated angle on a language, offered to the user as the first step in the
+ * bot's main menu. `prompt` is the instruction handed to the model, so it is the
+ * field that decides what the angle actually produces — hence the length floor.
+ */
+export const wordPickerPresetCreateSchema = z.object({
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .max(64, "Slug is too long")
+    .regex(/^[a-z0-9-]+$/, "Use lowercase letters, digits and hyphens"),
+  emoji: z.string().min(1, "Emoji is required").max(16, "Emoji is too long"),
+  title: z.string().min(1, "Title is required").max(120, "Title is too long"),
+  /** Interface-language code → title; missing codes fall back to `title`. */
+  titleI18n: z.record(z.string(), z.string().max(120, "Translated title is too long")).default({}),
+  prompt: z.string().min(20, "Describe the angle in at least 20 characters").max(4000, "Prompt is too long"),
+  /** Learning languages this angle is offered for; empty means every language. */
+  learningLangs: z.array(z.string().min(2).max(16)).default([]),
+  sortOrder: z.coerce.number().int("Order must be an integer").min(0, "Order cannot be negative").default(0),
+  isActive: z.boolean().default(true),
+});
+
+export const wordPickerPresetUpdateSchema = wordPickerPresetCreateSchema.omit({ slug: true }).partial();
 
 // ── AI models ─────────────────────────────────────────────────────────────────
 

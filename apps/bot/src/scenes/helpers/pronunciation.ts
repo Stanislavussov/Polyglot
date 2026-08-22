@@ -1,18 +1,19 @@
 /**
  * Pronunciation callback (`tr:say:{langCode}:{msgId}`) — Task 77.
  *
- * Sends the translated word as a voice message. The card is deliberately left
- * untouched: pronunciation is a side effect, not a section, so unlike grammar and
- * etymology the button does not disappear after use and the card text never
- * changes.
+ * Sends the translated word as a voice message, captioned with the word being
+ * spoken. The card is deliberately left untouched: pronunciation is a side
+ * effect, not a section, so unlike grammar and etymology the button does not
+ * disappear after use and the card text never changes.
  *
  * All policy (cap, cache, self-healing on a rejected file_id) lives in
  * `playPronunciation`; this module only supplies the three Telegram/OpenRouter
  * adapters it needs and translates the outcome into a callback answer.
  */
-import { isSupported, logEvent, playPronunciation, type SupportedLang, t } from "@polyglot/core";
+import { FEATURE_KEYS, isSupported, logEvent, playPronunciation, type SupportedLang, t } from "@polyglot/core";
 import { InputFile } from "grammy";
 import type { BotContext } from "../../types.js";
+import { ensurePaidFeature } from "./paid-feature.helper.js";
 
 /** Parses `tr:say:{langCode}:{msgId}`. Returns null when the shape is unexpected. */
 function parseSayCallback(data: string): { langCode: string; msgId: number } | null {
@@ -43,6 +44,11 @@ export async function handlePronounceCallback(ctx: BotContext): Promise<void> {
     return;
   }
 
+  // Audio is the Pro-only feature — gate before any synthesis is even considered.
+  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.pronunciation, lang))) {
+    return;
+  }
+
   const text = entry.output.translations[langCode]?.text ?? "";
   const config = await ctx.services.settings.getTtsConfig();
 
@@ -69,7 +75,13 @@ export async function handlePronounceCallback(ctx: BotContext): Promise<void> {
         // `sendVoice` accepts mp3 directly, so the bytes go through untranscoded.
         // Replying to the card keeps the audio anchored to the word it belongs to
         // when several cards are in flight.
-        const sent = await ctx.replyWithVoice(audio, { reply_to_message_id: msgId });
+        const sent = await ctx.replyWithVoice(audio, {
+          reply_to_message_id: msgId,
+          // Telegram gives a voice message no visible text of its own, so the
+          // spoken word is captioned beside the player — a user scrolling back
+          // can tell two pronunciations apart without replaying either.
+          caption: text,
+        });
         return sent.voice.file_id;
       },
     },

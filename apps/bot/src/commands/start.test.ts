@@ -86,7 +86,7 @@ describe("startCommand", () => {
     expect(setUserCommands).toHaveBeenCalledWith(ctx.api, 123456789, "en", "tester");
     expect(ctx.reply).toHaveBeenCalledWith(
       "[welcomeBack]",
-      expect.objectContaining({ reply_markup: expect.objectContaining({ is_persistent: true }) }),
+      expect.objectContaining({ reply_markup: expect.objectContaining({ one_time_keyboard: true }) }),
     );
   });
 
@@ -103,6 +103,7 @@ describe("startCommand", () => {
     const [, options] = vi.mocked(ctx.reply).mock.calls[0] ?? [];
     const labels = (options?.reply_markup as { keyboard: { text: string }[][] }).keyboard.flat();
     expect(labels.map((button) => button.text)).toEqual([
+      "✨ [menuBtnPickWords]",
       "📖 [menuBtnDictionary]",
       "🎴 [menuBtnFlashcards]",
       "🎬 [menuBtnVideos]",

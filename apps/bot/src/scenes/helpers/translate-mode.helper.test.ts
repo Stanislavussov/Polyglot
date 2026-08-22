@@ -1464,6 +1464,8 @@ describe("handleEtymologyCallback — loading feedback on the card", () => {
       .mockResolvedValue(undefined);
     (ctx.services as unknown as { featureAccess: unknown }).featureAccess = {
       checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: true }),
+      listFeatures: vi.fn().mockResolvedValue(new Set<string>()),
+      listPlanFeatures: vi.fn().mockResolvedValue(new Set<string>()),
     };
     return ctx;
   }

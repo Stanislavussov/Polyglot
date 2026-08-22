@@ -22,6 +22,7 @@ import { statsRoutes } from "./routes/stats.js";
 import { ttsRoutes } from "./routes/tts.js";
 import { userRoutes } from "./routes/users.js";
 import { videoVocabularyRoutes } from "./routes/video-vocabulary.js";
+import { wordPickerPresetRoutes } from "./routes/word-picker-presets.js";
 
 const PORT = Number.parseInt(process.env.PORT ?? "3001", 10);
 const HOST = process.env.HOST ?? "0.0.0.0";
@@ -82,6 +83,7 @@ export async function buildAdminApiApp() {
   await app.register(videoVocabularyRoutes, { prefix: "/api/settings" });
   await app.register(ttsRoutes, { prefix: "/api/settings" });
   await app.register(presetRoutes, { prefix: "/api/settings" });
+  await app.register(wordPickerPresetRoutes, { prefix: "/api/settings" });
   await app.register(userRoutes, { prefix: "/api" });
   await app.register(reportedIssueRoutes, { prefix: "/api" });
   await app.register(onboardingDemoCardRoutes, { prefix: "/api" });

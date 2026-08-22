@@ -18,6 +18,7 @@ import { errorFields, logEvent, t } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../commands/commands.js";
 import { ONBOARDING_SCREENCAST_FILE_ID } from "../constants.js";
+import { installMainKeyboard } from "../middlewares/main-keyboard.js";
 import { editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
 import type { BotContext } from "../types.js";
 import { cleanupTechnicalMessages, replyTechnical, trackTechnicalMessage } from "../utils/message-cleanup.js";
@@ -124,6 +125,12 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
   await ctx.reply(`${t("onbDemoMore", lang)}\n\n${t("onboardingComplete", lang)}`, {
     reply_markup: buildFinalKeyboard(lang),
   });
+
+  // The mode menu is a reply keyboard that folds away after use, so this hand-off
+  // is the one time the user is shown it and told which icon brings it back. It
+  // rides along with onboarding rather than waiting for the user's next message:
+  // "now what?" is answered here or not at all.
+  await installMainKeyboard(ctx, t("mainMenuHint", lang), lang);
 
   await ctx.services.userRepository.markOnboarded(state.userId);
   recordOnboardingStep(ONBOARDING_STEPS.complete, "completed");

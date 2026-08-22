@@ -34,12 +34,19 @@ export interface VocabTranslationDetails {
   alternatives?: TranslationVariant[];
 }
 
-export type VocabularySource = {
-  type: "video";
-  videoUrl: string;
-  videoTitle: string;
-  timestampSeconds: number | null;
-};
+export type VocabularySource =
+  | {
+      type: "video";
+      videoUrl: string;
+      videoTitle: string;
+      timestampSeconds: number | null;
+    }
+  | {
+      /** Saved from a word-picker set; `runId` links back to `word_picker_runs`. */
+      type: "wordPicker";
+      runId: number;
+      presetTitle: string;
+    };
 
 export interface VocabularyEntry {
   id: number;

@@ -25,6 +25,7 @@ import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { languageOrderFromSettings } from "../../utils/language-order.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
+import { resolveLockedFeatures } from "./paid-feature.helper.js";
 
 type TranslateConversation = Conversation<BotContext, ConversationContext>;
 
@@ -65,7 +66,11 @@ export async function handleRegenLoop(
   const renderCard = isSentence
     ? (o: TranslateOutput, l: SupportedLang) => renderSentenceTranslation(o, order, l, nativeLang)
     : (o: TranslateOutput, l: SupportedLang) => renderTranslation(o, order, l, effectiveTemplate.fields, nativeLang);
-  const buildKeyboard = (_codes: string[], l: SupportedLang) => buildTranslationKeyboard(l);
+  // Resolved once, outside the replayed dialog loop: entitlements are a DB read
+  // and must cross the conversation boundary exactly like the ordering settings.
+  // Crossed as an array — replay state is JSON, and a Set would come back empty.
+  const locked = new Set(await conversation.external(async () => [...(await resolveLockedFeatures(ctx))]));
+  const buildKeyboard = (_codes: string[], l: SupportedLang) => buildTranslationKeyboard({ interfaceLang: l, locked });
 
   let card = renderCard(current, lang);
   let keyboard = buildKeyboard(langCodes, lang);

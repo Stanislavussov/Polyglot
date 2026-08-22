@@ -96,6 +96,15 @@ export type {
   VocabularyDictionaryRepository,
   VocabularyDictionaryWithCount,
 } from "./ports/vocabulary-dictionary.repository.js";
+export type {
+  CreateWordPickerRunInput,
+  WordPickerItem,
+  WordPickerItemInput,
+  WordPickerPreset,
+  WordPickerPresetRepository,
+  WordPickerRun,
+  WordPickerRunRepository,
+} from "./ports/word-picker.repository.js";
 
 // Logger
 
@@ -178,6 +187,21 @@ export {
   orderRecordEntries,
   orderTranslations,
 } from "./modules/vocabulary/translation-order.js";
+export type {
+  CefrLevel,
+  DefaultWordPickerPreset,
+  PickedItem,
+  PickedItemType,
+  PickResult,
+  WordPickRequest,
+} from "./modules/word-picker/index.js";
+export {
+  buildWordPickPrompt,
+  DEFAULT_WORD_PICKER_PRESETS,
+  normalizeWord,
+  pickResultSchema,
+  pickWords,
+} from "./modules/word-picker/index.js";
 export {
   type AICircuitEvent,
   type AICircuitObserver,
