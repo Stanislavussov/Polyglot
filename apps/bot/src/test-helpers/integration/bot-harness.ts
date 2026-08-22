@@ -113,6 +113,34 @@ function rejectingAi(): AIPort {
   };
 }
 
+/** grammY streams a multipart body instead of handing `fetch` a string. */
+function isAsyncIterable(value: unknown): value is AsyncIterable<Uint8Array | string> {
+  return typeof value === "object" && value !== null && Symbol.asyncIterator in value;
+}
+
+/**
+ * Read the text fields out of a multipart upload body.
+ *
+ * Only parts with no `filename` are matched, so the audio bytes are skipped rather
+ * than decoded. Numeric-looking values are coerced so an uploaded `sendVoice` and a
+ * JSON one present the same payload shape to a test.
+ */
+async function readMultipartTextFields(body: unknown): Promise<Record<string, unknown>> {
+  if (!isAsyncIterable(body)) return {};
+  const decoder = new TextDecoder();
+  let text = "";
+  for await (const chunk of body) {
+    text += typeof chunk === "string" ? chunk : decoder.decode(chunk, { stream: true });
+  }
+  text += decoder.decode();
+
+  const fields: Record<string, unknown> = {};
+  for (const [, name, value] of text.matchAll(/name="([^"]+)"\r\n\r\n([\s\S]*?)\r\n--/g)) {
+    fields[name!] = /^-?\d+$/.test(value!) ? Number(value) : value;
+  }
+  return fields;
+}
+
 /** Parse a Telegram Bot API request into its method name and JSON payload. */
 async function parseApiRequest(
   input: string | URL | Request,
@@ -121,20 +149,19 @@ async function parseApiRequest(
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
   const method = url.split("/").at(-1) ?? "";
   let rawBody: string | undefined;
-  // A body grammY did not hand us as a string is a multipart upload (`sendVoice`
-  // with an InputFile). The fields are not worth parsing, but *that* it was an
-  // upload is: it distinguishes freshly synthesized audio from a re-sent `file_id`.
-  let isUpload = false;
   if (init?.body !== undefined && init.body !== null) {
     if (typeof init.body === "string") {
       rawBody = init.body;
     } else {
-      isUpload = true;
+      // A body grammY did not hand us as a string is a multipart upload
+      // (`sendVoice` with an InputFile) — which is how a test tells freshly
+      // synthesized audio from a re-sent `file_id`.
+      return [method, await readMultipartTextFields(init.body), true];
     }
   } else if (input instanceof Request) {
     rawBody = await input.text();
   }
-  if (!rawBody) return [method, {}, isUpload];
+  if (!rawBody) return [method, {}, false];
   try {
     return [method, JSON.parse(rawBody) as Record<string, unknown>, false];
   } catch {

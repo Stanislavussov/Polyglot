@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-22T11:32:01.000Z",
+  "generatedAt": "2026-08-22T16:38:15.000Z",
   "summary": {
-    "total": 2769,
+    "total": 2770,
     "business": 0,
-    "technical": 2769,
+    "technical": 2770,
     "workspaces": [
       "apps",
       "packages"
@@ -2983,10 +2983,26 @@
       "description": "Protects the bot word pronunciation (integration) behavior so offers a pronunciation button for the learning language and speaks it on tap."
     },
     {
-      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-106-word-pronunciation-integration-serves-a-second-tap-from-the-cache-without-paying-for-synthesis-again",
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-106-word-pronunciation-integration-captions-the-voice-message-with-the-word-it-speaks-on-a-fresh-and-a-cached-send-alike",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
       "sourceLine": 106,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word pronunciation (integration)"
+      ],
+      "title": "captions the voice message with the word it speaks, on a fresh and a cached send alike",
+      "rawTitle": "captions the voice message with the word it speaks, on a fresh and a cached send alike",
+      "name": "Bot word pronunciation (integration) captions the voice message with the word it speaks, on a fresh and a cached send alike",
+      "value": "Protects the bot word pronunciation (integration) behavior so captions the voice message with the word it speaks, on a fresh and a cached send alike.",
+      "description": "Protects the bot word pronunciation (integration) behavior so captions the voice message with the word it speaks, on a fresh and a cached send alike."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-130-word-pronunciation-integration-serves-a-second-tap-from-the-cache-without-paying-for-synthesis-again",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
+      "sourceLine": 130,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2999,10 +3015,10 @@
       "description": "Protects the bot word pronunciation (integration) behavior so serves a second tap from the cache without paying for synthesis again."
     },
     {
-      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-132-word-pronunciation-integration-heals-a-file-id-telegram-no-longer-accepts-instead-of-failing-the-tap",
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-156-word-pronunciation-integration-heals-a-file-id-telegram-no-longer-accepts-instead-of-failing-the-tap",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
-      "sourceLine": 132,
+      "sourceLine": 156,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3015,10 +3031,10 @@
       "description": "Protects the bot word pronunciation (integration) behavior so heals a file id Telegram no longer accepts instead of failing the tap."
     },
     {
-      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-158-word-pronunciation-integration-renders-no-pronunciation-button-at-all-while-tts-is-disabled",
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-182-word-pronunciation-integration-renders-no-pronunciation-button-at-all-while-tts-is-disabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
-      "sourceLine": 158,
+      "sourceLine": 182,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3031,10 +3047,10 @@
       "description": "Protects the bot word pronunciation (integration) behavior: renders no pronunciation button at all while TTS is disabled."
     },
     {
-      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-169-word-pronunciation-integration-tells-the-user-the-card-expired-when-the-session-entry-is-gone",
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-193-word-pronunciation-integration-tells-the-user-the-card-expired-when-the-session-entry-is-gone",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
-      "sourceLine": 169,
+      "sourceLine": 193,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
