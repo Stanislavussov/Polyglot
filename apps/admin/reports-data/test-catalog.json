@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-22T08:43:07.000Z",
+  "generatedAt": "2026-08-22T11:02:57.000Z",
   "summary": {
-    "total": 2744,
+    "total": 2759,
     "business": 0,
-    "technical": 2744,
+    "technical": 2759,
     "workspaces": [
       "apps",
       "packages"
@@ -2551,10 +2551,10 @@
       "description": "Protects the bot main menu keyboard (integration) behavior so re installs the keyboard on start so a user who lost it can get it back."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-133-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-155-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 133,
+      "sourceLine": 155,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2567,10 +2567,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C1: notifies a subscriber who translated today."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-156-scheduled-notification-delivery-integration-c2-delivers-the-scheduled-word-to-a-subscriber-in-their-configured-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-178-scheduled-notification-delivery-integration-c2-delivers-the-scheduled-word-to-a-subscriber-in-their-configured-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 156,
+      "sourceLine": 178,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2583,10 +2583,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C2: delivers the scheduled word to a subscriber in their configured slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-176-scheduled-notification-delivery-integration-c3-sends-nothing-to-a-user-who-has-not-opted-in",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-198-scheduled-notification-delivery-integration-c3-sends-nothing-to-a-user-who-has-not-opted-in",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 176,
+      "sourceLine": 198,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2599,10 +2599,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C3: sends nothing to a user who has not opted in."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-195-scheduled-notification-delivery-integration-c4-sends-nothing-outside-the-user-s-configured-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-217-scheduled-notification-delivery-integration-c4-sends-nothing-outside-the-user-s-configured-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 195,
+      "sourceLine": 217,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2615,10 +2615,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C4: sends nothing outside the user's configured slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-214-scheduled-notification-delivery-integration-c5-sends-the-empty-dictionary-prompt-when-there-is-no-word-to-send",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-236-scheduled-notification-delivery-integration-c5-sends-the-empty-dictionary-prompt-when-there-is-no-word-to-send",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 214,
+      "sourceLine": 236,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2631,10 +2631,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C5: sends the empty dictionary prompt when there is no word to send."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-236-scheduled-notification-delivery-integration-c6-disables-notifications-after-a-403-and-does-not-retry",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-258-scheduled-notification-delivery-integration-c6-disables-notifications-after-a-403-and-does-not-retry",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 236,
+      "sourceLine": 258,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2647,10 +2647,58 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C6: disables notifications after a 403 and does not retry."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-260-scheduled-notification-delivery-integration-c10-delivers-the-card-with-the-reader-s-own-language-directly-under-the-headword",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-282-scheduled-notification-delivery-integration-c11-a-delivered-notification-is-counted-as-delivery-sent-and-nothing-else",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 260,
+      "sourceLine": 282,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "scheduled notification delivery (integration)"
+      ],
+      "title": "C11: a delivered notification is counted as delivery_sent, and nothing else",
+      "rawTitle": "C11: a delivered notification is counted as delivery_sent, and nothing else",
+      "name": "Bot scheduled notification delivery (integration) C11: a delivered notification is counted as delivery sent, and nothing else",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C11: a delivered notification is counted as delivery sent, and nothing else.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C11: a delivered notification is counted as delivery sent, and nothing else."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-300-scheduled-notification-delivery-integration-c12-a-blocked-user-is-counted-as-delivery-blocked-and-never-as-delivery-failed",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
+      "sourceLine": 300,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "scheduled notification delivery (integration)"
+      ],
+      "title": "C12: a blocked user is counted as delivery_blocked and never as delivery_failed",
+      "rawTitle": "C12: a blocked user is counted as delivery_blocked and never as delivery_failed",
+      "name": "Bot scheduled notification delivery (integration) C12: a blocked user is counted as delivery blocked and never as delivery failed",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C12: a blocked user is counted as delivery blocked and never as delivery failed.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C12: a blocked user is counted as delivery blocked and never as delivery failed."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-318-scheduled-notification-delivery-integration-c13-a-surfaced-transient-failure-is-counted-as-delivery-failed-and-still-reaches-the-scheduler-s-retry",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
+      "sourceLine": 318,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "scheduled notification delivery (integration)"
+      ],
+      "title": "C13: a surfaced transient failure is counted as delivery_failed and still reaches the scheduler's retry",
+      "rawTitle": "C13: a surfaced transient failure is counted as delivery_failed and still reaches the scheduler's retry",
+      "name": "Bot scheduled notification delivery (integration) C13: a surfaced transient failure is counted as delivery failed and still reaches the scheduler's retry",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C13: a surfaced transient failure is counted as delivery failed and still reaches the scheduler's retry.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C13: a surfaced transient failure is counted as delivery failed and still reaches the scheduler's retry."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-344-scheduled-notification-delivery-integration-c10-delivers-the-card-with-the-reader-s-own-language-directly-under-the-headword",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
+      "sourceLine": 344,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2663,10 +2711,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C10: delivers the card with the reader's own language directly under the headword."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-299-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-383-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 299,
+      "sourceLine": 383,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2679,10 +2727,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C7: seeds the admin configured default the first time a user turns notifications on."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-345-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-429-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 345,
+      "sourceLine": 429,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2695,10 +2743,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C8: never overwrites a schedule the user already chose."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-369-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-453-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 369,
+      "sourceLine": 453,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2711,10 +2759,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C9: refuses to deselect the last remaining slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-403-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-487-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 403,
+      "sourceLine": 487,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5948,6 +5996,118 @@
       "name": "Bot input correction annotations (Task 69) shows the corrected sentence and error explanation on a sentence card",
       "value": "Protects the bot input correction annotations (Task 69) behavior: shows the corrected sentence and error explanation on a sentence card.",
       "description": "Protects the bot input correction annotations (Task 69) behavior: shows the corrected sentence and error explanation on a sentence card."
+    },
+    {
+      "id": "apps-bot-src-ai-credit-wiring-test-ts-49-refreshaicredit-publishes-usage-and-limit-for-a-key-with-a-spend-cap",
+      "kind": "technical",
+      "filePath": "apps/bot/src/ai-credit.wiring.test.ts",
+      "sourceLine": 49,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "refreshAiCredit"
+      ],
+      "title": "publishes usage and limit for a key with a spend cap",
+      "rawTitle": "publishes usage and limit for a key with a spend cap",
+      "name": "Bot refresh Ai Credit publishes usage and limit for a key with a spend cap",
+      "value": "Protects the bot refresh Ai Credit behavior so publishes usage and limit for a key with a spend cap.",
+      "description": "Protects the bot refresh Ai Credit behavior so publishes usage and limit for a key with a spend cap."
+    },
+    {
+      "id": "apps-bot-src-ai-credit-wiring-test-ts-57-refreshaicredit-publishes-a-near-limit-reading-that-crosses-the-alert-s-0-9-ratio",
+      "kind": "technical",
+      "filePath": "apps/bot/src/ai-credit.wiring.test.ts",
+      "sourceLine": 57,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "refreshAiCredit"
+      ],
+      "title": "publishes a near-limit reading that crosses the alert's 0.9 ratio",
+      "rawTitle": "publishes a near-limit reading that crosses the alert's 0.9 ratio",
+      "name": "Bot refresh Ai Credit publishes a near limit reading that crosses the alert's 0 9 ratio",
+      "value": "Protects the bot refresh Ai Credit behavior so publishes a near limit reading that crosses the alert's 0 9 ratio.",
+      "description": "Protects the bot refresh Ai Credit behavior so publishes a near limit reading that crosses the alert's 0 9 ratio."
+    },
+    {
+      "id": "apps-bot-src-ai-credit-wiring-test-ts-68-refreshaicredit-leaves-both-series-absent-for-a-key-with-no-spend-limit",
+      "kind": "technical",
+      "filePath": "apps/bot/src/ai-credit.wiring.test.ts",
+      "sourceLine": 68,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "refreshAiCredit"
+      ],
+      "title": "leaves both series absent for a key with no spend limit",
+      "rawTitle": "leaves both series absent for a key with no spend limit",
+      "name": "Bot refresh Ai Credit leaves both series absent for a key with no spend limit",
+      "value": "Protects the bot refresh Ai Credit behavior so leaves both series absent for a key with no spend limit.",
+      "description": "Protects the bot refresh Ai Credit behavior so leaves both series absent for a key with no spend limit."
+    },
+    {
+      "id": "apps-bot-src-ai-credit-wiring-test-ts-78-refreshaicredit-returns-null-and-preserves-the-previous-reading-when-the-provider-call-fails",
+      "kind": "technical",
+      "filePath": "apps/bot/src/ai-credit.wiring.test.ts",
+      "sourceLine": 78,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "refreshAiCredit"
+      ],
+      "title": "returns null and preserves the previous reading when the provider call fails",
+      "rawTitle": "returns null and preserves the previous reading when the provider call fails",
+      "name": "Bot refresh Ai Credit returns null and preserves the previous reading when the provider call fails",
+      "value": "Protects the bot refresh Ai Credit behavior: returns null and preserves the previous reading when the provider call fails.",
+      "description": "Protects the bot refresh Ai Credit behavior: returns null and preserves the previous reading when the provider call fails."
+    },
+    {
+      "id": "apps-bot-src-ai-credit-wiring-test-ts-89-refreshaicredit-returns-null-and-does-not-throw-when-the-provider-response-is-malformed",
+      "kind": "technical",
+      "filePath": "apps/bot/src/ai-credit.wiring.test.ts",
+      "sourceLine": 89,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "refreshAiCredit"
+      ],
+      "title": "returns null and does not throw when the provider response is malformed",
+      "rawTitle": "returns null and does not throw when the provider response is malformed",
+      "name": "Bot refresh Ai Credit returns null and does not throw when the provider response is malformed",
+      "value": "Protects the bot refresh Ai Credit behavior: returns null and does not throw when the provider response is malformed.",
+      "description": "Protects the bot refresh Ai Credit behavior: returns null and does not throw when the provider response is malformed."
+    },
+    {
+      "id": "apps-bot-src-ai-credit-wiring-test-ts-95-refreshaicredit-returns-null-and-does-not-throw-when-the-network-rejects",
+      "kind": "technical",
+      "filePath": "apps/bot/src/ai-credit.wiring.test.ts",
+      "sourceLine": 95,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "refreshAiCredit"
+      ],
+      "title": "returns null and does not throw when the network rejects",
+      "rawTitle": "returns null and does not throw when the network rejects",
+      "name": "Bot refresh Ai Credit returns null and does not throw when the network rejects",
+      "value": "Protects the bot refresh Ai Credit behavior: returns null and does not throw when the network rejects.",
+      "description": "Protects the bot refresh Ai Credit behavior: returns null and does not throw when the network rejects."
+    },
+    {
+      "id": "apps-bot-src-ai-credit-wiring-test-ts-103-refreshaicredit-sends-the-api-key-as-a-bearer-token",
+      "kind": "technical",
+      "filePath": "apps/bot/src/ai-credit.wiring.test.ts",
+      "sourceLine": 103,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "refreshAiCredit"
+      ],
+      "title": "sends the API key as a bearer token",
+      "rawTitle": "sends the API key as a bearer token",
+      "name": "Bot refresh Ai Credit sends the API key as a bearer token",
+      "value": "Protects the bot refresh Ai Credit behavior: sends the API key as a bearer token.",
+      "description": "Protects the bot refresh Ai Credit behavior: sends the API key as a bearer token."
     },
     {
       "id": "apps-bot-src-bot-error-handler-test-ts-39-handleboterror-t15-does-not-throw-when-the-error-happened-before-the-session-middleware-ran",
@@ -12135,6 +12295,86 @@
       "name": "Bot handle Src Lang Override Callback does not crash or retranslate when the forced source cannot resolve a direction",
       "value": "Protects the bot handle Src Lang Override Callback behavior: does not crash or retranslate when the forced source cannot resolve a direction.",
       "description": "Protects the bot handle Src Lang Override Callback behavior: does not crash or retranslate when the forced source cannot resolve a direction."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-10-pending-out-of-set-store-stores-the-prompt-s-word-keyed-by-its-message-id",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 10,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "stores the prompt's word keyed by its message id",
+      "rawTitle": "stores the prompt's word keyed by its message id",
+      "name": "Bot pending out of set store stores the prompt's word keyed by its message id",
+      "value": "Protects the bot pending out of set store behavior: stores the prompt's word keyed by its message id.",
+      "description": "Protects the bot pending out of set store behavior: stores the prompt's word keyed by its message id."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-18-pending-out-of-set-store-keeps-two-concurrent-prompts-from-cross-wiring-language-and-word",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 18,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "keeps two concurrent prompts from cross-wiring language and word",
+      "rawTitle": "keeps two concurrent prompts from cross-wiring language and word",
+      "name": "Bot pending out of set store keeps two concurrent prompts from cross wiring language and word",
+      "value": "Protects the bot pending out of set store behavior: keeps two concurrent prompts from cross wiring language and word.",
+      "description": "Protects the bot pending out of set store behavior: keeps two concurrent prompts from cross wiring language and word."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-28-pending-out-of-set-store-evicts-the-oldest-prompts-past-the-cap-so-ignored-prompts-cannot-inflate-the-session-row",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 28,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row",
+      "rawTitle": "evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row",
+      "name": "Bot pending out of set store evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row",
+      "value": "Protects the bot pending out of set store behavior so evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row.",
+      "description": "Protects the bot pending out of set store behavior so evicts the oldest prompts past the cap so ignored prompts cannot inflate the session row."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-43-pending-out-of-set-store-never-evicts-the-prompt-just-added-when-message-ids-restart-low",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 43,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "never evicts the prompt just added when message ids restart low",
+      "rawTitle": "never evicts the prompt just added when message ids restart low",
+      "name": "Bot pending out of set store never evicts the prompt just added when message ids restart low",
+      "value": "Protects the bot pending out of set store behavior so never evicts the prompt just added when message ids restart low.",
+      "description": "Protects the bot pending out of set store behavior so never evicts the prompt just added when message ids restart low."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-pending-out-of-set-helper-test-ts-56-pending-out-of-set-store-purges-legacy-unstamped-entries-first-so-a-polluted-map-self-heals",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/pending-out-of-set.helper.test.ts",
+      "sourceLine": 56,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "pending out-of-set store"
+      ],
+      "title": "purges legacy unstamped entries first so a polluted map self-heals",
+      "rawTitle": "purges legacy unstamped entries first so a polluted map self-heals",
+      "name": "Bot pending out of set store purges legacy unstamped entries first so a polluted map self heals",
+      "value": "Protects the bot pending out of set store behavior so purges legacy unstamped entries first so a polluted map self heals.",
+      "description": "Protects the bot pending out of set store behavior so purges legacy unstamped entries first so a polluted map self heals."
     },
     {
       "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-128-handleregenloop-saves-to-dictionary-on-tr-save-with-normalized-vocabulary-input",

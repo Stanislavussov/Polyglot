@@ -51,31 +51,52 @@ groups:
       #    poll loop can't be distinguished from normal silence at this traffic
       #    level; if that becomes a concern, add a dedicated poll-cycle heartbeat
       #    counter in the bot and alert on rate(heartbeat)==0 instead.
+      #
+      #    Deleting it from this file did NOT remove it (Task 78) — it kept
+      #    firing critical ~6x/day. Grafana's file provisioning is
+      #    create/update-only: it ignores rules a file no longer mentions, so a
+      #    rule already in the database survives its own deletion. The
+      #    `deleteRules:` block at the bottom is what actually removes it; keep
+      #    it.
 
-      # 3. Translation error rate is elevated (AI provider failing, e.g. 429).
+      # 3. Translation failure RATIO is elevated (AI provider failing, e.g. 429).
       #    noDataState: OK + `or vector(0)` because the status="error" series
       #    does not exist until the first error ever occurs; without this the
       #    rule evaluates to NoData and false-fires DatasourceNoData while the
       #    bot is perfectly healthy (zero errors).
+      #
+      #    Task 78 — this was an absolute rate (`> 0.05`/s, ~15 errors per 5m
+      #    window) against measured lifetime traffic of FOUR translations. It
+      #    could not fire, and stayed `normal` throughout the 2026-08-22 credit
+      #    outage while every AI call was failing.
+      #
+      #    A ratio is traffic-independent. `clamp_min(..., 0.0001)` stops an idle
+      #    bot dividing zero by zero; the floor is well under one event per
+      #    window (1/1800s = 0.00055/s) so it never distorts a real ratio.
+      #    `for: 15m` over 30m because at this volume one failure is a large
+      #    fraction of a small denominator.
+      #
+      #    Stays `warning` — evaluated and visible, never messaged. The paging
+      #    signal for an AI outage is rule #8.
       - uid: polyglot_bot_translation_errors
-        title: Elevated translation error rate
+        title: Elevated translation failure ratio
         condition: C
-        for: 5m
+        for: 15m
         noDataState: OK
         labels:
           severity: warning
         annotations:
-          summary: Translation requests are erroring at more than 0.05/s over 5m (AI provider may be failing).
+          summary: More than half of translation attempts have failed over the last 30m (AI provider may be failing).
         data:
           - refId: A
             relativeTimeRange:
-              from: 300
+              from: 1800
               to: 0
             datasourceUid: prometheus
             model:
               refId: A
               instant: true
-              expr: sum(rate(bot_translations_total{status="error"}[5m])) or vector(0)
+              expr: (sum(rate(bot_translations_total{status="error"}[30m])) or vector(0)) / clamp_min(sum(rate(bot_translations_total[30m])) or vector(0), 0.0001)
           - refId: C
             datasourceUid: __expr__
             model:
@@ -85,7 +106,7 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [0.05]
+                    params: [0.5]
 
       # 4. Self-healing Phase 1d: bot restart loop (autoheal or Docker itself is
       #    repeatedly restarting the container — the container-level analogue of
@@ -255,3 +276,95 @@ groups:
                 - evaluator:
                     type: lt
                     params: [0.05]
+
+      # 8. Task 78: the OpenRouter key is near its spend limit — the alert whose
+      #    absence caused the 2026-08-22 outage (key hit its $1 cap, every AI
+      #    call failed, nothing fired).
+      #
+      #    A gauge, not a log-scrape of the provider's "Key limit exceeded"
+      #    text: that text only appears once the outage has started, while the
+      #    gauge crosses 0.9 with translation still working. Source:
+      #    apps/bot/src/ai-credit.wiring.ts.
+      #
+      #    Both gauges are absent for a key with no spend limit, hence
+      #    `or vector(0)` + noDataState: OK, as in rules #3 and #5. clamp_min
+      #    only guards a provider returning limit=0.
+      - uid: polyglot_ai_credit_exhausted
+        title: AI credit nearly exhausted
+        condition: C
+        for: 5m
+        noDataState: OK
+        labels:
+          severity: critical
+        annotations:
+          summary: The OpenRouter key has used more than 90% of its spend limit. At 100% every AI call fails instantly and translation goes fully down.
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 900
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: (sum(bot_ai_credit_usage_usd) / clamp_min(sum(bot_ai_credit_limit_usd), 0.0001)) or vector(0)
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.9]
+
+      # 9. Task 78: scheduled notifications are failing to reach users. Critical
+      #    rather than warning — a bot that cannot deliver its cards is down in
+      #    the only sense a user notices, even while `up==1`.
+      #
+      #    Written only against status values the code actually emits
+      #    (notification.wiring.ts). Blocked users are counted separately as
+      #    `delivery_blocked` and excluded here: they accrue on a healthy bot,
+      #    so including them would page for normal churn.
+      #
+      #    A ratio for the same low-traffic reason as rule #3. `or vector(0)` +
+      #    noDataState: OK because neither series exists until the first send.
+      - uid: polyglot_bot_notification_failures
+        title: Notification delivery failing
+        condition: C
+        for: 15m
+        noDataState: OK
+        labels:
+          severity: critical
+        annotations:
+          summary: More than half of scheduled notification sends have failed over the last 30m (users are not receiving their cards).
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 1800
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: (sum(rate(bot_notifications_total{status="delivery_failed"}[30m])) or vector(0)) / clamp_min(sum(rate(bot_notifications_total{status=~"delivery_sent|delivery_failed"}[30m])) or vector(0), 0.0001)
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.5]
+
+# Rules to remove from the running instance.
+#
+# Grafana file provisioning is create/update-only: deleting a rule's YAML does
+# not delete the rule. This is the only mechanism that does. Entries are
+# idempotent and meant to stay — see the obituary at #2.
+deleteRules:
+  - orgId: 1
+    uid: polyglot_bot_update_silence

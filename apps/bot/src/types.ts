@@ -195,6 +195,8 @@ export interface SessionData {
       lang: string;
       word: string;
       contextHint?: string;
+      /** Monotonic insertion stamp used for recency-based eviction. */
+      addedAt?: number;
     }
   >;
   /**

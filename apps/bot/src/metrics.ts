@@ -189,6 +189,22 @@ export const botBootCounter = new Counter({
   help: "Bot process boots (incremented once at startup) — a rising rate signals a restart loop",
 });
 
+/**
+ * OpenRouter key spend, polled from `GET /api/v1/key` (Task 78). Two gauges
+ * rather than a pre-divided ratio, so the alert picks its own threshold and a
+ * dashboard can show dollars; the division happens in PromQL. Both are absent
+ * for a key with no spend limit — see `ai-credit.wiring.ts`.
+ */
+export const aiCreditUsageGauge = new Gauge({
+  name: "bot_ai_credit_usage_usd",
+  help: "OpenRouter key spend to date, in USD (Task 78) — absent when the key has no spend limit",
+});
+
+export const aiCreditLimitGauge = new Gauge({
+  name: "bot_ai_credit_limit_usd",
+  help: "OpenRouter key spend limit, in USD (Task 78) — absent when the key has no spend limit",
+});
+
 // ── HTTP server ──────────────────────────────────────────────────────
 
 const METRICS_PORT = Number(process.env.METRICS_PORT) || 9090;

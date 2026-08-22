@@ -16,6 +16,7 @@
 import { type SupportedLang, t } from "@polyglot/core";
 import type { InlineKeyboardMarkup } from "grammy/types";
 import type { BotContext, SessionData } from "../types.js";
+import { setEvictingEntry } from "./evicting-map.js";
 
 /** Callback data for the retry button. Flow-agnostic — the session entry says what to re-run. */
 export const RETRY_CALLBACK = "retry";
@@ -37,35 +38,12 @@ export function retryKeyboard(lang: SupportedLang): InlineKeyboardMarkup {
 
 /**
  * Stores the action behind a retry button, evicting the least-recently-added
- * entries past {@link MAX_RETRY_ACTIONS}.
- *
- * Eviction is by insertion stamp rather than message id for the reason spelled
- * out in `setTranslationEntry`: a recreated chat (or another bot sharing this
- * session key) restarts message ids low, so the numerically smallest id can be
- * the entry that was just added.
+ * entries past {@link MAX_RETRY_ACTIONS} (see `setEvictingEntry` for why
+ * eviction is by insertion stamp, not message id).
  */
 export function setRetryAction(session: SessionData, msgId: number, action: RetryAction): void {
   session.pendingRetries ??= {};
-  const map = session.pendingRetries;
-
-  let maxAddedAt = 0;
-  for (const key of Object.keys(map)) {
-    const addedAt = map[key].addedAt ?? 0;
-    if (addedAt > maxAddedAt) maxAddedAt = addedAt;
-  }
-  map[String(msgId)] = { ...action, addedAt: maxAddedAt + 1 };
-
-  const keys = Object.keys(map);
-  if (keys.length <= MAX_RETRY_ACTIONS) return;
-
-  keys.sort((a, b) => {
-    const ra = map[a].addedAt ?? 0;
-    const rb = map[b].addedAt ?? 0;
-    return ra !== rb ? ra - rb : Number(a) - Number(b);
-  });
-  for (const key of keys.slice(0, keys.length - MAX_RETRY_ACTIONS)) {
-    delete map[key];
-  }
+  setEvictingEntry(session.pendingRetries, msgId, action, MAX_RETRY_ACTIONS);
 }
 
 /**
