@@ -6,6 +6,7 @@
 import type { LanguageOrderContext, SupportedLang, WordDisplayData } from "@polyglot/core";
 import { getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { expandableSection } from "./card-sections.js";
 import { formatInputType } from "./input-type-label.js";
 import { renderSourceUsage } from "./source-usage.renderer.js";
 
@@ -82,17 +83,18 @@ export function renderFlashCardBack(
       lines.push(`(${tr.synonyms.map((s) => esc(s.text)).join(", ")})`);
     }
 
-    // Examples
+    const notes: string[] = [];
     if (tr.examples && tr.examples.length > 0) {
-      for (const ex of tr.examples) {
-        const native = ex.native ? ` (${esc(ex.native)})` : "";
-        lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
-      }
+      const [first, ...rest] = tr.examples.map(
+        (ex) => `💬 <i>${esc(ex.target)}</i>${ex.native ? ` (${esc(ex.native)})` : ""}`,
+      );
+      lines.push(first!);
+      notes.push(...rest);
     }
-
     if (tr.usageNote) {
-      lines.push(`💡 ${esc(tr.usageNote)}`);
+      notes.push(`💡 ${esc(tr.usageNote)}`);
     }
+    lines.push(...expandableSection(notes));
 
     lines.push("");
   }
