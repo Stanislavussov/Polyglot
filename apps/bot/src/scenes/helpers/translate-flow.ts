@@ -510,8 +510,16 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       targetLangs = direction.targetLangs;
       detectedLang = detection.language;
     } else if (detection.language === "en") {
+      // English is accepted as a source even when the user does not study it —
+      // it is the language stray input most often arrives in. The targets still
+      // have to lead with the native language: without it the learner gets a
+      // foreign-language gloss and no direct translation. This is the same rule
+      // `resolveDirectionFromSource` applies when the source is a learning
+      // language; it was simply never carried over to this case. The filter
+      // guards the reachability precondition (English is not a learning
+      // language here) rather than trusting it.
       sourceLang = "en";
-      targetLangs = learningLangs;
+      targetLangs = [nativeLang, ...learningLangs.filter((code) => code !== "en")];
       detectedLang = "en";
     } else {
       // Detected a language that is neither native nor a learning language and

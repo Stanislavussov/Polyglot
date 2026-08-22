@@ -33,6 +33,7 @@ import { type Api, type RawApi } from "grammy";
 import { z } from "zod";
 import { mockPaymentAdapter } from "../payment.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../utils/ai-model.js";
+import { languageOrderFromSettings } from "../utils/language-order.js";
 import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
 import { isUserBlocked } from "../utils/telegram-errors.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
@@ -216,7 +217,10 @@ Return translations as JSON array.`;
     }
 
     const kb = buildNotificationKeyboard(lang, payload.word.entryId);
-    const message = formatNotificationMessage(payload, lang);
+    // Derived here, at render time, from the settings row already loaded above —
+    // so the card's language order never depends on the payload's key order,
+    // which would not survive a queue or worker boundary.
+    const message = formatNotificationMessage(payload, lang, languageOrderFromSettings(settings));
     await api.sendMessage(telegramId, message, {
       parse_mode: "HTML",
       reply_markup: kb,

@@ -55,4 +55,31 @@ describe("translate happy path (integration)", () => {
     // The saved-card confirmation is emitted (either an edit of the card or a reply).
     expect(harness.sent.some((c) => c.method === "sendMessage" || c.method === "editMessageText")).toBe(true);
   });
+
+  it("translates an English phrase into the native language even when English is not studied", async () => {
+    // A ru-native studying only Czech. English is neither native nor a learning
+    // language, so the direction resolver declines and the English lingua-franca
+    // branch takes over — which used to target the learning languages ONLY,
+    // persisting a Czech-only card and leaving the learner with no translation in
+    // the language they think in. Multi-word input on purpose: English joins the
+    // detection candidates only for phrases, which is what reaches that branch.
+    const harness = createBotHarness({ ai: deterministicTranslateAi() });
+    const id = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(id, { nativeLang: "ru", learningLangs: ["cs"] });
+
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "good morning" }));
+    const { messageId: cardMsgId } = lastRenderedCard(harness.sent);
+
+    harness.reset();
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: id, fromId: id, messageId: cardMsgId, data: `tr:save:${cardMsgId}` }),
+    );
+
+    const en = await languageRepository.findByCode("en");
+    const ru = await languageRepository.findByCode("ru");
+    if (!en || !ru) throw new Error("expected seeded languages 'en' and 'ru'");
+    const saved = await vocabularyRepository.findByOriginalAndSource(userId, "good morning", en.id);
+    expect(saved).not.toBeNull();
+    expect(saved?.translations.map((tr) => tr.targetLangId)).toContain(ru.id);
+  });
 });

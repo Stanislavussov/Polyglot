@@ -23,6 +23,10 @@ export const DELIVERY_TEST_SLOT_TIME = `${String(DELIVERY_TEST_SLOT_UTC.hour).pa
 
 /** The seeded entry's headword — the string a delivery test looks for on the wire. */
 const NOTIFIABLE_HEADWORD = "bridge";
+/** `richCard` payload — distinct strings so a layout assertion can index each line. */
+const RICH_NATIVE_TRANSLATION = "мост";
+const RICH_OTHER_TRANSLATION = "Brücke";
+const RICH_NATIVE_MEANING = "Сооружение для перехода через препятствие.";
 
 export interface NotifiableUserOptions {
   /** Configured slots, as `HH:MM`. Defaults to the delivery lane's own slot. */
@@ -31,11 +35,26 @@ export interface NotifiableUserOptions {
   notificationEnabled?: boolean;
   /** Seed a verified vocabulary entry with one resolvable translation. Defaults to true. */
   withVocabulary?: boolean;
+  /**
+   * Seed a card rich enough to assert the notification's *layout*, not just its
+   * presence: a non-English native language, two learning languages, a stored
+   * `nativeMeaning`, and a translation into the native language.
+   *
+   * The default fixture cannot express a layout assertion at all — its user is
+   * `en`-native with a single `cs` translation and no `nativeMeaning`, so
+   * "the native answer precedes the meaning" has neither operand and passes
+   * vacuously. Anything asserting card order must set this.
+   */
+  richCard?: boolean;
 }
 
 export interface NotifiableUser {
   userId: number;
   headword: string;
+  /** Present only under `richCard` — the strings a layout assertion needs. */
+  nativeTranslation?: string;
+  nativeMeaning?: string;
+  otherTranslation?: string;
 }
 
 /**
@@ -56,14 +75,19 @@ export async function arrangeNotifiableUser(
   telegramId: number,
   options: NotifiableUserOptions = {},
 ): Promise<NotifiableUser> {
-  const { notificationTimes = [DELIVERY_TEST_SLOT_TIME], notificationEnabled = true, withVocabulary = true } = options;
+  const {
+    notificationTimes = [DELIVERY_TEST_SLOT_TIME],
+    notificationEnabled = true,
+    withVocabulary = true,
+    richCard = false,
+  } = options;
 
   const user = await userRepository.create({ telegramId, username: "notifiable" });
   await userRepository.markOnboarded(user.id);
   await userRepository.updateSettings(user.id, {
     interfaceLang: "en",
-    nativeLang: "en",
-    learningLangs: ["cs"],
+    nativeLang: richCard ? "ru" : "en",
+    learningLangs: richCard ? ["cs", "de"] : ["cs"],
     lastSourceLang: null,
   });
 
@@ -79,13 +103,29 @@ export async function arrangeNotifiableUser(
     if (!sourceLang || !targetLang) {
       throw new Error("arrangeNotifiableUser: language cache is not loaded (en/cs missing)");
     }
+    const nativeLang = richCard ? getLang("ru") : undefined;
+    const secondLang = richCard ? getLang("de") : undefined;
+    if (richCard && (!nativeLang || !secondLang)) {
+      throw new Error("arrangeNotifiableUser: language cache is not loaded (ru/de missing)");
+    }
     await vocabularyRepository.create(user.id, {
       original: NOTIFIABLE_HEADWORD,
       sourceLangId: sourceLang.id,
       inputType: "word",
       emoji: "🌉",
       unverified: false,
-      translations: [{ targetLangId: targetLang.id, text: "most", details: { synonyms: [], examples: [] } }],
+      ...(richCard ? { nativeMeaning: RICH_NATIVE_MEANING } : {}),
+      // Seeded native-last on purpose: the card must be reordered at render
+      // time, so a fixture that already reads native-first would prove nothing.
+      translations: [
+        { targetLangId: targetLang.id, text: "most", details: { synonyms: [], examples: [] } },
+        ...(richCard && secondLang && nativeLang
+          ? [
+              { targetLangId: secondLang.id, text: RICH_OTHER_TRANSLATION, details: { synonyms: [], examples: [] } },
+              { targetLangId: nativeLang.id, text: RICH_NATIVE_TRANSLATION, details: { synonyms: [], examples: [] } },
+            ]
+          : []),
+      ],
     });
   }
 
@@ -94,7 +134,17 @@ export async function arrangeNotifiableUser(
   // schedule is the only thing this fixture has to state.
   await notificationRepository.updatePrefs(user.id, { notificationEnabled, notificationTimes });
 
-  return { userId: user.id, headword: NOTIFIABLE_HEADWORD };
+  return {
+    userId: user.id,
+    headword: NOTIFIABLE_HEADWORD,
+    ...(richCard
+      ? {
+          nativeTranslation: RICH_NATIVE_TRANSLATION,
+          nativeMeaning: RICH_NATIVE_MEANING,
+          otherTranslation: RICH_OTHER_TRANSLATION,
+        }
+      : {}),
+  };
 }
 
 /**
@@ -103,13 +153,17 @@ export async function arrangeNotifiableUser(
  * callback-regression e2e tests, which all need a user the translate flow will
  * route to.
  */
-export async function arrangeOnboardedTranslator(telegramId: number): Promise<number> {
+export async function arrangeOnboardedTranslator(
+  telegramId: number,
+  langs: { nativeLang?: string; learningLangs?: string[] } = {},
+): Promise<number> {
+  const { nativeLang = "en", learningLangs = ["cs"] } = langs;
   const user = await userRepository.create({ telegramId, username: "translator" });
   await userRepository.markOnboarded(user.id);
   await userRepository.updateSettings(user.id, {
     interfaceLang: "en",
-    nativeLang: "en",
-    learningLangs: ["cs"],
+    nativeLang,
+    learningLangs,
     lastSourceLang: null,
   });
   await userRepository.updateActiveMode(user.id, "translate");

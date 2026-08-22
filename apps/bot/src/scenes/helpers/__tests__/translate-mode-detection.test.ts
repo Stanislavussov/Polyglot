@@ -356,6 +356,29 @@ describe("handleTranslateText — English in sync candidates for multi-word inpu
     expect(callArgs.sourceLang).toBe("en");
     expect(callArgs.targetLangs).toContain("de");
   });
+
+  // English is accepted as a source even when the user does not study it — but
+  // the card is useless without the language the learner actually thinks in.
+  // This is the same rule `resolve-direction.ts` applies when the source is a
+  // learning language; it was never applied to the English lingua-franca case,
+  // so a ru-native studying only German got German-only cards for every English
+  // word. The assertion above passed throughout, because `toContain` proves
+  // presence and says nothing about what is missing.
+  it("puts the native language first in the targets for an English source the user does not study", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "I will get you");
+
+    const callArgs = vi.mocked(translateWithContext).mock.calls[0][0];
+    expect(callArgs.targetLangs).toEqual(["ru", "de"]);
+  });
+
+  it("never targets the source language itself", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "I will get you");
+
+    const callArgs = vi.mocked(translateWithContext).mock.calls[0][0];
+    expect(callArgs.targetLangs).not.toContain(callArgs.sourceLang);
+  });
 });
 
 describe("handleTranslateText — mistype warning (Task 58)", () => {

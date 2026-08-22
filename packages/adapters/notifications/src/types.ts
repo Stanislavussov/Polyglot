@@ -20,7 +20,6 @@ export interface NotificationPayload {
   /** The hour (0-23) at which this notification was scheduled in user's local time. */
   hour: number;
   word: SuggestedWord;
-  message: string;
 }
 
 /**
