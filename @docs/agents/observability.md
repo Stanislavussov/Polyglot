@@ -75,6 +75,7 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Translation | `translation.language_detected`, `.direction_resolved`, `.completed`, `.failed`, `.clarification_requested` |
 | Translation pipeline | `translation.pipeline.started`, `.generation_failed`, `.validation_failed`, `.needs_review`, `.judge_failed`, `.judge_timed_out`, `.repair_*` |
 | AI | `ai.request.completed`, `ai.request.failed` (with `budgetMs`, `timedOut`) |
+| AI credit (Task 78) | `ai.credit.polled`, `.unlimited`, `.poll_failed`, `.poll_disabled`, `.scheduled`, `.schedule_duplicate_ignored`, `.poll_stopped` |
 | Vocabulary | `vocabulary.saved`, `.save_skipped`, `.save_state_lost`, `.save_failed` |
 | Dictionary | `dictionary.created`, `.renamed`, `.deleted`, `.entry_added`, `.entry_moved`, `.entry_removed`, `.translate_failed` |
 | Onboarding | `onboarding.started`, `.screen_rendered`, `.native_lang_selected`, `.learning_lang_confirmed`, `.languages_done`, `.completed`, `.demo_failed` |

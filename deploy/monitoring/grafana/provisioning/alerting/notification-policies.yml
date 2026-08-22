@@ -1,7 +1,25 @@
 apiVersion: 1
 
-# Route every alert to the Telegram contact point. group_by keeps related
-# alerts in one message; repeat_interval avoids alert-storm spam.
+# Where firing alerts go. Task 78 narrowed this to critical only: every alert
+# lands in the operator's own chat with the bot, so a non-actionable one
+# interleaves with real usage.
+#
+# Non-critical alerts are muted, not deleted — they still evaluate and still
+# show their real state in Grafana, they just never send a message. That keeps
+# host_disk_low available as the early warning for host_disk_critical.
+#
+# To page on a rule, give it `severity: critical` in rules.yml. That label is
+# the whole routing contract.
+muteTimes:
+  - orgId: 1
+    name: always
+    # Unspecified fields mean "any", so a bare 00:00-24:00 span matches every
+    # minute of every day. Adding `weekdays` or `months` would narrow it.
+    time_intervals:
+      - times:
+          - start_time: "00:00"
+            end_time: "24:00"
+
 policies:
   - orgId: 1
     receiver: polyglot-telegram
@@ -11,3 +29,12 @@ policies:
     group_wait: 30s
     group_interval: 5m
     repeat_interval: 4h
+    routes:
+      # Terminal match (no `continue`), so a muted alert never falls through to
+      # the delivering root policy. `!=` rather than `severity = warning` so a
+      # rule with a typo'd or missing severity is silenced by default.
+      - receiver: polyglot-telegram
+        object_matchers:
+          - ["severity", "!=", "critical"]
+        mute_time_intervals:
+          - always

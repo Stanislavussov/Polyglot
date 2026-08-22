@@ -41,6 +41,7 @@ import {
 import { checkAndSend, type NotificationPayload, type SchedulerDeps } from "@polyglot/adapter-notifications";
 import type { GenerateObjectFn, NotificationDefaults } from "@polyglot/core";
 import { afterEach, describe, expect, it } from "vitest";
+import { notificationCounter } from "../../metrics.js";
 import { buildNotificationScheduling } from "../../notifications/notification.wiring.js";
 import type { NotifiableUser, NotifiableUserOptions } from "../../test-helpers/integration/arrange.js";
 import {
@@ -103,6 +104,27 @@ function messagesTo(sent: CapturedCall[], chatId: number): CapturedCall[] {
   return sent.filter(
     (call) => call.method === "sendMessage" && Number((call.payload as { chat_id?: number }).chat_id) === chatId,
   );
+}
+
+/**
+ * One delivery outcome's count. Always read as a delta (see `deliveryDelta`):
+ * the counter is process-global, so an absolute assertion would depend on test
+ * execution order.
+ */
+async function deliveryCount(status: string): Promise<number> {
+  const snapshot = (await notificationCounter.get()) as {
+    values: Array<{ value: number; labels: { status?: string } }>;
+  };
+  return snapshot.values.find((v) => v.labels.status === status)?.value ?? 0;
+}
+
+/** Delivery-outcome counts before and after `act`, as a per-status delta. */
+async function deliveryDelta(act: () => Promise<unknown>): Promise<Record<string, number>> {
+  const statuses = ["delivery_sent", "delivery_failed", "delivery_blocked", "delivery_skipped"];
+  const before = await Promise.all(statuses.map(deliveryCount));
+  await act();
+  const after = await Promise.all(statuses.map(deliveryCount));
+  return Object.fromEntries(statuses.map((s, i) => [s, (after[i] ?? 0) - (before[i] ?? 0)]));
 }
 
 function textOf(call: CapturedCall): string {
@@ -255,6 +277,68 @@ describe("scheduled notification delivery (integration)", () => {
     const settings = await userRepository.getSettings(userId);
     expect(settings?.notificationEnabled).toBe(false);
     expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C11: a delivered notification is counted as delivery_sent, and nothing else", async () => {
+    // The alert divides delivery_failed by (sent + failed). If a healthy send
+    // did not move the denominator, one failure would read as 100% and page.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    await arrangeTracked(telegramId);
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    harness.reset();
+
+    const delta = await deliveryDelta(() => checkAndSend(sendFn, deps));
+
+    expect(messagesTo(harness.sent, telegramId)).toHaveLength(1);
+    expect(delta.delivery_sent).toBe(1);
+    expect(delta.delivery_failed).toBe(0);
+    expect(delta.delivery_blocked).toBe(0);
+    expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C12: a blocked user is counted as delivery_blocked and never as delivery_failed", async () => {
+    // Blocking is normal churn that accrues on a healthy system. If it fed
+    // delivery_failed the ratio would drift upward on its own until the alert
+    // fired for nothing.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    await arrangeTracked(telegramId);
+    const { sendFn, deps } = await buildDelivery(harness);
+    harness.reset();
+    harness.failNextSend({ error_code: 403, description: "Forbidden: bot was blocked by the user" });
+
+    const delta = await deliveryDelta(() => checkAndSend(sendFn, deps));
+
+    expect(delta.delivery_blocked).toBe(1);
+    expect(delta.delivery_failed).toBe(0);
+    expect(delta.delivery_sent).toBe(0);
+  });
+
+  it("C13: a surfaced transient failure is counted as delivery_failed and still reaches the scheduler's retry", async () => {
+    // Two things at once, because they are the same bug if either breaks: the
+    // transient outcome must be counted, AND the wrapper must re-throw so the
+    // scheduler's retry ladder still runs. `failNextSend` auto-resets, so the
+    // retry succeeds — one failure and one success is the proof that the error
+    // was counted without being swallowed.
+    //
+    // A 400, not a 5xx: `autoRetry()` sits below this wrapper and absorbs 429
+    // and 5xx, resolving as if they had succeeded — an earlier draft asserting
+    // on a 500 measured nothing. So delivery_failed counts only what grammY
+    // already gave up on, which is the right denominator for an alert.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    await arrangeTracked(telegramId);
+    const { sendFn, deps } = await buildDelivery(harness);
+    harness.reset();
+    harness.failNextSend({ error_code: 400, description: "Bad Request: message text is empty" });
+
+    const delta = await deliveryDelta(() => checkAndSend(sendFn, deps));
+
+    expect(delta.delivery_failed).toBe(1);
+    expect(delta.delivery_blocked).toBe(0);
+    expect(delta.delivery_sent).toBe(1);
+    expect(messagesTo(harness.sent, telegramId)).toHaveLength(2);
   });
 
   it("C10: delivers the card with the reader's own language directly under the headword", async () => {

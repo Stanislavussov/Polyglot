@@ -4,6 +4,7 @@ import { closeDb, getAllLangs, loadLanguageCache } from "@polyglot/adapter-db";
 import { stopScheduler } from "@polyglot/adapter-notifications";
 import { logger, setLogger } from "@polyglot/core";
 import { botEnvSchema, ConfigError, loadConfig } from "@polyglot/infra";
+import { stopAiCreditPoll, wireAiCreditPoll } from "./ai-credit.wiring.js";
 import { createPolyglotBot, installBotCommands } from "./bot-factory.js";
 import { setRunnerHandle } from "./liveness-state.js";
 import { closeMetricsServer, startMetricsServer } from "./metrics.js";
@@ -49,6 +50,7 @@ function setupGracefulShutdown(): void {
       { name: "scheduler", run: () => stopScheduler() },
       { name: "telemetryRetention", run: () => stopTelemetryRetention() },
       { name: "activationNudge", run: () => stopActivationNudge() },
+      { name: "aiCreditPoll", run: () => stopAiCreditPoll() },
       {
         name: "runner",
         run: async () => {
@@ -84,6 +86,7 @@ async function main(): Promise<void> {
   await wireNotificationScheduler(bot.api);
   wireTelemetryRetention();
   wireActivationNudge(bot.api);
+  wireAiCreditPoll();
   metricsServer = startMetricsServer();
 
   logger.info({ sessionStorage: "postgres", languageCacheReady: true, pollingMode: "long-polling" }, "Starting bot");

@@ -1,6 +1,6 @@
 # Task 78 — Cut alert noise to signal only
 
-**Status:** 🔲 To Do
+**Status:** 🟡 In Progress — config + code landed on `develop`; two live-instance steps outstanding (see Outcome)
 **Category:** Observability / Operations
 **Priority:** 🟠 High
 **Created:** 2026-08-22
@@ -186,3 +186,94 @@ the operator; the fix is unrelated in each case.
    new rules?
 3. Should warnings go to a separate channel rather than the personal chat, so
    critical alerts stay distinguishable?
+
+
+---
+
+## Outcome (2026-08-22)
+
+### Step 1 — the drift is diagnosed
+
+**All seven live rules report `provenance: "file"`, including the deleted one.**
+That rules out the step-1 hypothesis the constraints section flagged as most
+likely: the rule had *not* been edited in the UI and had *not* acquired a
+UI provenance that made provisioning skip it.
+
+The real cause is duller and worse. **Grafana file provisioning is
+create/update-only.** It reconciles the rules a file *declares* and silently
+ignores rules it no longer mentions. A rule already in the database therefore
+survives its own deletion indefinitely, and no amount of redeploying the
+monitoring stack would have removed it — the redeploy was never the missing
+piece. The only mechanism that deletes a provisioned rule is an explicit
+`deleteRules:` block, which `rules.yml` now carries permanently (idempotent, so
+it stays as a standing instruction rather than a one-off).
+
+The brief's insistence on diagnosing before re-deleting was correct: a second
+identical YAML edit would have produced a second identical non-result.
+
+### Operator decisions
+
+Both open questions were answered:
+
+1. **Alerts, not log volume.** The Loki/`LOG_LEVEL` half of the brief was not
+   the complaint and is untouched.
+2. **Critical only.** Not the brief's recommended keep-list — the operator chose
+   the narrower option. Implemented as a **mute, not a deletion**: non-critical
+   rules still evaluate and still show their true state in Grafana's UI, they
+   simply never send a message. That keeps `host_disk_low` available as the
+   early warning for `host_disk_critical` instead of trading a noise problem for
+   a blindness problem.
+3. **Both missing alerts added**, with credit exhaustion implemented as the
+   gauge rather than the Loki rule — it warns before the outage instead of
+   during it.
+
+### Step 4 — why `translation_errors` missed the outage (confirmed defect)
+
+The brief's second suspicion is confirmed, and it is the threshold, not the
+`for: 5m`. `bot_translations_total{status="success"}` measured **4 — lifetime**,
+at `bot_boot_total = 1`. The rule needed `0.05/s`, about 15 errors in 5 minutes.
+Unreachable by roughly three orders of magnitude. Rewritten as a ratio, which is
+traffic-independent.
+
+### Also found, not in the brief
+
+- **`bot_notifications_total` did not exist in Prometheus at all.** The brief
+  recorded it as existing. The counter is declared, but the only code that
+  incremented it was the daily activation nudge (`nudge_*` statuses) — the
+  scheduled-notification path, which is the one that matters here, was
+  uninstrumented. A rule written against it as-found would have been a rule
+  against a series that never appears. It is now incremented on the real
+  delivery path with `delivery_*` statuses.
+- **`bot_ai_requests_total` and `bot_ai_tokens_total` are declared in
+  `apps/bot/src/metrics.ts` and incremented nowhere.** Dead metrics. This is why
+  the credit outage had no signal of any kind: there was no AI-call metric to
+  alert on. Left in place — removing them is a separate change — but they should
+  not be mistaken for coverage.
+
+### Still outstanding (cannot be done from here)
+
+1. **The firing rule is still live.** `deleteRules:` removes it on the next
+   monitoring deploy, but that deploy runs on push to `master`
+   (`.github/workflows/deploy-monitoring.yml`, `paths: deploy/monitoring/**`) —
+   this work is on `develop`. Until then the false alarm continues. It can be
+   killed immediately with a `DELETE /api/v1/provisioning/alert-rules/polyglot_bot_update_silence`
+   carrying `X-Disable-Provenance: true`; that is a live production mutation and
+   was not performed unattended.
+2. **Acceptance criteria 3 and 4 are not yet met as written.** Both new alerts
+   are demonstrated at the *expression* level — all three new/changed PromQL
+   expressions were evaluated against the live Prometheus and return a clean `0`
+   with their series absent, confirming they do not false-fire before the
+   metrics exist — and the exporter's behaviour is unit-tested (near-limit,
+   unlimited key, provider failure, malformed response) with delivery outcomes
+   covered end-to-end through the real dispatcher and real Postgres. But neither
+   has been demonstrated *firing* against a real or simulated condition on the
+   live instance, which is what those criteria demand. That requires the deploy.
+3. **The provisioning smoke test did not run.** The intended check — booting
+   `grafana/grafana:13.1.0` locally against these exact provisioning files to
+   prove the crash-loop failure mode (constraint 2) is not triggered — could not
+   run because the local Docker daemon was down. The files parse as YAML and
+   `contact-points.yml` was not touched, but that is weaker evidence than a boot.
+   **Run this before merging to `master`**, since a provisioning error surfaces
+   as nginx 502 on the Grafana domain, not as a failed deploy.
+4. **Re-verify live after the deploy** and confirm the live rule list matches
+   `rules.yml` exactly (criterion 5).

@@ -31,6 +31,7 @@ import {
 } from "@polyglot/core";
 import { type Api, type RawApi } from "grammy";
 import { z } from "zod";
+import { notificationCounter } from "../metrics.js";
 import { mockPaymentAdapter } from "../payment.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../utils/ai-model.js";
 import { languageOrderFromSettings } from "../utils/language-order.js";
@@ -206,9 +207,44 @@ Return translations as JSON array.`;
   const resolveTelegramId = (userId: number): Promise<number | null> =>
     resolveTelegramChatId(userId, { identityRepository, userRepository });
 
+  /**
+   * Delivery outcomes on `bot_notifications_total` (Task 78), enumerated like
+   * the activation nudge's `NUDGE_STATUSES` to bound cardinality.
+   *
+   * `polyglot_bot_notification_failures` alerts on `delivery_failed` alone.
+   * Blocked users accrue steadily on a healthy bot, so counting them as
+   * failures would page for normal churn; `delivery_skipped` (no resolvable
+   * chat id, nothing attempted) stays out of the ratio entirely.
+   */
+  const DELIVERY_STATUSES = ["delivery_sent", "delivery_failed", "delivery_blocked", "delivery_skipped"] as const;
+  type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
+
+  const countDelivery = (status: DeliveryStatus): void => {
+    notificationCounter.inc({ status });
+  };
+
+  /**
+   * Counts the outcome, then re-throws. The re-throw is load-bearing: the
+   * scheduler needs the rejection to run its retry ladder and to disable
+   * notifications for a blocked user. It lives here rather than in the
+   * scheduler because that package must never import from the bot.
+   */
+  const withDeliveryMetrics = async (send: () => Promise<unknown>): Promise<void> => {
+    try {
+      await send();
+      countDelivery("delivery_sent");
+    } catch (err) {
+      countDelivery(isUserBlocked(err) ? "delivery_blocked" : "delivery_failed");
+      throw err;
+    }
+  };
+
   const sendFn = async (userId: number, payload: NotificationPayload): Promise<void> => {
     const telegramId = await resolveTelegramId(userId);
-    if (telegramId === null) return;
+    if (telegramId === null) {
+      countDelivery("delivery_skipped");
+      return;
+    }
 
     let lang: SupportedLang = "en";
     const settings = await userRepository.getSettings(userId);
@@ -221,16 +257,21 @@ Return translations as JSON array.`;
     // so the card's language order never depends on the payload's key order,
     // which would not survive a queue or worker boundary.
     const message = formatNotificationMessage(payload, lang, languageOrderFromSettings(settings));
-    await api.sendMessage(telegramId, message, {
-      parse_mode: "HTML",
-      reply_markup: kb,
-    });
+    await withDeliveryMetrics(() =>
+      api.sendMessage(telegramId, message, {
+        parse_mode: "HTML",
+        reply_markup: kb,
+      }),
+    );
   };
 
   const reEngagementSendFn = async (userId: number, message: string): Promise<void> => {
     const telegramId = await resolveTelegramId(userId);
-    if (telegramId === null) return;
-    await api.sendMessage(telegramId, message, { parse_mode: "HTML" });
+    if (telegramId === null) {
+      countDelivery("delivery_skipped");
+      return;
+    }
+    await withDeliveryMetrics(() => api.sendMessage(telegramId, message, { parse_mode: "HTML" }));
   };
 
   // The preset layer's free source: cards already rendered and human-reviewed
