@@ -356,6 +356,7 @@
   "featureVoiceInput": "Spracheingabe",
   "planLineVoiceInput": "🎙️ Übersetzung von Sprachnachrichten",
   "planLineGrammar": "Grammatik und Etymologie",
+  "planLineMentor": "KI-Sprachmentor",
   "planLineEverythingIn": "Alles aus {plan}",
   "upgradeTestPaymentNote": "Testzahlung — es wird noch nichts berechnet.",
   "upgradeFeatureLocked": "{feature} ist eine Funktion von <b>{plan}</b>.",

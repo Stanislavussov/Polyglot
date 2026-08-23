@@ -23,6 +23,8 @@ export const FEATURE_KEYS = {
   pronunciation: "pronunciation",
   /** Voice message translation (STT). */
   voiceInput: "voiceInput",
+  /** AI language mentor chat (`/mentor` + reply-thread continuations). */
+  mentor: "mentor",
 } as const;
 
 export type FeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS];

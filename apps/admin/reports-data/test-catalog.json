@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-23T18:08:20.000Z",
+  "generatedAt": "2026-08-23T18:09:27.000Z",
   "summary": {
-    "total": 2863,
+    "total": 2865,
     "business": 0,
-    "technical": 2863,
+    "technical": 2865,
     "workspaces": [
       "apps",
       "packages"
@@ -27190,10 +27190,10 @@
       "description": "Protects the core domain resolve Entitlements behavior so gives plus unlimited translations, 20 monthly videos, premium features + clarification."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-35-resolveentitlements-gives-pro-the-pronunciation-and-voice-input-features-on-top-of-the-plus-set",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-36-resolveentitlements-gives-pro-the-pronunciation-and-voice-input-features-on-top-of-the-plus-set",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 35,
+      "sourceLine": 36,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27206,10 +27206,10 @@
       "description": "Protects the core domain resolve Entitlements behavior so gives pro the pronunciation and voice input features on top of the plus set."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-47-resolveentitlements-gives-unlimited-the-same-feature-set-as-pro-including-voice-input",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-48-resolveentitlements-gives-unlimited-the-same-feature-set-as-pro-including-voice-input",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 47,
+      "sourceLine": 48,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27222,10 +27222,10 @@
       "description": "Protects the core domain resolve Entitlements behavior so gives unlimited the same feature set as pro, including voice input."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-57-resolveentitlements-gives-pro-unlimited-translations-and-unlimited-videos",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-58-resolveentitlements-gives-pro-unlimited-translations-and-unlimited-videos",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 57,
+      "sourceLine": 58,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27238,10 +27238,10 @@
       "description": "Protects the core domain resolve Entitlements behavior so gives pro unlimited translations and unlimited videos."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-80-resolveentitlements-falls-back-to-free-entitlements-when-the-plan-config-is-missing",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-81-resolveentitlements-falls-back-to-free-entitlements-when-the-plan-config-is-missing",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 80,
+      "sourceLine": 81,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -27254,10 +27254,10 @@
       "description": "Protects the core domain resolve Entitlements behavior: falls back to free entitlements when the plan config is missing."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-86-resolveentitlements-does-not-grant-plan-features-that-are-role-only-mechanism-present",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-87-resolveentitlements-does-not-grant-plan-features-that-are-role-only-mechanism-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 86,
+      "sourceLine": 87,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34054,7 +34054,7 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: includes all learning languages."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-22-buildmentorsystemprompt-instructs-the-ai-not-to-translate-immediately",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-22-buildmentorsystemprompt-instructs-the-ai-to-answer-language-questions-directly",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
       "sourceLine": 22,
@@ -34063,14 +34063,14 @@
       "suitePath": [
         "buildMentorSystemPrompt"
       ],
-      "title": "instructs the AI not to translate immediately",
-      "rawTitle": "instructs the AI not to translate immediately",
-      "name": "Core domain build Mentor System Prompt instructs the AI not to translate immediately",
-      "value": "Protects the core domain build Mentor System Prompt behavior so instructs the AI not to translate immediately.",
-      "description": "Protects the core domain build Mentor System Prompt behavior so instructs the AI not to translate immediately."
+      "title": "instructs the AI to answer language questions directly",
+      "rawTitle": "instructs the AI to answer language questions directly",
+      "name": "Core domain build Mentor System Prompt instructs the AI to answer language questions directly",
+      "value": "Protects the core domain build Mentor System Prompt behavior so instructs the AI to answer language questions directly.",
+      "description": "Protects the core domain build Mentor System Prompt behavior so instructs the AI to answer language questions directly."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-27-buildmentorsystemprompt-instructs-the-ai-to-keep-responses-short",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-27-buildmentorsystemprompt-no-longer-carries-the-socratic-word-coach-behavior",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
       "sourceLine": 27,
@@ -34079,17 +34079,49 @@
       "suitePath": [
         "buildMentorSystemPrompt"
       ],
-      "title": "instructs the AI to keep responses short",
-      "rawTitle": "instructs the AI to keep responses short",
-      "name": "Core domain build Mentor System Prompt instructs the AI to keep responses short",
-      "value": "Protects the core domain build Mentor System Prompt behavior so instructs the AI to keep responses short.",
-      "description": "Protects the core domain build Mentor System Prompt behavior so instructs the AI to keep responses short."
+      "title": "no longer carries the Socratic word-coach behavior",
+      "rawTitle": "no longer carries the Socratic word-coach behavior",
+      "name": "Core domain build Mentor System Prompt no longer carries the Socratic word coach behavior",
+      "value": "Protects the core domain build Mentor System Prompt behavior so no longer carries the Socratic word coach behavior.",
+      "description": "Protects the core domain build Mentor System Prompt behavior so no longer carries the Socratic word coach behavior."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-32-buildmentorsystemprompt-includes-the-interface-language-so-the-ai-responds-in-the-right-language",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-34-buildmentorsystemprompt-restricts-the-assistant-to-language-topics-with-a-one-sentence-refusal-for-off-topic",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 32,
+      "sourceLine": 34,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildMentorSystemPrompt"
+      ],
+      "title": "restricts the assistant to language topics with a one-sentence refusal for off-topic",
+      "rawTitle": "restricts the assistant to language topics with a one-sentence refusal for off-topic",
+      "name": "Core domain build Mentor System Prompt restricts the assistant to language topics with a one sentence refusal for off topic",
+      "value": "Protects the core domain build Mentor System Prompt behavior so restricts the assistant to language topics with a one sentence refusal for off topic.",
+      "description": "Protects the core domain build Mentor System Prompt behavior so restricts the assistant to language topics with a one sentence refusal for off topic."
+    },
+    {
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-41-buildmentorsystemprompt-asks-for-a-short-answer-followed-by-examples",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
+      "sourceLine": 41,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildMentorSystemPrompt"
+      ],
+      "title": "asks for a short answer followed by examples",
+      "rawTitle": "asks for a short answer followed by examples",
+      "name": "Core domain build Mentor System Prompt asks for a short answer followed by examples",
+      "value": "Protects the core domain build Mentor System Prompt behavior so asks for a short answer followed by examples.",
+      "description": "Protects the core domain build Mentor System Prompt behavior so asks for a short answer followed by examples."
+    },
+    {
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-46-buildmentorsystemprompt-includes-the-interface-language-so-the-ai-responds-in-the-right-language",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
+      "sourceLine": 46,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34102,10 +34134,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: includes the interface language so the AI responds in the right language."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-37-buildmentorsystemprompt-handles-empty-learning-languages-gracefully",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-51-buildmentorsystemprompt-handles-empty-learning-languages-gracefully",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 37,
+      "sourceLine": 51,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34118,10 +34150,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: handles empty learning languages gracefully."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-43-buildmentorsystemprompt-includes-a-prompt-injection-guard-treating-user-input-as-untrusted-s6",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-57-buildmentorsystemprompt-includes-a-prompt-injection-guard-treating-user-input-as-untrusted-s6",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 43,
+      "sourceLine": 57,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34134,10 +34166,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: includes a prompt injection guard treating user input as untrusted (S6)."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-49-buildmentorsystemprompt-stays-channel-neutral-by-default-no-hardcoded-frontend-name",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-63-buildmentorsystemprompt-stays-channel-neutral-by-default-no-hardcoded-frontend-name",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 49,
+      "sourceLine": 63,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34150,10 +34182,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior so stays channel neutral by default (no hardcoded frontend name)."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-54-buildmentorsystemprompt-uses-the-provided-channelhint-in-the-prompt",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-68-buildmentorsystemprompt-uses-the-provided-channelhint-in-the-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 54,
+      "sourceLine": 68,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34166,10 +34198,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: uses the provided channel Hint in the prompt."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-61-max-mentor-history-is-a-positive-even-number-full-user-assistant-turns",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-75-max-mentor-history-is-a-positive-even-number-full-user-assistant-turns",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 61,
+      "sourceLine": 75,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

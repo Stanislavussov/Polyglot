@@ -19,14 +19,28 @@ describe("buildMentorSystemPrompt", () => {
     expect(prompt).toContain("ru");
   });
 
-  it("instructs the AI not to translate immediately", () => {
+  it("instructs the AI to answer language questions directly", () => {
     const prompt = buildMentorSystemPrompt(opts);
-    expect(prompt).toMatch(/not.*translate.*immediately/i);
+    expect(prompt).toMatch(/answer.*directly|direct(ly)? answer/i);
   });
 
-  it("instructs the AI to keep responses short", () => {
+  it("no longer carries the Socratic word-coach behavior", () => {
     const prompt = buildMentorSystemPrompt(opts);
-    expect(prompt).toMatch(/short|2.?4 sentences/i);
+    expect(prompt).not.toMatch(/do not translate immediately/i);
+    expect(prompt).not.toMatch(/ask what they think it means/i);
+    expect(prompt).not.toMatch(/2-4 sentences/i);
+  });
+
+  it("restricts the assistant to language topics with a one-sentence refusal for off-topic", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toMatch(/only|strictly/i);
+    expect(prompt).toMatch(/language/i);
+    expect(prompt).toMatch(/one short.*sentence|single.*sentence/i);
+  });
+
+  it("asks for a short answer followed by examples", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toMatch(/example/i);
   });
 
   it("includes the interface language so the AI responds in the right language", () => {

@@ -356,6 +356,7 @@
   "featureVoiceInput": "Дауыстық енгізу",
   "planLineVoiceInput": "🎙️ Дауыстық хабарламаларды аудару",
   "planLineGrammar": "Грамматика және этимология",
+  "planLineMentor": "AI тіл менторы",
   "planLineEverythingIn": "{plan} тарифіндегінің бәрі",
   "upgradeTestPaymentNote": "Сынақ төлемі — әзірге ақша алынбайды.",
   "upgradeFeatureLocked": "{feature} — <b>{plan}</b> тарифінің мүмкіндігі.",

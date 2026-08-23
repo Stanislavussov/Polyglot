@@ -356,6 +356,7 @@
   "featureVoiceInput": "Hlasový vstup",
   "planLineVoiceInput": "🎙️ Překlad hlasových zpráv",
   "planLineGrammar": "Gramatika a etymologie",
+  "planLineMentor": "AI jazykový mentor",
   "planLineEverythingIn": "Vše z {plan}",
   "upgradeTestPaymentNote": "Testovací platba — zatím se nic neúčtuje.",
   "upgradeFeatureLocked": "{feature} je funkce tarifu <b>{plan}</b>.",

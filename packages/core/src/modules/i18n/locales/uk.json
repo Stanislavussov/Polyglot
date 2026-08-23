@@ -356,6 +356,7 @@
   "featureVoiceInput": "Голосове введення",
   "planLineVoiceInput": "🎙️ Переклад голосових повідомлень",
   "planLineGrammar": "Граматика та етимологія",
+  "planLineMentor": "ШІ-наставник з мов",
   "planLineEverythingIn": "Усе з {plan}",
   "upgradeTestPaymentNote": "Тестова оплата — кошти поки не списуються.",
   "upgradeFeatureLocked": "{feature} — функція тарифу <b>{plan}</b>.",

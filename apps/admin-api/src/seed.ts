@@ -24,7 +24,7 @@ async function seed() {
   // defaults — admins retune them in the panel, and the resolver reads them from the
   // DB on every check.
   const GRAMMAR_FEATURES = ["grammarBreakdown", "etymology", "grammarDetail"];
-  const PLUS_FEATURES = [...GRAMMAR_FEATURES, "clarification"];
+  const PLUS_FEATURES = [...GRAMMAR_FEATURES, "clarification", "mentor"];
   const PRO_FEATURES = [...PLUS_FEATURES, "pronunciation", "voiceInput"];
 
   const defaultPlans = [
