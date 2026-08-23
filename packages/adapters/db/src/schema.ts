@@ -219,6 +219,8 @@ export const vocabularyEntries = pgTable(
      * Unverified entries are excluded from daily notifications and SRS picks.
      */
     unverified: boolean("unverified").default(false).notNull(),
+    /** Notification feedback grade ('hard' | 'normal' | 'easy'); null = unrated, weighted as normal. */
+    difficulty: text("difficulty").$type<"hard" | "normal" | "easy">(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

@@ -22,7 +22,11 @@ import { mainKeyboardMiddleware } from "./middlewares/main-keyboard.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { technicalCleanupMiddleware } from "./middlewares/technical-cleanup.js";
 import { updateMetricsMiddleware } from "./middlewares/update-metrics.js";
-import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notifications/notification.callbacks.js";
+import {
+  handleNotifFeedbackCallback,
+  handleNotifLearnedCallback,
+  handleNotifRevealCallback,
+} from "./notifications/notification.callbacks.js";
 import { createApiLogTransformer } from "./observability/api-log.js";
 import { handlerName, withHandlerLog } from "./observability/handler-log.js";
 import { updateTraceMiddleware } from "./observability/update-trace.middleware.js";
@@ -401,6 +405,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:close", handleSetCloseCallback);
 
   onCallback(/^notif:reveal:/, handleNotifRevealCallback);
+  onCallback(/^notif:fb:/, handleNotifFeedbackCallback);
   onCallback(/^notif:learned:/, handleNotifLearnedCallback);
 
   onCallback(/^tr:save:/, handleSaveCallback);
