@@ -10,6 +10,7 @@ import {
   type InputType,
   type LanguageOrderContext,
   logger,
+  type SpeakableCard,
   type SupportedLang,
   selectPronounceableLangs,
   t,
@@ -36,19 +37,19 @@ export function isEtymologyEligible(inputType: InputType, sourceLang: string, na
  *
  * Returns empty — so no row is rendered at all — whenever TTS is off or has no
  * model configured, and for sentence cards, which are out of scope for v1
- * (Task 77). Everything else is the "only the words being learned" rule, which
+ * (Task 77). Everything else is the "every word that is not native" rule, which
  * lives in core as {@link selectPronounceableLangs}.
  */
 export async function resolvePronounceLangs(
   ctx: BotContext,
-  translations: Readonly<Record<string, { text: string } | undefined>>,
+  card: SpeakableCard,
   inputType: InputType,
   order: LanguageOrderContext,
 ): Promise<readonly string[]> {
   if (inputType === "sentence") return [];
   const config = await ctx.services.settings.getTtsConfig();
   if (!config.enabled || !config.modelId) return [];
-  return selectPronounceableLangs(translations, order);
+  return selectPronounceableLangs(card, order);
 }
 
 export function normalizeLearningLangs(nativeLang: string, learningLangs: readonly string[]): string[] {

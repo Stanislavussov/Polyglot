@@ -290,7 +290,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
     // as a snapshot. Carry the accumulated negative constraints forward into the
     // new card's entry so a further "Other meaning" tap still excludes every
     // sense shown so far, and point the pending-card pointers at the new card.
-    const pronounceLangs = await resolvePronounceLangs(ctx, decision.output.translations, entry.inputType, order);
+    const pronounceLangs = await resolvePronounceLangs(ctx, decision.output, entry.inputType, order);
 
     const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
     const keyboard = buildTranslationKeyboard({
@@ -507,7 +507,7 @@ async function reRenderCard(
   const showEtymologyButton =
     isEtymologyEligible(entry.inputType, entry.output.sourceLang, nativeLang) && !etymologyShown;
 
-  const pronounceLangs = await resolvePronounceLangs(ctx, entry.output.translations, entry.inputType, order);
+  const pronounceLangs = await resolvePronounceLangs(ctx, entry.output, entry.inputType, order);
 
   const keyboard = buildTranslationKeyboard({
     interfaceLang: lang,
@@ -591,7 +591,7 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
   // the grammar-detail flow on a card.
   const detailPronounceLangs = await resolvePronounceLangs(
     ctx,
-    entry.output.translations,
+    entry.output,
     entry.inputType,
     languageOrderFromSettings(settings),
   );

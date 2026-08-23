@@ -83,12 +83,37 @@ export interface SpeechResult {
   generationId: string | null;
 }
 
+/** Input for a single speech-to-text transcription. */
+export interface TranscribeOptions {
+  /** Raw audio bytes (e.g. a Telegram voice message's OGG/Opus payload). */
+  audio: Uint8Array;
+  /** Audio container format, passed through to the provider as-is. */
+  format: "ogg" | "mp3" | "wav";
+  /** OpenRouter transcription model id — resolved from settings, never hardcoded. */
+  modelId: string;
+  userId?: number;
+}
+
+/** Result of a transcription: the recognized text plus provider-reported usage. */
+export interface TranscriptionResult {
+  /** Trimmed transcript text. */
+  text: string;
+  /** Audio duration billed by the provider, or null when the response omits it. */
+  seconds: number | null;
+  /** Provider-reported cost in USD, or null when the response omits it. */
+  costUsd: number | null;
+  /** OpenRouter's `X-Generation-Id`, for cost lookup and support debugging. */
+  generationId: string | null;
+}
+
 export interface AIPort {
   generateObject<T>(prompt: string, schema: ZodSchema<T>, model: string, options?: GenerateOptions): Promise<T>;
   generateText(prompt: string, model: string, options?: GenerateOptions): Promise<string>;
   generateChat(messages: ChatMessage[], model: string, options?: ChatOptions): Promise<string>;
   /** Synthesize speech. Throws on provider failure or budget timeout. */
   generateSpeech(options: SpeechOptions): Promise<SpeechResult>;
+  /** Transcribe speech to text. Throws on provider failure or budget timeout. */
+  transcribe(options: TranscribeOptions): Promise<TranscriptionResult>;
 }
 
 /**

@@ -1,18 +1,28 @@
 /**
  * Pronunciation callback (`tr:say:{langCode}:{msgId}`) — Task 77.
  *
- * Sends the translated word as a voice message, captioned with the word being
- * spoken. The card is deliberately left untouched: pronunciation is a side
- * effect, not a section, so unlike grammar and etymology the button does not
- * disappear after use and the card text never changes.
+ * Sends the card's word for that language — the source headword included — as a
+ * voice message, captioned with the word being spoken. The card is deliberately
+ * left untouched: pronunciation is a side effect, not a section, so unlike
+ * grammar and etymology the button does not disappear after use and the card
+ * text never changes.
  *
  * All policy (cap, cache, self-healing on a rejected file_id) lives in
  * `playPronunciation`; this module only supplies the three Telegram/OpenRouter
  * adapters it needs and translates the outcome into a callback answer.
  */
-import { FEATURE_KEYS, isSupported, logEvent, playPronunciation, type SupportedLang, t } from "@polyglot/core";
+import {
+  FEATURE_KEYS,
+  isSupported,
+  logEvent,
+  playPronunciation,
+  resolvePronounceableText,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
 import { InputFile } from "grammy";
 import type { BotContext } from "../../types.js";
+import { languageOrderFromSettings } from "../../utils/language-order.js";
 import { ensurePaidFeature } from "./paid-feature.helper.js";
 
 /** Parses `tr:say:{langCode}:{msgId}`. Returns null when the shape is unexpected. */
@@ -49,7 +59,9 @@ export async function handlePronounceCallback(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const text = entry.output.translations[langCode]?.text ?? "";
+  // Not simply `translations[langCode]`: on a reverse-learning card the source
+  // word is the headword above the translations and has no entry there at all.
+  const text = resolvePronounceableText(entry.output, langCode, languageOrderFromSettings(settings));
   const config = await ctx.services.settings.getTtsConfig();
 
   // Re-check `enabled` at tap time, not just at render time: a card sent before an

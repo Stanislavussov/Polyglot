@@ -77,6 +77,9 @@ export function createSettingsStub(): ServiceContainer["settings"] {
     getTtsConfig: vi
       .fn()
       .mockResolvedValue({ enabled: true, modelId: "x-ai/grok-voice-tts-1.0", voice: "eve", maxChars: 200 }),
+    getSttConfig: vi
+      .fn()
+      .mockResolvedValue({ enabled: true, modelId: "openai/whisper-large-v3-turbo", maxDurationSec: 60 }),
   };
 }
 

@@ -22,6 +22,8 @@
       <!-- TTS needs a live model picker and a synthesis probe, neither of which the
            generic key/value renderer can express, so it brings its own form. -->
       <TtsSettingsForm v-if="activeTab === 'tts'" />
+      <!-- STT needs the same live model picker as TTS, so it also brings its own form. -->
+      <SttSettingsForm v-else-if="activeTab === 'stt'" />
       <p v-else-if="loading" class="text-sm text-gray-400">Loading...</p>
       <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
       <form v-else class="space-y-4" @submit.prevent="save">
@@ -89,11 +91,12 @@
 import { Info } from "lucide-vue-next";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { settings } from "../lib/api";
+import SttSettingsForm from "./SttSettingsForm.vue";
 import TtsSettingsForm from "./TtsSettingsForm.vue";
 
 type SettingsValue = string | number | boolean;
 type SettingsRecord = Record<string, SettingsValue>;
-type SettingsGroup = "ai-defaults" | "notifications" | "srs" | "dictionary" | "video-vocabulary" | "tts";
+type SettingsGroup = "ai-defaults" | "notifications" | "srs" | "dictionary" | "video-vocabulary" | "tts" | "stt";
 type FieldDescriptionMap = Record<SettingsGroup, Record<string, string>>;
 
 const tabs: Array<{ key: SettingsGroup; label: string }> = [
@@ -103,6 +106,7 @@ const tabs: Array<{ key: SettingsGroup; label: string }> = [
   { key: "dictionary", label: "Dictionary" },
   { key: "video-vocabulary", label: "Video Vocabulary" },
   { key: "tts", label: "Pronunciation" },
+  { key: "stt", label: "Voice input" },
 ];
 
 const activeTab = ref<SettingsGroup>("ai-defaults");
@@ -137,6 +141,7 @@ const fieldDescriptions: FieldDescriptionMap = {
     wordOfDayLimit: "Maximum number of dictionary entries considered for word-of-day style suggestions.",
   },
   tts: {},
+  stt: {},
   "video-vocabulary": {
     monthlyLimit: "Maximum number of videos a user can process per calendar month.",
     minPhrases: "Floor for the per-video phrase target. Short videos generate at least this many phrases.",
@@ -152,6 +157,7 @@ const tabDescriptions: Record<SettingsGroup, string> = {
   dictionary: "Caps used when dictionary entries are selected for flashcards, notifications, and daily suggestions.",
   "video-vocabulary": "Limits and AI model used when extracting vocabulary phrases from YouTube videos. Phrase count scales with video length between the min and max.",
   tts: "Speech model, voice, and length cap for the pronunciation button on translation cards.",
+  stt: "Transcription model and length cap for voice messages sent to the bot.",
 };
 
 const fields = computed(() =>
@@ -196,9 +202,9 @@ function tabLabel(group: SettingsGroup): string {
 }
 
 async function loadTab(group: SettingsGroup): Promise<void> {
-  // TtsSettingsForm loads and saves itself; running the generic loader for it would
-  // fetch a shape this component cannot render.
-  if (group === "tts") return;
+  // TtsSettingsForm/SttSettingsForm load and save themselves; running the generic
+  // loader for them would fetch a shape this component cannot render.
+  if (group === "tts" || group === "stt") return;
   loading.value = true;
   loadError.value = "";
   saveError.value = "";

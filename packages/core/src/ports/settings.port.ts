@@ -91,6 +91,23 @@ export interface TtsConfig {
   maxChars: number;
 }
 
+/**
+ * Speech-to-text settings for voice message translation (Task 80).
+ *
+ * Mirrors `TtsConfig`'s empty-model-means-disabled convention: `modelId` lives
+ * here rather than a constant so a bad slug is fixable without a redeploy, and an
+ * empty `modelId` means the same thing as `enabled: false` (see
+ * `pronunciation.service.ts:74` for the same rule on the TTS side).
+ */
+export interface SttConfig {
+  /** Master switch. Voice message handling is not offered when false. */
+  enabled: boolean;
+  /** OpenRouter speech-to-text model id. Empty string = feature disabled. */
+  modelId: string;
+  /** Hard cap on voice message duration accepted for transcription. */
+  maxDurationSec: number;
+}
+
 export interface SettingsPort {
   getPlanLimits(): Promise<PlanLimitConfig[]>;
   getPlanLimit(plan: SubscriptionPlan): Promise<PlanLimitConfig | null>;
@@ -112,4 +129,5 @@ export interface SettingsPort {
   getTranslationPresets(): Promise<TranslationPresetConfig[]>;
   getVideoVocabularyConfig(): Promise<VideoVocabularyConfig>;
   getTtsConfig(): Promise<TtsConfig>;
+  getSttConfig(): Promise<SttConfig>;
 }

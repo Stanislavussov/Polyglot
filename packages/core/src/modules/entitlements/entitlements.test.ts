@@ -6,7 +6,7 @@ const PLUS: PlanEntitlementConfig = { translationLimit: null, videoLimit: 20, vi
 const PRO: PlanEntitlementConfig = { translationLimit: null, videoLimit: null, videoWindow: "monthly" };
 const PREMIUM_FEATURES = [FEATURE_KEYS.grammarBreakdown, FEATURE_KEYS.etymology, FEATURE_KEYS.grammarDetail];
 const PLUS_FEATURES = [...PREMIUM_FEATURES, FEATURE_KEYS.clarification];
-const PRO_FEATURES = [...PLUS_FEATURES, FEATURE_KEYS.pronunciation];
+const PRO_FEATURES = [...PLUS_FEATURES, FEATURE_KEYS.pronunciation, FEATURE_KEYS.voiceInput];
 
 describe("resolveEntitlements", () => {
   it("gives free (product) 10 translations/month, no video, no features", () => {
@@ -27,11 +27,12 @@ describe("resolveEntitlements", () => {
     expect(e.video).toEqual({ limit: 20, window: "monthly" });
     expect(e.features.has(FEATURE_KEYS.etymology)).toBe(true);
     expect(e.features.has(FEATURE_KEYS.clarification)).toBe(true);
-    // Audio is the Pro-only differentiator — a Plus plan must not leak it.
+    // Audio and voice input are Pro-only differentiators — a Plus plan must not leak them.
     expect(e.features.has(FEATURE_KEYS.pronunciation)).toBe(false);
+    expect(e.features.has(FEATURE_KEYS.voiceInput)).toBe(false);
   });
 
-  it("gives pro the pronunciation feature on top of the plus set", () => {
+  it("gives pro the pronunciation and voice input features on top of the plus set", () => {
     const e = resolveEntitlements({
       audienceGroup: "product",
       plan: "pro",
@@ -39,7 +40,18 @@ describe("resolveEntitlements", () => {
       planFeatures: PRO_FEATURES,
     });
     expect(e.features.has(FEATURE_KEYS.pronunciation)).toBe(true);
+    expect(e.features.has(FEATURE_KEYS.voiceInput)).toBe(true);
     expect(e.features.has(FEATURE_KEYS.clarification)).toBe(true);
+  });
+
+  it("gives unlimited the same feature set as pro, including voice input", () => {
+    const e = resolveEntitlements({
+      audienceGroup: "product",
+      plan: "unlimited",
+      planConfig: PRO,
+      planFeatures: PRO_FEATURES,
+    });
+    expect(e.features.has(FEATURE_KEYS.voiceInput)).toBe(true);
   });
 
   it("gives pro unlimited translations and unlimited videos", () => {

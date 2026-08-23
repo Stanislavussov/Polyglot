@@ -25,7 +25,7 @@ async function seed() {
   // DB on every check.
   const GRAMMAR_FEATURES = ["grammarBreakdown", "etymology", "grammarDetail"];
   const PLUS_FEATURES = [...GRAMMAR_FEATURES, "clarification"];
-  const PRO_FEATURES = [...PLUS_FEATURES, "pronunciation"];
+  const PRO_FEATURES = [...PLUS_FEATURES, "pronunciation", "voiceInput"];
 
   const defaultPlans = [
     {

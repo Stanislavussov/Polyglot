@@ -6,6 +6,7 @@ import type {
   PlanLimitConfig,
   SettingsPort,
   SrsConfig,
+  SttConfig,
   TranslationPresetConfig,
   TtsConfig,
   VideoVocabularyConfig,
@@ -44,6 +45,7 @@ const DEFAULTS: {
   dictionary: DictionaryConfig;
   videoVocabulary: VideoVocabularyConfig;
   tts: TtsConfig;
+  stt: SttConfig;
 } = {
   srs: { minEaseFactor: 1.3, defaultEaseFactor: 2.5 },
   notifications: { defaultTime: "19:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 },
@@ -55,6 +57,12 @@ const DEFAULTS: {
     extractionModelId: "google/gemini-3.1-flash-lite",
   },
   tts: { enabled: true, modelId: "x-ai/grok-voice-tts-1.0", voice: "eve", maxChars: 200 },
+  // STT is ON by default, same posture as TTS above. Verified against the live API
+  // on 2026-08-23: `POST /api/v1/audio/transcriptions` with a JSON body of
+  // `{ model, input_audio: { data: <base64>, format: "ogg" } }` returns 200
+  // `{ text, usage: { seconds, cost } }` for OGG/Opus — the format Telegram voice
+  // messages arrive in, so no transcoding — and was confirmed for ru/kk/de.
+  stt: { enabled: true, modelId: "openai/whisper-large-v3-turbo", maxDurationSec: 60 },
 };
 
 async function getWithFallback<T>(key: string, fallback: T): Promise<T> {
@@ -179,5 +187,9 @@ export const settingsAdapter: SettingsPort = {
 
   async getTtsConfig(): Promise<TtsConfig> {
     return getWithFallback<TtsConfig>("tts", DEFAULTS.tts);
+  },
+
+  async getSttConfig(): Promise<SttConfig> {
+    return getWithFallback<SttConfig>("stt", DEFAULTS.stt);
   },
 };

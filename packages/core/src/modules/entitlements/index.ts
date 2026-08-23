@@ -21,6 +21,8 @@ export const FEATURE_KEYS = {
   clarification: "clarification",
   /** Spoken word (TTS) — `tr:say:*`. */
   pronunciation: "pronunciation",
+  /** Voice message translation (STT). */
+  voiceInput: "voiceInput",
 } as const;
 
 export type FeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS];
