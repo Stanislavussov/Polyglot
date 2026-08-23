@@ -491,6 +491,31 @@ export const presets = {
   delete: (id: string) => del<void>(`/api/settings/presets/${id}`),
 };
 
+// Word-picker presets — curated angles offered in the bot's main menu
+export interface WordPickerPreset {
+  id: number;
+  slug: string;
+  emoji: string;
+  title: string;
+  titleI18n: Record<string, string>;
+  prompt: string;
+  learningLangs: string[];
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type WordPickerPresetInput = Omit<WordPickerPreset, "id" | "createdAt" | "updatedAt">;
+
+export const wordPickerPresets = {
+  list: () => get<WordPickerPreset[]>("/api/settings/word-picker-presets"),
+  create: (preset: WordPickerPresetInput) => post<WordPickerPreset>("/api/settings/word-picker-presets", preset),
+  update: (id: number, preset: Partial<WordPickerPresetInput>) =>
+    put<WordPickerPreset>(`/api/settings/word-picker-presets/${id}`, preset),
+  delete: (id: number) => del<void>(`/api/settings/word-picker-presets/${id}`),
+};
+
 // Users
 export type AudienceGroup = "admin" | "tester" | "product";
 

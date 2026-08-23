@@ -106,6 +106,8 @@ export function createServicesStub(overrides: Partial<ServiceContainer> = {}): S
     contextLookup: vi.fn().mockResolvedValue([]),
     wordLanguageSweep: vi.fn().mockResolvedValue([]),
     videoVocabularyRepository: autoMockObject<NonNullable<ServiceContainer["videoVocabularyRepository"]>>(),
+    wordPickerPresetRepository: autoMockObject<ServiceContainer["wordPickerPresetRepository"]>(),
+    wordPickerRunRepository: autoMockObject<ServiceContainer["wordPickerRunRepository"]>(),
   };
 
   return { ...base, ...overrides };

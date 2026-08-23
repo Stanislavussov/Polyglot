@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-22T16:42:01.000Z",
+  "generatedAt": "2026-08-23T09:53:53.000Z",
   "summary": {
-    "total": 2803,
+    "total": 2820,
     "business": 0,
-    "technical": 2803,
+    "technical": 2820,
     "workspaces": [
       "apps",
       "packages"
@@ -1895,10 +1895,10 @@
       "description": "Protects the bot build Ai Failover behavior so disables the split for a non finite non positive budget instead of returning a Na N split."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-162-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-176-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 162,
+      "sourceLine": 176,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1911,10 +1911,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-184-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-198-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 184,
+      "sourceLine": 198,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1927,10 +1927,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-194-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-208-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 194,
+      "sourceLine": 208,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1943,10 +1943,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-202-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-216-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 202,
+      "sourceLine": 216,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2967,10 +2967,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so badges the paid buttons for a Free user and turns a tap into the priced plan comparison."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-130-paid-features-on-a-translation-card-integration-buys-plus-through-the-test-payment-confirmation-and-unlocks-clarify-but-not-pro-only-audio",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-143-paid-features-on-a-translation-card-integration-buys-plus-through-the-test-payment-confirmation-and-unlocks-clarify-but-not-pro-only-audio",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 130,
+      "sourceLine": 143,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2983,10 +2983,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so buys Plus through the test payment confirmation and unlocks clarify — but not Pro only audio."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-182-paid-features-on-a-translation-card-integration-upgrading-plus-pro-supersedes-the-old-subscription-and-unlocks-audio",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-200-paid-features-on-a-translation-card-integration-upgrading-plus-pro-supersedes-the-old-subscription-and-unlocks-audio",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 182,
+      "sourceLine": 200,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2999,10 +2999,26 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so upgrading Plus → Pro supersedes the old subscription and unlocks audio."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-211-paid-features-on-a-translation-card-integration-backing-out-of-the-test-payment-leaves-the-user-on-free",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-229-paid-features-on-a-translation-card-integration-tells-a-pro-subscriber-there-is-nothing-left-to-buy-instead-of-an-empty-menu",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 211,
+      "sourceLine": 229,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "paid features on a translation card (integration)"
+      ],
+      "title": "tells a Pro subscriber there is nothing left to buy instead of an empty menu",
+      "rawTitle": "tells a Pro subscriber there is nothing left to buy instead of an empty menu",
+      "name": "Bot paid features on a translation card (integration) tells a Pro subscriber there is nothing left to buy instead of an empty menu",
+      "value": "Protects the bot paid features on a translation card (integration) behavior so tells a Pro subscriber there is nothing left to buy instead of an empty menu.",
+      "description": "Protects the bot paid features on a translation card (integration) behavior so tells a Pro subscriber there is nothing left to buy instead of an empty menu."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-247-paid-features-on-a-translation-card-integration-backing-out-of-the-test-payment-leaves-the-user-on-free",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
+      "sourceLine": 247,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3015,10 +3031,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so backing out of the test payment leaves the user on Free."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-229-paid-features-on-a-translation-card-integration-stops-the-11th-translation-of-the-month-on-free-and-offers-the-upgrade",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-265-paid-features-on-a-translation-card-integration-stops-the-11th-translation-of-the-month-on-free-and-offers-the-upgrade",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 229,
+      "sourceLine": 265,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3031,10 +3047,10 @@
       "description": "Protects the bot paid features on a translation card (integration) behavior so stops the 11th translation of the month on Free and offers the upgrade."
     },
     {
-      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-248-paid-features-on-a-translation-card-integration-refuses-a-hand-crafted-purchase-of-a-plan-that-is-not-for-sale",
+      "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-284-paid-features-on-a-translation-card-integration-refuses-a-hand-crafted-purchase-of-a-plan-that-is-not-for-sale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/paid-features-gating.integration.test.ts",
-      "sourceLine": 248,
+      "sourceLine": 284,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3159,10 +3175,26 @@
       "description": "Protects the bot word pronunciation (integration) behavior so offers a pronunciation button for the learning language and speaks it on tap."
     },
     {
-      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-106-word-pronunciation-integration-serves-a-second-tap-from-the-cache-without-paying-for-synthesis-again",
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-106-word-pronunciation-integration-captions-the-voice-message-with-the-word-it-speaks-on-a-fresh-and-a-cached-send-alike",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
       "sourceLine": 106,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word pronunciation (integration)"
+      ],
+      "title": "captions the voice message with the word it speaks, on a fresh and a cached send alike",
+      "rawTitle": "captions the voice message with the word it speaks, on a fresh and a cached send alike",
+      "name": "Bot word pronunciation (integration) captions the voice message with the word it speaks, on a fresh and a cached send alike",
+      "value": "Protects the bot word pronunciation (integration) behavior so captions the voice message with the word it speaks, on a fresh and a cached send alike.",
+      "description": "Protects the bot word pronunciation (integration) behavior so captions the voice message with the word it speaks, on a fresh and a cached send alike."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-130-word-pronunciation-integration-serves-a-second-tap-from-the-cache-without-paying-for-synthesis-again",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
+      "sourceLine": 130,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3175,10 +3207,10 @@
       "description": "Protects the bot word pronunciation (integration) behavior so serves a second tap from the cache without paying for synthesis again."
     },
     {
-      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-132-word-pronunciation-integration-heals-a-file-id-telegram-no-longer-accepts-instead-of-failing-the-tap",
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-156-word-pronunciation-integration-heals-a-file-id-telegram-no-longer-accepts-instead-of-failing-the-tap",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
-      "sourceLine": 132,
+      "sourceLine": 156,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3191,10 +3223,10 @@
       "description": "Protects the bot word pronunciation (integration) behavior so heals a file id Telegram no longer accepts instead of failing the tap."
     },
     {
-      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-158-word-pronunciation-integration-renders-no-pronunciation-button-at-all-while-tts-is-disabled",
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-182-word-pronunciation-integration-renders-no-pronunciation-button-at-all-while-tts-is-disabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
-      "sourceLine": 158,
+      "sourceLine": 182,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3207,10 +3239,10 @@
       "description": "Protects the bot word pronunciation (integration) behavior: renders no pronunciation button at all while TTS is disabled."
     },
     {
-      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-169-word-pronunciation-integration-tells-the-user-the-card-expired-when-the-session-entry-is-gone",
+      "id": "apps-bot-src-tests-integration-tts-pronunciation-integration-test-ts-193-word-pronunciation-integration-tells-the-user-the-card-expired-when-the-session-entry-is-gone",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/tts-pronunciation.integration.test.ts",
-      "sourceLine": 169,
+      "sourceLine": 193,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3221,6 +3253,38 @@
       "name": "Bot word pronunciation (integration) tells the user the card expired when the session entry is gone",
       "value": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone.",
       "description": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-word-picker-integration-test-ts-89-word-picker-integration-takes-a-learner-from-the-menu-tap-to-a-saved-word",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/word-picker.integration.test.ts",
+      "sourceLine": 89,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word picker (integration)"
+      ],
+      "title": "takes a learner from the menu tap to a saved word",
+      "rawTitle": "takes a learner from the menu tap to a saved word",
+      "name": "Bot word picker (integration) takes a learner from the menu tap to a saved word",
+      "value": "Protects the bot word picker (integration) behavior so takes a learner from the menu tap to a saved word.",
+      "description": "Protects the bot word picker (integration) behavior so takes a learner from the menu tap to a saved word."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-word-picker-integration-test-ts-138-word-picker-integration-does-not-offer-a-word-the-learner-has-already-been-shown-for-this-angle",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/word-picker.integration.test.ts",
+      "sourceLine": 138,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word picker (integration)"
+      ],
+      "title": "does not offer a word the learner has already been shown for this angle",
+      "rawTitle": "does not offer a word the learner has already been shown for this angle",
+      "name": "Bot word picker (integration) does not offer a word the learner has already been shown for this angle",
+      "value": "Protects the bot word picker (integration) behavior: does not offer a word the learner has already been shown for this angle.",
+      "description": "Protects the bot word picker (integration) behavior: does not offer a word the learner has already been shown for this angle."
     },
     {
       "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-102-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
@@ -6654,10 +6718,10 @@
       "description": "Protects the bot start Command behavior so re installs the main menu keyboard for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-112-startcommand-persists-activemode-to-db-for-onboarded-users",
+      "id": "apps-bot-src-commands-start-test-ts-113-startcommand-persists-activemode-to-db-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 112,
+      "sourceLine": 113,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6670,10 +6734,10 @@
       "description": "Protects the bot start Command behavior: persists active Mode to DB for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-120-startcommand-resumes-stateless-onboarding-for-non-onboarded-users-no-mode-change",
+      "id": "apps-bot-src-commands-start-test-ts-121-startcommand-resumes-stateless-onboarding-for-non-onboarded-users-no-mode-change",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 120,
+      "sourceLine": 121,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6686,10 +6750,10 @@
       "description": "Protects the bot start Command behavior so resumes stateless onboarding for non onboarded users (no mode change)."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-130-startcommand-does-nothing-when-user-is-not-in-context",
+      "id": "apps-bot-src-commands-start-test-ts-131-startcommand-does-nothing-when-user-is-not-in-context",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 130,
+      "sourceLine": 131,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9150,10 +9214,26 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: closes with inline feature buttons rather than slash commands."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-732-onboarding-screen-3-instruction-feature-entry-points-routes-each-feature-button-to-the-existing-scene-handler",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-737-onboarding-screen-3-instruction-feature-entry-points-hands-over-the-mode-menu-and-says-which-icon-brings-it-back",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 732,
+      "sourceLine": 737,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "onboarding — screen 3 (instruction + feature entry points)"
+      ],
+      "title": "hands over the mode menu and says which icon brings it back",
+      "rawTitle": "hands over the mode menu and says which icon brings it back",
+      "name": "Bot onboarding — screen 3 (instruction + feature entry points) hands over the mode menu and says which icon brings it back",
+      "value": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so hands over the mode menu and says which icon brings it back.",
+      "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so hands over the mode menu and says which icon brings it back."
+    },
+    {
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-756-onboarding-screen-3-instruction-feature-entry-points-routes-each-feature-button-to-the-existing-scene-handler",
+      "kind": "technical",
+      "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
+      "sourceLine": 756,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9166,10 +9246,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: routes each feature button to the existing scene handler."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-747-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-only-when-an-asset-is-configured-and-never-fails-on-its-absence",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-771-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-only-when-an-asset-is-configured-and-never-fails-on-its-absence",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 747,
+      "sourceLine": 771,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9182,10 +9262,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: sends the screencast only when an asset is configured, and never fails on its absence."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-757-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-when-a-file-id-is-configured",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-781-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-when-a-file-id-is-configured",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 757,
+      "sourceLine": 781,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9198,10 +9278,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: sends the screencast when a file id is configured."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-771-onboarding-screen-3-instruction-feature-entry-points-still-delivers-the-instruction-screen-when-the-screencast-fails-to-send",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-795-onboarding-screen-3-instruction-feature-entry-points-still-delivers-the-instruction-screen-when-the-screencast-fails-to-send",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 771,
+      "sourceLine": 795,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9214,10 +9294,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so still delivers the instruction screen when the screencast fails to send."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-792-onboarding-statelessness-and-instrumentation-resumes-on-the-furthest-screen-reached-however-long-the-gap-between-taps",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-816-onboarding-statelessness-and-instrumentation-resumes-on-the-furthest-screen-reached-however-long-the-gap-between-taps",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 792,
+      "sourceLine": 816,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9230,10 +9310,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so resumes on the furthest screen reached, however long the gap between taps."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-807-onboarding-statelessness-and-instrumentation-resumes-on-the-demo-screen-once-the-language-step-is-done",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-831-onboarding-statelessness-and-instrumentation-resumes-on-the-demo-screen-once-the-language-step-is-done",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 807,
+      "sourceLine": 831,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9246,10 +9326,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so resumes on the demo screen once the language step is done."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-816-onboarding-statelessness-and-instrumentation-keeps-every-button-live-after-an-arbitrary-pause-a-stale-tap-is-still-handled",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-840-onboarding-statelessness-and-instrumentation-keeps-every-button-live-after-an-arbitrary-pause-a-stale-tap-is-still-handled",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 816,
+      "sourceLine": 840,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9262,10 +9342,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: keeps every button live after an arbitrary pause — a stale tap is still handled."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-829-onboarding-statelessness-and-instrumentation-records-a-step-for-every-screen-and-never-rewinds-the-furthest-step-reached",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-853-onboarding-statelessness-and-instrumentation-records-a-step-for-every-screen-and-never-rewinds-the-furthest-step-reached",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 829,
+      "sourceLine": 853,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9278,10 +9358,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: records a step for every screen, and never rewinds the furthest step reached."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-848-onboarding-statelessness-and-instrumentation-reaches-the-first-real-card-in-five-taps-from-start",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-872-onboarding-statelessness-and-instrumentation-reaches-the-first-real-card-in-five-taps-from-start",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 848,
+      "sourceLine": 872,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9294,10 +9374,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so reaches the first real card in five taps from start."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-862-onboarding-statelessness-and-instrumentation-passes-text-through-to-the-rest-of-the-chain-when-another-flow-is-waiting-on-it",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-886-onboarding-statelessness-and-instrumentation-passes-text-through-to-the-rest-of-the-chain-when-another-flow-is-waiting-on-it",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 862,
+      "sourceLine": 886,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9310,10 +9390,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so passes text through to the rest of the chain when another flow is waiting on it."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-878-onboarding-statelessness-and-instrumentation-consumes-demo-screen-text-itself-when-no-other-flow-is-waiting",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-902-onboarding-statelessness-and-instrumentation-consumes-demo-screen-text-itself-when-no-other-flow-is-waiting",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 878,
+      "sourceLine": 902,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9326,10 +9406,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so consumes demo screen text itself when no other flow is waiting."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-890-onboarding-statelessness-and-instrumentation-ignores-an-onboarding-tap-from-a-user-who-has-already-finished",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-914-onboarding-statelessness-and-instrumentation-ignores-an-onboarding-tap-from-a-user-who-has-already-finished",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 890,
+      "sourceLine": 914,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9342,10 +9422,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: ignores an onboarding tap from a user who has already finished."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-905-onboarding-recovery-and-reversibility-puts-a-tap-on-a-pre-task-72-keyboard-back-onto-a-live-screen",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-929-onboarding-recovery-and-reversibility-puts-a-tap-on-a-pre-task-72-keyboard-back-onto-a-live-screen",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 905,
+      "sourceLine": 929,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9358,10 +9438,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so puts a tap on a pre Task 72 keyboard back onto a live screen."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-922-onboarding-recovery-and-reversibility-acknowledges-a-legacy-tap-from-an-already-onboarded-user-without-re-rendering",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-946-onboarding-recovery-and-reversibility-acknowledges-a-legacy-tap-from-an-already-onboarded-user-without-re-rendering",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 922,
+      "sourceLine": 946,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9374,10 +9454,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so acknowledges a legacy tap from an already onboarded user without re rendering."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-933-onboarding-recovery-and-reversibility-lets-the-user-take-back-a-wrongly-guessed-native-language",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-957-onboarding-recovery-and-reversibility-lets-the-user-take-back-a-wrongly-guessed-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 933,
+      "sourceLine": 957,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9390,10 +9470,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so lets the user take back a wrongly guessed native language."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-949-onboarding-recovery-and-reversibility-drops-a-learning-language-that-becomes-the-native-language-on-a-back-and-change",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-973-onboarding-recovery-and-reversibility-drops-a-learning-language-that-becomes-the-native-language-on-a-back-and-change",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 949,
+      "sourceLine": 973,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9406,10 +9486,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so drops a learning language that becomes the native language on a back and change."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-964-onboarding-recovery-and-reversibility-tracks-the-replacement-message-when-a-screen-is-too-old-to-edit",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-988-onboarding-recovery-and-reversibility-tracks-the-replacement-message-when-a-screen-is-too-old-to-edit",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 964,
+      "sourceLine": 988,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11132,6 +11212,86 @@
       "name": "Bot restart recovery and ownership handle Dict Confirm Delete validates ownership before deleting",
       "value": "Protects the bot restart recovery and ownership behavior so handle Dict Confirm Delete validates ownership before deleting.",
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict Confirm Delete validates ownership before deleting."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-79-upgrade-screen-offers-a-plus-subscriber-only-the-rung-above-still-written-as-a-diff-from-plus",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 79,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "offers a Plus subscriber only the rung above, still written as a diff from Plus",
+      "rawTitle": "offers a Plus subscriber only the rung above, still written as a diff from Plus",
+      "name": "Bot upgrade screen offers a Plus subscriber only the rung above, still written as a diff from Plus",
+      "value": "Protects the bot upgrade screen behavior so offers a Plus subscriber only the rung above, still written as a diff from Plus.",
+      "description": "Protects the bot upgrade screen behavior so offers a Plus subscriber only the rung above, still written as a diff from Plus."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-91-upgrade-screen-opens-with-the-feature-that-refused-the-tap-and-the-cheapest-plan-carrying-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 91,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "opens with the feature that refused the tap and the cheapest plan carrying it",
+      "rawTitle": "opens with the feature that refused the tap and the cheapest plan carrying it",
+      "name": "Bot upgrade screen opens with the feature that refused the tap and the cheapest plan carrying it",
+      "value": "Protects the bot upgrade screen behavior so opens with the feature that refused the tap and the cheapest plan carrying it.",
+      "description": "Protects the bot upgrade screen behavior so opens with the feature that refused the tap and the cheapest plan carrying it."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-101-upgrade-screen-falls-back-to-the-generic-prompt-when-no-feature-refused-the-tap",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 101,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "falls back to the generic prompt when no feature refused the tap",
+      "rawTitle": "falls back to the generic prompt when no feature refused the tap",
+      "name": "Bot upgrade screen falls back to the generic prompt when no feature refused the tap",
+      "value": "Protects the bot upgrade screen behavior: falls back to the generic prompt when no feature refused the tap.",
+      "description": "Protects the bot upgrade screen behavior: falls back to the generic prompt when no feature refused the tap."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-110-upgrade-screen-tells-a-top-plan-subscriber-everything-is-unlocked-instead-of-showing-an-empty-menu",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 110,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "tells a top-plan subscriber everything is unlocked instead of showing an empty menu",
+      "rawTitle": "tells a top-plan subscriber everything is unlocked instead of showing an empty menu",
+      "name": "Bot upgrade screen tells a top plan subscriber everything is unlocked instead of showing an empty menu",
+      "value": "Protects the bot upgrade screen behavior so tells a top plan subscriber everything is unlocked instead of showing an empty menu.",
+      "description": "Protects the bot upgrade screen behavior so tells a top plan subscriber everything is unlocked instead of showing an empty menu."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-subscription-upgrade-screen-test-ts-119-upgrade-screen-stays-calm-when-no-plan-is-priced-yet-a-catalogue-state-the-user-did-not-cause",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/subscription-upgrade-screen.test.ts",
+      "sourceLine": 119,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "upgrade screen"
+      ],
+      "title": "stays calm when no plan is priced yet — a catalogue state the user did not cause",
+      "rawTitle": "stays calm when no plan is priced yet — a catalogue state the user did not cause",
+      "name": "Bot upgrade screen stays calm when no plan is priced yet — a catalogue state the user did not cause",
+      "value": "Protects the bot upgrade screen behavior so stays calm when no plan is priced yet — a catalogue state the user did not cause.",
+      "description": "Protects the bot upgrade screen behavior so stays calm when no plan is priced yet — a catalogue state the user did not cause."
     },
     {
       "id": "apps-bot-src-scenes-helpers-tests-translate-flow-phase-metrics-test-ts-220-translate-phase-timing-metrics-observes-every-phase-exactly-once-on-a-happy-path-translate",
@@ -15305,7 +15465,7 @@
       "description": "Protects the bot start Typing Keepalive behavior: sends typing immediately and refreshes it on an interval until stopped."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-10-main-menu-keyboard-renders-the-three-entry-points-on-a-single-row-localized-and-icon-prefixed",
+      "id": "apps-bot-src-utils-main-menu-test-ts-10-main-menu-keyboard-gives-the-picker-its-own-full-width-row-above-the-three-everyday-entry-points",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
       "sourceLine": 10,
@@ -15314,14 +15474,14 @@
       "suitePath": [
         "main menu keyboard"
       ],
-      "title": "renders the three entry points on a single row, localized and icon-prefixed",
-      "rawTitle": "renders the three entry points on a single row, localized and icon-prefixed",
-      "name": "Bot main menu keyboard renders the three entry points on a single row, localized and icon prefixed",
-      "value": "Protects the bot main menu keyboard behavior: renders the three entry points on a single row, localized and icon prefixed.",
-      "description": "Protects the bot main menu keyboard behavior: renders the three entry points on a single row, localized and icon prefixed."
+      "title": "gives the picker its own full-width row above the three everyday entry points",
+      "rawTitle": "gives the picker its own full-width row above the three everyday entry points",
+      "name": "Bot main menu keyboard gives the picker its own full width row above the three everyday entry points",
+      "value": "Protects the bot main menu keyboard behavior so gives the picker its own full width row above the three everyday entry points.",
+      "description": "Protects the bot main menu keyboard behavior so gives the picker its own full width row above the three everyday entry points."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-19-main-menu-keyboard-stays-open-instead-of-collapsing-behind-the-keyboard-icon",
+      "id": "apps-bot-src-utils-main-menu-test-ts-19-main-menu-keyboard-folds-away-after-use-instead-of-pinning-itself-to-the-bottom-of-the-chat",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
       "sourceLine": 19,
@@ -15330,17 +15490,17 @@
       "suitePath": [
         "main menu keyboard"
       ],
-      "title": "stays open instead of collapsing behind the keyboard icon",
-      "rawTitle": "stays open instead of collapsing behind the keyboard icon",
-      "name": "Bot main menu keyboard stays open instead of collapsing behind the keyboard icon",
-      "value": "Protects the bot main menu keyboard behavior so stays open instead of collapsing behind the keyboard icon.",
-      "description": "Protects the bot main menu keyboard behavior so stays open instead of collapsing behind the keyboard icon."
+      "title": "folds away after use instead of pinning itself to the bottom of the chat",
+      "rawTitle": "folds away after use instead of pinning itself to the bottom of the chat",
+      "name": "Bot main menu keyboard folds away after use instead of pinning itself to the bottom of the chat",
+      "value": "Protects the bot main menu keyboard behavior so folds away after use instead of pinning itself to the bottom of the chat.",
+      "description": "Protects the bot main menu keyboard behavior so folds away after use instead of pinning itself to the bottom of the chat."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-26-main-menu-keyboard-matches-a-tap-in-every-supported-language-back-to-its-action",
+      "id": "apps-bot-src-utils-main-menu-test-ts-29-main-menu-keyboard-matches-a-tap-in-every-supported-language-back-to-its-action",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 26,
+      "sourceLine": 29,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15353,10 +15513,10 @@
       "description": "Protects the bot main menu keyboard behavior so matches a tap in every supported language back to its action."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-34-main-menu-keyboard-still-matches-labels-from-a-language-the-user-has-since-switched-away-from",
+      "id": "apps-bot-src-utils-main-menu-test-ts-38-main-menu-keyboard-still-matches-labels-from-a-language-the-user-has-since-switched-away-from",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 34,
+      "sourceLine": 38,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15369,10 +15529,10 @@
       "description": "Protects the bot main menu keyboard behavior so still matches labels from a language the user has since switched away from."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-41-main-menu-keyboard-does-not-match-an-ordinary-word-the-user-wants-translated",
+      "id": "apps-bot-src-utils-main-menu-test-ts-45-main-menu-keyboard-does-not-match-an-ordinary-word-the-user-wants-translated",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 41,
+      "sourceLine": 45,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15385,10 +15545,10 @@
       "description": "Protects the bot main menu keyboard behavior: does not match an ordinary word the user wants translated."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-47-main-menu-keyboard-exposes-every-label-so-bot-hears-intercepts-taps-before-translate-mode",
+      "id": "apps-bot-src-utils-main-menu-test-ts-51-main-menu-keyboard-exposes-every-label-so-bot-hears-intercepts-taps-before-translate-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 47,
+      "sourceLine": 51,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -26566,7 +26726,7 @@
       "description": "Protects the core domain resolve Entitlements behavior so gives free (product) 10 translations month, no video, no features."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-19-resolveentitlements-gives-plus-200-translations-10-monthly-videos-premium-features-clarification",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-19-resolveentitlements-gives-plus-unlimited-translations-20-monthly-videos-premium-features-clarification",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
       "sourceLine": 19,
@@ -26575,11 +26735,11 @@
       "suitePath": [
         "resolveEntitlements"
       ],
-      "title": "gives plus 200 translations, 10 monthly videos, premium features + clarification",
-      "rawTitle": "gives plus 200 translations, 10 monthly videos, premium features + clarification",
-      "name": "Core domain resolve Entitlements gives plus 200 translations, 10 monthly videos, premium features + clarification",
-      "value": "Protects the core domain resolve Entitlements behavior so gives plus 200 translations, 10 monthly videos, premium features + clarification.",
-      "description": "Protects the core domain resolve Entitlements behavior so gives plus 200 translations, 10 monthly videos, premium features + clarification."
+      "title": "gives plus unlimited translations, 20 monthly videos, premium features + clarification",
+      "rawTitle": "gives plus unlimited translations, 20 monthly videos, premium features + clarification",
+      "name": "Core domain resolve Entitlements gives plus unlimited translations, 20 monthly videos, premium features + clarification",
+      "value": "Protects the core domain resolve Entitlements behavior so gives plus unlimited translations, 20 monthly videos, premium features + clarification.",
+      "description": "Protects the core domain resolve Entitlements behavior so gives plus unlimited translations, 20 monthly videos, premium features + clarification."
     },
     {
       "id": "packages-core-src-modules-entitlements-entitlements-test-ts-34-resolveentitlements-gives-pro-the-pronunciation-feature-on-top-of-the-plus-set",
@@ -44395,6 +44555,118 @@
       "name": "Core domain order Translations does not mutate the caller's array",
       "value": "Protects the core domain order Translations behavior: does not mutate the caller's array.",
       "description": "Protects the core domain order Translations behavior: does not mutate the caller's array."
+    },
+    {
+      "id": "packages-core-src-modules-word-picker-tests-pick-service-test-ts-45-pickwords-drops-items-the-learner-has-already-seen-whatever-their-casing-or-padding",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/word-picker/__tests__/pick.service.test.ts",
+      "sourceLine": 45,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "pickWords"
+      ],
+      "title": "drops items the learner has already seen, whatever their casing or padding",
+      "rawTitle": "drops items the learner has already seen, whatever their casing or padding",
+      "name": "Core domain pick Words drops items the learner has already seen, whatever their casing or padding",
+      "value": "Protects the core domain pick Words behavior so drops items the learner has already seen, whatever their casing or padding.",
+      "description": "Protects the core domain pick Words behavior so drops items the learner has already seen, whatever their casing or padding."
+    },
+    {
+      "id": "packages-core-src-modules-word-picker-tests-pick-service-test-ts-54-pickwords-keeps-only-the-first-of-a-repeated-word",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/word-picker/__tests__/pick.service.test.ts",
+      "sourceLine": 54,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "pickWords"
+      ],
+      "title": "keeps only the first of a repeated word",
+      "rawTitle": "keeps only the first of a repeated word",
+      "name": "Core domain pick Words keeps only the first of a repeated word",
+      "value": "Protects the core domain pick Words behavior: keeps only the first of a repeated word.",
+      "description": "Protects the core domain pick Words behavior: keeps only the first of a repeated word."
+    },
+    {
+      "id": "packages-core-src-modules-word-picker-tests-pick-service-test-ts-63-pickwords-never-returns-more-than-the-requested-count",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/word-picker/__tests__/pick.service.test.ts",
+      "sourceLine": 63,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "pickWords"
+      ],
+      "title": "never returns more than the requested count",
+      "rawTitle": "never returns more than the requested count",
+      "name": "Core domain pick Words never returns more than the requested count",
+      "value": "Protects the core domain pick Words behavior so never returns more than the requested count.",
+      "description": "Protects the core domain pick Words behavior so never returns more than the requested count."
+    },
+    {
+      "id": "packages-core-src-modules-word-picker-tests-pick-service-test-ts-72-pickwords-returns-nothing-when-the-angle-has-only-already-seen-words-left",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/word-picker/__tests__/pick.service.test.ts",
+      "sourceLine": 72,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "pickWords"
+      ],
+      "title": "returns nothing when the angle has only already-seen words left",
+      "rawTitle": "returns nothing when the angle has only already-seen words left",
+      "name": "Core domain pick Words returns nothing when the angle has only already seen words left",
+      "value": "Protects the core domain pick Words behavior: returns nothing when the angle has only already seen words left.",
+      "description": "Protects the core domain pick Words behavior: returns nothing when the angle has only already seen words left."
+    },
+    {
+      "id": "packages-core-src-modules-word-picker-tests-pick-service-test-ts-83-buildwordpickprompt-carries-the-angle-the-languages-and-the-level-into-the-prompt",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/word-picker/__tests__/pick.service.test.ts",
+      "sourceLine": 83,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildWordPickPrompt"
+      ],
+      "title": "carries the angle, the languages and the level into the prompt",
+      "rawTitle": "carries the angle, the languages and the level into the prompt",
+      "name": "Core domain build Word Pick Prompt carries the angle, the languages and the level into the prompt",
+      "value": "Protects the core domain build Word Pick Prompt behavior so carries the angle, the languages and the level into the prompt.",
+      "description": "Protects the core domain build Word Pick Prompt behavior so carries the angle, the languages and the level into the prompt."
+    },
+    {
+      "id": "packages-core-src-modules-word-picker-tests-pick-service-test-ts-93-buildwordpickprompt-lists-known-words-once-so-a-duplicate-cannot-inflate-the-avoid-hint",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/word-picker/__tests__/pick.service.test.ts",
+      "sourceLine": 93,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildWordPickPrompt"
+      ],
+      "title": "lists known words once, so a duplicate cannot inflate the avoid-hint",
+      "rawTitle": "lists known words once, so a duplicate cannot inflate the avoid-hint",
+      "name": "Core domain build Word Pick Prompt lists known words once, so a duplicate cannot inflate the avoid hint",
+      "value": "Protects the core domain build Word Pick Prompt behavior so lists known words once, so a duplicate cannot inflate the avoid hint.",
+      "description": "Protects the core domain build Word Pick Prompt behavior so lists known words once, so a duplicate cannot inflate the avoid hint."
+    },
+    {
+      "id": "packages-core-src-modules-word-picker-tests-pick-service-test-ts-101-buildwordpickprompt-omits-the-avoid-hint-entirely-for-a-learner-with-nothing-seen-yet",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/word-picker/__tests__/pick.service.test.ts",
+      "sourceLine": 101,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "buildWordPickPrompt"
+      ],
+      "title": "omits the avoid-hint entirely for a learner with nothing seen yet",
+      "rawTitle": "omits the avoid-hint entirely for a learner with nothing seen yet",
+      "name": "Core domain build Word Pick Prompt omits the avoid hint entirely for a learner with nothing seen yet",
+      "value": "Protects the core domain build Word Pick Prompt behavior: omits the avoid hint entirely for a learner with nothing seen yet.",
+      "description": "Protects the core domain build Word Pick Prompt behavior: omits the avoid hint entirely for a learner with nothing seen yet."
     },
     {
       "id": "packages-core-src-observability-tests-events-test-ts-37-logevent-emits-the-event-name-as-both-a-queryable-field-and-the-message",

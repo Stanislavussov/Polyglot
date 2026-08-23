@@ -12,6 +12,8 @@ import {
   createSubscriptionService,
   defaultFeatureAccess,
   FEATURE_KEYS,
+  type FeatureKey,
+  type I18nKey,
   isSupported,
   type PlanLimitConfig,
   type SupportedLang,
@@ -24,6 +26,19 @@ import { replyTechnical } from "../../utils/message-cleanup.js";
 /** Plan badge shown on the upgrade screen. Unknown (admin-created) plans get a neutral one. */
 const PLAN_EMOJI: Record<string, string> = { plus: "⭐", pro: "💎" };
 const DEFAULT_PLAN_EMOJI = "✨";
+
+/**
+ * How a locked feature names itself at the top of the offer. The emoji is the one
+ * on the button the user just tapped, so the screen visibly answers that tap; the
+ * label is the same bullet the plan block lists, so the promise is worded once.
+ */
+const FEATURE_HEADLINE: Record<FeatureKey, { emoji: string; label: I18nKey }> = {
+  clarification: { emoji: "🎯", label: "planLineClarification" },
+  pronunciation: { emoji: "🔊", label: "planLinePronunciation" },
+  grammarBreakdown: { emoji: "📖", label: "planLineGrammar" },
+  etymology: { emoji: "📖", label: "planLineGrammar" },
+  grammarDetail: { emoji: "📖", label: "planLineGrammar" },
+};
 
 interface PurchasablePlan {
   name: string;
@@ -99,7 +114,16 @@ function planPrice(plan: PurchasablePlan, lang: SupportedLang): string {
   return t("planPricePerMonth", lang, { price: formatPrice(plan.priceUsdCents) });
 }
 
-/** What a plan buys, as bullet lines — limits first, then the card features it unlocks. */
+/**
+ * What a plan buys, as bullet lines — limits first, then the card features it
+ * unlocks.
+ *
+ * The video line deliberately carries no number. A paid plan's video allowance is
+ * a ceiling almost nobody reaches, and printing it turns a feature into a budget
+ * the reader starts planning around; what sells the feature is what it produces —
+ * a vocabulary list out of a YouTube video. A plan with no video access still
+ * shows nothing at all.
+ */
 function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
   const bullets: string[] = [
     plan.translationLimit === null
@@ -108,11 +132,7 @@ function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
   ];
 
   if (plan.videoWindow !== "none" && plan.videoLimit !== 0) {
-    bullets.push(
-      plan.videoLimit === null
-        ? t("planLineVideoUnlimited", lang)
-        : t("planLineVideo", lang, { count: String(plan.videoLimit) }),
-    );
+    bullets.push(t("planLineVideo", lang));
   }
 
   if (plan.features.has(FEATURE_KEYS.clarification)) {
@@ -133,13 +153,61 @@ function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
   return bullets;
 }
 
-function renderUpgradeScreen(plans: PurchasablePlan[], lang: SupportedLang): string {
-  const blocks = plans.map((plan) => {
+/**
+ * The offer opens by naming the thing the user just could not do and the cheapest
+ * plan on offer that unlocks it, so the screen reads as an answer to that tap
+ * rather than a price list. Without a feature (a limit gate, or the plain
+ * `plan:upgrade` CTA) it falls back to the generic prompt, and so does a feature
+ * no offered plan carries — promising it under a plan that lacks it would be a lie.
+ */
+function offerHeadline(offered: PurchasablePlan[], lang: SupportedLang, feature: FeatureKey | undefined): string {
+  const headline = feature ? FEATURE_HEADLINE[feature] : undefined;
+  const unlocking = feature ? offered.find((plan) => plan.features.has(feature)) : undefined;
+  if (!headline || !unlocking) {
+    return t("upgradePrompt", lang);
+  }
+  return t("upgradeFeatureLocked", lang, {
+    feature: `${headline.emoji} ${t(headline.label, lang)}`,
+    plan: unlocking.label,
+  });
+}
+
+/**
+ * Plans render cheapest-first, and every plan after the first is written as the
+ * difference from the one below it: "Everything in Plus" plus the lines that plan
+ * does not already have. A reader comparing tiers only wants to know what the
+ * extra money buys, and a second full list makes them diff two paragraphs to find
+ * out. A tier that adds only a limit increase (nothing new to name) collapses to
+ * the inclusion line alone, which is the honest rendering of that tier.
+ *
+ * `from` hides the rungs the user has already climbed while keeping them as the
+ * diff base: a Plus subscriber sees the Pro block alone, still headed "Everything
+ * in Plus" — the tier they know — instead of a restated Plus list.
+ */
+function renderUpgradeScreen(
+  ladder: PurchasablePlan[],
+  from: number,
+  lang: SupportedLang,
+  feature?: FeatureKey,
+): string {
+  const blocks = ladder.slice(from).map((plan, offset) => {
     const header = `${planEmoji(plan.name)} <b>${plan.label}</b> — ${planPrice(plan, lang)}`;
-    return [header, ...planBullets(plan, lang).map((line) => `• ${line}`)].join("\n");
+    const cheaper = ladder[from + offset - 1];
+    const bullets = planBullets(plan, lang);
+    const lines = cheaper
+      ? [
+          t("planLineEverythingIn", lang, { plan: cheaper.label }),
+          ...bullets.filter((line) => !planBullets(cheaper, lang).includes(line)),
+        ]
+      : bullets;
+    return [header, ...lines.map((line) => `• ${line}`)].join("\n");
   });
 
-  return [t("upgradePrompt", lang), ...blocks, `<i>${t("upgradeTestPaymentNote", lang)}</i>`].join("\n\n");
+  return [
+    offerHeadline(ladder.slice(from), lang, feature),
+    ...blocks,
+    `<i>${t("upgradeTestPaymentNote", lang)}</i>`,
+  ].join("\n\n");
 }
 
 function buildPlanChoiceKeyboard(plans: PurchasablePlan[], lang: SupportedLang): InlineKeyboard {
@@ -150,21 +218,36 @@ function buildPlanChoiceKeyboard(plans: PurchasablePlan[], lang: SupportedLang):
   return kb;
 }
 
+/** What the user's current plan costs; a plan that is not for sale counts as 0, as in `refuseAsDowngrade`. */
+async function currentPlanPrice(ctx: BotContext): Promise<number> {
+  const current = (await ctx.services.settings.getPlanLimits()).find((plan) => plan.name === ctx.user.subscriptionPlan);
+  return current?.priceUsdCents ?? 0;
+}
+
 /**
  * Send the plan comparison. This is the single upsell surface: limit gates and
  * ⭐-badged buttons all land here, so pricing copy lives in exactly one place.
+ *
+ * Only plans dearer than the current one are offered. `refuseAsDowngrade` turns a
+ * tap on the plan the user already has into a refusal, so listing it puts a button
+ * on the screen that cannot do anything — and a Plus subscriber reading a Plus
+ * block learns nothing about why the tapped button stayed shut.
  */
-export async function sendUpgradeScreen(ctx: BotContext, lang?: SupportedLang): Promise<void> {
+export async function sendUpgradeScreen(ctx: BotContext, lang?: SupportedLang, feature?: FeatureKey): Promise<void> {
   const iLang = lang ?? (await resolveLang(ctx));
-  const plans = await loadPurchasablePlans(ctx);
-  if (plans.length === 0) {
-    // No priced plan configured — say nothing about buying rather than showing an empty menu.
-    await replyTechnical(ctx, t("upgradeUnavailable", iLang));
+  const ladder = await loadPurchasablePlans(ctx);
+  const paidFor = await currentPlanPrice(ctx);
+  const from = ladder.findIndex((plan) => plan.priceUsdCents > paidFor);
+  if (from === -1) {
+    // Nothing left to sell. Two different truths, and neither is an error the user
+    // caused: they are at the top of the ladder, or no plan is priced yet (a fresh
+    // deployment before the catalog seed). Never a ⚠️ — the user did nothing wrong.
+    await replyTechnical(ctx, t(ladder.length > 0 ? "upgradeTopPlan" : "upgradeComingSoon", iLang));
     return;
   }
-  await replyTechnical(ctx, renderUpgradeScreen(plans, iLang), {
+  await replyTechnical(ctx, renderUpgradeScreen(ladder, from, iLang, feature), {
     parse_mode: "HTML",
-    reply_markup: buildPlanChoiceKeyboard(plans, iLang),
+    reply_markup: buildPlanChoiceKeyboard(ladder.slice(from), iLang),
   });
 }
 

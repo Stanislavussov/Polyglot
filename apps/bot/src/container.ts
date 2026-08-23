@@ -51,6 +51,8 @@ import {
   videoVocabularyRepository,
   vocabularyDictionaryRepository,
   vocabularyRepository,
+  wordPickerPresetRepository,
+  wordPickerRunRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
 import type {
@@ -213,6 +215,8 @@ export function createContainer(): ServiceContainer {
     ai,
     settings,
     videoVocabularyRepository,
+    wordPickerPresetRepository,
+    wordPickerRunRepository,
     ttsCacheRepository,
     featureAccess: createFeatureAccess({ settings, planFeatureAccess: planFeatureAccessRepository }),
     paymentPort: mockPaymentAdapter,

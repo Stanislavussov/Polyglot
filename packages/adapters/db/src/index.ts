@@ -138,6 +138,16 @@ export {
   vocabularyDictionaryRepository,
 } from "./repositories/vocabulary-dictionary.repository.js";
 export { wordContextRepository } from "./repositories/word-context.repository.js";
+export type { WordPickerPreset, WordPickerPresetInput } from "./repositories/word-picker-preset.repository.js";
+export { wordPickerPresetRepository } from "./repositories/word-picker-preset.repository.js";
+export type {
+  CreateWordPickerRunInput,
+  WordPickerItem,
+  WordPickerItemInput,
+  WordPickerRun,
+} from "./repositories/word-picker-run.repository.js";
+export { wordPickerRunRepository } from "./repositories/word-picker-run.repository.js";
+
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
 export type { RetentionResult } from "./retention.js";
