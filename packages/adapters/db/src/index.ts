@@ -50,6 +50,7 @@ export type {
   RecordLanguageDetectionEventInput,
 } from "./repositories/language-detection.repository.js";
 export { languageDetectionRepository } from "./repositories/language-detection.repository.js";
+export { mentorMessageRepository } from "./repositories/mentor-message.repository.js";
 export {
   DEFAULT_NOTIFICATION_TIME,
   DEFAULT_NOTIFICATION_TYPE,

@@ -24,6 +24,11 @@ export type {
   RecordLanguageDetectionEventInput,
 } from "./ports/language-detection.repository.js";
 export type {
+  MentorHistoryMessage,
+  MentorMessageRepository,
+  MentorTurnRecord,
+} from "./ports/mentor-message.repository.js";
+export type {
   NotificationType,
   NotificationUser,
 } from "./ports/notification.repository.js";

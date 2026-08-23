@@ -15,6 +15,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 import type { SourceUsage, VocabTranslationDetails, VocabularySource } from "./repositories/vocabulary.repository.js";
@@ -522,6 +523,37 @@ export const notificationHistory = pgTable(
 );
 
 export type NotificationHistory = typeof notificationHistory.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Mentor messages — durable mentor-chat threads
+// Telegram exposes only ONE reply level (reply_to_message), so thread
+// reconstruction from a reply depends on us keeping our own
+// (chat_id, telegram_message_id) → thread_id mapping. Also the raw material for
+// phase-2 topic summaries (keyed by thread_id).
+// ─────────────────────────────────────────────
+export const mentorMessages = pgTable(
+  "mentor_messages",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    chatId: bigint("chat_id", { mode: "number" }).notNull(),
+    threadId: uuid("thread_id").notNull(),
+    role: text("role").$type<"user" | "assistant">().notNull(),
+    content: text("content").notNull(),
+    telegramMessageId: bigint("telegram_message_id", { mode: "number" }).notNull(),
+    interfaceLang: text("interface_lang"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("mentor_msg_chat_tgid_idx").on(t.chatId, t.telegramMessageId),
+    index("mentor_msg_thread_idx").on(t.threadId, t.id),
+    index("mentor_msg_user_created_idx").on(t.userId, t.createdAt),
+  ],
+);
+
+export type MentorMessage = typeof mentorMessages.$inferSelect;
 
 // ─────────────────────────────────────────────
 // Release announcement deliveries — one successful send per release/user/group

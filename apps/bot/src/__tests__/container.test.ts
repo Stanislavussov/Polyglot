@@ -37,6 +37,12 @@ vi.mock("@polyglot/adapter-db", () => ({
     getInactiveUsers: vi.fn().mockResolvedValue([]),
     disableNotifications: vi.fn().mockResolvedValue(undefined),
   },
+  mentorMessageRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+    findThreadByMessage: vi.fn().mockResolvedValue(null),
+    getRecentMessages: vi.fn().mockResolvedValue([]),
+    findLatestThreadId: vi.fn().mockResolvedValue(null),
+  },
   onboardingDemoCardRepository: {
     findActive: vi.fn().mockResolvedValue([]),
     findOne: vi.fn().mockResolvedValue(null),

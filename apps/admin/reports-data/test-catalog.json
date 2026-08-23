@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-23T18:09:27.000Z",
+  "generatedAt": "2026-08-23T20:58:28.000Z",
   "summary": {
-    "total": 2865,
+    "total": 2870,
     "business": 0,
-    "technical": 2865,
+    "technical": 2870,
     "workspaces": [
       "apps",
       "packages"
@@ -1975,10 +1975,10 @@
       "description": "Protects the bot build Ai Failover behavior so disables the split for a non finite non positive budget instead of returning a Na N split."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-176-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-182-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 176,
+      "sourceLine": 182,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -1991,10 +1991,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-198-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-204-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 198,
+      "sourceLine": 204,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2007,10 +2007,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-208-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-214-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 208,
+      "sourceLine": 214,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2023,10 +2023,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-216-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-222-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 216,
+      "sourceLine": 222,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -20156,6 +20156,86 @@
       "name": "Database adapter escape Like Pattern wraps into a literal pattern that cannot broaden the match",
       "value": "Protects the database adapter escape Like Pattern behavior so wraps into a literal pattern that cannot broaden the match.",
       "description": "Protects the database adapter escape Like Pattern behavior so wraps into a literal pattern that cannot broaden the match."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-mentor-message-repository-integration-test-ts-39-mentormessagerepository-maps-an-assistant-message-id-back-to-its-thread-scoped-to-the-chat",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/mentor-message.repository.integration.test.ts",
+      "sourceLine": 39,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "mentorMessageRepository"
+      ],
+      "title": "maps an assistant message id back to its thread, scoped to the chat",
+      "rawTitle": "maps an assistant message id back to its thread, scoped to the chat",
+      "name": "Database adapter mentor Message Repository maps an assistant message id back to its thread, scoped to the chat",
+      "value": "Protects the database adapter mentor Message Repository behavior: maps an assistant message id back to its thread, scoped to the chat.",
+      "description": "Protects the database adapter mentor Message Repository behavior: maps an assistant message id back to its thread, scoped to the chat."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-mentor-message-repository-integration-test-ts-52-mentormessagerepository-returns-the-last-n-messages-of-a-thread-in-chronological-order",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/mentor-message.repository.integration.test.ts",
+      "sourceLine": 52,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "mentorMessageRepository"
+      ],
+      "title": "returns the last N messages of a thread in chronological order",
+      "rawTitle": "returns the last N messages of a thread in chronological order",
+      "name": "Database adapter mentor Message Repository returns the last N messages of a thread in chronological order",
+      "value": "Protects the database adapter mentor Message Repository behavior: returns the last N messages of a thread in chronological order.",
+      "description": "Protects the database adapter mentor Message Repository behavior: returns the last N messages of a thread in chronological order."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-mentor-message-repository-integration-test-ts-69-mentormessagerepository-returns-an-empty-history-for-an-unknown-thread",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/mentor-message.repository.integration.test.ts",
+      "sourceLine": 69,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "mentorMessageRepository"
+      ],
+      "title": "returns an empty history for an unknown thread",
+      "rawTitle": "returns an empty history for an unknown thread",
+      "name": "Database adapter mentor Message Repository returns an empty history for an unknown thread",
+      "value": "Protects the database adapter mentor Message Repository behavior: returns an empty history for an unknown thread.",
+      "description": "Protects the database adapter mentor Message Repository behavior: returns an empty history for an unknown thread."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-mentor-message-repository-integration-test-ts-73-mentormessagerepository-recovers-the-most-recent-thread-of-a-chat-after-session-loss",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/mentor-message.repository.integration.test.ts",
+      "sourceLine": 73,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "mentorMessageRepository"
+      ],
+      "title": "recovers the most recent thread of a chat after session loss",
+      "rawTitle": "recovers the most recent thread of a chat after session loss",
+      "name": "Database adapter mentor Message Repository recovers the most recent thread of a chat after session loss",
+      "value": "Protects the database adapter mentor Message Repository behavior so recovers the most recent thread of a chat after session loss.",
+      "description": "Protects the database adapter mentor Message Repository behavior so recovers the most recent thread of a chat after session loss."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-mentor-message-repository-integration-test-ts-84-mentormessagerepository-cascades-away-with-the-owning-user",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/mentor-message.repository.integration.test.ts",
+      "sourceLine": 84,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "mentorMessageRepository"
+      ],
+      "title": "cascades away with the owning user",
+      "rawTitle": "cascades away with the owning user",
+      "name": "Database adapter mentor Message Repository cascades away with the owning user",
+      "value": "Protects the database adapter mentor Message Repository behavior so cascades away with the owning user.",
+      "description": "Protects the database adapter mentor Message Repository behavior so cascades away with the owning user."
     },
     {
       "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-98-notificationrepository-getusersforwindow-integration-notifies-a-subscriber-when-their-configured-slot-matches-the-window",
