@@ -21,7 +21,7 @@ describe("shipped STT default", () => {
     // Pinned deliberately. OpenRouter's /audio/transcriptions accepts OGG/Opus
     // (Telegram's voice message format) directly, so no transcoding, and
     // transcribed ru/kk/de correctly. Changing this line means re-probing the API.
-    expect(FALLBACK_STT.modelId).toBe("openai/whisper-large-v3-turbo");
+    expect(FALLBACK_STT.modelId).toBe("openai/whisper-large-v3");
   });
 
   it("caps voice message duration so an oversized upload can never be sent for billing", () => {

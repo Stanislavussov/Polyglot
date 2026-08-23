@@ -54,6 +54,18 @@ describe("transcribeAudio", () => {
     });
   });
 
+  it("passes the language hint through and omits the field when unset", async () => {
+    vi.mocked(fetch).mockImplementation(async () => jsonResponse({ text: "привет" }));
+
+    await transcribeAudio({ audio, format: "ogg", modelId: "openai/whisper-1", language: "ru" });
+    const withHint = JSON.parse(vi.mocked(fetch).mock.calls[0][1]?.body as string);
+    expect(withHint.language).toBe("ru");
+
+    await transcribeAudio({ audio, format: "ogg", modelId: "openai/whisper-1" });
+    const withoutHint = JSON.parse(vi.mocked(fetch).mock.calls[1][1]?.body as string);
+    expect("language" in withoutHint).toBe(false);
+  });
+
   it("returns trimmed text plus seconds, cost, and generation id on success", async () => {
     vi.mocked(fetch).mockResolvedValue(
       jsonResponse(

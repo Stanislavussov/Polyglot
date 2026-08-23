@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-23T11:03:34.000Z",
+  "generatedAt": "2026-08-23T11:03:49.000Z",
   "summary": {
-    "total": 2859,
+    "total": 2860,
     "business": 0,
-    "technical": 2859,
+    "technical": 2860,
     "workspaces": [
       "apps",
       "packages"
@@ -19009,10 +19009,26 @@
       "description": "Protects the aI adapter transcribe Audio behavior so posts the exact URL, headers, and base64 encoded body."
     },
     {
-      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-57-transcribeaudio-returns-trimmed-text-plus-seconds-cost-and-generation-id-on-success",
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-57-transcribeaudio-passes-the-language-hint-through-and-omits-the-field-when-unset",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
       "sourceLine": 57,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "transcribeAudio"
+      ],
+      "title": "passes the language hint through and omits the field when unset",
+      "rawTitle": "passes the language hint through and omits the field when unset",
+      "name": "AI adapter transcribe Audio passes the language hint through and omits the field when unset",
+      "value": "Protects the aI adapter transcribe Audio behavior so passes the language hint through and omits the field when unset.",
+      "description": "Protects the aI adapter transcribe Audio behavior so passes the language hint through and omits the field when unset."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-69-transcribeaudio-returns-trimmed-text-plus-seconds-cost-and-generation-id-on-success",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
+      "sourceLine": 69,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -19025,10 +19041,10 @@
       "description": "Protects the aI adapter transcribe Audio behavior: returns trimmed text plus seconds, cost, and generation id on success."
     },
     {
-      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-75-transcribeaudio-throws-with-the-status-on-a-non-2xx-response",
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-87-transcribeaudio-throws-with-the-status-on-a-non-2xx-response",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
-      "sourceLine": 75,
+      "sourceLine": 87,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -19041,10 +19057,10 @@
       "description": "Protects the aI adapter transcribe Audio behavior: throws with the status on a non 2xx response."
     },
     {
-      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-81-transcribeaudio-raises-aitimeouterror-when-the-request-budget-elapses",
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-93-transcribeaudio-raises-aitimeouterror-when-the-request-budget-elapses",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
-      "sourceLine": 81,
+      "sourceLine": 93,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -19057,10 +19073,10 @@
       "description": "Protects the aI adapter transcribe Audio behavior so raises AITimeout Error when the request budget elapses."
     },
     {
-      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-95-transcribeaudio-returns-null-seconds-cost-when-usage-fields-are-missing",
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-107-transcribeaudio-returns-null-seconds-cost-when-usage-fields-are-missing",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 107,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
@@ -19073,10 +19089,10 @@
       "description": "Protects the aI adapter transcribe Audio behavior: returns null seconds cost when usage fields are missing."
     },
     {
-      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-104-transcribeaudio-returns-an-empty-string-for-whitespace-only-text",
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-116-transcribeaudio-returns-an-empty-string-for-whitespace-only-text",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
-      "sourceLine": 104,
+      "sourceLine": 116,
       "workspace": "packages",
       "packageName": "adapters/ai",
       "suitePath": [
