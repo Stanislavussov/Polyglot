@@ -41,12 +41,15 @@ function uniqueTtsModel(): string {
   return `test/tts-model-${process.pid}-${modelSeq}`;
 }
 
-function arrangeHarness(overrides: { enabled?: boolean } = {}) {
+function arrangeHarness(overrides: { enabled?: boolean; detectAs?: string } = {}) {
   const modelId = uniqueTtsModel();
   const tts = { enabled: overrides.enabled ?? true, modelId, voice: TTS_VOICE, maxChars: 200 };
   const generateSpeech = vi.fn().mockResolvedValue({ bytes: AUDIO, generationId: "gen-tts-test" });
+  // `detectAs` forces the direction: detection escalates to the AI, so pinning its
+  // answer is what makes a reverse-learning card (source ≠ native) reproducible.
+  const detection = overrides.detectAs ? { generateText: async () => overrides.detectAs! } : {};
   const harness = createBotHarness({
-    ai: { ...deterministicTranslateAi(), generateSpeech },
+    ai: { ...deterministicTranslateAi(), ...detection, generateSpeech },
     settings: { getTtsConfig: vi.fn().mockResolvedValue(tts) },
   });
   return { harness, generateSpeech, modelId };
@@ -101,6 +104,27 @@ describe("word pronunciation (integration)", () => {
       voice: TTS_VOICE,
     });
     expect(cached).not.toBeNull();
+  });
+
+  it("offers a speaker for the word the user typed, not only for its translation", async () => {
+    const { harness, generateSpeech } = arrangeHarness({ detectAs: "cs" });
+    const id = uniqueTelegramId();
+    await arrangeOnboardedTranslator(id, { plan: "pro" }); // native en, learning cs
+
+    // A word in the language being learned: the card puts it above the
+    // translations, where it has no `translations` entry of its own.
+    const { messageId: cardMsgId, buttons } = await renderCard(harness, id, "děkuji");
+    expect(buttons).toContain(`tr:say:cs:${cardMsgId}`);
+    expect(buttons).not.toContain(`tr:say:en:${cardMsgId}`);
+
+    harness.reset();
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: id, fromId: id, messageId: cardMsgId, data: `tr:say:cs:${cardMsgId}` }),
+    );
+
+    expect(generateSpeech).toHaveBeenCalledTimes(1);
+    expect(String(generateSpeech.mock.calls[0]![0].text)).toBe("děkuji");
+    expect(voiceCalls(harness)[0]!.payload.caption).toBe("děkuji");
   });
 
   it("captions the voice message with the word it speaks, on a fresh and a cached send alike", async () => {

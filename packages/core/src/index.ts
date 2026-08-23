@@ -148,7 +148,8 @@ export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";
-export { selectPronounceableLangs } from "./modules/tts/pronounceable-langs.js";
+export type { SpeakableCard } from "./modules/tts/pronounceable-langs.js";
+export { resolvePronounceableText, selectPronounceableLangs } from "./modules/tts/pronounceable-langs.js";
 export type {
   PronunciationDeps,
   PronunciationFailure,
