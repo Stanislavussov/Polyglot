@@ -60,7 +60,7 @@ function summariseSession(data: SessionData): Record<string, unknown> {
     pendingOutOfSet: Object.keys(data.pendingOutOfSet ?? {}).length,
     flashcardDeckSize: data.flashcard?.deck.length ?? 0,
     srsDeckSize: data.srs?.deck.length ?? 0,
-    mentorTurns: data.mentor?.history.length ?? 0,
+    hasMentorThread: data.mentor?.threadId !== undefined,
     hasDictionaryWizard: data.dictionaryWizard !== undefined,
     hasTemplateWizard: data.templateWizard !== undefined,
     hasPendingClarification: data.pendingClarification !== undefined,

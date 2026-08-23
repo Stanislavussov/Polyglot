@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-23T20:58:28.000Z",
+  "generatedAt": "2026-08-23T21:05:37.000Z",
   "summary": {
-    "total": 2870,
+    "total": 2883,
     "business": 0,
-    "technical": 2870,
+    "technical": 2883,
     "workspaces": [
       "apps",
       "packages"
@@ -2631,6 +2631,70 @@
       "description": "Protects the bot main menu keyboard (integration) behavior so re installs the keyboard on start so a user who lost it can get it back."
     },
     {
+      "id": "apps-bot-src-tests-integration-mentor-thread-integration-test-ts-46-mentor-mode-with-reply-threads-integration-runs-a-mentor-conversation-persists-the-thread-and-continues-it-via-reply-from-translate-mode",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/mentor-thread.integration.test.ts",
+      "sourceLine": 46,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mentor mode with reply threads (integration)"
+      ],
+      "title": "runs a mentor conversation, persists the thread, and continues it via reply from translate mode",
+      "rawTitle": "runs a mentor conversation, persists the thread, and continues it via reply from translate mode",
+      "name": "Bot mentor mode with reply threads (integration) runs a mentor conversation, persists the thread, and continues it via reply from translate mode",
+      "value": "Protects the bot mentor mode with reply threads (integration) behavior so runs a mentor conversation, persists the thread, and continues it via reply from translate mode.",
+      "description": "Protects the bot mentor mode with reply threads (integration) behavior so runs a mentor conversation, persists the thread, and continues it via reply from translate mode."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-mentor-thread-integration-test-ts-100-mentor-mode-with-reply-threads-integration-a-reply-to-a-non-mentor-bot-message-falls-through-to-translation",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/mentor-thread.integration.test.ts",
+      "sourceLine": 100,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mentor mode with reply threads (integration)"
+      ],
+      "title": "a reply to a non-mentor bot message falls through to translation",
+      "rawTitle": "a reply to a non-mentor bot message falls through to translation",
+      "name": "Bot mentor mode with reply threads (integration) a reply to a non mentor bot message falls through to translation",
+      "value": "Protects the bot mentor mode with reply threads (integration) behavior so a reply to a non mentor bot message falls through to translation.",
+      "description": "Protects the bot mentor mode with reply threads (integration) behavior so a reply to a non mentor bot message falls through to translation."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-mentor-thread-integration-test-ts-127-mentor-mode-with-reply-threads-integration-a-second-mentor-starts-a-fresh-thread",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/mentor-thread.integration.test.ts",
+      "sourceLine": 127,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mentor mode with reply threads (integration)"
+      ],
+      "title": "a second /mentor starts a fresh thread",
+      "rawTitle": "a second /mentor starts a fresh thread",
+      "name": "Bot mentor mode with reply threads (integration) a second mentor starts a fresh thread",
+      "value": "Protects the bot mentor mode with reply threads (integration) behavior so a second mentor starts a fresh thread.",
+      "description": "Protects the bot mentor mode with reply threads (integration) behavior so a second mentor starts a fresh thread."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-mentor-thread-integration-test-ts-152-mentor-mode-with-reply-threads-integration-refuses-mentor-on-the-free-plan-without-touching-the-mode-and-gates-the-reply-path-too",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/mentor-thread.integration.test.ts",
+      "sourceLine": 152,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mentor mode with reply threads (integration)"
+      ],
+      "title": "refuses /mentor on the free plan without touching the mode, and gates the reply path too",
+      "rawTitle": "refuses /mentor on the free plan without touching the mode, and gates the reply path too",
+      "name": "Bot mentor mode with reply threads (integration) refuses mentor on the free plan without touching the mode, and gates the reply path too",
+      "value": "Protects the bot mentor mode with reply threads (integration) behavior so refuses mentor on the free plan without touching the mode, and gates the reply path too.",
+      "description": "Protects the bot mentor mode with reply threads (integration) behavior so refuses mentor on the free plan without touching the mode, and gates the reply path too."
+    },
+    {
       "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-155-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
@@ -3463,10 +3527,10 @@
       "description": "Protects the bot word picker (integration) behavior: does not offer a word the learner has already been shown for this angle."
     },
     {
-      "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-102-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
+      "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-111-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/mentor-mode.failover.test.ts",
-      "sourceLine": 102,
+      "sourceLine": 111,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13049,42 +13113,42 @@
       "description": "Protects the bot edit Message Reply Markup Or Ignore behavior so rethrows unrelated Telegram errors."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-78-handlementortext-calls-generatechat-with-system-prompt-history-and-user-message",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-93-handlementortext-calls-generatechat-with-system-prompt-thread-history-from-the-db-and-the-user-message",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 78,
+      "sourceLine": 93,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleMentorText"
       ],
-      "title": "calls generateChat with system prompt, history, and user message",
-      "rawTitle": "calls generateChat with system prompt, history, and user message",
-      "name": "Bot handle Mentor Text calls generate Chat with system prompt, history, and user message",
-      "value": "Protects the bot handle Mentor Text behavior: calls generate Chat with system prompt, history, and user message.",
-      "description": "Protects the bot handle Mentor Text behavior: calls generate Chat with system prompt, history, and user message."
+      "title": "calls generateChat with system prompt, thread history from the DB, and the user message",
+      "rawTitle": "calls generateChat with system prompt, thread history from the DB, and the user message",
+      "name": "Bot handle Mentor Text calls generate Chat with system prompt, thread history from the DB, and the user message",
+      "value": "Protects the bot handle Mentor Text behavior: calls generate Chat with system prompt, thread history from the DB, and the user message.",
+      "description": "Protects the bot handle Mentor Text behavior: calls generate Chat with system prompt, thread history from the DB, and the user message."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-95-handlementortext-passes-maxtokens-to-limit-response-length",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-110-handlementortext-passes-maxtokens-and-a-time-budget-to-the-chat-call",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 110,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleMentorText"
       ],
-      "title": "passes maxTokens to limit response length",
-      "rawTitle": "passes maxTokens to limit response length",
-      "name": "Bot handle Mentor Text passes max Tokens to limit response length",
-      "value": "Protects the bot handle Mentor Text behavior so passes max Tokens to limit response length.",
-      "description": "Protects the bot handle Mentor Text behavior so passes max Tokens to limit response length."
+      "title": "passes maxTokens and a time budget to the chat call",
+      "rawTitle": "passes maxTokens and a time budget to the chat call",
+      "name": "Bot handle Mentor Text passes max Tokens and a time budget to the chat call",
+      "value": "Protects the bot handle Mentor Text behavior so passes max Tokens and a time budget to the chat call.",
+      "description": "Protects the bot handle Mentor Text behavior so passes max Tokens and a time budget to the chat call."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-104-handlementortext-replies-with-the-ai-response-text",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-120-handlementortext-replies-with-the-ai-response-text",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 104,
+      "sourceLine": 120,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13097,10 +13161,10 @@
       "description": "Protects the bot handle Mentor Text behavior so replies with the AI response text."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-114-handlementortext-deletes-the-loading-indicator-after-success",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-130-handlementortext-deletes-the-loading-indicator-after-success",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 114,
+      "sourceLine": 130,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13113,58 +13177,106 @@
       "description": "Protects the bot handle Mentor Text behavior so deletes the loading indicator after success."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-121-handlementortext-stores-user-and-assistant-messages-in-session-history",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-137-handlementortext-persists-both-turn-rows-keyed-by-their-telegram-message-ids",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 121,
+      "sourceLine": 137,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleMentorText"
       ],
-      "title": "stores user and assistant messages in session history",
-      "rawTitle": "stores user and assistant messages in session history",
-      "name": "Bot handle Mentor Text stores user and assistant messages in session history",
-      "value": "Protects the bot handle Mentor Text behavior: stores user and assistant messages in session history.",
-      "description": "Protects the bot handle Mentor Text behavior: stores user and assistant messages in session history."
+      "title": "persists both turn rows keyed by their Telegram message ids",
+      "rawTitle": "persists both turn rows keyed by their Telegram message ids",
+      "name": "Bot handle Mentor Text persists both turn rows keyed by their Telegram message ids",
+      "value": "Protects the bot handle Mentor Text behavior: persists both turn rows keyed by their Telegram message ids.",
+      "description": "Protects the bot handle Mentor Text behavior: persists both turn rows keyed by their Telegram message ids."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-131-handlementortext-includes-previous-history-in-the-messages-array",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-157-handlementortext-still-delivers-the-answer-when-persistence-fails-best-effort-write",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 157,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleMentorText"
       ],
-      "title": "includes previous history in the messages array",
-      "rawTitle": "includes previous history in the messages array",
-      "name": "Bot handle Mentor Text includes previous history in the messages array",
-      "value": "Protects the bot handle Mentor Text behavior: includes previous history in the messages array.",
-      "description": "Protects the bot handle Mentor Text behavior: includes previous history in the messages array."
+      "title": "still delivers the answer when persistence fails (best-effort write)",
+      "rawTitle": "still delivers the answer when persistence fails (best-effort write)",
+      "name": "Bot handle Mentor Text still delivers the answer when persistence fails (best effort write)",
+      "value": "Protects the bot handle Mentor Text behavior so still delivers the answer when persistence fails (best effort write).",
+      "description": "Protects the bot handle Mentor Text behavior so still delivers the answer when persistence fails (best effort write)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-150-handlementortext-trims-history-to-max-mentor-history-entries",
-      "kind": "technical",
-      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 150,
-      "workspace": "apps",
-      "packageName": "bot",
-      "suitePath": [
-        "handleMentorText"
-      ],
-      "title": "trims history to MAX_MENTOR_HISTORY entries",
-      "rawTitle": "trims history to MAX_MENTOR_HISTORY entries",
-      "name": "Bot handle Mentor Text trims history to MAX MENTOR HISTORY entries",
-      "value": "Protects the bot handle Mentor Text behavior so trims history to MAX MENTOR HISTORY entries.",
-      "description": "Protects the bot handle Mentor Text behavior so trims history to MAX MENTOR HISTORY entries."
-    },
-    {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-167-handlementortext-increments-mentorcounter-with-success-status-on-success",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-167-handlementortext-an-explicit-threadid-reply-continuation-wins-over-the-session-s-pinned-thread",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
       "sourceLine": 167,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText"
+      ],
+      "title": "an explicit threadId (reply-continuation) wins over the session's pinned thread",
+      "rawTitle": "an explicit threadId (reply-continuation) wins over the session's pinned thread",
+      "name": "Bot handle Mentor Text an explicit thread Id (reply continuation) wins over the session's pinned thread",
+      "value": "Protects the bot handle Mentor Text behavior so an explicit thread Id (reply continuation) wins over the session's pinned thread.",
+      "description": "Protects the bot handle Mentor Text behavior so an explicit thread Id (reply continuation) wins over the session's pinned thread."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-174-handlementortext-recovers-the-chat-s-latest-thread-from-the-db-when-the-session-was-lost-in-mentor-mode",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
+      "sourceLine": 174,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText"
+      ],
+      "title": "recovers the chat's latest thread from the DB when the session was lost in mentor mode",
+      "rawTitle": "recovers the chat's latest thread from the DB when the session was lost in mentor mode",
+      "name": "Bot handle Mentor Text recovers the chat's latest thread from the DB when the session was lost in mentor mode",
+      "value": "Protects the bot handle Mentor Text behavior so recovers the chat's latest thread from the DB when the session was lost in mentor mode.",
+      "description": "Protects the bot handle Mentor Text behavior so recovers the chat's latest thread from the DB when the session was lost in mentor mode."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-183-handlementortext-a-fresh-mentor-entry-empty-marker-mints-a-new-thread-without-db-recovery",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
+      "sourceLine": 183,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText"
+      ],
+      "title": "a fresh /mentor entry (empty marker) mints a new thread without DB recovery",
+      "rawTitle": "a fresh /mentor entry (empty marker) mints a new thread without DB recovery",
+      "name": "Bot handle Mentor Text a fresh mentor entry (empty marker) mints a new thread without DB recovery",
+      "value": "Protects the bot handle Mentor Text behavior so a fresh mentor entry (empty marker) mints a new thread without DB recovery.",
+      "description": "Protects the bot handle Mentor Text behavior so a fresh mentor entry (empty marker) mints a new thread without DB recovery."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-193-handlementortext-does-not-pin-the-thread-on-the-session-when-the-turn-ran-outside-mentor-mode",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
+      "sourceLine": 193,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText"
+      ],
+      "title": "does not pin the thread on the session when the turn ran outside mentor mode",
+      "rawTitle": "does not pin the thread on the session when the turn ran outside mentor mode",
+      "name": "Bot handle Mentor Text does not pin the thread on the session when the turn ran outside mentor mode",
+      "value": "Protects the bot handle Mentor Text behavior: does not pin the thread on the session when the turn ran outside mentor mode.",
+      "description": "Protects the bot handle Mentor Text behavior: does not pin the thread on the session when the turn ran outside mentor mode."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-200-handlementortext-increments-mentorcounter-with-success-status-on-success",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
+      "sourceLine": 200,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13177,10 +13289,10 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with success status on success."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-174-handlementortext-replies-with-an-error-message-when-ai-call-fails",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-207-handlementortext-replies-with-an-error-message-when-ai-call-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 207,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13193,10 +13305,10 @@
       "description": "Protects the bot handle Mentor Text behavior so replies with an error message when AI call fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-185-handlementortext-increments-mentorcounter-with-error-status-on-failure",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-218-handlementortext-increments-mentorcounter-with-error-status-on-failure",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 185,
+      "sourceLine": 218,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13209,26 +13321,26 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with error status on failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-193-handlementortext-offers-a-retry-button-carrying-the-same-turn-when-the-ai-call-times-out",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-226-handlementortext-offers-a-retry-button-carrying-the-same-turn-and-thread-when-the-ai-call-times-out",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 193,
+      "sourceLine": 226,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleMentorText"
       ],
-      "title": "offers a retry button carrying the same turn when the AI call times out",
-      "rawTitle": "offers a retry button carrying the same turn when the AI call times out",
-      "name": "Bot handle Mentor Text offers a retry button carrying the same turn when the AI call times out",
-      "value": "Protects the bot handle Mentor Text behavior so offers a retry button carrying the same turn when the AI call times out.",
-      "description": "Protects the bot handle Mentor Text behavior so offers a retry button carrying the same turn when the AI call times out."
+      "title": "offers a retry button carrying the same turn and thread when the AI call times out",
+      "rawTitle": "offers a retry button carrying the same turn and thread when the AI call times out",
+      "name": "Bot handle Mentor Text offers a retry button carrying the same turn and thread when the AI call times out",
+      "value": "Protects the bot handle Mentor Text behavior so offers a retry button carrying the same turn and thread when the AI call times out.",
+      "description": "Protects the bot handle Mentor Text behavior so offers a retry button carrying the same turn and thread when the AI call times out."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-205-handlementortext-does-not-offer-a-retry-button-on-a-hard-ai-failure",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-242-handlementortext-does-not-offer-a-retry-button-on-a-hard-ai-failure",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 205,
+      "sourceLine": 242,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13241,10 +13353,10 @@
       "description": "Protects the bot handle Mentor Text behavior: does not offer a retry button on a hard AI failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-216-handlementortext-rejects-input-longer-than-the-max-character-limit",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-253-handlementortext-rejects-input-longer-than-the-max-character-limit",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 216,
+      "sourceLine": 253,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13257,10 +13369,10 @@
       "description": "Protects the bot handle Mentor Text behavior: rejects input longer than the max character limit."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-229-handlementortext-refuses-the-mentor-call-when-the-daily-credit-quota-is-exhausted-t16",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-266-handlementortext-refuses-the-mentor-call-when-the-daily-credit-quota-is-exhausted-t16",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 229,
+      "sourceLine": 266,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13273,10 +13385,10 @@
       "description": "Protects the bot handle Mentor Text behavior so refuses the mentor call when the daily credit quota is exhausted (T16)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-241-handlementortext-bills-a-mentor-turn-against-the-shared-credit-ledger-on-success-t16",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-278-handlementortext-bills-a-mentor-turn-against-the-shared-credit-ledger-on-success-t16",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 241,
+      "sourceLine": 278,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13287,6 +13399,86 @@
       "name": "Bot handle Mentor Text bills a mentor turn against the shared credit ledger on success (T16)",
       "value": "Protects the bot handle Mentor Text behavior so bills a mentor turn against the shared credit ledger on success (T16).",
       "description": "Protects the bot handle Mentor Text behavior so bills a mentor turn against the shared credit ledger on success (T16)."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-thread-helper-test-ts-32-tryhandlementorreply-ignores-a-reply-to-a-non-bot-message-without-touching-the-db",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-thread.helper.test.ts",
+      "sourceLine": 32,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "tryHandleMentorReply"
+      ],
+      "title": "ignores a reply to a non-bot message without touching the DB",
+      "rawTitle": "ignores a reply to a non-bot message without touching the DB",
+      "name": "Bot try Handle Mentor Reply ignores a reply to a non bot message without touching the DB",
+      "value": "Protects the bot try Handle Mentor Reply behavior: ignores a reply to a non bot message without touching the DB.",
+      "description": "Protects the bot try Handle Mentor Reply behavior: ignores a reply to a non bot message without touching the DB."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-thread-helper-test-ts-39-tryhandlementorreply-ignores-a-reply-to-another-bot-s-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-thread.helper.test.ts",
+      "sourceLine": 39,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "tryHandleMentorReply"
+      ],
+      "title": "ignores a reply to another bot's message",
+      "rawTitle": "ignores a reply to another bot's message",
+      "name": "Bot try Handle Mentor Reply ignores a reply to another bot's message",
+      "value": "Protects the bot try Handle Mentor Reply behavior: ignores a reply to another bot's message.",
+      "description": "Protects the bot try Handle Mentor Reply behavior: ignores a reply to another bot's message."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-thread-helper-test-ts-44-tryhandlementorreply-falls-through-when-the-replied-to-message-anchors-no-mentor-thread",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-thread.helper.test.ts",
+      "sourceLine": 44,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "tryHandleMentorReply"
+      ],
+      "title": "falls through when the replied-to message anchors no mentor thread",
+      "rawTitle": "falls through when the replied-to message anchors no mentor thread",
+      "name": "Bot try Handle Mentor Reply falls through when the replied to message anchors no mentor thread",
+      "value": "Protects the bot try Handle Mentor Reply behavior: falls through when the replied to message anchors no mentor thread.",
+      "description": "Protects the bot try Handle Mentor Reply behavior: falls through when the replied to message anchors no mentor thread."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-thread-helper-test-ts-52-tryhandlementorreply-degrades-to-normal-routing-when-the-thread-lookup-throws",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-thread.helper.test.ts",
+      "sourceLine": 52,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "tryHandleMentorReply"
+      ],
+      "title": "degrades to normal routing when the thread lookup throws",
+      "rawTitle": "degrades to normal routing when the thread lookup throws",
+      "name": "Bot try Handle Mentor Reply degrades to normal routing when the thread lookup throws",
+      "value": "Protects the bot try Handle Mentor Reply behavior so degrades to normal routing when the thread lookup throws.",
+      "description": "Protects the bot try Handle Mentor Reply behavior so degrades to normal routing when the thread lookup throws."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-thread-helper-test-ts-59-tryhandlementorreply-runs-the-mentor-turn-in-the-anchored-thread-on-a-hit",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-thread.helper.test.ts",
+      "sourceLine": 59,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "tryHandleMentorReply"
+      ],
+      "title": "runs the mentor turn in the anchored thread on a hit",
+      "rawTitle": "runs the mentor turn in the anchored thread on a hit",
+      "name": "Bot try Handle Mentor Reply runs the mentor turn in the anchored thread on a hit",
+      "value": "Protects the bot try Handle Mentor Reply behavior so runs the mentor turn in the anchored thread on a hit.",
+      "description": "Protects the bot try Handle Mentor Reply behavior so runs the mentor turn in the anchored thread on a hit."
     },
     {
       "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-72-handlesrclangoverridecallback-forces-the-tapped-source-and-hands-off-to-the-retranslation-pipeline",
@@ -13641,7 +13833,7 @@
       "description": "Protects the bot handle Retry Callback behavior so re runs the translation with the original input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-48-handleretrycallback-re-runs-the-mentor-turn-with-the-original-message",
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-48-handleretrycallback-re-runs-the-mentor-turn-with-the-original-message-and-its-thread",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
       "sourceLine": 48,
@@ -13650,17 +13842,17 @@
       "suitePath": [
         "handleRetryCallback"
       ],
-      "title": "re-runs the mentor turn with the original message",
-      "rawTitle": "re-runs the mentor turn with the original message",
-      "name": "Bot handle Retry Callback re runs the mentor turn with the original message",
-      "value": "Protects the bot handle Retry Callback behavior so re runs the mentor turn with the original message.",
-      "description": "Protects the bot handle Retry Callback behavior so re runs the mentor turn with the original message."
+      "title": "re-runs the mentor turn with the original message and its thread",
+      "rawTitle": "re-runs the mentor turn with the original message and its thread",
+      "name": "Bot handle Retry Callback re runs the mentor turn with the original message and its thread",
+      "value": "Protects the bot handle Retry Callback behavior so re runs the mentor turn with the original message and its thread.",
+      "description": "Protects the bot handle Retry Callback behavior so re runs the mentor turn with the original message and its thread."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-58-handleretrycallback-acks-the-callback-and-deletes-the-notice-before-re-running",
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-64-handleretrycallback-acks-the-callback-and-deletes-the-notice-before-re-running",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
-      "sourceLine": 58,
+      "sourceLine": 64,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13673,10 +13865,10 @@
       "description": "Protects the bot handle Retry Callback behavior so acks the callback and deletes the notice before re running."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-68-handleretrycallback-does-not-launch-a-second-run-when-the-same-button-is-tapped-twice",
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-74-handleretrycallback-does-not-launch-a-second-run-when-the-same-button-is-tapped-twice",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
-      "sourceLine": 68,
+      "sourceLine": 74,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13689,10 +13881,10 @@
       "description": "Protects the bot handle Retry Callback behavior: does not launch a second run when the same button is tapped twice."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-78-handleretrycallback-reports-an-expired-session-and-drops-the-dead-button-when-the-action-is-gone",
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-84-handleretrycallback-reports-an-expired-session-and-drops-the-dead-button-when-the-action-is-gone",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
-      "sourceLine": 78,
+      "sourceLine": 84,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13705,10 +13897,10 @@
       "description": "Protects the bot handle Retry Callback behavior: reports an expired session and drops the dead button when the action is gone."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-93-handleretrycallback-survives-a-failing-ack-and-still-re-runs-the-operation",
+      "id": "apps-bot-src-scenes-helpers-retry-helper-test-ts-99-handleretrycallback-survives-a-failing-ack-and-still-re-runs-the-operation",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/retry.helper.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 99,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14841,10 +15033,10 @@
       "description": "Protects the bot set Translation Entry behavior so overwrites an existing entry without growing the map."
     },
     {
-      "id": "apps-bot-src-scenes-mentor-scene-test-ts-47-handlementorcommand-sets-session-activemode-to-mentor",
+      "id": "apps-bot-src-scenes-mentor-scene-test-ts-55-handlementorcommand-sets-session-activemode-to-mentor",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/mentor.scene.test.ts",
-      "sourceLine": 47,
+      "sourceLine": 55,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14857,10 +15049,10 @@
       "description": "Protects the bot handle Mentor Command behavior so sets session active Mode to 'mentor'."
     },
     {
-      "id": "apps-bot-src-scenes-mentor-scene-test-ts-53-handlementorcommand-persists-mode-to-db-via-updateactivemode",
+      "id": "apps-bot-src-scenes-mentor-scene-test-ts-61-handlementorcommand-persists-mode-to-db-via-updateactivemode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/mentor.scene.test.ts",
-      "sourceLine": 53,
+      "sourceLine": 61,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14873,26 +15065,26 @@
       "description": "Protects the bot handle Mentor Command behavior: persists mode to DB via update Active Mode."
     },
     {
-      "id": "apps-bot-src-scenes-mentor-scene-test-ts-59-handlementorcommand-clears-existing-mentor-history-on-entry",
+      "id": "apps-bot-src-scenes-mentor-scene-test-ts-67-handlementorcommand-marks-a-fresh-thread-on-entry-empty-object-no-thread-pinned",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/mentor.scene.test.ts",
-      "sourceLine": 59,
+      "sourceLine": 67,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "handleMentorCommand"
       ],
-      "title": "clears existing mentor history on entry",
-      "rawTitle": "clears existing mentor history on entry",
-      "name": "Bot handle Mentor Command clears existing mentor history on entry",
-      "value": "Protects the bot handle Mentor Command behavior so clears existing mentor history on entry.",
-      "description": "Protects the bot handle Mentor Command behavior so clears existing mentor history on entry."
+      "title": "marks a fresh thread on entry (empty object, no thread pinned)",
+      "rawTitle": "marks a fresh thread on entry (empty object, no thread pinned)",
+      "name": "Bot handle Mentor Command marks a fresh thread on entry (empty object, no thread pinned)",
+      "value": "Protects the bot handle Mentor Command behavior: marks a fresh thread on entry (empty object, no thread pinned).",
+      "description": "Protects the bot handle Mentor Command behavior: marks a fresh thread on entry (empty object, no thread pinned)."
     },
     {
-      "id": "apps-bot-src-scenes-mentor-scene-test-ts-67-handlementorcommand-replies-with-a-confirmation-message",
+      "id": "apps-bot-src-scenes-mentor-scene-test-ts-73-handlementorcommand-replies-with-a-confirmation-message",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/mentor.scene.test.ts",
-      "sourceLine": 67,
+      "sourceLine": 73,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14903,6 +15095,22 @@
       "name": "Bot handle Mentor Command replies with a confirmation message",
       "value": "Protects the bot handle Mentor Command behavior so replies with a confirmation message.",
       "description": "Protects the bot handle Mentor Command behavior so replies with a confirmation message."
+    },
+    {
+      "id": "apps-bot-src-scenes-mentor-scene-test-ts-82-handlementorcommand-refuses-a-plan-without-the-mentor-feature-before-touching-the-mode",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/mentor.scene.test.ts",
+      "sourceLine": 82,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorCommand"
+      ],
+      "title": "refuses a plan without the mentor feature BEFORE touching the mode",
+      "rawTitle": "refuses a plan without the mentor feature BEFORE touching the mode",
+      "name": "Bot handle Mentor Command refuses a plan without the mentor feature BEFORE touching the mode",
+      "value": "Protects the bot handle Mentor Command behavior so refuses a plan without the mentor feature BEFORE touching the mode.",
+      "description": "Protects the bot handle Mentor Command behavior so refuses a plan without the mentor feature BEFORE touching the mode."
     },
     {
       "id": "apps-bot-src-scenes-srs-scene-test-ts-58-handlereviewcommand-empty-deck-tells-a-user-with-nothing-saved-how-to-get-a-word-into-the-deck",

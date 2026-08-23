@@ -126,7 +126,7 @@ describe("createPostgresSessionStorage", () => {
   it("does not wipe a mentor session on read", async () => {
     const mentorSession = makeSession({
       activeMode: "mentor",
-      mentor: { history: [{ role: "user", content: "teach me" }] },
+      mentor: { threadId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" },
     });
     getSessionFn.mockResolvedValueOnce({ data: mentorSession });
 
