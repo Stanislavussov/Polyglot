@@ -1,5 +1,5 @@
 /**
- * Tests for notification callback handlers (notif:reveal, notif:learned).
+ * Tests for notification callback handlers (notif:reveal, notif:fb, notif:learned).
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -22,18 +22,23 @@ vi.mock("./notification.formatter.js", () => ({
 
 import type { ServiceContainer } from "@polyglot/core";
 import { createServicesStub } from "../test-helpers/services-stub.js";
-import { handleNotifLearnedCallback, handleNotifRevealCallback } from "./notification.callbacks.js";
+import {
+  handleNotifFeedbackCallback,
+  handleNotifLearnedCallback,
+  handleNotifRevealCallback,
+} from "./notification.callbacks.js";
 
 const vocabularyRepository = {
   findById: vi.fn(),
   delete: vi.fn().mockResolvedValue(undefined),
+  setDifficulty: vi.fn().mockResolvedValue(true),
 };
 
-function createMockCtx(callbackData: string) {
+function createMockCtx(callbackData: string, messageReplyMarkup?: { inline_keyboard: unknown[][] }) {
   return {
     user: { id: 1 },
     from: { id: 12345 },
-    callbackQuery: { data: callbackData, message: { message_id: 100 } },
+    callbackQuery: { data: callbackData, message: { message_id: 100, reply_markup: messageReplyMarkup } },
     services: createServicesStub({
       vocabularyRepository: vocabularyRepository as unknown as ServiceContainer["vocabularyRepository"],
       userRepository: {
@@ -80,6 +85,21 @@ describe("handleNotifRevealCallback", () => {
     expect(vocabularyRepository.findById).toHaveBeenCalledWith(42);
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+  });
+
+  it("keeps a previously stored grade marked on the revealed keyboard", async () => {
+    const { buildNotificationRevealedKeyboard } = await import("./notification.formatter.js");
+    const ctx = createMockCtx("notif:reveal:42");
+    vi.mocked(vocabularyRepository.findById).mockResolvedValue({
+      id: 42,
+      original: "apple",
+      difficulty: "hard",
+      translations: [],
+    } as any);
+
+    await handleNotifRevealCallback(ctx);
+
+    expect(vi.mocked(buildNotificationRevealedKeyboard)).toHaveBeenCalledWith("en", 42, "hard");
   });
 
   it("handles missing entry gracefully", async () => {
@@ -135,6 +155,70 @@ describe("handleNotifRevealCallback", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("handleNotifFeedbackCallback", () => {
+  it("persists the grade and confirms with a toast", async () => {
+    const ctx = createMockCtx("notif:fb:hard:42");
+    vi.mocked(vocabularyRepository.setDifficulty).mockResolvedValue(true);
+
+    await handleNotifFeedbackCallback(ctx);
+
+    expect(vocabularyRepository.setDifficulty).toHaveBeenCalledWith(42, 1, "hard");
+    expect(ctx.editMessageReplyMarkup).toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: expect.stringContaining("more often") });
+  });
+
+  it("re-renders the initial keyboard variant when the message still shows Reveal", async () => {
+    const { buildNotificationKeyboard, buildNotificationRevealedKeyboard } = await import(
+      "./notification.formatter.js"
+    );
+    const withReveal = { inline_keyboard: [[{ text: "🔍", callback_data: "notif:reveal:42" }]] };
+    const ctx = createMockCtx("notif:fb:easy:42", withReveal);
+
+    await handleNotifFeedbackCallback(ctx);
+
+    expect(vi.mocked(buildNotificationKeyboard)).toHaveBeenCalledWith("en", 42, "easy");
+    expect(vi.mocked(buildNotificationRevealedKeyboard)).not.toHaveBeenCalled();
+  });
+
+  it("re-renders the revealed keyboard variant when Reveal is gone", async () => {
+    const { buildNotificationRevealedKeyboard } = await import("./notification.formatter.js");
+    const revealed = { inline_keyboard: [[{ text: "😅", callback_data: "notif:fb:hard:42" }]] };
+    const ctx = createMockCtx("notif:fb:normal:42", revealed);
+
+    await handleNotifFeedbackCallback(ctx);
+
+    expect(vi.mocked(buildNotificationRevealedKeyboard)).toHaveBeenCalledWith("en", 42, "normal");
+  });
+
+  it("tells the user when the entry no longer exists instead of editing the keyboard", async () => {
+    const ctx = createMockCtx("notif:fb:hard:999");
+    vi.mocked(vocabularyRepository.setDifficulty).mockResolvedValue(false);
+
+    await handleNotifFeedbackCallback(ctx);
+
+    expect(ctx.editMessageReplyMarkup).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: expect.any(String) });
+  });
+
+  it("ignores a malformed grade without touching the repository", async () => {
+    const ctx = createMockCtx("notif:fb:bogus:42");
+
+    await handleNotifFeedbackCallback(ctx);
+
+    expect(vocabularyRepository.setDifficulty).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+  });
+
+  it("alerts on a persistence failure", async () => {
+    const ctx = createMockCtx("notif:fb:hard:42");
+    vi.mocked(vocabularyRepository.setDifficulty).mockRejectedValue(new Error("db down"));
+
+    await handleNotifFeedbackCallback(ctx);
+
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });
 });
 

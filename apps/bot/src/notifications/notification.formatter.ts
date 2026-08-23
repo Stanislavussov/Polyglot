@@ -67,30 +67,65 @@ export function formatNotificationMessage(
   });
 }
 
+/** Feedback grade a user can give a notification word. Drives pick frequency. */
+export type NotifFeedbackGrade = "hard" | "normal" | "easy";
+
+const FEEDBACK_GRADES: Array<{ grade: NotifFeedbackGrade; labelKey: "notifFbHard" | "notifFbNormal" | "notifFbEasy" }> =
+  [
+    { grade: "hard", labelKey: "notifFbHard" },
+    { grade: "normal", labelKey: "notifFbNormal" },
+    { grade: "easy", labelKey: "notifFbEasy" },
+  ];
+
+/**
+ * Append the feedback menu: one row of grades (the chosen one marked with a
+ * leading check so a later tap can still re-grade), then the remove row.
+ *
+ * Remove deliberately keeps the legacy `notif:learned` callback so buttons on
+ * already-sent messages keep hitting a registered handler.
+ */
+function appendFeedbackMenu(
+  kb: InlineKeyboard,
+  lang: SupportedLang,
+  entryId: number,
+  selected?: NotifFeedbackGrade,
+): InlineKeyboard {
+  for (const { grade, labelKey } of FEEDBACK_GRADES) {
+    const label = t(labelKey, lang);
+    kb.text(grade === selected ? `✓ ${label}` : label, `notif:fb:${grade}:${entryId}`);
+  }
+  return kb.row().text(t("notifFbDelete", lang), `notif:learned:${entryId}`);
+}
+
 /**
  * Build the inline keyboard for a notification message (initial state).
  *
  * Buttons:
  * - "🔍 Reveal" → notif:reveal:{entryId}
- * - "✅ Learned — remove" → notif:learned:{entryId}
+ * - grade row "Hard | Normal | I know it" → notif:fb:{grade}:{entryId}
+ * - "🗑 Remove from dictionary" → notif:learned:{entryId}
  */
-export function buildNotificationKeyboard(lang: SupportedLang, entryId?: number): InlineKeyboard {
+export function buildNotificationKeyboard(
+  lang: SupportedLang,
+  entryId?: number,
+  selected?: NotifFeedbackGrade,
+): InlineKeyboard {
   if (entryId == null) {
     // Contextual/AI notifications without a dictionary entry — no actions
     return new InlineKeyboard();
   }
-  return new InlineKeyboard()
-    .text(t("notifReveal", lang), `notif:reveal:${entryId}`)
-    .row()
-    .text(t("notifLearned", lang), `notif:learned:${entryId}`);
+  const kb = new InlineKeyboard().text(t("notifReveal", lang), `notif:reveal:${entryId}`).row();
+  return appendFeedbackMenu(kb, lang, entryId, selected);
 }
 
 /**
  * Build the inline keyboard for a revealed notification (after "Reveal" tap).
- *
- * Buttons:
- * - "✅ Learned — remove" → notif:learned:{entryId}
+ * Same feedback menu as the initial keyboard, without the Reveal button.
  */
-export function buildNotificationRevealedKeyboard(lang: SupportedLang, entryId: number): InlineKeyboard {
-  return new InlineKeyboard().text(t("notifLearned", lang), `notif:learned:${entryId}`);
+export function buildNotificationRevealedKeyboard(
+  lang: SupportedLang,
+  entryId: number,
+  selected?: NotifFeedbackGrade,
+): InlineKeyboard {
+  return appendFeedbackMenu(new InlineKeyboard(), lang, entryId, selected);
 }

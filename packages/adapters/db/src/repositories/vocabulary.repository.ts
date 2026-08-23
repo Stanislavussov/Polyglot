@@ -6,6 +6,7 @@ import type {
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
   UpdateTranslationData,
+  VocabDifficulty,
   VocabTranslationDetails,
   VocabularyEntry,
   VocabularyEntryWithSourceLang,
@@ -26,6 +27,7 @@ export type {
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
   UpdateTranslationData,
+  VocabDifficulty,
   VocabTranslationDetails,
   VocabularyEntry,
   VocabularyEntryWithSourceLang,
@@ -585,6 +587,7 @@ export const vocabularyRepository = {
               sourceUsage: vocabularyEntries.sourceUsage,
               source: vocabularyEntries.source,
               unverified: vocabularyEntries.unverified,
+              difficulty: vocabularyEntries.difficulty,
               isActive: vocabularyEntries.isActive,
               createdAt: vocabularyEntries.createdAt,
               updatedAt: vocabularyEntries.updatedAt,
@@ -638,6 +641,27 @@ export const vocabularyRepository = {
       .update(vocabularyTranslations)
       .set({ isActive: false, updatedAt: now })
       .where(eq(vocabularyTranslations.entryId, entryId));
+  },
+
+  /**
+   * Persist the user's notification feedback grade for an entry.
+   * Owner-scoped so a forged callback cannot rate another user's entry, and
+   * active-only so a stale button on a removed word cannot grade its ghost.
+   */
+  async setDifficulty(entryId: number, userId: number, difficulty: VocabDifficulty): Promise<boolean> {
+    const db = getDb();
+    const updated = await db
+      .update(vocabularyEntries)
+      .set({ difficulty, updatedAt: new Date() })
+      .where(
+        and(
+          eq(vocabularyEntries.id, entryId),
+          eq(vocabularyEntries.userId, userId),
+          eq(vocabularyEntries.isActive, true),
+        ),
+      )
+      .returning({ id: vocabularyEntries.id });
+    return updated.length > 0;
   },
 
   /**

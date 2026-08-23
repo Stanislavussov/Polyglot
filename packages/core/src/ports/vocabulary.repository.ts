@@ -48,6 +48,9 @@ export type VocabularySource =
       presetTitle: string;
     };
 
+/** User feedback grade from notification cards: hard → repeat more often, easy → almost never. */
+export type VocabDifficulty = "hard" | "normal" | "easy";
+
 export interface VocabularyEntry {
   id: number;
   userId: number;
@@ -60,6 +63,8 @@ export interface VocabularyEntry {
   source: VocabularySource | null;
   /** Task 70 — translated on a "translate as written" override; excluded from notifications/SRS. */
   unverified: boolean;
+  /** Notification feedback grade; null = unrated (treated as "normal"). */
+  difficulty: VocabDifficulty | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -196,4 +201,6 @@ export interface VocabularyRepository {
     options?: DictionaryListOptions,
   ): Promise<VocabularyEntryWithTranslations[]>;
   delete(entryId: number, userId: number): Promise<void>;
+  /** Persist the user's notification feedback grade. Owner-scoped; returns false when no row matched. */
+  setDifficulty(entryId: number, userId: number, difficulty: VocabDifficulty): Promise<boolean>;
 }

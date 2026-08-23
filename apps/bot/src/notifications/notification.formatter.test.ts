@@ -195,34 +195,57 @@ describe("formatNotificationMessage", () => {
   });
 });
 
+function callbackData(kb: ReturnType<typeof buildNotificationKeyboard>): Array<string | undefined> {
+  return kb.inline_keyboard.flat().map((b) => ("callback_data" in b ? b.callback_data : undefined));
+}
+
 describe("buildNotificationKeyboard", () => {
-  it("creates keyboard with Reveal and Learned buttons when entryId provided", () => {
+  it("shows Reveal, the three feedback grades, and Remove", () => {
     const kb = buildNotificationKeyboard("en", 42);
-    const buttons = kb.inline_keyboard.flat();
-    const cbData = buttons.map((b) => ("callback_data" in b ? b.callback_data : undefined));
-    expect(cbData).toContain("notif:reveal:42");
-    expect(cbData).toContain("notif:learned:42");
+    expect(callbackData(kb)).toEqual([
+      "notif:reveal:42",
+      "notif:fb:hard:42",
+      "notif:fb:normal:42",
+      "notif:fb:easy:42",
+      "notif:learned:42",
+    ]);
   });
 
-  it("has exactly 2 buttons when entryId provided", () => {
+  it("keeps the grade row together and Remove on its own row", () => {
     const kb = buildNotificationKeyboard("en", 42);
+    const rows = kb.inline_keyboard.map((row) => row.length);
+    expect(rows).toEqual([1, 3, 1]);
+  });
+
+  it("marks the selected grade with a check while keeping all buttons tappable", () => {
+    const kb = buildNotificationKeyboard("en", 42, "hard");
     const buttons = kb.inline_keyboard.flat();
-    expect(buttons).toHaveLength(2);
+    const hard = buttons.find((b) => "callback_data" in b && b.callback_data === "notif:fb:hard:42");
+    const normal = buttons.find((b) => "callback_data" in b && b.callback_data === "notif:fb:normal:42");
+    expect(hard?.text.startsWith("✓ ")).toBe(true);
+    expect(normal?.text.startsWith("✓ ")).toBe(false);
   });
 
   it("returns empty keyboard when no entryId", () => {
     const kb = buildNotificationKeyboard("en");
-    const buttons = kb.inline_keyboard.flat();
-    expect(buttons).toHaveLength(0);
+    expect(kb.inline_keyboard.flat()).toHaveLength(0);
   });
 });
 
 describe("buildNotificationRevealedKeyboard", () => {
-  it("creates keyboard with only Learned button", () => {
+  it("shows the feedback grades and Remove, without Reveal", () => {
     const kb = buildNotificationRevealedKeyboard("en", 42);
-    const buttons = kb.inline_keyboard.flat();
-    expect(buttons).toHaveLength(1);
-    const cbData = buttons.map((b) => ("callback_data" in b ? b.callback_data : undefined));
-    expect(cbData).toContain("notif:learned:42");
+    expect(callbackData(kb)).toEqual([
+      "notif:fb:hard:42",
+      "notif:fb:normal:42",
+      "notif:fb:easy:42",
+      "notif:learned:42",
+    ]);
+  });
+
+  it("marks the selected grade", () => {
+    const kb = buildNotificationRevealedKeyboard("en", 42, "easy");
+    const easy = kb.inline_keyboard.flat().find((b) => "callback_data" in b && b.callback_data === "notif:fb:easy:42");
+    expect(easy?.text.startsWith("✓ ")).toBe(true);
   });
 });

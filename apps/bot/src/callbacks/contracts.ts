@@ -307,7 +307,7 @@ export const callbackContracts = [
     durableLookupKey: "vocabulary entry id",
     dbSource: "vocabulary entries + notification history",
     expiryBehavior: "answer callback and remove stale keyboard when possible",
-    maxExampleData: "notif:reveal:123",
+    maxExampleData: "notif:fb:normal:123",
   },
 ] as const satisfies readonly CallbackContract[];
 
