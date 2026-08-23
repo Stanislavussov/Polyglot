@@ -787,7 +787,7 @@ async function sendTranslationCard(
       });
   }
 
-  const pronounceLangs = await resolvePronounceLangs(ctx, output.translations, inputType, order);
+  const pronounceLangs = await resolvePronounceLangs(ctx, output, inputType, order);
 
   const keyboard = buildTranslationKeyboard({
     interfaceLang: lang,
