@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-22T17:50:43.000Z",
+  "generatedAt": "2026-08-23T10:11:18.000Z",
   "summary": {
-    "total": 2806,
+    "total": 2827,
     "business": 0,
-    "technical": 2806,
+    "technical": 2827,
     "workspaces": [
       "apps",
       "packages"
@@ -2773,6 +2773,86 @@
       "name": "Bot notification schedule seeding and the deselect guard (integration) C9b: the guard cannot be walked around via toggle off and on",
       "value": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C9b: the guard cannot be walked around via toggle off and on.",
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C9b: the guard cannot be walked around via toggle off and on."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-feedback-integration-test-ts-78-notification-feedback-integration-f1-the-delivered-card-carries-the-feedback-menu-and-tapping-hard-persists-the-grade",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-feedback.integration.test.ts",
+      "sourceLine": 78,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "notification feedback (integration)"
+      ],
+      "title": "F1: the delivered card carries the feedback menu, and tapping Hard persists the grade",
+      "rawTitle": "F1: the delivered card carries the feedback menu, and tapping Hard persists the grade",
+      "name": "Bot notification feedback (integration) F1: the delivered card carries the feedback menu, and tapping Hard persists the grade",
+      "value": "Protects the bot notification feedback (integration) behavior so F1: the delivered card carries the feedback menu, and tapping Hard persists the grade.",
+      "description": "Protects the bot notification feedback (integration) behavior so F1: the delivered card carries the feedback menu, and tapping Hard persists the grade."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-feedback-integration-test-ts-124-notification-feedback-integration-f2-re-grading-overwrites-hard-then-i-know-it-ends-at-easy",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-feedback.integration.test.ts",
+      "sourceLine": 124,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "notification feedback (integration)"
+      ],
+      "title": "F2: re-grading overwrites — Hard then I-know-it ends at easy",
+      "rawTitle": "F2: re-grading overwrites — Hard then I-know-it ends at easy",
+      "name": "Bot notification feedback (integration) F2: re grading overwrites — Hard then I know it ends at easy",
+      "value": "Protects the bot notification feedback (integration) behavior so F2: re grading overwrites — Hard then I know it ends at easy.",
+      "description": "Protects the bot notification feedback (integration) behavior so F2: re grading overwrites — Hard then I know it ends at easy."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-feedback-integration-test-ts-145-notification-feedback-integration-f3-remove-soft-deletes-the-entry-and-confirms-in-the-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-feedback.integration.test.ts",
+      "sourceLine": 145,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "notification feedback (integration)"
+      ],
+      "title": "F3: Remove soft-deletes the entry and confirms in the message",
+      "rawTitle": "F3: Remove soft-deletes the entry and confirms in the message",
+      "name": "Bot notification feedback (integration) F3: Remove soft deletes the entry and confirms in the message",
+      "value": "Protects the bot notification feedback (integration) behavior so F3: Remove soft deletes the entry and confirms in the message.",
+      "description": "Protects the bot notification feedback (integration) behavior so F3: Remove soft deletes the entry and confirms in the message."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-feedback-integration-test-ts-170-notification-feedback-integration-f4-a-forged-callback-cannot-grade-another-user-s-entry",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-feedback.integration.test.ts",
+      "sourceLine": 170,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "notification feedback (integration)"
+      ],
+      "title": "F4: a forged callback cannot grade another user's entry",
+      "rawTitle": "F4: a forged callback cannot grade another user's entry",
+      "name": "Bot notification feedback (integration) F4: a forged callback cannot grade another user's entry",
+      "value": "Protects the bot notification feedback (integration) behavior so F4: a forged callback cannot grade another user's entry.",
+      "description": "Protects the bot notification feedback (integration) behavior so F4: a forged callback cannot grade another user's entry."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-feedback-integration-test-ts-197-notification-feedback-integration-f5-grading-an-already-removed-entry-answers-without-resurrecting-anything",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-feedback.integration.test.ts",
+      "sourceLine": 197,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "notification feedback (integration)"
+      ],
+      "title": "F5: grading an already-removed entry answers without resurrecting anything",
+      "rawTitle": "F5: grading an already-removed entry answers without resurrecting anything",
+      "name": "Bot notification feedback (integration) F5: grading an already removed entry answers without resurrecting anything",
+      "value": "Protects the bot notification feedback (integration) behavior so F5: grading an already removed entry answers without resurrecting anything.",
+      "description": "Protects the bot notification feedback (integration) behavior so F5: grading an already removed entry answers without resurrecting anything."
     },
     {
       "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-80-start-onboarding-integration-creates-the-user-and-guesses-the-native-language-from-the-telegram-locale",
@@ -7518,10 +7598,10 @@
       "description": "Protects the bot update Metrics Middleware behavior: does not warn about fast updates."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-61-handlenotifrevealcallback-renders-full-dictionary-entry-and-updates-message",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-66-handlenotifrevealcallback-renders-full-dictionary-entry-and-updates-message",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 61,
+      "sourceLine": 66,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7534,10 +7614,26 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: renders full dictionary entry and updates message."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-85-handlenotifrevealcallback-handles-missing-entry-gracefully",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-90-handlenotifrevealcallback-keeps-a-previously-stored-grade-marked-on-the-revealed-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 85,
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleNotifRevealCallback"
+      ],
+      "title": "keeps a previously stored grade marked on the revealed keyboard",
+      "rawTitle": "keeps a previously stored grade marked on the revealed keyboard",
+      "name": "Bot handle Notif Reveal Callback keeps a previously stored grade marked on the revealed keyboard",
+      "value": "Protects the bot handle Notif Reveal Callback behavior: keeps a previously stored grade marked on the revealed keyboard.",
+      "description": "Protects the bot handle Notif Reveal Callback behavior: keeps a previously stored grade marked on the revealed keyboard."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-105-handlenotifrevealcallback-handles-missing-entry-gracefully",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
+      "sourceLine": 105,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7550,10 +7646,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: handles missing entry gracefully."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-97-handlenotifrevealcallback-handles-invalid-entryid-gracefully",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-117-handlenotifrevealcallback-handles-invalid-entryid-gracefully",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 97,
+      "sourceLine": 117,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7566,10 +7662,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: handles invalid entry Id gracefully."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-106-handlenotifrevealcallback-shows-a-persistent-loading-button-on-the-notification-while-the-card-loads",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-126-handlenotifrevealcallback-shows-a-persistent-loading-button-on-the-notification-while-the-card-loads",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 106,
+      "sourceLine": 126,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7582,10 +7678,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: shows a persistent loading button on the notification while the card loads."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-116-handlenotifrevealcallback-restores-the-buttons-and-tells-the-user-when-loading-takes-too-long",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-136-handlenotifrevealcallback-restores-the-buttons-and-tells-the-user-when-loading-takes-too-long",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 116,
+      "sourceLine": 136,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7598,10 +7694,106 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior so restores the buttons and tells the user when loading takes too long."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-142-handlenotiflearnedcallback-soft-deletes-entry-and-shows-confirmation",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-162-handlenotiffeedbackcallback-persists-the-grade-and-confirms-with-a-toast",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 142,
+      "sourceLine": 162,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleNotifFeedbackCallback"
+      ],
+      "title": "persists the grade and confirms with a toast",
+      "rawTitle": "persists the grade and confirms with a toast",
+      "name": "Bot handle Notif Feedback Callback persists the grade and confirms with a toast",
+      "value": "Protects the bot handle Notif Feedback Callback behavior: persists the grade and confirms with a toast.",
+      "description": "Protects the bot handle Notif Feedback Callback behavior: persists the grade and confirms with a toast."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-173-handlenotiffeedbackcallback-re-renders-the-initial-keyboard-variant-when-the-message-still-shows-reveal",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
+      "sourceLine": 173,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleNotifFeedbackCallback"
+      ],
+      "title": "re-renders the initial keyboard variant when the message still shows Reveal",
+      "rawTitle": "re-renders the initial keyboard variant when the message still shows Reveal",
+      "name": "Bot handle Notif Feedback Callback re renders the initial keyboard variant when the message still shows Reveal",
+      "value": "Protects the bot handle Notif Feedback Callback behavior so re renders the initial keyboard variant when the message still shows Reveal.",
+      "description": "Protects the bot handle Notif Feedback Callback behavior so re renders the initial keyboard variant when the message still shows Reveal."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-186-handlenotiffeedbackcallback-re-renders-the-revealed-keyboard-variant-when-reveal-is-gone",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
+      "sourceLine": 186,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleNotifFeedbackCallback"
+      ],
+      "title": "re-renders the revealed keyboard variant when Reveal is gone",
+      "rawTitle": "re-renders the revealed keyboard variant when Reveal is gone",
+      "name": "Bot handle Notif Feedback Callback re renders the revealed keyboard variant when Reveal is gone",
+      "value": "Protects the bot handle Notif Feedback Callback behavior so re renders the revealed keyboard variant when Reveal is gone.",
+      "description": "Protects the bot handle Notif Feedback Callback behavior so re renders the revealed keyboard variant when Reveal is gone."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-196-handlenotiffeedbackcallback-tells-the-user-when-the-entry-no-longer-exists-instead-of-editing-the-keyboard",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
+      "sourceLine": 196,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleNotifFeedbackCallback"
+      ],
+      "title": "tells the user when the entry no longer exists instead of editing the keyboard",
+      "rawTitle": "tells the user when the entry no longer exists instead of editing the keyboard",
+      "name": "Bot handle Notif Feedback Callback tells the user when the entry no longer exists instead of editing the keyboard",
+      "value": "Protects the bot handle Notif Feedback Callback behavior so tells the user when the entry no longer exists instead of editing the keyboard.",
+      "description": "Protects the bot handle Notif Feedback Callback behavior so tells the user when the entry no longer exists instead of editing the keyboard."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-206-handlenotiffeedbackcallback-ignores-a-malformed-grade-without-touching-the-repository",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
+      "sourceLine": 206,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleNotifFeedbackCallback"
+      ],
+      "title": "ignores a malformed grade without touching the repository",
+      "rawTitle": "ignores a malformed grade without touching the repository",
+      "name": "Bot handle Notif Feedback Callback ignores a malformed grade without touching the repository",
+      "value": "Protects the bot handle Notif Feedback Callback behavior: ignores a malformed grade without touching the repository.",
+      "description": "Protects the bot handle Notif Feedback Callback behavior: ignores a malformed grade without touching the repository."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-215-handlenotiffeedbackcallback-alerts-on-a-persistence-failure",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
+      "sourceLine": 215,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleNotifFeedbackCallback"
+      ],
+      "title": "alerts on a persistence failure",
+      "rawTitle": "alerts on a persistence failure",
+      "name": "Bot handle Notif Feedback Callback alerts on a persistence failure",
+      "value": "Protects the bot handle Notif Feedback Callback behavior so alerts on a persistence failure.",
+      "description": "Protects the bot handle Notif Feedback Callback behavior so alerts on a persistence failure."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-226-handlenotiflearnedcallback-soft-deletes-entry-and-shows-confirmation",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
+      "sourceLine": 226,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7614,10 +7806,10 @@
       "description": "Protects the bot handle Notif Learned Callback behavior so soft deletes entry and shows confirmation."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-156-handlenotiflearnedcallback-handles-invalid-entryid-gracefully",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-240-handlenotiflearnedcallback-handles-invalid-entryid-gracefully",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 156,
+      "sourceLine": 240,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7854,42 +8046,58 @@
       "description": "Protects the bot format Notification Message behavior: renders a card with no translations without throwing."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-199-buildnotificationkeyboard-creates-keyboard-with-reveal-and-learned-buttons-when-entryid-provided",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-203-buildnotificationkeyboard-shows-reveal-the-three-feedback-grades-and-remove",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 199,
+      "sourceLine": 203,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "buildNotificationKeyboard"
       ],
-      "title": "creates keyboard with Reveal and Learned buttons when entryId provided",
-      "rawTitle": "creates keyboard with Reveal and Learned buttons when entryId provided",
-      "name": "Bot build Notification Keyboard creates keyboard with Reveal and Learned buttons when entry Id provided",
-      "value": "Protects the bot build Notification Keyboard behavior: creates keyboard with Reveal and Learned buttons when entry Id provided.",
-      "description": "Protects the bot build Notification Keyboard behavior: creates keyboard with Reveal and Learned buttons when entry Id provided."
+      "title": "shows Reveal, the three feedback grades, and Remove",
+      "rawTitle": "shows Reveal, the three feedback grades, and Remove",
+      "name": "Bot build Notification Keyboard shows Reveal, the three feedback grades, and Remove",
+      "value": "Protects the bot build Notification Keyboard behavior: shows Reveal, the three feedback grades, and Remove.",
+      "description": "Protects the bot build Notification Keyboard behavior: shows Reveal, the three feedback grades, and Remove."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-207-buildnotificationkeyboard-has-exactly-2-buttons-when-entryid-provided",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-214-buildnotificationkeyboard-keeps-the-grade-row-together-and-remove-on-its-own-row",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 207,
+      "sourceLine": 214,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "buildNotificationKeyboard"
       ],
-      "title": "has exactly 2 buttons when entryId provided",
-      "rawTitle": "has exactly 2 buttons when entryId provided",
-      "name": "Bot build Notification Keyboard has exactly 2 buttons when entry Id provided",
-      "value": "Protects the bot build Notification Keyboard behavior so has exactly 2 buttons when entry Id provided.",
-      "description": "Protects the bot build Notification Keyboard behavior so has exactly 2 buttons when entry Id provided."
+      "title": "keeps the grade row together and Remove on its own row",
+      "rawTitle": "keeps the grade row together and Remove on its own row",
+      "name": "Bot build Notification Keyboard keeps the grade row together and Remove on its own row",
+      "value": "Protects the bot build Notification Keyboard behavior: keeps the grade row together and Remove on its own row.",
+      "description": "Protects the bot build Notification Keyboard behavior: keeps the grade row together and Remove on its own row."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-213-buildnotificationkeyboard-returns-empty-keyboard-when-no-entryid",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-220-buildnotificationkeyboard-marks-the-selected-grade-with-a-check-while-keeping-all-buttons-tappable",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 213,
+      "sourceLine": 220,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildNotificationKeyboard"
+      ],
+      "title": "marks the selected grade with a check while keeping all buttons tappable",
+      "rawTitle": "marks the selected grade with a check while keeping all buttons tappable",
+      "name": "Bot build Notification Keyboard marks the selected grade with a check while keeping all buttons tappable",
+      "value": "Protects the bot build Notification Keyboard behavior: marks the selected grade with a check while keeping all buttons tappable.",
+      "description": "Protects the bot build Notification Keyboard behavior: marks the selected grade with a check while keeping all buttons tappable."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-229-buildnotificationkeyboard-returns-empty-keyboard-when-no-entryid",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 229,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7902,20 +8110,36 @@
       "description": "Protects the bot build Notification Keyboard behavior: returns empty keyboard when no entry Id."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-221-buildnotificationrevealedkeyboard-creates-keyboard-with-only-learned-button",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-236-buildnotificationrevealedkeyboard-shows-the-feedback-grades-and-remove-without-reveal",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 221,
+      "sourceLine": 236,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "buildNotificationRevealedKeyboard"
       ],
-      "title": "creates keyboard with only Learned button",
-      "rawTitle": "creates keyboard with only Learned button",
-      "name": "Bot build Notification Revealed Keyboard creates keyboard with only Learned button",
-      "value": "Protects the bot build Notification Revealed Keyboard behavior: creates keyboard with only Learned button.",
-      "description": "Protects the bot build Notification Revealed Keyboard behavior: creates keyboard with only Learned button."
+      "title": "shows the feedback grades and Remove, without Reveal",
+      "rawTitle": "shows the feedback grades and Remove, without Reveal",
+      "name": "Bot build Notification Revealed Keyboard shows the feedback grades and Remove, without Reveal",
+      "value": "Protects the bot build Notification Revealed Keyboard behavior: shows the feedback grades and Remove, without Reveal.",
+      "description": "Protects the bot build Notification Revealed Keyboard behavior: shows the feedback grades and Remove, without Reveal."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-246-buildnotificationrevealedkeyboard-marks-the-selected-grade",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 246,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildNotificationRevealedKeyboard"
+      ],
+      "title": "marks the selected grade",
+      "rawTitle": "marks the selected grade",
+      "name": "Bot build Notification Revealed Keyboard marks the selected grade",
+      "value": "Protects the bot build Notification Revealed Keyboard behavior: marks the selected grade.",
+      "description": "Protects the bot build Notification Revealed Keyboard behavior: marks the selected grade."
     },
     {
       "id": "apps-bot-src-notifications-notification-wiring-test-ts-21-resolvetelegramchatid-returns-the-chat-id-from-the-identity-port-when-an-identity-row-exists",
@@ -9678,10 +9902,10 @@
       "description": "Protects the bot expandable Section behavior so vanishes when there are no detail lines."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-75-renderdictionaryentry-language-order-renders-native-first-then-learning-languages-in-the-user-s-own-order",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-76-renderdictionaryentry-language-order-renders-native-first-then-learning-languages-in-the-user-s-own-order",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.order.test.ts",
-      "sourceLine": 75,
+      "sourceLine": 76,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9694,10 +9918,10 @@
       "description": "Protects the bot render Dictionary Entry — language order behavior: renders native first, then learning languages in the user's own order."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-80-renderdictionaryentry-language-order-produces-the-same-order-no-matter-what-order-the-rows-arrive-in",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-81-renderdictionaryentry-language-order-produces-the-same-order-no-matter-what-order-the-rows-arrive-in",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.order.test.ts",
-      "sourceLine": 80,
+      "sourceLine": 81,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9710,10 +9934,10 @@
       "description": "Protects the bot render Dictionary Entry — language order behavior so produces the same order no matter what order the rows arrive in."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-93-renderdictionaryentry-language-order-renders-a-language-the-user-no-longer-studies-last-without-dropping-it",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-94-renderdictionaryentry-language-order-renders-a-language-the-user-no-longer-studies-last-without-dropping-it",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.order.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 94,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9726,10 +9950,10 @@
       "description": "Protects the bot render Dictionary Entry — language order behavior: renders a language the user no longer studies last, without dropping it."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-103-renderdictionarylist-preview-order-previews-the-first-two-languages-in-the-user-s-order-not-alphabetically",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-104-renderdictionarylist-preview-order-previews-the-first-two-languages-in-the-user-s-order-not-alphabetically",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.order.test.ts",
-      "sourceLine": 103,
+      "sourceLine": 104,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9742,10 +9966,10 @@
       "description": "Protects the bot render Dictionary List — preview order behavior so previews the first two languages in the user's order, not alphabetically."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-111-renderdictionarylist-preview-order-picks-the-same-two-languages-regardless-of-row-order",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-order-test-ts-112-renderdictionarylist-preview-order-picks-the-same-two-languages-regardless-of-row-order",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.order.test.ts",
-      "sourceLine": 111,
+      "sourceLine": 112,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9758,10 +9982,10 @@
       "description": "Protects the bot render Dictionary List — preview order behavior so picks the same two languages regardless of row order."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-177-renderdictionarylist-contains-header-with-word-count",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-179-renderdictionarylist-contains-header-with-word-count",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 177,
+      "sourceLine": 179,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9774,10 +9998,10 @@
       "description": "Protects the bot render Dictionary List behavior so contains header with word count."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-182-renderdictionarylist-each-entry-shows-emoji-original-translation-summaries",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-184-renderdictionarylist-each-entry-shows-emoji-original-translation-summaries",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 182,
+      "sourceLine": 184,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9790,10 +10014,10 @@
       "description": "Protects the bot render Dictionary List behavior so each entry shows emoji + original + translation summaries."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-190-renderdictionarylist-entries-with-2-translations-show-n-suffix",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-192-renderdictionarylist-entries-with-2-translations-show-n-suffix",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 190,
+      "sourceLine": 192,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9806,10 +10030,10 @@
       "description": "Protects the bot render Dictionary List behavior so entries with >2 translations show +N suffix."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-200-renderdictionarylist-global-indexing-page-2-starts-at-16",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-202-renderdictionarylist-global-indexing-page-2-starts-at-16",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 200,
+      "sourceLine": 202,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9822,10 +10046,10 @@
       "description": "Protects the bot render Dictionary List behavior so global indexing — page 2 starts at 16."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-207-renderdictionarylist-html-characters-are-escaped",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-209-renderdictionarylist-html-characters-are-escaped",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 207,
+      "sourceLine": 209,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9838,10 +10062,10 @@
       "description": "Protects the bot render Dictionary List behavior so HTML characters are escaped."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-214-renderdictionarylist-no-page-indicator-when-single-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-216-renderdictionarylist-no-page-indicator-when-single-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 214,
+      "sourceLine": 216,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9854,10 +10078,10 @@
       "description": "Protects the bot render Dictionary List behavior so no page indicator when single page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-219-renderdictionarylist-shows-page-indicator-when-multiple-pages",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-221-renderdictionarylist-shows-page-indicator-when-multiple-pages",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 221,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9870,10 +10094,10 @@
       "description": "Protects the bot render Dictionary List behavior: shows page indicator when multiple pages."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-224-renderdictionarylist-handles-entries-without-emoji",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-226-renderdictionarylist-handles-entries-without-emoji",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 224,
+      "sourceLine": 226,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9886,10 +10110,10 @@
       "description": "Protects the bot render Dictionary List behavior: handles entries without emoji."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-230-renderdictionarylist-truncates-long-words",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-232-renderdictionarylist-truncates-long-words",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 230,
+      "sourceLine": 232,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9902,10 +10126,10 @@
       "description": "Protects the bot render Dictionary List behavior so truncates long words."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-247-renderdictionaryentry-contains-original-word-with-emoji",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-249-renderdictionaryentry-contains-original-word-with-emoji",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 247,
+      "sourceLine": 249,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9918,10 +10142,10 @@
       "description": "Protects the bot render Dictionary Entry behavior so contains original word with emoji."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-252-renderdictionaryentry-shows-source-language-flag-and-input-type",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-254-renderdictionaryentry-shows-source-language-flag-and-input-type",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 252,
+      "sourceLine": 254,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9934,10 +10158,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows source language flag and input type."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-257-renderdictionaryentry-localizes-source-input-type",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-259-renderdictionaryentry-localizes-source-input-type",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 257,
+      "sourceLine": 259,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9950,10 +10174,10 @@
       "description": "Protects the bot render Dictionary Entry behavior so localizes source input type."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-263-renderdictionaryentry-contains-translations-without-transcription",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-265-renderdictionaryentry-contains-translations-without-transcription",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 263,
+      "sourceLine": 265,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9966,10 +10190,10 @@
       "description": "Protects the bot render Dictionary Entry behavior so contains translations without transcription."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-270-renderdictionaryentry-shows-synonyms-from-details",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-272-renderdictionaryentry-shows-synonyms-from-details",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 270,
+      "sourceLine": 272,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9982,10 +10206,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows synonyms from details."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-275-renderdictionaryentry-shows-examples-from-details",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-277-renderdictionaryentry-shows-examples-from-details",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 275,
+      "sourceLine": 277,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9998,10 +10222,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows examples from details."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-280-renderdictionaryentry-shows-regular-usage-guidance-separately-from-warnings",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-282-renderdictionaryentry-shows-regular-usage-guidance-separately-from-warnings",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 280,
+      "sourceLine": 282,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10014,10 +10238,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows regular usage guidance separately from warnings."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-286-renderdictionaryentry-preserves-the-full-saved-source-language-learning-card",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-288-renderdictionaryentry-preserves-the-full-saved-source-language-learning-card",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 286,
+      "sourceLine": 288,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10030,10 +10254,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: preserves the full saved source language learning card."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-294-renderdictionaryentry-escapes-html-inside-saved-source-usage",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-296-renderdictionaryentry-escapes-html-inside-saved-source-usage",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 294,
+      "sourceLine": 296,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10046,10 +10270,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: escapes HTML inside saved source usage."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-314-renderdictionaryentry-falls-back-to-when-langresolver-returns-undefined",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-316-renderdictionaryentry-falls-back-to-when-langresolver-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 314,
+      "sourceLine": 316,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10062,10 +10286,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: falls back to 🔤 when lang Resolver returns undefined."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-324-builddictionarylistkeyboard-has-one-button-per-entry-with-dict-view-dictionaryid-id-page-callback",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-326-builddictionarylistkeyboard-has-one-button-per-entry-with-dict-view-dictionaryid-id-page-callback",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 324,
+      "sourceLine": 326,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10078,10 +10302,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so has one button per entry with dict:view:{dictionary Id}:{id}:{page} callback."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-333-builddictionarylistkeyboard-has-navigation-buttons-when-1-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-335-builddictionarylistkeyboard-has-navigation-buttons-when-1-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 333,
+      "sourceLine": 335,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10094,10 +10318,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so has navigation buttons when > 1 page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-344-builddictionarylistkeyboard-no-prev-button-on-page-1",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-346-builddictionarylistkeyboard-no-prev-button-on-page-1",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 344,
+      "sourceLine": 346,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10110,10 +10334,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so no prev button on page 1."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-354-builddictionarylistkeyboard-no-next-button-on-last-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-356-builddictionarylistkeyboard-no-next-button-on-last-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 354,
+      "sourceLine": 356,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10126,10 +10350,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so no next button on last page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-364-builddictionarylistkeyboard-no-navigation-row-when-1-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-366-builddictionarylistkeyboard-no-navigation-row-when-1-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 364,
+      "sourceLine": 366,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10142,10 +10366,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so no navigation row when 1 page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-373-builddictionarylistkeyboard-has-close-button",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-375-builddictionarylistkeyboard-has-close-button",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 373,
+      "sourceLine": 375,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10158,10 +10382,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so has close button."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-380-builddictionarylistkeyboard-entry-buttons-show-emoji-original",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-382-builddictionarylistkeyboard-entry-buttons-show-emoji-original",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 380,
+      "sourceLine": 382,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10174,10 +10398,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so entry buttons show emoji + original."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-390-builddictionaryentrykeyboard-has-delete-and-back-buttons",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-392-builddictionaryentrykeyboard-has-delete-and-back-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 390,
+      "sourceLine": 392,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10190,10 +10414,10 @@
       "description": "Protects the bot build Dictionary Entry Keyboard behavior so has delete and back buttons."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-400-builddictionaryentrykeyboard-uses-i18n-for-button-labels",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-402-builddictionaryentrykeyboard-uses-i18n-for-button-labels",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 400,
+      "sourceLine": 402,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10206,10 +10430,10 @@
       "description": "Protects the bot build Dictionary Entry Keyboard behavior: uses i18n for button labels."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-410-builddeleteconfirmkeyboard-has-confirm-delete-and-cancel-buttons",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-412-builddeleteconfirmkeyboard-has-confirm-delete-and-cancel-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 410,
+      "sourceLine": 412,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10222,10 +10446,10 @@
       "description": "Protects the bot build Delete Confirm Keyboard behavior so has confirm delete and cancel buttons."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-418-builddeleteconfirmkeyboard-uses-i18n-for-button-labels",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-420-builddeleteconfirmkeyboard-uses-i18n-for-button-labels",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 418,
+      "sourceLine": 420,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10238,10 +10462,10 @@
       "description": "Protects the bot build Delete Confirm Keyboard behavior: uses i18n for button labels."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-428-dictionary-page-size-is-15",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-430-dictionary-page-size-is-15",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 428,
+      "sourceLine": 430,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10254,10 +10478,10 @@
       "description": "Protects the bot DICTIONARY PAGE SIZE behavior so is 15."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-436-renderdictionaryentry-collapsible-examples-keeps-examples-visible-and-collapses-usage-guidance-into-a-blockquote",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-438-renderdictionaryentry-collapsible-examples-keeps-examples-visible-and-collapses-usage-guidance-into-a-blockquote",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 436,
+      "sourceLine": 438,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10270,10 +10494,10 @@
       "description": "Protects the bot render Dictionary Entry — collapsible examples behavior: keeps examples visible and collapses usage guidance into a blockquote."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-444-renderdictionaryentry-collapsible-examples-collapses-the-source-usage-explanation-below-its-visible-examples",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-446-renderdictionaryentry-collapsible-examples-collapses-the-source-usage-explanation-below-its-visible-examples",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 444,
+      "sourceLine": 446,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10734,10 +10958,10 @@
       "description": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: keeps source usage examples visible and collapses the explanation on reverse learning cards."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-151-handledictpage-calls-findbyuserpaginated-with-correct-offset",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-152-handledictpage-calls-findbyuserpaginated-with-correct-offset",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 151,
+      "sourceLine": 152,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10750,10 +10974,10 @@
       "description": "Protects the bot handle Dict Page behavior: calls find By User Paginated with correct offset."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-164-handledictpage-updates-session-currentpage",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-165-handledictpage-updates-session-currentpage",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 164,
+      "sourceLine": 165,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10766,10 +10990,10 @@
       "description": "Protects the bot handle Dict Page behavior: updates session current Page."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-174-handledictpage-shows-emptydictionary-when-total-is-0",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-175-handledictpage-shows-emptydictionary-when-total-is-0",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 175,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10782,10 +11006,10 @@
       "description": "Protects the bot handle Dict Page behavior: shows empty Dictionary when total is 0."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-192-handledictview-calls-findbyid-and-edits-message-with-entry-view",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-193-handledictview-calls-findbyid-and-edits-message-with-entry-view",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 192,
+      "sourceLine": 193,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10798,10 +11022,10 @@
       "description": "Protects the bot handle Dict View behavior: calls find By Id and edits message with entry view."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-204-handledictview-shows-noresults-when-entry-not-found",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-205-handledictview-shows-noresults-when-entry-not-found",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 204,
+      "sourceLine": 205,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10814,10 +11038,10 @@
       "description": "Protects the bot handle Dict View behavior: shows no Results when entry not found."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-216-handledictview-uses-page-from-callback-data-when-provided",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-217-handledictview-uses-page-from-callback-data-when-provided",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 216,
+      "sourceLine": 217,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10830,10 +11054,10 @@
       "description": "Protects the bot handle Dict View behavior: uses page from callback data when provided."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-235-handledictdelete-shows-confirmation-with-word-name",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-236-handledictdelete-shows-confirmation-with-word-name",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 235,
+      "sourceLine": 236,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10846,10 +11070,10 @@
       "description": "Protects the bot handle Dict Delete behavior: shows confirmation with word name."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-245-handledictdelete-shows-noresults-when-entry-not-found",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-246-handledictdelete-shows-noresults-when-entry-not-found",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 245,
+      "sourceLine": 246,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10862,10 +11086,10 @@
       "description": "Protects the bot handle Dict Delete behavior: shows no Results when entry not found."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-260-handledictconfirmdelete-calls-harddelete-and-returns-to-list",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-261-handledictconfirmdelete-calls-harddelete-and-returns-to-list",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 260,
+      "sourceLine": 261,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10878,10 +11102,10 @@
       "description": "Protects the bot handle Dict Confirm Delete behavior: calls hard Delete and returns to list."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-276-handledictconfirmdelete-goes-to-previous-page-when-current-page-becomes-empty",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-277-handledictconfirmdelete-goes-to-previous-page-when-current-page-becomes-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 276,
+      "sourceLine": 277,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10894,10 +11118,10 @@
       "description": "Protects the bot handle Dict Confirm Delete behavior so goes to previous page when current page becomes empty."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-291-handledictconfirmdelete-shows-emptydictionary-when-last-word-deleted",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-292-handledictconfirmdelete-shows-emptydictionary-when-last-word-deleted",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 291,
+      "sourceLine": 292,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10910,10 +11134,10 @@
       "description": "Protects the bot handle Dict Confirm Delete behavior: shows empty Dictionary when last word deleted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-311-handledictclose-deletes-message-and-clears-session",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-312-handledictclose-deletes-message-and-clears-session",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 311,
+      "sourceLine": 312,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10926,10 +11150,10 @@
       "description": "Protects the bot handle Dict Close behavior so deletes message and clears session."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-325-handledictnoop-answers-callback-query-with-no-parameters",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-326-handledictnoop-answers-callback-query-with-no-parameters",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 325,
+      "sourceLine": 326,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10942,10 +11166,10 @@
       "description": "Protects the bot handle Dict Noop behavior so answers callback query with no parameters."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-337-restart-recovery-and-ownership-handledictpage-re-renders-from-db-when-session-is-missing",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-338-restart-recovery-and-ownership-handledictpage-re-renders-from-db-when-session-is-missing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 337,
+      "sourceLine": 338,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10958,10 +11182,10 @@
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict Page re renders from DB when session is missing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-349-restart-recovery-and-ownership-handledictview-re-renders-owned-entries-when-session-is-missing",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-350-restart-recovery-and-ownership-handledictview-re-renders-owned-entries-when-session-is-missing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 349,
+      "sourceLine": 350,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10974,10 +11198,10 @@
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict View re renders owned entries when session is missing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-359-restart-recovery-and-ownership-handledictdelete-rejects-entries-owned-by-another-user",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-360-restart-recovery-and-ownership-handledictdelete-rejects-entries-owned-by-another-user",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 359,
+      "sourceLine": 360,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10990,10 +11214,10 @@
       "description": "Protects the bot restart recovery and ownership behavior so handle Dict Delete rejects entries owned by another user."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-373-restart-recovery-and-ownership-handledictconfirmdelete-validates-ownership-before-deleting",
+      "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-374-restart-recovery-and-ownership-handledictconfirmdelete-validates-ownership-before-deleting",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/dictionary.helper.test.ts",
-      "sourceLine": 373,
+      "sourceLine": 374,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -22979,6 +23203,38 @@
       "description": "Protects the database adapter vocabulary Repository (integration) behavior so upserts a duplicate (user Id, original, source Lang) without creating a second row."
     },
     {
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-integration-test-ts-150-vocabularyrepository-integration-persists-a-notification-difficulty-grade-and-returns-it-via-findbyuser",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/vocabulary-repository.integration.test.ts",
+      "sourceLine": 150,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "vocabularyRepository (integration)"
+      ],
+      "title": "persists a notification difficulty grade and returns it via findByUser",
+      "rawTitle": "persists a notification difficulty grade and returns it via findByUser",
+      "name": "Database adapter vocabulary Repository (integration) persists a notification difficulty grade and returns it via find By User",
+      "value": "Protects the database adapter vocabulary Repository (integration) behavior: persists a notification difficulty grade and returns it via find By User.",
+      "description": "Protects the database adapter vocabulary Repository (integration) behavior: persists a notification difficulty grade and returns it via find By User."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-vocabulary-repository-integration-test-ts-166-vocabularyrepository-integration-refuses-to-grade-another-user-s-entry-or-a-nonexistent-one",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/vocabulary-repository.integration.test.ts",
+      "sourceLine": 166,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "vocabularyRepository (integration)"
+      ],
+      "title": "refuses to grade another user's entry or a nonexistent one",
+      "rawTitle": "refuses to grade another user's entry or a nonexistent one",
+      "name": "Database adapter vocabulary Repository (integration) refuses to grade another user's entry or a nonexistent one",
+      "value": "Protects the database adapter vocabulary Repository (integration) behavior so refuses to grade another user's entry or a nonexistent one.",
+      "description": "Protects the database adapter vocabulary Repository (integration) behavior so refuses to grade another user's entry or a nonexistent one."
+    },
+    {
       "id": "packages-adapters-db-src-tests-vocabulary-translation-order-integration-test-ts-62-vocabulary-translation-read-order-is-unchanged-after-an-srs-review-rewrites-a-translation-row",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/vocabulary-translation-order.integration.test.ts",
@@ -24218,10 +24474,95 @@
       "description": "Protects the notification adapter pick Dictionary Word de dup and exhaustion behavior: reports exhaustion for a one word dictionary already sent."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-108-pickdictionaryword-happy-path-returns-a-random-word-from-candidates",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-117-pickdictionaryword-difficulty-weighting-weights-a-hard-word-3x-over-a-normal-one",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 117,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "difficulty weighting"
+      ],
+      "title": "weights a hard word 3x over a normal one",
+      "rawTitle": "weights a hard word 3x over a normal one",
+      "name": "Notification adapter pick Dictionary Word difficulty weighting weights a hard word 3x over a normal one",
+      "value": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior so weights a hard word 3x over a normal one.",
+      "description": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior so weights a hard word 3x over a normal one."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-133-pickdictionaryword-difficulty-weighting-treats-an-unrated-word-exactly-like-a-normal-one",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 133,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "difficulty weighting"
+      ],
+      "title": "treats an unrated word exactly like a normal one",
+      "rawTitle": "treats an unrated word exactly like a normal one",
+      "name": "Notification adapter pick Dictionary Word difficulty weighting treats an unrated word exactly like a normal one",
+      "value": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior so treats an unrated word exactly like a normal one.",
+      "description": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior so treats an unrated word exactly like a normal one."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-147-pickdictionaryword-difficulty-weighting-never-picks-an-easy-word-while-hard-normal-words-remain",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 147,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "difficulty weighting"
+      ],
+      "title": "never picks an easy word while hard/normal words remain",
+      "rawTitle": "never picks an easy word while hard/normal words remain",
+      "name": "Notification adapter pick Dictionary Word difficulty weighting never picks an easy word while hard normal words remain",
+      "value": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior so never picks an easy word while hard normal words remain.",
+      "description": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior so never picks an easy word while hard normal words remain."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-160-pickdictionaryword-difficulty-weighting-falls-back-to-easy-words-when-every-hard-normal-word-was-recently-sent",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 160,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "difficulty weighting"
+      ],
+      "title": "falls back to easy words when every hard/normal word was recently sent",
+      "rawTitle": "falls back to easy words when every hard/normal word was recently sent",
+      "name": "Notification adapter pick Dictionary Word difficulty weighting falls back to easy words when every hard normal word was recently sent",
+      "value": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior: falls back to easy words when every hard normal word was recently sent.",
+      "description": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior: falls back to easy words when every hard normal word was recently sent."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-170-pickdictionaryword-difficulty-weighting-still-suggests-from-an-all-easy-dictionary-instead-of-going-silent",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 170,
+      "workspace": "packages",
+      "packageName": "adapters/notifications",
+      "suitePath": [
+        "pickDictionaryWord",
+        "difficulty weighting"
+      ],
+      "title": "still suggests from an all-easy dictionary instead of going silent",
+      "rawTitle": "still suggests from an all-easy dictionary instead of going silent",
+      "name": "Notification adapter pick Dictionary Word difficulty weighting still suggests from an all easy dictionary instead of going silent",
+      "value": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior so still suggests from an all easy dictionary instead of going silent.",
+      "description": "Protects the notification adapter pick Dictionary Word difficulty weighting behavior so still suggests from an all easy dictionary instead of going silent."
+    },
+    {
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-183-pickdictionaryword-happy-path-returns-a-random-word-from-candidates",
+      "kind": "technical",
+      "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
+      "sourceLine": 183,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24235,10 +24576,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: returns a random word from candidates."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-117-pickdictionaryword-happy-path-includes-translations-resolved-via-getlangcode",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-192-pickdictionaryword-happy-path-includes-translations-resolved-via-getlangcode",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 117,
+      "sourceLine": 192,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24252,10 +24593,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: includes translations resolved via get Lang Code."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-126-pickdictionaryword-happy-path-uses-entry-emoji-when-available",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-201-pickdictionaryword-happy-path-uses-entry-emoji-when-available",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 126,
+      "sourceLine": 201,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24269,10 +24610,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: uses entry emoji when available."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-135-pickdictionaryword-happy-path-falls-back-to-book-emoji-when-entry-has-no-emoji",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-210-pickdictionaryword-happy-path-falls-back-to-book-emoji-when-entry-has-no-emoji",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 135,
+      "sourceLine": 210,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24286,10 +24627,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: falls back to book emoji when entry has no emoji."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-153-pickdictionaryword-happy-path-includes-source-srs-in-the-result",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-228-pickdictionaryword-happy-path-includes-source-srs-in-the-result",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 153,
+      "sourceLine": 228,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24303,10 +24644,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: includes source: 'srs' in the result."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-162-pickdictionaryword-happy-path-includes-translationdetails-when-synonyms-are-present",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-237-pickdictionaryword-happy-path-includes-translationdetails-when-synonyms-are-present",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 162,
+      "sourceLine": 237,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24320,10 +24661,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: includes translation Details when synonyms are present."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-185-pickdictionaryword-happy-path-omits-translationdetails-when-no-synonyms-exist",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-260-pickdictionaryword-happy-path-omits-translationdetails-when-no-synonyms-exist",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 185,
+      "sourceLine": 260,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24337,10 +24678,10 @@
       "description": "Protects the notification adapter pick Dictionary Word happy path behavior: omits translation Details when no synonyms exist."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-196-pickdictionaryword-edge-cases-returns-null-when-user-has-no-vocabulary",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-271-pickdictionaryword-edge-cases-returns-null-when-user-has-no-vocabulary",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 271,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24354,10 +24695,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when user has no vocabulary."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-205-pickdictionaryword-edge-cases-returns-null-when-entry-has-no-resolvable-translations",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-280-pickdictionaryword-edge-cases-returns-null-when-entry-has-no-resolvable-translations",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 205,
+      "sourceLine": 280,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24371,10 +24712,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when entry has no resolvable translations."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-227-pickdictionaryword-edge-cases-never-selects-an-unverified-entry",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-302-pickdictionaryword-edge-cases-never-selects-an-unverified-entry",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 302,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24388,10 +24729,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior so never selects an unverified entry."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-254-pickdictionaryword-edge-cases-returns-null-when-every-entry-is-unverified",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-329-pickdictionaryword-edge-cases-returns-null-when-every-entry-is-unverified",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 254,
+      "sourceLine": 329,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24405,10 +24746,10 @@
       "description": "Protects the notification adapter pick Dictionary Word edge cases behavior: returns null when every entry is unverified."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-275-pickdictionaryword-error-handling-returns-null-when-getuservocabulary-throws",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-350-pickdictionaryword-error-handling-returns-null-when-getuservocabulary-throws",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 275,
+      "sourceLine": 350,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24422,10 +24763,10 @@
       "description": "Protects the notification adapter pick Dictionary Word error handling behavior: returns null when get User Vocabulary throws."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-299-pickcontextualword-delegates-to-the-core-prompt-builder-and-returns-a-contextual-word",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-374-pickcontextualword-delegates-to-the-core-prompt-builder-and-returns-a-contextual-word",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 299,
+      "sourceLine": 374,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24438,10 +24779,10 @@
       "description": "Protects the notification adapter pick Contextual Word behavior so delegates to the core prompt builder and returns a contextual word."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-319-pickcontextualword-returns-null-and-never-calls-ai-when-no-contextual-model-is-configured",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-394-pickcontextualword-returns-null-and-never-calls-ai-when-no-contextual-model-is-configured",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 319,
+      "sourceLine": 394,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -24454,10 +24795,10 @@
       "description": "Protects the notification adapter pick Contextual Word behavior: returns null (and never calls AI) when no contextual model is configured."
     },
     {
-      "id": "packages-adapters-notifications-src-notification-service-test-ts-329-pickcontextualword-returns-null-when-ai-generation-fails",
+      "id": "packages-adapters-notifications-src-notification-service-test-ts-404-pickcontextualword-returns-null-when-ai-generation-fails",
       "kind": "technical",
       "filePath": "packages/adapters/notifications/src/notification.service.test.ts",
-      "sourceLine": 329,
+      "sourceLine": 404,
       "workspace": "packages",
       "packageName": "adapters/notifications",
       "suitePath": [
@@ -28705,10 +29046,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so en json has all I18n Key entries."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-936-i18n-locale-consistency-ru-json-covers-all-keys-from-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-942-i18n-locale-consistency-ru-json-covers-all-keys-from-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 936,
+      "sourceLine": 942,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28721,10 +29062,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so ru json covers all keys from en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-955-i18n-locale-consistency-cs-json-covers-all-keys-from-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-961-i18n-locale-consistency-cs-json-covers-all-keys-from-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 955,
+      "sourceLine": 961,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28737,10 +29078,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so cs json covers all keys from en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1001-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1010-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1001,
+      "sourceLine": 1010,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28753,10 +29094,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1008-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1017-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1008,
+      "sourceLine": 1017,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28769,10 +29110,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in ru json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1016-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1025-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1016,
+      "sourceLine": 1025,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28785,10 +29126,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in cs json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1024-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1033-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1024,
+      "sourceLine": 1033,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28801,10 +29142,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1029-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1038-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1029,
+      "sourceLine": 1038,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28817,10 +29158,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1034-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1043-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1034,
+      "sourceLine": 1043,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28833,10 +29174,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1039-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1048-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1039,
+      "sourceLine": 1048,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28849,10 +29190,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times} in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1044-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1053-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1044,
+      "sourceLine": 1053,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28865,10 +29206,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1049-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1058-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1049,
+      "sourceLine": 1058,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -28881,10 +29222,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1054-i18n-notification-keys-task-41-6-notification-keys-fall-back-to-en-for-an-unknown-language",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1063-i18n-notification-keys-task-41-6-notification-keys-fall-back-to-en-for-an-unknown-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1054,
+      "sourceLine": 1063,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
