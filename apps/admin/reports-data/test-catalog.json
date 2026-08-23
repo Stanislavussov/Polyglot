@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-23T09:53:53.000Z",
+  "generatedAt": "2026-08-23T09:54:55.000Z",
   "summary": {
-    "total": 2820,
+    "total": 2852,
     "business": 0,
-    "technical": 2820,
+    "technical": 2852,
     "workspaces": [
       "apps",
       "packages"
@@ -949,6 +949,86 @@
       "name": "Admin API stats Routes defaults the language detection window to 7 days",
       "value": "Protects the admin API stats Routes behavior: defaults the language detection window to 7 days.",
       "description": "Protects the admin API stats Routes behavior: defaults the language detection window to 7 days."
+    },
+    {
+      "id": "apps-admin-api-src-routes-stt-test-ts-37-get-stt-serves-the-shared-default-when-nothing-is-stored",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/stt.test.ts",
+      "sourceLine": 37,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "GET /stt"
+      ],
+      "title": "serves the shared default when nothing is stored",
+      "rawTitle": "serves the shared default when nothing is stored",
+      "name": "Admin API GET stt serves the shared default when nothing is stored",
+      "value": "Protects the admin API GET stt behavior so serves the shared default when nothing is stored.",
+      "description": "Protects the admin API GET stt behavior so serves the shared default when nothing is stored."
+    },
+    {
+      "id": "apps-admin-api-src-routes-stt-test-ts-48-get-stt-backfills-fields-missing-from-a-partial-stored-blob",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/stt.test.ts",
+      "sourceLine": 48,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "GET /stt"
+      ],
+      "title": "backfills fields missing from a partial stored blob",
+      "rawTitle": "backfills fields missing from a partial stored blob",
+      "name": "Admin API GET stt backfills fields missing from a partial stored blob",
+      "value": "Protects the admin API GET stt behavior so backfills fields missing from a partial stored blob.",
+      "description": "Protects the admin API GET stt behavior so backfills fields missing from a partial stored blob."
+    },
+    {
+      "id": "apps-admin-api-src-routes-stt-test-ts-60-put-stt-persists-a-valid-config-under-the-stt-key",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/stt.test.ts",
+      "sourceLine": 60,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /stt"
+      ],
+      "title": "persists a valid config under the stt key",
+      "rawTitle": "persists a valid config under the stt key",
+      "name": "Admin API PUT stt persists a valid config under the stt key",
+      "value": "Protects the admin API PUT stt behavior: persists a valid config under the stt key.",
+      "description": "Protects the admin API PUT stt behavior: persists a valid config under the stt key."
+    },
+    {
+      "id": "apps-admin-api-src-routes-stt-test-ts-70-put-stt-rejects-an-enabled-config-with-no-model-rather-than-storing-a-dead-feature",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/stt.test.ts",
+      "sourceLine": 70,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /stt"
+      ],
+      "title": "rejects an enabled config with no model rather than storing a dead feature",
+      "rawTitle": "rejects an enabled config with no model rather than storing a dead feature",
+      "name": "Admin API PUT stt rejects an enabled config with no model rather than storing a dead feature",
+      "value": "Protects the admin API PUT stt behavior: rejects an enabled config with no model rather than storing a dead feature.",
+      "description": "Protects the admin API PUT stt behavior: rejects an enabled config with no model rather than storing a dead feature."
+    },
+    {
+      "id": "apps-admin-api-src-routes-stt-test-ts-85-get-stt-models-returns-transcription-models-with-per-second-pricing",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/stt.test.ts",
+      "sourceLine": 85,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "GET /stt/models"
+      ],
+      "title": "returns transcription models with per-second pricing",
+      "rawTitle": "returns transcription models with per-second pricing",
+      "name": "Admin API GET stt models returns transcription models with per second pricing",
+      "value": "Protects the admin API GET stt models behavior: returns transcription models with per second pricing.",
+      "description": "Protects the admin API GET stt models behavior: returns transcription models with per second pricing."
     },
     {
       "id": "apps-admin-api-src-routes-tts-test-ts-42-get-tts-serves-the-shared-default-when-nothing-is-stored",
@@ -3253,6 +3333,86 @@
       "name": "Bot word pronunciation (integration) tells the user the card expired when the session entry is gone",
       "value": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone.",
       "description": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-43-voice-message-translation-integration-transcribes-a-pro-user-s-voice-message-and-renders-a-translation-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
+      "sourceLine": 43,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message → translation (integration)"
+      ],
+      "title": "transcribes a Pro user's voice message and renders a translation card",
+      "rawTitle": "transcribes a Pro user's voice message and renders a translation card",
+      "name": "Bot voice message → translation (integration) transcribes a Pro user's voice message and renders a translation card",
+      "value": "Protects the bot voice message → translation (integration) behavior so transcribes a Pro user's voice message and renders a translation card.",
+      "description": "Protects the bot voice message → translation (integration) behavior so transcribes a Pro user's voice message and renders a translation card."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-77-voice-message-translation-integration-denies-a-free-user-with-the-upgrade-screen-calling-neither-the-file-api-nor-transcribe",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
+      "sourceLine": 77,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message → translation (integration)"
+      ],
+      "title": "denies a Free user with the upgrade screen, calling neither the file API nor transcribe",
+      "rawTitle": "denies a Free user with the upgrade screen, calling neither the file API nor transcribe",
+      "name": "Bot voice message → translation (integration) denies a Free user with the upgrade screen, calling neither the file API nor transcribe",
+      "value": "Protects the bot voice message → translation (integration) behavior so denies a Free user with the upgrade screen, calling neither the file API nor transcribe.",
+      "description": "Protects the bot voice message → translation (integration) behavior so denies a Free user with the upgrade screen, calling neither the file API nor transcribe."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-99-voice-message-translation-integration-falls-through-to-the-text-only-rejection-while-stt-is-disabled-with-no-ai-calls",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
+      "sourceLine": 99,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message → translation (integration)"
+      ],
+      "title": "falls through to the text-only rejection while STT is disabled, with no AI calls",
+      "rawTitle": "falls through to the text-only rejection while STT is disabled, with no AI calls",
+      "name": "Bot voice message → translation (integration) falls through to the text only rejection while STT is disabled, with no AI calls",
+      "value": "Protects the bot voice message → translation (integration) behavior: falls through to the text only rejection while STT is disabled, with no AI calls.",
+      "description": "Protects the bot voice message → translation (integration) behavior: falls through to the text only rejection while STT is disabled, with no AI calls."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-118-voice-message-translation-integration-refuses-an-over-duration-recording-before-downloading-anything",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
+      "sourceLine": 118,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message → translation (integration)"
+      ],
+      "title": "refuses an over-duration recording before downloading anything",
+      "rawTitle": "refuses an over-duration recording before downloading anything",
+      "name": "Bot voice message → translation (integration) refuses an over duration recording before downloading anything",
+      "value": "Protects the bot voice message → translation (integration) behavior so refuses an over duration recording before downloading anything.",
+      "description": "Protects the bot voice message → translation (integration) behavior so refuses an over duration recording before downloading anything."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-138-voice-message-translation-integration-replies-with-the-transcription-failed-message-when-transcribe-rejects-and-persists-nothing",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
+      "sourceLine": 138,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message → translation (integration)"
+      ],
+      "title": "replies with the transcription-failed message when transcribe rejects, and persists nothing",
+      "rawTitle": "replies with the transcription-failed message when transcribe rejects, and persists nothing",
+      "name": "Bot voice message → translation (integration) replies with the transcription failed message when transcribe rejects, and persists nothing",
+      "value": "Protects the bot voice message → translation (integration) behavior so replies with the transcription failed message when transcribe rejects, and persists nothing.",
+      "description": "Protects the bot voice message → translation (integration) behavior so replies with the transcription failed message when transcribe rejects, and persists nothing."
     },
     {
       "id": "apps-bot-src-tests-integration-word-picker-integration-test-ts-89-word-picker-integration-takes-a-learner-from-the-menu-tap-to-a-saved-word",
@@ -12553,6 +12713,134 @@
       "description": "Protects the bot onboarding starter video — allowance exemption behavior so leaves a pasted link on the normal allowance path."
     },
     {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-87-voice-message-handling-declines-the-update-when-speech-to-text-is-switched-off-leaving-the-old-non-text-rejection-to-the-caller",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 87,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "declines the update when speech-to-text is switched off, leaving the old non-text rejection to the caller",
+      "rawTitle": "declines the update when speech-to-text is switched off, leaving the old non-text rejection to the caller",
+      "name": "Bot voice message handling declines the update when speech to text is switched off, leaving the old non text rejection to the caller",
+      "value": "Protects the bot voice message handling behavior so declines the update when speech to text is switched off, leaving the old non text rejection to the caller.",
+      "description": "Protects the bot voice message handling behavior so declines the update when speech to text is switched off, leaving the old non text rejection to the caller."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-97-voice-message-handling-treats-a-blank-model-id-as-switched-off-there-is-nothing-to-call",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 97,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "treats a blank model id as switched off — there is nothing to call",
+      "rawTitle": "treats a blank model id as switched off — there is nothing to call",
+      "name": "Bot voice message handling treats a blank model id as switched off — there is nothing to call",
+      "value": "Protects the bot voice message handling behavior so treats a blank model id as switched off — there is nothing to call.",
+      "description": "Protects the bot voice message handling behavior so treats a blank model id as switched off — there is nothing to call."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-105-voice-message-handling-offers-the-upgrade-screen-to-a-plan-without-the-feature-without-touching-telegram-or-the-model",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 105,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "offers the upgrade screen to a plan without the feature, without touching Telegram or the model",
+      "rawTitle": "offers the upgrade screen to a plan without the feature, without touching Telegram or the model",
+      "name": "Bot voice message handling offers the upgrade screen to a plan without the feature, without touching Telegram or the model",
+      "value": "Protects the bot voice message handling behavior so offers the upgrade screen to a plan without the feature, without touching Telegram or the model.",
+      "description": "Protects the bot voice message handling behavior so offers the upgrade screen to a plan without the feature, without touching Telegram or the model."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-117-voice-message-handling-refuses-a-recording-longer-than-the-cap-before-downloading-a-byte",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 117,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "refuses a recording longer than the cap before downloading a byte",
+      "rawTitle": "refuses a recording longer than the cap before downloading a byte",
+      "name": "Bot voice message handling refuses a recording longer than the cap before downloading a byte",
+      "value": "Protects the bot voice message handling behavior so refuses a recording longer than the cap before downloading a byte.",
+      "description": "Protects the bot voice message handling behavior so refuses a recording longer than the cap before downloading a byte."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-127-voice-message-handling-reports-a-failed-transcription-instead-of-translating-nothing",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 127,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "reports a failed transcription instead of translating nothing",
+      "rawTitle": "reports a failed transcription instead of translating nothing",
+      "name": "Bot voice message handling reports a failed transcription instead of translating nothing",
+      "value": "Protects the bot voice message handling behavior: reports a failed transcription instead of translating nothing.",
+      "description": "Protects the bot voice message handling behavior: reports a failed transcription instead of translating nothing."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-136-voice-message-handling-reports-silence-the-same-way-an-empty-transcript-is-nothing-to-translate",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 136,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "reports silence the same way — an empty transcript is nothing to translate",
+      "rawTitle": "reports silence the same way — an empty transcript is nothing to translate",
+      "name": "Bot voice message handling reports silence the same way — an empty transcript is nothing to translate",
+      "value": "Protects the bot voice message handling behavior: reports silence the same way — an empty transcript is nothing to translate.",
+      "description": "Protects the bot voice message handling behavior: reports silence the same way — an empty transcript is nothing to translate."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-147-voice-message-handling-feeds-the-transcript-into-the-ordinary-text-translation-flow",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 147,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "feeds the transcript into the ordinary text translation flow",
+      "rawTitle": "feeds the transcript into the ordinary text translation flow",
+      "name": "Bot voice message handling feeds the transcript into the ordinary text translation flow",
+      "value": "Protects the bot voice message handling behavior so feeds the transcript into the ordinary text translation flow.",
+      "description": "Protects the bot voice message handling behavior so feeds the transcript into the ordinary text translation flow."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-159-voice-message-handling-downloads-the-audio-through-the-bot-s-own-fetch-so-the-transport-stays-injectable",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 159,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "downloads the audio through the bot's own fetch, so the transport stays injectable",
+      "rawTitle": "downloads the audio through the bot's own fetch, so the transport stays injectable",
+      "name": "Bot voice message handling downloads the audio through the bot's own fetch, so the transport stays injectable",
+      "value": "Protects the bot voice message handling behavior so downloads the audio through the bot's own fetch, so the transport stays injectable.",
+      "description": "Protects the bot voice message handling behavior so downloads the audio through the bot's own fetch, so the transport stays injectable."
+    },
+    {
       "id": "apps-bot-src-scenes-helpers-card-actions-altmeaning-test-ts-131-handlealtmeaningcallback-append-not-edit-sends-the-new-sense-as-a-new-card-and-never-edits-the-previous-card-in-place",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/card-actions.altmeaning.test.ts",
@@ -18689,6 +18977,102 @@
       "description": "Protects the aI adapter resolve Model Cost behavior: returns zero for a zero token call."
     },
     {
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-31-transcribeaudio-posts-the-exact-url-headers-and-base64-encoded-body",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
+      "sourceLine": 31,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "transcribeAudio"
+      ],
+      "title": "posts the exact URL, headers, and base64-encoded body",
+      "rawTitle": "posts the exact URL, headers, and base64-encoded body",
+      "name": "AI adapter transcribe Audio posts the exact URL, headers, and base64 encoded body",
+      "value": "Protects the aI adapter transcribe Audio behavior so posts the exact URL, headers, and base64 encoded body.",
+      "description": "Protects the aI adapter transcribe Audio behavior so posts the exact URL, headers, and base64 encoded body."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-57-transcribeaudio-returns-trimmed-text-plus-seconds-cost-and-generation-id-on-success",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
+      "sourceLine": 57,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "transcribeAudio"
+      ],
+      "title": "returns trimmed text plus seconds, cost, and generation id on success",
+      "rawTitle": "returns trimmed text plus seconds, cost, and generation id on success",
+      "name": "AI adapter transcribe Audio returns trimmed text plus seconds, cost, and generation id on success",
+      "value": "Protects the aI adapter transcribe Audio behavior: returns trimmed text plus seconds, cost, and generation id on success.",
+      "description": "Protects the aI adapter transcribe Audio behavior: returns trimmed text plus seconds, cost, and generation id on success."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-75-transcribeaudio-throws-with-the-status-on-a-non-2xx-response",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
+      "sourceLine": 75,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "transcribeAudio"
+      ],
+      "title": "throws with the status on a non-2xx response",
+      "rawTitle": "throws with the status on a non-2xx response",
+      "name": "AI adapter transcribe Audio throws with the status on a non 2xx response",
+      "value": "Protects the aI adapter transcribe Audio behavior: throws with the status on a non 2xx response.",
+      "description": "Protects the aI adapter transcribe Audio behavior: throws with the status on a non 2xx response."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-81-transcribeaudio-raises-aitimeouterror-when-the-request-budget-elapses",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
+      "sourceLine": 81,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "transcribeAudio"
+      ],
+      "title": "raises AITimeoutError when the request budget elapses",
+      "rawTitle": "raises AITimeoutError when the request budget elapses",
+      "name": "AI adapter transcribe Audio raises AITimeout Error when the request budget elapses",
+      "value": "Protects the aI adapter transcribe Audio behavior so raises AITimeout Error when the request budget elapses.",
+      "description": "Protects the aI adapter transcribe Audio behavior so raises AITimeout Error when the request budget elapses."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-95-transcribeaudio-returns-null-seconds-cost-when-usage-fields-are-missing",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
+      "sourceLine": 95,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "transcribeAudio"
+      ],
+      "title": "returns null seconds/cost when usage fields are missing",
+      "rawTitle": "returns null seconds/cost when usage fields are missing",
+      "name": "AI adapter transcribe Audio returns null seconds cost when usage fields are missing",
+      "value": "Protects the aI adapter transcribe Audio behavior: returns null seconds cost when usage fields are missing.",
+      "description": "Protects the aI adapter transcribe Audio behavior: returns null seconds cost when usage fields are missing."
+    },
+    {
+      "id": "packages-adapters-ai-src-tests-transcribe-test-ts-104-transcribeaudio-returns-an-empty-string-for-whitespace-only-text",
+      "kind": "technical",
+      "filePath": "packages/adapters/ai/src/__tests__/transcribe.test.ts",
+      "sourceLine": 104,
+      "workspace": "packages",
+      "packageName": "adapters/ai",
+      "suitePath": [
+        "transcribeAudio"
+      ],
+      "title": "returns an empty string for whitespace-only text",
+      "rawTitle": "returns an empty string for whitespace-only text",
+      "name": "AI adapter transcribe Audio returns an empty string for whitespace only text",
+      "value": "Protects the aI adapter transcribe Audio behavior: returns an empty string for whitespace only text.",
+      "description": "Protects the aI adapter transcribe Audio behavior: returns an empty string for whitespace only text."
+    },
+    {
       "id": "packages-adapters-ai-src-tests-types-test-ts-5-types-aimodel-interface-is-structurally-correct",
       "kind": "technical",
       "filePath": "packages/adapters/ai/src/__tests__/types.test.ts",
@@ -21360,6 +21744,38 @@
       "name": "Database adapter settings Adapter get Notification Defaults lets a present but invalid stored time through — canonicalization is the caller's job",
       "value": "Protects the database adapter settings Adapter get Notification Defaults behavior so lets a present but invalid stored time through — canonicalization is the caller's job.",
       "description": "Protects the database adapter settings Adapter get Notification Defaults behavior so lets a present but invalid stored time through — canonicalization is the caller's job."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-140-settingsadapter-getsttconfig-backfills-a-partial-stored-blob-with-the-shipped-defaults",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 140,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getSttConfig"
+      ],
+      "title": "backfills a partial stored blob with the shipped defaults",
+      "rawTitle": "backfills a partial stored blob with the shipped defaults",
+      "name": "Database adapter settings Adapter get Stt Config backfills a partial stored blob with the shipped defaults",
+      "value": "Protects the database adapter settings Adapter get Stt Config behavior so backfills a partial stored blob with the shipped defaults.",
+      "description": "Protects the database adapter settings Adapter get Stt Config behavior so backfills a partial stored blob with the shipped defaults."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-150-settingsadapter-getsttconfig-returns-the-shipped-defaults-when-no-stt-row-has-ever-been-saved",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 150,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getSttConfig"
+      ],
+      "title": "returns the shipped defaults when no stt row has ever been saved",
+      "rawTitle": "returns the shipped defaults when no stt row has ever been saved",
+      "name": "Database adapter settings Adapter get Stt Config returns the shipped defaults when no stt row has ever been saved",
+      "value": "Protects the database adapter settings Adapter get Stt Config behavior: returns the shipped defaults when no stt row has ever been saved.",
+      "description": "Protects the database adapter settings Adapter get Stt Config behavior: returns the shipped defaults when no stt row has ever been saved."
     },
     {
       "id": "packages-adapters-db-src-tests-topic-repository-test-ts-65-topicrepository-getcached-returns-a-cached-translation-when-found",
@@ -26742,26 +27158,42 @@
       "description": "Protects the core domain resolve Entitlements behavior so gives plus unlimited translations, 20 monthly videos, premium features + clarification."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-34-resolveentitlements-gives-pro-the-pronunciation-feature-on-top-of-the-plus-set",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-35-resolveentitlements-gives-pro-the-pronunciation-and-voice-input-features-on-top-of-the-plus-set",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 34,
+      "sourceLine": 35,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "resolveEntitlements"
       ],
-      "title": "gives pro the pronunciation feature on top of the plus set",
-      "rawTitle": "gives pro the pronunciation feature on top of the plus set",
-      "name": "Core domain resolve Entitlements gives pro the pronunciation feature on top of the plus set",
-      "value": "Protects the core domain resolve Entitlements behavior so gives pro the pronunciation feature on top of the plus set.",
-      "description": "Protects the core domain resolve Entitlements behavior so gives pro the pronunciation feature on top of the plus set."
+      "title": "gives pro the pronunciation and voice input features on top of the plus set",
+      "rawTitle": "gives pro the pronunciation and voice input features on top of the plus set",
+      "name": "Core domain resolve Entitlements gives pro the pronunciation and voice input features on top of the plus set",
+      "value": "Protects the core domain resolve Entitlements behavior so gives pro the pronunciation and voice input features on top of the plus set.",
+      "description": "Protects the core domain resolve Entitlements behavior so gives pro the pronunciation and voice input features on top of the plus set."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-45-resolveentitlements-gives-pro-unlimited-translations-and-unlimited-videos",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-47-resolveentitlements-gives-unlimited-the-same-feature-set-as-pro-including-voice-input",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 45,
+      "sourceLine": 47,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "resolveEntitlements"
+      ],
+      "title": "gives unlimited the same feature set as pro, including voice input",
+      "rawTitle": "gives unlimited the same feature set as pro, including voice input",
+      "name": "Core domain resolve Entitlements gives unlimited the same feature set as pro, including voice input",
+      "value": "Protects the core domain resolve Entitlements behavior so gives unlimited the same feature set as pro, including voice input.",
+      "description": "Protects the core domain resolve Entitlements behavior so gives unlimited the same feature set as pro, including voice input."
+    },
+    {
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-57-resolveentitlements-gives-pro-unlimited-translations-and-unlimited-videos",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
+      "sourceLine": 57,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26774,10 +27206,10 @@
       "description": "Protects the core domain resolve Entitlements behavior so gives pro unlimited translations and unlimited videos."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-68-resolveentitlements-falls-back-to-free-entitlements-when-the-plan-config-is-missing",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-80-resolveentitlements-falls-back-to-free-entitlements-when-the-plan-config-is-missing",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 68,
+      "sourceLine": 80,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -26790,10 +27222,10 @@
       "description": "Protects the core domain resolve Entitlements behavior: falls back to free entitlements when the plan config is missing."
     },
     {
-      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-74-resolveentitlements-does-not-grant-plan-features-that-are-role-only-mechanism-present",
+      "id": "packages-core-src-modules-entitlements-entitlements-test-ts-86-resolveentitlements-does-not-grant-plan-features-that-are-role-only-mechanism-present",
       "kind": "technical",
       "filePath": "packages/core/src/modules/entitlements/entitlements.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 86,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -34244,6 +34676,86 @@
       "name": "Core domain Settings Service model resolution caches a resolved fallback model",
       "value": "Protects the core domain Settings Service model resolution behavior so caches a resolved fallback model.",
       "description": "Protects the core domain Settings Service model resolution behavior so caches a resolved fallback model."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-stt-defaults-test-ts-12-shipped-stt-default-is-enabled-so-voice-messages-are-handled-without-any-settings-row",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/stt-defaults.test.ts",
+      "sourceLine": 12,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped STT default"
+      ],
+      "title": "is enabled, so voice messages are handled without any settings row",
+      "rawTitle": "is enabled, so voice messages are handled without any settings row",
+      "name": "Core domain shipped STT default is enabled, so voice messages are handled without any settings row",
+      "value": "Protects the core domain shipped STT default behavior so is enabled, so voice messages are handled without any settings row.",
+      "description": "Protects the core domain shipped STT default behavior so is enabled, so voice messages are handled without any settings row."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-stt-defaults-test-ts-16-shipped-stt-default-names-a-model-an-enabled-config-without-one-renders-a-silently-dead-feature",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/stt-defaults.test.ts",
+      "sourceLine": 16,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped STT default"
+      ],
+      "title": "names a model — an enabled config without one renders a silently dead feature",
+      "rawTitle": "names a model — an enabled config without one renders a silently dead feature",
+      "name": "Core domain shipped STT default names a model — an enabled config without one renders a silently dead feature",
+      "value": "Protects the core domain shipped STT default behavior so names a model — an enabled config without one renders a silently dead feature.",
+      "description": "Protects the core domain shipped STT default behavior so names a model — an enabled config without one renders a silently dead feature."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-stt-defaults-test-ts-20-shipped-stt-default-keeps-the-model-verified-against-the-live-api-on-2026-08-23",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/stt-defaults.test.ts",
+      "sourceLine": 20,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped STT default"
+      ],
+      "title": "keeps the model verified against the live API on 2026-08-23",
+      "rawTitle": "keeps the model verified against the live API on 2026-08-23",
+      "name": "Core domain shipped STT default keeps the model verified against the live API on 2026 08 23",
+      "value": "Protects the core domain shipped STT default behavior: keeps the model verified against the live API on 2026 08 23.",
+      "description": "Protects the core domain shipped STT default behavior: keeps the model verified against the live API on 2026 08 23."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-stt-defaults-test-ts-27-shipped-stt-default-caps-voice-message-duration-so-an-oversized-upload-can-never-be-sent-for-billing",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/stt-defaults.test.ts",
+      "sourceLine": 27,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped STT default"
+      ],
+      "title": "caps voice message duration so an oversized upload can never be sent for billing",
+      "rawTitle": "caps voice message duration so an oversized upload can never be sent for billing",
+      "name": "Core domain shipped STT default caps voice message duration so an oversized upload can never be sent for billing",
+      "value": "Protects the core domain shipped STT default behavior so caps voice message duration so an oversized upload can never be sent for billing.",
+      "description": "Protects the core domain shipped STT default behavior so caps voice message duration so an oversized upload can never be sent for billing."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-stt-defaults-test-ts-32-shipped-stt-default-serves-the-port-s-stored-config-verbatim-when-one-exists",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/stt-defaults.test.ts",
+      "sourceLine": 32,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "shipped STT default"
+      ],
+      "title": "serves the port's stored config verbatim when one exists",
+      "rawTitle": "serves the port's stored config verbatim when one exists",
+      "name": "Core domain shipped STT default serves the port's stored config verbatim when one exists",
+      "value": "Protects the core domain shipped STT default behavior so serves the port's stored config verbatim when one exists.",
+      "description": "Protects the core domain shipped STT default behavior so serves the port's stored config verbatim when one exists."
     },
     {
       "id": "packages-core-src-modules-settings-tests-tts-defaults-test-ts-12-shipped-tts-default-is-enabled-so-the-pronunciation-button-appears-without-any-settings-row",

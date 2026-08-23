@@ -653,7 +653,7 @@ export const aiRequestLatencies = pgTable(
     /** OpenRouter model ID, e.g. "openai/gpt-4o" */
     modelId: varchar("model_id", { length: 255 }).notNull(),
     /** AI adapter method that produced the request */
-    requestKind: text("request_kind").$type<"object" | "text" | "chat" | "speech">().notNull(),
+    requestKind: text("request_kind").$type<"object" | "text" | "chat" | "speech" | "transcription">().notNull(),
     durationMs: integer("duration_ms").notNull(),
     inputTokens: integer("input_tokens").default(0).notNull(),
     outputTokens: integer("output_tokens").default(0).notNull(),

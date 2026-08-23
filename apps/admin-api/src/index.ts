@@ -19,6 +19,7 @@ import { rateLimitRoutes } from "./routes/rate-limits.js";
 import { reportedIssueRoutes } from "./routes/reported-issues.js";
 import { srsRoutes } from "./routes/srs.js";
 import { statsRoutes } from "./routes/stats.js";
+import { sttRoutes } from "./routes/stt.js";
 import { ttsRoutes } from "./routes/tts.js";
 import { userRoutes } from "./routes/users.js";
 import { videoVocabularyRoutes } from "./routes/video-vocabulary.js";
@@ -82,6 +83,7 @@ export async function buildAdminApiApp() {
   await app.register(dictionaryRoutes, { prefix: "/api/settings" });
   await app.register(videoVocabularyRoutes, { prefix: "/api/settings" });
   await app.register(ttsRoutes, { prefix: "/api/settings" });
+  await app.register(sttRoutes, { prefix: "/api/settings" });
   await app.register(presetRoutes, { prefix: "/api/settings" });
   await app.register(wordPickerPresetRoutes, { prefix: "/api/settings" });
   await app.register(userRoutes, { prefix: "/api" });

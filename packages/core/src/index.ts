@@ -10,6 +10,8 @@ export type {
   GenerateOptions,
   SpeechOptions,
   SpeechResult,
+  TranscribeOptions,
+  TranscriptionResult,
 } from "./ports/ai.port.js";
 // Ports — service container for dependency injection
 export type { ServiceContainer } from "./ports/container.js";
@@ -42,6 +44,7 @@ export type {
   PlanLimitConfig,
   SettingsPort,
   SrsConfig,
+  SttConfig,
   TranslationPresetConfig,
   TtsConfig,
   VideoVocabularyConfig,

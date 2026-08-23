@@ -6,6 +6,7 @@ import type {
   PlanLimitConfig,
   SettingsPort,
   SrsConfig,
+  SttConfig,
   TranslationPresetConfig,
   TtsConfig,
   VideoVocabularyConfig,
@@ -151,6 +152,20 @@ const FALLBACK_TTS: TtsConfig = {
   modelId: "x-ai/grok-voice-tts-1.0",
   voice: "eve",
   maxChars: 200,
+};
+
+/**
+ * STT is on by default. Kept byte-identical to `DEFAULTS.stt` in the db adapter —
+ * this copy is the last-resort fallback when the settings port itself is
+ * unreachable, so the two disagreeing would mean voice-message handling silently
+ * changes behaviour during a database blip. Verified against the live API on
+ * 2026-08-23: OpenRouter's `/audio/transcriptions` accepts OGG/Opus (Telegram's
+ * voice format) directly and transcribed ru/kk/de correctly at ~$0.0002/min.
+ */
+const FALLBACK_STT: SttConfig = {
+  enabled: true,
+  modelId: "openai/whisper-large-v3-turbo",
+  maxDurationSec: 60,
 };
 
 const FALLBACK_DICTIONARY: DictionaryConfig = {
@@ -378,6 +393,14 @@ export class SettingsService implements SettingsPort {
     this.setCache("tts", config);
     return config;
   }
+
+  async getSttConfig(): Promise<SttConfig> {
+    const cached = this.getCached<SttConfig>("stt");
+    if (cached) return cached;
+    const config = await this.port.getSttConfig();
+    this.setCache("stt", config);
+    return config;
+  }
 }
 
 export {
@@ -388,5 +411,6 @@ export {
   FALLBACK_PLAN_LIMITS,
   FALLBACK_PRESETS,
   FALLBACK_SRS,
+  FALLBACK_STT,
   FALLBACK_TTS,
 };
