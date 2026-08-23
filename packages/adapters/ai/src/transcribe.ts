@@ -26,6 +26,12 @@ export interface TranscribeAudioOptions {
   format: "ogg" | "mp3" | "wav";
   /** OpenRouter transcription model id — resolved from settings, never hardcoded. */
   modelId: string;
+  /**
+   * ISO 639-1 decode-language hint, passed through as the endpoint's `language`
+   * field (verified accepted by a live probe 2026-08-23). Whisper treats it as
+   * authoritative, so callers must only set it when the spoken language is known.
+   */
+  language?: string;
   /** Attributed in the metric sink so STT latency is trendable per user cohort. */
   userId?: number;
 }
@@ -72,6 +78,7 @@ export async function transcribeAudio(options: TranscribeAudioOptions): Promise<
           data: Buffer.from(options.audio).toString("base64"),
           format: options.format,
         },
+        ...(options.language ? { language: options.language } : {}),
       }),
       signal: timeout.signal,
     });

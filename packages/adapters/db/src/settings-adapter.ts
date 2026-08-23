@@ -62,7 +62,11 @@ const DEFAULTS: {
   // `{ model, input_audio: { data: <base64>, format: "ogg" } }` returns 200
   // `{ text, usage: { seconds, cost } }` for OGG/Opus — the format Telegram voice
   // messages arrive in, so no transcoding — and was confirmed for ru/kk/de.
-  stt: { enabled: true, modelId: "openai/whisper-large-v3-turbo", maxDurationSec: 60 },
+  // Full large-v3, not -turbo: the distilled turbo drifts into English translation
+  // ("Thank you. Hello, how are you?" for a spoken «Привет, как дела?») on short
+  // noisy clips — hit in production on day one. Non-Whisper models are not an
+  // option: the 2026-08-23 probe showed only Whisper transcribes Kazakh.
+  stt: { enabled: true, modelId: "openai/whisper-large-v3", maxDurationSec: 60 },
 };
 
 async function getWithFallback<T>(key: string, fallback: T): Promise<T> {
