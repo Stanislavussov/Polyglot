@@ -165,15 +165,3 @@ export function buildDemoKeyboard(ctx: BotContext, state: OnboardingState): Inli
   }
   return keyboard;
 }
-
-/** Screen 3. Feature entry points, two columns, routing to the existing scenes. */
-export function buildFinalKeyboard(lang: SupportedLang): InlineKeyboard {
-  const keyboard = new InlineKeyboard();
-  twoColumns(keyboard, [
-    { label: t("onbFeatureDictionary", lang), data: `${ONB.feature}dictionary` },
-    { label: t("onbFeatureTraining", lang), data: `${ONB.feature}training` },
-    { label: t("onbFeatureVideo", lang), data: `${ONB.feature}video` },
-    { label: t("onbFeatureSettings", lang), data: `${ONB.feature}settings` },
-  ]);
-  return keyboard;
-}

@@ -18,6 +18,7 @@ import {
   translationRequestRepository,
   userRepository,
 } from "@polyglot/adapter-db";
+import { formatLongDate } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import {
@@ -164,6 +165,12 @@ describe("paid features on a translation card (integration)", () => {
     expect(subscription).toMatchObject({ plan: "plus", status: "active", provider: "mock" });
     expect(subscription!.currentPeriodEnd.getTime()).toBeGreaterThan(Date.now());
     expect((await userRepository.findById(userId))?.subscriptionPlan).toBe("plus");
+
+    // The confirmation reads as a sentence, not as a serial number: the date is
+    // spelled in the language the message is written in, never as `2026-09-22`.
+    const confirmation = lastMessageText(harness);
+    expect(confirmation).toContain(formatLongDate(subscription!.currentPeriodEnd, "en", "UTC"));
+    expect(confirmation).not.toMatch(/\d{4}-\d{2}-\d{2}/);
 
     // Act — the clarify button the user could not use a moment ago.
     harness.reset();

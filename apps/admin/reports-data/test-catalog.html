@@ -175,15 +175,15 @@
   </head>
   <body>
     <header>
-      <p class="generated">Generated 2026-08-23T11:03:34.000Z</p>
+      <p class="generated">Generated 2026-08-23T18:02:41.000Z</p>
       <h1>Polyglot Test Catalog</h1>
       <p class="summary">
         Business-readable inventory of automated scenarios. Open a scenario to see the suite, source file, and the behavior it protects.
       </p>
       <div class="stats">
-        <div class="stat"><strong>2859</strong><span>scenarios</span></div>
+        <div class="stat"><strong>2862</strong><span>scenarios</span></div>
         <div class="stat"><strong>0</strong><span>business</span></div>
-        <div class="stat"><strong>2859</strong><span>technical</span></div>
+        <div class="stat"><strong>2862</strong><span>technical</span></div>
       </div>
     </header>
     <main>
@@ -3702,13 +3702,13 @@
           <td><code>apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-585">Bot onboarding — screen 3 (instruction + feature entry points) closes with inline feature buttons rather than slash commands</a></td>
+          <td><a href="#scenario-585">Bot onboarding — screen 3 (instruction + feature entry points) closes on one message that carries the mode menu, with no inline copy of it</a></td>
           <td>technical</td>
           <td>onboarding — screen 3 (instruction + feature entry points)</td>
           <td><code>apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-586">Bot onboarding — screen 3 (instruction + feature entry points) hands over the mode menu and says which icon brings it back</a></td>
+          <td><a href="#scenario-586">Bot onboarding — screen 3 (instruction + feature entry points) names the icon that brings the folded away menu back</a></td>
           <td>technical</td>
           <td>onboarding — screen 3 (instruction + feature entry points)</td>
           <td><code>apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts</code></td>
@@ -17256,97 +17256,115 @@
           <td><code>packages/core/src/resilience/__tests__/circuit-breaker.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2844">Core domain is Finite Positive accepts finite numbers strictly greater than zero</a></td>
+          <td><a href="#scenario-2844">Core domain format Long Date writes the month out in the language the sentence is written in</a></td>
+          <td>technical</td>
+          <td>formatLongDate</td>
+          <td><code>packages/core/src/shared/__tests__/format-date.test.ts</code></td>
+        </tr>
+        <tr class="technical">
+          <td><a href="#scenario-2845">Core domain format Long Date reads the instant in the viewer&#39;s zone, not the server&#39;s</a></td>
+          <td>technical</td>
+          <td>formatLongDate</td>
+          <td><code>packages/core/src/shared/__tests__/format-date.test.ts</code></td>
+        </tr>
+        <tr class="technical">
+          <td><a href="#scenario-2846">Core domain format Long Date falls back to UTC instead of throwing on an unusable zone</a></td>
+          <td>technical</td>
+          <td>formatLongDate</td>
+          <td><code>packages/core/src/shared/__tests__/format-date.test.ts</code></td>
+        </tr>
+        <tr class="technical">
+          <td><a href="#scenario-2847">Core domain is Finite Positive accepts finite numbers strictly greater than zero</a></td>
           <td>technical</td>
           <td>isFinitePositive</td>
           <td><code>packages/core/src/shared/__tests__/numbers.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2845">Core domain is Finite Positive rejects Na N, Infinity, zero, negatives and non numbers</a></td>
+          <td><a href="#scenario-2848">Core domain is Finite Positive rejects Na N, Infinity, zero, negatives and non numbers</a></td>
           <td>technical</td>
           <td>isFinitePositive</td>
           <td><code>packages/core/src/shared/__tests__/numbers.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2846">Core domain DEFAULT TEMPLATE has learner friendly default fields for words and phrases</a></td>
+          <td><a href="#scenario-2849">Core domain DEFAULT TEMPLATE has learner friendly default fields for words and phrases</a></td>
           <td>technical</td>
           <td>DEFAULT_TEMPLATE</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2847">Core domain TEMPLATE FIELD KEYS contains all field keys in display order</a></td>
+          <td><a href="#scenario-2850">Core domain TEMPLATE FIELD KEYS contains all field keys in display order</a></td>
           <td>technical</td>
           <td>TEMPLATE_FIELD_KEYS</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2848">Core domain template To Output Config converts default template to learner friendly output</a></td>
+          <td><a href="#scenario-2851">Core domain template To Output Config converts default template to learner friendly output</a></td>
           <td>technical</td>
           <td>templateToOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2849">Core domain template To Output Config maps template fields to output config flags</a></td>
+          <td><a href="#scenario-2852">Core domain template To Output Config maps template fields to output config flags</a></td>
           <td>technical</td>
           <td>templateToOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2850">Core domain resolve Output Config returns sentence output for sentence input regardless of user template</a></td>
+          <td><a href="#scenario-2853">Core domain resolve Output Config returns sentence output for sentence input regardless of user template</a></td>
           <td>technical</td>
           <td>resolveOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2851">Core domain resolve Output Config returns default config when user template is null for words and phrases</a></td>
+          <td><a href="#scenario-2854">Core domain resolve Output Config returns default config when user template is null for words and phrases</a></td>
           <td>technical</td>
           <td>resolveOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2852">Core domain resolve Output Config returns custom config for word and phrase input</a></td>
+          <td><a href="#scenario-2855">Core domain resolve Output Config returns custom config for word and phrase input</a></td>
           <td>technical</td>
           <td>resolveOutputConfig</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2853">Core domain resolve Template returns DEFAULT TEMPLATE when input is null</a></td>
+          <td><a href="#scenario-2856">Core domain resolve Template returns DEFAULT TEMPLATE when input is null</a></td>
           <td>technical</td>
           <td>resolveTemplate</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2854">Core domain resolve Template returns the custom template as is when provided</a></td>
+          <td><a href="#scenario-2857">Core domain resolve Template returns the custom template as is when provided</a></td>
           <td>technical</td>
           <td>resolveTemplate</td>
           <td><code>packages/core/src/shared/__tests__/translation-template.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2855">Infrastructure composable env schema (Fable T24 A18) loads a channel less (admin worker) config without BOT TOKEN</a></td>
+          <td><a href="#scenario-2858">Infrastructure composable env schema (Fable T24 A18) loads a channel less (admin worker) config without BOT TOKEN</a></td>
           <td>technical</td>
           <td>composable env schema (Fable T24/A18)</td>
           <td><code>packages/infra/src/config.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2856">Infrastructure composable env schema (Fable T24 A18) defaults to the base schema when none is passed</a></td>
+          <td><a href="#scenario-2859">Infrastructure composable env schema (Fable T24 A18) defaults to the base schema when none is passed</a></td>
           <td>technical</td>
           <td>composable env schema (Fable T24/A18)</td>
           <td><code>packages/infra/src/config.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2857">Infrastructure composable env schema (Fable T24 A18) still requires BOT TOKEN for the bot config</a></td>
+          <td><a href="#scenario-2860">Infrastructure composable env schema (Fable T24 A18) still requires BOT TOKEN for the bot config</a></td>
           <td>technical</td>
           <td>composable env schema (Fable T24/A18)</td>
           <td><code>packages/infra/src/config.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2858">Infrastructure composable env schema (Fable T24 A18) loads the bot config when BOT TOKEN is present</a></td>
+          <td><a href="#scenario-2861">Infrastructure composable env schema (Fable T24 A18) loads the bot config when BOT TOKEN is present</a></td>
           <td>technical</td>
           <td>composable env schema (Fable T24/A18)</td>
           <td><code>packages/infra/src/config.test.ts</code></td>
         </tr>
         <tr class="technical">
-          <td><a href="#scenario-2859">Infrastructure composable env schema (Fable T24 A18) throws a typed Config Error (never exits) on invalid env</a></td>
+          <td><a href="#scenario-2862">Infrastructure composable env schema (Fable T24 A18) throws a typed Config Error (never exits) on invalid env</a></td>
           <td>technical</td>
           <td>composable env schema (Fable T24/A18)</td>
           <td><code>packages/infra/src/config.test.ts</code></td>
@@ -22618,8 +22636,8 @@
                     <code>apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts</code>
                     <span>onboarding — screen 3 (instruction + feature entry points)</span>
                   </div>
-                  <h3>Bot onboarding — screen 3 (instruction + feature entry points) closes with inline feature buttons rather than slash commands</h3>
-                  <p>Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: closes with inline feature buttons rather than slash commands.</p>
+                  <h3>Bot onboarding — screen 3 (instruction + feature entry points) closes on one message that carries the mode menu, with no inline copy of it</h3>
+                  <p>Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: closes on one message that carries the mode menu, with no inline copy of it.</p>
                 </article>
                 <article id="scenario-586" class="scenario">
                   <div class="scenario-meta">
@@ -22627,8 +22645,8 @@
                     <code>apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts</code>
                     <span>onboarding — screen 3 (instruction + feature entry points)</span>
                   </div>
-                  <h3>Bot onboarding — screen 3 (instruction + feature entry points) hands over the mode menu and says which icon brings it back</h3>
-                  <p>Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so hands over the mode menu and says which icon brings it back.</p>
+                  <h3>Bot onboarding — screen 3 (instruction + feature entry points) names the icon that brings the folded away menu back</h3>
+                  <p>Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so names the icon that brings the folded away menu back.</p>
                 </article>
                 <article id="scenario-587" class="scenario">
                   <div class="scenario-meta">
@@ -27285,7 +27303,7 @@
                 </article>
         </section>
         <section class="group">
-          <h2>packages <span>1756</span></h2>
+          <h2>packages <span>1759</span></h2>
           
                 <article id="scenario-1104" class="scenario">
                   <div class="scenario-meta">
@@ -42950,13 +42968,40 @@
                 <article id="scenario-2844" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
+                    <code>packages/core/src/shared/__tests__/format-date.test.ts</code>
+                    <span>formatLongDate</span>
+                  </div>
+                  <h3>Core domain format Long Date writes the month out in the language the sentence is written in</h3>
+                  <p>Protects the core domain format Long Date behavior so writes the month out in the language the sentence is written in.</p>
+                </article>
+                <article id="scenario-2845" class="scenario">
+                  <div class="scenario-meta">
+                    <strong>technical</strong>
+                    <code>packages/core/src/shared/__tests__/format-date.test.ts</code>
+                    <span>formatLongDate</span>
+                  </div>
+                  <h3>Core domain format Long Date reads the instant in the viewer&#39;s zone, not the server&#39;s</h3>
+                  <p>Protects the core domain format Long Date behavior so reads the instant in the viewer&#39;s zone, not the server&#39;s.</p>
+                </article>
+                <article id="scenario-2846" class="scenario">
+                  <div class="scenario-meta">
+                    <strong>technical</strong>
+                    <code>packages/core/src/shared/__tests__/format-date.test.ts</code>
+                    <span>formatLongDate</span>
+                  </div>
+                  <h3>Core domain format Long Date falls back to UTC instead of throwing on an unusable zone</h3>
+                  <p>Protects the core domain format Long Date behavior: falls back to UTC instead of throwing on an unusable zone.</p>
+                </article>
+                <article id="scenario-2847" class="scenario">
+                  <div class="scenario-meta">
+                    <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/numbers.test.ts</code>
                     <span>isFinitePositive</span>
                   </div>
                   <h3>Core domain is Finite Positive accepts finite numbers strictly greater than zero</h3>
                   <p>Protects the core domain is Finite Positive behavior: accepts finite numbers strictly greater than zero.</p>
                 </article>
-                <article id="scenario-2845" class="scenario">
+                <article id="scenario-2848" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/numbers.test.ts</code>
@@ -42965,7 +43010,7 @@
                   <h3>Core domain is Finite Positive rejects Na N, Infinity, zero, negatives and non numbers</h3>
                   <p>Protects the core domain is Finite Positive behavior: rejects Na N, Infinity, zero, negatives and non numbers.</p>
                 </article>
-                <article id="scenario-2846" class="scenario">
+                <article id="scenario-2849" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -42974,7 +43019,7 @@
                   <h3>Core domain DEFAULT TEMPLATE has learner friendly default fields for words and phrases</h3>
                   <p>Protects the core domain DEFAULT TEMPLATE behavior so has learner friendly default fields for words and phrases.</p>
                 </article>
-                <article id="scenario-2847" class="scenario">
+                <article id="scenario-2850" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -42983,7 +43028,7 @@
                   <h3>Core domain TEMPLATE FIELD KEYS contains all field keys in display order</h3>
                   <p>Protects the core domain TEMPLATE FIELD KEYS behavior so contains all field keys in display order.</p>
                 </article>
-                <article id="scenario-2848" class="scenario">
+                <article id="scenario-2851" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -42992,7 +43037,7 @@
                   <h3>Core domain template To Output Config converts default template to learner friendly output</h3>
                   <p>Protects the core domain template To Output Config behavior: converts default template to learner friendly output.</p>
                 </article>
-                <article id="scenario-2849" class="scenario">
+                <article id="scenario-2852" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -43001,7 +43046,7 @@
                   <h3>Core domain template To Output Config maps template fields to output config flags</h3>
                   <p>Protects the core domain template To Output Config behavior: maps template fields to output config flags.</p>
                 </article>
-                <article id="scenario-2850" class="scenario">
+                <article id="scenario-2853" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -43010,7 +43055,7 @@
                   <h3>Core domain resolve Output Config returns sentence output for sentence input regardless of user template</h3>
                   <p>Protects the core domain resolve Output Config behavior: returns sentence output for sentence input regardless of user template.</p>
                 </article>
-                <article id="scenario-2851" class="scenario">
+                <article id="scenario-2854" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -43019,7 +43064,7 @@
                   <h3>Core domain resolve Output Config returns default config when user template is null for words and phrases</h3>
                   <p>Protects the core domain resolve Output Config behavior: returns default config when user template is null for words and phrases.</p>
                 </article>
-                <article id="scenario-2852" class="scenario">
+                <article id="scenario-2855" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -43028,7 +43073,7 @@
                   <h3>Core domain resolve Output Config returns custom config for word and phrase input</h3>
                   <p>Protects the core domain resolve Output Config behavior: returns custom config for word and phrase input.</p>
                 </article>
-                <article id="scenario-2853" class="scenario">
+                <article id="scenario-2856" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -43037,7 +43082,7 @@
                   <h3>Core domain resolve Template returns DEFAULT TEMPLATE when input is null</h3>
                   <p>Protects the core domain resolve Template behavior: returns DEFAULT TEMPLATE when input is null.</p>
                 </article>
-                <article id="scenario-2854" class="scenario">
+                <article id="scenario-2857" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/core/src/shared/__tests__/translation-template.test.ts</code>
@@ -43046,7 +43091,7 @@
                   <h3>Core domain resolve Template returns the custom template as is when provided</h3>
                   <p>Protects the core domain resolve Template behavior: returns the custom template as is when provided.</p>
                 </article>
-                <article id="scenario-2855" class="scenario">
+                <article id="scenario-2858" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/infra/src/config.test.ts</code>
@@ -43055,7 +43100,7 @@
                   <h3>Infrastructure composable env schema (Fable T24 A18) loads a channel less (admin worker) config without BOT TOKEN</h3>
                   <p>Protects the infrastructure composable env schema (Fable T24 A18) behavior: loads a channel less (admin worker) config without BOT TOKEN.</p>
                 </article>
-                <article id="scenario-2856" class="scenario">
+                <article id="scenario-2859" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/infra/src/config.test.ts</code>
@@ -43064,7 +43109,7 @@
                   <h3>Infrastructure composable env schema (Fable T24 A18) defaults to the base schema when none is passed</h3>
                   <p>Protects the infrastructure composable env schema (Fable T24 A18) behavior: defaults to the base schema when none is passed.</p>
                 </article>
-                <article id="scenario-2857" class="scenario">
+                <article id="scenario-2860" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/infra/src/config.test.ts</code>
@@ -43073,7 +43118,7 @@
                   <h3>Infrastructure composable env schema (Fable T24 A18) still requires BOT TOKEN for the bot config</h3>
                   <p>Protects the infrastructure composable env schema (Fable T24 A18) behavior so still requires BOT TOKEN for the bot config.</p>
                 </article>
-                <article id="scenario-2858" class="scenario">
+                <article id="scenario-2861" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/infra/src/config.test.ts</code>
@@ -43082,7 +43127,7 @@
                   <h3>Infrastructure composable env schema (Fable T24 A18) loads the bot config when BOT TOKEN is present</h3>
                   <p>Protects the infrastructure composable env schema (Fable T24 A18) behavior: loads the bot config when BOT TOKEN is present.</p>
                 </article>
-                <article id="scenario-2859" class="scenario">
+                <article id="scenario-2862" class="scenario">
                   <div class="scenario-meta">
                     <strong>technical</strong>
                     <code>packages/infra/src/config.test.ts</code>
