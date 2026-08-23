@@ -42,6 +42,7 @@
   "translationError": "❌ Překlad selhal. Zkuste to prosím později.",
   "genericError": "⚠️ Něco se pokazilo. Zkuste to prosím znovu.",
   "staleSession": "⚠️ Relace vypršela. Zadejte prosím slovo k překladu znovu.",
+  "staleCardRetryPrompt": "⌛ Tato karta už vypršela. Klepnutím níže přeložíte „{word}“ znovu.",
   "translationUnavailable": "⚠️ Překlad je dočasně nedostupný. Zkuste to znovu.",
   "contextMarkerNeedsText": "Před kontextovou značku zadejte slovo nebo frázi.",
   "inputRejectedEmpty": "Pošlete text k překladu.",

@@ -42,6 +42,7 @@
   "translationError": "❌ Übersetzung fehlgeschlagen. Bitte versuche es später noch einmal.",
   "genericError": "⚠️ Etwas ist schiefgelaufen. Bitte versuche es erneut.",
   "staleSession": "⚠️ Sitzung abgelaufen. Bitte sende das Wort erneut zum Übersetzen.",
+  "staleCardRetryPrompt": "⌛ Diese Karte ist abgelaufen. Tippe unten, um „{word}“ erneut zu übersetzen.",
   "translationUnavailable": "⚠️ Übersetzung vorübergehend nicht verfügbar. Versuche es noch einmal.",
   "contextMarkerNeedsText": "Gib ein Wort oder einen Satz vor der Kontextmarkierung ein.",
   "inputRejectedEmpty": "Sende Text zum Übersetzen.",

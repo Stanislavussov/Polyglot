@@ -29,6 +29,7 @@ import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { LONG_OP_TIMEOUT_MS, startTypingKeepalive, withTimeout } from "../../utils/long-op.js";
 import { replyTechnical } from "../../utils/message-cleanup.js";
 import { ensurePaidFeature, resolveLockedFeatures } from "./paid-feature.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import {
   clearPendingClarification,
@@ -77,10 +78,7 @@ export async function handleClarifyPostCallback(ctx: BotContext): Promise<void> 
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:clarifypost", msgId });
     return;
   }
 
@@ -109,10 +107,7 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
   const pending = ctx.session.pendingClarification;
   if (!data || !pending) {
     clearPendingClarification(ctx);
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:clarify" });
     return;
   }
 
@@ -162,9 +157,11 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
     const index = Number.parseInt(data.replace("tr:clarify:option:", ""), 10);
     const option = pending.options?.[index];
     if (!option) {
-      await ctx.answerCallbackQuery({
-        text: "⚠️ Session expired. Please translate the word again.",
-        show_alert: true,
+      await answerStaleCallback(ctx, {
+        action: "tr:clarify:option",
+        word: pending.word,
+        contextHint: pending.contextHint,
+        lang,
       });
       return;
     }

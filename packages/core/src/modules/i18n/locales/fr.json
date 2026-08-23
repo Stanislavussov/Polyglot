@@ -42,6 +42,7 @@
   "translationError": "❌ La traduction a échoué. Réessaie plus tard.",
   "genericError": "⚠️ Une erreur s'est produite. Veuillez réessayer.",
   "staleSession": "⚠️ Session expirée. Renvoie le mot à traduire.",
+  "staleCardRetryPrompt": "⌛ Cette carte a expiré. Touche ci-dessous pour retraduire « {word} ».",
   "translationUnavailable": "⚠️ Traduction temporairement indisponible. Réessaie.",
   "contextMarkerNeedsText": "Saisis un mot ou une expression avant le marqueur de contexte.",
   "inputRejectedEmpty": "Envoie du texte à traduire.",

@@ -14,6 +14,7 @@ import { FEATURE_KEYS, isSupported, logEvent, playPronunciation, type SupportedL
 import { InputFile } from "grammy";
 import type { BotContext } from "../../types.js";
 import { ensurePaidFeature } from "./paid-feature.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
 
 /** Parses `tr:say:{langCode}:{msgId}`. Returns null when the shape is unexpected. */
 function parseSayCallback(data: string): { langCode: string; msgId: number } | null {
@@ -39,8 +40,7 @@ export async function handlePronounceCallback(ctx: BotContext): Promise<void> {
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   if (!entry) {
-    logEvent("card.tts_state_lost", { msgId, lang: langCode }, "warn");
-    await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true });
+    await answerStaleCallback(ctx, { action: "tr:say", msgId, lang });
     return;
   }
 
