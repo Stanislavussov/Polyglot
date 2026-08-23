@@ -35,14 +35,38 @@ export async function resolveLockedFeatures(ctx: EntitledContext): Promise<Reado
  * comparison that follows says everything a toast would have.
  */
 export async function ensurePaidFeature(ctx: BotContext, feature: FeatureKey, lang?: SupportedLang): Promise<boolean> {
+  return gate(ctx, feature, lang, () => ctx.answerCallbackQuery());
+}
+
+/**
+ * Same gate for a paid action reached by sending a MESSAGE rather than tapping a
+ * button (a voice message, say). There is no callback query to answer — calling
+ * `answerCallbackQuery` here would throw — so the upgrade screen is the whole
+ * refusal.
+ */
+export async function ensurePaidFeatureForMessage(
+  ctx: BotContext,
+  feature: FeatureKey,
+  lang?: SupportedLang,
+): Promise<boolean> {
+  return gate(ctx, feature, lang);
+}
+
+async function gate(
+  ctx: BotContext,
+  feature: FeatureKey,
+  lang: SupportedLang | undefined,
+  acknowledge?: () => Promise<unknown>,
+): Promise<boolean> {
   const access = ctx.services.featureAccess ?? defaultFeatureAccess;
   const { hasAccess } = await access.checkFeatureAccess(ctx.user, feature);
   if (hasAccess) {
     return true;
   }
-  await ctx.answerCallbackQuery();
+  await acknowledge?.();
   // `lang` is passed by callers that already loaded settings, sparing the upgrade
-  // screen a second read of the same row.
-  await sendUpgradeScreen(ctx, lang);
+  // screen a second read of the same row. The feature travels with it so the offer
+  // can open by naming the button that just refused.
+  await sendUpgradeScreen(ctx, lang, feature);
   return false;
 }

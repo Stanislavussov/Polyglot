@@ -146,6 +146,7 @@ export async function buildNotificationScheduling(
         nativeMeaning: e.nativeMeaning,
         createdAt: e.createdAt,
         unverified: e.unverified,
+        difficulty: e.difficulty ?? undefined,
         translations: e.translations.map((tr) => ({
           targetLangId: tr.targetLangId,
           text: tr.text,

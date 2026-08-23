@@ -56,6 +56,7 @@ function entry(translations: VocabularyTranslation[]): VocabularyEntryWithTransl
     sourceUsage: null,
     source: null,
     unverified: false,
+    difficulty: null,
     isActive: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),

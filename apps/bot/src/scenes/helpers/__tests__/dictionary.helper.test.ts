@@ -56,6 +56,7 @@ function makeEntry(id: number, original: string): VocabularyEntryWithTranslation
     sourceUsage: null,
     source: null,
     unverified: false,
+    difficulty: null,
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),

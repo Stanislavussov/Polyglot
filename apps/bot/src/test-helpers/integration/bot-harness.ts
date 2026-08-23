@@ -110,7 +110,36 @@ function rejectingAi(): AIPort {
     generateText: unconfigured("generateText"),
     generateChat: unconfigured("generateChat"),
     generateSpeech: unconfigured("generateSpeech"),
+    transcribe: unconfigured("transcribe"),
   };
+}
+
+/** grammY streams a multipart body instead of handing `fetch` a string. */
+function isAsyncIterable(value: unknown): value is AsyncIterable<Uint8Array | string> {
+  return typeof value === "object" && value !== null && Symbol.asyncIterator in value;
+}
+
+/**
+ * Read the text fields out of a multipart upload body.
+ *
+ * Only parts with no `filename` are matched, so the audio bytes are skipped rather
+ * than decoded. Numeric-looking values are coerced so an uploaded `sendVoice` and a
+ * JSON one present the same payload shape to a test.
+ */
+async function readMultipartTextFields(body: unknown): Promise<Record<string, unknown>> {
+  if (!isAsyncIterable(body)) return {};
+  const decoder = new TextDecoder();
+  let text = "";
+  for await (const chunk of body) {
+    text += typeof chunk === "string" ? chunk : decoder.decode(chunk, { stream: true });
+  }
+  text += decoder.decode();
+
+  const fields: Record<string, unknown> = {};
+  for (const [, name, value] of text.matchAll(/name="([^"]+)"\r\n\r\n([\s\S]*?)\r\n--/g)) {
+    fields[name!] = /^-?\d+$/.test(value!) ? Number(value) : value;
+  }
+  return fields;
 }
 
 /** Parse a Telegram Bot API request into its method name and JSON payload. */
@@ -121,20 +150,19 @@ async function parseApiRequest(
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
   const method = url.split("/").at(-1) ?? "";
   let rawBody: string | undefined;
-  // A body grammY did not hand us as a string is a multipart upload (`sendVoice`
-  // with an InputFile). The fields are not worth parsing, but *that* it was an
-  // upload is: it distinguishes freshly synthesized audio from a re-sent `file_id`.
-  let isUpload = false;
   if (init?.body !== undefined && init.body !== null) {
     if (typeof init.body === "string") {
       rawBody = init.body;
     } else {
-      isUpload = true;
+      // A body grammY did not hand us as a string is a multipart upload
+      // (`sendVoice` with an InputFile) — which is how a test tells freshly
+      // synthesized audio from a re-sent `file_id`.
+      return [method, await readMultipartTextFields(init.body), true];
     }
   } else if (input instanceof Request) {
     rawBody = await input.text();
   }
-  if (!rawBody) return [method, {}, isUpload];
+  if (!rawBody) return [method, {}, false];
   try {
     return [method, JSON.parse(rawBody) as Record<string, unknown>, false];
   } catch {
@@ -148,6 +176,16 @@ function jsonResponse(body: unknown): Response {
     headers: { "content-type": "application/json" },
   });
 }
+
+/** URL segment `getFile` resolves to for every intercepted voice download (Task 80). */
+const FAKE_VOICE_FILE_PATH = "voice/file_1.oga";
+
+/**
+ * The bytes every intercepted voice download returns. Fixed and exported so a test
+ * can assert the exact bytes reached `services.ai.transcribe({ audio })` — proving
+ * the download → transcribe wiring, not just that some call happened.
+ */
+export const FAKE_VOICE_AUDIO = new Uint8Array([0x4f, 0x67, 0x67, 0x53, 0x00, 0x02, 0x00, 0x00]);
 
 export function createBotHarness(options: HarnessOptions = {}): BotHarness {
   const sent: CapturedCall[] = [];
@@ -168,8 +206,32 @@ export function createBotHarness(options: HarnessOptions = {}): BotHarness {
   }
 
   const fakeFetch = async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
+    // The file-content endpoint (`/file/bot<token>/<path>`) is not a Bot API
+    // method — `parseApiRequest`'s "last URL segment" trick would read it as a
+    // nonsense method name (the file's basename) — so it is matched on the URL
+    // itself, ahead of that parsing, and answered with real bytes rather than a
+    // JSON envelope. `downloadTelegramFile` calls this `fetch` directly (not
+    // through grammY's `Api`), so `input` here is always the bare URL string.
+    const rawUrl = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    if (rawUrl.includes("/file/bot")) {
+      sent.push({ method: "download", payload: { url: rawUrl } });
+      return new Response(FAKE_VOICE_AUDIO, { status: 200 });
+    }
+
     const [method, payload, isUpload] = await parseApiRequest(input, init);
     const record: CapturedCall = { method, payload, ...(isUpload ? { isUpload } : {}) };
+
+    if (method === "getFile") {
+      sent.push(record);
+      return jsonResponse({
+        ok: true,
+        result: {
+          file_id: String((payload as { file_id?: string }).file_id ?? ""),
+          file_unique_id: "voice-file-unique",
+          file_path: FAKE_VOICE_FILE_PATH,
+        },
+      });
+    }
 
     if (method === "editMessageText" && editShouldFail) {
       editShouldFail = false;
@@ -298,6 +360,32 @@ export function messageUpdate(opts: {
       },
       text: opts.text,
       ...(entities ? { entities } : {}),
+    },
+  };
+}
+
+/** Build a private-chat voice-message update (Task 80, speech-to-text). */
+export function voiceMessageUpdate(opts: {
+  chatId: number;
+  fromId: number;
+  fileId?: string;
+  duration?: number;
+  messageId?: number;
+}): Update {
+  const messageId = opts.messageId ?? 1;
+  return {
+    update_id: ++updateSeq,
+    message: {
+      message_id: messageId,
+      date: 0,
+      chat: { id: opts.chatId, type: "private", first_name: "Test" },
+      from: { id: opts.fromId, is_bot: false, first_name: "Test" },
+      voice: {
+        file_id: opts.fileId ?? `voice-file-${messageId}`,
+        file_unique_id: `voice-unique-${messageId}`,
+        duration: opts.duration ?? 3,
+        mime_type: "audio/ogg",
+      },
     },
   };
 }

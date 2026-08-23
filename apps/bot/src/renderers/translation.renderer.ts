@@ -455,10 +455,11 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
   }
 
   // Pronunciation — Telegram has no per-word hit target inside message text, so
-  // the speaker for each learning language lives here rather than beside the word.
-  // Callers pass only learning languages (see `selectPronounceableLangs`); a single
-  // one gets a labelled wide button, several get compact flag buttons so a card
-  // with four target languages does not grow four full-width rows.
+  // the speaker for each non-native word lives here rather than beside the word.
+  // Callers pass every language the card shows but the native one (see
+  // `selectPronounceableLangs`); a single one gets a labelled wide button, several
+  // get compact flag buttons so a card with four languages does not grow four
+  // full-width rows.
   if (pronounceLangs && pronounceLangs.length > 0) {
     kb.row();
     if (pronounceLangs.length === 1) {

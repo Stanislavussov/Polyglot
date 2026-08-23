@@ -83,6 +83,8 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Settings | `settings.native_lang_changed`, `.interface_lang_changed`, `.learning_lang_added`/`_removed`, `.notifications_toggled`, `.notification_*_changed`, `.timezone_changed` |
 | SRS / flashcards | `srs.card_rated`, `srs.session_finished`, `flashcard.session_started`, `.session_finished` |
 | Notifications / cron | `notification.sent`, `notification.dictionary_exhausted`, `notification.preset.picked`/`.exhausted`/`.no_candidates`/`.unresolvable`, `nudge.*`, `retention.*` |
+| Voice input (Task 80) | `voice.transcribed`, `.transcribe_failed`, `.transcribe_empty`, `.too_long` |
+| Pronunciation (Task 77) | `card.tts_played`, `.tts_failed`, `.tts_state_lost` |
 | Errors | `bot.error`, `bot.error_handler_failed` |
 
 ## Levels

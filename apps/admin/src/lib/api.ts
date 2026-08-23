@@ -441,6 +441,19 @@ export interface TtsProbeResult {
   error?: string;
 }
 
+export interface SttSettings {
+  enabled: boolean;
+  modelId: string;
+  maxDurationSec: number;
+}
+
+/** One OpenRouter transcription model, as offered in the STT model picker. */
+export interface SttModelOption {
+  id: string;
+  name: string;
+  pricing: { prompt: string };
+}
+
 export const settings = {
   aiDefaults: {
     get: () => get<AIDefaults>("/api/settings/ai-defaults"),
@@ -467,6 +480,11 @@ export const settings = {
     update: (s: TtsSettings) => put<TtsSettings>("/api/settings/tts", s),
     models: () => get<TtsModelOption[]>("/api/settings/tts/models"),
     probe: (modelId: string, voice: string) => post<TtsProbeResult>("/api/settings/tts/probe", { modelId, voice }),
+  },
+  stt: {
+    get: () => get<SttSettings>("/api/settings/stt"),
+    update: (s: SttSettings) => put<SttSettings>("/api/settings/stt", s),
+    models: () => get<SttModelOption[]>("/api/settings/stt/models"),
   },
 };
 

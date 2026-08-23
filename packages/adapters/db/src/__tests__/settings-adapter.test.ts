@@ -131,3 +131,27 @@ describe("settingsAdapter.getNotificationDefaults", () => {
     expect(notifications.defaultTime).toBe("not a time");
   });
 });
+
+describe("settingsAdapter.getSttConfig", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("backfills a partial stored blob with the shipped defaults", async () => {
+    mockGet.mockResolvedValueOnce({ modelId: "x" }); // enabled/maxDurationSec absent
+
+    const stt = await settingsAdapter.getSttConfig();
+
+    expect(stt.modelId).toBe("x"); // admin-set value preserved
+    expect(stt.enabled).toBe(true); // backfilled from defaults
+    expect(stt.maxDurationSec).toBe(60); // backfilled from defaults
+  });
+
+  it("returns the shipped defaults when no stt row has ever been saved", async () => {
+    mockGet.mockResolvedValueOnce(null);
+
+    const stt = await settingsAdapter.getSttConfig();
+
+    expect(stt).toEqual({ enabled: true, modelId: "openai/whisper-large-v3", maxDurationSec: 60 });
+  });
+});

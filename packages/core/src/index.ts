@@ -10,6 +10,8 @@ export type {
   GenerateOptions,
   SpeechOptions,
   SpeechResult,
+  TranscribeOptions,
+  TranscriptionResult,
 } from "./ports/ai.port.js";
 // Ports — service container for dependency injection
 export type { ServiceContainer } from "./ports/container.js";
@@ -42,6 +44,7 @@ export type {
   PlanLimitConfig,
   SettingsPort,
   SrsConfig,
+  SttConfig,
   TranslationPresetConfig,
   TtsConfig,
   VideoVocabularyConfig,
@@ -83,6 +86,7 @@ export type {
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
   UpdateTranslationData,
+  VocabDifficulty,
   VocabTranslationDetails,
   VocabularyEntry,
   VocabularyEntryWithSourceLang,
@@ -148,7 +152,8 @@ export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";
-export { selectPronounceableLangs } from "./modules/tts/pronounceable-langs.js";
+export type { SpeakableCard } from "./modules/tts/pronounceable-langs.js";
+export { resolvePronounceableText, selectPronounceableLangs } from "./modules/tts/pronounceable-langs.js";
 export type {
   PronunciationDeps,
   PronunciationFailure,
@@ -215,6 +220,7 @@ export type { CircuitBreakerConfig, CircuitState } from "./resilience/circuit-br
 export { CircuitBreaker } from "./resilience/circuit-breaker.js";
 // Shared
 export * from "./shared/errors.js";
+export { formatLongDate } from "./shared/format-date.js";
 export { isFinitePositive } from "./shared/numbers.js";
 export type { InputContext } from "./shared/translation-template.service.js";
 export {

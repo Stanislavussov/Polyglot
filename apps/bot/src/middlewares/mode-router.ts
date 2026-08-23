@@ -16,6 +16,7 @@ import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
 import { handleVideoVocabularyUrl } from "../scenes/helpers/video-vocabulary.helper.js";
+import { handleVoiceMessage } from "../scenes/helpers/voice-input.js";
 import type { BotContext } from "../types.js";
 import { replyTechnical } from "../utils/message-cleanup.js";
 import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
@@ -53,6 +54,13 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   // Non-text messages (stickers, GIFs, photos, voice, etc.)
   if (!text) {
     if (ctx.user?.onboarded) {
+      // A voice message is translatable input when speech-to-text is on; the
+      // handler returns false when it is off, so the rejection below stays the
+      // unchanged fallback.
+      if (ctx.message.voice && (await handleVoiceMessage(ctx))) {
+        markHandled(ctx, "modeRouter:voice");
+        return;
+      }
       const nonTextType = detectNonTextContent(ctx.message as unknown as Record<string, unknown>);
       markHandled(ctx, "modeRouter:nonText");
       logEvent("mode_router.rejected", { reason: "non_text", contentType: nonTextType });

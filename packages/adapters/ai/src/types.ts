@@ -5,7 +5,7 @@ export type { AIModel, GenerateOptions };
 /** Logged after every AI request */
 export interface AIRequestLog {
   model: string;
-  requestKind: "object" | "text" | "chat" | "speech";
+  requestKind: "object" | "text" | "chat" | "speech" | "transcription";
   tokens: { input: number; output: number };
   cost_usd: number;
   duration_ms: number;

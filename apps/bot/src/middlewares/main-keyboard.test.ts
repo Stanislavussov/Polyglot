@@ -48,7 +48,10 @@ describe("mainKeyboardMiddleware", () => {
 
     expect(ctx.reply).toHaveBeenCalledTimes(1);
     const [text, options] = vi.mocked(ctx.reply).mock.calls[0] ?? [];
-    expect(text).toContain("Словарь");
+    // Points at the icon rather than listing the modes — the keyboard below the
+    // text already names them, and the hint that spelled them out read as a third
+    // copy of the same menu.
+    expect(text).toContain("⌨️");
     expect(options?.reply_markup).toMatchObject({ one_time_keyboard: true });
     expect(next).toHaveBeenCalled();
   });

@@ -18,6 +18,7 @@ import {
   setAIModelPriceProvider,
   setAIRequestMetricSink,
   setAIRequestTimeoutProvider,
+  transcribeAudio,
 } from "@polyglot/adapter-ai";
 // Re-export directly from adapters
 import {
@@ -62,6 +63,7 @@ import type {
   ChatOptions,
   GenerateOptions,
   SpeechOptions,
+  TranscribeOptions,
 } from "@polyglot/core";
 import { type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
 import type { ZodSchema } from "zod";
@@ -182,6 +184,10 @@ export function createContainer(): ServiceContainer {
     // No failover split: a failed pronunciation is a toast, not a broken card, and
     // the split machinery is shaped around the completion endpoints (Task 77).
     generateSpeech: (options: SpeechOptions) => generateSpeech(options),
+    // Same reasoning as generateSpeech: no failover split. A failed transcription
+    // is a "couldn't hear that" reply, and the split machinery is shaped around
+    // the completion endpoints.
+    transcribe: (options: TranscribeOptions) => transcribeAudio(options),
   };
 
   const container: ServiceContainer = {

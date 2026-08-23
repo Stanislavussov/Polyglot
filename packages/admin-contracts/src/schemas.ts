@@ -202,6 +202,22 @@ export const ttsSettingsSchema = z.object({
   maxChars: z.coerce.number().int("Max characters must be an integer").min(1).max(5000),
 });
 
+/**
+ * STT (voice-message transcription) settings. Same enabled/modelId coupling as
+ * TTS above: an enabled config with a blank model would try to transcribe with
+ * nothing to call, which reads as a broken feature rather than a disabled one.
+ */
+export const sttSettingsSchema = z
+  .object({
+    enabled: z.coerce.boolean(),
+    modelId: z.string(),
+    maxDurationSec: z.coerce.number().int("Max duration must be an integer").min(1).max(600),
+  })
+  .refine((c) => !c.enabled || c.modelId.trim().length > 0, {
+    message: "STT model is required when enabled",
+    path: ["modelId"],
+  });
+
 export const videoVocabularySettingsSchema = z
   .object({
     monthlyLimit: z.coerce.number().int("Monthly limit must be an integer").min(1),

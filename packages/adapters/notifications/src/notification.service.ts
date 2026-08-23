@@ -9,7 +9,26 @@ import type {
   DictionaryWordPickerDeps,
   NotificationServiceDeps,
   SuggestedWord,
+  VocabEntry,
 } from "./types.js";
+
+/** How much more often a "hard"-rated word is picked than a normal/unrated one. */
+const HARD_WEIGHT = 3;
+
+/**
+ * Weighted lottery over the candidate pool: "hard" entries carry {@link HARD_WEIGHT}
+ * tickets, everything else one. Uniform when nothing is rated.
+ */
+function pickWeighted(pool: VocabEntry[]): VocabEntry {
+  const weights = pool.map((e) => (e.difficulty === "hard" ? HARD_WEIGHT : 1));
+  const total = weights.reduce((sum, w) => sum + w, 0);
+  let roll = Math.random() * total;
+  for (let i = 0; i < pool.length; i++) {
+    roll -= weights[i]!;
+    if (roll < 0) return pool[i]!;
+  }
+  return pool[pool.length - 1]!;
+}
 
 /**
  * Dictionary word picker — selects a word from the user's saved vocabulary.
@@ -51,7 +70,11 @@ export function createDictionaryWordPicker(deps: DictionaryWordPickerDeps) {
       return null;
     }
 
-    const entry = candidates[Math.floor(Math.random() * candidates.length)]!;
+    // Words the user marked "easy" (I know it) stay out of rotation until every
+    // hard/normal word is exhausted — then they return as a last resort before
+    // the preset layer takes over.
+    const inRotation = candidates.filter((e) => e.difficulty !== "easy");
+    const entry = pickWeighted(inRotation.length > 0 ? inRotation : candidates);
 
     let entryTranslations = entry.translations;
 

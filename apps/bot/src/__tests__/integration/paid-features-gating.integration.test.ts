@@ -18,6 +18,7 @@ import {
   translationRequestRepository,
   userRepository,
 } from "@polyglot/adapter-db";
+import { formatLongDate } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import {
@@ -119,6 +120,9 @@ describe("paid features on a translation card (integration)", () => {
     expect(generateSpeech).not.toHaveBeenCalled();
     expect(harness.sent.filter((call) => call.method === "sendVoice")).toHaveLength(0);
     const upsell = lastMessageText(harness);
+    // The headline names the tapped feature and the cheapest plan that carries it —
+    // Pro — even though the cheaper Plus rung is still on offer below it.
+    expect(upsell).toContain("Word audio is a <b>Pro</b> feature");
     expect(upsell).toContain("$5");
     expect(upsell).toContain("$10");
     expect(lastMessageButtons(harness)).toEqual(["plan:buy:plus", "plan:buy:pro"]);
@@ -162,6 +166,12 @@ describe("paid features on a translation card (integration)", () => {
     expect(subscription!.currentPeriodEnd.getTime()).toBeGreaterThan(Date.now());
     expect((await userRepository.findById(userId))?.subscriptionPlan).toBe("plus");
 
+    // The confirmation reads as a sentence, not as a serial number: the date is
+    // spelled in the language the message is written in, never as `2026-09-22`.
+    const confirmation = lastMessageText(harness);
+    expect(confirmation).toContain(formatLongDate(subscription!.currentPeriodEnd, "en", "UTC"));
+    expect(confirmation).not.toMatch(/\d{4}-\d{2}-\d{2}/);
+
     // Act — the clarify button the user could not use a moment ago.
     harness.reset();
     await tap(harness, id, cardMsgId, `tr:clarifypost:${cardMsgId}`);
@@ -177,9 +187,14 @@ describe("paid features on a translation card (integration)", () => {
     harness.reset();
     await tap(harness, id, cardMsgId, `tr:say:cs:${cardMsgId}`);
 
-    // Assert
+    // Assert — the offer answers the tap by name and sells only the rung above:
+    // Plus is what the user already pays for, and its button could only be refused.
     expect(generateSpeech).not.toHaveBeenCalled();
-    expect(lastMessageButtons(harness)).toEqual(["plan:buy:plus", "plan:buy:pro"]);
+    const upsell = lastMessageText(harness);
+    expect(upsell).toContain("Word audio is a <b>Pro</b> feature");
+    expect(upsell).toContain("Everything in Plus");
+    expect(upsell).not.toContain("$5");
+    expect(lastMessageButtons(harness)).toEqual(["plan:buy:pro"]);
 
     // Assert — a card rendered after the upgrade drops the badge it no longer needs.
     harness.reset();
@@ -215,6 +230,24 @@ describe("paid features on a translation card (integration)", () => {
     // Assert — the word is actually spoken now.
     expect(generateSpeech).toHaveBeenCalledTimes(1);
     expect(harness.sent.filter((call) => call.method === "sendVoice")).toHaveLength(1);
+    expect(lastMessageButtons(harness)).toEqual([]);
+  });
+
+  it("tells a Pro subscriber there is nothing left to buy instead of an empty menu", async () => {
+    // Arrange — Pro is the top of the priced ladder.
+    const { harness } = arrangeHarness();
+    const id = uniqueTelegramId();
+    await arrangeOnboardedTranslator(id);
+    const { messageId: cardMsgId } = await renderCard(harness, id, "hello");
+    await buyPlan(harness, id, cardMsgId, "pro");
+
+    // Act — the upgrade CTA a limit gate would show.
+    harness.reset();
+    await tap(harness, id, cardMsgId, "plan:upgrade");
+
+    // Assert — a plain statement of fact, not a warning about broken pricing.
+    expect(lastMessageText(harness)).toContain("already on the top plan");
+    expect(lastMessageText(harness)).not.toContain("⚠️");
     expect(lastMessageButtons(harness)).toEqual([]);
   });
 

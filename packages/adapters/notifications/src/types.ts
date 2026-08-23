@@ -67,6 +67,12 @@ export interface VocabEntry {
    * notifications/SRS picks.
    */
   unverified?: boolean;
+  /**
+   * Notification feedback grade. "hard" words are weighted up in picks, "easy"
+   * words are held back until every hard/normal word is exhausted. Absent =
+   * unrated, weighted as "normal".
+   */
+  difficulty?: "hard" | "normal" | "easy";
   translations: Array<{
     targetLangId: number;
     text: string;
