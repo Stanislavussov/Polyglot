@@ -59,7 +59,7 @@ describe("main-menu keyboard (integration)", () => {
     expect(carriers).toHaveLength(1);
     const carrier = carriers[0];
     if (!carrier) throw new Error("the main-menu keyboard was never sent");
-    expect(carrier.labels).toEqual(["✨ Pick words", "🧑‍🏫 Mentor", "📖 Dictionary", "🎴 Cards", "🎬 Videos"]);
+    expect(carrier.labels).toEqual(["✨ Pick", "🧑‍🏫 Mentor", "📖 Dictionary", "🎴 Cards", "🎬 Videos"]);
     expect(deletedMessageIds(harness.sent)).not.toContain(carrier.messageId);
 
     const afterFirst = await readSession(id);

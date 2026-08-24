@@ -14,7 +14,7 @@ describe("main menu keyboard", () => {
 
     // Two rows, no empty trailing row: every row costs chat space while the menu is open.
     expect(rows).toEqual([
-      ["✨ Подобрать слова", "🧑‍🏫 Ментор"],
+      ["✨ Подбор", "🧑‍🏫 Ментор"],
       ["📖 Словарь", "🎴 Карточки", "🎬 Видео"],
     ]);
   });
