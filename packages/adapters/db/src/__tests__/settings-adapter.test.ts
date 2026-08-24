@@ -152,6 +152,6 @@ describe("settingsAdapter.getSttConfig", () => {
 
     const stt = await settingsAdapter.getSttConfig();
 
-    expect(stt).toEqual({ enabled: true, modelId: "openai/whisper-large-v3-turbo", maxDurationSec: 60 });
+    expect(stt).toEqual({ enabled: true, modelId: "openai/whisper-large-v3", maxDurationSec: 60 });
   });
 });

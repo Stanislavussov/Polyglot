@@ -220,6 +220,7 @@ export type { CircuitBreakerConfig, CircuitState } from "./resilience/circuit-br
 export { CircuitBreaker } from "./resilience/circuit-breaker.js";
 // Shared
 export * from "./shared/errors.js";
+export { formatLongDate } from "./shared/format-date.js";
 export { isFinitePositive } from "./shared/numbers.js";
 export type { InputContext } from "./shared/translation-template.service.js";
 export {

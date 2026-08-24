@@ -164,7 +164,9 @@ const FALLBACK_TTS: TtsConfig = {
  */
 const FALLBACK_STT: SttConfig = {
   enabled: true,
-  modelId: "openai/whisper-large-v3-turbo",
+  // Full large-v3, not -turbo — turbo drifted spoken Russian into an English
+  // translation on real phone audio (see settings-adapter.ts DEFAULTS.stt).
+  modelId: "openai/whisper-large-v3",
   maxDurationSec: 60,
 };
 

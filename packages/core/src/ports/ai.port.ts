@@ -91,6 +91,12 @@ export interface TranscribeOptions {
   format: "ogg" | "mp3" | "wav";
   /** OpenRouter transcription model id — resolved from settings, never hardcoded. */
   modelId: string;
+  /**
+   * ISO 639-1 hint forcing the decode language. Whisper-family models treat it
+   * as authoritative — set it only when the spoken language is actually known,
+   * or foreign speech comes back mangled into the hinted language.
+   */
+  language?: string;
   userId?: number;
 }
 

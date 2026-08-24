@@ -76,6 +76,23 @@ export interface SessionData {
     }
   >;
   /**
+   * What each translation card was *about*, keyed by the same message id as
+   * {@link SessionData.translationMap}. A card's full state is heavy and capped
+   * at 30 entries, so a button in chat history usually outlives it; this map
+   * holds only the input string, which is small enough to keep for far more
+   * cards. It is what lets an expired card still offer a one-tap re-translate
+   * instead of a dead end (see `answerStaleCallback`).
+   */
+  cardWords?: Record<
+    string,
+    {
+      word: string;
+      contextHint?: string;
+      /** Monotonic insertion stamp used for recency-based eviction. */
+      addedAt?: number;
+    }
+  >;
+  /**
    * Last translation output — stored for regen (both words and sentences).
    * Separate from pendingTranslation which is for Save/Skip only.
    * @deprecated Use translationMap instead for per-message state.

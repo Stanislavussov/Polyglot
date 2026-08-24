@@ -783,6 +783,9 @@ async function processVideoInBackground(
       // 1. Get transcript (from cache or YouTube)
       let transcriptText: string;
       let transcriptType: string | undefined;
+      // process.language is a guess from user settings; the fetch may fall back
+      // to the video's real caption track, so track the actual language here.
+      let videoLang = process.language;
 
       const cached = await ctx.services.videoVocabularyRepository.findCachedTranscript(
         process.videoId,
@@ -795,6 +798,10 @@ async function processVideoInBackground(
         const transcript = await fetchTranscript(process.videoId, process.language);
         transcriptText = formatSegmentedTranscript(transcript.segments);
         transcriptType = transcript.type;
+        if (transcript.language !== "unknown" && transcript.language !== process.language) {
+          videoLang = transcript.language;
+          await ctx.services.videoVocabularyRepository.updateProcessLanguage(processId, videoLang);
+        }
         await ctx.services.videoVocabularyRepository.cacheTranscript(
           process.videoId,
           transcript.language,
@@ -805,7 +812,7 @@ async function processVideoInBackground(
 
       // 2. Get user's proficiency level for this language
       const levels = await ctx.services.userRepository.getLanguageLevels(userId);
-      const levelEntry = levels.find((l) => l.languageCode === process.language);
+      const levelEntry = levels.find((l) => l.languageCode === videoLang);
       const userLevel = levelEntry?.proficiencyLevel ?? "B1";
 
       // 3. Get extraction config and user's native language
@@ -820,12 +827,12 @@ async function processVideoInBackground(
       // 4b. Gather phrases the user already knows in this language — their saved
       // dictionary plus everything generated in their previous videos — so the AI
       // does not regenerate them.
-      const knownPhrases = await collectKnownPhrases(ctx, userId, process.language, processId);
+      const knownPhrases = await collectKnownPhrases(ctx, userId, videoLang, processId);
 
       // 5. Extract phrases using AI
       const phrases = await extractPhrasesFromTranscript(
         transcriptText,
-        process.language,
+        videoLang,
         userLevel,
         targetPhrases,
         ctx.services.ai.generateObject,

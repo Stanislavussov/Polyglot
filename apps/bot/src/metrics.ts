@@ -76,6 +76,12 @@ export const unrecognizedWordCounter = new Counter({
   labelNames: ["outcome"] as const,
 });
 
+export const staleCallbackCounter = new Counter({
+  name: "bot_stale_callback_total",
+  help: "Inline-button taps whose backing state was already gone, by guard and whether the card's input could still seed a one-tap retry",
+  labelNames: ["action", "recovered"] as const,
+});
+
 export const onboardingStepCounter = new Counter({
   name: "bot_onboarding_step_total",
   help: "Onboarding screen entries and outcomes (Task 72) — labels are a bounded enum, never free-form",

@@ -317,7 +317,7 @@ async function generateAndShowSet(
 
   if (picked.length === 0) {
     wordPickCounter.inc({ status: "empty" });
-    await replyTechnical(ctx, t("pickNothingNew", lang));
+    await offerOtherAngles(ctx, userId, preset, lang, options.progressBy, progressMessageId);
     return;
   }
 
@@ -353,13 +353,49 @@ async function generateAndShowSet(
     link_preview_options: { is_disabled: true },
   });
 
-  if (progressMessageId !== undefined) {
-    try {
-      await ctx.api.deleteMessage(ctx.chat?.id ?? 0, progressMessageId);
-    } catch {
-      // The sweep will take it on the next message.
-    }
+  await dropProgressNotice(ctx, progressMessageId);
+}
+
+async function dropProgressNotice(ctx: BotContext, progressMessageId: number | undefined): Promise<void> {
+  if (progressMessageId === undefined) return;
+  try {
+    await ctx.api.deleteMessage(ctx.chat?.id ?? 0, progressMessageId);
+  } catch {
+    // The sweep will take it on the next message.
   }
+}
+
+/**
+ * An exhausted angle used to end the flow on a sentence: "try another one" with no
+ * other one in reach, so the only way on was to re-open the menu by hand. The
+ * notice now carries the angle list itself — minus the angle that just came up
+ * empty, since offering it again only invites a second billed call for the same
+ * nothing.
+ *
+ * With no other angle left there is nothing to hand back, and the plain notice is
+ * the honest ending.
+ */
+async function offerOtherAngles(
+  ctx: BotContext,
+  userId: number,
+  exhausted: WordPickerPreset,
+  lang: SupportedLang,
+  progressBy: GenerateOptions["progressBy"],
+  progressMessageId: number | undefined,
+): Promise<void> {
+  const settings = await ctx.services.userRepository.getSettings(userId);
+  const presets = await ctx.services.wordPickerPresetRepository.findActiveForLangs(settings?.learningLangs ?? []);
+  const others = presets.filter((preset) => preset.id !== exhausted.id);
+
+  const text = t("pickNothingNew", lang);
+  const markup = others.length > 0 ? { reply_markup: buildPresetListKeyboard(others, lang) } : {};
+
+  if (progressBy === "edit") {
+    await editMessageTextOrReply(ctx, text, markup);
+    return;
+  }
+  await replyTechnical(ctx, text, markup);
+  await dropProgressNotice(ctx, progressMessageId);
 }
 
 /**

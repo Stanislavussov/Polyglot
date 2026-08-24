@@ -1,6 +1,7 @@
 # Task 80 — Voice Input (STT): Translate What the User Says
 
-**Status:** ✅ Done — enabled by default on `openai/whisper-large-v3-turbo`
+**Status:** ✅ Done — enabled by default on `openai/whisper-large-v3`
+(originally `-turbo`, swapped after a day-one production incident — see the model table)
 **Category:** Feature / Paid tier
 **Priority:** 🟠 High
 **Created:** 2026-08-23
@@ -89,8 +90,20 @@ The decisive findings:
 
 | model | probe result |
 |---|---|
-| `openai/whisper-large-v3-turbo` | 200 for ru ✓ kk ✓ de ✓ from OGG/Opus; $0.00000333/sec ≈ **$0.0002/min**. **Chosen default.** |
-| `mistralai/voxtral-mini-3b-2507` | 200 for ru ✓, ~5× the price of whisper-turbo; Kazakh coverage unverified. |
+| `openai/whisper-large-v3` | ru ✓ kk ✓ de ✓; $0.0000075/sec ≈ **$0.00045/min**. **Chosen default** (second round, see below). |
+| `openai/whisper-large-v3-turbo` | ru ✓ kk ✓ de ✓ on clean audio, ≈$0.0002/min — the original default. **Replaced on day one**: on a real phone recording of «Привет, как дела?» it hallucinated a "Thank you." prefix and drifted into an *English translation* ("Thank you. Hello, how are you?"), a documented failure mode of the distilled turbo variant on short noisy clips. Clean synthetic audio does not reproduce it — which is why the first probe round missed it. |
+| `mistralai/voxtral-mini-3b-2507` | ru ✓ de ✓, but Kazakh comes back as Latin gibberish ("Salimetszbe…"). |
+| `qwen/qwen3-asr-flash-2026-02-10` | ru ✓ de ✓, Kazakh gibberish. |
+| `nvidia/nemotron-3.5-asr-streaming-multilingual-0.6b` | ru ✓ de ✓, Kazakh → empty string. |
+
+The second probe round (2026-08-23, after the incident) settles two things: **only the
+Whisper family transcribes Kazakh**, so leaving Whisper is not an option while kk is a
+supported learning language; and the endpoint **accepts a `language` decode hint**
+(ISO 639-1, verified 200). The hint is plumbed through `TranscribeOptions.language` but
+deliberately NOT set by the bot: Whisper treats it as authoritative, and a learner
+speaking a German word with a forced `ru` hint would get mangled Cyrillic back. The
+spoken language is genuinely unknown here — model robustness, not forced language, is
+the mitigation.
 
 Cost at the default: a 30-second voice message ≈ **$0.0001**. Even 100k voice messages a
 month ≈ $10 — and only Pro subscribers can send them.
@@ -116,7 +129,7 @@ export interface SttConfig {
 - `SettingsPort.getSttConfig()`; adapter `getWithFallback("stt", DEFAULTS.stt)`;
   60s-cached in `settings.service.ts` with `FALLBACK_STT` kept byte-identical to
   `DEFAULTS.stt`.
-- Default `{ enabled: true, modelId: "openai/whisper-large-v3-turbo", maxDurationSec: 60 }`
+- Default `{ enabled: true, modelId: "openai/whisper-large-v3", maxDurationSec: 60 }`
   — on out of the box (probed working), overridable per-field from the admin panel without
   a redeploy. Same blast-radius justification as `tts`: a bad value costs one notice on
   voice messages while translation keeps working.
@@ -169,8 +182,11 @@ New keys in all 11 locales: `featureVoiceInput`, `planLineVoiceInput`,
 
 ## Follow-ups (out of scope for v1)
 
-1. **Language hint** — pass the user's learning/native langs to the model for better
-   accuracy on ambiguous short clips (whisper auto-detects; a hint param exists on some models).
+1. **Smarter language hint** — the endpoint's `language` param is verified and plumbed
+   (`TranscribeOptions.language`), but unset because the spoken language is unknown.
+   A two-pass shape (auto-detect, then retry with the native-language hint when the
+   transcript's language is outside the user's language set) would catch residual
+   translation drift at double the — negligible — cost.
 2. **Admin probe button** — transcribe a canned sample against the selected model.
 3. **`video_note` / `audio` messages** — only `message.voice` is handled in v1.
 4. **Transcription failover** — `withModelFailover` is the seam if error rates justify it.

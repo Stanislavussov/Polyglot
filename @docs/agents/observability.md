@@ -76,7 +76,8 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Translation pipeline | `translation.pipeline.started`, `.generation_failed`, `.validation_failed`, `.needs_review`, `.judge_failed`, `.judge_timed_out`, `.repair_*` |
 | AI | `ai.request.completed`, `ai.request.failed` (with `budgetMs`, `timedOut`) |
 | AI credit (Task 78) | `ai.credit.polled`, `.unlimited`, `.poll_failed`, `.poll_disabled`, `.scheduled`, `.schedule_duplicate_ignored`, `.poll_stopped` |
-| Vocabulary | `vocabulary.saved`, `.save_skipped`, `.save_state_lost`, `.save_failed` |
+| Callbacks | `callback.stale` — a button whose backing state was gone, for every guard (`action`); `recovered` says whether a retry could be offered. Supersedes the per-site `vocabulary.save_state_lost` / `card.tts_state_lost` |
+| Vocabulary | `vocabulary.saved`, `.save_skipped`, `.save_failed` |
 | Dictionary | `dictionary.created`, `.renamed`, `.deleted`, `.entry_added`, `.entry_moved`, `.entry_removed`, `.translate_failed` |
 | Onboarding | `onboarding.started`, `.screen_rendered`, `.native_lang_selected`, `.learning_lang_confirmed`, `.languages_done`, `.completed`, `.demo_failed` |
 | Settings | `settings.native_lang_changed`, `.interface_lang_changed`, `.learning_lang_added`/`_removed`, `.notifications_toggled`, `.notification_*_changed`, `.timezone_changed` |
