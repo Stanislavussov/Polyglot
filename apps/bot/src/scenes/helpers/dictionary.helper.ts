@@ -23,7 +23,6 @@ import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { languageOrderFromSettings, makeLangCodeResolver, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
-import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 const MAX_DICTIONARY_NAME_LENGTH = 32;
@@ -127,7 +126,7 @@ export async function handleDictionaryNameInput(ctx: BotContext): Promise<void> 
   const name = validateDictionaryName(ctx, text, dictionaries, wizard.dictionaryId);
 
   if (!name) {
-    await replyTechnical(ctx, t("dictionaryNameInvalid", lang, { max: MAX_DICTIONARY_NAME_LENGTH }));
+    await ctx.reply(t("dictionaryNameInvalid", lang, { max: MAX_DICTIONARY_NAME_LENGTH }));
     return;
   }
 
@@ -135,26 +134,26 @@ export async function handleDictionaryNameInput(ctx: BotContext): Promise<void> 
     const dictionary = await ctx.services.vocabularyDictionaryRepository.create(ctx.user.id, name);
     logEvent("dictionary.created", { dictionaryId: dictionary.id, nameLength: name.length });
     ctx.session.dictionaryWizard = undefined;
-    await replyTechnical(ctx, t("dictionaryCreated", lang, { name: dictionary.name }));
+    await ctx.reply(t("dictionaryCreated", lang, { name: dictionary.name }));
     await showDictionaryList(ctx, dictionary.id, 1);
     return;
   }
 
   if (!wizard.dictionaryId) {
     ctx.session.dictionaryWizard = undefined;
-    await replyTechnical(ctx, t("dictionarySessionExpired", lang));
+    await ctx.reply(t("dictionarySessionExpired", lang));
     return;
   }
 
   const renamed = await ctx.services.vocabularyDictionaryRepository.rename(ctx.user.id, wizard.dictionaryId, name);
   ctx.session.dictionaryWizard = undefined;
   if (!renamed) {
-    await replyTechnical(ctx, t("dictionarySessionExpired", lang));
+    await ctx.reply(t("dictionarySessionExpired", lang));
     return;
   }
 
   logEvent("dictionary.renamed", { dictionaryId: renamed.id, nameLength: name.length });
-  await replyTechnical(ctx, t("dictionaryRenamed", lang, { name: renamed.name }));
+  await ctx.reply(t("dictionaryRenamed", lang, { name: renamed.name }));
   await showDictionaryList(ctx, renamed.id, ctx.session.dictionary?.currentPage ?? 1);
 }
 
@@ -440,7 +439,6 @@ export async function handleDictMove(ctx: BotContext): Promise<void> {
 export async function handleDictClose(ctx: BotContext): Promise<void> {
   ctx.session.dictionary = undefined;
   ctx.session.dictionaryWizard = undefined;
-  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.deleteMessage();
   } catch {

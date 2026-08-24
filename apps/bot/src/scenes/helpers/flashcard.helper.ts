@@ -15,7 +15,6 @@ import {
 } from "../../renderers/flashcard.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
-import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 /* ── Language resolution ───────────────────────────────────────── */
@@ -162,7 +161,6 @@ export async function handleFcDone(ctx: BotContext): Promise<void> {
 
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   ctx.session.flashcard = undefined;
-  await cleanupTechnicalMessages(ctx);
   await ctx.answerCallbackQuery();
 }
 
@@ -209,7 +207,6 @@ export async function handleFcQuit(ctx: BotContext): Promise<void> {
   }
 
   ctx.session.flashcard = undefined;
-  await cleanupTechnicalMessages(ctx);
   await editMessageTextOrReply(ctx, t("flashcardQuit", lang));
   await ctx.answerCallbackQuery();
 }
@@ -218,7 +215,6 @@ export async function handleFcQuit(ctx: BotContext): Promise<void> {
 
 export async function handleFcClose(ctx: BotContext): Promise<void> {
   ctx.session.flashcard = undefined;
-  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.deleteMessage();
   } catch {

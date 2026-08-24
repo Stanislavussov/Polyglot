@@ -4,7 +4,6 @@
  */
 import {
   formatNotificationTime,
-  getDailyWindowStart,
   isSupported,
   logEvent,
   NOTIFICATION_TYPES,
@@ -14,19 +13,19 @@ import {
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { changesCommand } from "../../commands/changes.js";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "../../constants.js";
 import type { BotContext } from "../../types.js";
-import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
-import { resolvePlanLimit } from "../../utils/plan-limit.js";
 import {
+  buildLangGroupKeyboard,
   buildNotifSubKeyboard,
   buildNotifSubText,
-  buildSettingsKeyboard,
-  buildSettingsText,
-  formatPlanUsageFromConfig,
+  renderSettingsInPlace,
 } from "../settings.scene.js";
-import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
+import { handleTemplateCommand } from "../template.scene.js";
+import { dismissMenuMessage, editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
+import { sendUpgradeScreen } from "./subscription.helper.js";
 
 /** Resolve interface language from user settings */
 async function getLang(ctx: BotContext): Promise<SupportedLang> {
@@ -35,33 +34,12 @@ async function getLang(ctx: BotContext): Promise<SupportedLang> {
   return (isSupported(iLang) ? iLang : "en") as SupportedLang;
 }
 
-/** Re-render the settings main menu */
-async function showSettingsMenu(ctx: BotContext): Promise<void> {
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const iLang = settings?.interfaceLang ?? "en";
-  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-  const notifEnabled = settings?.notificationEnabled ?? false;
-  const notifTimes = settings?.notificationTimes ?? [];
-  const notifType = settings?.notificationType ?? "srs";
-  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
-    ctx.user.id,
-    getDailyWindowStart(),
-  );
-  const planLimit = await resolvePlanLimit(ctx.services.settings, ctx.user.subscriptionPlan ?? "free");
-  const planUsage = formatPlanUsageFromConfig(planLimit, usedCredits, lang);
-
-  const text = buildSettingsText(
-    settings?.nativeLang ?? "en",
-    settings?.learningLangs ?? [],
-    settings?.interfaceLang ?? "en",
-    lang,
-    notifEnabled,
-    notifTimes,
-    notifType,
-    planUsage,
-  );
-  const kb = buildSettingsKeyboard(lang);
-  await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
+async function showLangGroupMenu(ctx: BotContext): Promise<void> {
+  const lang = await getLang(ctx);
+  await editMessageTextOrReply(ctx, t("settingsLangGroupTitle", lang), {
+    reply_markup: buildLangGroupKeyboard(lang),
+    parse_mode: "HTML",
+  });
 }
 
 /** Re-render the notification sub-menu */
@@ -110,8 +88,7 @@ export async function handleSetNativeSelectCallback(ctx: BotContext): Promise<vo
   await ctx.answerCallbackQuery({
     text: t("settingsNativeUpdated", lang, { lang: ctx.services.languageCache.getLangDisplay(code) }),
   });
-  await cleanupTechnicalMessages(ctx);
-  await showSettingsMenu(ctx);
+  await showLangGroupMenu(ctx);
 }
 
 /** set:learning — show learning language multi-select */
@@ -286,11 +263,10 @@ export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<voi
 
   const chatId = ctx.from?.id;
   if (chatId) {
-    await setUserCommands(ctx.api, chatId, newLang, ctx.user.audienceGroup);
+    await setUserCommands(ctx.api, chatId, newLang);
   }
 
-  await cleanupTechnicalMessages(ctx);
-  await showSettingsMenu(ctx);
+  await showLangGroupMenu(ctx);
 }
 
 /** set:notif — show notification sub-menu */
@@ -329,7 +305,6 @@ export async function handleSetNotifToggleCallback(ctx: BotContext): Promise<voi
   await ctx.answerCallbackQuery({
     text: newEnabled ? t("settingsNotifEnabled", lang) : t("settingsNotifDisabled", lang),
   });
-  await cleanupTechnicalMessages(ctx);
   await showNotifSubMenu(ctx);
 }
 
@@ -454,7 +429,6 @@ export async function handleSetNotifTypeSelectCallback(ctx: BotContext): Promise
   await ctx.answerCallbackQuery({
     text: t("settingsNotifType", lang, { type }),
   });
-  await cleanupTechnicalMessages(ctx);
   await showNotifSubMenu(ctx);
 }
 
@@ -515,7 +489,6 @@ export async function handleSetNotifTzSelectCallback(ctx: BotContext): Promise<v
   await ctx.answerCallbackQuery({
     text: t("settingsNotifTimezone", lang, { timezone }),
   });
-  await cleanupTechnicalMessages(ctx);
   await showNotifSubMenu(ctx);
 }
 
@@ -560,32 +533,63 @@ export async function handleNotifContextTextInput(ctx: BotContext): Promise<void
   logEvent("settings.notification_context_changed", { context: text });
 
   const lang = await getLang(ctx);
-  // No sweep here: this only ever runs on a text message, which the central
-  // cleanup middleware already swept, and repeating it would delete the
-  // confirmation that was just sent.
-  await replyTechnical(ctx, t("settingsNotifContextSaved", lang, { context: text }), { parse_mode: "HTML" });
+  await ctx.reply(t("settingsNotifContextSaved", lang, { context: text }), { parse_mode: "HTML" });
   await showNotifSubMenu(ctx);
 }
 
 /** set:notif:back — return to settings main menu from notif sub-menu */
 export async function handleSetNotifBackCallback(ctx: BotContext): Promise<void> {
-  await showSettingsMenu(ctx);
+  await renderSettingsInPlace(ctx);
   await ctx.answerCallbackQuery();
 }
 
-/** set:back — return to settings main menu */
-export async function handleSetBackCallback(ctx: BotContext): Promise<void> {
-  await showSettingsMenu(ctx);
+/** set:lang — open the language sub-menu */
+export async function handleSetLangGroupCallback(ctx: BotContext): Promise<void> {
+  await showLangGroupMenu(ctx);
   await ctx.answerCallbackQuery();
+}
+
+/** set:back — return from a language picker to the language sub-menu */
+export async function handleSetBackCallback(ctx: BotContext): Promise<void> {
+  await showLangGroupMenu(ctx);
+  await ctx.answerCallbackQuery();
+}
+
+/** set:root — return to the settings root from a sub-menu */
+export async function handleSetRootCallback(ctx: BotContext): Promise<void> {
+  await renderSettingsInPlace(ctx);
+  await ctx.answerCallbackQuery();
+}
+
+/**
+ * set:tpl / set:plan / set:changes — hand off to a screen that owns its own message.
+ *
+ * The settings message is dismissed first: each of these answers with a full screen of
+ * its own, and leaving a live settings keyboard above it invites a tap back into a menu
+ * the user has already left.
+ */
+export async function handleSetTemplateCallback(ctx: BotContext): Promise<void> {
+  await dismissSettings(ctx);
+  await handleTemplateCommand(ctx);
+}
+
+export async function handleSetPlanCallback(ctx: BotContext): Promise<void> {
+  await dismissSettings(ctx);
+  await sendUpgradeScreen(ctx);
+}
+
+export async function handleSetChangesCallback(ctx: BotContext): Promise<void> {
+  await dismissSettings(ctx);
+  await changesCommand(ctx);
+}
+
+async function dismissSettings(ctx: BotContext): Promise<void> {
+  await ctx.answerCallbackQuery();
+  await dismissMenuMessage(ctx);
 }
 
 /** set:close — dismiss the settings menu */
 export async function handleSetCloseCallback(ctx: BotContext): Promise<void> {
-  await cleanupTechnicalMessages(ctx);
-  try {
-    await ctx.deleteMessage();
-  } catch {
-    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
-  }
+  await dismissMenuMessage(ctx);
   await ctx.answerCallbackQuery();
 }

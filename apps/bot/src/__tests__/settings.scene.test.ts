@@ -58,11 +58,13 @@ import {
   handleSetCloseCallback,
   handleSetIfaceSelectCallback,
   handleSetInterfaceCallback,
+  handleSetLangGroupCallback,
   handleSetLearningCallback,
   handleSetLearnLevelCallback,
   handleSetLearnToggleCallback,
   handleSetNativeCallback,
   handleSetNativeSelectCallback,
+  handleSetRootCallback,
 } from "../scenes/helpers/settings.helper.js";
 import { handleSettingsCommand } from "../scenes/settings.scene.js";
 
@@ -75,6 +77,14 @@ const DEFAULT_SETTINGS = {
   timezone: "UTC",
   lastSourceLang: null,
 };
+
+/** The callback ids on a rendered inline keyboard, in render order. */
+function callbackData(options: { reply_markup?: { inline_keyboard?: Array<Array<{ callback_data?: string }>> } }) {
+  return (options.reply_markup?.inline_keyboard ?? [])
+    .flat()
+    .map((button) => button.callback_data)
+    .filter((data): data is string => typeof data === "string");
+}
 
 /** Create a minimal mock BotContext */
 function createMockCtx(callbackData?: string) {
@@ -130,18 +140,28 @@ describe("handleSettingsCommand", () => {
     expect(text).toContain("10/20");
   });
 
-  it("shows inline keyboard with change buttons", async () => {
+  it("groups the root menu by subject instead of by field", async () => {
     const ctx = createMockCtx();
 
     await handleSettingsCommand(ctx);
 
-    const opts = ctx.reply.mock.calls[0][1];
-    const buttons = opts.reply_markup.inline_keyboard.flat();
-    const cbData = buttons.map((b: any) => b.callback_data);
-    expect(cbData).toContain("set:native");
-    expect(cbData).toContain("set:learning");
-    expect(cbData).toContain("set:interface");
-    expect(cbData).toContain("set:close");
+    expect(callbackData(ctx.reply.mock.calls[0][1])).toEqual([
+      "set:lang",
+      "set:notif",
+      "set:tpl",
+      "set:plan",
+      "set:changes",
+      "set:close",
+    ]);
+  });
+
+  it("hides the changelog from anyone who is not an admin or tester", async () => {
+    const ctx = createMockCtx();
+    ctx.user.audienceGroup = "product";
+
+    await handleSettingsCommand(ctx);
+
+    expect(callbackData(ctx.reply.mock.calls[0][1])).not.toContain("set:changes");
   });
 
   it("handles missing settings gracefully", async () => {
@@ -176,7 +196,7 @@ describe("handleSetNativeCallback", () => {
 });
 
 describe("handleSetNativeSelectCallback", () => {
-  it("updates native language and returns to settings menu", async () => {
+  it("updates native language and returns to the language sub-menu", async () => {
     const ctx = createMockCtx("set:native:de");
 
     await handleSetNativeSelectCallback(ctx);
@@ -187,8 +207,7 @@ describe("handleSetNativeSelectCallback", () => {
         text: expect.stringContaining("🇩🇪 Deutsch"),
       }),
     );
-    // Re-renders settings menu
-    expect(ctx.editMessageText).toHaveBeenCalled();
+    expect(ctx.editMessageText.mock.calls[0][0]).toContain("🌐 Languages");
   });
 });
 
@@ -326,7 +345,7 @@ describe("handleSetIfaceSelectCallback", () => {
     await handleSetIfaceSelectCallback(ctx);
 
     expect(mockUserRepository.updateInterfaceLang).toHaveBeenCalledWith(1, "ru");
-    expect(setUserCommands).toHaveBeenCalledWith(ctx.api, 12345, "ru", "tester");
+    expect(setUserCommands).toHaveBeenCalledWith(ctx.api, 12345, "ru");
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         text: expect.stringContaining("🇷🇺 Русский"),
@@ -337,13 +356,36 @@ describe("handleSetIfaceSelectCallback", () => {
   });
 });
 
-describe("handleSetBackCallback", () => {
-  it("returns to settings main menu", async () => {
+describe("language sub-menu", () => {
+  it("offers the three language questions and a way back to the root", async () => {
+    const ctx = createMockCtx("set:lang");
+
+    await handleSetLangGroupCallback(ctx);
+
+    expect(callbackData(ctx.editMessageText.mock.calls[0][1])).toEqual([
+      "set:native",
+      "set:learning",
+      "set:interface",
+      "set:root",
+    ]);
+  });
+
+  it("returns a picker to the language sub-menu rather than the settings root", async () => {
     const ctx = createMockCtx("set:back");
 
     await handleSetBackCallback(ctx);
 
-    expect(ctx.editMessageText).toHaveBeenCalled();
+    const text = ctx.editMessageText.mock.calls[0][0] as string;
+    expect(text).toContain("🌐 Languages");
+    expect(text).not.toContain("⚙️ Settings");
+    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+  });
+
+  it("returns the sub-menu to the settings root", async () => {
+    const ctx = createMockCtx("set:root");
+
+    await handleSetRootCallback(ctx);
+
     const text = ctx.editMessageText.mock.calls[0][0] as string;
     expect(text).toContain("⚙️ Settings");
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();

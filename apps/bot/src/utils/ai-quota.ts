@@ -8,7 +8,6 @@ import {
 } from "@polyglot/core";
 import { buildUpgradeKeyboard } from "../scenes/helpers/subscription.helper.js";
 import type { BotContext } from "../types.js";
-import { replyTechnical } from "./message-cleanup.js";
 import { resolvePlanLimit } from "./plan-limit.js";
 
 /**
@@ -59,7 +58,7 @@ export async function ensureAiQuota(
     // Same message and same way out as the translate-flow quota gate: an exhausted
     // quota is the moment the upgrade offer is worth something, and a bare notice
     // here would be the one dead end left in the funnel.
-    await replyTechnical(ctx, t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+    await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return null;
   }
 

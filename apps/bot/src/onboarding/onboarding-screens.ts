@@ -21,7 +21,6 @@ import { ONBOARDING_SCREENCAST_FILE_ID } from "../constants.js";
 import { installMainKeyboard } from "../middlewares/main-keyboard.js";
 import { editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
 import type { BotContext } from "../types.js";
-import { cleanupTechnicalMessages, replyTechnical, trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { getHookWordsForLangs } from "./hook-cards.js";
 import {
   buildDemoKeyboard,
@@ -32,23 +31,16 @@ import {
 import { guessNativeLangFromLocale, type OnboardingState } from "./onboarding-state.js";
 import { ONBOARDING_STEPS, type OnboardingStep, recordOnboardingStep } from "./onboarding-steps.js";
 
-/**
- * Send or edit-in-place, depending on whether the current update is a button tap.
- * Prompts are tracked as technical messages so they can be swept once the user
- * reaches the payoff.
- */
+/** Send or edit-in-place, depending on whether the current update is a button tap. */
 async function present(ctx: BotContext, text: string, keyboard: InlineKeyboard): Promise<void> {
   if (ctx.callbackQuery) {
     // A screen older than Telegram's 48-hour edit window cannot be edited, so the
-    // helper sends a fresh message instead — and that message must be tracked too.
-    // Onboarding is explicitly designed to survive multi-day pauses, so this is a
-    // path real users take; leaving the replacement untracked would strand a
-    // dead-looking setup screen in the chat forever after completion.
-    const replacement = await editMessageTextOrReply(ctx, text, { reply_markup: keyboard });
-    if (replacement) trackTechnicalMessage(ctx, replacement.message_id);
+    // helper sends a fresh message instead. Onboarding is explicitly designed to
+    // survive multi-day pauses, so this is a path real users take.
+    await editMessageTextOrReply(ctx, text, { reply_markup: keyboard });
     return;
   }
-  await replyTechnical(ctx, text, { reply_markup: keyboard });
+  await ctx.reply(text, { reply_markup: keyboard });
 }
 
 /** Screen 0 — the promise, then the native language in one tap. */
@@ -117,9 +109,6 @@ export async function showDemoScreen(ctx: BotContext, state: OnboardingState): P
 export async function showFinalScreen(ctx: BotContext, state: OnboardingState): Promise<void> {
   const lang = state.interfaceLang;
 
-  // The setup prompts have served their purpose; the card the user just got stays.
-  await cleanupTechnicalMessages(ctx);
-
   await sendScreencast(ctx);
 
   await ctx.reply(`${t("onbDemoMore", lang)}\n\n${t("onboardingComplete", lang)}`, {
@@ -146,7 +135,7 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
 
   const chatId = ctx.from?.id;
   if (chatId && ctx.user) {
-    await setUserCommands(ctx.api, chatId, lang, ctx.user.audienceGroup);
+    await setUserCommands(ctx.api, chatId, lang);
   }
 
   logEvent("onboarding.completed", { nativeLang: state.nativeLang, learningLangs: state.learningLangs });

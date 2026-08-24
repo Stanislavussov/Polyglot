@@ -15,7 +15,6 @@ import { InlineKeyboard } from "grammy";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
-import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
 import { MOCK_PREVIEW_OUTPUT } from "../template-preview.data.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
@@ -64,7 +63,7 @@ export async function handleCustomizeCallback(ctx: BotContext): Promise<void> {
     await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
     ctx.session.templateWizard.wizardMsgId = ctx.callbackQuery?.message?.message_id;
   } catch {
-    const msg = await replyTechnical(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
+    const msg = await ctx.reply(text, { reply_markup: kb, parse_mode: "HTML" });
     ctx.session.templateWizard.wizardMsgId = msg.message_id;
   }
   await ctx.answerCallbackQuery();
@@ -153,7 +152,6 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
   const lang = await getLang(ctx);
   await ctx.services.translationTemplateRepository.upsert(ctx.user.id, "Custom", ctx.session.templateWizard.fields);
   ctx.session.templateWizard = undefined;
-  await cleanupTechnicalMessages(ctx);
   await editMessageTextOrReply(ctx, t("templateSaved", lang), {
     parse_mode: "HTML",
   });
@@ -164,7 +162,6 @@ export async function handleSaveTemplateCallback(ctx: BotContext): Promise<void>
 export async function handleCancelCallback(ctx: BotContext): Promise<void> {
   ctx.session.templateWizard = undefined;
   const lang = await getLang(ctx);
-  await cleanupTechnicalMessages(ctx);
   await editMessageTextOrReply(ctx, t("templateCancelled", lang), {
     parse_mode: "HTML",
   });
@@ -176,7 +173,6 @@ export async function handleResetCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   await ctx.services.translationTemplateRepository.deleteByUserId(ctx.user.id);
   ctx.session.templateWizard = undefined;
-  await cleanupTechnicalMessages(ctx);
   await editMessageTextOrReply(ctx, t("templateResetDone", lang), {
     parse_mode: "HTML",
   });
