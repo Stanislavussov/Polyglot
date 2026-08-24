@@ -19,14 +19,11 @@ import {
 import { mentorCounter, mentorDuration } from "../../metrics.js";
 import type { BotContext } from "../../types.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../../utils/ai-model.js";
-import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
+import { ensureAiQuota, ensureMentorDailyQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
 import { replyTechnical } from "../../utils/message-cleanup.js";
 import { replyWithRetry } from "../../utils/retry-action.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
-
-/** Maximum output tokens for mentor responses — enough for a grammar explanation with examples. */
-const MENTOR_MAX_TOKENS = 700;
 
 /** Maximum input message length in characters. */
 const MENTOR_MAX_INPUT_LENGTH = 1000;
@@ -80,18 +77,25 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     return;
   }
 
-  // Meter credits before the paid call (Fable T16): a mentor turn is a paid AI
-  // call like any other, so an exhausted free user is refused here instead of
-  // running the coach for free on the owner's key.
+  // Meter before the paid call (Fable T16): first the per-plan daily mentor cap
+  // (the mentor model is dearer than the translate default — Plus is capped, Pro
+  // is not), then the shared credit meter.
   const plan = ctx.user.subscriptionPlan;
+  if (!(await ensureMentorDailyQuota(ctx, plan, lang))) {
+    return;
+  }
   const creditCost = await ensureAiQuota(ctx, plan, lang, "mentor");
   if (creditCost === null) {
     return;
   }
 
-  // Resolve AI model + admin-managed failover split (parity with notifications).
+  // Resolve the mentor model: the admin-managed mentor override wins; an empty
+  // override follows the regular chain (plan-routed → default → fallback), so a
+  // wiped setting degrades to the default model instead of killing the feature.
+  const mentorConfig = await ctx.services.settings.getMentorConfig();
+  const overrideModel = mentorConfig.modelId.trim();
   const [model, fallbackModel] = await Promise.all([
-    resolveDefaultAIModel(ctx.services.settings, plan),
+    overrideModel ? Promise.resolve(overrideModel) : resolveDefaultAIModel(ctx.services.settings, plan),
     resolveFallbackAIModel(ctx.services.settings),
   ]);
 
@@ -117,7 +121,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
   try {
     const response = await withTimeout(
       ctx.services.ai.generateChat(messages, model, {
-        maxTokens: MENTOR_MAX_TOKENS,
+        maxTokens: mentorConfig.maxTokens,
         userId: ctx.user.id,
         budgetMs: LONG_OP_TIMEOUT_MS,
         failover: buildAiFailover(LONG_OP_TIMEOUT_MS, fallbackModel),

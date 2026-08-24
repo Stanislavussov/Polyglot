@@ -289,6 +289,7 @@
   "mentorModeOn": "🧑‍🏫 Mentor-Modus ist an! Frag mich alles zu deinen Lernsprachen — Grammatik, Wendungen, Gebrauch. Antworte auf eine meiner Antworten, um später zu dem Thema zurückzukehren. Beenden mit /translate.",
   "mentorThinking": "🧠 Denke nach...",
   "mentorError": "❌ Mentor-Chat fehlgeschlagen. Bitte versuche es später noch einmal.",
+  "mentorDailyLimitReached": "🧑‍🏫 Du hast alle {limit} Mentor-Fragen für heute verbraucht. Das Limit wird um Mitternacht UTC zurückgesetzt — oder hol dir Pro ohne Limit.",
   "mentorInputTooLong": "⚠️ Bitte halte deine Nachricht unter {max} Zeichen.",
   "grammarBreakdown": "📖 Grammatik",
   "grammarBreakdownButton": "📖 Grammatik",

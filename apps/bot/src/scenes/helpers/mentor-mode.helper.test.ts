@@ -16,17 +16,20 @@ const { mockUserRepository, mockAi, mockSettings, mockTranslationRequestReposito
       getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-4o"),
       getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-4o"),
       getFallbackAIModel: vi.fn().mockResolvedValue(null),
+      getMentorConfig: vi.fn().mockResolvedValue({ modelId: "", maxTokens: 700 }),
       getPlanLimit: vi.fn().mockResolvedValue({
         name: "free",
         label: "Free",
         translationLimit: 50,
         creditCost: 1,
+        mentorDailyLimit: null,
         isActive: true,
         isDefault: true,
       }),
     },
     mockTranslationRequestRepository: {
       getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
+      countRequestsInWindow: vi.fn().mockResolvedValue(0),
       logTranslationRequest: vi.fn().mockResolvedValue(1),
     },
     mockMentorMessageRepository: {
@@ -195,6 +198,101 @@ describe("handleMentorText", () => {
     await handleMentorText(ctx, "reply from translate mode", { threadId: THREAD_B });
 
     expect(ctx.session.mentor).toBeUndefined();
+  });
+
+  it("answers with the admin-configured mentor model, bypassing the default chain", async () => {
+    mockSettings.getMentorConfig.mockResolvedValueOnce({ modelId: "anthropic/claude-sonnet-5", maxTokens: 900 });
+    const ctx = createMockCtx();
+    await handleMentorText(ctx, "hello");
+
+    const [, model, options] = vi.mocked(mockAi.generateChat).mock.calls[0];
+    expect(model).toBe("anthropic/claude-sonnet-5");
+    expect(options?.maxTokens).toBe(900);
+    expect(mockSettings.getDefaultAIModel).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the default model chain when the mentor override is empty", async () => {
+    mockSettings.getMentorConfig.mockResolvedValueOnce({ modelId: "  ", maxTokens: 700 });
+    const ctx = createMockCtx();
+    await handleMentorText(ctx, "hello");
+
+    const [, model] = vi.mocked(mockAi.generateChat).mock.calls[0];
+    expect(model).toBe("openai/gpt-4o");
+  });
+
+  it("refuses the turn when the plan's mentor daily limit is exhausted, without an AI call", async () => {
+    mockSettings.getPlanLimit.mockResolvedValueOnce({
+      name: "plus",
+      label: "Plus",
+      translationLimit: null,
+      creditCost: 1,
+      mentorDailyLimit: 30,
+      isActive: true,
+      isDefault: false,
+    });
+    mockTranslationRequestRepository.countRequestsInWindow.mockResolvedValueOnce(30);
+    const ctx = createMockCtx();
+
+    await handleMentorText(ctx, "one more question");
+
+    expect(mockTranslationRequestRepository.countRequestsInWindow).toHaveBeenCalledWith(
+      1,
+      "[mentor]",
+      expect.any(Date),
+    );
+    expect(mockAi.generateChat).not.toHaveBeenCalled();
+    expect(mockTranslationRequestRepository.logTranslationRequest).not.toHaveBeenCalled();
+    // The refusal names the limit and carries the upgrade keyboard.
+    const [text, extra] = vi.mocked(ctx.reply).mock.calls[0];
+    expect(text).toContain("30");
+    expect(extra?.reply_markup).toBeDefined();
+  });
+
+  it("lets the turn through while the daily limit still has room", async () => {
+    mockSettings.getPlanLimit.mockResolvedValueOnce({
+      name: "plus",
+      label: "Plus",
+      translationLimit: null,
+      creditCost: 1,
+      mentorDailyLimit: 30,
+      isActive: true,
+      isDefault: false,
+    });
+    mockTranslationRequestRepository.countRequestsInWindow.mockResolvedValueOnce(29);
+    const ctx = createMockCtx();
+
+    await handleMentorText(ctx, "still allowed");
+
+    expect(mockAi.generateChat).toHaveBeenCalledTimes(1);
+  });
+
+  it("never counts turns for an unlimited-mentor plan (null limit)", async () => {
+    const ctx = createMockCtx();
+    await handleMentorText(ctx, "hello");
+
+    expect(mockTranslationRequestRepository.countRequestsInWindow).not.toHaveBeenCalled();
+  });
+
+  it("bypasses the mentor daily limit for internal roles (no plan read, no turn count)", async () => {
+    // A free-plan admin with mentorDailyLimit 0 must still get through: the role
+    // short-circuits before the count. (The queued plan is consumed by the credit
+    // meter later in the same turn.)
+    mockSettings.getPlanLimit.mockResolvedValueOnce({
+      name: "free",
+      label: "Free",
+      translationLimit: 50,
+      creditCost: 1,
+      mentorDailyLimit: 0,
+      isActive: true,
+      isDefault: true,
+    });
+    const ctx = createMockCtx();
+    (ctx.user as { audienceGroup: string }).audienceGroup = "admin";
+
+    await handleMentorText(ctx, "hello");
+
+    expect(mockTranslationRequestRepository.countRequestsInWindow).not.toHaveBeenCalled();
+    expect(mockAi.generateChat).toHaveBeenCalledTimes(1);
   });
 
   it("increments mentorCounter with success status on success", async () => {

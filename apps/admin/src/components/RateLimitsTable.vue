@@ -14,6 +14,9 @@
       <template #cell-videoLimit="{ value }">
         <span>{{ value == null ? "Unlimited" : value }}</span>
       </template>
+      <template #cell-mentorDailyLimit="{ value }">
+        <span>{{ value == null ? "Unlimited" : value }}</span>
+      </template>
       <template #cell-videoWindow="{ value }">
         <span>{{ value }}</span>
       </template>
@@ -84,6 +87,13 @@
           placeholder="Leave empty for unlimited"
         />
         <FormField
+          id="plan-mentor-daily-limit"
+          v-model="form.mentorDailyLimit"
+          label="Mentor turns / day"
+          name="mentorDailyLimit"
+          placeholder="Leave empty for unlimited"
+        />
+        <FormField
           id="plan-price"
           v-model="form.priceUsdCents"
           label="Price, US cents / month"
@@ -140,6 +150,7 @@ interface PlanForm {
   creditCost: number;
   videoLimit: string;
   videoWindow: "none" | "lifetime" | "monthly";
+  mentorDailyLimit: string;
   /** Entered in cents so the stored value is exact; empty means "not for sale". */
   priceUsdCents: string;
   isActive: boolean;
@@ -158,6 +169,7 @@ const columns: Column[] = [
   { key: "translationLimit", label: "Translations/mo" },
   { key: "videoLimit", label: "Videos" },
   { key: "videoWindow", label: "Video window" },
+  { key: "mentorDailyLimit", label: "Mentor/day" },
   { key: "price", label: "Price" },
   { key: "features", label: "Unlocks" },
   { key: "creditCost", label: "Credit Cost" },
@@ -192,6 +204,7 @@ function emptyForm(): PlanForm {
     creditCost: 1,
     videoLimit: "",
     videoWindow: "none",
+    mentorDailyLimit: "",
     priceUsdCents: "",
     isActive: true,
     isDefault: false,
@@ -207,6 +220,7 @@ function toForm(plan: PlanLimitConfig): PlanForm {
     creditCost: plan.creditCost,
     videoLimit: plan.videoLimit === null ? "" : String(plan.videoLimit),
     videoWindow: plan.videoWindow,
+    mentorDailyLimit: plan.mentorDailyLimit === null ? "" : String(plan.mentorDailyLimit),
     priceUsdCents: plan.priceUsdCents === null ? "" : String(plan.priceUsdCents),
     isActive: plan.isActive,
     isDefault: plan.isDefault,
@@ -222,6 +236,7 @@ function toPlan(value: PlanForm): PlanLimitConfig {
     creditCost: value.creditCost,
     videoLimit: value.videoLimit.trim() === "" ? null : Number(value.videoLimit),
     videoWindow: value.videoWindow,
+    mentorDailyLimit: value.mentorDailyLimit.trim() === "" ? null : Number(value.mentorDailyLimit),
     priceUsdCents: value.priceUsdCents.trim() === "" ? null : Number(value.priceUsdCents),
     isActive: value.isActive,
     isDefault: value.isDefault,

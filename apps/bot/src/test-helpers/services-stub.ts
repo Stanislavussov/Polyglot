@@ -37,6 +37,7 @@ export const DEFAULT_PLAN_LIMIT: NonNullable<Awaited<ReturnType<ServiceContainer
   creditCost: 1,
   videoLimit: 0,
   videoWindow: "none",
+  mentorDailyLimit: null,
   priceUsdCents: null,
   isActive: true,
   isDefault: true,
@@ -80,6 +81,9 @@ export function createSettingsStub(): ServiceContainer["settings"] {
     getSttConfig: vi
       .fn()
       .mockResolvedValue({ enabled: true, modelId: "openai/whisper-large-v3-turbo", maxDurationSec: 60 }),
+    // Empty modelId = follow the default chain, so stubbed contexts keep resolving
+    // through getDefaultAIModel like production does without an override.
+    getMentorConfig: vi.fn().mockResolvedValue({ modelId: "", maxTokens: 700 }),
   };
 }
 

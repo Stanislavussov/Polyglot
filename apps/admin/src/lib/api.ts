@@ -321,6 +321,7 @@ export interface PlanLimitConfig {
   translationLimit: number | null;
   creditCost: number;
   videoLimit: number | null;
+  mentorDailyLimit: number | null;
   videoWindow: "none" | "lifetime" | "monthly";
   /** Display price in US cents (500 = $5/mo). null = not for sale. */
   priceUsdCents: number | null;
@@ -454,6 +455,20 @@ export interface SttModelOption {
   pricing: { prompt: string };
 }
 
+export interface MentorSettings {
+  /** Empty string = follow the regular default-model chain (never "disabled"). */
+  modelId: string;
+  maxTokens: number;
+}
+
+/** One OpenRouter chat model, as offered in the mentor model picker. */
+export interface MentorModelOption {
+  id: string;
+  name: string;
+  /** USD per token, raw from OpenRouter — format per 1M in the UI. */
+  pricing: { prompt: string; completion: string };
+}
+
 export const settings = {
   aiDefaults: {
     get: () => get<AIDefaults>("/api/settings/ai-defaults"),
@@ -485,6 +500,11 @@ export const settings = {
     get: () => get<SttSettings>("/api/settings/stt"),
     update: (s: SttSettings) => put<SttSettings>("/api/settings/stt", s),
     models: () => get<SttModelOption[]>("/api/settings/stt/models"),
+  },
+  mentor: {
+    get: () => get<MentorSettings>("/api/settings/mentor"),
+    update: (s: MentorSettings) => put<MentorSettings>("/api/settings/mentor", s),
+    models: () => get<MentorModelOption[]>("/api/settings/mentor/models"),
   },
 };
 

@@ -2,6 +2,7 @@ import type { AIModel } from "../../ports/ai.port.js";
 import type {
   AIGenerationDefaults,
   DictionaryConfig,
+  MentorConfig,
   NotificationDefaults,
   PlanLimitConfig,
   SettingsPort,
@@ -30,6 +31,7 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     creditCost: 1,
     videoLimit: 0,
     videoWindow: "none",
+    mentorDailyLimit: 0,
     priceUsdCents: null,
     isActive: true,
     isDefault: true,
@@ -41,6 +43,7 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     creditCost: 1,
     videoLimit: 20,
     videoWindow: "monthly",
+    mentorDailyLimit: 30,
     priceUsdCents: 500,
     isActive: true,
     isDefault: false,
@@ -52,6 +55,7 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     creditCost: 1,
     videoLimit: null,
     videoWindow: "monthly",
+    mentorDailyLimit: null,
     priceUsdCents: 1000,
     isActive: true,
     isDefault: false,
@@ -63,6 +67,7 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     creditCost: 1,
     videoLimit: null,
     videoWindow: "monthly",
+    mentorDailyLimit: null,
     priceUsdCents: null,
     isActive: true,
     isDefault: false,
@@ -168,6 +173,20 @@ const FALLBACK_STT: SttConfig = {
   // translation on real phone audio (see settings-adapter.ts DEFAULTS.stt).
   modelId: "openai/whisper-large-v3",
   maxDurationSec: 60,
+};
+
+/**
+ * Mentor answers with a smarter model than the translate pipeline: a mentor turn
+ * is a free-form grammar explanation, where the flash-lite default reads flat.
+ * Kept byte-identical to `DEFAULTS.mentor` in the db adapter — this copy is the
+ * last-resort fallback when the settings port itself is unreachable. An empty
+ * modelId means "follow the plan-default-fallback chain", never "disabled".
+ * gemini-3.7-flash picked 2026-08-24: mid-tier quality at $0.375/$1.875 per 1M
+ * (~1.5x the flash-lite default), strong multilingual coverage, chat-fast.
+ */
+const FALLBACK_MENTOR: MentorConfig = {
+  modelId: "google/gemini-3.7-flash",
+  maxTokens: 700,
 };
 
 const FALLBACK_DICTIONARY: DictionaryConfig = {
@@ -403,12 +422,21 @@ export class SettingsService implements SettingsPort {
     this.setCache("stt", config);
     return config;
   }
+
+  async getMentorConfig(): Promise<MentorConfig> {
+    const cached = this.getCached<MentorConfig>("mentor");
+    if (cached) return cached;
+    const config = await this.port.getMentorConfig();
+    this.setCache("mentor", config);
+    return config;
+  }
 }
 
 export {
   FALLBACK_AI_DEFAULTS,
   FALLBACK_AI_MODELS,
   FALLBACK_DICTIONARY,
+  FALLBACK_MENTOR,
   FALLBACK_NOTIFICATIONS,
   FALLBACK_PLAN_LIMITS,
   FALLBACK_PRESETS,

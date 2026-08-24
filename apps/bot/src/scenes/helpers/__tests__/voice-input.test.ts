@@ -26,6 +26,7 @@ const PRO_PLAN: PlanLimitConfig = {
   creditCost: 1,
   videoLimit: null,
   videoWindow: "monthly",
+  mentorDailyLimit: null,
   priceUsdCents: 1000,
   isActive: true,
   isDefault: false,

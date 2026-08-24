@@ -34,6 +34,13 @@ export const rateLimitPlanSchema = z.object({
     .nullable()
     .default(null),
   videoWindow: z.enum(["none", "lifetime", "monthly"]).default("none"),
+  /** Max mentor turns per UTC day. `null` = unlimited (Pro's pitch). */
+  mentorDailyLimit: z.coerce
+    .number()
+    .int("Mentor daily limit must be an integer")
+    .min(0, "Mentor daily limit cannot be negative")
+    .nullable()
+    .default(null),
   /**
    * Display price in US cents (500 = $5/mo). `null` = not for sale, which is the
    * only way to withdraw a plan from the upgrade screen — so `0` is rejected
@@ -217,6 +224,20 @@ export const sttSettingsSchema = z
     message: "STT model is required when enabled",
     path: ["modelId"],
   });
+
+/**
+ * Mentor-chat settings. Unlike TTS/STT there is no enabled/model coupling: an
+ * empty `modelId` does not disable the feature (mentor has its own entitlement
+ * gate) — it means "answer with the regular default-model chain".
+ */
+export const mentorSettingsSchema = z.object({
+  modelId: z.string().max(255, "Model ID is too long"),
+  maxTokens: z.coerce
+    .number()
+    .int("Max tokens must be an integer")
+    .min(100, "Max tokens must be at least 100")
+    .max(4000, "Max tokens cannot exceed 4000"),
+});
 
 export const videoVocabularySettingsSchema = z
   .object({

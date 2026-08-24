@@ -289,6 +289,7 @@
   "mentorModeOn": "🧑‍🏫 Mode mentor activé ! Posez-moi vos questions sur les langues que vous apprenez : grammaire, tournures, usage. Répondez à l'un de mes messages pour reprendre ce sujet plus tard. Quittez avec /translate.",
   "mentorThinking": "🧠 Réflexion...",
   "mentorError": "❌ Le chat avec le mentor a échoué. Réessaie plus tard.",
+  "mentorDailyLimitReached": "🧑‍🏫 Vous avez utilisé vos {limit} questions au mentor pour aujourd'hui. La limite se réinitialise à minuit UTC — ou passez à Pro en illimité.",
   "mentorInputTooLong": "⚠️ Limite ton message à {max} caractères.",
   "grammarBreakdown": "📖 Grammaire",
   "grammarBreakdownButton": "📖 Grammaire",

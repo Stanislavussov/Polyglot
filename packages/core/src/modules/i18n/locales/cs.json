@@ -289,6 +289,7 @@
   "mentorModeOn": "🧑‍🏫 Režim mentora je zapnutý! Ptejte se na jazyky, které se učíte — gramatika, fráze, užití. Odpovězte (reply) na kteroukoli mou odpověď a vrátíte se k danému tématu. Ukončíte přes /translate.",
   "mentorThinking": "🧠 Přemýšlím...",
   "mentorError": "❌ Chat s mentorem selhal. Zkuste to prosím později.",
+  "mentorDailyLimitReached": "🧑‍🏫 Pro dnešek jste vyčerpali všech {limit} otázek mentorovi. Limit se obnoví o půlnoci UTC — nebo přejděte na Pro bez omezení.",
   "mentorInputTooLong": "⚠️ Zkraťte prosím zprávu na maximum {max} znaků.",
   "grammarBreakdown": "📖 Gramatika",
   "grammarBreakdownButton": "📖 Gramatika",

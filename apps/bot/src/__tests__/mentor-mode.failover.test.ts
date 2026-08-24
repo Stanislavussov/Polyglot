@@ -30,6 +30,7 @@ const { mockUserRepository, mockSettings, mockTranslationRequestRepository, mock
     mockSettings: {
       getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-4o"),
       getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-4o"),
+      getMentorConfig: vi.fn().mockResolvedValue({ modelId: "", maxTokens: 700 }),
       getPlanLimit: vi.fn().mockResolvedValue({
         name: "free",
         label: "Free",

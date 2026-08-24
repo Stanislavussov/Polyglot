@@ -53,6 +53,10 @@ describe("mentor mode with reply threads (integration)", () => {
       messageUpdate({ chatId: telegramId, fromId: telegramId, text: "how does Present Perfect work?", messageId: 11 }),
     );
 
+    // The turn ran on the admin-managed mentor model (settings blob default),
+    // not the registry default the translate pipeline resolves to.
+    expect(generateChat.mock.calls[0][1]).toBe("google/gemini-3.7-flash");
+
     // The answer reached the user and both turn rows share one thread, the
     // assistant row keyed by the REAL message id the harness assigned to the send.
     const answerId = answerMessageId(harness, "Present Perfect links a past event to now.");
@@ -147,6 +151,45 @@ describe("mentor mode with reply threads (integration)", () => {
     // The fresh thread's AI call carried no history from the first one.
     const secondCallMessages = generateChat.mock.calls[1][0] as ChatMsg[];
     expect(secondCallMessages.map((message) => message.content)).not.toContain("topic one");
+  });
+
+  it("caps mentor turns at the plan's daily limit and sells Pro on the refusal", async () => {
+    const telegramId = uniqueTelegramId();
+    await arrangeOnboardedTranslator(telegramId, { plan: "plus" });
+    const generateChat = vi.fn().mockResolvedValue("Allowed answer.");
+    const harness = createBotHarness({
+      ai: { ...deterministicTranslateAi(), generateChat },
+      settings: {
+        getPlanLimit: vi.fn().mockResolvedValue({
+          name: "plus",
+          label: "Plus",
+          translationLimit: null,
+          creditCost: 1,
+          videoLimit: 20,
+          videoWindow: "monthly",
+          mentorDailyLimit: 1,
+          priceUsdCents: 500,
+          isActive: true,
+          isDefault: false,
+        }),
+      },
+    });
+
+    await harness.dispatch(messageUpdate({ chatId: telegramId, fromId: telegramId, text: "/mentor" }));
+    await harness.dispatch(messageUpdate({ chatId: telegramId, fromId: telegramId, text: "first", messageId: 51 }));
+    expect(generateChat).toHaveBeenCalledTimes(1);
+
+    // Second turn of the day: refused before any AI call, with the limit named
+    // and the upgrade CTA attached.
+    await harness.dispatch(messageUpdate({ chatId: telegramId, fromId: telegramId, text: "second", messageId: 52 }));
+    expect(generateChat).toHaveBeenCalledTimes(1);
+    const refusal = sends(harness).at(-1);
+    expect(String(refusal?.payload.text)).toContain("1");
+    const markup = refusal?.payload.reply_markup as
+      | { inline_keyboard?: Array<Array<{ callback_data?: string }>> }
+      | undefined;
+    const buttons = (markup?.inline_keyboard ?? []).flat().map((button) => button.callback_data);
+    expect(buttons).toContain("plan:upgrade");
   });
 
   it("refuses /mentor on the free plan without touching the mode, and gates the reply path too", async () => {

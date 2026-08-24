@@ -45,6 +45,7 @@ export type {
 export type {
   AIGenerationDefaults,
   DictionaryConfig,
+  MentorConfig,
   NotificationDefaults,
   PlanLimitConfig,
   SettingsPort,

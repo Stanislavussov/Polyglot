@@ -653,6 +653,13 @@ export const rateLimitPlans = pgTable("rate_limit_plans", {
   /** Window the video allowance is measured over. `none` = feature disabled for this plan. */
   videoWindow: videoWindowEnum("video_window").default("none").notNull(),
   /**
+   * Max mentor turns per UTC day. `null` = unlimited. Separate from the credit
+   * meter because the mentor model is priced above the translate default: the
+   * unmetered Plus plan still needs a ceiling on the expensive calls, while Pro
+   * sells the unlimited mentor.
+   */
+  mentorDailyLimit: integer("mentor_daily_limit"),
+  /**
    * Display price in US cents shown on the upgrade screen. `null` = not for sale
    * (the free plan). Deliberately NOT a billing price: real charges will pin an
    * immutable `plan_prices` version per subscription (tech-req 16 §4.1), so this
