@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-24T15:06:25.000Z",
+  "generatedAt": "2026-08-24T15:12:14.000Z",
   "summary": {
-    "total": 2951,
+    "total": 2966,
     "business": 0,
-    "technical": 2951,
+    "technical": 2966,
     "workspaces": [
       "apps",
       "packages"
@@ -149,6 +149,86 @@
       "name": "Admin API install Error Handler passes through a safe 4xx status and message",
       "value": "Protects the admin API install Error Handler behavior so passes through a safe 4xx status and message.",
       "description": "Protects the admin API install Error Handler behavior so passes through a safe 4xx status and message."
+    },
+    {
+      "id": "apps-admin-api-src-plan-catalog-integration-test-ts-42-bootstrapplancatalog-integration-creates-a-missing-plan-with-its-feature-junction-then-never-touches-it-again",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plan-catalog.integration.test.ts",
+      "sourceLine": 42,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "bootstrapPlanCatalog (integration)"
+      ],
+      "title": "creates a missing plan with its feature junction, then never touches it again",
+      "rawTitle": "creates a missing plan with its feature junction, then never touches it again",
+      "name": "Admin API bootstrap Plan Catalog (integration) creates a missing plan with its feature junction, then never touches it again",
+      "value": "Protects the admin API bootstrap Plan Catalog (integration) behavior: creates a missing plan with its feature junction, then never touches it again.",
+      "description": "Protects the admin API bootstrap Plan Catalog (integration) behavior: creates a missing plan with its feature junction, then never touches it again."
+    },
+    {
+      "id": "apps-admin-api-src-plan-catalog-test-ts-13-plan-catalog-drift-guards-contracts-featurekeyschema-lists-exactly-the-feature-keys-the-bot-gates-on",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plan-catalog.test.ts",
+      "sourceLine": 13,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "plan catalog drift guards"
+      ],
+      "title": "contracts featureKeySchema lists exactly the feature keys the bot gates on",
+      "rawTitle": "contracts featureKeySchema lists exactly the feature keys the bot gates on",
+      "name": "Admin API plan catalog drift guards contracts feature Key Schema lists exactly the feature keys the bot gates on",
+      "value": "Protects the admin API plan catalog drift guards behavior so contracts feature Key Schema lists exactly the feature keys the bot gates on.",
+      "description": "Protects the admin API plan catalog drift guards behavior so contracts feature Key Schema lists exactly the feature keys the bot gates on."
+    },
+    {
+      "id": "apps-admin-api-src-plan-catalog-test-ts-19-plan-catalog-drift-guards-core-free-fallback-mirrors-the-bootstrapped-free-plan",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plan-catalog.test.ts",
+      "sourceLine": 19,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "plan catalog drift guards"
+      ],
+      "title": "core FREE_FALLBACK mirrors the bootstrapped free plan",
+      "rawTitle": "core FREE_FALLBACK mirrors the bootstrapped free plan",
+      "name": "Admin API plan catalog drift guards core FREE FALLBACK mirrors the bootstrapped free plan",
+      "value": "Protects the admin API plan catalog drift guards behavior so core FREE FALLBACK mirrors the bootstrapped free plan.",
+      "description": "Protects the admin API plan catalog drift guards behavior so core FREE FALLBACK mirrors the bootstrapped free plan."
+    },
+    {
+      "id": "apps-admin-api-src-plan-catalog-test-ts-31-plan-catalog-drift-guards-every-catalog-entry-passes-the-same-contract-the-admin-panel-submits-with",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plan-catalog.test.ts",
+      "sourceLine": 31,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "plan catalog drift guards"
+      ],
+      "title": "every catalog entry passes the same contract the admin panel submits with",
+      "rawTitle": "every catalog entry passes the same contract the admin panel submits with",
+      "name": "Admin API plan catalog drift guards every catalog entry passes the same contract the admin panel submits with",
+      "value": "Protects the admin API plan catalog drift guards behavior so every catalog entry passes the same contract the admin panel submits with.",
+      "description": "Protects the admin API plan catalog drift guards behavior so every catalog entry passes the same contract the admin panel submits with."
+    },
+    {
+      "id": "apps-admin-api-src-plan-catalog-test-ts-38-plan-catalog-drift-guards-exactly-one-catalog-plan-is-the-default-landing-plan-for-new-users",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/plan-catalog.test.ts",
+      "sourceLine": 38,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "plan catalog drift guards"
+      ],
+      "title": "exactly one catalog plan is the default landing plan for new users",
+      "rawTitle": "exactly one catalog plan is the default landing plan for new users",
+      "name": "Admin API plan catalog drift guards exactly one catalog plan is the default landing plan for new users",
+      "value": "Protects the admin API plan catalog drift guards behavior so exactly one catalog plan is the default landing plan for new users.",
+      "description": "Protects the admin API plan catalog drift guards behavior so exactly one catalog plan is the default landing plan for new users."
     },
     {
       "id": "apps-admin-api-src-plugins-auth-test-ts-38-authplugin-runtime-revocation-t06-lets-an-active-admin-through",
@@ -821,6 +901,118 @@
       "name": "Admin API onboarding Demo Card Routes returns 400 when the natural key is incomplete",
       "value": "Protects the admin API onboarding Demo Card Routes behavior: returns 400 when the natural key is incomplete.",
       "description": "Protects the admin API onboarding Demo Card Routes behavior: returns 400 when the natural key is incomplete."
+    },
+    {
+      "id": "apps-admin-api-src-routes-rate-limits-test-ts-65-get-rate-limits-attaches-each-plan-s-unlocked-features-from-the-junction",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/rate-limits.test.ts",
+      "sourceLine": 65,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "GET /rate-limits"
+      ],
+      "title": "attaches each plan's unlocked features from the junction",
+      "rawTitle": "attaches each plan's unlocked features from the junction",
+      "name": "Admin API GET rate limits attaches each plan's unlocked features from the junction",
+      "value": "Protects the admin API GET rate limits behavior so attaches each plan's unlocked features from the junction.",
+      "description": "Protects the admin API GET rate limits behavior so attaches each plan's unlocked features from the junction."
+    },
+    {
+      "id": "apps-admin-api-src-routes-rate-limits-test-ts-78-put-rate-limits-persists-the-feature-set-through-the-junction-and-returns-it-on-the-plan",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/rate-limits.test.ts",
+      "sourceLine": 78,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /rate-limits"
+      ],
+      "title": "persists the feature set through the junction and returns it on the plan",
+      "rawTitle": "persists the feature set through the junction and returns it on the plan",
+      "name": "Admin API PUT rate limits persists the feature set through the junction and returns it on the plan",
+      "value": "Protects the admin API PUT rate limits behavior: persists the feature set through the junction and returns it on the plan.",
+      "description": "Protects the admin API PUT rate limits behavior: persists the feature set through the junction and returns it on the plan."
+    },
+    {
+      "id": "apps-admin-api-src-routes-rate-limits-test-ts-94-put-rate-limits-leaves-the-junction-untouched-when-the-body-has-no-features-field",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/rate-limits.test.ts",
+      "sourceLine": 94,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /rate-limits"
+      ],
+      "title": "leaves the junction untouched when the body has no features field",
+      "rawTitle": "leaves the junction untouched when the body has no features field",
+      "name": "Admin API PUT rate limits leaves the junction untouched when the body has no features field",
+      "value": "Protects the admin API PUT rate limits behavior so leaves the junction untouched when the body has no features field.",
+      "description": "Protects the admin API PUT rate limits behavior so leaves the junction untouched when the body has no features field."
+    },
+    {
+      "id": "apps-admin-api-src-routes-rate-limits-test-ts-107-put-rate-limits-clears-the-junction-when-an-explicit-empty-list-is-sent",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/rate-limits.test.ts",
+      "sourceLine": 107,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /rate-limits"
+      ],
+      "title": "clears the junction when an explicit empty list is sent",
+      "rawTitle": "clears the junction when an explicit empty list is sent",
+      "name": "Admin API PUT rate limits clears the junction when an explicit empty list is sent",
+      "value": "Protects the admin API PUT rate limits behavior so clears the junction when an explicit empty list is sent.",
+      "description": "Protects the admin API PUT rate limits behavior so clears the junction when an explicit empty list is sent."
+    },
+    {
+      "id": "apps-admin-api-src-routes-rate-limits-test-ts-116-put-rate-limits-rejects-a-feature-key-the-bot-does-not-know",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/rate-limits.test.ts",
+      "sourceLine": 116,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /rate-limits"
+      ],
+      "title": "rejects a feature key the bot does not know",
+      "rawTitle": "rejects a feature key the bot does not know",
+      "name": "Admin API PUT rate limits rejects a feature key the bot does not know",
+      "value": "Protects the admin API PUT rate limits behavior: rejects a feature key the bot does not know.",
+      "description": "Protects the admin API PUT rate limits behavior: rejects a feature key the bot does not know."
+    },
+    {
+      "id": "apps-admin-api-src-routes-rate-limits-test-ts-130-put-rate-limits-deduplicates-repeated-keys-before-writing-the-junction",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/rate-limits.test.ts",
+      "sourceLine": 130,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /rate-limits"
+      ],
+      "title": "deduplicates repeated keys before writing the junction",
+      "rawTitle": "deduplicates repeated keys before writing the junction",
+      "name": "Admin API PUT rate limits deduplicates repeated keys before writing the junction",
+      "value": "Protects the admin API PUT rate limits behavior: deduplicates repeated keys before writing the junction.",
+      "description": "Protects the admin API PUT rate limits behavior: deduplicates repeated keys before writing the junction."
+    },
+    {
+      "id": "apps-admin-api-src-routes-rate-limits-test-ts-142-put-rate-limits-stays-superadmin-only",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/rate-limits.test.ts",
+      "sourceLine": 142,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /rate-limits"
+      ],
+      "title": "stays superadmin-only",
+      "rawTitle": "stays superadmin-only",
+      "name": "Admin API PUT rate limits stays superadmin only",
+      "value": "Protects the admin API PUT rate limits behavior so stays superadmin only.",
+      "description": "Protects the admin API PUT rate limits behavior so stays superadmin only."
     },
     {
       "id": "apps-admin-api-src-routes-reported-issues-test-ts-66-reportedissueroutes-lists-reported-issues",
@@ -2725,6 +2917,22 @@
       "name": "Bot callback regressions (integration) answers an expired card in the user's interface language",
       "value": "Protects the bot callback regressions (integration) behavior so answers an expired card in the user's interface language.",
       "description": "Protects the bot callback regressions (integration) behavior so answers an expired card in the user's interface language."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-feature-access-live-integration-test-ts-60-live-plan-feature-configuration-integration-an-admin-edit-to-plan-feature-access-flips-the-mentor-gate-without-a-restart",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/feature-access-live.integration.test.ts",
+      "sourceLine": 60,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "live plan feature configuration (integration)"
+      ],
+      "title": "an admin edit to plan_feature_access flips the mentor gate without a restart",
+      "rawTitle": "an admin edit to plan_feature_access flips the mentor gate without a restart",
+      "name": "Bot live plan feature configuration (integration) an admin edit to plan feature access flips the mentor gate without a restart",
+      "value": "Protects the bot live plan feature configuration (integration) behavior so an admin edit to plan feature access flips the mentor gate without a restart.",
+      "description": "Protects the bot live plan feature configuration (integration) behavior so an admin edit to plan feature access flips the mentor gate without a restart."
     },
     {
       "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-47-main-menu-keyboard-integration-survives-the-technical-message-cleanup-that-every-translation-runs",
@@ -22112,6 +22320,38 @@
       "name": "Database adapter onboarding Demo Card Repository refreshes only the payload and ordering on conflict, never the review flag",
       "value": "Protects the database adapter onboarding Demo Card Repository behavior so refreshes only the payload and ordering on conflict, never the review flag.",
       "description": "Protects the database adapter onboarding Demo Card Repository behavior so refreshes only the payload and ordering on conflict, never the review flag."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-plan-feature-access-repository-integration-test-ts-42-planfeatureaccessrepository-integration-replaces-the-plan-s-feature-set-atomically-and-clears-it-on-an-empty-list",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/plan-feature-access.repository.integration.test.ts",
+      "sourceLine": 42,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "planFeatureAccessRepository (integration)"
+      ],
+      "title": "replaces the plan's feature set atomically and clears it on an empty list",
+      "rawTitle": "replaces the plan's feature set atomically and clears it on an empty list",
+      "name": "Database adapter plan Feature Access Repository (integration) replaces the plan's feature set atomically and clears it on an empty list",
+      "value": "Protects the database adapter plan Feature Access Repository (integration) behavior so replaces the plan's feature set atomically and clears it on an empty list.",
+      "description": "Protects the database adapter plan Feature Access Repository (integration) behavior so replaces the plan's feature set atomically and clears it on an empty list."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-plan-feature-access-repository-integration-test-ts-56-planfeatureaccessrepository-integration-cascades-junction-rows-away-with-the-plan",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/plan-feature-access.repository.integration.test.ts",
+      "sourceLine": 56,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "planFeatureAccessRepository (integration)"
+      ],
+      "title": "cascades junction rows away with the plan",
+      "rawTitle": "cascades junction rows away with the plan",
+      "name": "Database adapter plan Feature Access Repository (integration) cascades junction rows away with the plan",
+      "value": "Protects the database adapter plan Feature Access Repository (integration) behavior so cascades junction rows away with the plan.",
+      "description": "Protects the database adapter plan Feature Access Repository (integration) behavior so cascades junction rows away with the plan."
     },
     {
       "id": "packages-adapters-db-src-tests-reported-issue-repository-test-ts-87-reportedissuerepository-create-inserts-a-new-reported-issue-and-returns-it",

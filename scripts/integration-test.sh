@@ -24,9 +24,11 @@
 #
 # Bootstrap runs for every lane so the target is never assumed to be prepared.
 # Both steps are idempotent (drizzle skips applied migrations by journal;
-# `admin:seed` upserts), so a re-run against a warm database is a no-op. Set
-# TEST_DB_SKIP_BOOTSTRAP=1 to skip it when iterating against a database you know
-# is already migrated and seeded.
+# `admin:seed` is bootstrap-only and never touches existing rows), so a re-run
+# against a warm database is a no-op. Because the seed no longer re-asserts the
+# plan feature matrix, the vitest setup (test/integration/setup.ts) restores it
+# for the default plans itself. Set TEST_DB_SKIP_BOOTSTRAP=1 to skip bootstrap
+# when iterating against a database you know is already migrated and seeded.
 #
 # `db:migrate` here targets an ephemeral, CI-style database — the posture the repo
 # prescribes — and is NOT a substitute for the dev-DB workflow (`db:generate` +

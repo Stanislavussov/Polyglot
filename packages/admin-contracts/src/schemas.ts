@@ -23,6 +23,22 @@ export const audienceGroupSchema = z.enum(["admin", "tester", "product"]);
 
 // ── Rate-limit plans ──────────────────────────────────────────────────────────
 
+/**
+ * Premium feature keys a plan can unlock (the `plan_feature_access` junction).
+ * Mirrors `FEATURE_KEYS` in @polyglot/core — this package ships to the browser
+ * bundle and cannot depend on core, so the list is duplicated here and a drift
+ * test in apps/admin-api keeps the two in lockstep.
+ */
+export const featureKeySchema = z.enum([
+  "grammarBreakdown",
+  "etymology",
+  "grammarDetail",
+  "clarification",
+  "pronunciation",
+  "voiceInput",
+  "mentor",
+]);
+
 export const rateLimitPlanSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
   label: z.string().min(1, "Label is required").max(100, "Label is too long"),
@@ -62,6 +78,12 @@ export const rateLimitPlanSchema = z.object({
   isDefault: z.boolean().default(false),
   /** Model this plan's users are served by. null = use the globally default model. */
   aiModelId: z.string().min(1).max(255).nullable().default(null),
+  /**
+   * Feature keys the plan unlocks. Optional on purpose: a body without the field
+   * leaves the junction untouched, so a caller editing only plan columns (e.g.
+   * the AI Models page routing a plan to a model) can never silently wipe access.
+   */
+  features: z.array(featureKeySchema).optional(),
 });
 
 // ── Translation presets ───────────────────────────────────────────────────────

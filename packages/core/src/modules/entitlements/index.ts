@@ -61,10 +61,12 @@ export interface ResolveEntitlementsInput {
 
 /**
  * Conservative fallback when a plan config is missing — treat the user as free.
- * Must mirror the seeded `free` plan (Task 79): translation is the only thing a
- * free account gets, so a missing config can never accidentally hand out video.
+ * Must mirror the bootstrapped `free` plan (Task 79): translation is the only
+ * thing a free account gets, so a missing config can never accidentally hand
+ * out video. Exported solely so the drift test in apps/admin-api can hold it
+ * against the seed's plan catalog.
  */
-const FREE_FALLBACK: PlanEntitlementConfig = {
+export const FREE_FALLBACK: PlanEntitlementConfig = {
   translationLimit: 10,
   videoLimit: 0,
   videoWindow: "none",

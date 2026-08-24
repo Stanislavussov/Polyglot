@@ -363,8 +363,12 @@ async function save(): Promise<void> {
 }
 
 function setPlanModel(plan: PlanLimitConfig, modelId: string): Promise<void> {
+  // Strip `features` before the PUT: an omitted field leaves the junction
+  // untouched, while sending this page-load snapshot would silently revert a
+  // grant made on the Rate Limits page since the last reload.
+  const { features: _features, ...planColumns } = plan;
   return applyRoutingChange(
-    () => rateLimits.update({ ...plan, aiModelId: modelId === "" ? null : modelId }),
+    () => rateLimits.update({ ...planColumns, aiModelId: modelId === "" ? null : modelId }),
     "Failed to update plan model",
   );
 }
